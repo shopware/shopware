@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -22,6 +23,9 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -113,8 +117,24 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);
 
+        if ($productExport->isIncludeVariants()) {
+            // Only fetch variants and standalone products; parent products that have variants are skipped
+            $criteria->addFilter(new OrFilter([
+                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]),
+                new EqualsFilter('childCount', 0),
+            ]));
+        } else {
+            // Only fetch main and standalone products so getTotal() and pagination reflect the renderable count
+            $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
         foreach ($associations as $association) {
             $criteria->addAssociation($association);
+        }
+
+        if ($criteria->hasAssociation('categories')) {
+            $criteria->getAssociation('categories')
+                ->addFilter(new EqualsFilter('active', true));
         }
 
         $this->eventDispatcher->dispatch(
@@ -156,23 +176,26 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             )
         );
 
-        while ($productResult = $iterator->fetch()) {
-            foreach ($productResult->getEntities() as $product) {
-                $data = $productContext->getContext();
-                $data['product'] = $product;
+        if ($productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL) {
+            $content .= $this->generateJsonlBody($iterator, $productExport, $context, $productContext->getContext(), $exportBehavior);
+        } else {
+            while ($productResult = $iterator->fetch()) {
+                foreach ($productResult->getEntities() as $product) {
+                    $data = $productContext->getContext();
+                    $data['product'] = $product;
 
-                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                    continue; // Skip main product if variants are included
+                    $renderedBody = $this->renderProductBody($productExport, $context, $data);
+
+                    if ($renderedBody === null) {
+                        continue;
+                    }
+
+                    $content .= $renderedBody;
                 }
-                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                    continue; // Skip variants unless they are included
+
+                if ($exportBehavior->batchMode()) {
+                    break;
                 }
-
-                $content .= $this->productExportRender->renderBody($productExport, $context, $data);
-            }
-
-            if ($exportBehavior->batchMode()) {
-                break;
             }
         }
 
@@ -192,7 +215,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
 
-        if ($content === '') {
+        if ($content === '' && !$exportBehavior->batchMode()) {
             return null;
         }
 
@@ -201,6 +224,98 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
             $iterator->getTotal()
         );
+    }
+
+    /**
+     * @param array<string, mixed> $baseContext
+     * @param SalesChannelRepositoryIterator<SalesChannelProductCollection> $iterator
+     */
+    private function generateJsonlBody(
+        SalesChannelRepositoryIterator $iterator,
+        ProductExportEntity $productExport,
+        SalesChannelContext $context,
+        array $baseContext,
+        ExportBehavior $exportBehavior
+    ): string {
+        $content = '';
+
+        while ($productResult = $iterator->fetch()) {
+            foreach ($productResult->getEntities() as $product) {
+                \assert($product instanceof SalesChannelProductEntity);
+
+                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                    continue; // Skip main product if variants are included
+                }
+                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
+                    continue; // Skip variants unless they are included
+                }
+
+                $data = $baseContext;
+                $data['product'] = $product;
+
+                $renderedBody = $this->renderProductBody($productExport, $context, $data);
+
+                if ($renderedBody === null) {
+                    continue;
+                }
+
+                $normalizedRow = $this->normalizeJsonlRow($productExport, $renderedBody);
+
+                if ($content !== '') {
+                    $content .= \PHP_EOL;
+                }
+
+                $content .= $normalizedRow;
+            }
+
+            if ($exportBehavior->batchMode()) {
+                break;
+            }
+        }
+
+        if ($content === '') {
+            return '';
+        }
+
+        return $content . \PHP_EOL;
+    }
+
+    private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string
+    {
+        try {
+            $decoded = json_decode($renderedBody, true, 512, \JSON_THROW_ON_ERROR);
+
+            // URLs from media filenames may contain unescaped spaces; encode them so
+            // the row passes downstream RFC 3986 validation (FILTER_VALIDATE_URL).
+            array_walk_recursive($decoded, static function (mixed &$value): void {
+                if (\is_string($value) && preg_match('#^https?://#i', $value)) {
+                    $value = str_replace(' ', '%20', $value);
+                }
+            });
+
+            return (string) json_encode($decoded, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        } catch (\JsonException $exception) {
+            throw ProductExportException::renderProductException(
+                'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: ' . $exception->getMessage()
+            );
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function renderProductBody(
+        ProductExportEntity $productExport,
+        SalesChannelContext $context,
+        array $data
+    ): ?string {
+        $renderedBody = $this->productExportRender->renderBody($productExport, $context, $data);
+
+        if (trim($renderedBody) === '') {
+            return null;
+        }
+
+        return $renderedBody;
     }
 
     /**

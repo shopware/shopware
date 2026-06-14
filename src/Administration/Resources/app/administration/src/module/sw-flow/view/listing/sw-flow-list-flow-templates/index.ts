@@ -89,13 +89,13 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: this.$tc('sw-flow.list.labelColumnName'),
+                    label: this.$t('sw-flow.list.labelColumnName'),
                     allowResize: false,
                     align: 'left',
                 },
                 {
                     property: 'config.description',
-                    label: this.$tc('sw-flow.list.labelColumnDescription'),
+                    label: this.$t('sw-flow.list.labelColumnDescription'),
                     allowResize: false,
                     sortable: false,
                     align: 'left',

@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <!-- Mail & Flow Data Providers -->
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="order"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer_group"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="product"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer_recovery"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="newsletter_recipient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="order_transaction"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="sales_channel"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\StateMachineStateProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="state_machine_state"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="user_recovery"/>
+        </service>
+
+    </services>
+</container>

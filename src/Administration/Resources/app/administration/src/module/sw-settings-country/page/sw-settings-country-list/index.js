@@ -45,10 +45,10 @@ export default {
 
         detailPageLinkText() {
             if (!this.acl.can('country.editor') && this.acl.can('country.viewer')) {
-                return this.$tc('global.default.view');
+                return this.$t('global.default.view');
             }
 
-            return this.$tc('global.default.edit');
+            return this.$t('global.default.edit');
         },
     },
 
@@ -80,13 +80,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', { name: country.name }, 0),
+                        message: this.$t('sw-settings-country.detail.messageSaveSuccess', { name: country.name }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-country.detail.messageSaveError'),
+                        message: this.$t('sw-settings-country.detail.messageSaveError'),
                     });
                 });
         },

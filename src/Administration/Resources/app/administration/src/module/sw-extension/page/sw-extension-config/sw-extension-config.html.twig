@@ -7,7 +7,7 @@
         <sw-extension-icon
             class="sw-extension-config__extension-icon"
             :src="image"
-            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', { extensionName: extensionLabel}, 0)"
+            :alt="$t('sw-extension-store.component.sw-extension-config.imageDescription', { extensionName: extensionLabel}, 0)"
         />
     </template>
 
@@ -20,7 +20,7 @@
         #smart-bar-header-meta
     >
         <span v-if="extension.producerWebsite && extension.producerName">
-            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
+            {{ $t('sw-extension-store.component.sw-extension-config.labelBy') }}
 
             <sw-external-link
                 small
@@ -32,7 +32,7 @@
         </span>
 
         <span v-else-if="extension.producerName">
-            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }} {{ extension.producerName }}
+            {{ $t('sw-extension-store.component.sw-extension-config.labelBy') }} {{ extension.producerName }}
         </span>
     </template>
 
@@ -43,7 +43,7 @@
             size="default"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
     </template>
 

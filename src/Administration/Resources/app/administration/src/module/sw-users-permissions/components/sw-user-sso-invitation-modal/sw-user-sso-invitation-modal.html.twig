@@ -1,15 +1,14 @@
 <sw-modal
-    :title="$tc('sw-users-permissions.sso.modal.title')"
+    :title="$t('sw-users-permissions.sso.modal.title')"
     v-bind="$attrs"
-    @modal-close="closeModal()"
+    @modal-close="closeModal"
 >
-
     <template #default>
         <mt-text-field
             v-model="email"
             class="sw-users-permissions-sso-modal-field-email"
-            :label="$tc('sw-users-permissions.sso.modal.labelEmail')"
-            :placeholder="$tc('sw-users-permissions.sso.modal.placeholderEmail')"
+            :label="$t('sw-users-permissions.sso.modal.labelEmail')"
+            :placeholder="$t('sw-users-permissions.sso.modal.placeholderEmail')"
             :error="errors.errorEmail"
         />
 
@@ -19,13 +18,13 @@
             :options="languages"
             label-property="name"
             value-property="id"
-            :label="$tc('sw-users-permissions.sso.modal.labelLanguage')"
-            :placeholder="$tc('sw-users-permissions.sso.modal.placeholderLanguage')"
+            :label="$t('sw-users-permissions.sso.modal.labelLanguage')"
+            :placeholder="$t('sw-users-permissions.sso.modal.placeholderLanguage')"
             :error="errors.errorLanguage"
         />
 
         <mt-banner variant="info">
-            {{ $tc('sw-users-permissions.sso.modal.accountPermissionHint') }}
+            {{ $t('sw-users-permissions.sso.modal.accountPermissionHint') }}
         </mt-banner>
     </template>
 
@@ -34,9 +33,9 @@
             class="sw-users-permissions-sso-modal-close-button"
             variant="secondary"
             :disabled="isLoading"
-            @click="closeModal()"
+            @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         <mt-button
@@ -46,7 +45,7 @@
             :is-loading="isLoading"
             @click="sendInvitation"
         >
-            {{ $tc('sw-users-permissions.sso.modal.labelButtonInvite') }}
+            {{ $t('sw-users-permissions.sso.modal.labelButtonInvite') }}
         </mt-button>
     </template>
 </sw-modal>

@@ -1,8 +1,16 @@
 import { execSync } from 'node:child_process';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 export interface NpmAuditOptions {
     ignoredCVEs?: string[];
     ignoredGHSAs?: string[];
+}
+
+interface FixAvailable {
+    name: string;
+    version: string;
+    isSemVerMajor: boolean;
 }
 
 interface AuditVia {
@@ -25,11 +33,7 @@ interface AuditVulnerability {
     effects: string[];
     fixAvailable:
         | boolean
-        | {
-              name: string;
-              version: string;
-              isSemVerMajor: boolean;
-          };
+        | FixAvailable;
 }
 
 interface AuditResult {
@@ -46,11 +50,22 @@ interface RootAdvisory {
     affectedPackages: string[];
     fixAvailable:
         | false
-        | {
-              name: string;
-              version: string;
-              isSemVerMajor: boolean;
-          };
+        | FixAvailable;
+}
+
+interface AuditExecutionResult {
+    packageName: string;
+    workingDirectory: string;
+    ignoredCount: number;
+    status: 'passed' | 'failed';
+    advisoryCount: number;
+    advisories: RootAdvisory[];
+    error?: string;
+}
+
+interface PresentIdentifiers {
+    ghsas: Set<string>;
+    cves: Set<string>;
 }
 
 function extractGHSA(url: string): string | null {
@@ -75,8 +90,7 @@ function fetchAuditReport(): AuditResult {
         if (execErr.stdout) {
             auditRaw = execErr.stdout.toString();
         } else {
-            console.error('Error running npm audit:', execErr.message ?? String(err));
-            process.exit(1);
+            throw new Error(`Error running npm audit: ${execErr.message ?? String(err)}`);
         }
     }
 
@@ -84,8 +98,7 @@ function fetchAuditReport(): AuditResult {
         return JSON.parse(auditRaw) as AuditResult;
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('Failed to parse npm audit JSON:', message);
-        process.exit(1);
+        throw new Error(`Failed to parse npm audit JSON: ${message}`);
     }
 }
 
@@ -104,6 +117,65 @@ function isIgnored(via: AuditVia, ignoredGHSAs: Set<string>, ignoredCVEs: Set<st
     }
 
     return false;
+}
+
+function collectPresentIdentifiers(audit: AuditResult): PresentIdentifiers {
+    const ghsas = new Set<string>();
+    const cves = new Set<string>();
+
+    for (const pkg of Object.values(audit.vulnerabilities)) {
+        if (!pkg || !Array.isArray(pkg.via)) {
+            continue;
+        }
+
+        for (const via of pkg.via) {
+            if (typeof via !== 'object') {
+                continue;
+            }
+
+            const ghsa = via.url ? extractGHSA(via.url) : null;
+            if (ghsa) {
+                ghsas.add(ghsa);
+            }
+
+            for (const cve of extractCVEs(via)) {
+                cves.add(cve);
+            }
+        }
+    }
+
+    return { ghsas, cves };
+}
+
+function printUnusedIgnores(
+    presentIdentifiers: PresentIdentifiers,
+    ignoredGHSAs: Set<string>,
+    ignoredCVEs: Set<string>,
+): void {
+    const unusedGHSAs = [...ignoredGHSAs].filter((ghsa) => !presentIdentifiers.ghsas.has(ghsa));
+    const unusedCVEs = [...ignoredCVEs].filter((cve) => !presentIdentifiers.cves.has(cve));
+
+    if (unusedGHSAs.length === 0 && unusedCVEs.length === 0) {
+        return;
+    }
+
+    console.warn('--- Cleanup suggestions ---\n');
+
+    if (unusedGHSAs.length > 0) {
+        console.warn('Ignored GHSA entries no longer present in npm audit output:');
+        for (const ghsa of unusedGHSAs) {
+            console.warn(`  - https://github.com/advisories/${ghsa}`);
+        }
+        console.warn('');
+    }
+
+    if (unusedCVEs.length > 0) {
+        console.warn('Ignored CVE entries no longer present in npm audit output:');
+        for (const cve of unusedCVEs) {
+            console.warn(`  - ${cve}`);
+        }
+        console.warn('');
+    }
 }
 
 function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
@@ -264,6 +336,24 @@ function printSuggestions(advisories: RootAdvisory[]): void {
     }
 }
 
+function getAuditPackageName(): string {
+    return process.env['NPM_AUDIT_PACKAGE_NAME'] ?? process.cwd().split('/').pop() ?? 'unknown-package';
+}
+
+function getAuditWorkingDirectory(): string {
+    return process.env['NPM_AUDIT_WORKING_DIRECTORY'] ?? process.cwd();
+}
+
+function writeAuditResult(result: AuditExecutionResult): void {
+    const resultFile = process.env['NPM_AUDIT_RESULT_FILE'];
+    if (!resultFile) {
+        return;
+    }
+
+    mkdirSync(dirname(resultFile), { recursive: true });
+    writeFileSync(resultFile, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+}
+
 /**
  * Run npm audit in the current working directory, filtering out advisories
  * matching the given GHSA and CVE identifiers.
@@ -275,24 +365,63 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
     );
     const ignoredCVEs = new Set(options.ignoredCVEs ?? []);
     const totalIgnored = ignoredGHSAs.size + ignoredCVEs.size;
+    const packageName = getAuditPackageName();
+    const workingDirectory = getAuditWorkingDirectory();
 
-    const audit = fetchAuditReport();
-    filterIgnored(audit, ignoredGHSAs, ignoredCVEs);
+    try {
+        const audit = fetchAuditReport();
+        const presentIdentifiers = collectPresentIdentifiers(audit);
+        filterIgnored(audit, ignoredGHSAs, ignoredCVEs);
+        printUnusedIgnores(presentIdentifiers, ignoredGHSAs, ignoredCVEs);
 
-    const remaining = Object.values(audit.vulnerabilities).filter(
-        (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
-    );
+        const remaining = Object.values(audit.vulnerabilities).filter(
+            (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
+        );
 
-    // Only remaining vulnerabilities block the pipeline. Advisories are
-    // printed for visibility but intentionally do not cause a failure, so
-    // newly published advisories don't immediately break unrelated PRs.
-    if (remaining.length === 0) {
-        console.log(`No vulnerabilities (${totalIgnored} ignored).`);
-        return;
+        // Only remaining vulnerabilities block the pipeline. Advisories are
+        // printed for visibility but intentionally do not cause a failure, so
+        // newly published advisories don't immediately break unrelated PRs.
+        if (remaining.length === 0) {
+            writeAuditResult({
+                packageName,
+                workingDirectory,
+                ignoredCount: totalIgnored,
+                status: 'passed',
+                advisoryCount: 0,
+                advisories: [],
+            });
+            console.log(`No vulnerabilities (${totalIgnored} ignored).`);
+            return;
+        }
+
+        const advisories = buildRootAdvisories(audit);
+        writeAuditResult({
+            packageName,
+            workingDirectory,
+            ignoredCount: totalIgnored,
+            status: 'failed',
+            advisoryCount: advisories.length,
+            advisories,
+        });
+        printAdvisories(advisories, remaining.length);
+        printSuggestions(advisories);
+        process.exit(1);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        writeAuditResult({
+            packageName,
+            workingDirectory,
+            ignoredCount: totalIgnored,
+            status: 'failed',
+            advisoryCount: 0,
+            advisories: [],
+            error: message,
+        });
+        console.error(message);
+        process.exit(1);
     }
+}
 
-    const advisories = buildRootAdvisories(audit);
-    printAdvisories(advisories, remaining.length);
-    printSuggestions(advisories);
-    process.exit(1);
+if (import.meta.url === `file://${process.argv[1]}`) {
+    runNpmAudit();
 }

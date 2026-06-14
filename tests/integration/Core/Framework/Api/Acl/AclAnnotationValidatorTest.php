@@ -154,39 +154,36 @@ class AclAnnotationValidatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: list<string>, 1: list<string>, 2: bool}>
+     * @return iterable<string, array{0: list<string>, 1: list<string>, 2: bool}>
      */
-    public static function annotationProvider(): array
+    public static function annotationProvider(): iterable
     {
-        return [
-            [
-                // privs of user   //acl   // should pass?
-                ['product:write'], [], true,
-            ],
-            [
-                [], ['productWrite'], false,
-            ],
-            [
-                ['product:write'], ['product:write'], true,
-            ],
-            [
-                ['product:write', 'product:read'], ['product:write', 'product:read'], true,
-            ],
-            [
-                ['product:write'], ['product:write', 'product:read'], false,
-            ],
-            [
-                ['api.test.route'], ['api.test.route'], true,
-            ],
-            [
-                [], ['api.test.route'], false,
-            ],
-            [
-                ['product:write', 'product:read'], ['api.test.route'], false,
-            ],
-            [
-                ['app.all'], ['app'], true,
-            ],
+        yield 'product write privilege is accepted when no annotation is required' => [
+            ['product:write'], [], true,
+        ];
+        yield 'missing product write privilege is rejected' => [
+            [], ['productWrite'], false,
+        ];
+        yield 'matching product write privilege is accepted' => [
+            ['product:write'], ['product:write'], true,
+        ];
+        yield 'matching product write and read privileges are accepted' => [
+            ['product:write', 'product:read'], ['product:write', 'product:read'], true,
+        ];
+        yield 'missing product read privilege is rejected' => [
+            ['product:write'], ['product:write', 'product:read'], false,
+        ];
+        yield 'matching route privilege is accepted' => [
+            ['api.test.route'], ['api.test.route'], true,
+        ];
+        yield 'missing route privilege is rejected' => [
+            [], ['api.test.route'], false,
+        ];
+        yield 'entity privileges do not satisfy route privilege' => [
+            ['product:write', 'product:read'], ['api.test.route'], false,
+        ];
+        yield 'app wildcard privilege satisfies app annotation' => [
+            ['app.all'], ['app'], true,
         ];
     }
 

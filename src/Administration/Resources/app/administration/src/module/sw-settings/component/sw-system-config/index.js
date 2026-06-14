@@ -179,7 +179,7 @@ export default {
         },
 
         createErrorNotification(errors) {
-            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
+            let message = `<div>${this.$t('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
 
             errors.forEach((error) => {
                 message = `${message}<li>${error.detail}</li>`;
@@ -226,6 +226,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             if (element.type === 'text-editor') {
@@ -233,7 +237,7 @@ export default {
             }
 
             if (bind.config.css && bind.config.helpText === undefined) {
-                bind.config.helpText = this.$tc('sw-settings.system-config.scssHelpText') + element.config.css;
+                bind.config.helpText = this.$t('sw-settings.system-config.scssHelpText') + element.config.css;
             }
 
             return bind;
@@ -352,7 +356,7 @@ export default {
             // Bind necessary props to sw-form-field-renderer
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
-            bind.config = element.config;
+            bind.config = { ...(element.config || {}) };
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);
@@ -378,6 +382,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             // Handle multi select

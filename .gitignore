@@ -21,10 +21,20 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# Yalc
+.yalc/
+yalc.lock
+
 # AI/LLM Development Tools
-.claude/
+# Ignore everything in .claude/ EXCEPT .claude/skills/ — that path holds shared,
+# portable Agent Skills that all AI runtimes (Claude Code, opencode, Codex CLI,
+# Cursor, etc.) auto-load. Skills are project content, not user-local config.
+.claude/*
+!.claude/skills/
+.codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -32,6 +42,13 @@ Thumbs.db
 .aiderignore
 .kite/
 .codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar
@@ -110,7 +127,10 @@ app/config/parameters.yml
 .env.dev
 
 # Local AI/LLM overrides
+# Claude.local.md
 *.local.md
+# AGENTS.override.md
+*.override.md
 *.cursorignore.local
 *.cursorindexingignore.local
 *.tabnineignore.local
@@ -127,6 +147,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
 /shop
+.codex
 
 .php-cs-fixer.cache
 
@@ -189,3 +210,8 @@ danger.phar
 
 # Vite deps
 **/.tmp/vite/*
+
+# gh aw run snapshots — personal scratch, do not commit. Track the README
+# inside the directory as a marker.
+.github/aw/logs/*
+!.github/aw/logs/README.md

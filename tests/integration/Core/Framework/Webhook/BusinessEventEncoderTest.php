@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -111,5 +112,29 @@ class BusinessEventEncoderTest extends TestCase
         }
 
         static::fail('Exception should have been thrown');
+    }
+
+    public function testRegisteredBusinessEventsExposeWebhookPayloadGetters(): void
+    {
+        $registry = static::getContainer()->get(BusinessEventRegistry::class);
+
+        foreach ($registry->getClasses() as $eventClass) {
+            $missing = [];
+
+            foreach (array_keys($eventClass::getAvailableData()->toArray()) as $key) {
+                $getter = 'get' . $key;
+                $isser = 'is' . $key;
+
+                if (!method_exists($eventClass, $getter) && !method_exists($eventClass, $isser)) {
+                    $missing[] = $key;
+                }
+            }
+
+            static::assertSame([], $missing, \sprintf(
+                'Event %s is missing webhook payload getter(s) for: %s',
+                $eventClass,
+                implode(', ', $missing)
+            ));
+        }
     }
 }

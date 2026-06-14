@@ -62,7 +62,7 @@ export default {
         },
 
         modalTitle() {
-            return this.currentOption?.translated?.name || this.$tc('sw-property.detail.textOptionHeadline');
+            return this.currentOption?.translated?.name || this.$t('sw-property.detail.textOptionHeadline');
         },
 
         ...mapPropertyErrors('currentOption', ['name']),

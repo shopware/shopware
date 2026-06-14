@@ -2,17 +2,17 @@
 
 .sw-extension-card-bought {
     .sw-extension-card-bought__info-price-subscription {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
     }
 
     .sw-extension-card-bought__info-price {
         margin-top: 4px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     .sw-loader {
-        background-color: rgba($color-gray-50, 0.8);
+        background-color: var(--color-background-secondary-default);
     }
 
     .sw-extension-card-bought__info-subscription-expiry {
@@ -23,7 +23,7 @@
 
         .mt-icon {
             margin-right: 4px;
-            color: $color-pumpkin-spice-500;
+            color: var(--color-icon-attention-default);
         }
     }
 }

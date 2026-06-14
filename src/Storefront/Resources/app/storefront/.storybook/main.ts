@@ -10,8 +10,6 @@ const config: StorybookConfig = {
   "addons": [
     "@storybook/addon-webpack5-compiler-swc",
     "@storybook/addon-docs",
-    "./addons/slots-addon/register.ts",
-    "./addons/template-addon/register.ts",
   ],
   "framework": {
     "name": "@storybook/server-webpack5",

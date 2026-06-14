@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -17,7 +16,6 @@ use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     use KernelTestBehaviour;

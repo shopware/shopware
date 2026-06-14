@@ -50,7 +50,7 @@ class LanguageSerializerTest extends TestCase
         $language = [
             'active' => true,
             'locale' => [
-                'code' => 'xx-XX',
+                'code' => 'de-DE-1',
                 'id' => $localeId,
             ],
         ];
@@ -91,7 +91,7 @@ class LanguageSerializerTest extends TestCase
                 'active' => true,
                 'locale' => [
                     'id' => $localeId,
-                    'code' => 'xx-XX',
+                    'code' => 'de-DE-1',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

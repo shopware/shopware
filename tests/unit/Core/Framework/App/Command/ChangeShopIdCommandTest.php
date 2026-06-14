@@ -1,0 +1,110 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\App\Command;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Command\ChangeShopIdCommand;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\Console\Tester\CommandTester;
+
+/**
+ * @internal
+ */
+#[CoversClass(ChangeShopIdCommand::class)]
+class ChangeShopIdCommandTest extends TestCase
+{
+    public function testChoosesTheRightStrategyForChangingTheShopId(): void
+    {
+        $urlChangeStrategy = $this->createMock(Resolver::class);
+        $urlChangeStrategy->expects($this->once())
+            ->method('getAvailableStrategies')
+            ->willReturn([
+                'testStrategy' => 'test Description',
+                'secondStrategy' => 'second Description',
+            ]);
+
+        $urlChangeStrategy->expects($this->once())
+            ->method('resolve')
+            ->with(
+                'testStrategy',
+                static::isInstanceOf(Context::class)
+            );
+
+        $commandTester = new CommandTester(
+            new ChangeShopIdCommand($urlChangeStrategy)
+        );
+
+        $commandTester->setInputs(['testStrategy']);
+        $commandTester->execute([]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+
+        static::assertStringContainsString('Choose what strategy should be applied when changing the shop ID?', $commandTester->getDisplay());
+        static::assertStringContainsString('testStrategy', $commandTester->getDisplay());
+        static::assertStringContainsString('secondStrategy', $commandTester->getDisplay());
+        static::assertStringContainsString('[OK] Strategy "testStrategy" was applied successfully', $commandTester->getDisplay());
+    }
+
+    public function testChangeShopIdWithProvidedStrategy(): void
+    {
+        $urlChangeStrategy = $this->createMock(Resolver::class);
+        $urlChangeStrategy->expects($this->once())
+            ->method('getAvailableStrategies')
+            ->willReturn([
+                'testStrategy' => 'test Description',
+                'secondStrategy' => 'second Description',
+            ]);
+
+        $urlChangeStrategy->expects($this->once())
+            ->method('resolve')
+            ->with(
+                'testStrategy',
+                static::isInstanceOf(Context::class)
+            );
+
+        $commandTester = new CommandTester(
+            new ChangeShopIdCommand($urlChangeStrategy)
+        );
+
+        $commandTester->execute(['strategy' => 'testStrategy']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+
+        static::assertStringContainsString('[OK] Strategy "testStrategy" was applied successfully', $commandTester->getDisplay());
+    }
+
+    public function testFailsIfChosenStrategyDoesNotExist(): void
+    {
+        $urlChangeStrategy = $this->createMock(Resolver::class);
+        $urlChangeStrategy->expects($this->once())
+            ->method('getAvailableStrategies')
+            ->willReturn([
+                'testStrategy' => 'test Description',
+                'secondStrategy' => 'second Description',
+            ]);
+
+        $urlChangeStrategy->expects($this->once())
+            ->method('resolve')
+            ->with(
+                'testStrategy',
+                static::isInstanceOf(Context::class)
+            );
+
+        $commandTester = new CommandTester(
+            new ChangeShopIdCommand($urlChangeStrategy)
+        );
+
+        $commandTester->setInputs(['testStrategy']);
+        $commandTester->execute(['strategy' => 'doesNotExist']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+
+        static::assertStringContainsString('[NOTE] Strategy with name: "doesNotExist" not found.', $commandTester->getDisplay());
+        static::assertStringContainsString('Choose what strategy should be applied when changing the shop ID?', $commandTester->getDisplay());
+        static::assertStringContainsString('testStrategy', $commandTester->getDisplay());
+        static::assertStringContainsString('secondStrategy', $commandTester->getDisplay());
+        static::assertStringContainsString('[OK] Strategy "testStrategy" was applied successfully', $commandTester->getDisplay());
+    }
+}

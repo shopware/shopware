@@ -54,14 +54,14 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-category.base.products.columnNameLabel'),
+                    label: this.$t('sw-category.base.products.columnNameLabel'),
                     dataIndex: 'name',
                     routerLink: 'sw.product.detail',
                     sortable: false,
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
+                    label: this.$t('sw-category.base.products.columnManufacturerLabel'),
                     routerLink: 'sw.manufacturer.detail',
                     sortable: false,
                 },
@@ -90,7 +90,7 @@ export default {
             if (this.productStreamInvalid) {
                 return new ShopwareError({
                     code: 'PRODUCT_STREAM_INVALID',
-                    detail: this.$tc('sw-category.base.products.dynamicProductGroupInvalidMessage'),
+                    detail: this.$t('sw-category.base.products.dynamicProductGroupInvalidMessage'),
                 });
             }
             return null;
@@ -105,11 +105,11 @@ export default {
             return [
                 {
                     value: 'product',
-                    label: this.$tc('sw-category.base.products.productAssignmentTypeManualLabel'),
+                    label: this.$t('sw-category.base.products.productAssignmentTypeManualLabel'),
                 },
                 {
                     value: 'product_stream',
-                    label: this.$tc('sw-category.base.products.productAssignmentTypeStreamLabel'),
+                    label: this.$t('sw-category.base.products.productAssignmentTypeStreamLabel'),
                 },
             ];
         },
@@ -119,20 +119,20 @@ export default {
                 name: 'sw.product.stream.index',
             };
 
-            const helpText = this.$tc(
+            const helpText = this.$t(
                 'sw-category.base.products.dynamicProductGroupHelpText.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
-                           ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
+                           ${this.$t('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
                        </sw-internal-link>`,
                 },
                 0,
             );
 
             try {
-                new URL(this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl'));
+                new URL(this.$t('sw-category.base.products.dynamicProductGroupHelpText.videoUrl'));
             } catch {
                 return helpText;
             }
@@ -140,8 +140,8 @@ export default {
             return `${helpText}
                     <br>
                     <sw-external-link
-                        href="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
-                        ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
+                        href="${this.$t('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
+                        ${this.$t('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
                     </sw-external-link>`;
         },
 

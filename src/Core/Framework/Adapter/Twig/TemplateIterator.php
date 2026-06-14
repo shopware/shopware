@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ *
  * @implements \IteratorAggregate<int, string>
  */
 #[Package('framework')]

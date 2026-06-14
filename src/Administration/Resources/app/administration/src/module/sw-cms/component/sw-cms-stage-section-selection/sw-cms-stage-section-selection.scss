@@ -8,7 +8,6 @@
     justify-content: center;
     align-items: center;
     grid-template-columns: 1fr 1fr;
-    background: $color-gray-50;
 
     .sw-cms-stage-section-selection__sidebar {
         justify-self: end;
@@ -23,14 +22,14 @@
         cursor: pointer;
         width: 200px;
         height: 112px;
-        background: #fff;
+        background: var(--color-elevation-surface-raised);
         padding: 12px 16px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
         margin-bottom: 8px;
 
         &:hover {
-            border-color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-default);
         }
     }
 
@@ -38,7 +37,7 @@
     .sw-cms-stage-section-selection__default-preview-inner {
         height: 100%;
         width: 100%;
-        border: 1px dashed $color-gray-300;
+        border: 1px dashed var(--color-border-primary-default);
         border-radius: $border-radius-default;
     }
 
@@ -50,7 +49,7 @@
         justify-content: center;
 
         .sw-cms-stage-section-selection__sidebar-preview-placeholder {
-            border: 1px dashed $color-gray-300;
+            border: 1px dashed var(--color-border-primary-default);
             border-radius: $border-radius-default;
         }
     }

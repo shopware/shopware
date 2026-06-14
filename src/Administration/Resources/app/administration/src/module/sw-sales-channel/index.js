@@ -4,6 +4,7 @@
 
 import './service/export-template.service';
 import './product-export-templates';
+import './agentic-product-export-templates';
 import './service/domain-link.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
@@ -50,6 +51,18 @@ Shopware.Component.register(
     () => import('./view/sw-sales-channel-detail-product-comparison-preview'),
 );
 Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-commerce-integration',
+    () => import('./view/sw-sales-channel-detail-agentic-commerce-integration'),
+);
+Shopware.Component.register(
+    'sw-agentic-commerce-tracking-config',
+    () => import('./component/sw-agentic-commerce-tracking-config'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-product-export-insights',
+    () => import('./view/sw-sales-channel-detail-product-export-insights'),
+);
+Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
     () => import('./component/sw-sales-channel-products-assignment-modal'),
 );
@@ -78,7 +91,7 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#14D7A5',
+    color: 'var(--color-module-green-500)',
     icon: 'solid-server',
     entity: 'sales_channel',
 
@@ -141,6 +154,22 @@ Module.register('sw-sales-channel', {
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticCommerceIntegration: {
+                    component: 'sw-sales-channel-detail-agentic-commerce-integration',
+                    path: 'agentic-commerce-integration',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                productExportInsights: {
+                    component: 'sw-sales-channel-detail-product-export-insights',
+                    path: 'product-export-insights',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

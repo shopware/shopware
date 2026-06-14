@@ -152,7 +152,7 @@ SCSS;
      */
     private function getConfigurationServiceDbException(array $plugins): ConfigurationService
     {
-        return new ConfigurationServiceException(
+        return new ThemeCompilerPluginConfigurationServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -183,7 +183,7 @@ SCSS;
 /**
  * @internal
  */
-class ConfigurationServiceException extends ConfigurationService
+class ThemeCompilerPluginConfigurationServiceException extends ConfigurationService
 {
     /**
      * @throws Exception

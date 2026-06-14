@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -335,7 +336,7 @@ class WriteCommandExtractor
         $create = !$existence->exists() || $existence->childChangedToParent();
 
         if (
-            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField)
+            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField && !$field instanceof WasModifiedByUserField)
             && (!$create || !$field->is(Required::class))
         ) {
             return true;

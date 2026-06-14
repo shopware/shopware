@@ -53,12 +53,12 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await ShopAdmin.expects(AdminRuleDetail.tagItem.getByText(testConfig.ruleTag)).toBeVisible();
 
         // conditions card
-        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Total quantity of all products')).toBeVisible();
+        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Total product quantity (units)')).toBeVisible();
         await ShopAdmin.expects(AdminRuleDetail.conditionLineItemGoodsTotalOperator).toHaveText('Is greater than / equal to');
         await ShopAdmin.expects(AdminRuleDetail.conditionLineItemGoodsTotalValue).toHaveValue(testConfig.quantity.toString());
         await AdminRuleDetail.conditionLineItemGoodsTotalFilter.click();
         await ShopAdmin.expects(AdminRuleDetail.conditionFilterModal).toBeVisible();
-        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Item available')).toBeVisible();
+        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Item in stock')).toBeVisible();
         await ShopAdmin.expects(AdminRuleDetail.conditionCartLineItemInStockOperator).toHaveText('Is greater than / equal to');
         await ShopAdmin.expects(AdminRuleDetail.conditionCartLineItemInStockValue).toHaveValue(testConfig.stock.toString());
         await AdminRuleDetail.conditionFilterModalCloseButtonX.click();
@@ -81,7 +81,7 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await ShopAdmin.expects(AdminRuleDetail.conditionTimeRangeValueFirst).toHaveValue(testConfig.fromDate.split('T')[1].substring(0, 5));
         await ShopAdmin.expects(AdminRuleDetail.conditionTimeRangeValueSecond).toHaveValue(testConfig.toDate.split('T')[1].substring(0, 5));
 
-        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Order created by administrator (flow)')).toBeVisible();
+        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Order created by administrator')).toBeVisible();
         await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue('No');
     });
 });

@@ -142,7 +142,7 @@ export default {
             }
             return this.conditionDataProviderService.getOperatorSet(this.fieldType).map((operator) => {
                 return {
-                    label: this.$tc(operator.label),
+                    label: this.$t(operator.label),
                     value: operator.identifier,
                 };
             });
@@ -155,7 +155,7 @@ export default {
                 const secondLevelOperator = this.conditionDataProviderService.getOperator(operator);
 
                 return {
-                    label: this.$tc(secondLevelOperator.label),
+                    label: this.$t(secondLevelOperator.label),
                     value: secondLevelOperator.identifier,
                 };
             });
@@ -235,15 +235,15 @@ export default {
 
         booleanOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: '1' },
-                { label: this.$tc('global.default.no'), value: '0' },
+                { label: this.$t('global.default.yes'), value: '1' },
+                { label: this.$t('global.default.no'), value: '0' },
             ];
         },
 
         reversedEmptyOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: false },
-                { label: this.$tc('global.default.no'), value: true },
+                { label: this.$t('global.default.yes'), value: false },
+                { label: this.$t('global.default.no'), value: true },
             ];
         },
 

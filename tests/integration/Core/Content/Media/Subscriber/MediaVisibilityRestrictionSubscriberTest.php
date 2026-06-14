@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,7 +24,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
 class MediaVisibilityRestrictionSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

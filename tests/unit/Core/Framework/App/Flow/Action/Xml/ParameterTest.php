@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
@@ -15,27 +14,59 @@ class ParameterTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
-        );
-        $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        static::assertNotNull($actions);
-        $action = $actions->getElementsByTagName('flow-action')->item(0);
-        static::assertNotNull($action);
-        $parameters = $action->getElementsByTagName('parameters')->item(0);
-        static::assertNotNull($parameters);
-        $parameter = $parameters->getElementsByTagName('parameter')->item(0);
-        static::assertNotNull($parameter);
+        $parameter = Parameter::fromXml(self::loadElement(
+            '<parameter type="string" name="to" value="{{ customer.email }}"/>'
+        ));
 
-        $expected = [
-            'type' => 'string',
-            'name' => 'to',
-            'value' => '{{ customer.name }}',
-        ];
+        static::assertSame('string', $parameter->getType());
+        static::assertSame('to', $parameter->getName());
+        static::assertSame('{{ customer.email }}', $parameter->getValue());
+        static::assertSame(
+            [
+                'type' => 'string',
+                'name' => 'to',
+                'value' => '{{ customer.email }}',
+            ],
+            $parameter->toArray('en-GB')
+        );
+    }
+
+    public function testFromXmlKeepsJsonLikeStringValue(): void
+    {
+        $jsonString = <<<EOD
+{
+  "street": "{{ order.addresses[0].street }}",
+  "additional_one": "{{ order.addresses[0].additionalAddressLine1 }}",
+  "additional_two": "{{ order.addresses[0].additionalAddressLine2 }}",
+  "city": "{{ order.addresses[0].city }}",
+  "zipcode": "{{ order.addresses[0].zipcode }}"
+}
+EOD;
+        $document = new \DOMDocument();
+        $parameter = $document->createElement('parameter');
+        $parameter->setAttribute('type', 'string');
+        $parameter->setAttribute('name', 'payload');
+        $parameter->setAttribute('value', $jsonString);
 
         $result = Parameter::fromXml($parameter);
-        static::assertCount(3, $result->toArray('en-GB'));
-        static::assertSame($expected, $result->toArray('en-GB'));
+
+        static::assertSame($jsonString, $result->getValue());
+        static::assertSame(
+            [
+                'type' => 'string',
+                'name' => 'payload',
+                'value' => $jsonString,
+            ],
+            $result->toArray('en-GB')
+        );
+    }
+
+    private static function loadElement(string $xml): \DOMElement
+    {
+        $document = new \DOMDocument();
+        static::assertTrue($document->loadXML($xml));
+        static::assertInstanceOf(\DOMElement::class, $document->documentElement);
+
+        return $document->documentElement;
     }
 }

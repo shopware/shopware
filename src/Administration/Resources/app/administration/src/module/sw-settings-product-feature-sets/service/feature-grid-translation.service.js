@@ -71,7 +71,7 @@ export default class FeatureGridTranslationService {
      */
     getNameTranslation(item) {
         if (item.type === 'product') {
-            return this.component.$tc(`sw-settings-product-feature-sets.modal.label.${item.name}`);
+            return this.component.$t(`sw-settings-product-feature-sets.modal.label.${item.name}`);
         }
 
         if (item.type === 'property') {
@@ -92,7 +92,7 @@ export default class FeatureGridTranslationService {
         }
 
         if (item.type === 'referencePrice') {
-            return this.component.$tc('sw-settings-product-feature-sets.modal.label.referencePrice');
+            return this.component.$t('sw-settings-product-feature-sets.modal.label.referencePrice');
         }
 
         return '';
@@ -105,19 +105,19 @@ export default class FeatureGridTranslationService {
      */
     getTypeTranslation(item) {
         if (item.type === 'product') {
-            return this.component.$tc('sw-settings-product-feature-sets.modal.textProductInfoLabel');
+            return this.component.$t('sw-settings-product-feature-sets.modal.textProductInfoLabel');
         }
 
         if (item.type === 'property') {
-            return this.component.$tc('sw-settings-product-feature-sets.modal.textPropertyLabel');
+            return this.component.$t('sw-settings-product-feature-sets.modal.textPropertyLabel');
         }
 
         if (item.type === 'customField') {
-            return this.component.$tc('sw-settings-product-feature-sets.modal.textCustomFieldLabel');
+            return this.component.$t('sw-settings-product-feature-sets.modal.textCustomFieldLabel');
         }
 
         if (item.type === 'referencePrice') {
-            return this.component.$tc('sw-settings-product-feature-sets.modal.textReferencePriceLabel');
+            return this.component.$t('sw-settings-product-feature-sets.modal.textReferencePriceLabel');
         }
 
         return '';

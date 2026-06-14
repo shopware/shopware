@@ -65,12 +65,12 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     id: 2,
                     value: 'streched',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStretch'),
                 },
             ];
         },

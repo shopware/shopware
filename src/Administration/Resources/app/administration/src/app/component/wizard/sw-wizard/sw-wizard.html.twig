@@ -23,7 +23,7 @@
                 variant="secondary"
                 @click="onClose"
             >
-                {{ $tc('global.default.close') }}
+                {{ $t('global.default.close') }}
             </mt-button>
             {% endblock %}
 
@@ -35,7 +35,7 @@
                 variant="secondary"
                 @click="previousPage"
             >
-                {{ $tc('sw-wizard.backButton') }}
+                {{ $t('sw-wizard.backButton') }}
             </mt-button>
             {% endblock %}
 
@@ -64,7 +64,7 @@
                 :disabled="rightButtonDisabled"
                 @click="$emit('finish')"
             >
-                {{ $tc('sw-wizard.finishButton') }}
+                {{ $t('sw-wizard.finishButton') }}
             </mt-button>
             {% endblock %}
 
@@ -76,7 +76,7 @@
                 :disabled="rightButtonDisabled"
                 @click="nextPage"
             >
-                {{ $tc('sw-wizard.nextButton') }}
+                {{ $t('sw-wizard.nextButton') }}
             </mt-button>
             {% endblock %}
             {% endblock %}

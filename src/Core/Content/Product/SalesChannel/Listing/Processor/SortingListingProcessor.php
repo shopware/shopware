@@ -55,7 +55,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         if ($currentSorting !== null) {
             $fallbackSorting = null;
             if ($this->hasQueriesOrTerm($criteria)) {
-                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+                $fallbackSorting = new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING);
             }
 
             $criteria->addSorting(

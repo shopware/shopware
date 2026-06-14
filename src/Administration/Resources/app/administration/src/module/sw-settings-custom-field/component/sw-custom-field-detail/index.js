@@ -66,18 +66,18 @@ export default {
 
         modalTitle() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
+                return this.$t('sw-settings-custom-field.customField.detail.titleNewCustomField');
             }
 
-            return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
+            return this.$t('sw-settings-custom-field.customField.detail.titleEditCustomField');
         },
 
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('global.default.add');
+                return this.$t('global.default.add');
             }
 
-            return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
+            return this.$t('sw-settings-custom-field.customField.detail.buttonEditApply');
         },
 
         isProductCustomField() {
@@ -97,7 +97,7 @@ export default {
                 return {
                     id: key,
                     value: key,
-                    label: this.$tc(`sw-settings-custom-field.types.${key}`),
+                    label: this.$t(`sw-settings-custom-field.types.${key}`),
                 };
             });
         },
@@ -187,8 +187,8 @@ export default {
         },
 
         createNameNotUniqueNotification() {
-            const notificationTitle = this.$tc('global.default.error');
-            const nameNotUniqueMessage = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
+            const notificationTitle = this.$t('global.default.error');
+            const nameNotUniqueMessage = this.$t('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({
                 title: notificationTitle,
@@ -197,8 +197,8 @@ export default {
         },
 
         createEntityTypeRequiredNotification() {
-            const notificationTitle = this.$tc('global.default.error');
-            const entityTypeRequiredTitle = this.$tc('sw-settings-custom-field.set.detail.entityTypeRequired');
+            const notificationTitle = this.$t('global.default.error');
+            const entityTypeRequiredTitle = this.$t('sw-settings-custom-field.set.detail.entityTypeRequired');
 
             this.createNotificationError({
                 title: notificationTitle,

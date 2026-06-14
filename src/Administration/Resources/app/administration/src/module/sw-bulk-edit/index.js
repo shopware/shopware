@@ -34,6 +34,10 @@ Shopware.Component.register(
     'sw-bulk-edit-order-documents-download-documents',
     () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents'),
 );
+Shopware.Component.register(
+    'sw-bulk-edit-order-documents-delete-documents',
+    () => import('./component/sw-bulk-edit-order/sw-bulk-edit-order-documents-delete-documents'),
+);
 Shopware.Component.extend(
     'sw-bulk-edit-custom-fields',
     'sw-custom-field-set-renderer',

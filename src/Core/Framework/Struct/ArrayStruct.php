@@ -39,7 +39,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
 
     public function offsetSet($offset, mixed $value): void
     {
-        /** @phpstan-ignore assign.propertyType (PHPStan cannot recognize the result correctly) */
+        /** @phpstan-ignore assign.propertyType, offsetAccess.invalidOffset (PHPStan cannot recognize the result correctly) */
         $this->data[$offset] = $value;
     }
 

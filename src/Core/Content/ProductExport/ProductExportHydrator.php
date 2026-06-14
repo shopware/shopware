@@ -49,6 +49,12 @@ class ProductExportHydrator extends EntityHydrator
         if (isset($row[$root . '.fileFormat'])) {
             $entity->fileFormat = $row[$root . '.fileFormat'];
         }
+        if (\array_key_exists($root . '.provider', $row)) {
+            $entity->provider = $row[$root . '.provider'];
+        }
+        if (\array_key_exists($root . '.feedLabel', $row)) {
+            $entity->feedLabel = $row[$root . '.feedLabel'];
+        }
         if (isset($row[$root . '.includeVariants'])) {
             $entity->includeVariants = (bool) $row[$root . '.includeVariants'];
         }

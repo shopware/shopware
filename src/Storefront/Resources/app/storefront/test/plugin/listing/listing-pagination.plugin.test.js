@@ -63,6 +63,7 @@ describe('listing-pagination.plugin', () => {
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">

@@ -53,7 +53,7 @@ export default {
             this.setMeasurementUnits()
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                        message: this.$t('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
                     });
                 })
                 .finally(() => {

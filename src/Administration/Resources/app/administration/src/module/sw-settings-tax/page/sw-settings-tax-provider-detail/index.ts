@@ -133,7 +133,7 @@ export default Component.wrapComponentConfig({
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
                     });
 
                     this.isLoading = false;

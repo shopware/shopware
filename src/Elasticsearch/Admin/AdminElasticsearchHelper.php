@@ -35,7 +35,7 @@ class AdminElasticsearchHelper
     public function getEnabled(): bool
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(
-            __CLASS__,
+            self::class,
             __METHOD__,
             'v6.8.0.0',
             'isEnabled'

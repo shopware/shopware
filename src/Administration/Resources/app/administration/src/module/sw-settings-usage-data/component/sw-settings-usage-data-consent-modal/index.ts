@@ -25,7 +25,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'acl',
-        'feature',
     ],
 
     props: {

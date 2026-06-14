@@ -24,6 +24,20 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
 
     public function update(Connection $connection): void
     {
+        // Intentionally empty.
+        //
+        // This migration originally converted cartLineItemProductStates rule conditions
+        // to cartLineItemProductType during the 6.7 upgrade. However, 6.6 code cannot
+        // evaluate cartLineItemProductType (LineItemProductTypeRule was introduced in 6.7),
+        // so running this conversion in update() breaks blue-green deployments where 6.6
+        // pods are still running while the 6.7 DB migration has already been applied.
+        //
+        // The conversion is performed in updateDestructive(), which runs after the 6.6/6.7
+        // blue-green window has definitively closed.
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
         $conditions = $connection->fetchAllAssociative(
             'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']
@@ -57,10 +71,6 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
         if ($migrated) {
             $this->registerIndexer($connection, 'rule.indexer');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function conditionPayload(mixed $value): ?string

@@ -3,7 +3,7 @@
 
     {% block sw_settings_country_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(country, 'name', $t('sw-settings-country.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -20,7 +20,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -35,7 +35,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-country.detail.buttonSave') }}
+            {{ $t('sw-settings-country.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -56,7 +56,7 @@
         <sw-card-view>
             {% block sw_settings_country_detail_content_language_info %}
             <sw-language-info
-                :entity-description="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))"
+                :entity-description="placeholder(country, 'name', $t('sw-settings-country.detail.textHeadline'))"
             />
             {% endblock %}
 
@@ -68,7 +68,7 @@
                     class="sw-settings-country__setting-tab"
                     :route="{ name: isNewCountry ? 'sw.settings.country.create.general' : 'sw.settings.country.detail.general' }"
                 >
-                    {{ $tc('sw-settings-country.page.generalTab') }}
+                    {{ $t('sw-settings-country.page.generalTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -78,7 +78,7 @@
                     class="sw-settings-country__state-tab"
                     :route="{ name: isNewCountry ? 'sw.settings.country.create.state' : 'sw.settings.country.detail.state' }"
                 >
-                    {{ $tc('sw-settings-country.page.stateTab') }}
+                    {{ $t('sw-settings-country.page.stateTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -88,7 +88,7 @@
                     class="sw-settings-country__address-handling-tab"
                     :route="{ name: isNewCountry ? 'sw.settings.country.create.address-handling' : 'sw.settings.country.detail.address-handling' }"
                 >
-                    {{ $tc('sw-settings-country.page.addressHandlingTab') }}
+                    {{ $t('sw-settings-country.page.addressHandlingTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -123,7 +123,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-country-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

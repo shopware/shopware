@@ -2,6 +2,7 @@ import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
 const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -34,6 +35,10 @@ export default {
         'acl',
         'repositoryFactory',
         'feature',
+    ],
+
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
     ],
 
     emits: [
@@ -573,6 +578,10 @@ export default {
             ];
         },
 
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
+        },
+
         getRowClasses(item, itemIndex) {
             return [
                 {
@@ -748,8 +757,15 @@ export default {
                 return;
             }
 
+            const recordId = record[this.itemIdentifierProperty];
+
+            // Keep the currently edited row stable until the user explicitly saves or cancels it.
+            if (this.isInlineEditActive && this.currentInlineEditId !== '' && this.currentInlineEditId !== recordId) {
+                return;
+            }
+
             this.enableInlineEdit();
-            this.currentInlineEditId = record[this.itemIdentifierProperty];
+            this.currentInlineEditId = recordId;
         },
 
         onClickHeaderCell(event, column) {

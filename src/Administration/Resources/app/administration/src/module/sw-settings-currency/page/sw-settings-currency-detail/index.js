@@ -84,7 +84,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('currencies.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('currencies.editor'),
                     showOnDisabledElements: true,
                 };
@@ -173,10 +173,10 @@ export default {
 
         emptyStateText() {
             if (this.currency.id && this.currency.isNew()) {
-                return this.$tc('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
             }
 
-            return this.$tc('sw-settings-currency.detail.emptyCountryRoundings');
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundings');
         },
 
         showCustomFields() {
@@ -287,7 +287,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-currency.detail.notificationErrorMessage'),
+                        message: this.$t('sw-settings-currency.detail.notificationErrorMessage'),
                     });
                     this.isLoading = false;
                 });
@@ -335,16 +335,16 @@ export default {
                 .save(this.currentCurrencyCountry)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
-                        message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage'),
+                        title: this.$t('global.default.success'),
+                        message: this.$t('sw-settings-currency.detail.notificationCountrySuccessMessage'),
                     });
                     this.onCancelEditCountry();
                     this.loadCurrencyCountryRoundings();
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('sw-settings-currency.detail.notificationCountryErrorMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('sw-settings-currency.detail.notificationCountryErrorMessage'),
                     });
                 })
                 .finally(() => {

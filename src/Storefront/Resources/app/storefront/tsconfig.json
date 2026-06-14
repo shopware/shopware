@@ -10,6 +10,11 @@
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
+    "paths": {
+      "shopware": ["./src/shopware.ts"],
+      "vitest": ["./node_modules/vitest/dist/index.d.ts"],
+      "vitest/*": ["./node_modules/vitest/dist/*"]
+    }
   },
   "exclude": [
     "node_modules"
@@ -17,6 +22,12 @@
   "include": [
     "src/**/*",
     "scripts/**/*",
-    ".storybook/**/*"
+    ".storybook/**/*",
+    "build/*.ts",
+    "build/vite/**/*.ts",
+    "vite.components.config.mts",
+    "vitest.config.mts",
+    "__mocks__/*.ts",
+    "../../views/components/**/*"
   ]
 }

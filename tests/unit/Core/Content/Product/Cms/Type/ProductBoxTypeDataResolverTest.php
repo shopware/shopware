@@ -132,9 +132,9 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
-        $product->setAvailableStock($availableStock);
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
@@ -176,17 +176,15 @@ class ProductBoxTypeDataResolverTest extends TestCase
     }
 
     /**
-     * @return list<array{closeout: bool, hidden: bool, availableStock: int}>
+     * @return iterable<string, array{closeout: bool, hidden: bool, availableStock: int}>
      */
-    public static function enrichWithStaticConfigProvider(): array
+    public static function enrichWithStaticConfigProvider(): iterable
     {
-        return [
-            ['closeout' => false, 'hidden' => false, 'availableStock' => 1],
-            ['closeout' => false, 'hidden' => true,  'availableStock' => 1],
-            ['closeout' => true, 'hidden' => false, 'availableStock' => 1],
-            ['closeout' => true, 'hidden' => true,  'availableStock' => 1],
-            ['closeout' => true, 'hidden' => true,  'availableStock' => 0],
-        ];
+        yield 'visible product with stock is enriched' => ['closeout' => false, 'hidden' => false, 'availableStock' => 1];
+        yield 'hidden product with stock is enriched when closeout is disabled' => ['closeout' => false, 'hidden' => true,  'availableStock' => 1];
+        yield 'closeout product with stock is enriched when it is visible' => ['closeout' => true, 'hidden' => false, 'availableStock' => 1];
+        yield 'hidden closeout product with stock is enriched' => ['closeout' => true, 'hidden' => true,  'availableStock' => 1];
+        yield 'hidden closeout product without stock is not enriched' => ['closeout' => true, 'hidden' => true,  'availableStock' => 0];
     }
 
     public function testEnrichWithStaticConfigButNoResult(): void
@@ -261,8 +259,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setType('product-box');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(PropertyNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
+        $this->expectExceptionObject(new PropertyNotFoundException('foo', SalesChannelProductEntity::class));
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

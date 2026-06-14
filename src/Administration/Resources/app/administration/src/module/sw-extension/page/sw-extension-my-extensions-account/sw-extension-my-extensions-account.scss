@@ -31,7 +31,7 @@
         }
 
         a {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             text-decoration: none;
         }
     }
@@ -43,7 +43,7 @@
         gap: 16px;
         margin-top: 32px;
         padding: 16px;
-        background-color: $color-gray-50;
+        background-color: var(--color-background-secondary-default);
 
         .mt-button {
             margin-left: auto;

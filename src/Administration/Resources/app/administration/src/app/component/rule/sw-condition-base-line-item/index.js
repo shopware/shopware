@@ -52,11 +52,11 @@ export default {
             return [
                 {
                     value: false,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.any'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.any'),
                 },
                 {
                     value: true,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.all'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.all'),
                 },
             ];
         },

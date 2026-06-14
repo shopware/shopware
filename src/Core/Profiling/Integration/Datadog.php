@@ -4,6 +4,7 @@ namespace Shopware\Core\Profiling\Integration;
 
 use DDTrace\Contracts\Tracer;
 use DDTrace\GlobalTracer;
+use DDTrace\Tag;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,7 +29,7 @@ class Datadog implements ProfilerInterface
             $category = 'shopware.' . $category;
         }
 
-        /** @see \DDTrace\Tag::SERVICE_NAME */
+        /** @see Tag::SERVICE_NAME */
         $tags = array_merge(['service.name' => $category], $tags);
         /** @var Tracer */
         $tracer = GlobalTracer::get();

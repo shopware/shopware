@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
@@ -28,6 +27,7 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeUserInstaller;
 use Shopware\Tests\Integration\Core\Framework\Sso\Helper\ValidUserServiceCreator;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -39,27 +39,42 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ShopwareGrantType::class)]
 class ShopwareGrantTypeTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
+
+    private Connection $connection;
+
+    private UserService $userService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->userService = (new ValidUserServiceCreator('create'))->create(
+            $this->connection,
+            static::getContainer()->get('user.repository'),
+        );
+    }
 
     public function testRespondToAccessTokenRequest(): void
     {
         $email = 'test@shopware.com';
         $idToken = (new FakeTokenGenerator())->setEmail($email)->generate(JwksIds::KEY_ID_ONE);
 
-        $fakeUserInstall = new FakeUserInstaller($this->getContainer()->get(Connection::class));
+        $fakeUserInstall = new FakeUserInstaller($this->connection);
         $fakeUserInstall->installBaseUserData(Uuid::randomHex(), $email);
 
         $session = new Session(new MockArraySessionStorage());
         $session->set('sso_proof_key_verifier', 'proofKeyVerifier');
 
         $shopwareGrantType = new ShopwareGrantType(
-            $this->createRefreshTokenRepository(),
-            $this->createUserService(),
+            new RefreshTokenRepository($this->connection, new NativeClock()),
+            $this->userService,
             $this->createExternalTokenService($idToken),
+            new NativeClock()
         );
 
         $shopwareGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -100,15 +115,10 @@ class ShopwareGrantTypeTest extends TestCase
         static::assertIsString($responseBodyData['refresh_token']);
     }
 
-    private function createRefreshTokenRepository(): RefreshTokenRepository
-    {
-        return new RefreshTokenRepository($this->getContainer()->get(Connection::class));
-    }
-
     private function createExternalTokenService(string $token): ExternalTokenService
     {
-        $responseInterface = $this->createMock(ResponseInterface::class);
-        $responseInterface->expects($this->once())->method('getContent')->willReturn(
+        $responseInterface = static::createStub(ResponseInterface::class);
+        $responseInterface->method('getContent')->willReturn(
             \json_encode(
                 [
                     'id_token' => $token,
@@ -121,8 +131,8 @@ class ShopwareGrantTypeTest extends TestCase
             )
         );
 
-        $client = $this->createMock(HttpClientInterface::class);
-        $client->expects($this->once())->method('request')->willReturn($responseInterface);
+        $client = static::createStub(HttpClientInterface::class);
+        $client->method('request')->willReturn($responseInterface);
 
         $loginConfig = new LoginConfigService(
             [
@@ -138,14 +148,9 @@ class ShopwareGrantTypeTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            $this->createMock(RouterInterface::class)
+            static::createStub(RouterInterface::class)
         );
 
         return new ExternalTokenService($client, $loginConfig);
-    }
-
-    private function createUserService(): UserService
-    {
-        return (new ValidUserServiceCreator(static::class))->create();
     }
 }

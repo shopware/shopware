@@ -38,7 +38,7 @@ export default {
         },
 
         cardTitle() {
-            return this.total ? this.$tc('sw-product.reviews.cardTitleReviews') : null;
+            return this.total ? this.$t('sw-product.reviews.cardTitleReviews') : null;
         },
 
         reviewRepository() {
@@ -59,23 +59,23 @@ export default {
                 {
                     property: 'points',
                     dataIndex: 'points',
-                    label: this.$tc('sw-product.reviewForm.labelPoints'),
+                    label: this.$t('sw-product.reviewForm.labelPoints'),
                 },
                 {
                     property: 'status',
                     dataIndex: 'status',
-                    label: this.$tc('sw-product.reviewForm.labelStatus'),
+                    label: this.$t('sw-product.reviewForm.labelStatus'),
                     align: 'center',
                 },
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
-                    label: this.$tc('sw-product.reviewForm.labelCreatedAt'),
+                    label: this.$t('sw-product.reviewForm.labelCreatedAt'),
                 },
                 {
                     property: 'title',
                     dataIndex: 'title',
-                    label: this.$tc('sw-product.reviewForm.labelTitle'),
+                    label: this.$t('sw-product.reviewForm.labelTitle'),
                     routerLink: 'sw.review.detail',
                 },
             ];

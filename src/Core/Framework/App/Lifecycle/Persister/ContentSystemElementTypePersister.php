@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('framework')]
-class ContentSystemElementTypePersister implements PersisterInterface
+class ContentSystemElementTypePersister
 {
     private const TYPES_DIRECTORY = 'Resources/content-system/types';
 
@@ -49,7 +49,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
      * then upserts changed / deletes removed types. Invalidates the registry cache
      * only when changes were written.
      */
-    public function persist(AppLifecycleContext $context): void
+    public function persist(AppPersistContext $context): void
     {
         $appId = $context->app->getId();
 
@@ -101,7 +101,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
      *
      * @return list<ResolvedElementTypeSpecificationDto>
      */
-    private function loadDtos(AppLifecycleContext $context): array
+    private function loadDtos(AppPersistContext $context): array
     {
         $typesDir = $context->appFilesystem->path(self::TYPES_DIRECTORY);
 
@@ -178,7 +178,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
     private function buildUpserts(
         array $resolvedDtos,
         AppContentSystemElementTypeCollection $existing,
-        AppLifecycleContext $context,
+        AppPersistContext $context,
     ): array {
         $existingByName = [];
         foreach ($existing as $entity) {

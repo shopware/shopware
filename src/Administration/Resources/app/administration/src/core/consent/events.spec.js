@@ -36,8 +36,7 @@ describe('src/core/consent/events.ts', () => {
         expect(secondEvent.timestamp.getTime()).toBe(firstEvent.timestamp.getTime() + 1);
     });
 
-    it('dispatches consent event when PRODUCT_ANALYTICS feature is active', () => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
+    it('dispatches consent events', () => {
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
         dispatchConsentEvent('consent_modal_viewed', {
@@ -57,17 +56,6 @@ describe('src/core/consent/events.ts', () => {
                 ],
             },
         });
-    });
-
-    it('does not dispatch consent event when PRODUCT_ANALYTICS feature is inactive', () => {
-        global.activeFeatureFlags = [];
-        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
-
-        dispatchConsentEvent('consent_modal_viewed', {
-            consents_shown: ['product_analytics'],
-        });
-
-        expect(emitSpy).not.toHaveBeenCalled();
     });
 
     describe('isConsentEvent', () => {

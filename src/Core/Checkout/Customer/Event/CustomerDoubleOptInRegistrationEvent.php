@@ -36,8 +36,8 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getName(): string

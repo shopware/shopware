@@ -57,9 +57,9 @@ export default {
         },
 
         taggedFieldPlaceholder() {
-            const defaultPlaceholder = this.$tc('global.sw-tagged-field.text-default-placeholder');
+            const defaultPlaceholder = this.$t('global.sw-tagged-field.text-default-placeholder');
 
-            return `${defaultPlaceholder} ${this.$tc('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
+            return `${defaultPlaceholder} ${this.$t('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
         ...mapPropertyErrors('condition', [
@@ -75,11 +75,11 @@ export default {
             return [
                 {
                     value: false,
-                    label: this.$tc('sw-property.detail.alphanumericSortingType'),
+                    label: this.$t('sw-property.detail.alphanumericSortingType'),
                 },
                 {
                     value: true,
-                    label: this.$tc('sw-property.detail.numericSortingType'),
+                    label: this.$t('sw-property.detail.numericSortingType'),
                 },
             ];
         },

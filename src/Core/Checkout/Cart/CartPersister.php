@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
@@ -28,7 +29,8 @@ class CartPersister extends AbstractCartPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly CartCompressor $compressor
+        private readonly CartCompressor $compressor,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -111,7 +113,7 @@ class CartPersister extends AbstractCartPersister
             'token' => $cart->getToken(),
             'payload' => $serializeCart,
             'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
-            'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'compressed' => $compressed,
         ];
 
@@ -145,8 +147,7 @@ class CartPersister extends AbstractCartPersister
 
     public function prune(int $days): void
     {
-        $time = new \DateTime();
-        $time->modify(\sprintf('-%d day', $days));
+        $time = $this->clock->now()->modify(\sprintf('-%d day', $days));
 
         $stmt = $this->connection->prepare(<<<'SQL'
             DELETE FROM cart

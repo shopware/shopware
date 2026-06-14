@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -5,7 +7,9 @@
 import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
+import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -107,6 +111,12 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.getNormalizedTemplateRegistry().clear();
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
+
+        const entries = [...Object.keys(_overridesMap)];
+        entries.forEach((key) => {
+            delete _overridesMap[key];
+        });
+        twigBlockIndex.resetBlockIndex();
     });
 
     it('test the component matrix', async () => {
@@ -2404,6 +2414,55 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(component.template).toBe('<div>Override<div>Test</div></div>');
             });
         });
+    });
+
+    it('indexes sync Twig override templates before async override resolution starts', async () => {
+        let resolveAsyncOverride;
+        const asyncOverride = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    resolveAsyncOverride = resolve;
+                }),
+        );
+
+        ComponentFactory.override('component', {
+            template: '{% block test %}Sync override{% endblock %}',
+        });
+        const asyncOverrideRegistration = ComponentFactory.override('component', asyncOverride);
+
+        expect(asyncOverride).not.toHaveBeenCalled();
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+        ]);
+
+        const asyncOverridePromise = asyncOverrideRegistration();
+
+        expect(asyncOverride).toHaveBeenCalledTimes(1);
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+        ]);
+
+        resolveAsyncOverride({
+            template: '{% block test %}Async override{% endblock %}',
+        });
+        await asyncOverridePromise;
+
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+            {
+                componentName: 'component',
+                innerTemplate: 'Async override',
+            },
+        ]);
     });
 
     describe('extends a component which is also an extension without a template', () => {

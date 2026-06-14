@@ -87,20 +87,20 @@ export default {
             return [
                 {
                     property: 'product.translated.name',
-                    label: this.$tc('sw-product.list.columnName'),
+                    label: this.$t('sw-product.list.columnName'),
                     primary: true,
                     allowResize: true,
                     sortable: false,
                 },
                 {
                     property: 'product.productNumber',
-                    label: this.$tc('sw-product.list.columnProductNumber'),
+                    label: this.$t('sw-product.list.columnProductNumber'),
                     allowResize: true,
                     sortable: false,
                 },
                 {
                     property: 'position',
-                    label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                    label: this.$t('sw-product.crossselling.inputCrossSellingPosition'),
                     allowResize: true,
                     sortable: false,
                 },

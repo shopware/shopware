@@ -1,27 +1,22 @@
 import { TelemetryEvent } from '../types';
 import createTelemetryEventHandler from './telemetry-event-handler';
 
-describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
+describe('src/core/telemetry/product-analytics/telemetry-event-handler.ts', () => {
     let client;
-    let pushTelemetryEventToAmplitude;
+    let pushTelemetryEventToGateway;
 
     beforeEach(() => {
         client = {
             track: jest.fn(),
-            getUserId: jest.fn(() => undefined),
             identify: jest.fn(),
-            reset: jest.fn(),
+            flush: jest.fn(),
         };
 
-        Shopware.Store.get('context').app.config.shopId = 'shop-id-1';
-
-        pushTelemetryEventToAmplitude = createTelemetryEventHandler(client);
+        pushTelemetryEventToGateway = createTelemetryEventHandler(client);
     });
 
-    it('tracks login only when identify changes user id', () => {
-        client.getUserId.mockReturnValue(undefined);
-
-        pushTelemetryEventToAmplitude(
+    it('identifies user', () => {
+        pushTelemetryEventToGateway(
             new TelemetryEvent('identify', {
                 userId: 'user-id-1',
                 locale: 'en-GB',
@@ -29,36 +24,24 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
             }),
         );
 
-        expect(client.identify).toHaveBeenCalledWith('shop-id-1:user-id-1', {
-            userId: 'user-id-1',
-            locale: 'en-GB',
-            isAdmin: false,
-        });
-        expect(client.track).toHaveBeenCalledWith('login');
-
-        client.track.mockClear();
-        client.getUserId.mockReturnValue('shop-id-1:user-id-1');
-
-        pushTelemetryEventToAmplitude(
-            new TelemetryEvent('identify', {
-                userId: 'user-id-1',
-                locale: null,
-                isAdmin: null,
-            }),
-        );
-
-        expect(client.track).not.toHaveBeenCalled();
+        expect(client.identify).toHaveBeenCalledWith('user-id-1');
     });
 
-    it('tracks logout and flushes/resets immediately', () => {
-        pushTelemetryEventToAmplitude(new TelemetryEvent('reset', {}));
+    it('tracks login event', () => {
+        pushTelemetryEventToGateway(new TelemetryEvent('login', {}));
 
-        expect(client.track).toHaveBeenCalledWith('logout');
-        expect(client.reset).not.toHaveBeenCalled();
+        expect(client.track).toHaveBeenCalledWith('login', { source: 'admin' });
+    });
+
+    it('tracks logout event', () => {
+        pushTelemetryEventToGateway(new TelemetryEvent('logout', {}));
+
+        expect(client.track).toHaveBeenCalledWith('logout', { source: 'admin' });
+        expect(client.flush).toHaveBeenCalled();
     });
 
     it('normalizes non-string route names for page change tracking', () => {
-        pushTelemetryEventToAmplitude(
+        pushTelemetryEventToGateway(
             new TelemetryEvent('page_change', {
                 from: {
                     name: Symbol('from-route'),
@@ -73,6 +56,7 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
         );
 
         expect(client.track).toHaveBeenCalledWith('page_viewed', {
+            source: 'admin',
             sw_route_from_name: 'Symbol(from-route)',
             sw_route_from_href: '/from',
             sw_route_to_name: null,
@@ -82,14 +66,12 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
     });
 
     it('passes through programmatic telemetry event names unchanged', () => {
-        pushTelemetryEventToAmplitude(
+        pushTelemetryEventToGateway(
             new TelemetryEvent('programmatic', {
                 eventName: 'page_viewed',
             }),
         );
 
-        expect(client.track).toHaveBeenCalledWith('page_viewed', {
-            eventName: 'page_viewed',
-        });
+        expect(client.track).toHaveBeenCalledWith('page_viewed', { source: 'admin' });
     });
 });

@@ -11,6 +11,7 @@ use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
+use Twig\TokenParser\IncludeTokenParser;
 
 /**
  * @internal
@@ -81,7 +82,7 @@ final class EmbedTokenParser extends AbstractTokenParser
     }
 
     /**
-     * @see \Twig\TokenParser\IncludeTokenParser::parseArguments
+     * @see IncludeTokenParser::parseArguments
      *
      * @return array{0: ?AbstractExpression, 1: bool, 2: bool}
      */

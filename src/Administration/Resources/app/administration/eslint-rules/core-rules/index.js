@@ -15,6 +15,7 @@ module.exports = {
         'move-slots-to-wrap-blocks': require(path.resolve(__dirname, 'move-slots-to-wrap-blocks.js')),
         'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
         'enforce-async-component-registers': require(path.resolve(__dirname, 'enforce-async-component-registers.js')),
+        'no-tc-translation': require(path.resolve(__dirname, 'no-tc-translation.js')),
         /* eslint-enable global-require,import/no-dynamic-require */
     },
 };

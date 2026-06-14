@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-product-feature-set__toolbar {
-    padding: 25px 35px;
-    background-color: $color-gray-100;
-    border-bottom: 1px solid $color-gray-300;
+    padding: var(--scale-size-24) var(--scale-size-32);
+    background-color: var(--color-background-secondary-default);
+    border-bottom: var(--scale-size-1) solid var(--color-border-primary-default);
 }

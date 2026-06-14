@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -26,7 +25,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(ZugferdCancellationInvoiceRenderer::class)]
 class ZugferdCancellationInvoiceRendererTest extends TestCase
 {
     use DocumentTrait;

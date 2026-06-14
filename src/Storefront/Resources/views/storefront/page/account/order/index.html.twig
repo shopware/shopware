@@ -4,9 +4,11 @@
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
 {% endblock %}
 
+{% set ORDER_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_OPEN') %}
 {% set orderState = page.order.stateMachineState.technicalName %}
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
+{% set allowOrderCancellation = orderState == ORDER_STATE_OPEN and config('core.cart.enableOrderRefunds') %}
 
 {% block page_checkout_confirm_header %}
     {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
@@ -135,7 +137,7 @@
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
-            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+            {% if allowOrderCancellation %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
@@ -146,7 +148,7 @@
         {% endblock %}
 
         {% block page_checkout_aside_cancel_order_modal_content %}
-            {% if orderState != 'cancelled' and config('core.cart.enableOrderRefunds') %}
+            {% if allowOrderCancellation %}
                 {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
             {% endif %}
         {% endblock %}

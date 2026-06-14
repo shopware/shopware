@@ -25,7 +25,7 @@
     }
 
     .sw-page__side-content {
-        background: $color-white;
+        background: var(--color-elevation-surface-raised);
     }
 
     .sw-sidebar-collapse__header {

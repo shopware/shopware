@@ -3,21 +3,19 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
-use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('discovery')]
 class FileSaver
@@ -38,23 +35,20 @@ class FileSaver
      * @internal
      *
      * @param EntityRepository<MediaCollection> $mediaRepository
-     * @param array<string> $allowedExtensions
-     * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
-        private readonly ThumbnailService $thumbnailService,
+        private readonly FileContentValidationStrategy $fileContentValidationStrategy,
         private readonly MetadataLoader $metadataLoader,
         private readonly TypeDetector $typeDetector,
-        private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SqlMediaLocationBuilder $locationBuilder,
         private readonly AbstractMediaPathStrategy $mediaPathStrategy,
-        private readonly array $allowedExtensions,
-        private readonly array $privateAllowedExtensions,
-        private readonly bool $remoteThumbnailsEnable = false
+        private readonly MediaFileCleanupService $cleanup,
+        private readonly MediaFileExtensionValidator $extensionValidator,
+        private readonly bool $remoteThumbnailsEnable = false,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -77,9 +71,10 @@ class FileSaver
             $context
         );
 
-        $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+        $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
+        $this->fileContentValidationStrategy->validate($mediaFile);
 
-        $this->removeOldMediaData($currentMedia, $context);
+        $this->cleanup->removeOldMediaData($currentMedia, $context);
 
         $mediaType = $this->typeDetector->detect($mediaFile);
 
@@ -96,15 +91,7 @@ class FileSaver
 
         $this->saveFileToMediaDir($mediaFile, $media, $context);
 
-        if ($this->remoteThumbnailsEnable) {
-            return;
-        }
-
-        $message = new GenerateThumbnailsMessage();
-        $message->setMediaIds([$mediaId]);
-        $message->setContext($context);
-
-        $this->messageBus->dispatch($message);
+        $this->cleanup->dispatchThumbnailGeneration($mediaId, $context);
     }
 
     public function renameMedia(string $mediaId, string $destination, Context $context): void
@@ -163,6 +150,10 @@ class FileSaver
             $thumbnails = $this->getNewThumbnailPaths($media, $destination);
 
             foreach ($media->getThumbnails() ?? [] as $thumbnail) {
+                if ($thumbnail->getPath() !== '' && \in_array($thumbnail->getPath(), array_keys($renamedFiles), true)) {
+                    continue;
+                }
+
                 try {
                     $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
 
@@ -217,25 +208,6 @@ class FileSaver
             $destination,
             $this->getFileSystem($currentMedia)
         );
-    }
-
-    private function removeOldMediaData(MediaEntity $media, Context $context): void
-    {
-        if (!$media->hasFile()) {
-            return;
-        }
-
-        try {
-            $this->getFileSystem($media)->delete($media->getPath());
-        } catch (UnableToDeleteFile) {
-            // nth
-        }
-
-        if ($this->remoteThumbnailsEnable) {
-            return;
-        }
-
-        $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
     private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media, Context $context): void
@@ -358,25 +330,6 @@ class FileSaver
         $this->fileNameValidator->validateFileName($destination);
 
         return $destination;
-    }
-
-    /**
-     * @throws MediaException
-     */
-    private function validateFileExtension(MediaFile $mediaFile, string $mediaId, bool $isPrivate = false): void
-    {
-        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
-        $this->eventDispatcher->dispatch($event);
-
-        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
-
-        foreach ($event->getWhitelist() as $extension) {
-            if ($fileExtension === mb_strtolower((string) $extension)) {
-                return;
-            }
-        }
-
-        throw MediaException::fileExtensionNotSupported($mediaId, $fileExtension);
     }
 
     /**

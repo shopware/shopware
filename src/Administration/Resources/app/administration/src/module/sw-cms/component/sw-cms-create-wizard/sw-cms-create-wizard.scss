@@ -12,14 +12,14 @@
     }
 
     .sw-cms-create-wizard__title {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: 32px;
         font-weight: normal;
     }
 
     .sw-cms-create-wizard__back {
         margin: 20px 0;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         cursor: pointer;
         text-decoration: none;
         display: flex;
@@ -47,9 +47,9 @@
     }
 
     .sw-cms-create-wizard__page-type {
-        border: 1px solid $color-gray-300;
-        color: $color-darkgray-200;
-        background: #fff;
+        border: 1px solid var(--color-border-primary-default);
+        color: var(--color-text-primary-default);
+        background: var(--color-elevation-surface-raised);
         padding: 28px 20px;
         text-align: center;
         cursor: pointer;
@@ -85,16 +85,16 @@
     }
 
     .sw-cms-create-wizard__page-preview {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
         padding: 10px 10px 0;
-        background: #fff;
+        background: var(--color-elevation-surface-raised);
         display: grid;
         grid-template-rows: 120px 40px;
 
         .sw-cms-create-wizard__preview_image {
-            background: center center no-repeat $color-white;
-            border: 1px solid $color-gray-300;
+            background: center center no-repeat var(--color-elevation-surface-raised);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
         }
 
@@ -102,7 +102,7 @@
             display: flex;
             flex-direction: row;
             justify-content: center;
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             align-items: center;
 
             .mt-icon {

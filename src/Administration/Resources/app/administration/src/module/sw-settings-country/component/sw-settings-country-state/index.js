@@ -75,13 +75,13 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
+                    label: this.$t('sw-settings-country.detail.columnStateNameLabel'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'shortCode',
-                    label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
+                    label: this.$t('sw-settings-country.detail.columnStateShortCodeLabel'),
                     inlineEdit: 'string',
                 },
             ];
@@ -148,7 +148,7 @@ export default {
                 .catch((errors) => {
                     if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
                         this.createNotificationError({
-                            message: this.$tc('sw-country-state-detail.createNewStateError'),
+                            message: this.$t('sw-country-state-detail.createNewStateError'),
                         });
                     }
                 });

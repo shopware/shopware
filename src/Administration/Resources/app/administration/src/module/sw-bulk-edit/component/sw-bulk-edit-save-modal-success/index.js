@@ -90,8 +90,8 @@ export default {
 
         description() {
             return this.selectedDocumentTypes.length > 0
-                ? this.$tc('sw-bulk-edit.modal.success.instruction')
-                : this.$tc('sw-bulk-edit.modal.success.description');
+                ? this.$t('sw-bulk-edit.modal.success.instruction')
+                : this.$t('sw-bulk-edit.modal.success.description');
         },
     },
 
@@ -107,14 +107,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.success.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.success.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'close',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'right',
                     variant: 'primary',
                     action: '',
@@ -165,7 +165,7 @@ export default {
 
             if (!documentIds || documentIds.length === 0) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
+                    message: this.$t('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
                 });
 
                 return Promise.resolve();

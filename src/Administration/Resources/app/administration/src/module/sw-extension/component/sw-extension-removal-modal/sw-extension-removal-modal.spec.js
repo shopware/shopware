@@ -5,7 +5,7 @@ async function createWrapper(propsData = {}) {
         global: {
             mocks: {
                 $t: (key, values) => {
-                    return key + JSON.stringify(Object.values(values));
+                    return values ? key + JSON.stringify(Object.values(values)) : key;
                 },
             },
             stubs: {},

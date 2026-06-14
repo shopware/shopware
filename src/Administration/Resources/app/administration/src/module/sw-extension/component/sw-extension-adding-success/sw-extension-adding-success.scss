@@ -15,7 +15,7 @@
     p {
         font-size: $font-size-xs;
         line-height: 1.5;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     .mt-button {

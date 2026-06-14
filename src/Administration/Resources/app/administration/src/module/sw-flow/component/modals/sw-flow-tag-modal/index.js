@@ -75,11 +75,11 @@ export default {
             if (!this.action) return '';
 
             if (this.action.match(/add.*tag/)) {
-                return this.$tc('sw-flow.modals.tag.labelAddTag');
+                return this.$t('sw-flow.modals.tag.labelAddTag');
             }
 
             if (this.action.match(/remove.*tag/)) {
-                return this.$tc('sw-flow.modals.tag.labelRemoveTag');
+                return this.$t('sw-flow.modals.tag.labelRemoveTag');
             }
 
             return '';

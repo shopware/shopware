@@ -39,10 +39,10 @@ export default {
     computed: {
         tooltipText() {
             if (this.wasCopied) {
-                return this.$tc('global.sw-field-copyable.tooltip.wasCopied');
+                return this.$t('global.sw-field-copyable.tooltip.wasCopied');
             }
 
-            return this.$tc('global.sw-field-copyable.tooltip.canCopy');
+            return this.$t('global.sw-field-copyable.tooltip.canCopy');
         },
     },
 
@@ -61,8 +61,8 @@ export default {
                 }
             } catch (_err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                 });
             }
         },
@@ -73,7 +73,7 @@ export default {
 
         notificationSuccess() {
             this.createNotificationInfo({
-                message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                message: this.$t('global.sw-field.notification.notificationCopySuccessMessage'),
             });
         },
 

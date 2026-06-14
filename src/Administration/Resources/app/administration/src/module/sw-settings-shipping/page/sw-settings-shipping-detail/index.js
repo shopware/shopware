@@ -285,8 +285,8 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
+                title: this.$t('global.default.error'),
+                message: `${this.$t('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

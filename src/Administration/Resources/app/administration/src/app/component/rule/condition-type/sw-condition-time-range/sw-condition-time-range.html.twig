@@ -4,12 +4,11 @@
     <mt-datepicker
         v-model="fromTime"
         name="sw-field--fromTime"
-        size="medium"
         date-type="time"
         required
         :config="datepickerConfig"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.time.placeholder')"
+        :placeholder="$t('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
 
@@ -17,12 +16,11 @@
     <mt-datepicker
         v-model="toTime"
         name="sw-field--toTime"
-        size="medium"
         date-type="time"
         required
         :config="datepickerConfig"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.time.placeholder')"
+        :placeholder="$t('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
 

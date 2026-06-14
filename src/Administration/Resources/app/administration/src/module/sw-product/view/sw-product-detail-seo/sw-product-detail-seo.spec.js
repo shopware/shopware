@@ -163,6 +163,9 @@ async function createWrapper(privileges = []) {
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
                 'sw-ai-copilot-badge': true,
+                'sw-media-modal-v2': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
             },
         },
     });

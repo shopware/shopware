@@ -20,6 +20,11 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1746176773, (new Migration1746176773AddIntegrationIdStateHistory())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

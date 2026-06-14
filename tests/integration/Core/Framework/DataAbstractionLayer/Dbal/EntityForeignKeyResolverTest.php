@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -30,7 +29,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

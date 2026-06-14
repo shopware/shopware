@@ -5,13 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Config;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Headers;
-use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Metadata;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Parameters;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
@@ -19,108 +12,81 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[CoversClass(Action::class)]
 class ActionTest extends TestCase
 {
-    private Action $action;
-
-    private \DOMDocument $document;
-
-    protected function setUp(): void
+    public function testFromXml(): void
     {
-        $this->document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
-        );
+        $action = self::createAction();
 
-        $actions = $this->document->getElementsByTagName('flow-actions')->item(0);
-        static::assertNotNull($actions);
-        $action = $actions->getElementsByTagName('flow-action')->item(0);
-        static::assertNotNull($action);
-        $meta = $action->getElementsByTagName('meta')->item(0);
-        static::assertNotNull($meta);
-
-        $meta = Metadata::fromXml($meta);
-
-        $parameter = Parameter::fromArray(['id' => 'key']);
-        $parameters = Parameters::fromArray(['parameters' => [$parameter]]);
-        $headers = Headers::fromArray(['parameters' => [$parameter]]);
-        $inputFiled = InputField::fromArray(['id' => 'key']);
-        $config = Config::fromArray(['config' => [$inputFiled]]);
-
-        $this->action = Action::fromArray([
-            'meta' => $meta,
-            'headers' => $headers,
-            'parameters' => $parameters,
-            'config' => $config,
-        ]);
+        static::assertSame('mail.send', $action->getMeta()->getName());
+        static::assertCount(1, $action->getHeaders()->getParameters());
+        static::assertCount(2, $action->getParameters()->getParameters());
+        static::assertCount(1, $action->getConfig()->getConfig());
     }
 
     public function testToArray(): void
     {
-        $result = $this->action->toArray('en-GB');
-        static::assertArrayHasKey('name', $result);
-        static::assertArrayHasKey('swIcon', $result);
-        static::assertArrayHasKey('url', $result);
-        static::assertArrayHasKey('delayable', $result);
-        static::assertArrayHasKey('parameters', $result);
-        static::assertArrayHasKey('config', $result);
-        static::assertArrayHasKey('headers', $result);
-        static::assertArrayHasKey('requirements', $result);
-        static::assertArrayHasKey('label', $result);
-        static::assertArrayHasKey('description', $result);
-        static::assertArrayHasKey('headline', $result);
+        $result = self::createAction()->toArray('en-GB');
+
+        static::assertSame('mail.send', $result['name']);
+        static::assertSame('https://example.com/flow-action', $result['url']);
+        static::assertTrue($result['delayable']);
+        static::assertSame(['order'], $result['requirements']);
+        static::assertSame(['en-GB' => 'Send mail'], $result['label']);
+        static::assertSame(['en-GB' => 'Send mail to customer'], $result['description']);
+        static::assertSame(['en-GB' => 'Mail'], $result['headline']);
+        static::assertSame('sw-mail', $result['swIcon']);
+        static::assertCount(2, $result['parameters']);
+        static::assertSame('string', $result['parameters'][0]['type']);
+        static::assertSame('to', $result['parameters'][0]['name']);
+        static::assertSame('{{ customer.email }}', $result['parameters'][0]['value']);
+        static::assertSame('string', $result['parameters'][1]['type']);
+        static::assertSame('subject', $result['parameters'][1]['name']);
+        static::assertSame('Order placed', $result['parameters'][1]['value']);
+        static::assertCount(1, $result['headers']);
+        static::assertSame('string', $result['headers'][0]['type']);
+        static::assertSame('content-type', $result['headers'][0]['name']);
+        static::assertSame('application/json', $result['headers'][0]['value']);
+        static::assertSame('recipient', $result['config'][0]['name']);
+        static::assertSame('text', $result['config'][0]['type']);
     }
 
-    public function testFromXml(): void
+    private static function createAction(): Action
     {
-        $actions = $this->document->getElementsByTagName('flow-actions')->item(0);
-        static::assertNotNull($actions);
-        foreach ($actions->getElementsByTagName('flow-action') as $action) {
-            $result = $this->action::fromXml($action)->toArray('en-GB');
-            static::assertArrayHasKey('meta', $result);
-            static::assertArrayHasKey('headers', $result);
-            static::assertArrayHasKey('config', $result);
-            static::assertArrayHasKey('parameters', $result);
-        }
+        return Action::fromXml(self::loadElement(<<<'XML'
+<flow-action>
+    <meta>
+        <name>mail.send</name>
+        <label>Send mail</label>
+        <description>Send mail to customer</description>
+        <headline>Mail</headline>
+        <url>https://example.com/flow-action</url>
+        <sw-icon>sw-mail</sw-icon>
+        <requirements>order</requirements>
+        <delayable>true</delayable>
+    </meta>
+    <headers>
+        <parameter type="string" name="content-type" value="application/json"/>
+    </headers>
+    <parameters>
+        <parameter type="string" name="to" value="{{ customer.email }}"/>
+        <parameter type="string" name="subject" value="Order placed"/>
+    </parameters>
+    <config>
+        <input-field>
+            <name>recipient</name>
+            <label>Recipient</label>
+            <required>true</required>
+        </input-field>
+    </config>
+</flow-action>
+XML));
     }
 
-    public function testGetMeta(): void
+    private static function loadElement(string $xml): \DOMElement
     {
-        $expected = [
-            'label' => [
-                'en-GB' => 'First action app',
-                'de-DE' => 'First action app DE',
-            ],
-            'description' => [
-                'en-GB' => 'First action app description',
-                'de-DE' => 'First action app description DE',
-            ],
-            'name' => 'abc.cde.ccc',
-            'url' => 'https://example.xyz',
-            'requirements' => ['order', 'customer'],
-            'icon' => 'resource/pencil',
-            'swIcon' => 'sw-pencil',
-            'headline' => [
-                'en-GB' => 'Headline for action',
-                'de-DE' => 'Überschrift für Aktion',
-            ],
-            'delayable' => true,
-            'badge' => 'abc',
-        ];
+        $document = new \DOMDocument();
+        static::assertTrue($document->loadXML($xml));
+        static::assertInstanceOf(\DOMElement::class, $document->documentElement);
 
-        static::assertSame($expected, $this->action->getMeta()->toArray('en-GB'));
-    }
-
-    public function testGetHeaders(): void
-    {
-        static::assertArrayHasKey('parameters', $this->action->getHeaders()->toArray('eb-GB'));
-    }
-
-    public function testGetParameters(): void
-    {
-        static::assertArrayHasKey('parameters', $this->action->getParameters()->toArray('eb-GB'));
-    }
-
-    public function testGetConfig(): void
-    {
-        static::assertArrayHasKey('config', $this->action->getConfig()->toArray('eb-GB'));
+        return $document->documentElement;
     }
 }

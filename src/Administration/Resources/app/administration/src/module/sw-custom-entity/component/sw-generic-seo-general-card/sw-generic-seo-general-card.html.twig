@@ -2,15 +2,15 @@
 <mt-card
     class="sw-generic-seo-general-card"
     position-identifier="sw-generic-seo-general-card"
-    :title="$tc('sw-landing-page.base.seo.titleGeneralInformation')"
+    :title="$t('sw-landing-page.base.seo.titleGeneralInformation')"
 >
     <mt-text-field
         class="sw-generic-seo-general-card__seo-meta-title-input"
         maxlength="255"
         :model-value="seoMetaTitle"
-        :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
-        :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaTitle')"
+        :label="$t('sw-landing-page.base.seo.labelMetaTitle')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
+        :placeholder="$t('sw-landing-page.base.seo.placeholderMetaTitle')"
         @update:model-value="emitSeoMetaTitle"
     />
 
@@ -18,8 +18,8 @@
         class="sw-generic-seo-general-card__seo-url-input"
         maxlength="255"
         :model-value="seoUrl"
-        :label="$tc('sw-landing-page.base.seo.labelUrl')"
-        :placeholder="$tc('sw-landing-page.base.seo.placeholderUrl')"
+        :label="$t('sw-landing-page.base.seo.labelUrl')"
+        :placeholder="$t('sw-landing-page.base.seo.placeholderUrl')"
         @update:model-value="emitSeoUrl"
     />
 
@@ -27,15 +27,15 @@
         class="sw-generic-seo-general-card__seo-meta-description-input"
         :model-value="seoMetaDescription"
         maxlength="255"
-        :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
-        :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaDescription')"
+        :label="$t('sw-landing-page.base.seo.labelMetaDescription')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
+        :placeholder="$t('sw-landing-page.base.seo.placeholderMetaDescription')"
         @update:model-value="emitSeoMetaDescription"
     />
 
     <div class="sw-generic-seo-general-card__google-preview-container">
         <div class="sw-generic-seo-general-card__google-preview-header">
-            {{ $tc('sw-landing-page.base.seo.searchResultPreview') }}
+            {{ $t('sw-landing-page.base.seo.searchResultPreview') }}
         </div>
 
         <div class="sw-generic-seo-general-card__google-preview">

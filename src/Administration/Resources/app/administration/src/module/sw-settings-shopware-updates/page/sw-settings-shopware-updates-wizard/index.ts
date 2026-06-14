@@ -75,7 +75,7 @@ export default Component.wrapComponentConfig({
             }
 
             return {
-                message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
+                message: this.$t('sw-settings-shopware-updates.infos.requirementsNotMet'),
                 position: 'bottom',
             };
         },
@@ -97,20 +97,20 @@ export default Component.wrapComponentConfig({
         },
 
         optionDeactivateIncompatibleTranslation() {
-            const deactivateIncompatTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
+            const deactivateIncompatTrans = this.$t('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
             const isRecommended =
                 this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning
-                    ? this.$tc('sw-settings-shopware-updates.plugins.actions.recommended')
+                    ? this.$t('sw-settings-shopware-updates.plugins.actions.recommended')
                     : '';
 
             return `${deactivateIncompatTrans} ${isRecommended}`;
         },
 
         optionDeactivateAllTranslation() {
-            const deactiveAllTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateAll');
+            const deactiveAllTrans = this.$t('sw-settings-shopware-updates.plugins.actions.deactivateAll');
             const isRecommended =
                 this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning
-                    ? this.$tc('sw-settings-shopware-updates.plugins.actions.recommended')
+                    ? this.$t('sw-settings-shopware-updates.plugins.actions.recommended')
                     : '';
 
             return `${deactiveAllTrans} ${isRecommended}`;
@@ -161,7 +161,7 @@ export default Component.wrapComponentConfig({
             this.$emit('update-started');
             this.updaterIsRunning = true;
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted'),
+                message: this.$t('sw-settings-shopware-updates.notifications.updateStarted'),
             });
 
             this.downloadRecovery();
@@ -172,7 +172,7 @@ export default Component.wrapComponentConfig({
             this.$emit('update-stopped');
             this.updaterIsRunning = false;
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped'),
+                message: this.$t('sw-settings-shopware-updates.notifications.updateStopped'),
             });
         },
 
@@ -185,7 +185,7 @@ export default Component.wrapComponentConfig({
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
+                        message: this.$t('sw-settings-shopware-updates.notifications.downloadFailed'),
                     });
                 });
         },
@@ -222,14 +222,14 @@ export default Component.wrapComponentConfig({
                     } else if (context.code === 'THEME__THEME_ASSIGNMENT') {
                         this.createNotificationWarning({
                             // @ts-expect-error
-                            message: this.$tc('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
+                            message: this.$t('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
                                 themeName: context.meta.parameters.themeName,
                                 assignments: context.meta.parameters.assignments,
                             }),
                         });
                     } else {
                         this.createNotificationError({
-                            message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
+                            message: this.$t('sw-settings-shopware-updates.notifications.deactivationFailed'),
                         });
                     }
                 });

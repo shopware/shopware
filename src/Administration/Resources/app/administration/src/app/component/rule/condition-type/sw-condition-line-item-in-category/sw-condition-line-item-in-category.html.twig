@@ -11,7 +11,6 @@
     {% block sw_condition_line_item_in_category_field_identifiers %}
     <sw-entity-multi-select
         v-if="!isEmpty"
-        size="medium"
         :disabled="disabled || undefined"
         entity="category"
         :entity-collection="categories"
@@ -41,7 +40,7 @@
                     <sw-help-text
                         v-if="item.productAssignmentType === 'product_stream'"
                         class="sw-condition-line-item-in-category__help-text"
-                        :text="$tc('global.sw-condition.condition.categoryWithProductStreamTooltip')"
+                        :text="$t('global.sw-condition.condition.categoryWithProductStreamTooltip')"
                     />
                 </span>
                 {% endblock %}

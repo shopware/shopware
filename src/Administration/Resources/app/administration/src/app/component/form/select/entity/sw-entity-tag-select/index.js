@@ -31,7 +31,7 @@ export default {
                 if (!this.tagExists) {
                     // Create dummy entity with id -1
                     const newTag = this.repository.create(this.entityCollection.context, -1);
-                    newTag.name = this.$tc('global.sw-tag-field.listItemAdd', { term: this.searchTerm }, 0);
+                    newTag.name = this.$t('global.sw-tag-field.listItemAdd', { term: this.searchTerm }, 0);
 
                     this.resultCollection.unshift(newTag);
                     // Reset active item position, so that the "Add Tag" element gets focus

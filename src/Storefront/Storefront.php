@@ -6,11 +6,13 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompilerPass;
+use Shopware\Storefront\DependencyInjection\ThemeCompilerAssetCompilerPass;
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -36,10 +38,14 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('system.xml');
         $loader->load('content-system.xml');
 
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $phpLoader->load('mcp.php');
+
         $container->setParameter('storefrontRoot', $this->getPath());
 
         $container->addCompilerPass(new DisableTemplateCachePass());
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
+        $container->addCompilerPass(new ThemeCompilerAssetCompilerPass());
         // Auto-register Twig component namespaces for all bundles
         // Must run before Symfony's TwigComponentPass processes the configuration
         $container->addCompilerPass(new TwigComponentBundlePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 100);

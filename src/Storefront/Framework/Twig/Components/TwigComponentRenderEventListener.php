@@ -16,9 +16,6 @@ use Symfony\UX\TwigComponent\Event\PreRenderEvent;
 #[AsEventListener]
 class TwigComponentRenderEventListener
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly string $environment
     ) {

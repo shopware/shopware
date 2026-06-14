@@ -56,10 +56,10 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc(
+                        title: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
                         ),
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
                         ),
                     });

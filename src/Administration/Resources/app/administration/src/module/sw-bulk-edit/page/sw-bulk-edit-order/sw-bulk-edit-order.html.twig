@@ -11,7 +11,7 @@
     {% block sw_bulk_edit_order_smart_bar_header %}
     <template #smart-bar-header>
 
-        <h2>{{ $tc('sw-bulk-edit.order.textTitle', { orderTotal: selectedIds.length }, selectedIds.length) }}</h2>
+        <h2>{{ $t('sw-bulk-edit.order.textTitle', { orderTotal: selectedIds.length }, selectedIds.length) }}</h2>
 
     </template>
     {% endblock %}
@@ -28,7 +28,7 @@
             :disabled="isLoading || !hasChanges || undefined"
             @click="openModal"
         >
-            {{ $tc('sw-bulk-edit.applyChanges') }}
+            {{ $t('sw-bulk-edit.applyChanges') }}
         </sw-button-process>
         {% endblock %}
 
@@ -47,16 +47,16 @@
                 position-identifier="sw-bulk-edit-order-restricted-fields"
             >
                 <mt-banner
-                    :title="$tc('sw-bulk-edit.order.alertRestrictedFields.title')"
+                    :title="$t('sw-bulk-edit.order.alertRestrictedFields.title')"
                     variant="attention"
                 >
-                    <span v-html="$tc('sw-bulk-edit.order.alertRestrictedFields.message')"></span>
+                    <span v-html="$t('sw-bulk-edit.order.alertRestrictedFields.message')"></span>
                     <ul>
                         <li
                             v-for="(restrictedField, index) in restrictedFields"
                             :key="index"
                         >
-                            {{ $tc(`sw-bulk-edit.order.alertRestrictedFields.${restrictedField}`) }}
+                            {{ $t(`sw-bulk-edit.order.alertRestrictedFields.${restrictedField}`) }}
                         </li>
                     </ul>
                 </mt-banner>
@@ -66,7 +66,7 @@
             <mt-card
                 class="sw-bulk-edit-order-base__status"
                 position-identifier="sw-bulk-edit-order-status"
-                :title="$tc('sw-bulk-edit.order.status.cardTitle')"
+                :title="$t('sw-bulk-edit.order.status.cardTitle')"
                 :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_order_content_order_status_section %}
@@ -83,7 +83,7 @@
             <mt-card
                 class="sw-bulk-edit-order-base__documents"
                 position-identifier="sw-bulk-edit-order-documents"
-                :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
+                :title="$t('sw-bulk-edit.order.documents.cardTitle')"
                 :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_order_content_documents_content %}
@@ -101,7 +101,7 @@
             <mt-card
                 class="sw-bulk-edit-order-base__tags"
                 position-identifier="sw-bulk-edit-order-tags"
-                :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
+                :title="$t('sw-bulk-edit.order.tags.cardTitle')"
                 :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_order_tags %}
@@ -116,9 +116,10 @@
 
             {% block sw_bulk_edit_order_custom_field_card %}
             <mt-card
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-order-base__custom_fields"
                 position-identifier="sw-bulk-edit-order-custom-fields"
-                :title="$tc('sw-bulk-edit.order.customFields.cardTitle')"
+                :title="$t('sw-bulk-edit.order.customFields.cardTitle')"
                 :is-loading="isLoading"
             >
                 <sw-bulk-edit-custom-fields
@@ -134,8 +135,8 @@
         <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-bulk-edit.order.messageEmptyTitle')"
-            :description="$tc('sw-bulk-edit.order.messageEmptySubline')"
+            :headline="$t('sw-bulk-edit.order.messageEmptyTitle')"
+            :description="$t('sw-bulk-edit.order.messageEmptySubline')"
         />
         {% endblock %}
 

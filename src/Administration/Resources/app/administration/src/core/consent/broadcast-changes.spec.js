@@ -15,7 +15,6 @@ describe('src/core/consent/broadcast-changes', () => {
     });
 
     it('sends broadcast message when store runs update', async () => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         const store = useConsentStore();
         store.consents = {
             test_consent: {

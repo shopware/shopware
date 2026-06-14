@@ -9,7 +9,6 @@ describe('src/app/init-post/index.ts', () => {
             language: expect.any(Function),
             userInformation: expect.any(Function),
             worker: expect.any(Function),
-            usageData: expect.any(Function),
             telemetry: expect.any(Function),
             productAnalytics: expect.any(Function),
         });

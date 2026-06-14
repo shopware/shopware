@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -76,7 +77,60 @@ class DocumentMergerTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame('pdf', $result->getFileExtension());
+        static::assertSame('application/pdf', $result->getContentType());
         static::assertSame(self::PDF_CONTENT, $result->getContent());
+        static::assertSame('document.pdf', $result->getName());
+    }
+
+    public function testMergeOneXmlDocumentPreservesOriginalMetadata(): void
+    {
+        $document = $this->createDocument(
+            true,
+            true,
+            'xml',
+            'application/xml',
+            'invoice'
+        );
+
+        $fpdi = $this->createMock(Fpdi::class);
+        $fpdi->expects($this->never())->method('setSourceFile');
+
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator->expects($this->never())->method('generate');
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())->method('loadFile')->willReturn('<xml />');
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $mediaService,
+            $documentGenerator,
+            $fpdi,
+            $this->createMock(Filesystem::class),
+        );
+
+        $result = $documentMerger->merge(
+            [$document->getId()],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotNull($result);
+        static::assertSame('xml', $result->getFileExtension());
+        static::assertSame('application/xml', $result->getContentType());
+        static::assertSame('<xml />', $result->getContent());
+        static::assertSame('invoice.xml', $result->getName());
     }
 
     public function testMergeMultipleDocumentsUsingFpdi(): void
@@ -138,6 +192,8 @@ class DocumentMergerTest extends TestCase
         $mediaEntity = new MediaEntity();
         $mediaEntity->setId(Uuid::randomHex());
         $mediaEntity->setFileExtension('pdf');
+        $mediaEntity->setMimeType('application/pdf');
+        $mediaEntity->setFileName('generated');
         $documentWithMedia->setDocumentMediaFileId($mediaEntity->getId());
         $documentWithMedia->setDocumentMediaFile($mediaEntity);
 
@@ -176,9 +232,12 @@ class DocumentMergerTest extends TestCase
                 return $result;
             });
 
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())->method('loadFile')->willReturn(self::PDF_CONTENT);
+
         $documentMerger = new DocumentMerger(
             $documentRepository,
-            $this->createMock(MediaService::class),
+            $mediaService,
             $documentGenerator,
             $this->createMock(Fpdi::class),
             $this->createMock(Filesystem::class),
@@ -191,6 +250,89 @@ class DocumentMergerTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame('pdf', $result->getFileExtension());
+        static::assertSame('application/pdf', $result->getContentType());
+        static::assertSame('generated.pdf', $result->getName());
+        static::assertSame(self::PDF_CONTENT, $result->getContent());
+    }
+
+    public function testMergeTriggersDocumentGenerationWithConfiguredFileTypeWhenMediaMissing(): void
+    {
+        $document = $this->createDocument(
+            false,
+            true,
+            'pdf',
+            'application/pdf',
+            'document',
+            ['fileTypes' => ['xml']]
+        );
+
+        $documentWithMedia = clone $document;
+        $mediaEntity = new MediaEntity();
+        $mediaEntity->setId(Uuid::randomHex());
+        $mediaEntity->setFileExtension('xml');
+        $mediaEntity->setMimeType('application/xml');
+        $mediaEntity->setFileName('generated-xml');
+        $documentWithMedia->setDocumentMediaFileId($mediaEntity->getId());
+        $documentWithMedia->setDocumentMediaFile($mediaEntity);
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'document',
+                    1,
+                    new DocumentCollection([$document]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                ),
+                new EntitySearchResult(
+                    'document',
+                    1,
+                    new DocumentCollection([$documentWithMedia]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                )
+            );
+
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator->expects($this->once())
+            ->method('generate')
+            ->willReturnCallback(static function (string $documentType, array $operations) {
+                $operation = reset($operations);
+                static::assertInstanceOf(DocumentGenerateOperation::class, $operation);
+                static::assertSame('invoice', $documentType);
+                static::assertSame('xml', $operation->getFileType());
+
+                $result = new DocumentGenerationResult();
+                $result->addSuccess(new DocumentIdStruct($operation->getDocumentId() ?? Uuid::randomHex(), '', Uuid::randomHex()));
+
+                return $result;
+            });
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())->method('loadFile')->willReturn('<xml />');
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $mediaService,
+            $documentGenerator,
+            $this->createMock(Fpdi::class),
+            $this->createMock(Filesystem::class),
+        );
+
+        $result = $documentMerger->merge(
+            [$document->getId()],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotNull($result);
+        static::assertSame('xml', $result->getFileExtension());
+        static::assertSame('application/xml', $result->getContentType());
+        static::assertSame('generated-xml.xml', $result->getName());
+        static::assertSame('<xml />', $result->getContent());
     }
 
     public function testMergeMultipleDocumentsSkipsDocumentsWithoutMediaAndDocumentType(): void
@@ -284,6 +426,61 @@ class DocumentMergerTest extends TestCase
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
         static::assertNotEmpty($result->getContent());
+    }
+
+    public function testMergeMultipleDocumentsWithNonPdfFileTypesCreatesZip(): void
+    {
+        $firstDocument = $this->createDocument(true);
+        $secondDocument = $this->createDocument(
+            true,
+            true,
+            'xml',
+            'application/xml',
+            'invoice-xml'
+        );
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                2,
+                new DocumentCollection([$firstDocument, $secondDocument]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $fpdi = $this->createMock(Fpdi::class);
+        $fpdi->expects($this->never())->method('setSourceFile');
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnOnConsecutiveCalls('pdf content', '<xml />');
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->method('readFile')->willReturn('zip file content');
+        $filesystem->expects($this->once())->method('remove');
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $mediaService,
+            $this->createMock(DocumentGenerator::class),
+            $fpdi,
+            $filesystem,
+        );
+
+        $result = $documentMerger->merge(
+            [$firstDocument->getId(), $secondDocument->getId()],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotNull($result);
+        static::assertSame('zip', $result->getFileExtension());
+        static::assertSame('application/zip', $result->getContentType());
+        static::assertSame('zip file content', $result->getContent());
     }
 
     public function testCreateDocumentsZipThrowsExceptionWhenZipFileCannotBeRead(): void
@@ -453,13 +650,22 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
     }
 
-    private function createDocument(bool $withMedia, bool $withDocumentType = true): DocumentEntity
-    {
+    /**
+     * @param array<string, array<string>> $config
+     */
+    private function createDocument(
+        bool $withMedia,
+        bool $withDocumentType = true,
+        string $fileExtension = 'pdf',
+        string $mimeType = 'application/pdf',
+        string $fileName = 'document',
+        array $config = [],
+    ): DocumentEntity {
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setOrderId(Uuid::randomHex());
         $document->setStatic(false);
-        $document->setConfig([]);
+        $document->setConfig($config);
 
         if ($withDocumentType) {
             $documentType = new DocumentTypeEntity();
@@ -472,7 +678,9 @@ class DocumentMergerTest extends TestCase
         if ($withMedia) {
             $mediaEntity = new MediaEntity();
             $mediaEntity->setId(Uuid::randomHex());
-            $mediaEntity->setFileExtension('pdf');
+            $mediaEntity->setFileExtension($fileExtension);
+            $mediaEntity->setMimeType($mimeType);
+            $mediaEntity->setFileName($fileName);
             $document->setDocumentMediaFile($mediaEntity);
             $document->setDocumentMediaFileId($mediaEntity->getId());
         }

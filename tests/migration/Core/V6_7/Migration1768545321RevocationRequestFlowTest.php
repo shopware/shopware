@@ -24,6 +24,11 @@ class Migration1768545321RevocationRequestFlowTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545321, (new Migration1768545321RevocationRequestFlow())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $migration = new Migration1768545321RevocationRequestFlow();
@@ -39,12 +44,10 @@ class Migration1768545321RevocationRequestFlowTest extends TestCase
 
     private function hasFlowEntry(): bool
     {
-        $result = $this->connection->fetchOne(
+        return (bool) $this->connection->fetchOne(
             'SELECT 1 FROM `flow` WHERE `id` = :flowId',
             ['flowId' => Uuid::fromHexToBytes(Migration1768545321RevocationRequestFlow::REVOCATION_REQUEST_FLOW_ID)]
         );
-
-        return !empty($result);
     }
 
     private function dropFlowEntry(): void

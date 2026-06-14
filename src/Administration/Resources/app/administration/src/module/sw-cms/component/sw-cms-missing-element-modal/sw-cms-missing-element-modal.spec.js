@@ -14,7 +14,7 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $tc: (key, value) => {
+                    $t: (key, value) => {
                         if (!value) {
                             return key;
                         }

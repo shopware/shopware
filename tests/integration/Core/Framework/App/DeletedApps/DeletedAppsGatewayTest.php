@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\DeletedApps;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[CoversClass(DeletedAppsGateway::class)]
 class DeletedAppsGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;

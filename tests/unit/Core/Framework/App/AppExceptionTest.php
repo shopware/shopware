@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,13 +86,16 @@ class AppExceptionTest extends TestCase
         static::assertSame('App installation for "AnyAppName" failed: reason', $e->getMessage());
     }
 
-    public function testAppSecretRequiredForFeatures(): void
+    public function testAppSecretRequiredForFewerThanThreeFeatures(): void
     {
-        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules']);
+        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments']);
 
         static::assertSame(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
-        static::assertSame('App "MyApp" could not be installed/updated because it uses features Modules but has no secret', $e->getMessage());
+        static::assertSame('App "MyApp" could not be installed/updated because it uses features Modules and Payments but has no secret', $e->getMessage());
+    }
 
+    public function testAppSecretRequiredForThreeOrMoreFeatures(): void
+    {
         $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments', 'Webhooks']);
 
         static::assertSame(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
@@ -227,6 +231,31 @@ class AppExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE', $e->getErrorCode());
         static::assertStringContainsString('app:MyApp', $e->getMessage());
         static::assertStringContainsString('MyApp:Hero, MyApp:Banner', $e->getMessage());
+        static::assertSame(['source' => 'app:MyApp', 'names' => 'MyApp:Hero, MyApp:Banner'], $e->getParameters());
         static::assertSame($previous, $e->getPrevious());
+    }
+
+    public function testRequirementsNotMet(): void
+    {
+        $violation1 = new UnmetRequirement(
+            appName: 'TestApp1',
+            requirementName: 'PHP Version',
+            actionableResolution: 'Upgrade to PHP 8.2 or higher'
+        );
+
+        $violation2 = new UnmetRequirement(
+            appName: 'TestApp2',
+            requirementName: 'MySQL Version',
+            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
+        );
+
+        $e = AppException::requirementsNotMet($violation1, $violation2);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
+        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
+
+        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
+        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
     }
 }

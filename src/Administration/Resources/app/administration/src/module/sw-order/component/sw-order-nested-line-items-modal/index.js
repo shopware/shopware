@@ -44,7 +44,7 @@ export default {
         modalTitle() {
             const price = Filter.getByName('currency')(this.lineItem.totalPrice, this.order.currency.isoCode);
 
-            return this.$tc(
+            return this.$t(
                 'sw-order.nestedLineItemsModal.titlePrefix',
                 {
                     lineItemLabel: this.lineItem.label,

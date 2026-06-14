@@ -21,12 +21,12 @@ export default {
         return {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
             notification: {
-                title: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.title'),
-                message: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
+                title: this.$t('sw-app.component.sw-app-wrong-app-url-modal.title'),
+                message: this.$t('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
                 actions: [
                     {
-                        label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
-                        route: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
+                        label: this.$t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
+                        route: this.$t('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
                     },
                 ],
                 uuid: STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN,

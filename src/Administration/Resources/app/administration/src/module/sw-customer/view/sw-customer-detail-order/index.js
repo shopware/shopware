@@ -45,8 +45,8 @@ export default {
 
         emptyTitle() {
             return this.term
-                ? this.$tc('sw-customer.detailOrder.emptySearchTitle')
-                : this.$tc('sw-customer.detailOrder.emptyTitle');
+                ? this.$t('sw-customer.detailOrder.emptySearchTitle')
+                : this.$t('sw-customer.detailOrder.emptyTitle');
         },
 
         currencyFilter() {

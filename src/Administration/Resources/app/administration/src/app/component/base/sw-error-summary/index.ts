@@ -51,7 +51,7 @@ export default Shopware.Component.wrapComponentConfig({
                 let message = error._detail;
 
                 if (this.$te(`global.error-codes.${error._code}`)) {
-                    message = this.$tc(`global.error-codes.${error._code}`);
+                    message = this.$t(`global.error-codes.${error._code}`);
                 }
 
                 return {

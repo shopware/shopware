@@ -26,6 +26,11 @@ class Migration1735112885AddDefaultSearchResultSortingTest extends TestCase
         $this->connection->delete('system_config', ['configuration_key' => 'core.listing.defaultSearchResultSorting']);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1735112885, (new Migration1735112885AddDefaultSearchResultSorting())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertEmpty($this->getConfig());

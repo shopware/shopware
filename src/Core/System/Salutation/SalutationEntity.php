@@ -37,6 +37,8 @@ class SalutationEntity extends Entity
 
     protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
+    protected int $position;
+
     public function getSalutationKey(): ?string
     {
         return $this->salutationKey;
@@ -125,5 +127,15 @@ class SalutationEntity extends Entity
     public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
         $this->newsletterRecipients = $newsletterRecipients;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

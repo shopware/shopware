@@ -82,7 +82,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
         $mediaIds = array_values($ids->all());
 
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
@@ -93,7 +93,7 @@ class UnusedMediaSubscriberTest extends TestCase
     public function testMediaIdsFromAllPossibleLocationsAreRemovedFromEvent(): void
     {
         $mediaIds = $this->createContent();
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);

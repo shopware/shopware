@@ -1309,7 +1309,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -1328,7 +1328,7 @@ export default {
         },
 
         label() {
-            return this.isShopwareDefaultTax ? this.$tc(\`global.tax-rates.\${this.tax.name}\`) : this.tax.name;
+            return this.isShopwareDefaultTax ? this.$t(\`global.tax-rates.\${this.tax.name}\`) : this.tax.name;
         },
 
         showCustomFields() {
@@ -1403,7 +1403,7 @@ export default {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                    message: this.$t('sw-settings-tax.detail.messageSaveError'),
                 });
                 this.isLoading = false;
             });
@@ -1513,7 +1513,7 @@ export default {
 '          const tooltipSave = computed(() => {\n' +
 '            if (!allowSave.value) {\n' +
 '                return {\n' +
-"                    message: this.$tc('sw-privileges.tooltip.warning'),\n" +
+"                    message: this.$t('sw-privileges.tooltip.warning'),\n" +
 '                    disabled: allowSave.value,\n' +
 '                    showOnDisabledElements: true,\n' +
 '                };\n' +
@@ -1530,7 +1530,7 @@ export default {
 "            return this.$te(`global.tax-rates.${tax.name}`, 'en-GB');\n" +
 '        });\n' +
 '          const label = computed(() => {\n' +
-'            return isShopwareDefaultTax.value ? this.$tc(`global.tax-rates.${tax.name}`) : tax.name;\n' +
+'            return isShopwareDefaultTax.value ? this.$t(`global.tax-rates.${tax.name}`) : tax.name;\n' +
 '        });\n' +
 '          const showCustomFields = computed(() => {\n' +
 '            return customFieldSets.value && customFieldSets.value.length > 0;\n' +
@@ -1583,7 +1583,7 @@ export default {
 '                });\n' +
 '            }).catch(() => {\n' +
 '                this.createNotificationError({\n' +
-"                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),\n" +
+"                    message: this.$t('sw-settings-tax.detail.messageSaveError'),\n" +
 '                });\n' +
 '                isLoading.value = false;\n' +
 '            });\n' +
@@ -1804,8 +1804,8 @@ export default {
 
         contextMenuEditSnippet() {
             return this.acl.can('snippet.editor') ?
-                this.$tc('global.default.edit') :
-                this.$tc('global.default.view');
+                this.$t('global.default.edit') :
+                this.$t('global.default.view');
         },
 
         hasActiveFilters() {
@@ -2053,8 +2053,8 @@ export default {
 '        });\n' +
 '          const contextMenuEditSnippet = computed(() => {\n' +
 "            return acl.can('snippet.editor') ?\n" +
-"                this.$tc('global.default.edit') :\n" +
-"                this.$tc('global.default.view');\n" +
+"                this.$t('global.default.edit') :\n" +
+"                this.$t('global.default.view');\n" +
 '        });\n' +
 '          const hasActiveFilters = computed(() => {\n' +
 '            if (!filterSettings.value) {\n' +

@@ -3,14 +3,14 @@
 .sw-product-layout-assignment {
     display: grid;
     grid-template-columns: min-content 1fr;
-    gap: 32px;
+    gap: var(--scale-size-32);
 
     &__figure {
-        width: 250px;
+        width: calc(var(--scale-size-224) + var(--scale-size-26));
     }
 
     &__heading {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
 
         * {
             word-break: break-all;
@@ -18,7 +18,7 @@
 
         &.is--disabled {
             * {
-                color: $color-gray-500;
+                color: var(--color-gray-500);
             }
         }
     }
@@ -27,16 +27,16 @@
         display: flex;
         flex-direction: column;
         justify-items: center;
-        gap: 16px;
+        gap: var(--scale-size-16);
         margin: auto 0;
     }
 
     &__title {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__subtitle {
-        font-weight: $font-weight-regular;
+        font-weight: var(--font-weight-regular);
     }
 
     &__buttons {
@@ -45,7 +45,7 @@
 
     &__button {
         &:not(:first-child) {
-            margin-left: 8px;
+            margin-left: var(--scale-size-8);
         }
     }
 }

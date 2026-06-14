@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -56,6 +57,7 @@ class ProductPageLoader
         private readonly AbstractProductDetailRoute $productDetailRoute,
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -77,7 +79,8 @@ class ProductPageLoader
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
-            ->addAssociation('media.media');
+            ->addAssociation('media.media')
+            ->addAssociation('openGraphMedia');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')
@@ -95,16 +98,20 @@ class ProductPageLoader
             )));
         }
 
-        if ($category = $product->getSeoCategory()) {
-            $request->request->set('navigationId', $category->getId());
-        }
-
         $page = $this->genericLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
 
         $page->setProduct($product);
         $page->setConfiguratorSettings($result->getConfigurator() ?? new PropertyGroupCollection());
         $page->setNavigationId($product->getId());
+
+        if ($category = $product->getSeoCategory()) {
+            $request->request->set('navigationId', $category->getId());
+
+            if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+                $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
+            }
+        }
 
         if ($cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);

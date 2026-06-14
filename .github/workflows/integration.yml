@@ -18,36 +18,25 @@ permissions:
     id-token: write
 
 jobs:
+  generate-acceptance-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+      - id: generate-matrix
+        run: |
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          jq . <<<"$MATRIX"
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$MATRIX" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
   acceptance:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        name:
-          - "Platform"
-        php-version:
-          - "8.2"
-        shard:
-          - '1'
-          - '2'
-          - '3'
-        shard-count:
-          - 3
-        include:
-          # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
-          # - name: "Platform"
-          #   major: "major"
-          #   no-currents: true
-          #   php-version: 8.2
-          # - name: "Platform"
-          #   major: "major"
-          #   no-currents: true
-          #   php-version: 8.4
-          - name: "Install"
-            major: ''
-            php-version: 8.2
-            shard: 1
-            shard-count: 1
+    needs: generate-acceptance-matrix
+    strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
@@ -58,6 +47,7 @@ jobs:
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
           workers: 1
+          major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
@@ -67,6 +57,94 @@ jobs:
           playwright-traces-domain: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
           s3-bucket: shopware-ci-playwright-traces
           report-prefix: playwright-reports
+
+  acceptance-status-check:
+    runs-on: ubuntu-24.04
+    needs: acceptance
+    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    permissions:
+      actions: read
+    steps:
+      - name: Generate Slack Message
+        id: generate-message
+        env:
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Collect all jobs through pagination (GitHub API returns max 100 per page)
+          JOBS=""
+          PAGE=1
+
+          while true; do
+            RESPONSE=$(gh api "/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100&page=$PAGE")
+
+            # Append jobs from this page to the jobs
+            if [ -z "$JOBS" ]; then
+              JOBS=$(jq '.jobs' <<<"$RESPONSE")
+            else
+              PAGE_JOBS=$(jq '.jobs' <<<"$RESPONSE")
+              JOBS=$(jq --argjson new "${PAGE_JOBS}" '. + $new' <<<"$JOBS")
+            fi
+
+            # Check if this was the last page by counting returned jobs
+            JOBS_ON_PAGE=$(jq '.jobs | length' <<<"$RESPONSE")
+            if [ "$JOBS_ON_PAGE" -lt 100 ]; then
+              break
+            fi
+
+            PAGE=$((PAGE + 1))
+          done
+
+          # Extract only acceptance jobs (they have prefix "acceptance (")
+          ACCEPTANCE_JOBS=$(jq -r '
+              .[]
+              | select(.name | contains("acceptance ("))
+              | . as $job
+              | ($job.name | capture("acceptance \\((?<name>[^,]+), (?:(?<major>major), )?(?<php>[^,]+), (?<shard>\\d+), (?<shardCount>\\d+), (?<currents>true|false)\\)")) as $parsed
+              | {
+                  id: $job.id,
+                  name: $job.name,
+                  conclusion: $job.conclusion,
+                  sort: [
+                    ($parsed.name == "Install"),          # Install last
+                    ($parsed.major == "major"),           # non-major first
+                    ($parsed.php),                        # PHP version
+                    ($parsed.shard | tonumber),           # shard order
+                    ($parsed.currents == "false")         # currents=false last
+                  ]
+                }
+              | @json
+              ' <<<"$JOBS" |
+            jq -s -r 'sort_by(.sort)[] | "\(.id);\(.name);\(.conclusion)"')
+
+          MESSAGE=""
+          # Process each acceptance job
+          while IFS=';' read -r JOB_ID JOB_NAME JOB_CONCLUSION; do
+          case "$JOB_CONCLUSION" in
+            success)
+            MESSAGE="$MESSAGE✅ $JOB_NAME\n"
+            ;;
+            failure|cancelled)
+            MESSAGE="$MESSAGE❌ $JOB_NAME ( https://github.com/$REPO/actions/runs/$RUN_ID/job/$JOB_ID )\n"
+            ;;
+            skipped|skipped*)
+            MESSAGE="$MESSAGE⏭️ $JOB_NAME\n"
+            ;;
+            *)
+            MESSAGE="$MESSAGE❓ $JOB_NAME ( https://github.com/$REPO/actions/runs/$RUN_ID/job/$JOB_ID )\n"
+            ;;
+          esac
+          done<<<"$ACCEPTANCE_JOBS"
+
+          echo "slack-msg=$MESSAGE" >>"$GITHUB_OUTPUT"
+      - name: Post Slack message
+        if: ${{ !cancelled() && inputs.nightly == 'true' }}
+        env:
+          MESSAGE: ${{ steps.generate-message.outputs.slack-msg }}
+        run: |
+          SLACK_PAYLOAD=$(jq --null-input --arg message "$(printf '%b' "$MESSAGE")" '{"message": $message}')
+          curl --silent --request POST --url "${{ secrets.SLACK_ATS_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
 
   acceptance-tests-changed:
     runs-on: ubuntu-24.04
@@ -274,6 +352,8 @@ jobs:
       - name: Generate versions
         id: versions
         uses: shopware/github-actions/versions@main
+        with:
+          github-token: ${{ github.token }}
 
   acceptance-update:
     needs: tested-update-versions
@@ -307,6 +387,7 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: 6.7.9999999-dev
         with:
+          npm-version: 11.8.0
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-admin: true
@@ -316,15 +397,26 @@ jobs:
       - name: Cache Storefront npm packages
         uses: actions/cache@v5
         with:
-          path: new-shopware/src/Storefront/Resources/app/storefront/node_modules
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps the install off the network.
+          path: |
+            new-shopware/src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
           key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-storefront-
 
+      # This job checks the repo out into new-shopware/, so the composite action is
+      # referenced at its checked-out subpath (local ./ actions resolve from the workspace root).
+      - name: Install storefront dependencies
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware
+          command: composer run npm:storefront ci
+
       - name: Build new shopware
         working-directory: new-shopware
         run: |
-          composer run npm:storefront ci
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
@@ -369,10 +461,15 @@ jobs:
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
           node-version: 22
+      - name: Install npm
+        run: npm install -g npm@11.8.0
 
+      # ~/.npm is cached earlier in this job, so prefer-offline reuses tarballs.
+      # Referenced at the new-shopware/ subpath where the repo is checked out.
       - name: Install dependencies
-        working-directory: new-shopware/tests/acceptance
-        run: npm ci
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware/tests/acceptance
 
       - name: Refresh Package List
         run: sudo apt-get update --allow-releaseinfo-change
@@ -658,10 +755,17 @@ jobs:
                 DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
             run: bin/console theme:refresh
 
+          # Drain indexers queued by 6.6→6.7 migrations before integration tests run,
+          # otherwise stale indexes cause flakes.
+          - name: Refresh DAL index
+            env:
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: bin/console dal:refresh:index
+
           - name: Run integration tests
             run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
-  # this allows us to specifiy just one required job/check
+  # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   check:
     if: always()

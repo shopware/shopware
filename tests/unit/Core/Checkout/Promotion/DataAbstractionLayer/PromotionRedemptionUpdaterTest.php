@@ -214,33 +214,37 @@ class PromotionRedemptionUpdaterTest extends TestCase
     }
 
     /**
-     * @return non-empty-list<array{EntityWriteResult, bool}>
+     * @return \Generator<string, array{EntityWriteResult, bool}>
      */
-    public static function itemCreatedProvider(): array
+    public static function itemCreatedProvider(): iterable
     {
-        return [
-            [
-                new EntityWriteResult('id', ['some-field' => 'some-value'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                false,
-            ], [
-                new EntityWriteResult('id', ['promotionId' => null], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                false,
-            ], [
-                new EntityWriteResult('id', ['promotionId' => null, 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                false,
-            ], [
-                new EntityWriteResult('id', ['promotionId' => null, 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                false,
-            ], [
-                new EntityWriteResult('id', ['type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                false,
-            ], [
-                new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
-                true,
-            ], [
-                new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
-                false,
-            ],
+        yield 'created line item without promotion payload is ignored' => [
+            new EntityWriteResult('id', ['some-field' => 'some-value'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            false,
+        ];
+        yield 'created line item without promotion id or type is ignored' => [
+            new EntityWriteResult('id', ['promotionId' => null], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            false,
+        ];
+        yield 'created non-promotion line item without promotion id is ignored' => [
+            new EntityWriteResult('id', ['promotionId' => null, 'type' => 'some-type'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            false,
+        ];
+        yield 'created promotion line item without promotion id is ignored' => [
+            new EntityWriteResult('id', ['promotionId' => null, 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            false,
+        ];
+        yield 'created promotion line item without promotion payload is ignored' => [
+            new EntityWriteResult('id', ['type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            false,
+        ];
+        yield 'created promotion line item with promotion id is counted' => [
+            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex(), 'type' => PromotionProcessor::LINE_ITEM_TYPE], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
+            true,
+        ];
+        yield 'updated promotion line item is ignored' => [
+            new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
+            false,
         ];
     }
 }

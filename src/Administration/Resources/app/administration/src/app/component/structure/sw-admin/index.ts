@@ -20,7 +20,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo() {
         return {
-            title: this.$tc('global.sw-admin-menu.textShopwareAdmin'),
+            title: this.$t('global.sw-admin-menu.textShopwareAdmin'),
         };
     },
 

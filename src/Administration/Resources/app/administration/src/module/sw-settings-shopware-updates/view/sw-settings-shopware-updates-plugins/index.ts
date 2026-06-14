@@ -23,12 +23,12 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-settings-shopware-updates.plugins.columns.name'),
+                    label: this.$t('sw-settings-shopware-updates.plugins.columns.name'),
                     rawData: true,
                 },
                 {
                     property: 'icon',
-                    label: this.$tc('sw-settings-shopware-updates.plugins.columns.available'),
+                    label: this.$t('sw-settings-shopware-updates.plugins.columns.available'),
                     rawData: true,
                 },
             ];

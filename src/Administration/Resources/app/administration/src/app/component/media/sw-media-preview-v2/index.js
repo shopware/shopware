@@ -248,7 +248,7 @@ export default {
 
         mediaName() {
             if (!this.trueSource) {
-                return this.$tc('global.sw-media-preview-v2.textNoMedia');
+                return this.$t('global.sw-media-preview-v2.textNoMedia');
             }
 
             return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);

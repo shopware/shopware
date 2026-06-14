@@ -11,7 +11,7 @@
     <mt-text-field
         :model-value="translationKey"
         disabled
-        :label="$tc('global.sw-snippet-field-edit-modal.labelName')"
+        :label="$t('global.sw-snippet-field-edit-modal.labelName')"
     />
     {% endblock %}
     {% block sw_snippet_field_edit_modal_snippet_fields %}
@@ -25,8 +25,8 @@
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
-            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+            :label="$t('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
+            :placeholder="snippet.origin || $t('sw-settings-snippet.general.placeholderValue')"
         />
     </template>
 
@@ -39,8 +39,8 @@
             class="sw-snippet-field-edit-modal__translation-field"
             :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
             :disabled="!acl.can('snippet.editor')"
-            :label="$tc('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
-            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+            :label="$t('sw-settings-snippet.detail.labelContent', { name: snippetSets.get(snippet.setId).name }, 0)"
+            :placeholder="snippet.origin || $t('sw-settings-snippet.general.placeholderValue')"
         />
     </template>
     {% endblock %}
@@ -54,7 +54,7 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.sw-modal.labelClose') }}
+            {{ $t('global.sw-modal.labelClose') }}
         </mt-button>
         {% endblock %}
         {% block sw_snippet_field_edit_modal_footer_button %}
@@ -66,7 +66,7 @@
             :disabled="!acl.can('snippet.editor')"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

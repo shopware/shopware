@@ -112,7 +112,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('product_stream.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     appearance: 'dark',
                     showOnDisabledElements: true,
                 };
@@ -285,7 +285,7 @@ export default {
                 const behavior = {
                     cloneChildren: true,
                     overwrites: {
-                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
+                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$t('global.default.copy')}`,
                     },
                 };
 
@@ -305,7 +305,7 @@ export default {
                         this.isLoading = false;
 
                         this.createNotificationError({
-                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                         });
                     });
             });
@@ -349,7 +349,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
@@ -449,7 +449,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),

@@ -303,6 +303,58 @@ describe('sw-block', () => {
         ).toBeTruthy();
     });
 
+    it('renders parent content exactly once after multiple reactive re-renders and remounting the extension', async () => {
+        // Regression guard for the providedParents accumulation bug in sw-block's
+        // computed. The old push() implementation appended an entry to providedParents
+        // on every computed re-run without a matching pop (sw-block-parent only pops
+        // at setup time, not on every re-render). After remounting the extension a
+        // fresh sw-block-parent pops from that array; this verifies the DOM stays correct.
+        const { wrapper, toggleExtensions } = await createWrapper({
+            extraData: { label: 'initial' },
+            defaultContent: '<div class="default-content">{{ label }}</div>',
+            extensions: `
+                <sw-block extends="test-extension-point">
+                    <sw-block-parent/>
+                    <div class="extension-content"></div>
+                </sw-block>
+            `,
+        });
+
+        // Each setData triggers a reactive re-render that causes sw-block's computed
+        // to run again. With the old push(), each run added a stale entry.
+        await wrapper.setData({ label: 'a' });
+        await wrapper.setData({ label: 'ab' });
+        await wrapper.setData({ label: 'abc' });
+
+        // Unmount then remount the extension to create a fresh sw-block-parent
+        // instance that runs setup() and pops from providedParents.
+        await toggleExtensions();
+        await toggleExtensions();
+
+        expect(wrapper.findAll('.default-content')).toHaveLength(1);
+        expect(wrapper.findAll('.extension-content')).toHaveLength(1);
+        expect(wrapper.find('.default-content + .extension-content').exists()).toBeTruthy();
+    });
+
+    it('preserves the DOM element identity of rendered block content across reactive re-renders', async () => {
+        // When sw-block's computed re-runs it returns fresh VNodes, but Vue must
+        // recognise the element as the same type and update it in-place rather than
+        // recreating the DOM node, which would strip focus from active inputs.
+        const { wrapper } = await createWrapper({
+            extraData: { label: 'initial' },
+            defaultContent: '<div class="default-content">{{ label }}</div>',
+        });
+
+        const domNodeBefore = wrapper.find('.default-content').element;
+
+        await wrapper.setData({ label: 'a' });
+        await wrapper.setData({ label: 'ab' });
+        await wrapper.setData({ label: 'abc' });
+
+        expect(wrapper.find('.default-content').element).toBe(domNodeBefore);
+        expect(wrapper.find('.default-content').text()).toBe('abc');
+    });
+
     it('has access to the component data scope', async () => {
         const { wrapper } = await createWrapper({
             extraData: {
@@ -333,5 +385,75 @@ describe('sw-block', () => {
         expect(wrapper.find('.component-root > .extension-content-1').text()).toBe('Hello World');
         expect(wrapper.find('.component-root > .extension-content-2').text()).toBe('This is a method with parameter: param');
         expect(wrapper.find('.component-root > .extension-content-3').text()).toBe('This is a computed');
+    });
+
+    // ─── DEV-mode guard: props.name change after mount ────────────────────────
+    //
+    // sw-block registers a watch (guarded by process.env.NODE_ENV !== 'production')
+    // that warns if the `name` prop changes after mount, because the shim slots and
+    // block context bindings are computed once in setup() and cannot be rebound.
+    // Jest runs with NODE_ENV='test', so the watch is active in these tests.
+
+    describe('DEV-mode guard for dynamic "name" prop (T-3)', () => {
+        let consoleSpy;
+
+        beforeEach(() => {
+            consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            consoleSpy.mockRestore();
+        });
+
+        it('emits a console.warn when the "name" prop changes after the initial mount', async () => {
+            const wrapper = await mount(
+                {
+                    template: `
+                        <sw-block :name="blockName" :data="$dataScope()">
+                            <div class="content"></div>
+                        </sw-block>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                    data() {
+                        return { blockName: 'original-block-name' };
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            await wrapper.setData({ blockName: 'changed-block-name' });
+
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"name" prop changed'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('original-block-name'));
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('changed-block-name'));
+        });
+
+        it('does not emit a console.warn on initial mount — the watch fires only on subsequent changes', async () => {
+            await mount(
+                {
+                    template: `
+                        <sw-block :name="blockName" :data="$dataScope()">
+                            <div class="content"></div>
+                        </sw-block>
+                    `,
+                    components: {
+                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+                    },
+                    data() {
+                        return { blockName: 'initial-block-name' };
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            expect(consoleSpy).not.toHaveBeenCalled();
+        });
     });
 });

@@ -4,12 +4,6 @@ Shopware.Component.register('sw-dashboard-statistics', () => import('./component
 Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashboard-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register(
-    'sw-usage-data-consent-banner',
-    () => import('src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner'),
-);
-
 /**
  * @sw-package after-sales
  *

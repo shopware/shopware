@@ -191,7 +191,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return [
                 {
-                    name: this.$tc('sw-dashboard.monthStats.numberOfOrders'),
+                    name: this.$t('sw-dashboard.monthStats.numberOfOrders'),
                     data: seriesData,
                 },
             ];
@@ -228,7 +228,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return [
                 {
-                    name: this.$tc('sw-dashboard.monthStats.totalTurnover'),
+                    name: this.$t('sw-dashboard.monthStats.totalTurnover'),
                     data: seriesData,
                 },
             ];

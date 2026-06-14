@@ -20,8 +20,7 @@
 
             <mt-text-field
                 class="sw-condition__placeholder"
-                size="default"
-                :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
+                :placeholder="$t('global.sw-condition.condition.placeholder-warning')"
                 :disabled="isDisabled || undefined"
             />
             {% endblock %}
@@ -38,7 +37,7 @@
                 :disabled="isDisabled || undefined"
                 @click="onCreateBefore"
             >
-                {{ $tc('global.sw-condition.condition.createBefore') }}
+                {{ $t('global.sw-condition.condition.createBefore') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -48,7 +47,7 @@
                 :disabled="isDisabled || undefined"
                 @click="onCreateAfter"
             >
-                {{ $tc('global.sw-condition.condition.createAfter') }}
+                {{ $t('global.sw-condition.condition.createAfter') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -58,7 +57,7 @@
                 variant="danger"
                 @click="onDeleteCondition"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </sw-context-button>

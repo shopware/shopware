@@ -34,11 +34,11 @@
                     :date-time-format="{ month: '2-digit', day: '2-digit' }"
                 />
                 <template v-if="transaction">
-                    {{ $tc('sw-order.generalTab.info.summary.with') }}
+                    {{ $t('sw-order.generalTab.info.summary.with') }}
                     {{ transaction.paymentMethod.translated.distinguishableName }}
                 </template>
                 <template v-if="delivery">
-                    {{ $tc('sw-order.generalTab.info.summary.and') }}
+                    {{ $t('sw-order.generalTab.info.summary.and') }}
                     {{ delivery.shippingMethod.translated.name }}
                 </template>
             </div>
@@ -50,7 +50,7 @@
                     v-if="lastChangedDateTime"
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
-                    {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
+                    {{ $t('sw-order.generalTab.info.summary.lastChanged') }}:
                     <sw-time-ago
                         :date="lastChangedDateTime"
                         :date-time-format="{ month: '2-digit', day: '2-digit' }"
@@ -62,7 +62,7 @@
                     v-if="lastChangedUser"
                     class="sw-order-general-info__summary-sub-last-changed-user"
                 >
-                    {{ $tc('sw-order.generalTab.info.summary.by') }}
+                    {{ $t('sw-order.generalTab.info.summary.by') }}
                     {{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}
                 </div>
                 {% endblock %}
@@ -93,7 +93,7 @@
         >
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -102,7 +102,7 @@
                 state-type="order_transaction"
                 rounded-style
                 :placeholder="transaction.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineTransactionState')"
+                :label="$t('sw-order.stateCard.headlineTransactionState')"
                 :background-style="backgroundStyle('order_transaction')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
@@ -116,7 +116,7 @@
         >
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -125,7 +125,7 @@
                 state-type="order_delivery"
                 rounded-style
                 :placeholder="delivery.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineDeliveryState')"
+                :label="$t('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
@@ -136,7 +136,7 @@
         <div class="sw-order-general-info__order-state">
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -145,7 +145,7 @@
                 rounded-style
                 state-type="order"
                 :placeholder="order.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineOrderState')"
+                :label="$t('sw-order.stateCard.headlineOrderState')"
                 :background-style="backgroundStyle('order')"
                 :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
@@ -161,7 +161,7 @@
         class="sw-order-general-info__order-tags"
         size="small"
         :disabled="!acl.can('order.editor')"
-        :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
+        :placeholder="$t('sw-order.generalTab.tagSelect.placeholder')"
         :always-show-placeholder="true"
         @item-add="onTagAdd"
         @item-remove="onTagRemove"

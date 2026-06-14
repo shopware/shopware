@@ -133,6 +133,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 'sw-settings-services-grant-permissions-modal': true,
                 'sw-settings-usage-data-consent-modal': true,
                 'sw-settings-usage-data-consent-modal-data-provider': true,
+                'sw-request-consent-modal': true,
             },
             provide: {
                 shopIdChangeService: {

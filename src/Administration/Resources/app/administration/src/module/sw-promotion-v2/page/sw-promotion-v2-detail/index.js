@@ -94,7 +94,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('promotion.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     showOnDisabledElements: true,
                 };
             }
@@ -265,7 +265,7 @@ export default {
             } catch (_e) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'global.notification.notificationSaveErrorMessage',
                         {
                             entityName: this.promotion.name,

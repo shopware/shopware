@@ -16,6 +16,7 @@ interface Events extends Record<string | symbol, unknown> {
     'sw-sales-channel-detail-base-sales-channel-change': undefined;
     'sw-sales-channel-list-add-new-channel': undefined;
     'sw-media-library-item-updated': string;
+    'sw-admin-menu/toggle-offcanvas': boolean;
     telemetry: TelemetryEvent<TelemetryEventTypes>;
     consent: ConsentEvent<ConsentEventName>;
 }

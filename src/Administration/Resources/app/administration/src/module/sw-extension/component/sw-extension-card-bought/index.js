@@ -192,8 +192,8 @@ export default {
                     this.installationFailedError = error;
                 } else {
                     this.installationFailedError = {
-                        title: this.$tc(error.title),
-                        message: this.$tc(error.message),
+                        title: this.$t(error.title),
+                        message: this.$t(error.message),
                     };
                 }
                 this.showExtensionInstallationFailedModal = true;
@@ -221,8 +221,8 @@ export default {
                     this.installationFailedError = error;
                 } else {
                     this.installationFailedError = {
-                        title: this.$tc(error.title),
-                        message: this.$tc(error.message),
+                        title: this.$t(error.title),
+                        message: this.$t(error.message),
                     };
                 }
                 this.showExtensionInstallationFailedModal = true;

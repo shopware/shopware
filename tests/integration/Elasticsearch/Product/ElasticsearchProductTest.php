@@ -488,11 +488,13 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return iterable<string, array<MultiFilter|string[]>>
      */
-    public static function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php';
+        foreach (require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]
@@ -1639,11 +1641,13 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, DateHistogramCase>>
+     * @return iterable<string, array<int, DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/DateHistogram.php';
+        foreach (require __DIR__ . '/Fixture/DateHistogram.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]
@@ -2103,7 +2107,9 @@ class ElasticsearchProductTest extends TestCase
      */
     public function cheapestPriceSortingProvider(): iterable
     {
-        yield from require __DIR__ . '/Fixture/CheapestPriceSorting.php';
+        foreach (require __DIR__ . '/Fixture/CheapestPriceSorting.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]
@@ -2170,7 +2176,7 @@ class ElasticsearchProductTest extends TestCase
 
                 if ($case['operator']) {
                     $operator = (string) $case['operator'];
-                    $percentage = (int) $case['percentage'];
+                    $percentage = (float) $case['percentage'];
 
                     $criteria->addFilter(
                         new RangeFilter('product.cheapestPrice.percentage', [
@@ -2195,47 +2201,47 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
      */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
-        yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with greater than 50 percent price to list ratio sorted ascending' => [
-            'ids' => ['product-4', 'product-1'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::ASCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-2', 'product-5', 'product-3'],
-            'operator' => RangeFilter::LT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted ascending' => [
+        yield 'Test filter with greater than 50 percent ratio sorted descending' => [
             'ids' => ['product-3', 'product-5', 'product-2'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with greater than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-2', 'product-5', 'product-3'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted descending' => [
+            'ids' => ['product-4', 'product-1'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-1', 'product-4'],
             'operator' => RangeFilter::LT,
             'percentage' => 50,
             'direction' => FieldSorting::ASCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4', 'product-2', 'product-5', 'product-7', 'product-6', 'product-3'],
+        yield 'Test percent ratio sorted descending' => [
+            'ids' => ['product-3', 'product-5', 'product-2', 'product-4', 'product-1', 'product-7', 'product-6'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::DESCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted ascending' => [
-            'ids' => ['product-3', 'product-6', 'product-7', 'product-5', 'product-2', 'product-4', 'product-1'],
+        yield 'Test percent ratio sorted ascending' => [
+            'ids' => ['product-6', 'product-7', 'product-1', 'product-4', 'product-2', 'product-5', 'product-3'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::ASCENDING,
@@ -2285,7 +2291,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertInstanceOf(StatsResult::class, $aggregation);
             static::assertSame(0.0, $aggregation->getMin());
-            static::assertSame(66.67, $aggregation->getMax());
+            static::assertSame(100.0, $aggregation->getMax());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -3008,7 +3014,7 @@ class ElasticsearchProductTest extends TestCase
                     'parentId' => $parentId,
                     'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

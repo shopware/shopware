@@ -107,7 +107,7 @@ export default {
             const formattedTaxes = `${calcTaxes
                 .map(
                     (calcTax) =>
-                        `${this.$tc(
+                        `${this.$t(
                             'sw-order.detailBase.shippingCostsTax',
                             {
                                 taxRate: calcTax.taxRate,
@@ -118,7 +118,7 @@ export default {
                 )
                 .join('<br>')}`;
 
-            return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
+            return `${this.$t('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
 
         sortedCalculatedTaxes() {

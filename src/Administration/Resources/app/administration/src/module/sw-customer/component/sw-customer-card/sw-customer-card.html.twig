@@ -27,14 +27,14 @@
             @click="onImitateCustomer"
         >
             <template v-if="hasSingleBoundSalesChannelUrl">
-                {{ $tc('sw-customer.card.buttonImitateCustomer') }}
+                {{ $t('sw-customer.card.buttonImitateCustomer') }}
                 <mt-icon
                     name="regular-external-link-s"
                     size="12px"
                 />
             </template>
             <template v-else>
-                {{ $tc('sw-customer.card.buttonImitateCustomer') }}
+                {{ $t('sw-customer.card.buttonImitateCustomer') }}
             </template>
         </mt-button>
         {% endblock %}
@@ -76,7 +76,7 @@
                                     size="small"
                                     class="sw-customer-card__metadata-customer-guest-label"
                                 >
-                                    {{ $tc('sw-customer.card.labelGuest') }}
+                                    {{ $t('sw-customer.card.labelGuest') }}
                                 </sw-label>
                             </div>
                         </template>
@@ -93,8 +93,8 @@
                                     v-model:value="customer.accountType"
                                     name="sw-field--customer-accountType"
                                     class="sw-customer-card__account-type-select"
-                                    :label="$tc('sw-customer.customerType.labelAccountType')"
-                                    :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
+                                    :label="$t('sw-customer.customerType.labelAccountType')"
+                                    :placeholder="$t('sw-customer.customerType.placeholderAccountType')"
                                     :options="accountTypeOptions"
                                 />
                                 {% endblock %}
@@ -106,7 +106,7 @@
                                     class="sw-customer-card__salutation-select"
                                     entity="salutation"
                                     label-property="displayName"
-                                    :label="$tc('sw-customer.card.labelSalutation')"
+                                    :label="$t('sw-customer.card.labelSalutation')"
                                     :criteria="salutationCriteria"
                                 />
                                 {% endblock %}
@@ -116,8 +116,8 @@
                                 <mt-text-field
                                     v-model="customer.title"
                                     name="sw-field--customer-title"
-                                    :label="$tc('sw-customer.card.labelTitle')"
-                                    :placeholder="$tc('sw-customer.card.placeholderTitle')"
+                                    :label="$t('sw-customer.card.labelTitle')"
+                                    :placeholder="$t('sw-customer.card.placeholderTitle')"
                                 />
                                 {% endblock %}
                             </sw-container>
@@ -131,11 +131,11 @@
                                 <mt-text-field
                                     v-model="customer.firstName"
                                     name="sw-field--customer-firstName"
-                                    :label="$tc('sw-customer.card.labelFirstName')"
+                                    :label="$t('sw-customer.card.labelFirstName')"
                                     validation="required"
                                     required
                                     :error="customerFirstNameError"
-                                    :placeholder="$tc('sw-customer.card.placeholderFirstName')"
+                                    :placeholder="$t('sw-customer.card.placeholderFirstName')"
                                 />
                                 {% endblock %}
 
@@ -144,11 +144,11 @@
                                 <mt-text-field
                                     v-model="customer.lastName"
                                     name="sw-field--customer-lastName"
-                                    :label="$tc('sw-customer.card.labelLastName')"
+                                    :label="$t('sw-customer.card.labelLastName')"
                                     validation="required"
                                     required
                                     :error="customerLastNameError"
-                                    :placeholder="$tc('sw-customer.card.placeholderLastName')"
+                                    :placeholder="$t('sw-customer.card.placeholderLastName')"
                                 />
                                 {% endblock %}
                             </sw-container>
@@ -160,8 +160,8 @@
                                 name="sw-field--customer-company"
                                 :required="isBusinessAccountType"
                                 :error="customerCompanyError"
-                                :label="$tc('sw-customer.card.labelCompany')"
-                                :placeholder="$tc('sw-customer.card.placeholderCompany')"
+                                :label="$t('sw-customer.card.labelCompany')"
+                                :placeholder="$t('sw-customer.card.placeholderCompany')"
                             />
                             {% endblock %}
                         </div>
@@ -174,8 +174,8 @@
                             v-if="editMode && isBusinessAccountType"
                             v-model="customer.vatIds[0]"
                             name="vatId"
-                            :label="$tc('sw-customer.card.labelVatId')"
-                            :placeholder="$tc('sw-customer.card.placeholderVatId')"
+                            :label="$t('sw-customer.card.labelVatId')"
+                            :placeholder="$t('sw-customer.card.placeholderVatId')"
                             :error="customerVatIdsError"
                         />
                         {% endblock %}
@@ -200,8 +200,8 @@
                             name="sw-field--customer-email"
                             validation="required"
                             required
-                            :label="$tc('sw-customer.card.labelEmail')"
-                            :placeholder="$tc('sw-customer.card.placeholderEmail')"
+                            :label="$t('sw-customer.card.labelEmail')"
+                            :placeholder="$t('sw-customer.card.placeholderEmail')"
                             :error="customerEmailError"
                         />
                         {% endblock %}
@@ -214,8 +214,8 @@
                             name="sw-field--customer-passwordNew"
                             autocomplete="new-password"
                             :disabled="customer.guest"
-                            :label="$tc('sw-profile.index.labelNewPassword')"
-                            :placeholder="$tc('sw-customer.card.placeholderNewPassword')"
+                            :label="$t('sw-profile.index.labelNewPassword')"
+                            :placeholder="$t('sw-customer.card.placeholderNewPassword')"
                             :error="customerPasswordError"
                         />
                         {% endblock %}
@@ -227,8 +227,8 @@
                             name="sw-field--customer-passwordConfirm"
                             autocomplete="new-password"
                             :disabled="customer.guest"
-                            :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
-                            :placeholder="$tc('sw-customer.card.placeholderNewPasswordConfirm')"
+                            :label="$t('sw-profile.index.labelNewPasswordConfirm')"
+                            :placeholder="$t('sw-customer.card.placeholderNewPasswordConfirm')"
                             :error="customerPasswordConfirmError"
                         />
                         {% endblock %}
@@ -237,8 +237,8 @@
                         <sw-entity-tag-select
                             v-model:entity-collection="customer.tags"
                             name="sw-field--customer-tags"
-                            :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
-                            :placeholder="editMode ? $tc('sw-customer.baseForm.placeholderTags') : ''"
+                            :label="editMode ? $t('sw-customer.baseForm.labelTags') : ''"
+                            :placeholder="editMode ? $t('sw-customer.baseForm.placeholderTags') : ''"
                             class="sw-customer-card__tag-select"
                             :disabled="!editMode"
                             :size="editMode ? 'default' : 'medium'"

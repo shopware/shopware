@@ -53,7 +53,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function getMapping(Context $context): array
     {
-        $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+        $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
+        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::buildTextFieldConfig(lengthNorm: true));
+        $technicalLanguageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
@@ -69,11 +71,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFields,
-            'description' => $languageFields,
+            'name' => $technicalLanguageFieldsWithExact,
+            'parent' => ElasticsearchFieldBuilder::nested([
+                'name' => $technicalLanguageFieldsWithExact,
+            ]),
+            'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
-            'metaDescription' => $languageFields,
-            'customSearchKeywords' => $languageFields,
+            'metaDescription' => $languageFieldsWithLengthNorm,
+            'customSearchKeywords' => $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true, lengthNorm: true)),
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -106,14 +111,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::getTextFieldConfig(),
+            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::getTextFieldConfig(),
+            'ean' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::getTextFieldConfig(),
+            'productNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
@@ -122,7 +127,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'availableStock' => self::INT_FIELD,
             'shippingFree' => self::BOOLEAN_FIELD,
             'taxId' => self::KEYWORD_FIELD,
-            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::getTextFieldConfig()]),
+            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::buildTextFieldConfig()]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'id' => null,
                 'salesChannelId' => self::KEYWORD_FIELD,
@@ -221,6 +226,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
             $names = $this->fillFallbackTranslation($languageMapping, $names);
+            $parentNames = ElasticsearchFieldMapper::translated(field: 'parentName', items: $translation);
+            $parentNames = $this->fillFallbackTranslation($languageMapping, $parentNames);
 
             $customFields = $this->mapCustomFields(
                 variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
@@ -282,7 +289,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'categoriesRo' => array_values(array_map(static fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
                 'taxId' => $item['taxId'],
                 'tags' => array_filter(array_map(static function (array $tag) {
-                    return empty($tag['id']) ? null : [
+                    return ($tag['id'] ?? '') === '' ? null : [
                         'id' => $tag['id'],
                         'name' => ElasticsearchIndexingUtils::stripText($tag['name'] ?? ''),
                         '_count' => 1,
@@ -322,6 +329,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
                 'customFields' => $customFields,
                 'name' => $names,
+                'parent' => $item['parentId'] !== null ? [
+                    'id' => $item['parentId'],
+                    '_count' => 1,
+                    'name' => $parentNames,
+                ] : null,
                 'description' => ElasticsearchFieldMapper::translated(field: 'description', items: $translation),
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
@@ -490,6 +502,7 @@ SQL;
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(product_main.name, product_parent.name) AS name,
+    product_parent.name AS parentName,
     IFNULL(product_main.description, product_parent.description) AS description,
     IFNULL(product_main.meta_title, product_parent.meta_title) AS metaTitle,
     IFNULL(product_main.meta_description, product_parent.meta_description) AS metaDescription,
@@ -542,7 +555,8 @@ SQL;
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 
-                if (!empty($translation['customSearchKeywords'])) {
+                $customSearchKeywords = $translation['customSearchKeywords'] ?? null;
+                if ($customSearchKeywords !== null && $customSearchKeywords !== '') {
                     $translation['customSearchKeywords'] = ElasticsearchIndexingUtils::parseJson($translation, 'customSearchKeywords');
                 }
 
@@ -629,7 +643,7 @@ SQL;
                 $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
                 $mapped[$key] = $taxes['net'];
 
-                if (empty($taxes['percentage'])) {
+                if (($taxes['percentage'] ?? []) === []) {
                     continue;
                 }
 

@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\VersionParser;
+use Shopware\Tests\DevOps\Core\Installer\InstallerKernelTest;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -33,23 +34,15 @@ class InstallerKernel extends HttpKernel
     ) {
         parent::__construct($environment, $debug);
 
-        // @codeCoverageIgnoreStart - not testable, as static calls cannot be mocked
-        if (InstalledVersions::isInstalled('shopware/platform')) {
-            $version = InstalledVersions::getVersion('shopware/platform')
-                . '@' . InstalledVersions::getReference('shopware/platform');
-        } else {
-            $version = InstalledVersions::getVersion('shopware/core')
-                . '@' . InstalledVersions::getReference('shopware/core');
-        }
-        // @codeCoverageIgnoreEnd
-
-        $version = VersionParser::parseShopwareVersion($version);
+        $version = VersionParser::parseShopwareVersion($this->resolveComposerVersion());
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
     }
 
     /**
-     * {@inheritdoc}
+     * @codeCoverageIgnore
+     *
+     * @see InstallerKernelTest
      */
     public function boot(): void
     {
@@ -88,8 +81,6 @@ class InstallerKernel extends HttpKernel
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return array<string, mixed>
      */
     protected function getKernelParameters(): array
@@ -115,6 +106,17 @@ class InstallerKernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__ . '/Resources/config/routes.xml');
+    }
+
+    protected function resolveComposerVersion(): string
+    {
+        if (InstalledVersions::isInstalled('shopware/platform')) {
+            return InstalledVersions::getVersion('shopware/platform')
+                . '@' . InstalledVersions::getReference('shopware/platform');
+        }
+
+        return InstalledVersions::getVersion('shopware/core')
+            . '@' . InstalledVersions::getReference('shopware/core');
     }
 
     /**

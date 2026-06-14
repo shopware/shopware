@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -51,7 +52,7 @@ class CriteriaPartResolver
             }
 
             foreach ($part->getFields() as $accessor) {
-                if ($accessor === '_score') {
+                if ($accessor === Criteria::SCORE_FIELD) {
                     continue;
                 }
                 $this->resolveField($part, $accessor, $definition, $query, $context);
@@ -72,7 +73,7 @@ class CriteriaPartResolver
         $nestedQuery = $this->createNestedQuery($first, $definition, $context);
 
         foreach ($group->getFields() as $accessor) {
-            if ($accessor === '_score') {
+            if ($accessor === Criteria::SCORE_FIELD) {
                 continue;
             }
             $this->resolveField($group, $accessor, $definition, $nestedQuery, $context);

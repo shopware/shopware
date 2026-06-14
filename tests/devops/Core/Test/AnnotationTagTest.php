@@ -3,7 +3,6 @@
 namespace Shopware\Tests\DevOps\Core\Test;
 
 use Composer\InstalledVersions;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Test\AnnotationTagTester;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -16,7 +15,6 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
 class AnnotationTagTest extends TestCase
 {
     /**

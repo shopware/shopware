@@ -18,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         warningText(): string {
-            return this.text || this.$tc('sw-ai-copilot-warning.text');
+            return this.text || this.$t('sw-ai-copilot-warning.text');
         },
     },
 });

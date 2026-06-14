@@ -1,25 +1,27 @@
 @import "~scss/variables";
 
+$base-size: calc(var(--scale-size-224) + var(--scale-size-56));
+
 .sw-product-variants-delivery-order {
     display: flex;
     height: 100%;
     padding: 0;
-    background-color: #f9fafb;
+    background-color: var(--color-gray-50);
 
     .sw-product-variants-delivery-order__groups {
-        background-color: $color-white;
-        font-size: $font-size-xs;
-        flex-basis: 500px;
+        background-color: var(--color-white);
+        font-size: var(--font-size-xs);
+        flex-basis: calc(#{$base-size} + var(--scale-size-40) * 5 + var(--scale-size-20));
         height: 100%;
         overflow: auto;
-        border-right: 1px solid $color-gray-300;
+        border-right: var(--scale-size-1) solid var(--color-gray-300);
 
         .sw-tree {
             border-width: 0;
         }
 
         .sw-tree-item .sw-tree-item__element {
-            grid-template-columns: 30px 24px 1fr 30px;
+            grid-template-columns: var(--scale-size-30) var(--scale-size-24) 1fr var(--scale-size-30);
         }
 
         .sw-tree .sw-tree-actions__headline {
@@ -35,7 +37,7 @@
         }
 
         .mt-icon {
-            margin-right: 8px;
+            margin-right: var(--scale-size-8);
         }
     }
 }

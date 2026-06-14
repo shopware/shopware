@@ -19,13 +19,10 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), fix requires semver major
-        'https://github.com/advisories/GHSA-3ppc-4f35-3m26', // minimatch ReDoS, high severity, devDep only (twig), fix requires twig semver major
-        'https://github.com/advisories/GHSA-7r86-cg39-jmmj', // minimatch ReDoS (matchOne), high severity, devDep only (twig), fix requires twig semver major
-        'https://github.com/advisories/GHSA-23c5-xmqv-rm74', // minimatch ReDoS (extglobs), high severity, devDep only (twig), fix requires twig semver major
-        'https://github.com/advisories/GHSA-5rq4-664w-9x2c', // basic-ftp Path Traversal, critical severity, devDep only (playwright), fix requires semver major (4.x → 5.x)
-        'https://github.com/advisories/GHSA-vpq2-c234-7xj6', // @tootallnate/once incorrect control flow, low severity, devDep only (jsdom), fix requires jsdom semver major
-        'https://github.com/advisories/GHSA-fp25-p6mj-qqg6', // locutus RCE via call_user_func_array, high severity, devDep only (twig), fix requires twig semver major
-        'https://github.com/advisories/GHSA-vh9h-29pq-r5m8', // locutus RCE via create_function(), critical severity, devDep only (twig), fix requires twig semver major
-        'https://github.com/advisories/GHSA-qpx9-hpmf-5gmw', // underscore unlimited recursion DoS, high severity, devDep only, no fix available in 1.x
+        'https://github.com/advisories/GHSA-pjwm-pj3p-43mv', // axios v0 proxy bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-898c-q2cr-xwhg', // axios v0 prototype pollution gadgets, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-hfxv-24rg-xrqf', // axios v0 ReDoS, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-p92q-9vqr-4j8v', // axios v0 proxy authorization leak, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-j5f8-grm9-p9fc', // axios v0 proxy authorization leak, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
     ],
 });

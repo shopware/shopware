@@ -5,7 +5,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule;
 
 /**
@@ -13,7 +12,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecorators
  *
  * @extends  RuleTestCase<NoRouteOverrideInDecoratorsRule>
  */
-#[CoversClass(NoRouteOverrideInDecoratorsRule::class)]
 class NoRouteOverrideInDecoratorsRuleTest extends RuleTestCase
 {
     public function testRule(): void

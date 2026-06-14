@@ -3,10 +3,10 @@
     <div class="sw-product-cross-selling-assignment__select-container">
         {% block sw_product_cross_selling_assignment_select %}
         <sw-entity-single-select
-            :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
+            :label="$t('sw-product.crossselling.inputCrossSellingProductList')"
             entity="product"
             value=""
-            :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductListPlaceholder')"
+            :placeholder="$t('sw-product.crossselling.inputCrossSellingProductListPlaceholder')"
             :criteria="searchCriteria"
             :context="searchContext"
             disable-auto-close
@@ -55,7 +55,7 @@
                     variant="danger"
                     @click="removeItem(item)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
             </template>
 
@@ -86,7 +86,7 @@
             v-if="!total && !isLoadingGrid"
             class="sw-product-cross-selling-assignment__option-list-empty-state"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-product.crossselling.assignEmptyStateTitle')"
+            :headline="$t('sw-product.crossselling.assignEmptyStateTitle')"
         />
         {% endblock %}
     </div>

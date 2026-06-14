@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -27,7 +26,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
@@ -35,9 +33,22 @@ use Symfony\Component\Finder\Finder;
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
+     * @var array<string, AssetPackage>
+     */
+    private array $packages;
+
+    /**
+     * @var array<string, array{
+     *     manifest: array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}>,
+     *     vendorMap: array<string, string>
+     * }|null>
+     */
+    private array $bundleBuildMetaCache = [];
+
+    /**
      * @internal
      *
-     * @param array<string, AssetPackage> $packages
+     * @param iterable<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
      */
     public function __construct(
@@ -45,11 +56,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly FilesystemOperator $tempFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
-        private readonly TwigComponentHelper $twigComponentHelper,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
-        private readonly iterable $packages,
+        iterable $packages,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
@@ -57,8 +67,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
-        private readonly LocalFilesystem $localFilesystem = new LocalFilesystem(),
     ) {
+        $this->packages = \is_array($packages) ? $packages : iterator_to_array($packages);
     }
 
     public function compileTheme(
@@ -69,6 +79,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $withAssets,
         Context $context
     ): void {
+        // Normal style files. Loaded for usual pages.
+        $compiledStyles = $this->getCompiledStyles(
+            $this->getResolvedStyleFiles($themeConfig, $configurationCollection),
+            $themeId,
+            $themeConfig,
+            $salesChannelId,
+            $context
+        );
+
         $newThemeHash = Uuid::randomHex();
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
@@ -80,15 +99,6 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $this->filesystem->deleteDirectory($path);
         }
-
-        // Normal style files. Loaded for usual pages.
-        $compiledStyles = $this->getCompiledStyles(
-            $this->getResolvedStyleFiles($themeConfig, $configurationCollection),
-            $themeId,
-            $themeConfig,
-            $salesChannelId,
-            $context
-        );
 
         try {
             $styleCopyFiles = $this->getStyleCopyFiles($themePrefix, $compiledStyles);
@@ -151,6 +161,84 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}|null
+     */
+    public function buildComponentImportMap(
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): ?array {
+        // Keep this cache scoped to a single import-map build.
+        $this->bundleBuildMetaCache = [];
+
+        $imports = [];
+        $scopes = [];
+        $styles = [];
+
+        $bundleNames = $this->resolveBundleNames($configurationCollection);
+
+        // Core vendor chunks → top-level specifier imports from bundle asset URLs.
+        $coreVendorMap = $this->readBundleBuildMeta('Storefront', $configurationCollection)['vendorMap'] ?? [];
+        foreach ($coreVendorMap as $specifier => $chunkPath) {
+            $imports[$specifier] = $this->buildBundleAssetUrl(
+                'Storefront',
+                '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/components/' . $chunkPath,
+                $configurationCollection,
+            );
+        }
+
+        // The shopware singleton is published as a normal bundle asset.
+        $imports['shopware'] = $this->buildBundleAssetUrl(
+            'Storefront',
+            '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/shopware/shopware.js',
+            $configurationCollection,
+        );
+
+        // Component entries (with content-hashed filenames) come from per-bundle
+        // build metadata in `public/bundles/<bundle>/storefront/components/.vite/build-meta.json`.
+        $componentManifest = $this->collectComponentManifestEntries($bundleNames, $configurationCollection);
+        foreach ($componentManifest as $tag => $entry) {
+            $bundleName = $entry['bundle'];
+            if (isset($entry['js']) && $entry['js'] !== '') {
+                $imports[$tag] = $this->buildBundleAssetUrl($bundleName, $entry['js'], $configurationCollection);
+            }
+            if (isset($entry['css']) && $entry['css'] !== []) {
+                foreach ($entry['css'] as $cssPath) {
+                    $styles[] = $this->buildBundleAssetUrl($bundleName, $cssPath, $configurationCollection);
+                }
+            }
+        }
+
+        // Extension vendor maps → scoped specifier imports so that vendor chunks
+        // are only resolved when inside that extension's component scope.
+        $scopes = $this->buildExtensionVendorScopes($bundleNames, $configurationCollection);
+
+        $result = ['imports' => $imports];
+
+        if ($scopes !== []) {
+            $result['scopes'] = $scopes;
+        }
+
+        if ($styles !== []) {
+            $result['styles'] = $styles;
+        }
+
+        return $result;
+    }
+
+    protected function fetchPublicFile(string $url): string|false
+    {
+        $context = stream_context_create([
+            'http' => [
+                'ignore_errors' => true,
+            ],
+            'https' => [
+                'ignore_errors' => true,
+            ],
+        ]);
+
+        return @file_get_contents($url, false, $context);
+    }
+
+    /**
      * @return list<CopyBatchInput>
      */
     private function copyScriptFilesToTheme(
@@ -199,28 +287,304 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return list<CopyBatchInput>
+     * Collects component import-map entries from all active bundle manifests.
+     *
+     * @param list<string> $bundleNames
+     *
+     * @return array<string, array{bundle: string, js?: string, css?: list<string>}>
      */
-    private function copyComponentScriptFiles(string $themePrefix): array
-    {
-        $componentScriptFiles = $this->twigComponentHelper->getComponents();
-        $themeComponentsPath = 'theme/' . $themePrefix . '/js/components/';
-
-        $copyFiles = [];
-
-        foreach ($componentScriptFiles as $component) {
-            $componentPath = $component->getScriptPath();
-
-            if (!$this->localFilesystem->exists($componentPath)) {
+    private function collectComponentManifestEntries(
+        array $bundleNames,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): array {
+        $manifest = [];
+        foreach ($bundleNames as $bundleName) {
+            $bundleManifest = $this->readBundleComponentManifest($bundleName, $configurationCollection);
+            if ($bundleManifest === null) {
                 continue;
             }
 
-            $componentTargetPath = $themeComponentsPath . $component->getRelativeNamespacePath() . '.js';
-
-            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath], $this->visibility);
+            foreach ($bundleManifest as $tag => $entry) {
+                $manifest[$tag] = $entry;
+            }
         }
 
-        return $copyFiles;
+        return $manifest;
+    }
+
+    /**
+     * @return array<string, array{bundle: string, js?: string, css?: list<string>}>|null
+     */
+    private function readBundleComponentManifest(
+        string $bundleName,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): ?array {
+        $buildMeta = $this->readBundleBuildMeta($bundleName, $configurationCollection);
+        if ($buildMeta === null || $buildMeta['manifest'] === []) {
+            return null;
+        }
+
+        $viteManifest = $buildMeta['manifest'];
+        $jsToCssFiles = $this->collectJsToCssFiles($viteManifest);
+
+        $result = [];
+        $publicBase = '/bundles/' . $this->toAssetDirectory($bundleName) . '/storefront/components/';
+
+        foreach ($viteManifest as $entry) {
+            if (($entry['isEntry'] ?? false) !== true || !isset($entry['name']) || $entry['name'] === '' || !isset($entry['file'])) {
+                continue;
+            }
+
+            $entryName = preg_replace('/\.(scss|css)$/', '', $entry['name']) ?? $entry['name'];
+            $outputFile = $entry['file'];
+            $tag = str_replace('/', ':', $entryName);
+
+            if (str_ends_with($outputFile, '.css')) {
+                $result[$tag]['bundle'] = $bundleName;
+                $result[$tag]['css'][] = $publicBase . $outputFile;
+            } elseif (str_ends_with($outputFile, '.js')) {
+                $result[$tag]['bundle'] = $bundleName;
+                $result[$tag]['js'] = $publicBase . $outputFile;
+
+                if (isset($jsToCssFiles[$entryName])) {
+                    foreach ($jsToCssFiles[$entryName] as $cssFile) {
+                        $result[$tag]['css'][] = $publicBase . $cssFile;
+                    }
+                }
+            }
+        }
+
+        foreach ($result as $tag => $entry) {
+            if (!isset($entry['css'])) {
+                continue;
+            }
+            $result[$tag]['css'] = array_values(array_unique($entry['css']));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}> $viteManifest
+     *
+     * @return array<string, list<string>>
+     */
+    private function collectJsToCssFiles(array $viteManifest): array
+    {
+        $jsToCssFiles = [];
+        foreach ($viteManifest as $entry) {
+            if (($entry['isEntry'] ?? false) !== true || !isset($entry['name']) || $entry['name'] === '') {
+                continue;
+            }
+            if (isset($entry['css']) && $entry['css'] !== []) {
+                $jsToCssFiles[$entry['name']] = $entry['css'];
+            }
+        }
+
+        return $jsToCssFiles;
+    }
+
+    /**
+     * @return array{
+     *     manifest: array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}>,
+     *     vendorMap: array<string, string>
+     * }|null
+     */
+    private function readBundleBuildMeta(
+        string $bundleName,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): ?array {
+        if (\array_key_exists($bundleName, $this->bundleBuildMetaCache)) {
+            return $this->bundleBuildMetaCache[$bundleName];
+        }
+
+        $relativeMetaPath = $this->getPublishedComponentsRoot($bundleName) . '/.vite/build-meta.json';
+        $package = $this->resolveAssetPackageForBundle($bundleName, $configurationCollection);
+
+        if ($package === null) {
+            return $this->bundleBuildMetaCache[$bundleName] = null;
+        }
+
+        $url = $package->getUrl($relativeMetaPath);
+        $raw = $this->fetchPublicFile($url);
+        if (!\is_string($raw) || $raw === '') {
+            return $this->bundleBuildMetaCache[$bundleName] = null;
+        }
+
+        try {
+            $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $this->bundleBuildMetaCache[$bundleName] = null;
+        }
+
+        return $this->bundleBuildMetaCache[$bundleName] = $this->normalizeBundleBuildMeta($decoded);
+    }
+
+    /**
+     * @return array{
+     *     manifest: array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}>,
+     *     vendorMap: array<string, string>
+     * }
+     */
+    private function normalizeBundleBuildMeta(mixed $decoded): array
+    {
+        if (!\is_array($decoded)) {
+            return [
+                'manifest' => [],
+                'vendorMap' => [],
+            ];
+        }
+
+        $manifest = [];
+        if (isset($decoded['manifest']) && \is_array($decoded['manifest'])) {
+            $manifest = $decoded['manifest'];
+        }
+
+        $vendorMap = [];
+        if (isset($decoded['vendorMap']) && \is_array($decoded['vendorMap'])) {
+            $vendorMap = $decoded['vendorMap'];
+        }
+
+        return [
+            'manifest' => $manifest,
+            'vendorMap' => $vendorMap,
+        ];
+    }
+
+    /**
+     * @param list<string> $bundleNames
+     *
+     * @return array<string, array<string, string>>
+     */
+    private function buildExtensionVendorScopes(
+        array $bundleNames,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): array {
+        $scopes = [];
+
+        foreach ($bundleNames as $bundleName) {
+            if ($bundleName === 'Storefront') {
+                continue;
+            }
+
+            $vendorMap = $this->readBundleBuildMeta($bundleName, $configurationCollection)['vendorMap'] ?? [];
+            if ($vendorMap === []) {
+                continue;
+            }
+
+            $bundleComponentsBase = '/bundles/' . $this->toAssetDirectory($bundleName) . '/storefront/components/';
+            $scopeKey = $this->buildScopeKeyUrl(
+                $this->buildBundleAssetUrl($bundleName, $bundleComponentsBase . $bundleName . '/', $configurationCollection),
+            );
+
+            foreach ($vendorMap as $specifier => $chunkPath) {
+                $scopes[$scopeKey][$specifier] = $this->buildBundleAssetUrl($bundleName, $bundleComponentsBase . $chunkPath, $configurationCollection);
+            }
+        }
+
+        return $scopes;
+    }
+
+    private function buildBundleAssetUrl(
+        string $bundleName,
+        string $path,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): string {
+        $package = $this->resolveAssetPackageForBundle($bundleName, $configurationCollection);
+        if ($package === null) {
+            return $path;
+        }
+
+        return $package->getUrl(ltrim($path, '/'));
+    }
+
+    private function buildScopeKeyUrl(string $url): string
+    {
+        // Import-map scope matching is prefix-based on URL paths. If a scope key
+        // contains a query string (e.g. ".../Component/?hash"), module URLs like
+        // ".../Component/vendor/chunk.js?hash" no longer match that prefix and
+        // bare vendor specifiers cannot be resolved in the browser.
+        $queryPos = strpos($url, '?');
+        if ($queryPos === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $queryPos);
+    }
+
+    private function resolveAssetPackageForBundle(
+        string $bundleName,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): ?AssetPackage {
+        $isAppBundle = $this->isAppBundle($bundleName, $configurationCollection);
+
+        /**
+         * This is a SaaS specific logic for correct asset file system handling.
+         * In SaaS there are different CDN-based file systems for core files and apps.
+         * Most files are stored in a global CDN (global_asset) which is added by Rufus.
+         * App assets are stored in per-instance CDN (asset).
+         * On normal on-premise installations, the asset file system is used for both.
+         */
+        $preferredKeys = $isAppBundle
+            ? ['asset', 'public']
+            : ['global_asset', 'asset', 'public'];
+
+        foreach ($preferredKeys as $key) {
+            if (isset($this->packages[$key])) {
+                return $this->packages[$key];
+            }
+        }
+
+        return null;
+    }
+
+    private function isAppBundle(
+        string $bundleName,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+    ): bool {
+        if ($configurationCollection === null) {
+            return false;
+        }
+
+        $configuration = $configurationCollection->getByTechnicalName($bundleName);
+        if ($configuration === null) {
+            return false;
+        }
+
+        /**
+         * This is a SaaS specific logic to determine if the bundle is an app.
+         * In SaaS, app bundles are marked with the "saas_remote_app" extension.
+         * On normal on-premise installations, apps are handled as normal bundles.
+         */
+        return $configuration->hasExtension('saas_remote_app');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveBundleNames(?StorefrontPluginConfigurationCollection $configurationCollection): array
+    {
+        if ($configurationCollection === null) {
+            return ['Storefront'];
+        }
+
+        $bundleNames = ['Storefront'];
+
+        foreach ($configurationCollection as $configuration) {
+            $bundleNames[] = $configuration->getTechnicalName();
+        }
+
+        return array_values(array_unique($bundleNames));
+    }
+
+    private function getPublishedComponentsRoot(string $bundleName): string
+    {
+        return 'bundles/' . $this->toAssetDirectory($bundleName) . '/storefront/components';
+    }
+
+    private function toAssetDirectory(string $bundleName): string
+    {
+        return preg_replace('/bundle$/', '', strtolower($bundleName)) ?? strtolower($bundleName);
     }
 
     /**
@@ -585,9 +949,6 @@ PHP_EOL;
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
     ): array {
-        $themeScriptCopyFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
-        $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
-
-        return [...$themeScriptCopyFiles, ...$componentScriptCopyFiles];
+        return $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
     }
 }

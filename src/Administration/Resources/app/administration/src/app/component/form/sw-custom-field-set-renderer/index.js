@@ -1,5 +1,7 @@
 import { computed } from 'vue';
 
+import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -102,16 +104,31 @@ export default {
     data() {
         return {
             customFields: {},
+            indirectInheritedCustomFields: null,
             loadingFields: [],
             tabWaitMaxAttempts: 10,
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
+            translatedInheritanceLoadKey: null,
         };
     },
 
     computed: {
         hasParent() {
-            return this.parentEntity ? !!this.parentEntity.id : false;
+            return this.hasExplicitParentEntity || this.usesTranslatedInheritance;
+        },
+
+        hasExplicitParentEntity() {
+            return !!this.parentEntity?.id;
+        },
+
+        usesTranslatedInheritance() {
+            return (
+                !this.hasExplicitParentEntity &&
+                !!this.entity?.id &&
+                typeof this.entity?.getEntityName === 'function' &&
+                !!this.translatedInheritanceSourceLanguageId
+            );
         },
 
         visibleCustomFieldSets() {
@@ -160,9 +177,35 @@ export default {
                 'sw-field',
             ];
         },
+
+        translatedInheritanceSourceLanguageId() {
+            const language = Shopware.Store.get('context')?.api?.language;
+            const parentLanguageId = language?.parentId;
+
+            if (parentLanguageId) {
+                return parentLanguageId;
+            }
+
+            if (Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId) {
+                return null;
+            }
+
+            return Shopware.Context.api.systemLanguageId;
+        },
     },
 
     watch: {
+        translatedInheritanceSourceLanguageId() {
+            this.loadInheritedCustomFields();
+        },
+
+        sets: {
+            handler() {
+                this.loadInheritedCustomFields();
+            },
+            deep: true,
+        },
+
         'entity.customFieldSetSelectionActive': {
             handler(value) {
                 this.onChangeCustomFieldSetSelectionActive(value);
@@ -179,6 +222,7 @@ export default {
         entity: {
             handler() {
                 this.initializeCustomFields();
+                this.loadInheritedCustomFields();
             },
             deep: true,
         },
@@ -198,6 +242,7 @@ export default {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
+            this.loadInheritedCustomFields();
             this.onChangeCustomFieldSets();
         },
 
@@ -209,13 +254,73 @@ export default {
             this.customFields = this.entity.customFields;
         },
 
-        getInheritedCustomField(customFieldName) {
-            const value = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
+        hasOverriddenTranslatedCustomFields() {
+            return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
+        },
 
-            if (value) {
-                return value;
+        hasInheritedTranslatedCustomFields() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => this.isInheritedTranslatedCustomField(customField.name));
+            });
+        },
+
+        hasInheritedTranslatedCustomFieldsWithoutFallback() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => {
+                    if (!this.isInheritedTranslatedCustomField(customField.name)) {
+                        return false;
+                    }
+
+                    const translatedValue = this.entity?.translated?.customFields?.[customField.name];
+
+                    return translatedValue === null || translatedValue === undefined;
+                });
+            });
+        },
+
+        resetTranslatedInheritanceState() {
+            this.indirectInheritedCustomFields = null;
+            this.translatedInheritanceLoadKey = null;
+        },
+
+        getTranslatedInheritanceLoadKey() {
+            return [
+                this.entity.getEntityName(),
+                this.entity.id,
+                this.translatedInheritanceSourceLanguageId,
+            ].join(':');
+        },
+
+        getTranslatedInheritanceContext() {
+            return {
+                ...Shopware.Context.api,
+                languageId: this.translatedInheritanceSourceLanguageId,
+            };
+        },
+
+        isInheritedTranslatedCustomField(customFieldName) {
+            return this.customFields?.[customFieldName] === null || this.customFields?.[customFieldName] === undefined;
+        },
+
+        getInheritedCustomFields(customFieldName) {
+            const parentCustomFields = this.parentEntity?.translated?.customFields;
+
+            if (parentCustomFields) {
+                return parentCustomFields?.[customFieldName];
             }
 
+            if (!this.usesTranslatedInheritance || !this.isInheritedTranslatedCustomField(customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
+            }
+
+            if (Object.hasOwn(this.indirectInheritedCustomFields ?? {}, customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
+            }
+
+            return this.entity?.translated?.customFields?.[customFieldName];
+        },
+
+        getDefaultInheritedCustomFieldValue(customFieldName) {
             const customFieldInformation = this.getCustomFieldInformation(customFieldName);
             const customFieldType = customFieldInformation.type;
 
@@ -243,6 +348,58 @@ export default {
                     return null;
                 }
             }
+        },
+
+        async loadInheritedCustomFields() {
+            if (!this.usesTranslatedInheritance) {
+                this.resetTranslatedInheritanceState();
+
+                return;
+            }
+
+            const loadKey = this.getTranslatedInheritanceLoadKey();
+
+            if (!this.hasOverriddenTranslatedCustomFields() && !this.hasInheritedTranslatedCustomFields()) {
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    this.resetTranslatedInheritanceState();
+                }
+
+                return;
+            }
+
+            if (this.translatedInheritanceLoadKey === loadKey) {
+                return;
+            }
+
+            this.translatedInheritanceLoadKey = loadKey;
+
+            try {
+                const inheritedEntity = await this.repositoryFactory
+                    .create(this.entity.getEntityName())
+                    .get(this.entity.id, this.getTranslatedInheritanceContext());
+
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    return;
+                }
+
+                this.indirectInheritedCustomFields = inheritedEntity?.customFields ?? null;
+            } catch (error) {
+                console.error(error);
+
+                if (this.translatedInheritanceLoadKey === loadKey) {
+                    this.resetTranslatedInheritanceState();
+                }
+            }
+        },
+
+        getInheritedCustomField(customFieldName) {
+            const value = this.getInheritedCustomFields(customFieldName);
+
+            if (value !== null && value !== undefined) {
+                return value;
+            }
+
+            return this.getDefaultInheritedCustomFieldValue(customFieldName);
         },
 
         getCustomFieldInformation(customFieldName) {
@@ -306,6 +463,7 @@ export default {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
+            const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
@@ -316,18 +474,15 @@ export default {
 
                 // Special case for meteor components
                 if (isMeteorComponent) {
-                    customFieldClone.isInheritanceField = props.isInheritField;
-                    customFieldClone.isInherited = props.isInherited;
-                    customFieldClone.inheritanceRemove = props.removeInheritance;
-                    customFieldClone.inheritanceRestore = props.restoreInheritance;
-                    customFieldClone.inheritedValue = props.currentValue;
+                    Object.assign(customFieldClone, mapInheritanceSlotPropsToMeteorProps(props, inheritedCustomFieldValue));
+                    customFieldClone.disabled = this.disabled || props.isInherited;
                 }
 
                 return customFieldClone;
             }
 
             if (customFieldClone.config.customFieldType === 'entity' && customFieldClone.config.entity === 'product') {
-                const criteria = new Criteria(1, 25);
+                const criteria = new Criteria(1, 25).setTotalCountMode(0);
                 criteria.addAssociation('options.group');
 
                 customFieldClone.config.criteria = criteria;

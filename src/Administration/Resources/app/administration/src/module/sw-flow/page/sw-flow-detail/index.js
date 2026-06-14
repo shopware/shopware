@@ -335,7 +335,7 @@ export default {
                 await this.getDataForActionDescription();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageError'),
+                    message: this.$t('sw-flow.flowNotification.messageError'),
                 });
             }
         },
@@ -357,7 +357,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
                 });
         },
@@ -368,7 +368,7 @@ export default {
 
             if (!this.flow?.name || !this.flow?.eventName) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.general'),
                 });
 
                 return;
@@ -379,7 +379,7 @@ export default {
 
             if (invalidSequences.length) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.sequences'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.sequences'),
                 });
 
                 return;
@@ -390,7 +390,7 @@ export default {
 
             if (this.isTemplate) {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
+                    message: this.$t('sw-flow.flowNotification.messageWarningSave'),
                 });
 
                 this.isLoading = false;
@@ -407,7 +407,7 @@ export default {
                 .then(() => {
                     if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
+                            message: this.$t('sw-flow.flowNotification.messageCreateSuccess'),
                         });
 
                         this.$router.push({
@@ -423,7 +423,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                        message: this.$t('sw-flow.flowNotification.messageSaveError'),
                     });
 
                     this.handleFieldValiationError();
@@ -649,7 +649,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
                 });
         },

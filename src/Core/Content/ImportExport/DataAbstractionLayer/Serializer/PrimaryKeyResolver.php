@@ -127,12 +127,13 @@ class PrimaryKeyResolver
     /**
      * @param array<string, mixed> $data
      * @param list<string> $keyPath
-     *
-     * @return mixed|null
      */
-    private function getValueFromPath(array $data, array $keyPath)
+    private function getValueFromPath(array $data, array $keyPath): mixed
     {
         $key = array_shift($keyPath);
+        if ($key === null) {
+            return null;
+        }
 
         if (!isset($data[$key])) {
             return null;

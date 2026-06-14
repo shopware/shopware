@@ -21,7 +21,7 @@
             {{ placeholder(category, 'name') }}
         </h2>
         <h2 v-else>
-            {{ $tc('sw-category.general.headlineCategories') }}
+            {{ $t('sw-category.general.headlineCategories') }}
         </h2>
         {% endblock %}
     </template>
@@ -47,7 +47,7 @@
                 size="default"
                 @click="cancelEdit"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -65,7 +65,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
-                {{ $tc('sw-category.general.buttonSafeCategory') }}
+                {{ $t('sw-category.general.buttonSafeCategory') }}
             </sw-button-process>
             {% endblock %}
 
@@ -81,7 +81,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSaveLandingPage"
             >
-                {{ $tc('sw-category.general.buttonSafeCategory') }}
+                {{ $t('sw-category.general.buttonSafeCategory') }}
             </sw-button-process>
             {% endblock %}
             {% endblock %}
@@ -103,13 +103,13 @@
                     v-if="categoryCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-category.general.treeHeadSelected`, { count: categoryCheckedItem }) }}:
+                    {{ $t(`sw-category.general.treeHeadSelected`, { count: categoryCheckedItem }) }}:
                 </div>
                 <div
                     v-else
                     class="sw-category-detail__collapse-headline"
                 >
-                    {{ $tc(`sw-category.general.treeHeadline`) }}
+                    {{ $t(`sw-category.general.treeHeadline`) }}
                 </div>
                 {% endblock %}
 
@@ -125,7 +125,7 @@
                         size="small"
                         @click="onCategoryDelete"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                 </div>
                 {% endblock %}
@@ -163,13 +163,13 @@
                     v-if="landingPageCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, { count: landingPageCheckedItem }) }}:
+                    {{ $t(`sw-landing-page.general.treeHeadSelected`, { count: landingPageCheckedItem }) }}:
                 </div>
                 <div
                     v-else
                     class="sw-category-detail__collapse-headline"
                 >
-                    {{ $tc(`sw-landing-page.general.treeHeadline`) }}
+                    {{ $t(`sw-landing-page.general.treeHeadline`) }}
                 </div>
                 {% endblock %}
 
@@ -185,7 +185,7 @@
                         size="small"
                         @click="onLandingPageDelete"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                 </div>
                 {% endblock %}

@@ -1,15 +1,13 @@
-@import "~scss/variables";
-
 .sw-settings-search {
     &__search-behaviour-title {
         display: block;
         width: 100%;
-        margin-bottom: 32px;
+        margin-bottom: var(--scale-size-32);
     }
 
-    .sw-card {
+    .mt-card {
         .sw-settings-search__search-behaviour-title {
-            font-size: $font-size-s;
+            font-size: var(--font-size-s);
         }
     }
 

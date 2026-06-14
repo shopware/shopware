@@ -4,9 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -22,7 +20,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(ProductCategoryDenormalizer::class)]
 class ProductCategoryDenormalizerTest extends TestCase
 {
     use IntegrationTestBehaviour;

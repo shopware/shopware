@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Administration\Framework\Routing\NotFound\AdministrationNotFoundSubscriber">
+            <argument>%shopware_administration.path_name%</argument>
+            <argument type="service" id="service_container"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
+            <argument>%shopware_administration.path_name%</argument>
+            <tag name="shopware.route_scope"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
+
+        <service id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" decorates="pentatrion_vite.file_accessor">
+            <argument>%pentatrion_vite.configs%</argument>
+            <argument type="service" id="shopware.asset.asset"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="filesystem"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber">
+            <argument type="service" id="locale.repository"/>
+            <argument type="service" id="app_administration_snippet.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\App\ActiveAdminAppLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Administration\Framework\App\ActiveAdminAppLoader"/>
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Asset\AssetUploadListener">
+            <tag name="kernel.event_listener"/>
+        </service>
+    </services>
+</container>

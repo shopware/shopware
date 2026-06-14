@@ -193,7 +193,7 @@ export default {
                         }
 
                         snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                            assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
+                            assignments: `"${this.$t(currentValue.snippet, 1)}"`,
                         });
                     });
 

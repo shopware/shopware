@@ -136,7 +136,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 // Methods from mixins are not recognized
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -193,7 +193,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            return this.$tc(snippetKey);
+            return this.$t(snippetKey);
         },
 
         getLabel(namespace: string, name: string): string {

@@ -13,7 +13,7 @@
         <div class="collapsible-text sw-admin-menu__headline_text">
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
-            >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
+            >{{ $t('sw-sales-channel.general.titleMenuItems') }}</router-link>
         </div>
         {% endblock %}
 
@@ -27,7 +27,7 @@
                 class="sw-admin-menu__headline-context-menu-manage-sales-channels"
                 :router-link="{ name: 'sw.sales.channel.list' }"
             >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+                {{ $t('sw-sales-channel.general.manageSalesChannels') }}
             </sw-context-menu-item>
             {% endblock %}
         </sw-context-button>
@@ -36,7 +36,7 @@
         {% block sw_sales_channel_menu_headline_action %}
         <button
             v-if="canCreateSalesChannels"
-            :aria-label="$tc('sw-sales-channel.general.addSalesChannel')"
+            :aria-label="$t('sw-sales-channel.general.addSalesChannel')"
             class="sw-admin-menu__headline-action"
             @click="openSalesChannelModal"
         >
@@ -70,7 +70,7 @@
                     <button
                         v-if="entry.domainLink && entry.active"
                         class="sw-sales-channel-menu-domain-link"
-                        :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
+                        :title="$t('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"
                     >
                         <mt-icon
@@ -106,7 +106,7 @@
                 class="sw-admin-menu__headline-context-menu-manage-sales-channels"
                 :router-link="{ name: 'sw.sales.channel.list' }"
             >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+                {{ $t('sw-sales-channel.general.manageSalesChannels') }}
             </sw-context-menu-item>
         </sw-context-button>
         {% endblock %}

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContent
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -501,20 +501,19 @@ class ContentSystemElementTypePersisterTest extends TestCase
         );
     }
 
-    private function buildContext(Filesystem $filesystem, bool $active = true): AppLifecycleContext
+    private function buildContext(Filesystem $filesystem, bool $active = true): AppPersistContext
     {
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
         $app->setName('DemoApp');
         $app->setActive($active);
 
-        return new AppLifecycleContext(
+        return new AppPersistContext(
             manifest: static::createStub(Manifest::class),
             app: $app,
             context: Context::createDefaultContext(),
             appFilesystem: $filesystem,
             defaultLocale: 'en-GB',
-            isInstall: true,
         );
     }
 

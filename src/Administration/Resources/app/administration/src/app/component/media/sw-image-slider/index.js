@@ -325,7 +325,7 @@ export default {
         },
 
         imageAlt(index) {
-            return this.$tc(
+            return this.$t(
                 'sw-image-slider.imageAlt',
                 {
                     index: index + 1,

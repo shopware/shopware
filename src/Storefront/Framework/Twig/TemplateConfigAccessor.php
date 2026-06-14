@@ -7,7 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -19,7 +18,7 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly Packages $packages,
+        private readonly string $kernelEnvironment = 'prod',
     ) {
     }
 
@@ -46,54 +45,56 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<int, string> $items
+     * @return list<string> $items
      */
     public function scripts(): array
     {
-        $scripts = [];
+        return array_values($this->themeScripts->getThemeScripts());
+    }
 
-        foreach ($this->themeScripts->getThemeScripts() as $script) {
-            if (!str_starts_with($script, 'js/components/')) {
-                $scripts[] = $script;
+    /**
+     * Returns the full import map data: top-level imports, optional scoped imports for extensions,
+     * and optional ordered lists of CSS and JS URLs.
+     *
+     * When the Vite component dev server is running it writes a flag file that
+     * IS the complete map (all entries already contain full dev-server URLs).
+     * That map is returned with `isDevServer: true` added so that the template
+     * can treat dev-server component CSS as a replacement for the compiled theme
+     * stylesheet (the dev server re-compiles component SCSS on the fly).
+     *
+     * In production the stored map already contains full URLs pre-computed at theme
+     * compile time. The `styles` key,
+     * if present, lists the component CSS files at public/storefront/components/ that must be
+     * loaded alongside the regular compiled theme stylesheet.
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
+     */
+    public function importMap(): array
+    {
+        // Vite dev server running: the flag file already provides the complete map.
+        // Only active in the dev environment — never in production or test.
+        if ($this->kernelEnvironment === 'dev') {
+            $devMap = $this->themeScripts->getDevImportMap();
+            if ($devMap !== null) {
+                return $devMap + ['isDevServer' => true];
             }
         }
 
-        return $scripts;
+        return $this->themeScripts->getImportMap() ?? ['imports' => []];
     }
 
     /**
-     * @return array<string, mixed>
+     * Returns all theme config fields that have `"scss": true` (the default) as a key/value
+     * map so Twig can render custom properties with context-appropriate escaping.
+     *
+     * Delegates to ThemeConfigValueAccessor::getCssVarValues() so values are resolved
+     * the same way as theme_config() — media URLs substituted, cached per sales channel.
+     *
+     * @return array<string, string|int>
      */
-    public function componentImportMap(): array
+    public function themeCssVars(SalesChannelContext $context, ?string $themeId): array
     {
-        $componentImportMap = [];
-        $themeScripts = $this->themeScripts->getThemeScripts();
-
-        // Filter theme scripts to component scripts only.
-        $componentScripts = array_filter($themeScripts, function ($script) {
-            return str_contains($script, 'js/components/');
-        });
-
-        // Create import map based on component tag.
-        foreach ($componentScripts as $componentScript) {
-            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
-            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
-        }
-
-        return $componentImportMap;
-    }
-
-    /**
-     * Derives the component tag from the script path.
-     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
-     */
-    private function getComponentTagFromScriptPath(string $path): string
-    {
-        $tag = str_replace('js/components/', '', $path);
-        $tag = str_replace('.js', '', $tag);
-        $tag = str_replace('/', ':', $tag);
-
-        return $tag;
+        return $this->themeConfigAccessor->getCssVarValues($context, $themeId);
     }
 
     /**

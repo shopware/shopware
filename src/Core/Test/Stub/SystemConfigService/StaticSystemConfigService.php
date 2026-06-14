@@ -70,7 +70,6 @@ class StaticSystemConfigService extends SystemConfigService
 
             $pointer = &$foundValues;
             foreach (explode('.', $formattedKey) as $part) {
-                // @phpstan-ignore function.impossibleType ($pointer targets $foundValues)
                 if (!\array_key_exists($part, $pointer)) {
                     $pointer[$part] = [];
                 }
@@ -80,12 +79,10 @@ class StaticSystemConfigService extends SystemConfigService
             $pointer = $configValue;
         }
 
-        // @phpstan-ignore identical.alwaysTrue ($foundValues can be empty)
         if ($foundValues === []) {
             return null;
         }
 
-        // @phpstan-ignore deadCode.unreachable ($foundValues can be filled by pointer)
         return $foundValues;
     }
 }

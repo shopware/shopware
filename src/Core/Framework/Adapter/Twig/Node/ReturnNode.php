@@ -8,6 +8,9 @@ use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 #[YieldReady]
 class ReturnNode extends Node implements NodeOutputInterface

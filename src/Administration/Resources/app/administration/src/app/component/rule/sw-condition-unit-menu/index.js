@@ -58,10 +58,10 @@ export default {
 
         unitSnippet() {
             if (!this.defaultUnit) {
-                return this.$tc(`global.sw-condition-generic.units.${this.type}`);
+                return this.$t(`global.sw-condition-generic.units.${this.type}`);
             }
 
-            return this.$tc(`global.sw-condition-generic.units.short.${this.selectedUnit || this.defaultUnit}`);
+            return this.$t(`global.sw-condition-generic.units.short.${this.selectedUnit || this.defaultUnit}`);
         },
 
         unitOptions() {
@@ -69,122 +69,122 @@ export default {
                 case 'weight':
                     return [
                         {
-                            label: this.$tc('global.sw-condition-generic.units.g'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.g'),
+                            label: this.$t('global.sw-condition-generic.units.g'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.g'),
                             value: 'g',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.kg'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.kg'),
+                            label: this.$t('global.sw-condition-generic.units.kg'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.kg'),
                             value: 'kg',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.oz'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.oz'),
+                            label: this.$t('global.sw-condition-generic.units.oz'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.oz'),
                             value: 'oz',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.lb'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.lb'),
+                            label: this.$t('global.sw-condition-generic.units.lb'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.lb'),
                             value: 'lb',
                         },
                     ];
                 case 'dimension':
                     return [
                         {
-                            label: this.$tc('global.sw-condition-generic.units.mm'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.mm'),
+                            label: this.$t('global.sw-condition-generic.units.mm'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.mm'),
                             value: 'mm',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.cm'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.cm'),
+                            label: this.$t('global.sw-condition-generic.units.cm'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.cm'),
                             value: 'cm',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.m'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.m'),
+                            label: this.$t('global.sw-condition-generic.units.m'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.m'),
                             value: 'm',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.km'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.km'),
+                            label: this.$t('global.sw-condition-generic.units.km'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.km'),
                             value: 'km',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.in'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.in'),
+                            label: this.$t('global.sw-condition-generic.units.in'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.in'),
                             value: 'in',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.ft'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.ft'),
+                            label: this.$t('global.sw-condition-generic.units.ft'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.ft'),
                             value: 'ft',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.mi'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.mi'),
+                            label: this.$t('global.sw-condition-generic.units.mi'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.mi'),
                             value: 'mi',
                         },
                     ];
                 case 'time':
                     return [
                         {
-                            label: this.$tc('global.sw-condition-generic.units.min'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.min'),
+                            label: this.$t('global.sw-condition-generic.units.min'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.min'),
                             value: 'min',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.hr'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.hr'),
+                            label: this.$t('global.sw-condition-generic.units.hr'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.hr'),
                             value: 'hr',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.d'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.d'),
+                            label: this.$t('global.sw-condition-generic.units.d'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.d'),
                             value: 'd',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.wk'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.wk'),
+                            label: this.$t('global.sw-condition-generic.units.wk'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.wk'),
                             value: 'wk',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.mth'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.mth'),
+                            label: this.$t('global.sw-condition-generic.units.mth'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.mth'),
                             value: 'mth',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.yr'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.yr'),
+                            label: this.$t('global.sw-condition-generic.units.yr'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.yr'),
                             value: 'yr',
                         },
                     ];
                 case 'volume':
                     return [
                         {
-                            label: this.$tc('global.sw-condition-generic.units.mm3'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.mm3'),
+                            label: this.$t('global.sw-condition-generic.units.mm3'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.mm3'),
                             value: 'mm3',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.cm3'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.cm3'),
+                            label: this.$t('global.sw-condition-generic.units.cm3'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.cm3'),
                             value: 'cm3',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.m3'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.m3'),
+                            label: this.$t('global.sw-condition-generic.units.m3'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.m3'),
                             value: 'm3',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.in3'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.in3'),
+                            label: this.$t('global.sw-condition-generic.units.in3'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.in3'),
                             value: 'in3',
                         },
                         {
-                            label: this.$tc('global.sw-condition-generic.units.ft3'),
-                            shortLabel: this.$tc('global.sw-condition-generic.units.short.ft3'),
+                            label: this.$t('global.sw-condition-generic.units.ft3'),
+                            shortLabel: this.$t('global.sw-condition-generic.units.short.ft3'),
                             value: 'ft3',
                         },
                     ];

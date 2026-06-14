@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  *
@@ -2886,7 +2888,7 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.text()).toBe('Original Header Original second message');
 
-            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props, context) => {
                 // Access slots
                 const headerSlot = context.slots.header;
 
@@ -2944,7 +2946,7 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.text()).toBe('Original message Original second message');
 
-            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props, context) => {
                 // Access slots
                 const headerSlot = context.slots.header;
 
@@ -3509,7 +3511,7 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.base').text()).toContain('Base: 1');
 
             // Override the setup function
-            overrideComponentSetup()('originalComponent', (previousState, props) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props) => {
                 // @ts-expect-error - multiplier is defined in the original setup
                 const newBaseValue = ref(props.multiplier * 10);
 
@@ -3542,7 +3544,7 @@ describe('src/app/adapter/composition-extension-system', () => {
             expect(wrapper.find('.message').text()).toContain('Message: Original message');
 
             // Override the setup function
-            overrideComponentSetup()('originalComponent', (previousState, props, context) => {
+            overrideComponentSetup<typeof originalComponent>()('originalComponent', (previousState, props, context) => {
                 // Access slots
                 const headerSlot = context.slots.header;
 

@@ -112,21 +112,6 @@ abstract class AbstractContentDataLoader
         throw ContentSystemException::unsupportedTypeNode($dataTypeNode::class);
     }
 
-    /**
-     * Overrides the compile-time type declaration with concrete types resolved at runtime.
-     *
-     * The resolver populates $types from the compile-time @extends annotation,
-     * then passes the list here. Modify in-place to replace, extend, or filter.
-     * Default: no-op (keeps compile-time types).
-     *
-     * Called by the resolver at resolve time, not at container build time.
-     *
-     * @param list<ContentSystemDataLoaderTypeDescriptor> $types
-     */
-    public function overrideProvidedTypes(array &$types): void
-    {
-    }
-
     abstract public function load(
         ContentElement $element,
         DataRequirement $requirement,

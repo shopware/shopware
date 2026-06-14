@@ -22,7 +22,7 @@
                 <sw-confirm-field
                     :value="currentValue"
                     :disabled="disabled"
-                    :placeholder="$tc('sw-tree.general.buttonCreate')"
+                    :placeholder="$t('sw-tree.general.buttonCreate')"
                     @input="createNewItem"
                 />
                 {% endblock %}
@@ -32,7 +32,7 @@
                 v-if="disabled"
                 class="sw-tree-input-field__language-warning"
             >
-                {{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.
+                {{ $t('sw-tree.general.actions.actionsDisabledInLanguage') }}.
             </span>
         </div>
         {% endblock %}

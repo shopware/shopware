@@ -80,7 +80,7 @@ export default Component.wrapComponentConfig({
                 );
             });
 
-            return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
+            return `${this.$t('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
         },
 
         filteredCalculatedTaxes(): CalculatedTax[] {

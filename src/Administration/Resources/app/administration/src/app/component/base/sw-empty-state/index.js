@@ -60,7 +60,7 @@ export default {
         },
 
         moduleDescription() {
-            return this.subline ?? this.$tc(this.$route.meta.$module.description);
+            return this.subline ?? this.$t(this.$route.meta.$module.description);
         },
 
         moduleIcon() {

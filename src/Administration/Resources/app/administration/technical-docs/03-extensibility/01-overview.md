@@ -87,7 +87,9 @@ Template extension mechanism using TwigJS for overriding template blocks:
 {% endblock %}
 ```
 
-### 3. (Future) Native Block System + Composition API Extension System
+### 3. Native Block System + Composition API Extension System (Experimental, 6.8+)
+
+Both systems are available behind the feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` and will become stable in v6.8.0.
 
 Vue-native block system replacing TwigJS blocks:
 
@@ -135,6 +137,7 @@ Shopware.Component.overrideComponentSetup()('originalComponent', (previousState,
 ### Phase 2: Hybrid Transition (Shopware 6.8+, Current)
 - **Native Vue Block System**: `sw-block` components partially replace TwigJS blocks
 - **Composition API Extensions**: `overrideComponentSetup()` partially replaces Component Factory
+- **Options API Backward-Compatibility Shim**: Options API overrides targeting Composition API components automatically pass through a compatibility shim so existing plugins continue to work without modification
 - Both legacy and modern systems coexist
 
 ### Phase 3: Modern System (Future Target)
@@ -153,8 +156,8 @@ Guaranteed backward compatibility within major versions:
 
 ### Experimental APIs (Subject to Change)
 New features under active development:
-- **Composition API Extension System** (6.8+)
-- **Native Block System** (6.8+)
+- **Composition API Extension System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
+- **Native Block System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
 - Advanced component lifecycle hooks
 
 ## Key Architecture Decision Records
@@ -173,3 +176,4 @@ Explore detailed documentation for each extension method:
 
 - [Plugins](./02-plugins.md) - In-depth plugin development patterns
 - [Apps](./03-apps.md) - Meteor Admin SDK integration
+- [Composition API Extension System](./04-composition-extension-system.md) - Full technical reference for `createExtendableSetup`, `overrideComponentSetup`, and the Options API Shim

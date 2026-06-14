@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Symplify
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule;
@@ -17,7 +16,6 @@ use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
  *
  * @internal
  */
-#[CoversClass(NoReturnSetterMethodWithFluentSettersRule::class)]
 class NoReturnSetterMethodWithFluentSettersRuleTest extends RuleTestCase
 {
     /**

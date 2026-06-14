@@ -63,76 +63,74 @@ class HeaderPageletLoaderTest extends TestCase
      * Some characters like A and Ä share one position since Ä is being seen as A with decorations.
      * Adding a test case with e.g. Alang and Älang with an expected order will introduce flakynes.
      *
-     * @return array<array{languages: list<array{name: string}>, expectedOrder: list<string>}>
+     * @return iterable<array{languages: list<array{name: string}>, expectedOrder: list<string>}>
      */
-    public static function sortingTestDataProvider(): array
+    public static function sortingTestDataProvider(): iterable
     {
-        return [
-            [
-                'languages' => [
-                    ['name' => 'Alang'],
-                    ['name' => 'Dlang'],
-                    ['name' => 'Xlang'],
-                    ['name' => 'Blang'],
-                ],
-                'expectedOrder' => ['Alang', 'Blang', 'Dlang', 'Xlang'],
+        yield 'sorting test languages expected order' => [
+            'languages' => [
+                ['name' => 'Alang'],
+                ['name' => 'Dlang'],
+                ['name' => 'Xlang'],
+                ['name' => 'Blang'],
             ],
-            [
-                'languages' => [
-                    ['name' => 'Русский'],
-                    ['name' => 'हिन्दी'],
-                    ['name' => 'Glang'],
-                    ['name' => 'Ölang'],
-                    ['name' => 'Xlang'],
-                    ['name' => 'Elang'],
-                    ['name' => 'Flang'],
-                    ['name' => 'Plang'],
-                    ['name' => 'Qlang'],
-                    ['name' => 'Ylang'],
-                    ['name' => 'Mlang'],
-                    ['name' => 'Rlang'],
-                    ['name' => 'Jlang'],
-                    ['name' => '한국어'],
-                    ['name' => 'Slang'],
-                    ['name' => 'Ülang'],
-                    ['name' => 'Älang'],
-                    ['name' => 'Llang'],
-                ],
-                'expectedOrder' => [
-                    'Älang',
-                    'Elang',
-                    'Flang',
-                    'Glang',
-                    'Jlang',
-                    'Llang',
-                    'Mlang',
-                    'Ölang',
-                    'Plang',
-                    'Qlang',
-                    'Rlang',
-                    'Slang',
-                    'Ülang',
-                    'Xlang',
-                    'Ylang',
-                    'Русский',
-                    'हिन्दी',
-                    '한국어',
-                ],
+            'expectedOrder' => ['Alang', 'Blang', 'Dlang', 'Xlang'],
+        ];
+        yield 'German fallback languages keep expected order' => [
+            'languages' => [
+                ['name' => 'Русский'],
+                ['name' => 'हिन्दी'],
+                ['name' => 'Glang'],
+                ['name' => 'Ölang'],
+                ['name' => 'Xlang'],
+                ['name' => 'Elang'],
+                ['name' => 'Flang'],
+                ['name' => 'Plang'],
+                ['name' => 'Qlang'],
+                ['name' => 'Ylang'],
+                ['name' => 'Mlang'],
+                ['name' => 'Rlang'],
+                ['name' => 'Jlang'],
+                ['name' => '한국어'],
+                ['name' => 'Slang'],
+                ['name' => 'Ülang'],
+                ['name' => 'Älang'],
+                ['name' => 'Llang'],
             ],
-            [
-                'languages' => [
-                    ['name' => 'Alang'],
-                    ['name' => 'Ablang'],
-                    ['name' => 'Axlang'],
-                    ['name' => 'Arlang'],
-                    ['name' => 'Aolang'],
-                    ['name' => 'Azlang'],
-                    ['name' => 'Anlang'],
-                    ['name' => 'Aqlang'],
-                    ['name' => 'Aülang'],
-                ],
-                'expectedOrder' => ['Ablang', 'Alang', 'Anlang', 'Aolang', 'Aqlang', 'Arlang', 'Aülang', 'Axlang', 'Azlang'],
+            'expectedOrder' => [
+                'Älang',
+                'Elang',
+                'Flang',
+                'Glang',
+                'Jlang',
+                'Llang',
+                'Mlang',
+                'Ölang',
+                'Plang',
+                'Qlang',
+                'Rlang',
+                'Slang',
+                'Ülang',
+                'Xlang',
+                'Ylang',
+                'Русский',
+                'हिन्दी',
+                '한국어',
             ],
+        ];
+        yield 'mixed locale languages keep expected order' => [
+            'languages' => [
+                ['name' => 'Alang'],
+                ['name' => 'Ablang'],
+                ['name' => 'Axlang'],
+                ['name' => 'Arlang'],
+                ['name' => 'Aolang'],
+                ['name' => 'Azlang'],
+                ['name' => 'Anlang'],
+                ['name' => 'Aqlang'],
+                ['name' => 'Aülang'],
+            ],
+            'expectedOrder' => ['Ablang', 'Alang', 'Anlang', 'Aolang', 'Aqlang', 'Arlang', 'Aülang', 'Axlang', 'Azlang'],
         ];
     }
 
@@ -189,7 +187,7 @@ class HeaderPageletLoaderTest extends TestCase
                 'name' => $name,
                 'locale' => [
                     'id' => $localeId,
-                    'code' => $localeId,
+                    'code' => 'de-DE-' . $localeId,
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

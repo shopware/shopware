@@ -47,17 +47,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     id: 2,
                     value: 'stretch',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStretch'),
                 },
                 {
                     id: 3,
                     value: 'cover',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
                 },
             ];
         },
@@ -67,17 +67,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -87,17 +87,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignLeft'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignLeft'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignRight'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignRight'),
                 },
             ];
         },

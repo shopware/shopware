@@ -117,6 +117,8 @@
             <parameter key="de">https://api.shopware.com/gtc/de_DE.html</parameter>
             <parameter key="en">https://api.shopware.com/gtc/en_GB.html</parameter>
         </parameter>
+
+        <parameter key="env(SHOPWARE_ADMINISTRATION_PATH_NAME)">admin</parameter>
     </parameters>
     <services>
         <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
@@ -243,7 +245,9 @@
         <service id="Shopware\Core\Installer\Controller\FinishController" public="true">
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
             <argument type="service" id="GuzzleHttp\Client"/>
-            <argument>%env(string:APP_URL)%</argument>
+            <argument type="string">%env(string:APP_URL)%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="string">%env(string:SHOPWARE_ADMINISTRATION_PATH_NAME)%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -260,6 +264,7 @@
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
             <argument type="service" id="Shopware\Core\Installer\Database\MigrationCollectionFactory"/>
             <argument type="string">%kernel.shopware_version%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Installer\Database\MigrationCollectionFactory">
@@ -273,9 +278,12 @@
 
         <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
+        <service id="Shopware\Core\Installer\Configuration\AdminConfigurationService">
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
 
         <service id="Shopware\Core\Installer\Finish\SystemLocker">
             <argument type="string">%kernel.project_dir%</argument>

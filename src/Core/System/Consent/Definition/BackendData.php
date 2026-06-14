@@ -35,4 +35,9 @@ class BackendData implements ConsentDefinition
     {
         return ['system.system_config'];
     }
+
+    public function getLatestRevision(): ?string
+    {
+        return null;
+    }
 }

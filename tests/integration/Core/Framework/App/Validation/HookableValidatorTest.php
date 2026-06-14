@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 
 /**
  * @internal
@@ -73,6 +74,31 @@ class HookableValidatorTest extends TestCase
 - product:read', $validations->first()->getMessage());
     }
 
+    public function testCommercialLicenseWebhookIsNotHookableForRegularApps(): void
+    {
+        $manifest = Manifest::createFromXml($this->createManifestWithWebhook('app-with-commercial-license', CommercialLicenseProvidedEvent::NAME));
+
+        $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
+
+        static::assertCount(1, $validations);
+        static::assertInstanceOf(NotHookableError::class, $validations->first());
+        static::assertSame(
+            'The following webhooks are not hookable:
+- commercial-license: ' . CommercialLicenseProvidedEvent::NAME,
+            $validations->first()->getMessage()
+        );
+    }
+
+    public function testCommercialLicenseWebhookIsHookableForServices(): void
+    {
+        $manifest = Manifest::createFromXml($this->createManifestWithWebhook('service-with-commercial-license', CommercialLicenseProvidedEvent::NAME));
+        $manifest->getMetadata()->setSelfManaged(true);
+
+        $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
+
+        static::assertCount(0, $validations);
+    }
+
     private function createAppWithAclRole(string $appName): void
     {
         static::getContainer()->get('app.repository')->create([[
@@ -91,5 +117,31 @@ class HookableValidatorTest extends TestCase
                 'name' => $appName,
             ],
         ]], Context::createDefaultContext());
+    }
+
+    private function createManifestWithWebhook(string $name, string $eventName): string
+    {
+        return <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>{$name}</name>
+        <label>Webhook test</label>
+        <description>Webhook test</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <setup>
+        <registrationUrl>https://app.example.com/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <webhooks>
+        <webhook name="commercial-license" url="https://app.example.com/webhook" event="{$eventName}"/>
+    </webhooks>
+</manifest>
+XML;
     }
 }

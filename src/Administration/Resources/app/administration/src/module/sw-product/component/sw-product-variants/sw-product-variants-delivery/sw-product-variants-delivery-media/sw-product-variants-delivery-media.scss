@@ -6,15 +6,15 @@
     padding: 0;
 
     .sw-product-variants-delivery-media__groups {
-        font-size: $font-size-xs;
-        flex-basis: 270px;
+        font-size: var(--font-size-xs);
+        flex-basis: calc(var(--scale-size-224) + var(--scale-size-24) + var(--scale-size-22));
         height: 100%;
         overflow: auto;
-        border-right: 1px solid $color-gray-300;
-        padding: 20px 0;
+        border-right: var(--scale-size-1) solid var(--color-gray-300);
+        padding: var(--scale-size-20) 0;
 
         .mt-icon {
-            margin-right: 8px;
+            margin-right: var(--scale-size-8);
         }
     }
 
@@ -22,17 +22,17 @@
         cursor: pointer;
         display: flex;
         align-items: center;
-        min-height: 34px;
-        line-height: 34px;
+        min-height: calc(var(--scale-size-32) + var(--scale-size-2));
+        line-height: calc(var(--scale-size-32) + var(--scale-size-2));
         list-style: none;
-        padding-left: 20px;
+        padding-left: var(--scale-size-20);
 
         &:hover {
-            background-color: lighten($color-shopware-brand-50, 2.5);
+            background-color: #f0f8ff;
         }
 
         &.is--selected {
-            background-color: #f8f9fa;
+            background-color: var(--color-background-secondary-default);
         }
     }
 

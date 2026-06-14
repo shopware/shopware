@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -32,7 +31,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartRuleLoader::class)]
 class CartRuleLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

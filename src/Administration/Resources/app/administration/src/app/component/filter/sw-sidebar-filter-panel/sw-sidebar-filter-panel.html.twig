@@ -3,7 +3,7 @@
     class="sw-sidebar-filter-panel"
     icon="regular-filter"
     :badge="activeFilterNumber"
-    :title="$tc('sw-filter-panel.titleSidebarItemFilter')"
+    :title="$t('sw-filter-panel.titleSidebarItemFilter')"
 >
     {% block sw_sidebar_filter_panel_headline %}
     <template #headline-content>
@@ -13,7 +13,7 @@
             tabindex="0"
             @click="resetAll"
             @keydown.enter="resetAll"
-        >{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
+        >{{ $t('sw-sidebar-filter-panel.resetButton') }}</a>
     </template>
     {% endblock %}
 

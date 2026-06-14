@@ -28,7 +28,7 @@ export default {
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
             },
         };
     },

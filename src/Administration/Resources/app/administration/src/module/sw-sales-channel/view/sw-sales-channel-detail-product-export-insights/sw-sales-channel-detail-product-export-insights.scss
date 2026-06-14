@@ -1,0 +1,21 @@
+.sw-sales-channel-detail-product-export-insights__charts {
+    .sw-sales-channel-detail-product-export-insights {
+        &__orders,
+        &__customers,
+        &__turnover {
+            .sw-block-field__block {
+                height: auto;
+            }
+        }
+    }
+}
+
+.sw-sales-channel-detail-product-export-insights__headline {
+    line-height: 1.2;
+}
+
+.sw-sales-channel-detail-product-export-insights__summary {
+    margin-top: 4px;
+    color: var(--mt-color-text-secondary);
+    font-size: 12px;
+}

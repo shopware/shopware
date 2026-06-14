@@ -728,6 +728,7 @@ class ApiController extends AbstractController
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
             $entityIds = $events->getEventByEntityName($definition->getEntityName())?->getIds() ?? [];
             $entityId = array_last($entityIds);
+            \assert($entityId !== null);
 
             $foreignKey = $parentDefinition->getFields()->getByStorageName($association->getStorageName());
             \assert($foreignKey !== null);

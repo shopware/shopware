@@ -12,9 +12,6 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
@@ -26,7 +23,6 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
  * @internal
@@ -59,7 +55,6 @@ class ThemeCompilerDirectUsageTest extends TestCase
             $this->tempFilesystem,
             new CopyBatchInputFactory(),
             static::getContainer()->get(ThemeFileResolver::class),
-            static::getContainer()->get(TwigComponentHelper::class),
             true,
             $this->eventDispatcher,
             static::getContainer()->get(ThemeFilesystemResolver::class),
@@ -697,82 +692,6 @@ SCSS;
         $cssPath = 'theme/' . $pathBuilder->assemblePath($this->mockSalesChannelId, 'test-theme-id') . '/css/all.css';
 
         static::assertTrue($this->filesystem->fileExists($cssPath));
-    }
-
-    public function testCompilationCopiesComponentScriptFiles(): void
-    {
-        // Create test component JavaScript content
-        $componentJs = 'console.log("test component");';
-
-        // Source paths must exist on the real filesystem: ThemeCompiler uses LocalFilesystem
-        // and CopyBatchInput(file path) for component scripts, not the injected Flysystem operators.
-        $localFilesystem = new LocalFilesystem();
-        $tempDir = sys_get_temp_dir() . '/test-component-' . uniqid();
-        $localFilesystem->mkdir($tempDir);
-        $tempTemplateFile = $tempDir . '/button.html.twig';
-        $tempScriptFile = $tempDir . '/button.js';
-        $localFilesystem->dumpFile($tempTemplateFile, '<div>Button</div>');
-        $localFilesystem->dumpFile($tempScriptFile, $componentJs);
-
-        // Create real component with script file
-        $mockComponent = new TwigComponent(
-            'button',
-            $tempTemplateFile,
-            'test'
-        );
-
-        $componentCollection = new TwigComponentCollection([$mockComponent]);
-
-        // Create custom ThemeCompiler with mocked TwigComponentHelper
-        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelper->method('getComponents')->willReturn($componentCollection);
-
-        $compiler = new ThemeCompiler(
-            $this->filesystem,
-            $this->tempFilesystem,
-            new CopyBatchInputFactory(),
-            static::getContainer()->get(ThemeFileResolver::class),
-            $twigComponentHelper,
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
-        );
-
-        $config = new StorefrontPluginConfiguration('TestTheme');
-
-        try {
-            $compiler->compileTheme(
-                $this->mockSalesChannelId,
-                'test-theme-id',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-
-            $pathBuilder = new MD5ThemePathBuilder();
-            $themeBasePath = 'theme/' . $pathBuilder->assemblePath($this->mockSalesChannelId, 'test-theme-id');
-
-            // Verify component JS file was copied
-            $componentJsPath = $themeBasePath . '/js/components/test/button.js';
-            static::assertTrue(
-                $this->filesystem->fileExists($componentJsPath),
-                'Component JavaScript file should be copied to js/components/test/button.js'
-            );
-
-            // Verify content is correct
-            $jsContent = $this->filesystem->read($componentJsPath);
-            static::assertStringContainsString('console.log("test component")', $jsContent);
-        } finally {
-            $localFilesystem->remove($tempDir);
-        }
     }
 
     // ===================================

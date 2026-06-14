@@ -5,7 +5,7 @@
     <sw-sidebar-item
         ref="pageConfigSidebar"
         icon="regular-cog"
-        :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
+        :title="$t('sw-cms.detail.sidebar.titlePageSettings')"
         :has-simple-badge="hasPageConfigErrors"
         badge-type="error"
         :disabled="page.locked || disabled"
@@ -16,7 +16,7 @@
 
             {% block sw_cms_sidebar_page_settings_header %}
             <template #header>
-                <span>{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
+                <span>{{ $t('sw-cms.detail.sidebar.headerPageSettings') }}</span>
             </template>
             {% endblock %}
 
@@ -27,7 +27,7 @@
 
                     <mt-text-field
                         v-model="page.name"
-                        :label="$tc('sw-cms.detail.label.pageName')"
+                        :label="$t('sw-cms.detail.label.pageName')"
                         :placeholder="placeholder(page, 'name')"
                         :error="pageNameError"
                     />
@@ -37,9 +37,9 @@
 
                     <mt-text-field
                         v-model="page.cssClass"
-                        :label="$tc('sw-cms.detail.label.pageCssClass')"
+                        :label="$t('sw-cms.detail.label.pageCssClass')"
                         :placeholder="placeholder(page, 'cssClass')"
-                        :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+                        :help-text="$t('sw-cms.detail.helpText.cssClassField')"
                     />
                     {% endblock %}
 
@@ -47,7 +47,7 @@
                     <mt-select
                         v-tooltip.bottom="tooltipDisabled"
                         :model-value="page.type"
-                        :label="$tc('sw-cms.detail.label.pageTypeSelection')"
+                        :label="$t('sw-cms.detail.label.pageTypeSelection')"
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail' || undefined"
                         :options="pageTypesOptions"
                         @update:model-value="onPageTypeChange"
@@ -58,8 +58,8 @@
                     <sw-entity-single-select
                         v-if="demoEntity !== null"
                         v-model:value="demoEntityId"
-                        :label="$tc('sw-cms.detail.label.demoEntity')"
-                        :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
+                        :label="$t('sw-cms.detail.label.demoEntity')"
+                        :placeholder="$t('sw-cms.detail.placeholder.demoEntity')"
                         :entity="demoEntity"
                         :criteria="demoCriteria"
                         :context="demoContext"
@@ -121,7 +121,7 @@
             <div class="sw-cms-sidebar__block-category">
                 <mt-select
                     v-model="currentBlockCategory"
-                    :label="$tc('sw-cms.detail.label.blockCategorySelection')"
+                    :label="$t('sw-cms.detail.label.blockCategorySelection')"
                     :options="cmsBlockCategoriesOptions"
                 />
             </div>
@@ -134,8 +134,8 @@
                 <mt-empty-state
                     v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
                     icon="solid-heart"
-                    :headline="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
-                    :description="$tc('sw-cms.detail.label.blockFavoriteEmptyState')"
+                    :headline="$t('sw-cms.detail.title.blockFavoriteEmptyState')"
+                    :description="$t('sw-cms.detail.label.blockFavoriteEmptyState')"
                 />
 
                 <div
@@ -190,7 +190,7 @@
                         v-if="block.label"
                         class="sw-cms-sidebar__block-label"
                     >
-                        {{ $tc(block.label) }}
+                        {{ $t(block.label) }}
                     </span>
                     {% endblock %}
                 </div>
@@ -220,7 +220,7 @@
                     {% block sw_cms_sidebar_block_settings_header %}
                     <template #header>
                         <span>
-                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                            {{ $t('sw-cms.sidebar.contentMenu.generalSettings') }}
                         </span>
                     </template>
                     {% endblock %}
@@ -242,7 +242,7 @@
 
                     {% block sw_cms_sidebar_block_layout_settings_header %}
                     <template #header>
-                        <span> {{ $tc('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
+                        <span> {{ $t('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
                     </template>
                     {% endblock %}
 
@@ -256,7 +256,7 @@
 
                 <sw-sidebar-collapse :expand-on-loading="false">
                     <template #header>
-                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
+                        <span>{{ $t('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
                     </template>
                     <template #content>
                         <sw-cms-visibility-config
@@ -280,7 +280,7 @@
                     {% block sw_cms_sidebar_section_settings_header %}
                     <template #header>
                         <span>
-                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                            {{ $t('sw-cms.sidebar.contentMenu.generalSettings') }}
                         </span>
                     </template>
                     {% endblock %}
@@ -298,7 +298,7 @@
 
                 <sw-sidebar-collapse :expand-on-loading="false">
                     <template #header>
-                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
+                        <span>{{ $t('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
                     </template>
                     <template #content>
                         <sw-cms-visibility-config
@@ -319,7 +319,7 @@
     <sw-sidebar-item
         ref="blockNavigator"
         icon="regular-layer-group"
-        :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
+        :title="$t('sw-cms.detail.sidebar.titleNavigator')"
         :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
         @click="onSidebarNavigatorClick"
     >
@@ -337,15 +337,15 @@
                 {% block sw_cms_sidebar_navigator_section_header %}
                 <div class="sw-cms-sidebar__navigator-section-header">
                     <template v-if="section.name">
-                        {{ $tc('sw-cms.section.layoutSection') }} - {{ section.name }}
+                        {{ $t('sw-cms.section.layoutSection') }} - {{ section.name }}
                     </template>
 
                     <template v-else-if="section.type === 'sidebar'">
-                        {{ $tc('sw-cms.section.isSidebar') }}
+                        {{ $t('sw-cms.section.isSidebar') }}
                     </template>
 
                     <template v-else>
-                        {{ $tc('sw-cms.section.isDefault') }}
+                        {{ $t('sw-cms.section.isDefault') }}
                     </template>
 
                     {% block sw_cms_sidebar_navigator_section_menu %}
@@ -357,7 +357,7 @@
                             :disabled="section.position === 0 || undefined"
                             @click="moveSectionUp(section)"
                         >
-                            {{ $tc('sw-cms.sidebar.contentMenu.moveUp') }}
+                            {{ $t('sw-cms.sidebar.contentMenu.moveUp') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -367,7 +367,7 @@
                             :disabled="section.position === page.sections.length - 1 || undefined"
                             @click="moveSectionDown(section)"
                         >
-                            {{ $tc('sw-cms.sidebar.contentMenu.moveDown') }}
+                            {{ $t('sw-cms.sidebar.contentMenu.moveDown') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -376,7 +376,7 @@
                             class="sw-cms-sidebar__navigator-section-settings"
                             @click="openSectionSettings(sectionIndex)"
                         >
-                            {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
+                            {{ $t('sw-cms.sidebar.contentMenu.settings') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -386,7 +386,7 @@
                             :disabled="!sectionIsDuplicable(section)"
                             @click="onSectionDuplicate(section)"
                         >
-                            {{ $tc('global.default.duplicate') }}
+                            {{ $t('global.default.duplicate') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -433,7 +433,7 @@
                         v-droppable="getDropData({ position: 0, sectionPosition: 'main' }, sectionIndex)"
                         class="sw-cms-sidebar__navigator-empty-element"
                     >
-                        {{ $tc('sw-cms.detail.label.addBlocks') }}
+                        {{ $t('sw-cms.detail.label.addBlocks') }}
                     </div>
                     {% endblock %}
                 </template>
@@ -470,7 +470,7 @@
                             v-droppable="getDropData({ position: 0, sectionPosition: 'sidebar' }, sectionIndex)"
                             class="sw-cms-sidebar__navigator-empty-element"
                         >
-                            {{ $tc('sw-cms.detail.label.addBlocks') }}
+                            {{ $t('sw-cms.detail.label.addBlocks') }}
                         </div>
                         {% endblock %}
                     </template>
@@ -488,7 +488,7 @@
         ref="layoutAssignment"
         class="sw-cms-sidebar__layout-assignment"
         icon="regular-share"
-        :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
+        :title="$t('sw-cms.detail.sidebar.titleLayoutAssignment')"
         :disabled="isLayoutAssignmentDisabled"
     >
 
@@ -496,13 +496,13 @@
         <div class="sw-cms-sidebar__layout-assignment-content">
             {% block sw_cms_sidebar_layout_assignment_headline %}
             <h3 class="sw-cms-sidebar__layout-assignment-headline">
-                {{ $tc('sw-cms.sidebar.layoutAssignment.headline') }}
+                {{ $t('sw-cms.sidebar.layoutAssignment.headline') }}
             </h3>
             {% endblock %}
 
             {% block sw_cms_sidebar_layout_assignment_info_text %}
             <p class="sw-cms-sidebar__layout-assignment-info-text">
-                {{ $tc('sw-cms.sidebar.layoutAssignment.infoText') }}
+                {{ $t('sw-cms.sidebar.layoutAssignment.infoText') }}
             </p>
             {% endblock %}
 
@@ -514,7 +514,7 @@
                 variant="secondary"
                 @click="onOpenLayoutAssignment"
             >
-                {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
+                {{ $t('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
             </mt-button>
             {% endblock %}
         </div>
@@ -525,11 +525,11 @@
             class="sw-cms-sidebar__layout-set-as-default-content"
         >
             <h3 class="sw-cms-sidebar__layout-set-as-default-headline">
-                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.headline') }}
+                {{ $t('sw-cms.sidebar.layoutSetAsDefault.headline') }}
             </h3>
 
             <p class="sw-cms-sidebar__layout-set-as-default-info-text">
-                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail') }}
+                {{ $t('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail') }}
             </p>
 
             <mt-button
@@ -539,7 +539,7 @@
                 variant="secondary"
                 @click="onOpenLayoutSetAsDefault"
             >
-                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
+                {{ $t('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
             </mt-button>
         </div>
     </sw-sidebar-item>
@@ -549,20 +549,20 @@
     <sw-modal
         v-if="showSidebarNavigatorModal"
         class="sw-cms-sidebar__navigator-confirm-modal"
-        :title="$tc('global.default.warning')"
+        :title="$t('global.default.warning')"
         variant="small"
         @modal-close="onSidebarNavigationCancel"
     >
 
         {% block sw_cms_sidebar_navigator_confirm_modal_content %}
         <p class="sw-confirm-modal__text">
-            {{ $tc('sw-cms.detail.sidebar.confirmTextNavigator') }}
+            {{ $t('sw-cms.detail.sidebar.confirmTextNavigator') }}
 
             {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
             <mt-checkbox
                 v-model:checked="navigatorDontRemind"
                 class="sw-cms-sidebar__navigator-confirm-modal-reminder"
-                :label="$tc('sw-cms.detail.sidebar.confirmReminderNavigator')"
+                :label="$t('sw-cms.detail.sidebar.confirmReminderNavigator')"
             />
             {% endblock %}
         </p>
@@ -577,7 +577,7 @@
                 variant="secondary"
                 @click="onSidebarNavigationCancel"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -588,7 +588,7 @@
                 size="small"
                 @click="onSidebarNavigationConfirm"
             >
-                {{ $tc('global.default.confirm') }}
+                {{ $t('global.default.confirm') }}
             </mt-button>
             {% endblock %}
             {% endblock %}

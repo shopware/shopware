@@ -53,14 +53,14 @@ export default {
 
         message() {
             if (!this.error.message) {
-                return this.$tc('sw-error.general.messagePlaceholder');
+                return this.$t('sw-error.general.messagePlaceholder');
             }
             return this.error.message;
         },
 
         statusCode() {
             if (!this.error.response) {
-                return this.$tc('global.default.error');
+                return this.$t('global.default.error');
             }
 
             return this.error.response.status;
@@ -82,7 +82,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.linkText) {
-                this.linkText = this.$tc('sw-error.general.textLink');
+                this.linkText = this.$t('sw-error.general.textLink');
             }
         },
     },

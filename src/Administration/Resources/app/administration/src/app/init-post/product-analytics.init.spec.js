@@ -7,14 +7,16 @@ const mockDeleteUser = jest.fn();
 const mockInit = jest.fn(function () {
     this.isInitialized = true;
 });
-const mockFlush = jest.fn();
+const mockFlush = jest.fn().mockResolvedValue(undefined);
+const mockFlushWithoutRetry = jest.fn().mockResolvedValue(undefined);
 const mockClearStorage = jest.fn();
+const mockSetOptOut = jest.fn();
 
 jest.mock('src/core/telemetry/product-analytics/consent-event-handler', () => {
-    return jest.fn().mockReturnValue('consent-event-handler');
+    return jest.fn(() => jest.fn());
 });
 jest.mock('src/core/telemetry/product-analytics/telemetry-event-handler', () => {
-    return jest.fn().mockReturnValue('telemetry-event-handler');
+    return jest.fn(() => jest.fn());
 });
 
 jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
@@ -24,7 +26,9 @@ jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
             isInitialized: false,
             init: mockInit,
             flush: mockFlush,
+            flushWithoutRetry: mockFlushWithoutRetry,
             clearStorage: mockClearStorage,
+            setOptOut: mockSetOptOut,
         })),
     };
 });
@@ -85,6 +89,10 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         return { onSpy, offSpy };
     }
 
+    function getRegisteredHandler(mockedFactory, index = 0) {
+        return mockedFactory.mock.results[index]?.value;
+    }
+
     describe('initialization', () => {
         it('does not initialize if gateway url is missing', async () => {
             Shopware.Store.get('context').app.analyticsGatewayUrl = null;
@@ -103,12 +111,28 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             watchHandle = await initProductAnalytics();
 
+            const registeredConsentHandler = getRegisteredHandler(consentEventHandler);
+
             expect(consentEventHandler).toHaveBeenCalled();
             expect(onSpy).toHaveBeenCalledTimes(1);
-            expect(onSpy).toHaveBeenCalledWith('consent', 'consent-event-handler');
+            expect(registeredConsentHandler).toEqual(expect.any(Function));
+            expect(onSpy).toHaveBeenCalledWith('consent', registeredConsentHandler);
         });
 
         it('does not initialize client without product analytics consent', async () => {
+            watchHandle = await initProductAnalytics();
+
+            expect(mockInit).not.toHaveBeenCalled();
+        });
+
+        it('does not initialize client with stale product analytics consent', async () => {
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-01',
+                latestRevision: '2026-02-02',
+            };
+
             watchHandle = await initProductAnalytics();
 
             expect(mockInit).not.toHaveBeenCalled();
@@ -117,38 +141,61 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
     describe('product analytics consent handling', () => {
         it('initializes the client when consent was given', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             const { onSpy, offSpy } = getEventBusSpies();
 
             watchHandle = await initProductAnalytics();
+
+            const registeredTelemetryHandler = getRegisteredHandler(telemetryEventHandler);
 
             expect(mockInit).toHaveBeenCalled();
             expect(onSpy).toHaveBeenCalledTimes(2);
-            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', 'telemetry-event-handler');
+            expect(registeredTelemetryHandler).toEqual(expect.any(Function));
+            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', registeredTelemetryHandler);
             expect(offSpy).not.toHaveBeenCalled();
             expect(mockDeleteUser).not.toHaveBeenCalled();
             expect(mockClearStorage).not.toHaveBeenCalled();
+            expect(mockSetOptOut).toHaveBeenLastCalledWith(false);
         });
 
         it('removes telemetry handler when consent gets revoked', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             const { onSpy, offSpy } = getEventBusSpies();
 
             watchHandle = await initProductAnalytics();
 
+            const registeredTelemetryHandler = getRegisteredHandler(telemetryEventHandler);
+
             expect(mockInit).toHaveBeenCalled();
-            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', 'telemetry-event-handler');
+            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', registeredTelemetryHandler);
             expect(offSpy).not.toHaveBeenCalled();
 
             useConsentStore().consents.product_analytics.status = 'revoked';
             await flushPromises();
 
             expect(offSpy).toHaveBeenCalled();
-            expect(offSpy).toHaveBeenCalledWith('telemetry', 'telemetry-event-handler');
+            expect(offSpy).toHaveBeenCalledWith('telemetry', registeredTelemetryHandler);
+            expect(mockFlushWithoutRetry).toHaveBeenCalled();
+            expect(mockSetOptOut).toHaveBeenLastCalledWith(true);
         });
 
         it('sends delete user request when consent is revoked', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
 
             watchHandle = await initProductAnalytics();
 
@@ -162,7 +209,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         it('clears storage when consent is revoked', async () => {
             jest.useFakeTimers();
 
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
 
             watchHandle = await initProductAnalytics();
 
@@ -175,7 +227,14 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             jest.useRealTimers();
         });
 
-        it('Does not initialize the client twice after consent was revoked and accepted again', async () => {
+        it('flushes queued events before deleting the user on consent revocation', async () => {
+            let resolveFlushWithoutRetry;
+            mockFlushWithoutRetry.mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        resolveFlushWithoutRetry = resolve;
+                    }),
+            );
             useConsentStore().consents.product_analytics.status = 'accepted';
 
             watchHandle = await initProductAnalytics();
@@ -183,7 +242,35 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             useConsentStore().consents.product_analytics.status = 'revoked';
             await flushPromises();
 
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            expect(mockFlushWithoutRetry).toHaveBeenCalled();
+            expect(mockDeleteUser).not.toHaveBeenCalled();
+
+            resolveFlushWithoutRetry();
+            await flushPromises();
+
+            expect(mockDeleteUser).toHaveBeenCalledWith(testShopId, testUserId);
+            expect(mockClearStorage).toHaveBeenCalled();
+        });
+
+        it('Does not initialize the client twice after consent was revoked and accepted again', async () => {
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
+
+            watchHandle = await initProductAnalytics();
+
+            useConsentStore().consents.product_analytics.status = 'revoked';
+            await flushPromises();
+
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             await flushPromises();
 
             expect(mockInit).toHaveBeenCalledTimes(1);

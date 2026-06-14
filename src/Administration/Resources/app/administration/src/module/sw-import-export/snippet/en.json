@@ -171,8 +171,11 @@
             "promotionDiscountLabel": "Promotion discounts",
             "promotionIndividualCodesLabel": "Promotion codes",
             "productPriceLabel": "Advanced prices",
-            "closeViolation": "Close",
-            "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:",
+            "violationModal": {
+                "title": "Your profile isn't valid yet",
+                "missingRequiredFields": "You need to add mappings to the <strong>required fields</strong> shown below to save the profile:",
+                "duplicateMappings": "You have <strong>duplicate mappings</strong> in the following fields. Please remove the duplicates to save the profile:"
+            },
             "importSettingsHeadline": "Import settings",
             "fieldIndicatorsHeadline": "Field indicators",
             "createEntitiesLabel": "Create new entities",

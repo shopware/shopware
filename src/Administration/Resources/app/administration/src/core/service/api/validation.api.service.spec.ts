@@ -1,8 +1,6 @@
 /**
  * @sw-package fundamentals@framework
  */
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import type { AxiosInstance } from 'axios';
 import createHTTPClient from '../../factory/http.factory';
@@ -28,7 +26,7 @@ describe('core/service/api/validation.api.service.ts', () => {
         it('should return true', async () => {
             const { validationApiService, clientMock } = createValidationApiService();
 
-            clientMock.onPost('/validation/email').reply(204, {});
+            clientMock.onPost('/_action/validation/email').reply(204, {});
 
             const result = await validationApiService.validateEmailAddress('anyValid@email.com');
 
@@ -38,7 +36,7 @@ describe('core/service/api/validation.api.service.ts', () => {
         it('should return false because email is invalid', async () => {
             const { validationApiService, clientMock } = createValidationApiService();
 
-            clientMock.onPost('/validation/email').reply(422, {});
+            clientMock.onPost('/_action/validation/email').reply(422, {});
 
             const result = await validationApiService.validateEmailAddress('invalid@email');
 
@@ -48,7 +46,7 @@ describe('core/service/api/validation.api.service.ts', () => {
         it('should return false because exception occurred', async () => {
             const { validationApiService, clientMock } = createValidationApiService();
 
-            clientMock.onPost('/validation/email').reply(() => {
+            clientMock.onPost('/_action/validation/email').reply(() => {
                 throw Error('an error occurred');
             });
 

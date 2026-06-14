@@ -47,10 +47,10 @@
 
                                 {% block layout_navbar_menu_item %}
                                     {% if not itemSkipped %}
-                                        <li class="nav-item nav-item-{{ id }} dropdown position-static">
+                                        <li class="nav-item nav-item-{{ id|raw }} dropdown position-static">
                                             {% block layout_navbar_menu_item_link %}
                                                 {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
-                                                <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2 {% if hasChildren %}dropdown-toggle{% else %}no-dropdown{% endif %}"
+                                                <a class="nav-link nav-item-{{ id|raw }}-link root main-navigation-link p-2 {% if hasChildren %}dropdown-toggle{% else %}no-dropdown{% endif %}"
                                                    href="{{ category.seoUrl ?: '#' }}"
                                                    {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
                                                    {% if category.type != 'folder' and category.shouldOpenInNewTab %}target="_blank"{% endif %}

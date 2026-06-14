@@ -32,7 +32,7 @@ export default {
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
             },
         };
     },
@@ -80,7 +80,7 @@ export default {
                         return;
                     }
 
-                    relation.searchField[locale] = this.$tc(`global.entities.${entityName}`, 2, locale);
+                    relation.searchField[locale] = this.$t(`global.entities.${entityName}`, 2, locale);
                 });
 
                 return relation;

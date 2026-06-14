@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -25,7 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(SyncController::class)]
 #[Group('slow')]
 class SyncControllerTest extends TestCase
 {

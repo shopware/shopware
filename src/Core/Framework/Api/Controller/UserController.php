@@ -218,16 +218,27 @@ class UserController extends AbstractController
         $data['id'] = $userId ?: $data['id'];
 
         $source = $context->getSource();
-        if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id'])
-        ) {
+        if (!$source instanceof AdminApiSource) {
+            throw new PermissionDeniedException();
+        }
+
+        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $canUpdateUsers = $source->isAllowed('user:update');
+
+        if (!$canUpdateUsers && !$isSelfUpdate) {
+            throw new PermissionDeniedException();
+        }
+
+        $isTryingToChangeAdmin = isset($data['admin']);
+
+        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
             throw new PermissionDeniedException();
         }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
         $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
+        \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }

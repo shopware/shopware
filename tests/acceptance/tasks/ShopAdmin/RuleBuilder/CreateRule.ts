@@ -40,7 +40,7 @@ export const CreateRule = base.extend<{ CreateRule: Task }, FixtureTypes>({
                                                             type: 'andContainer',
                                                             children: [
                                                                 {
-                                                                    type: 'cartLineItemStock',
+                                                                    type: 'cartLineItemActualStock',
                                                                     value: {
                                                                         stock: testConfig.stock,
                                                                         operator: '>=',

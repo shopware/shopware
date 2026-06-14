@@ -8,22 +8,22 @@
     <template #default="{ active }">
         {% block sw_cms_el_config_form_tab_content %}
         <sw-tabs-item
-            :title="$tc('sw-cms.elements.general.config.tab.content')"
+            :title="$t('sw-cms.elements.general.config.tab.content')"
             name="content"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            {{ $t('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_cms_el_form_config_tab_options %}
         <sw-tabs-item
             v-if="requireConfigTab"
-            :title="$tc('sw-cms.elements.general.config.tab.settings')"
+            :title="$t('sw-cms.elements.general.config.tab.settings')"
             name="options"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.settings') }}
+            {{ $t('sw-cms.elements.general.config.tab.settings') }}
         </sw-tabs-item>
         {% endblock %}
     </template>

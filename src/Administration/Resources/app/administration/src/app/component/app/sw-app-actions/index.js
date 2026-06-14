@@ -180,7 +180,7 @@ export default {
                 }
 
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
+                    message: this.$t('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
                 });
             }
         },

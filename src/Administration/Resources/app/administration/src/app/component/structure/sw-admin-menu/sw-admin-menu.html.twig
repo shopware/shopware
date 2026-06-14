@@ -41,7 +41,7 @@
                     id="mainmenulabel"
                     class="visually-hidden"
                 >
-                    {{ $tc('global.sw-admin-menu.navigation.label') }}
+                    {{ $t('global.sw-admin-menu.navigation.label') }}
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
@@ -86,7 +86,7 @@
             {% endblock %}
 
             {% block sw_admin_menu_toggle_sidebar_text %}
-            <span class="collapsible-text">{{ $tc('global.sw-admin-menu.linkMinimizeMenu') }}</span>
+            <span class="collapsible-text">{{ $t('global.sw-admin-menu.linkMinimizeMenu') }}</span>
             {% endblock %}
 
         </button>
@@ -171,7 +171,7 @@
                             name="regular-sign-out"
                             size="16px"
                         />
-                        {{ $tc('global.sw-admin-menu.linkLogout') }}
+                        {{ $t('global.sw-admin-menu.linkLogout') }}
                     </mt-link>
                 </li>
                 {% endblock %}
@@ -212,6 +212,7 @@
                     :entry="entry"
                     :border-color="flyoutColor"
                     :display-icon="false"
+                    @menu-item-enter="onSubMenuItemEnter"
                 />
             </template>
         </ul>

@@ -8,9 +8,9 @@
             <sw-loader />
 
             <p>
-                {{ $tc('sw-extension-store.landing-page.enablingShopwareStore') }}
+                {{ $t('sw-extension-store.landing-page.enablingShopwareStore') }}
                 <br>
-                {{ $tc('sw-extension-store.landing-page.takeMinutes') }}
+                {{ $t('sw-extension-store.landing-page.takeMinutes') }}
             </p>
         </div>
 
@@ -30,17 +30,17 @@
                 </sw-label>
 
                 <h2>
-                    {{ error && error.title || $tc('sw-extension-store.landing-page.activationErrorTitle') }}
+                    {{ error && error.title || $t('sw-extension-store.landing-page.activationErrorTitle') }}
                 </h2>
                 <p>
-                    {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
+                    {{ error && error.detail || $t('sw-extension-store.landing-page.activationErrorDescription') }}
                 </p>
 
                 <mt-button
                     variant="primary"
                     @click="activateStore"
                 >
-                    {{ $tc('sw-extension-store.landing-page.retryButton') }}
+                    {{ $t('sw-extension-store.landing-page.retryButton') }}
                 </mt-button>
             </template>
 
@@ -56,10 +56,10 @@
                 </sw-label>
 
                 <h2>
-                    {{ $tc('sw-extension-store.landing-page.activationSuccessTitle') }}
+                    {{ $t('sw-extension-store.landing-page.activationSuccessTitle') }}
                 </h2>
                 <p>
-                    {{ $tc('sw-extension-store.landing-page.activationSuccessDescription') }}
+                    {{ $t('sw-extension-store.landing-page.activationSuccessDescription') }}
                 </p>
             </template>
         </div>
@@ -77,17 +77,17 @@
                 v-if="!insideModal"
                 class="sw-extension-store-landing-page__wrapper-label"
             >
-                {{ $tc('sw-extension-store.landing-page.label') }}
+                {{ $t('sw-extension-store.landing-page.label') }}
             </span>
 
             <h2>
-                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleFirst') }}
+                {{ $t('sw-extension-store.landing-page.activationDescriptionTitleFirst') }}
                 <br>
-                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleSecond') }}
+                {{ $t('sw-extension-store.landing-page.activationDescriptionTitleSecond') }}
             </h2>
 
             <p>
-                {{ $tc('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
+                {{ $t('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
             </p>
 
             <mt-button
@@ -95,7 +95,7 @@
                 variant="primary"
                 @click="activateStore"
             >
-                {{ $tc('sw-extension-store.landing-page.activate') }}
+                {{ $t('sw-extension-store.landing-page.activate') }}
             </mt-button>
         </div>
     </div>

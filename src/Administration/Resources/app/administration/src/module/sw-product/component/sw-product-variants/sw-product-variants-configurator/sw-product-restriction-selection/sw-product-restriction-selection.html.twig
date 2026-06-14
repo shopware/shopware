@@ -2,7 +2,7 @@
 <div class="sw-product-restriction-selection">
     {% block sw_product_restriction_selection_container %}
     <sw-container
-        columns="minmax(270px, 350px) 1fr"
+        columns="minmax(calc(var(--scale-size-224) + var(--scale-size-24) + var(--scale-size-22)), calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-30))) 1fr"
         gap="0"
         class="sw-product-restriction-selection__container"
     >
@@ -19,7 +19,7 @@
 
             {% block sw_product_restriction_selection_is_from %}
             <div class="sw-product-restriction-selection__isFrom">
-                <span>{{ $tc('sw-product.variations.configuratorModal.isOneFrom') }}</span>
+                <span>{{ $t('sw-product.variations.configuratorModal.isOneFrom') }}</span>
             </div>
             {% endblock %}
         </div>
@@ -27,7 +27,7 @@
 
         {% block sw_product_restriction_selection_select_option_wrapper %}
         <sw-container
-            columns="1fr minmax(40px, 40px)"
+            columns="1fr minmax(var(--scale-size-40), var(--scale-size-40))"
             gap="0"
             class="sw-product-restriction-selection__select-option-wrapper"
         >
@@ -60,7 +60,7 @@
                     variant="danger"
                     @click="deleteRestriction"
                 >
-                    {{ $tc('sw-product.variations.configuratorModal.deleteCombination') }}
+                    {{ $t('sw-product.variations.configuratorModal.deleteCombination') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </sw-context-button>

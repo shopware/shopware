@@ -127,33 +127,65 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--info:not(&--appearance-badged) {
-        /* stylelint-disable-next-line max-line-length */
-        @include sw-label-variant($color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-500, $color-shopware-brand-100);
+        @include sw-label-variant(
+            var(--color-background-brand-default),
+            var(--color-text-brand-default),
+            var(--color-border-brand-default),
+            var(--color-border-brand-default)
+        );
     }
 
     &.sw-label--success:not(&--appearance-badged) {
-        @include sw-label-variant($color-emerald-50, $color-emerald-500, $color-emerald-500, $color-emerald-100);
+        @include sw-label-variant(
+            var(--color-background-positive-default),
+            var(--color-text-positive-default),
+            var(--color-border-positive-default),
+            var(--color-border-positive-default)
+        );
     }
 
     &.sw-label--danger:not(&--appearance-badged) {
-        @include sw-label-variant($color-crimson-50, $color-crimson-500, $color-crimson-500, $color-crimson-100);
+        @include sw-label-variant(
+            var(--color-background-critical-default),
+            var(--color-text-critical-default),
+            var(--color-border-critical-default),
+            var(--color-border-critical-default)
+        );
     }
 
     &.sw-label--warning:not(&--appearance-badged) {
-        /* stylelint-disable-next-line max-line-length */
-        @include sw-label-variant($color-pumpkin-spice-50, $color-pumpkin-spice-500, $color-pumpkin-spice-500, $color-pumpkin-spice-100);
+        @include sw-label-variant(
+            var(--color-background-attention-default),
+            var(--color-text-attention-default),
+            var(--color-border-attention-default),
+            var(--color-border-attention-default)
+        );
     }
 
     &.sw-label--neutral:not(&--appearance-badged) {
-        @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300, $color-gray-100);
+        @include sw-label-variant(
+            var(--color-background-tertiary-default),
+            var(--color-text-secondary-default),
+            var(--color-border-primary-default),
+            var(--color-border-primary-default)
+        );
     }
 
     &.sw-label--neutral-reversed:not(&--appearance-badged) {
-        @include sw-label-variant($color-darkgray-100, $color-gray-50,  $color-gray-100, $color-darkgray-100);
+        @include sw-label-variant(
+            var(--color-elevation-surface-floating),
+            var(--color-text-inverse-default),
+            var(--color-elevation-surface-floating),
+            var(--color-elevation-surface-floating)
+        );
     }
 
     &.sw-label--primary:not(&--appearance-badged) {
-        /* stylelint-disable-next-line max-line-length */
-        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-700, $color-shopware-brand-500);
+        @include sw-label-variant(
+            var(--color-interaction-primary-default),
+            var(--color-text-static-default),
+            var(--color-interaction-primary-hover),
+            var(--color-interaction-primary-default)
+        );
     }
 }

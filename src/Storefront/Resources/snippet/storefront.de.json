@@ -120,6 +120,7 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "Die Rechnungsadresse muss ein gültiges Objekt sein. Siehe /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody für die korrekte Struktur.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "Die Lieferadresse muss entweder null oder ein gültiges Objekt sein. Siehe /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody für die korrekte Struktur.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
+    "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Bitte akzeptieren Sie die technisch erforderlichen Cookies, um die reCAPTCHA-Überprüfung zu ermöglichen.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "Es ist ein Fehler mit der Captcha-Überprüfung aufgetreten.",
     "message-default": "Leider ist etwas schiefgelaufen",
@@ -129,6 +130,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
     "VIOLATION::TOO_SHORT_ERROR": "Die Eingabe ist zu kurz.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "Die Eingabe entspricht nicht dem erforderlichen Format.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
@@ -463,6 +465,7 @@
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutscheincode",
     "addPromotionPlaceholder": "Gutscheincode eingeben ...",
+    "addPromotionApplyAction": "Gutscheincode anwenden",
     "addProductLabel": "Produktnummer",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Zwischensumme",
@@ -737,6 +740,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {
@@ -848,7 +855,9 @@
         "increase": "Anzahl erhöhen",
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
-        "decreaseOfProduct": "Verringere die Anzahl %product%"
+        "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
+        "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

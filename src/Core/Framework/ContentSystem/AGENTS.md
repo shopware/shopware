@@ -9,10 +9,12 @@
 - **Pipeline**: `ContentPipeline` (steps 2-5), `RenderingMode` (FULL vs SKELETON)
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 - **Schema**: `Schema/ContentSystemDataLoaderTypeResolver`, `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeSchemaGenerator`
+- **Entity Type Schema**: `Schema/ContentLayoutAssignableEntitySchemaGenerator`
 - **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemDataLoaderTypeCompilerPass` — collects loader type info at build time
 - **Element Type Registry**: `Layout/Type/Registry/ContentSystemElementTypeRegistry`
 - **Element Type API**: `GET /api/_info/content-system-element-types.json` (registered in `InfoController`)
 - **Type-Loader Bridge**: `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeResolver`
+- **Compiler Pass**: `DependencyInjection/CompilerPass/ContentLayoutAssignableCompilerPass` — collects assignable entity types at build time
 
 ## Constraints
 
@@ -20,8 +22,10 @@
 - `ContentPipeline::load()`: layout load → PreHydration events → hydration (FULL mode only) → PostHydration events
 - Specification resolution happens in `ContentRoute`, NOT in `ContentPipeline`
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
-- Data loader type introspection: `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` on all tagged loaders at build time — loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc; wildcard loaders override `overrideProvidedTypes()` for runtime expansion
+- Data loader type introspection: `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` on all tagged loaders at build time — loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc; wildcard loaders listen to `ContentSystemDataLoaderTypesResolvedEvent` for runtime expansion
 - Schema API endpoint: `GET /api/_info/content-system-data-loader-types.json` (registered in `InfoController`)
+- Entity type introspection: `ContentLayoutAssignableCompilerPass` introspects `content_system.context_factory` tagged services for `AbstractContentLayoutAssignableDefinition` arguments — entity types baked into schema generator at build time
+- Schema API endpoint: `GET /api/_info/content-system-entity-types.json` (registered in `InfoController`)
 - Type spec `properties` = hydrated output schema, NOT storage schema; property key links type spec → data_requirements → accepts_context → setProperty()
 
 ## Quick Reference

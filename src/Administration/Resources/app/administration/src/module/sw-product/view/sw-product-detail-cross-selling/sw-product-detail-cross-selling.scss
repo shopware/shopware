@@ -3,16 +3,16 @@
 .sw-product-detail-cross-selling {
     & &__restore-inheritance-btn.mt-button {
         display: block;
-        margin: 0 auto 40px;
+        margin: 0 auto var(--scale-size-40);
 
         .mt-icon {
-            color: $color-module-purple-900;
+            color: var(--color-module-purple-900);
         }
 
         &:disabled,
         &.mt-button--disabled {
             .mt-icon {
-                color: $color-module-purple-200;
+                color: var(--color-module-purple-200);
             }
         }
     }
@@ -21,27 +21,27 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        line-height: 16px;
-        font-size: $font-size-xs;
-        margin: 20px 0;
-        color: $color-darkgray-200;
+        line-height: var(--scale-size-16);
+        font-size: var(--font-size-xs);
+        margin: var(--scale-size-20) 0;
+        color: var(--color-darkgray-200);
 
         &.is--inherited {
-            color: $color-module-purple-900;
+            color: var(--color-module-purple-900);
         }
     }
 
     &__inherit-switch {
-        margin: 0 10px 0 0;
+        margin: 0 var(--scale-size-10) 0 0;
 
         .sw-field--switch__input {
-            height: 16px;
+            height: var(--scale-size-16);
             padding: 0;
         }
     }
 
     &__inheritance-icon {
-        margin-right: 8px;
+        margin-right: var(--scale-size-8);
     }
 
     &__cross-selling-list + .sw-tooltip--wrapper {

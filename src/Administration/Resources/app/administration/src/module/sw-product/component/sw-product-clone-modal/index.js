@@ -69,7 +69,7 @@ export default {
                 cloneChildren: false,
                 overwrites: {
                     productNumber: number.number,
-                    name: `${this.product.name} ${this.$tc('global.default.copy')}`,
+                    name: `${this.product.name} ${this.$t('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
                     canonicalProductId: null,

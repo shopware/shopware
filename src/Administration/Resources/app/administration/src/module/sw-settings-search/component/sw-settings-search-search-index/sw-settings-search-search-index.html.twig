@@ -1,7 +1,7 @@
 {% block sw_settings_search_search_index %}
 <mt-card
     position-identifier="sw-settings-search-search-index"
-    :title="$tc('sw-settings-search.generalTab.labelSearchIndex')"
+    :title="$t('sw-settings-search.generalTab.labelSearchIndex')"
     :is-loading="isLoading"
 >
 
@@ -14,12 +14,12 @@
 
         {% block sw_settings_search_search_index_warning_top %}
         <p class="sw-settings-search__search-index-warning-top">
-            {{ $tc('sw-settings-search.generalTab.textWarningOpenTab') }}
+            {{ $t('sw-settings-search.generalTab.textWarningOpenTab') }}
         </p>
         {% endblock %}
 
         {% block sw_settings_search_search_index_warning_bottom %}
-        <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
+        <p>{{ $t('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
         {% endblock %}
 
     </mt-banner>
@@ -36,19 +36,19 @@
         @update:process-success="buildFinish"
         @click="rebuildSearchIndex"
     >
-        {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
+        {{ $t('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
     </sw-button-process>
 
     {% block sw_settings_search_search_index_lastest_build %}
     <span class="sw-settings-search__search-index-latest-build">
         <template v-if="latestIndex">
-            {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago
+            {{ $t('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago
                 :date="latestIndex.lastDate"
                 :date-time-format="{ month: '2-digit', day: '2-digit' }"
             />
         </template>
         <template v-else>
-            {{ $tc('sw-settings-search.generalTab.textSearchNotIndexedYet') }}
+            {{ $t('sw-settings-search.generalTab.textSearchNotIndexedYet') }}
         </template>
     </span>
     {% endblock %}
@@ -62,7 +62,7 @@
 
         {% block sw_settings_search_search_index_rebuild_progress_text %}
         <span class="sw-settings-search__search-index-rebuilding-text">
-            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
+            {{ $t('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
         </span>
         {% endblock %}
 
@@ -71,7 +71,7 @@
             :model-value="progressBarValue"
             :max-value="100"
         >
-            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
+            {{ $t('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
         </mt-progress-bar>
         {% endblock %}
     </div>

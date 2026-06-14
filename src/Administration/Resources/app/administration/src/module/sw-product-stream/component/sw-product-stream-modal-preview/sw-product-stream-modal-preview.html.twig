@@ -1,7 +1,7 @@
 {% block sw_product_stream_modal_preview %}
 <sw-modal
     class="sw-product-stream-modal-preview"
-    :title="`${$tc('sw-product-stream.previewModal.title')} (${total || 0})`"
+    :title="`${$t('sw-product-stream.previewModal.title')} (${total || 0})`"
     :is-loading="isLoading"
     variant="full"
     @modal-close="closeModal"
@@ -33,7 +33,7 @@
                     name="sw-field--selectedSalesChannel"
                     :criteria="previewSelectionCriteria"
                     :disabled="isLoading"
-                    :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                    :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
                     @update:value="onSalesChannelChange"
                 />
                 {% endblock %}
@@ -103,7 +103,7 @@
         <mt-empty-state
             v-if="!total && !isLoading"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-product-stream.previewModal.empty')"
+            :headline="$t('sw-product-stream.previewModal.empty')"
         />
         {% endblock %}
     </div>
@@ -117,7 +117,7 @@
             variant="primary"
             @click.prevent="closeModal"
         >
-            {{ $tc('sw-product-stream.previewModal.close') }}
+            {{ $t('sw-product-stream.previewModal.close') }}
         </mt-button>
         {% endblock %}
     </template>

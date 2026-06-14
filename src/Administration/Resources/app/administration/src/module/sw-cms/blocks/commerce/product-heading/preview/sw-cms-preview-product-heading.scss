@@ -10,7 +10,7 @@
     &__name {
         @include flex-centering-vertical;
 
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
     }
@@ -23,7 +23,7 @@
 
             content: "";
             margin-right: 4px;
-            background: $color-gray-100;
+            background: var(--color-background-tertiary-default);
         }
     }
 
@@ -34,7 +34,7 @@
 
     &__placeholder {
         height: 6px;
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         border-radius: $border-radius-pill;
 
         &:first-child {

@@ -12,20 +12,20 @@
             {% block sw_cms_element_buy_box_config_tab_content %}
             <sw-tabs-item
                 name="content"
-                :title="$tc('sw-cms.elements.general.config.tab.content')"
+                :title="$t('sw-cms.elements.general.config.tab.content')"
                 :active-tab="active"
             >
-                {{ $tc('sw-cms.elements.general.config.tab.content') }}
+                {{ $t('sw-cms.elements.general.config.tab.content') }}
             </sw-tabs-item>
             {% endblock %}
 
             {% block sw_cms_element_buy_box_config_tab_option %}
             <sw-tabs-item
                 name="options"
-                :title="$tc('sw-cms.elements.general.config.tab.options')"
+                :title="$t('sw-cms.elements.general.config.tab.options')"
                 :active-tab="active"
             >
-                {{ $tc('sw-cms.elements.general.config.tab.options') }}
+                {{ $t('sw-cms.elements.general.config.tab.options') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -41,7 +41,7 @@
                     class="sw-cms-el-config-buy-box__warning"
                     variant="info"
                 >
-                    {{ $tc('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
+                    {{ $t('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
                 </mt-banner>
                 {% endblock %}
 
@@ -57,7 +57,7 @@
                             ref="cmsProductSelection"
                             v-model:value="element.config.product.value"
                             entity="product"
-                            :placeholder="$tc('sw-cms.elements.buyBox.config.placeholder.selection')"
+                            :placeholder="$t('sw-cms.elements.buyBox.config.placeholder.selection')"
                             :criteria="productCriteria"
                             :context="productSelectContext"
                             show-clearable-button
@@ -99,13 +99,13 @@
                 <sw-cms-inherit-wrapper
                     field="alignment"
                     :element="element"
-                    :label="$tc('sw-cms.elements.general.config.label.alignment')"
+                    :label="$t('sw-cms.elements.general.config.label.alignment')"
                 >
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.alignment.value"
                             class="sw-cms-el-config-buy-box__alignment"
-                            :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
+                            :placeholder="$t('sw-cms.elements.general.config.label.alignment')"
                             :options="alignmentOptions"
                             :disabled="isInherited"
                         />

@@ -56,18 +56,18 @@ export default {
 
         headline() {
             if (this.extension === undefined) {
-                return this.$tc('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
+                return this.$t('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
             }
 
-            return this.$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure');
+            return this.$t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure');
         },
 
         text() {
             if (this.extension === undefined) {
-                return this.$tc('sw-extension-store.component.sw-extension-adding-failed.textProblem');
+                return this.$t('sw-extension-store.component.sw-extension-adding-failed.textProblem');
             }
 
-            return this.$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem');
+            return this.$t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem');
         },
     },
 };

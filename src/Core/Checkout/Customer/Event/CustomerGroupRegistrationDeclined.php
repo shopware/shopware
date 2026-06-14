@@ -37,8 +37,8 @@ class CustomerGroupRegistrationDeclined extends Event implements SalesChannelAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('customerGroup', new EntityType(CustomerGroupDefinition::class));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(CustomerGroupAware::CUSTOMER_GROUP, new EntityType(CustomerGroupDefinition::class));
     }
 
     public function getName(): string

@@ -30,6 +30,7 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -424,7 +425,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
     /**
      * @param array<string, array<string, mixed>> $data
      */
-    private function validateProviderData(array $data): \Symfony\Component\Validator\ConstraintViolationListInterface
+    private function validateProviderData(array $data): ConstraintViolationListInterface
     {
         $field = $this->createContextProvidersField();
         $constraints = $this->serializer->buildConstraints($field);

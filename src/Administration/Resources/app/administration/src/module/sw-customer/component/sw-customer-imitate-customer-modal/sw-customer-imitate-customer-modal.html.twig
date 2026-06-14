@@ -15,7 +15,7 @@
             scope="local"
         >
             <template #logout>
-                <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
+                <b>{{ $t('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
             </template>
         </i18n-t>
     </mt-banner>
@@ -24,7 +24,7 @@
         v-else
         variant="attention"
     >
-        {{ $tc('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
+        {{ $t('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
     </mt-banner>
     {% endblock %}
 
@@ -82,7 +82,7 @@
                 variant="secondary"
                 @click="onCancel"
             >
-                {{ $tc('sw-customer.imitateCustomerModal.labelCancel') }}
+                {{ $t('sw-customer.imitateCustomerModal.labelCancel') }}
             </mt-button>
             {% endblock %}
         </div>

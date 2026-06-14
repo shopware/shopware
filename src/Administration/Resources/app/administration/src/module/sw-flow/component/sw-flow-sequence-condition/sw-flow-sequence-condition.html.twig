@@ -33,7 +33,7 @@
                 :disabled="disabled || undefined"
                 @click="addIfCondition(true)"
             >
-                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+                {{ $t('sw-flow.detail.sequence.selectorIfCondition') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -43,7 +43,7 @@
                 :disabled="disabled || undefined"
                 @click="addThenAction(true)"
             >
-                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+                {{ $t('sw-flow.detail.sequence.selectorThenAction') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -60,7 +60,7 @@
             :dismissable="false"
             class="sw-flow-sequence-condition__true-label"
         >
-            {{ $tc('sw-flow.detail.sequence.labelTrue') }}
+            {{ $t('sw-flow.detail.sequence.labelTrue') }}
         </sw-label>
         {% endblock %}
     </div>
@@ -88,7 +88,7 @@
             :dismissable="false"
             class="sw-flow-sequence-condition__false-label"
         >
-            {{ $tc('sw-flow.detail.sequence.labelFalse') }}
+            {{ $t('sw-flow.detail.sequence.labelFalse') }}
         </sw-label>
         {% endblock %}
 
@@ -111,7 +111,7 @@
                 :disabled="disabled || undefined"
                 @click="addIfCondition(false)"
             >
-                {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+                {{ $t('sw-flow.detail.sequence.selectorIfCondition') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -121,7 +121,7 @@
                 :disabled="disabled || undefined"
                 @click="addThenAction(false)"
             >
-                {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+                {{ $t('sw-flow.detail.sequence.selectorThenAction') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -140,11 +140,11 @@
                 {% block sw_flow_sequence_condition_title %}
                 <div class="sw-flow-sequence-condition__title-description">
                     <h3 class="sw-flow-sequence-condition__title">
-                        {{ $tc('sw-flow.detail.sequence.conditionTitle') }}
+                        {{ $t('sw-flow.detail.sequence.conditionTitle') }}
                     </h3>
 
                     <p class="sw-flow-sequence-condition__description">
-                        {{ $tc('sw-flow.detail.sequence.conditionDescription') }}
+                        {{ $t('sw-flow.detail.sequence.conditionDescription') }}
                     </p>
                 </div>
                 {% endblock %}
@@ -161,7 +161,7 @@
                         variant="danger"
                         @click="removeCondition"
                     >
-                        {{ $tc('sw-flow.detail.sequence.contextButton.deleteCondition') }}
+                        {{ $t('sw-flow.detail.sequence.contextButton.deleteCondition') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
@@ -185,7 +185,7 @@
                         class="sw-flow-sequence-condition__rule-empty"
                     >
                         <span class="sw-flow-sequence-condition__no-rule">
-                            {{ $tc('sw-flow.detail.sequence.noRule') }}
+                            {{ $t('sw-flow.detail.sequence.noRule') }}
                         </span>
                     </div>
                     {% endblock %}
@@ -221,7 +221,7 @@
                                     class="sw-flow-sequence-condition__rule-edit"
                                     @click="onEditRule"
                                 >
-                                    {{ $tc('sw-flow.rule.contextButton.editRule') }}
+                                    {{ $t('sw-flow.rule.contextButton.editRule') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
@@ -230,7 +230,7 @@
                                     class="sw-flow-sequence-condition__rule-change"
                                     @click="showRuleSelection = true"
                                 >
-                                    {{ $tc('sw-flow.rule.contextButton.changeRule') }}
+                                    {{ $t('sw-flow.rule.contextButton.changeRule') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
@@ -240,7 +240,7 @@
                                     variant="danger"
                                     @click="deleteRule"
                                 >
-                                    {{ $tc('sw-flow.rule.contextButton.deleteRule') }}
+                                    {{ $t('sw-flow.rule.contextButton.deleteRule') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
                             </sw-context-button>
@@ -275,7 +275,7 @@
                         value=""
                         entity="rule"
                         :criteria="ruleCriteria"
-                        :placeholder="$tc('sw-flow.rule.placeholderSelectRule')"
+                        :placeholder="$t('sw-flow.rule.placeholderSelectRule')"
                         :disabled="disabled || undefined"
                         :error="fieldError"
                         advanced-selection-component="sw-advanced-selection-rule"
@@ -297,7 +297,7 @@
                                     @click="onCreateNewRule"
                                     @keydown.enter="onCreateNewRule"
                                 >
-                                    {{ $tc('sw-flow.rule.createNewRule') }}
+                                    {{ $t('sw-flow.rule.createNewRule') }}
                                 </li>
                             </ul>
                             {% endblock %}
@@ -320,11 +320,11 @@
             class="sw-flow-sequence-condition__explains"
         >
             {% block sw_flow_sequence_selector_title %}
-            <h4>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h4>
+            <h4>{{ $t('sw-flow.detail.sequence.conditionExplainsTitle') }}</h4>
             {% endblock %}
 
             {% block sw_flow_sequence_selector_help_text %}
-            <p v-html="$tc('sw-flow.detail.sequence.conditionExplainsDescription')"></p>
+            <p v-html="$t('sw-flow.detail.sequence.conditionExplainsDescription')"></p>
             {% endblock %}
         </div>
         {% endblock %}

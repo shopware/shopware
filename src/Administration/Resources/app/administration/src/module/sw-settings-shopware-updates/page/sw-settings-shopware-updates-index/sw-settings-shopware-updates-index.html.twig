@@ -6,12 +6,12 @@
         {% block sw_settings_showare_updates_smart_bar_header_title %}
         <h2>
             {% block sw_settings_showare_updates_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-shopware-updates.general.emptyTitle') }}
+            {{ $t('sw-settings-shopware-updates.general.emptyTitle') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -30,7 +30,7 @@
             @update:process-success="saveFinish"
             @click="onSave()"
         >
-            {{ $tc('sw-settings-store.general.buttonSave') }}
+            {{ $t('sw-settings-store.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -80,7 +80,7 @@
                     variant="secondary"
                     @click="updateModalShown = false"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
 
                 <mt-button
@@ -88,7 +88,7 @@
                     size="small"
                     @click="openUpdateWizard()"
                 >
-                    {{ $tc('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
+                    {{ $t('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
                 </mt-button>
             </template>
         </sw-modal>

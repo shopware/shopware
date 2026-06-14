@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Administration\Snippet;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Context;
@@ -26,7 +25,6 @@ use Symfony\Component\Finder\SplFileInfo;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;

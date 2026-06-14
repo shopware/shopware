@@ -55,7 +55,7 @@
                 name="sw-field--filterType"
                 size="medium"
                 :options="operators"
-                :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
+                :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
                 :disabled="disabled"
                 show-clearable-button
             />
@@ -486,7 +486,7 @@
                     v-model:value="operator"
                     size="medium"
                     :options="relativeTimeOperators"
-                    :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
+                    :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
                     :disabled="disabled"
                 />
             </sw-arrow-field>
@@ -504,7 +504,7 @@
                 :disabled="disabled"
             >
                 <template #suffix>
-                    <span>{{ $tc('sw-product-stream.filter.timeUnits.days') }}</span>
+                    <span>{{ $t('sw-product-stream.filter.timeUnits.days') }}</span>
                 </template>
             </mt-number-field>
             {% endblock %}

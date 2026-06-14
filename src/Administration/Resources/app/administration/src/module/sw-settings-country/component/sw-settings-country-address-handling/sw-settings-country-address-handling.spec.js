@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package fundamentals@discovery
  */
@@ -111,7 +113,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     draggable: {},
                 },
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',

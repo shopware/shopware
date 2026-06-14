@@ -72,7 +72,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('review.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: true,
                     showOnDisabledElements: true,
                 };
@@ -168,7 +168,7 @@ export default {
             this.isLoading = true;
             this.isSaveSuccessful = false;
 
-            const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+            const messageSaveError = this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
             this.repository
                 .save(this.review)

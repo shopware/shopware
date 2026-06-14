@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -214,7 +215,8 @@ class ProductPageLoaderTest extends TestCase
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
-            ->addAssociation('media.media');
+            ->addAssociation('media.media')
+            ->addAssociation('openGraphMedia');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')
@@ -254,6 +256,7 @@ class ProductPageLoaderTest extends TestCase
             $productDetailRouteMock,
             $reviewRepository,
             $systemConfigService,
+            $this->createMock(CategoryBreadcrumbBuilder::class)
         );
     }
 

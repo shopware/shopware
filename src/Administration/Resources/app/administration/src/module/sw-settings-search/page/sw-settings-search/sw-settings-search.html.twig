@@ -4,12 +4,12 @@
     <template #smart-bar-header>
         <h2>
             {% block sw_settings_search_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="12px"
+                size="var(--scale-size-12)"
             />
-            {{ $tc('sw-settings-search.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-search.general.mainMenuItemGeneral') }}
             {% endblock %}
         </h2>
     </template>
@@ -34,7 +34,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSaveSearchSettings"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -52,7 +52,7 @@
                     :route="{ name: 'sw.settings.search.index.general' }"
                     @click="onTabChange"
                 >
-                    {{ $tc('sw-settings-search.page.generalTab') }}
+                    {{ $t('sw-settings-search.page.generalTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -62,7 +62,7 @@
                     class="sw-settings-search__live-search-tab"
                     :route="{ name: 'sw.settings.search.index.liveSearch' }"
                 >
-                    {{ $tc('sw-settings-search.page.liveSearchTab') }}
+                    {{ $t('sw-settings-search.page.liveSearchTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -102,7 +102,7 @@
             v-if="isDisplayingLeavePageWarning"
             class="sw_settings_search_leave_modal"
             type="yesno"
-            :text="$tc('sw-settings-search.textLeaveConfirm')"
+            :text="$t('sw-settings-search.textLeaveConfirm')"
             @confirm="onConfirmLeave"
             @close="onCloseLeaveModal"
             @cancel="onCancelLeaveModal"

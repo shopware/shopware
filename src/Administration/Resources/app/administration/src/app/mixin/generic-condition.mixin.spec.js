@@ -3,10 +3,9 @@
  */
 import { shallowMount } from '@vue/test-utils';
 
-// Mock Component
-Shopware.Component.register('sw-mock', {
-    template: '<div class="sw-mock"><slot></slot></div>',
-});
+const defaultData = {
+    operator: null,
+};
 
 const config = {
     cartLineItemDimensionWeight: {
@@ -34,6 +33,13 @@ const config = {
     },
 };
 
+Shopware.Component.register('sw-mock', {
+    template: '<div class="sw-mock"><slot></slot></div>',
+    data() {
+        return defaultData;
+    },
+});
+
 describe('app/mixin/generic-condition', () => {
     let wrapper;
 
@@ -49,7 +55,7 @@ describe('app/mixin/generic-condition', () => {
                         value: null,
                     },
                     ensureValueExist: () => {},
-                    $tc: (snippetKey) => snippetKey,
+                    $t: (snippetKey) => snippetKey,
                 },
             },
         });
@@ -106,5 +112,77 @@ describe('app/mixin/generic-condition', () => {
     it('should get the true visible value when visible value was set before', () => {
         wrapper.vm.updateVisibleValue(1);
         expect(wrapper.vm.getVisibleValue('amount')).toBe(1);
+    });
+
+    it('should translate options for single-select fields in getBind', () => {
+        const field = {
+            name: 'status',
+            type: 'single-select',
+            config: {
+                options: [
+                    'option1',
+                    'option2',
+                ],
+            },
+        };
+
+        const result = wrapper.vm.getBind(field);
+
+        expect(result.config.options).toEqual([
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.status.options.option1',
+                value: 'option1',
+            },
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.status.options.option2',
+                value: 'option2',
+            },
+        ]);
+    });
+
+    it('should translate options for multi-select fields in getBind', () => {
+        const field = {
+            name: 'tags',
+            type: 'multi-select',
+            config: {
+                options: [
+                    'optionA',
+                    'optionB',
+                ],
+            },
+        };
+
+        const result = wrapper.vm.getBind(field);
+
+        expect(result.config.options).toEqual([
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.tags.options.optionA',
+                value: 'optionA',
+            },
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.tags.options.optionB',
+                value: 'optionB',
+            },
+        ]);
+    });
+
+    it.each([
+        { name: 'date + between', type: 'date', operator: 'between', expected: true },
+        { name: 'datetime + between', type: 'datetime', operator: 'between', expected: true },
+        { name: 'date + equals', type: 'date', operator: '=', expected: false },
+        { name: 'datetime + equals', type: 'datetime', operator: '=', expected: false },
+        { name: 'string + between', type: 'string', operator: 'between', expected: false },
+    ])('should validate if field has between operator: $name', async ({ type, operator, expected }) => {
+        await wrapper.setData({ operator });
+
+        expect(wrapper.vm.isBetweenDateField({ type })).toBe(expected);
+    });
+
+    it('should write the between value to the field', () => {
+        const value = { from: '2026-01-01', to: '2026-12-31' };
+
+        wrapper.vm.updateBetweenDateValue('amount', value);
+
+        expect(wrapper.vm.condition.value).toEqual({ amount: value });
     });
 });

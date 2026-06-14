@@ -26,7 +26,7 @@ class ShopwareComponent {
     public static options: Record<string, unknown>;
 
     // The element in which the component is initialized.
-    public el: Node;
+    public el: HTMLElement;
 
     // The name of the component.
     public componentName: string;
@@ -41,12 +41,12 @@ class ShopwareComponent {
     private observerSettings = { childList: false, subtree: false, attributes: false };
 
     constructor(
-        element: Node,
+        element: HTMLElement,
         options: Record<string, unknown> = {},
         componentName: string = '',
     ) {
-        if (!(element instanceof Node)) {
-            throw new Error('Provided element is not a valid node.');
+        if (!(element instanceof HTMLElement)) {
+            throw new Error('Provided element is not a valid HTMLElement.');
         }
 
         this.el = element;
@@ -173,15 +173,26 @@ class ShopwareComponent {
      * Use it for heavy events like user input, resize, scroll, etc.
      */
     debounce(callback: (...args: unknown[]) => void, delay = 400, immediate = false) {
-        let timeout: number;
+        let timeout: number | undefined;
 
         return (...args: unknown[]) => {
-            if (immediate && !timeout) {
-                window.setTimeout(() => callback(...args), 0);
+            const callNow = immediate && timeout === undefined;
+
+            if (timeout !== undefined) {
+                window.clearTimeout(timeout);
             }
 
-            window.clearTimeout(timeout);
-            timeout = window.setTimeout(() => callback(...args), delay);
+            timeout = window.setTimeout(() => {
+                timeout = undefined;
+
+                if (!immediate) {
+                    callback(...args);
+                }
+            }, delay);
+
+            if (callNow) {
+                callback(...args);
+            }
         };
     }
 

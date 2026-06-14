@@ -12,7 +12,7 @@ use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompil
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Mcp\Tool\ThemeConfigTool;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\System\SalesChannel\SalesChannelAnalyticsLoader;
 use Shopware\Storefront\Theme\ThemeService;
@@ -27,12 +27,6 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 #[CoversClass(Storefront::class)]
 class StorefrontTest extends TestCase
 {
-    public function testImplementsThemeInterface(): void
-    {
-        // @phpstan-ignore staticMethod.alreadyNarrowedType
-        static::assertInstanceOf(ThemeInterface::class, new Storefront());
-    }
-
     public function testTemplatePriority(): void
     {
         static::assertSame(0, (new Storefront())->getTemplatePriority());
@@ -75,6 +69,7 @@ class StorefrontTest extends TestCase
         static::assertTrue($container->has(NavigationController::class), 'controller.xml');
         static::assertTrue($container->has(ThemeService::class), 'theme.xml');
         static::assertTrue($container->has(SalesChannelAnalyticsLoader::class), 'system.xml');
+        static::assertTrue($container->has(ThemeConfigTool::class), 'mcp.php');
     }
 
     private function buildContainer(): ContainerBuilder

@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Product;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Exception\BadRequestHttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -130,7 +130,7 @@ class ElasticsearchCustomFieldsMappingHelper
                     'index' => $indexName,
                     'body' => $body,
                 ]);
-            } catch (BadRequest400Exception $exception) {
+            } catch (BadRequestHttpException $exception) {
                 if (str_contains($exception->getMessage(), 'cannot be changed from type')) {
                     throw ElasticsearchProductException::cannotChangeCustomFieldType($exception);
                 }

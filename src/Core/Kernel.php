@@ -115,7 +115,7 @@ class Kernel extends HttpKernel
             }
         }
 
-        if ((!Feature::has('v6.8.0.0') || !Feature::isActive('v6.8.0.0')) && !isset($bundles[TwigComponentBundle::class])) {
+        if (!Feature::isActive('v6.8.0.0') && !isset($bundles[TwigComponentBundle::class])) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The %s bundle should be added to config/bundles.php', TwigComponentBundle::class));
             yield new TwigComponentBundle();
         }

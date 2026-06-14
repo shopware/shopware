@@ -15,6 +15,8 @@
  - Both `declined` and `revoked` indicate that a user was prompted to consent but declined. The difference is that `declined` is used when the user initially declines consent, while `revoked` is used when a user who previously accepted consent decides to revoke it later.
  So the difference between this two is, that you know that a declined consent was never accepted, while a revoked consent was accepted until it's current `updated_at` date.
  - Actor: The username of the Admin user who made the last change to a consent decision.
+ - Revision: A consent definition can declare a `latestRevision`. When present, accepted states also carry an `acceptedRevision`.
+ - Current vs stale acceptance: An accepted consent can still be stale. `ConsentState::isAccepted()` only checks the raw state, `ConsentState::isCurrent()` checks whether the accepted revision still matches the latest revision, and `ConsentState::isStale()` indicates an accepted but outdated revision.
 
  Examples
  - Admin user scope
@@ -36,6 +38,7 @@
    public function getScopeName(): string;          // Name of the scope (see ConsentScope implementations)
    public function getSince(): \DateTimeImmutable;  // Introduction date of the consent
    public function getRequiredPermissions(): array; // Array of permission strings required to accept/revoke this consent
+   public function getLatestRevision(): ?string;    // Current revision of the consent, or null if unused; remote-backed revisions must be cached
  }
  ```
 
@@ -82,9 +85,11 @@ The main API of the module is the `ConsentService` class.
      - Returns the state of all consents in the system for the given context. For example, when the context resolves to an admin user, this method will return the states for system scopes and only their states for admin user scopes. In other words, the current admin user will see only *their* state, not other admin users.
    - `getConsentState(string $name, Context $context): ConsentState`
      - Returns the `ConsentState` for a single consent and context combination.
-   - `acceptConsent(string $name, Context $context): void`
+   - `acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState`
      - Persists state as `ACCEPTED` for the given consent and context combination.
-   - `revokeConsent(string $name, Context $context): void`
+     - If no revision is provided, the latest revision from the consent definition is accepted implicitly.
+     - If a revision is provided explicitly, it must still match the latest revision or the service throws `ConsentException::invalidRevision()`.
+   - `revokeConsent(string $name, Context $context): ConsentState`
      - Persists state as `REVOKED` for the given consent and context combination.
 
 ## HTTP API
@@ -99,10 +104,11 @@ Events
    - Dispatched after persisting a revocation. Carries: `name`, `scopeName`, `identifier`.
 
 ### Persistence
-The consent state is stored in the database table: `consent_state`. When a consent is neither accepted nor revoked, the state is considered `requested`. This initial state is not stored in the database.
+The consent state is stored in the database table: `consent_state`. When a consent has no stored record yet, the state is interpreted as `unset`. This initial state is not stored in the database.
+
+The `revision` column stores the accepted revision only. Non-accepted states clear the stored revision.
 
 ## Adding a new consent
  1) Implement a `ConsentDefinition` class
  2) Register it as a service and tag it with `shopware.consent.definition`.
  3) If you need a new scope, implement `ConsentScope`, register it as a service, and tag it with `shopware.consent.scope`. Ensure it resolves both the identifier and actor from the `Context` or throws an appropriate `ConsentException`.
-

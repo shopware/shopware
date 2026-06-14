@@ -58,7 +58,7 @@ By default, we add click listeners to the elements that pass the tests. If you w
 
 ```js
 <mt-button
-    data-analytics-id="my-button"
+    data-analytics-id="my_module.my_component.action"
     data-product-analytics-event="mouseover"
 >
 Some button in the Admin    
@@ -71,12 +71,14 @@ You can add additional event data directly in the DOM adding `data-analytics-*` 
 
 ```js
 <mt-button
-    data-analytics-id="my-button"
+    data-analytics-id="my_module.my_component.action"
     data-analytics-additional-data="This is useful"
 >
 Some button in the Admin    
 </mt-button>
 ```
+
+This properties will be transformed into snake case and sent as part of the event data. 
 
 ### Manually dispatch tracking events
 
@@ -90,3 +92,47 @@ While developing you may be interested in the events being fired. To enable logg
 ```js
 Shopware.Telemetry.debug = true;
 ```
+
+## Naming conventions
+
+To make it easier to analyze the data in the future, we have to define some naming conventions for the events and properties.
+
+### Event properties
+
+Event properties must always be written in `snake_case`.
+Event properties must be scalar values (string, number, boolean) or string arrays.
+
+Examples:
+
+* `extension_name`
+* `sales_channel_id`
+* `product_is_new`
+
+### Button IDs
+
+Button IDs should stay close to the related CSS classes and follow this convention:
+
+`<module>.<page>.<button_name>`
+
+Examples:
+
+* `sw_product.detail.product_save`
+* `sw_product.detail.product_duplicate`
+
+### Custom events
+
+Custom event names should follow this convention:
+
+`<module>.<page>.<object>_<action>`
+
+Examples:
+
+* `sw_extension.my_extensions_listing.extension_installed`
+
+### General guidelines
+
+Product analytics is used to track user behaviour in the Administration.
+The main goal is to understand how users interact with the product and not what consequences they have in the backend.
+Therefore, we should focus on tracking user interactions and not technical events that are not directly related to user behaviour.
+
+Of course, it can make sense to track technical events like API calls or long-running processes, but we should be careful not to track too much and end up with a lot of data that is not useful for analysis.

@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -46,13 +47,10 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertSame('cartLineItemCreationDate', $this->rule->getName());
     }
 
-    /**
-     * This test verifies that we have 2 constraints.
-     * One for the date and one for the operators.
-     */
     public function testConstraints(): void
     {
         $expectedOperators = [
+            Rule::OPERATOR_BETWEEN,
             Rule::OPERATOR_NEQ,
             Rule::OPERATOR_GTE,
             Rule::OPERATOR_LTE,
@@ -76,12 +74,27 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
     }
 
+    public function testBetweenConstraints(): void
+    {
+        $rule = new LineItemCreationDateRule(
+            operator: Rule::OPERATOR_BETWEEN,
+        );
+
+        $constraints = $rule->getConstraints();
+
+        static::assertEquals(
+            RuleConstraints::dateBetween(),
+            $constraints['lineItemCreationDate']
+        );
+    }
+
     /**
-     * @return array<string, array<bool|string>>
+     * @return array<string, list<bool|string|null>>
      */
     public static function getMatchValues(): array
     {
         return [
+            'EQ - null' => [false, null, null, Rule::OPERATOR_EQ],
             'EQ - positive 1' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
             'EQ - positive 2' => [true, '2020-02-06', '2020-02-06', Rule::OPERATOR_EQ],
             'EQ - negative' => [false, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
@@ -101,12 +114,8 @@ class LineItemCreationDateRuleTest extends TestCase
         ];
     }
 
-    /**
-     * This test verifies that our rule works correctly
-     * with all the different operators and values.
-     */
     #[DataProvider('getMatchValues')]
-    public function testRuleMatching(bool $expected, string $itemCreated, string $ruleDate, string $operator): void
+    public function testRuleMatching(bool $expected, ?string $itemCreated, ?string $ruleDate, string $operator): void
     {
         $lineItem = $this->createLineItemWithCreatedDate($itemCreated);
 
@@ -251,10 +260,13 @@ class LineItemCreationDateRuleTest extends TestCase
         $result = $lineItemCreationDateRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
+        static::assertSame(
+            RuleConfig::OPERATOR_SET_DATE,
+            $result['operatorSet']['operators']
+        );
     }
 
-    private function createLineItemWithCreatedDate(string $createdAt): LineItem
+    private function createLineItemWithCreatedDate(?string $createdAt): LineItem
     {
         return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
     }

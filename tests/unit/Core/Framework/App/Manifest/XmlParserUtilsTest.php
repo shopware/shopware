@@ -21,6 +21,24 @@ class XmlParserUtilsTest extends TestCase
         static::assertSame(['attr1' => 'value1', 'attr2' => 'value2'], $result);
     }
 
+    public function testParseAttributesPhpizesValueEvenWhenTypeIsString(): void
+    {
+        $element = $this->createDOMElement([
+            'type' => 'string',
+            'value' => '{"foo":"bar"}',
+        ]);
+
+        $result = XmlParserUtils::parseAttributes($element);
+
+        static::assertSame(
+            [
+                'type' => 'string',
+                'value' => ['foo' => 'bar'],
+            ],
+            $result
+        );
+    }
+
     public function testParseChildren(): void
     {
         $element = $this->createDOMElement();

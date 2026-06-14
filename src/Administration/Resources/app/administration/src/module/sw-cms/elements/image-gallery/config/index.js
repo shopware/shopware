@@ -71,9 +71,9 @@ export default {
 
         displayModeValueOptions() {
             return [
-                { value: 'standard', label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard') },
-                { value: 'contain', label: this.$tc('sw-cms.elements.general.config.label.displayModeContain') },
-                { value: 'cover', label: this.$tc('sw-cms.elements.general.config.label.displayModeCover') },
+                { value: 'standard', label: this.$t('sw-cms.elements.general.config.label.displayModeStandard') },
+                { value: 'contain', label: this.$t('sw-cms.elements.general.config.label.displayModeContain') },
+                { value: 'cover', label: this.$t('sw-cms.elements.general.config.label.displayModeCover') },
             ];
         },
 
@@ -81,15 +81,15 @@ export default {
             return [
                 {
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -98,15 +98,15 @@ export default {
             return [
                 {
                     value: 'none',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
                 },
                 {
                     value: 'inside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
                 },
             ];
         },
@@ -115,15 +115,15 @@ export default {
             return [
                 {
                     value: 'none',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
                 },
                 {
                     value: 'inside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',
-                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                    label: this.$t('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
                 },
             ];
         },
@@ -132,11 +132,11 @@ export default {
             return [
                 {
                     value: 'left',
-                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
+                    label: this.$t('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft'),
                 },
                 {
                     value: 'underneath',
-                    label: this.$tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
+                    label: this.$t('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath'),
                 },
             ];
         },

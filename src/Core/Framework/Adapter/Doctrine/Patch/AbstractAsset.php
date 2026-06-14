@@ -7,6 +7,8 @@
  * for the change we made @see AbstractAsset::_setName()
  */
 
+// intentional: namespace must match upstream to override Doctrine's class via autoload.files (excluded from classmap in composer.json)
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;

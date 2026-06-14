@@ -3,12 +3,12 @@
     {% block sw_language_switch_modal %}
     <sw-modal
         v-if="showUnsavedChangesModal"
-        :title="$tc('sw-language-switch.titleModalUnsavedChanges')"
+        :title="$t('sw-language-switch.titleModalUnsavedChanges')"
         variant="small"
         @modal-close="onCloseChangesModal"
     >
         {% block sw_language_switch_message %}
-        <p>{{ $tc('sw-language-switch.messageModalUnsavedChanges') }}</p>
+        <p>{{ $t('sw-language-switch.messageModalUnsavedChanges') }}</p>
         {% endblock %}
 
         {% block sw_language_switch_footer %}
@@ -20,7 +20,7 @@
                 variant="secondary"
                 @click="onCloseChangesModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -31,7 +31,7 @@
                 variant="secondary"
                 @click="onClickRevertUnsavedChanges"
             >
-                {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
+                {{ $t('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
             </mt-button>
             {% endblock %}
 
@@ -39,7 +39,7 @@
             <mt-button
                 id="sw-language-switch-save-changes-button"
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: allowEdit,
                     showOnDisabledElements: true
                 }"
@@ -48,7 +48,7 @@
                 size="small"
                 @click="onClickSaveChanges"
             >
-                {{ $tc('global.default.save') }}
+                {{ $t('global.default.save') }}
             </mt-button>
             {% endblock %}
         </template>

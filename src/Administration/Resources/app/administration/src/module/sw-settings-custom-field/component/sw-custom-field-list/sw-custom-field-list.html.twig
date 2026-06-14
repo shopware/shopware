@@ -22,7 +22,7 @@
             {% block sw_custom_field_list_toolbar_delete %}
             <mt-button
                 v-tooltip.bottom="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
                     showOnDisabledElements: true
                 }"
@@ -43,7 +43,7 @@
             {% block sw_custom_field_list_toolbar_add %}
             <mt-button
                 v-tooltip.bottom="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('custom_field.editor'),
                     showOnDisabledElements: true
                 }"
@@ -53,7 +53,7 @@
                 variant="secondary"
                 @click="onAddCustomField(set)"
             >
-                {{ $tc('sw-settings-custom-field.set.detail.addCustomField') }}
+                {{ $t('sw-settings-custom-field.set.detail.addCustomField') }}
             </mt-button>
             {% endblock %}
         </sw-container>
@@ -83,7 +83,7 @@
                 data-index="label"
                 truncate
                 flex="minmax(150px, 1fr)"
-                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldLabel')"
+                :label="$t('sw-settings-custom-field.customField.list.labelCustomFieldLabel')"
             >
                 <span
                     class="sw-custom-field-list__custom-field-label"
@@ -110,14 +110,14 @@
                 data-index="type"
                 truncate
                 flex="minmax(150px, 200px)"
-                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldType')"
+                :label="$t('sw-settings-custom-field.customField.list.labelCustomFieldType')"
             >
-                {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
+                {{ $t(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
 
                 <template #inline-edit>
 
                     <mt-text-field
-                        :model-value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+                        :model-value="$t(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
                         disabled
                     />
                 </template>
@@ -129,7 +129,7 @@
                 data-index="position"
                 flex="minmax(50px, 100px)"
                 :editable="acl.can('custom_field.editor')"
-                :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldPosition')"
+                :label="$t('sw-settings-custom-field.customField.list.labelCustomFieldPosition')"
             >
                 {{ item.config.customFieldPosition }}
 
@@ -157,7 +157,7 @@
                         :disabled="item.isDeleted || !acl.can('custom_field.editor') || undefined"
                         @click="onCustomFieldEdit(item)"
                     >
-                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldView') }}
+                        {{ $t('sw-settings-custom-field.customField.list.contextMenuCustomFieldView') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -167,7 +167,7 @@
                         variant="success"
                         :disabled="!acl.can('custom_field.editor') || undefined"
                     >
-                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldResetDelete') }}
+                        {{ $t('sw-settings-custom-field.customField.list.contextMenuCustomFieldResetDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -179,7 +179,7 @@
                         :disabled="!acl.can('custom_field.editor')"
                         @click="onCustomFieldDelete(item)"
                     >
-                        {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldDelete') }}
+                        {{ $t('sw-settings-custom-field.customField.list.contextMenuCustomFieldDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
@@ -206,7 +206,7 @@
     <mt-empty-state
         v-else-if="!set.isLoading"
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
+        :headline="$t('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
     />
     {% endblock %}
 
@@ -223,14 +223,14 @@
     {% block sw_custom_field_list_custom_field_delete %}
     <sw-modal
         v-if="deleteCustomField"
-        :title="$tc('sw-settings-custom-field.customField.list.titleDeleteAction', {}, deleteCustomField.length)"
+        :title="$t('sw-settings-custom-field.customField.list.titleDeleteAction', {}, deleteCustomField.length)"
         variant="small"
         @modal-close="onCancelDeleteCustomField"
     >
 
         {% block sw_custom_field_list_custom_field_delete_text %}
         <p class="sw-custom-field-delete__description">
-            {{ $tc('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', { count: deleteCustomField.length }, deleteCustomField.length) }}
+            {{ $t('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', { count: deleteCustomField.length }, deleteCustomField.length) }}
         </p>
         {% endblock %}
 
@@ -242,7 +242,7 @@
                 variant="secondary"
                 @click="onCancelDeleteCustomField"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -252,7 +252,7 @@
                 size="small"
                 @click="onDeleteCustomField"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

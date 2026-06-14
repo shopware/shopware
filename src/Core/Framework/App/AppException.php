@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -70,6 +71,7 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
+    final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -592,6 +594,26 @@ class AppException extends HttpException
             'Failed to load element type from "{{ file }}": {{ reason }}',
             ['file' => $file, 'reason' => $reason],
             $previous
+        );
+    }
+
+    public static function requirementsNotMet(UnmetRequirement ...$violations): self
+    {
+        $violationDetails = array_map(
+            fn (UnmetRequirement $v) => \sprintf(
+                'App "%s" - Requirement "%s": %s',
+                $v->appName,
+                $v->requirementName,
+                $v->actionableResolution
+            ),
+            $violations
+        );
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_REQUIREMENTS_NOT_MET,
+            'The app requirements are not met: {{ violations }}',
+            ['violations' => implode('; ', $violationDetails)]
         );
     }
 }

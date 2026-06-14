@@ -17,14 +17,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
 class SystemLanguageChangedSubscriberTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
     private Context $context;

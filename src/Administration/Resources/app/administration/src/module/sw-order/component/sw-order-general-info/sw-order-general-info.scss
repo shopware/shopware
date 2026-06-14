@@ -43,7 +43,7 @@
 
         &-last-changed {
             flex-shrink: 0;
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
 
             &-user,
             &-time {

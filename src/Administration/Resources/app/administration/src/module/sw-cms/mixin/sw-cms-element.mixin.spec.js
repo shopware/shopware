@@ -38,6 +38,9 @@ async function createWrapper(element = defaultElement, routeName = '') {
 }
 
 describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
+    let initialLanguageId;
+    let initialLanguage;
+
     beforeAll(async () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/text');
@@ -51,17 +54,26 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     beforeEach(() => {
+        initialLanguageId = Shopware.Store.get('context').api.languageId;
+        initialLanguage = Shopware.Store.get('context').api.language;
         Shopware.Store.get('swCategoryDetail').$reset();
         Shopware.Store.get('swProductDetail').$reset();
     });
 
     afterEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('context').api.languageId = initialLanguageId;
+        Shopware.Store.get('context').api.language = initialLanguage;
     });
 
     it('initElementConfig is properly merging configs from various sources', async () => {
         Shopware.Store.get('swCategoryDetail').category = {
             id: '12345',
+            slotConfig: {
+                [defaultElement.id]: {
+                    overrideFromCategory: 'bar',
+                },
+            },
             translations: [
                 {
                     languageId: Shopware.Context.api.systemLanguageId,
@@ -80,6 +92,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                 source: 'static',
                 value: expect.any(String),
             },
+            overrideFromCategory: 'bar',
             verticalAlign: {
                 source: 'static',
                 value: null,
@@ -91,7 +104,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
         /**
          * Existing properties on the element will remain ("overrideFromProp").
-         * Properties on the content-entity, that dont exist in the config are ignored ("overrideFromCategory").
+         * Content overrides on the entity are applied on top, even if the key does not exist in the default config.
          */
         expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
     });
@@ -174,5 +187,84 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         Shopware.Store.get('swProductDetail').product = mockProduct;
 
         expect(wrapper.vm.product).toMatchObject(mockProduct);
+    });
+
+    it('should apply inherited slotConfig from the explicit parent language', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: {
+                        [defaultElement.id]: {
+                            content: {
+                                source: 'static',
+                                value: 'inherited override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        expect(wrapper.vm.element.config.content).toStrictEqual({
+            source: 'static',
+            value: 'inherited override',
+        });
+    });
+
+    it('should not apply system language slotConfig without explicit parent language', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    slotConfig: {
+                        [defaultElement.id]: {
+                            content: {
+                                source: 'static',
+                                value: 'system override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: null };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        expect(wrapper.vm.element.config.content.value).not.toBe('system override');
+    });
+
+    it('should not mutate the parent language slotConfig when editing inherited content', async () => {
+        const parentSlotConfig = {
+            [defaultElement.id]: {
+                content: {
+                    source: 'static',
+                    value: 'default - override',
+                },
+            },
+        };
+
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: parentSlotConfig,
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        wrapper.vm.element.config.content.value = 'child custom content';
+
+        expect(parentSlotConfig[defaultElement.id].content.value).toBe('default - override');
     });
 });

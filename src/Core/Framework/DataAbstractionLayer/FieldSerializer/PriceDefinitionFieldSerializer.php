@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -151,25 +151,31 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($decoded);
             case AbsolutePriceDefinition::TYPE:
-                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
-
-                return new AbsolutePriceDefinition($decoded['price'], $rules);
+                return new AbsolutePriceDefinition($decoded['price'], $this->decodeFilter($decoded));
             case CurrencyPriceDefinition::TYPE:
-                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
-
                 $collection = new PriceCollection();
                 foreach ($decoded['price'] as $price) {
                     $collection->add(new Price($price['currencyId'], (float) $price['net'], (float) $price['gross'], (bool) $price['linked']));
                 }
 
-                return new CurrencyPriceDefinition($collection, $rules);
+                return new CurrencyPriceDefinition($collection, $this->decodeFilter($decoded));
             case PercentagePriceDefinition::TYPE:
-                $rules = \array_key_exists('filter', $decoded) && $decoded['filter'] !== null ? $this->decodeRule($decoded['filter']) : null;
-
-                return new PercentagePriceDefinition($decoded['percentage'], $rules);
+                return new PercentagePriceDefinition($decoded['percentage'], $this->decodeFilter($decoded));
         }
 
         throw new InvalidPriceFieldTypeException($decoded['type']);
+    }
+
+    /**
+     * @param array<string, mixed> $decoded
+     */
+    private function decodeFilter(array $decoded): ?Rule
+    {
+        if (!\array_key_exists('filter', $decoded) || $decoded['filter'] === null) {
+            return null;
+        }
+
+        return $this->decodeRule($decoded['filter']);
     }
 
     private function validateRules(array $data, string $basePath): ConstraintViolationList
@@ -189,7 +195,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     $basePath . '/_name'
                 )
             );
-        } else {
+        } elseif ($this->ruleConditionRegistry->has($type)) {
             $rule = $this->ruleConditionRegistry->getRuleInstance($type);
             // do not validate container
             if (!$rule instanceof Container) {
@@ -198,6 +204,15 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $violationList->addAll($this->validateConsistence($basePath, $validations, $data));
             }
         }
+        // else: the condition type is not registered (e.g. a plugin contributing it was uninstalled).
+        // We keep the stored payload verbatim instead of rejecting the whole write, so existing orders
+        // stay readable, versionable and recalculable. Such conditions are substituted with an
+        // UnknownConditionRule on decode (see decodeRule()) and evaluate to false at calculation time.
+        //
+        // Trade-off: a clone/version write re-emits the original payload as plain JSON, so it is
+        // indistinguishable here from a *new* write that references an unknown condition name (e.g. via
+        // the Admin API). Both are therefore accepted rather than rejected. This is intentional - orders
+        // must stay writable - and safe, because an unknown condition is fail-closed (matches nothing).
 
         if (\array_key_exists('rules', $data)) {
             foreach ($data['rules'] as $rule) {
@@ -211,7 +226,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private function decodeRule(array $rule): Rule
     {
         if (!$this->ruleConditionRegistry->has($rule['_name'])) {
-            throw new ConditionTypeNotFound($rule['_name']);
+            // Keep the full original payload so a plain re-encode (read, order versioning, normal save)
+            // preserves it verbatim and it is restored once the contributing plugin is reinstalled.
+            // Recalculation recomputes the cart and may drop a discount whose placeholder matches nothing.
+            return new UnknownConditionRule($rule);
         }
 
         $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['_name']);

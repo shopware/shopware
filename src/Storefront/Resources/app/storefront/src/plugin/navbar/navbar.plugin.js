@@ -109,7 +109,7 @@ export default class NavbarPlugin extends Plugin {
                 return;
             }
 
-            if (topLevelLink.parentNode.classList.contains('dropdown')) {
+            if (topLevelLink.classList.contains('dropdown-toggle')) {
                 this._navigateTo(topLevelLink.href);
             }
         }

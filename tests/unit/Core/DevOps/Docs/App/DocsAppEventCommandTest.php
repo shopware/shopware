@@ -59,6 +59,7 @@ class DocsAppEventCommandTest extends TestCase
         $this->command = new DocsAppEventCommandTestable(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            [],
             $this->twig,
             self::$testFilePath
         );
@@ -86,6 +87,7 @@ class DocsAppEventCommandTest extends TestCase
         $command = new DocsAppEventCommand(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            [],
             $this->twig
         );
         static::assertStringEndsWith(
@@ -96,8 +98,8 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testExecuteReturnsSuccess(): void
     {
-        $mockOutput = $this->getMockBuilder(OutputInterface::class)->getMock();
-        $mockInput = $this->getMockBuilder(InputInterface::class)->getMock();
+        $mockOutput = static::createStub(OutputInterface::class);
+        $mockInput = static::createStub(InputInterface::class);
 
         $this->twig->method('getLoader')->willReturn(new ArrayLoader());
         $this->twig->method('render')->willReturn('rendered content');
@@ -207,10 +209,11 @@ class DocsAppEventCommandTestable extends DocsAppEventCommand
     public function __construct(
         BusinessEventCollector $businessEventCollector,
         HookableEventCollector $hookableEventCollector,
+        iterable $hookableEventDescribers,
         Environment $twig,
         private readonly string $testPath
     ) {
-        parent::__construct($businessEventCollector, $hookableEventCollector, $twig);
+        parent::__construct($businessEventCollector, $hookableEventCollector, $hookableEventDescribers, $twig);
     }
 
     public function getListEventPath(): string

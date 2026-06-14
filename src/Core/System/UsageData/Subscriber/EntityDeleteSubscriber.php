@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -79,23 +80,22 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
     private function storeDeletions(string $entityName, array $primaryKeys, \DateTimeImmutable $now): void
     {
         try {
-            $this->connection->beginTransaction();
-            $statement = $this->connection->prepare($this->getInsertQuery()->getSQL());
+            RetryableTransaction::transactional($this->connection, function () use ($entityName, $primaryKeys, $now): void {
+                $statement = $this->connection->prepare($this->getInsertQuery()->getSQL());
 
-            $formattedNow = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                $formattedNow = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-            foreach ($primaryKeys as $primaryKey) {
-                $statement->bindValue(':id', Uuid::randomBytes(), ParameterType::BINARY);
-                $statement->bindValue(':entity_name', $entityName);
-                $statement->bindValue(':entity_ids', \json_encode($primaryKey, \JSON_THROW_ON_ERROR));
-                $statement->bindValue(':deleted_at', $formattedNow);
+                foreach ($primaryKeys as $primaryKey) {
+                    $statement->bindValue(':id', Uuid::randomBytes(), ParameterType::BINARY);
+                    $statement->bindValue(':entity_name', $entityName);
+                    $statement->bindValue(':entity_ids', \json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+                    $statement->bindValue(':deleted_at', $formattedNow);
 
-                $statement->executeStatement();
-            }
-
-            $this->connection->commit();
+                    $statement->executeStatement();
+                }
+            });
         } catch (DbalException) {
-            $this->connection->rollBack();
+            // usage data failure should not stop execution
         }
     }
 

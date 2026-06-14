@@ -35,6 +35,7 @@
         <service id="Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute" public="true">
             <argument type="service" id="sales_channel.landing_page.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder"/>
             <argument type="service" id="Shopware\Core\Content\LandingPage\SalesChannel\SalesChannelLandingPageDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>

@@ -14,7 +14,7 @@
             size="small"
             class="sw-customer-detail__created-by-admin-label"
         >
-            {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
+            {{ $t('sw-customer.detail.labelCreatedByAdmin') }}
         </sw-label>
     </template>
     {% endblock %}
@@ -25,7 +25,7 @@
         <span v-if="!editMode">
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('customer.editor'),
                     showOnDisabledElements: true
                 }"
@@ -35,7 +35,7 @@
                 size="default"
                 @click.prevent="onActivateCustomerEditMode"
             >
-                {{ $tc('sw-customer.detail.buttonEdit') }}
+                {{ $t('sw-customer.detail.buttonEdit') }}
             </mt-button>
         </span>
         {% endblock %}
@@ -48,7 +48,7 @@
                 size="default"
                 @click="onAbortButtonClick"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -62,7 +62,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
-                {{ $tc('sw-customer.detail.buttonSave') }}
+                {{ $t('sw-customer.detail.buttonSave') }}
             </sw-button-process>
             {% endblock %}
         </span>
@@ -89,12 +89,12 @@
                     {% block sw_customer_detail_content_customer_group_registration_content %}
                     <div class="sw-customer-detail__customer-registration-alert-text">
                         {% block sw_customer_detail_content_customer_group_registration_message %}
-                        {{ $tc('sw-customer.customerGroupRegistration.alert', {name: this.customer.requestedGroup.translated.name }, 0) }}
+                        {{ $t('sw-customer.customerGroupRegistration.alert', {name: this.customer.requestedGroup.translated.name }, 0) }}
                         <p
                             v-if="!customer.active"
                             class="sw-customer-detail__customer-registration-alert-hint"
                         >
-                            {{  $tc('sw-customer.customerGroupRegistration.customerInactiveMessage') }}
+                            {{  $t('sw-customer.customerGroupRegistration.customerInactiveMessage') }}
                         </p>
                         {% endblock %}
                     </div>
@@ -105,7 +105,7 @@
                             size="small"
                             @click="declineCustomerGroupRegistration"
                         >
-                            {{ $tc('sw-customer.customerGroupRegistration.decline') }}
+                            {{ $t('sw-customer.customerGroupRegistration.decline') }}
                         </mt-button>
 
                         <mt-button
@@ -113,7 +113,7 @@
                             size="small"
                             @click="acceptCustomerGroupRegistration"
                         >
-                            {{ $tc('sw-customer.customerGroupRegistration.accept') }}
+                            {{ $t('sw-customer.customerGroupRegistration.accept') }}
                         </mt-button>
                         {% endblock %}
                     </div>
@@ -131,10 +131,10 @@
                 <sw-tabs-item
                     class="sw-customer-detail__tab-general"
                     :route="generalRoute"
-                    :title="$tc('sw-customer.detail.tabGeneral')"
+                    :title="$t('sw-customer.detail.tabGeneral')"
                     :has-error="swCustomerDetailBaseError"
                 >
-                    {{ $tc('sw-customer.detail.tabGeneral') }}
+                    {{ $t('sw-customer.detail.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -142,9 +142,9 @@
                 <sw-tabs-item
                     class="sw-customer-detail__tab-addresses"
                     :route="addressesRoute"
-                    :title="$tc('sw-customer.detail.tabAddresses')"
+                    :title="$t('sw-customer.detail.tabAddresses')"
                 >
-                    {{ $tc('sw-customer.detail.tabAddresses') }}
+                    {{ $t('sw-customer.detail.tabAddresses') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -152,9 +152,9 @@
                 <sw-tabs-item
                     class="sw-customer-detail__tab-order"
                     :route="ordersRoute"
-                    :title="$tc('sw-customer.detailBase.labelOrderCard')"
+                    :title="$t('sw-customer.detailBase.labelOrderCard')"
                 >
-                    {{ $tc('sw-customer.detailBase.labelOrderCard') }}
+                    {{ $t('sw-customer.detailBase.labelOrderCard') }}
                 </sw-tabs-item>
                 {% endblock %}
 

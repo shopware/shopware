@@ -142,7 +142,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }

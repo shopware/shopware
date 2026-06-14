@@ -64,7 +64,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -82,7 +82,7 @@ class EntityDefinitionQueryHelper
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
     /**
@@ -95,14 +95,7 @@ class EntityDefinitionQueryHelper
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::tableExists instead')
         );
 
-        return !empty(
-            $connection->fetchOne(
-                'SHOW TABLES LIKE :table',
-                [
-                    'table' => $table,
-                ]
-            )
-        );
+        return $connection->fetchOne('SHOW TABLES LIKE :table', ['table' => $table]) !== false;
     }
 
     /**

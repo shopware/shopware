@@ -1,21 +1,21 @@
 {% block sw_customer_detail_order_card %}
 <mt-card
     class="sw-customer-detail-order"
-    :title="$tc('sw-customer.detailOrder.ordersTitle')"
+    :title="$t('sw-customer.detailOrder.ordersTitle')"
     position-identifier="sw-customer-detail-order"
 >
     {% block sw_customer_detail_order_card_toolbar %}
     <template #toolbar>
         <sw-card-filter
             v-if="(orders && orders.total > 0) || term"
-            :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
+            :placeholder="$t('sw-customer.detailOrder.searchbarPlaceholder')"
             @sw-card-filter-term-change="onChange"
         >
             <template #filter>
                 {% block sw_customer_detail_order_add_button %}
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('order.creator'),
                         showOnDisabledElements: true
                     }"
@@ -29,7 +29,7 @@
                         name="regular-plus-circle-s"
                         size="16px"
                     />
-                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                    {{ $t('sw-customer.detailOrder.buttonCreateOrder') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -82,7 +82,7 @@
                     class="sw-order-list-order-view-action"
                     :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
                 >
-                    {{ $tc('sw-customer.detailOrder.columnContextOpenOrder') }}
+                    {{ $t('sw-customer.detailOrder.columnContextOpenOrder') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -96,13 +96,13 @@
         <mt-empty-state
             icon="solid-shopping-bag"
             :headline="emptyTitle"
-            :description="$tc('sw-customer.detailOrder.emptySubline')"
+            :description="$t('sw-customer.detailOrder.emptySubline')"
         >
             <template #button>
                 {% block sw_customer_detail_order_card_grid_empty_state_action %}
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('order.creator'),
                         showOnDisabledElements: true
                     }"
@@ -112,7 +112,7 @@
                     variant="secondary"
                     @click="navigateToCreateOrder"
                 >
-                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                    {{ $t('sw-customer.detailOrder.buttonCreateOrder') }}
                 </mt-button>
                 {% endblock %}
             </template>

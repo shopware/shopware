@@ -49,6 +49,7 @@ class ContentTest extends TestCase
             'product_export',
             'property',
             'cms',
+            'mail',
             'mail_template',
             'delivery_time',
             'import_export',
@@ -58,9 +59,12 @@ class ContentTest extends TestCase
             'landing_page',
             'flow',
             'measurement_system',
+            'shared',
+            'product_export_tracking.php',
             'media_test',
             'installed.json',
             'MailerConfigurationCompilerPass.php',
+            'ThumbnailProcessorCompilerPass.php',
         ];
 
         static::assertSame($expectedResources, $resourceFiles);

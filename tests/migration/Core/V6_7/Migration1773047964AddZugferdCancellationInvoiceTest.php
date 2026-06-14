@@ -25,6 +25,11 @@ class Migration1773047964AddZugferdCancellationInvoiceTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773047964, (new Migration1773047964AddZugferdCancellationInvoice())->getCreationTimestamp());
+    }
+
     public function testAddZugferdCancellationInvoice(): void
     {
         $existing = $this->connection->fetchOne(

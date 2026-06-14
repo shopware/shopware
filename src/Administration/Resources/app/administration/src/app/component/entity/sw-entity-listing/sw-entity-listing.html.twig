@@ -16,7 +16,7 @@
     @click="onClickBulkEdit"
     @keydown.enter="onClickBulkEdit"
 >
-    {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
+    {{ $t('global.sw-bulk-edit-modal.bulkEdit') }}
 </a>
 {% endblock %}
 
@@ -29,7 +29,7 @@
     @click="showBulkDeleteModal = true"
     @keydown.enter="showBulkDeleteModal = true"
 >
-    {{ $tc('global.default.delete') }}
+    {{ $t('global.default.delete') }}
 </a>
 {% endblock %}
 
@@ -61,7 +61,7 @@
     v-if="showBulkDeleteModal"
     class="sw-entity-listing__confirm-bulk-delete-modal"
     variant="small"
-    :title="$tc('global.default.warning')"
+    :title="$t('global.default.warning')"
     @modal-close="showBulkDeleteModal = false"
 >
     <p class="sw-data-grid__confirm-bulk-delete-text">
@@ -69,7 +69,7 @@
             name="bulk-modal-delete-confirm-text"
             v-bind="{ selectionCount }"
         >
-            {{ $tc('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount) }}
+            {{ $t('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount) }}
         </slot>
     </p>
 
@@ -80,7 +80,7 @@
                 variant="secondary"
                 @click="showBulkDeleteModal = false"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
         </slot>
 
@@ -94,7 +94,7 @@
                 :is-loading="isBulkLoading"
                 @click="deleteItems"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
         </slot>
     </template>
@@ -115,7 +115,7 @@
     <sw-context-menu-item
         v-if="detailRoute"
         v-tooltip="{
-            message: $tc('sw-privileges.tooltip.warning'),
+            message: $t('sw-privileges.tooltip.warning'),
             disabled: allowEdit || allowView,
             showOnDisabledElements: true,
             zIndex: 9050,
@@ -139,7 +139,7 @@
 >
     <sw-context-menu-item
         v-tooltip.bottom="{
-            message: $tc('sw-privileges.tooltip.warning'),
+            message: $t('sw-privileges.tooltip.warning'),
             disabled: allowDelete,
             showOnDisabledElements: true,
             zIndex: 9050,
@@ -149,7 +149,7 @@
         variant="danger"
         @click="showDelete(item.id)"
     >
-        {{ $tc('global.default.delete') }}
+        {{ $t('global.default.delete') }}
     </sw-context-menu-item>
 </slot>
 {% endblock %}
@@ -157,7 +157,7 @@
 {% block sw_data_grid_slot_action_modals %}
 <sw-modal
     v-if="deleteId === item.id"
-    :title="$tc('global.default.warning')"
+    :title="$t('global.default.warning')"
     variant="small"
     @modal-close="closeModal"
 >
@@ -166,7 +166,7 @@
             name="delete-confirm-text"
             v-bind="{ item }"
         >
-            {{ $tc('global.entity-components.deleteMessage') }}
+            {{ $t('global.entity-components.deleteMessage') }}
         </slot>
     </p>
 
@@ -184,7 +184,7 @@
                     variant="secondary"
                     @click="closeModal"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
             </slot>
 
@@ -197,7 +197,7 @@
                     size="small"
                     @click="deleteItem(item.id)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
             </slot>
         </slot>

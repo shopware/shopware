@@ -5,11 +5,14 @@
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
 
+const originalNavigatorLanguage = navigator.language;
+const originalNavigatorLanguages = navigator.languages;
+
 async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
             },
             provide: {
                 loginService: {
@@ -92,8 +95,22 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    beforeAll(() => {
-        useSystem().locales.value.push(navigator.language);
+    beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+
+        localStorage.removeItem('sw-admin-locale');
+
+        Object.defineProperty(window.navigator, 'language', {
+            value: originalNavigatorLanguage,
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: originalNavigatorLanguages,
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('en-GB');
     });
 
     it('should show a warning if the login is rate limited', async () => {
@@ -143,6 +160,27 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
     });
 
+    it('should use the system fallback locale when browser and english fallbacks are unavailable', async () => {
+        Object.defineProperty(window.navigator, 'language', {
+            value: 'es-ES',
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: ['es-ES'],
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('de-DE');
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale('de-DE');
+
+        const setAdminLocaleSpy = jest.spyOn(Shopware.Store.get('session'), 'setAdminLocale');
+
+        await createWrapper(true);
+
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('de-DE');
+    });
+
     it('should redirect for SSO login', async () => {
         const navigateToSpy = jest.fn();
         const component = await wrapTestComponent('sw-login-login', { sync: true });
@@ -151,7 +189,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         mount(component, {
             global: {
                 mocks: {
-                    $tc: (...args) => JSON.stringify([...args]),
+                    $t: (...args) => JSON.stringify([...args]),
                 },
                 provide: {
                     loginService: {

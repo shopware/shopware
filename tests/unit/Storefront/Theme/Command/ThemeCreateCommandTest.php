@@ -105,15 +105,13 @@ class ThemeCreateCommandTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string, string>>
+     * @return iterable<string, array<string, string>>
      */
-    public static function commandFailsWithWrongNameDataProvider(): array
+    public static function commandFailsWithWrongNameDataProvider(): iterable
     {
-        return [
-            ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'],
-            ['name' => 'Abc', 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'],
-            ['name' => '1Digital', 'expectedMessage' => 'The name must start with an uppercase character'],
-        ];
+        yield 'lowercase theme name fails validation' => ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'];
+        yield 'short theme name fails with length and character message' => ['name' => 'Abc', 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'];
+        yield 'theme name starting with a digit fails validation' => ['name' => '1Digital', 'expectedMessage' => 'The name must start with an uppercase character'];
     }
 
     private function removeTheme(): bool

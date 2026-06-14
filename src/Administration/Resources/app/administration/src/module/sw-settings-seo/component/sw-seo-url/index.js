@@ -109,7 +109,7 @@ export default {
         },
 
         seoUrlHelptext() {
-            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+            return this.isHeadlessSalesChannel ? this.$t('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
         },
 
         hasAdditionalSeoSlot() {

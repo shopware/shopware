@@ -6,12 +6,12 @@
     height: 100%;
 
     &__groupElement {
-        margin-bottom: 12px;
+        margin-bottom: var(--scale-size-12);
     }
 
     .sw-product-variants-delivery-listing-mode {
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background-color: var(--color-gray-100);
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
 
         .sw-field.sw-field--radio {
             margin: 0;
@@ -23,11 +23,11 @@
 
             .sw-field__radio-option {
                 width: 50%;
-                padding: 25px 35px;
+                padding: var(--scale-size-26) calc(var(--scale-size-30) + var(--scale-size-6));
                 margin: 0;
 
                 &:nth-child(2) {
-                    border-left: 1px solid $color-gray-300;
+                    border-left: var(--scale-size-1) solid var(--color-gray-300);
                 }
             }
         }
@@ -46,14 +46,14 @@
 
         .sw-product-variants-delivery-listing-config-options {
             width: 50%;
-            padding: 30px;
+            padding: var(--scale-size-30);
 
             &:nth-child(2) {
-                border-left: 1px solid $color-gray-300;
+                border-left: var(--scale-size-1) solid var(--color-gray-300);
             }
 
             &.is--disabled {
-                background-color: $color-gray-100;
+                background-color: var(--color-gray-100);
             }
         }
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\RevocationRequest\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +18,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(RevocationRequestFormValidationFactory::class)]
 class RevocationRequestFormValidationFactoryTest extends TestCase
 {
     use KernelTestBehaviour;

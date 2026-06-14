@@ -3,14 +3,14 @@
 
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
-        <h2>{{ salutationFilter(customer, $tc('sw-customer.general.newCustomer')) }}</h2>
+        <h2>{{ salutationFilter(customer, $t('sw-customer.general.newCustomer')) }}</h2>
     </template>
     {% endblock %}
 
     {% block sw_customer_create_language_switch %}
     <template #language-switch>
         <sw-language-switch
-            v-tooltip="{ message: $tc('sw-customer.general.tooltipLanguageSwitch') }"
+            v-tooltip="{ message: $t('sw-customer.general.tooltipLanguageSwitch') }"
             disabled
         />
     </template>
@@ -27,7 +27,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-customer.detail.buttonSave') }}
+            {{ $t('sw-customer.detail.buttonSave') }}
         </sw-button-process>
     </template>
     {% endblock %}
@@ -37,7 +37,7 @@
         <sw-card-view>
             {% block sw_customer_create_base_form %}
             <mt-card
-                :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                :title="$t('sw-customer.detailBase.labelAccountCard')"
                 position-identifier="sw-customer-create-base-form"
             >
                 <sw-customer-base-form
@@ -51,7 +51,7 @@
 
             {% block sw_customer_create_adress_form %}
             <mt-card
-                :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+                :title="$t('sw-customer.detailBase.labelAddressesCard')"
                 position-identifier="sw-customer-create-address-form"
             >
                 <sw-customer-address-form

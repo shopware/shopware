@@ -74,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 return {
                     value,
-                    label: this.$te(snippetKey) ? this.$tc(snippetKey) : value,
+                    label: this.$te(snippetKey) ? this.$t(snippetKey) : value,
                 };
             });
         },

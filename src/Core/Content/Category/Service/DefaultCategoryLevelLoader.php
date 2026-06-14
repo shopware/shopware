@@ -71,6 +71,9 @@ class DefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInterface
             }
 
             $parentId = $category->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
             $counts[$parentId] ??= 0;
             ++$counts[$parentId];
         }

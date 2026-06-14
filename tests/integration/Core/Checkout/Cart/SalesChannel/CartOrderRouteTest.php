@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -40,7 +38,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[CoversClass(CartOrderRoute::class)]
 #[Group('store-api')]
 #[Package('checkout')]
 class CartOrderRouteTest extends TestCase

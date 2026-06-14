@@ -17,7 +17,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-login-recovery', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $router: { push: jest.fn() },
             },
             provide: {

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -35,7 +36,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         parent::setUp();
         $this->addTestPluginToKernel(
-            __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestPlugin',
+            __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/SwagTestPlugin',
             'SwagTestPlugin'
         );
     }
@@ -74,7 +75,7 @@ class PluginLifecycleSubscriberTest extends TestCase
             __DIR__,
             $pluginConfigurationFactory,
             $handler,
-            $this->createMock(ThemeLifecycleService::class)
+            $this->createMock(ThemeLifecycleService::class),
         );
 
         $subscriber->pluginPostActivate($event);
@@ -116,7 +117,7 @@ class PluginLifecycleSubscriberTest extends TestCase
             __DIR__,
             $pluginConfigurationFactory,
             $handler,
-            $this->createMock(ThemeLifecycleService::class)
+            $this->createMock(ThemeLifecycleService::class),
         );
 
         $subscriber->pluginPostActivate($event);
@@ -145,7 +146,7 @@ class PluginLifecycleSubscriberTest extends TestCase
             __DIR__,
             $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
             $handler,
-            $this->createMock(ThemeLifecycleService::class)
+            $this->createMock(ThemeLifecycleService::class),
         );
 
         $subscriber->pluginPostActivate($event);
@@ -175,16 +176,50 @@ class PluginLifecycleSubscriberTest extends TestCase
             __DIR__,
             $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
             $handler,
-            $this->createMock(ThemeLifecycleService::class)
+            $this->createMock(ThemeLifecycleService::class),
         );
 
         $subscriber->pluginUpdate($event);
+    }
+
+    public function testPostUpdateDoesNothingWhenAssetBuildingIsDisabled(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $event = new PluginPostUpdateEvent(
+            $this->getPlugin(),
+            new UpdateContext(
+                $this->createMock(Plugin::class),
+                $context,
+                '6.1.0',
+                '1.0.0',
+                $this->createMock(MigrationCollection::class),
+                '1.0.1'
+            )
+        );
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->expects($this->never())->method('getConfigurations');
+
+        $handler = $this->createMock(ThemeLifecycleHandler::class);
+        $handler->expects($this->never())->method('refreshAllActiveThemeImportMaps');
+
+        $subscriber = new PluginLifecycleSubscriber(
+            $registry,
+            __DIR__,
+            $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
+            $handler,
+            $this->createMock(ThemeLifecycleService::class),
+        );
+
+        $subscriber->pluginPostUpdate($event);
     }
 
     private function getPlugin(): PluginEntity
     {
         return (new PluginEntity())
             ->assign([
+                'name' => 'SwagTestPlugin',
                 'path' => (new \ReflectionClass(SwagTestPlugin::class))->getFileName(),
                 'baseClass' => SwagTestPlugin::class,
             ]);

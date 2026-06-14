@@ -7,14 +7,18 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\App\Privileges\PrivilegesTest;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Permission\PrivilegesTest
+ * @codeCoverageIgnore
+ *
+ * @see PrivilegesTest
  */
 #[Package('framework')]
 class Privileges
@@ -238,7 +242,8 @@ class Privileges
      */
     private function writePrivileges(string $appId, array $privileges, array $requestedPrivileges, Context $context): void
     {
-        $this->connection->transactional(
+        RetryableTransaction::transactional(
+            $this->connection,
             static function (Connection $transaction) use ($appId, $privileges, $requestedPrivileges): void {
                 $transaction->executeStatement(
                     <<<'SQL'

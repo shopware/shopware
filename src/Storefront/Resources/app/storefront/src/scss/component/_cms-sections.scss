@@ -13,11 +13,15 @@ General styling for cms sections
     }
 
     .boxed {
+        // No replacement mixin available for .container that also respects all breakpoint container max-widths.
+        // Mixin make-container() only provides the padding but no max-widths. Keep alias .boxed.
+        // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
         @extend .container;
     }
 
     .full-width {
-        @extend .container-fluid;
+        @include make-container();
+        --#{$prefix}gutter-x: 0;
     }
 
     .cms-section-sidebar {

@@ -16,7 +16,7 @@
             v-model="priceForCurrency.gross"
             class="sw-price-field__gross"
             :allow-empty="allowEmpty"
-            :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
+            :placeholder="$t('sw-product.priceForm.placeholderPriceGross')"
             :label="labelGross"
             :help-text="grossHelpText"
             :validation="validation"
@@ -70,7 +70,7 @@
             v-model="priceForCurrency.net"
             class="sw-price-field__net"
             :allow-empty="allowEmpty"
-            :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
+            :placeholder="$t('sw-product.priceForm.placeholderPriceNet')"
             :label="labelNet"
             :help-text="netHelpText"
             :validation="validation"
@@ -108,7 +108,7 @@
             @click.prevent="showModal = true"
             @keydown.enter.prevent="showModal = true"
         >
-            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+            {{ $t('sw-product.detailBase.linkMaintainCurrencyPrices') }}
             <mt-icon
                 name="regular-long-arrow-right"
                 size="16px"

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
@@ -95,6 +96,55 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
 
         $pass = new ContentLayoutAssignableCompilerPass();
         $pass->process($container);
+    }
+
+    /**
+     * @param list<mixed> $sourceArguments
+     * @param array<string, Definition> $extraDefinitions
+     */
+    #[DataProvider('skipsUnresolvableArgumentsProvider')]
+    #[TestDox('skips unresolvable arguments and resolves the entity type from a valid later reference')]
+    public function testSkipsUnresolvableArguments(array $sourceArguments, array $extraDefinitions): void
+    {
+        [$container, $resolverDefinition] = $this->createContainerWithResolver();
+        $container->setDefinition(ProductContentLayoutDefinition::class, new Definition(ProductContentLayoutDefinition::class));
+
+        foreach ($extraDefinitions as $serviceId => $definition) {
+            $container->setDefinition($serviceId, $definition);
+        }
+
+        $sourceDefinition = new Definition(\stdClass::class);
+        $sourceDefinition->setArguments($sourceArguments);
+        $sourceDefinition->addTag('content_system.context_factory');
+        $container->setDefinition('product_source', $sourceDefinition);
+
+        $pass = new ContentLayoutAssignableCompilerPass();
+        $pass->process($container);
+
+        static::assertSame(['product'], $resolverDefinition->getArgument(0));
+    }
+
+    /**
+     * @return iterable<string, array{list<mixed>, array<string, Definition>}>
+     */
+    public static function skipsUnresolvableArgumentsProvider(): iterable
+    {
+        $validReference = new Reference(ProductContentLayoutDefinition::class);
+
+        yield 'non-reference argument is skipped' => [
+            ['plain-string-argument', $validReference],
+            [],
+        ];
+
+        yield 'reference to an undefined service is skipped' => [
+            [new Reference('undefined.service'), $validReference],
+            [],
+        ];
+
+        yield 'reference to a definition without a class is skipped' => [
+            [new Reference('classless.service'), $validReference],
+            ['classless.service' => new Definition()],
+        ];
     }
 
     /**

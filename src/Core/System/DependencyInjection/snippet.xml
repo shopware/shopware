@@ -90,7 +90,6 @@
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="shopware.translation.client"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
-            <argument type="service" id="validator"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader">

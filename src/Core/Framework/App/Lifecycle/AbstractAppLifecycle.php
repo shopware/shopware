@@ -32,5 +32,5 @@ abstract class AbstractAppLifecycle
     /**
      * @param array{id: string} $app
      */
-    abstract public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void;
+    abstract public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void;
 }

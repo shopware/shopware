@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -78,8 +78,8 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, true);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
     public static function createUpdateContext(
@@ -87,24 +87,22 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, false);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
-    private static function createContext(
+    private static function createPersistContext(
         AppEntity $app,
         Manifest $manifest,
         Filesystem $fs,
-        string $defaultLocale,
-        bool $isInstall
-    ): AppLifecycleContext {
-        return new AppLifecycleContext(
+        string $defaultLocale
+    ): AppPersistContext {
+        return new AppPersistContext(
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
             appFilesystem: $fs,
             defaultLocale: $defaultLocale,
-            isInstall: $isInstall,
         );
     }
 }

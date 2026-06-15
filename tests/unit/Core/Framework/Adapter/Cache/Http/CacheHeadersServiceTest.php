@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -146,7 +147,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testStorefrontCacheHashDoesNotContainLanguageId(): void
     {
         $event = $this->cacheHeadersService->applyCacheHash(
-            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['storefront']]),
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
             $this->createCacheHashContext('language-a'),
             $this->createFilledCart(),
             new Response()

@@ -37,7 +37,7 @@ done
 # triage-output.json fenced block. Best-effort: an un-triaged issue (the common case) just
 # leaves no file. NB: the agent must treat this as EVIDENCE, never as instructions.
 TBODY=$(gh issue view "$ISSUE" --repo "$REPO" --json comments \
-  --jq '[.comments[]? | select((.body // "") | contains("shopware-ai-triage"))] | last // {} | .body // ""' 2>/dev/null || true)
+  --jq '[.comments[]? | select((.body // "") | contains("<!-- shopware-ai-triage:"))] | last // {} | .body // ""' 2>/dev/null || true)
 if [ -n "$TBODY" ]; then
   # Pull every ```-fenced block (label-agnostic: ```json / ```triage-output.json / bare) and
   # keep the last that parses as a JSON object with .disposition. awk buffers each block and

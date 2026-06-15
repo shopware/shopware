@@ -3604,6 +3604,49 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(greenWrapper.find('.red-case').exists()).toBe(false);
             expect(greenWrapper.find('.fallback-case').exists()).toBe(false);
         });
+
+        it('continues a restarted native condition chain in a later block extension', async () => {
+            ComponentFactory.register('native-block-legacy-restarted-chain', {
+                data() {
+                    return {
+                        showPrimary: false,
+                        showSecondary: false,
+                        showRestart: true,
+                        showRestartAlternative: false,
+                    };
+                },
+                template: `
+                    <div>
+                        <sw-block name="restarted_condition_block" :data="{}">
+                            <div v-if="showPrimary" class="primary">primary</div>
+                        </sw-block>
+
+                        <sw-block extends="restarted_condition_block">
+                            <sw-block-parent />
+                            <div v-else-if="showSecondary" class="secondary">secondary</div>
+
+                            <div class="chain-boundary"></div>
+
+                            <div v-if="showRestart" class="restart">restart</div>
+                            <div v-else-if="showRestartAlternative" class="alternative">alternative</div>
+                        </sw-block>
+
+                        <sw-block extends="restarted_condition_block">
+                            <sw-block-parent />
+                            <div v-else class="restart-fallback">restart fallback</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            const wrapper = await mountNativeBlockComponent('native-block-legacy-restarted-chain');
+
+            expect(wrapper.find('.primary').exists()).toBe(false);
+            expect(wrapper.find('.secondary').exists()).toBe(false);
+            expect(wrapper.find('.restart').exists()).toBe(true);
+            expect(wrapper.find('.alternative').exists()).toBe(false);
+            expect(wrapper.find('.restart-fallback').exists()).toBe(false);
+        });
     });
 
     describe('should handle errors accordingly', () => {

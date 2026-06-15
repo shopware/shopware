@@ -112,7 +112,6 @@ jobs:
           import json
           import os
           import re
-          import secrets
           import shutil
           import subprocess
           import zipfile
@@ -176,7 +175,7 @@ jobs:
                   print(f'No Playwright HTML report found in artifact {artifact["name"]}, skipping.')
                   continue
 
-              s3_report_path = f'{os.environ["REPORT_PREFIX"]}/{os.environ["WORKFLOW_RUN_ID"]}-{os.environ["WORKFLOW_RUN_ATTEMPT"]}/{sanitize(artifact["name"])}-{secrets.token_hex(16)}'
+              s3_report_path = f'{os.environ["REPORT_PREFIX"]}/{os.environ["WORKFLOW_RUN_ID"]}-{os.environ["WORKFLOW_RUN_ATTEMPT"]}/{sanitize(artifact["name"])}-{artifact["id"]}'
 
               subprocess.run(
                   ['aws', 's3', 'cp', str(report_root), f's3://{os.environ["S3_BUCKET"]}/{s3_report_path}/', '--recursive'],

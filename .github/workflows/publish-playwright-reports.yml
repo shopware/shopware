@@ -41,7 +41,7 @@ jobs:
               const runId = Number(runIdInput);
 
               if (!Number.isInteger(runId) || runId <= 0) {
-                core.setFailed(`Invalid workflow_run_id input: ${runIdInput}`);
+                core.setFailed(`Invalid workflow_run_id: ${runIdInput}`);
                 return;
               }
 
@@ -109,7 +109,13 @@ jobs:
               },
             );
 
-            if (artifacts.length === 0) {
+            // Keep these patterns aligned with the ATS/update artifact names that bundle playwright-report/.
+            const candidatePatterns = [/^ats(?:-changed)?-/, /^playwright-report-update-/];
+            const artifactsWithReports = artifacts.filter((artifact) =>
+              candidatePatterns.some((pattern) => pattern.test(artifact.name))
+            );
+
+            if (artifactsWithReports.length === 0) {
               core.notice('No workflow artifacts found for the source run.');
               core.setOutput('found', 'false');
               return;
@@ -119,7 +125,7 @@ jobs:
 
             const metadata = [];
 
-            for (const artifact of artifacts) {
+            for (const artifact of artifactsWithReports) {
               const download = await github.rest.actions.downloadArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

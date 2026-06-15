@@ -264,10 +264,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         $filesystemPath = ltrim($relativeMetaPath, '/');
 
         try {
-            if (!$this->assetFilesystem->fileExists($filesystemPath)) {
-                return null;
-            }
-
             $raw = $this->assetFilesystem->read($filesystemPath);
 
             return $raw !== '' ? $raw : null;

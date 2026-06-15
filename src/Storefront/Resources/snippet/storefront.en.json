@@ -465,6 +465,7 @@
     "cartItemInfoId": "Product number:",
     "addPromotionLabel": "Promo code",
     "addPromotionPlaceholder": "Enter promo code...",
+    "addPromotionApplyAction": "Apply promo code",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",

@@ -106,5 +106,21 @@
             <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
             <min>1</min>
         </input-field>
+
+        <input-field type="text">
+            <name>beforeListPriceSnippetKey</name>
+            <label>Snippet key for content before list prices</label>
+            <label lang="de-DE">Snippet-Key für Inhalt vor Streichpreisen</label>
+            <helpText>The content of this translation snippet is displayed before every list price in the Storefront. Leave empty to display nothing.</helpText>
+            <helpText lang="de-DE">Der Inhalt dieses Übersetzungs-Snippets wird in der Storefront vor jedem Streichpreis angezeigt. Leer lassen, um nichts anzuzeigen.</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>afterListPriceSnippetKey</name>
+            <label>Snippet key for content after list prices</label>
+            <label lang="de-DE">Snippet-Key für Inhalt nach Streichpreisen</label>
+            <helpText>The content of this translation snippet is displayed after every list price in the Storefront. Leave empty to display nothing.</helpText>
+            <helpText lang="de-DE">Der Inhalt dieses Übersetzungs-Snippets wird in der Storefront nach jedem Streichpreis angezeigt. Leer lassen, um nichts anzuzeigen.</helpText>
+        </input-field>
     </card>
 </config>

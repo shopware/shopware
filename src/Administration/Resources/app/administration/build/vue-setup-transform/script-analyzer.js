@@ -993,6 +993,46 @@ function analyzeShopwareSetupScript(script, options) {
     const emitsMacroCall = emitsMacroCalls[0];
     const slotsMacroCall = slotsMacroCalls[0];
     const optionsMacroStatement = defineOptionsStatements[0];
+    const propsMacroRange = propsMacroCall ? getNodeRange(propsMacroCall, scriptOffset) : null;
+    const emitsMacroRange = emitsMacroCall ? getNodeRange(emitsMacroCall, scriptOffset) : null;
+    const slotsMacroRange = slotsMacroCall ? getNodeRange(slotsMacroCall, scriptOffset) : null;
+    const optionsMacroRange = optionsMacroStatement ? getNodeRange(optionsMacroStatement, scriptOffset) : null;
+    const propsMacro = propsMacroRange
+        ? {
+              code: script.slice(propsMacroRange.start, propsMacroRange.end),
+              macroName: isWithDefaultsCall(propsMacroCall) ? 'withDefaults' : 'defineProps',
+              ranges: [
+                  propsMacroRange,
+              ],
+          }
+        : null;
+    const emitsMacro = emitsMacroRange
+        ? {
+              code: script.slice(emitsMacroRange.start, emitsMacroRange.end),
+              macroName: 'defineEmits',
+              ranges: [
+                  emitsMacroRange,
+              ],
+          }
+        : null;
+    const slotsMacro = slotsMacroRange
+        ? {
+              code: script.slice(slotsMacroRange.start, slotsMacroRange.end),
+              macroName: 'defineSlots',
+              ranges: [
+                  slotsMacroRange,
+              ],
+          }
+        : null;
+    const optionsMacro = optionsMacroRange
+        ? {
+              code: script.slice(optionsMacroRange.start, optionsMacroRange.end),
+              macroName: 'defineOptions',
+              ranges: [
+                  optionsMacroRange,
+              ],
+          }
+        : null;
 
     return {
         source: script,
@@ -1004,58 +1044,10 @@ function analyzeShopwareSetupScript(script, options) {
         importedBindings,
         publicEntries,
         overrideEntries,
-        propsMacro:
-            propsMacroCall
-                ? {
-                      code: script.slice(
-                          getNodeRange(propsMacroCall, scriptOffset).start,
-                          getNodeRange(propsMacroCall, scriptOffset).end,
-                      ),
-                      macroName: isWithDefaultsCall(propsMacroCall) ? 'withDefaults' : 'defineProps',
-                      ranges: [
-                          getNodeRange(propsMacroCall, scriptOffset),
-                      ],
-                  }
-                : null,
-        emitsMacro:
-            emitsMacroCall
-                ? {
-                      code: script.slice(
-                          getNodeRange(emitsMacroCall, scriptOffset).start,
-                          getNodeRange(emitsMacroCall, scriptOffset).end,
-                      ),
-                      macroName: 'defineEmits',
-                      ranges: [
-                          getNodeRange(emitsMacroCall, scriptOffset),
-                      ],
-                  }
-                : null,
-        slotsMacro:
-            slotsMacroCall
-                ? {
-                      code: script.slice(
-                          getNodeRange(slotsMacroCall, scriptOffset).start,
-                          getNodeRange(slotsMacroCall, scriptOffset).end,
-                      ),
-                      macroName: 'defineSlots',
-                      ranges: [
-                          getNodeRange(slotsMacroCall, scriptOffset),
-                      ],
-                  }
-                : null,
-        optionsMacro:
-            optionsMacroStatement
-                ? {
-                      code: script.slice(
-                          getNodeRange(optionsMacroStatement, scriptOffset).start,
-                          getNodeRange(optionsMacroStatement, scriptOffset).end,
-                      ),
-                      macroName: 'defineOptions',
-                      ranges: [
-                          getNodeRange(optionsMacroStatement, scriptOffset),
-                      ],
-                  }
-                : null,
+        propsMacro,
+        emitsMacro,
+        slotsMacro,
+        optionsMacro,
         overridePrivateAliases: new Map(),
     };
 }

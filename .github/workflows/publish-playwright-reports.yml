@@ -41,7 +41,7 @@ jobs:
               const runId = Number(runIdInput);
 
               if (!Number.isInteger(runId) || runId <= 0) {
-                core.setFailed(`Invalid workflow_run_id: '${runIdInput}' (must be a positive integer)`);
+                core.setFailed(`Invalid workflow_run_id: '${runIdInput}' (must be a positive integer). Workflow cannot proceed without a valid run ID.`);
                 return;
               }
 
@@ -109,10 +109,10 @@ jobs:
               },
             );
 
-            // ATS acceptance artifacts and the update artifact bundle playwright-report/ alongside test-results/.
-            const candidatePatterns = [/^ats(?:-changed)?-/, /^playwright-report-update-/];
+            // ATS acceptance artifacts and playwright-report-update-* bundle playwright-report/ alongside test-results/.
+            const artifactPrefixes = ['ats-', 'playwright-report-update-'];
             const artifactsWithReports = artifacts.filter((artifact) =>
-              candidatePatterns.some((pattern) => pattern.test(artifact.name))
+              artifactPrefixes.some((prefix) => artifact.name.startsWith(prefix))
             );
 
             if (artifactsWithReports.length === 0) {

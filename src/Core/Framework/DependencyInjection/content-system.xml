@@ -232,6 +232,41 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver"/>
         </service>
 
+        <!-- Element Type System -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
+            <argument key="$directories" type="collection"/>
+            <tag name="content_system.type_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+            <tag name="content_system.type_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry">
+            <argument type="tagged_iterator" tag="content_system.type_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry"
+                 decorates="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry.inner"/>
+            <argument type="service" id="cache.system"/>
+        </service>
+
         <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator">
             <!-- $entityTypes set by ContentLayoutAssignableCompilerPass -->
             <argument type="collection"/>

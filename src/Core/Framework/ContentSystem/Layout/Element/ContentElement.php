@@ -17,6 +17,17 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * Content element aggregate root with tree traversal.
  *
+ * Lifecycle: ContentElement is a mutable object whose properties map changes between stages:
+ *
+ * - **Storage** (database JSON): properties contains only static/config values (scalars).
+ *   FQCN-typed values are absent — their loading instructions live in $dataRequirements
+ *   and $contextDefinitions.
+ * - **Post-hydration** (runtime): properties contains static values AND loaded data merged.
+ *   Data is written via setProperty($key, $data) using the data requirement's key.
+ *   Context resolution writes via the same mechanism.
+ * - **API output** (jsonSerialize): properties is serialized as a single merged map.
+ *   Skeleton output strips properties entirely.
+ *
  * @final
  */
 #[Package('framework')]
@@ -87,9 +98,6 @@ class ContentElement extends Struct
         return array_merge($this->structProperties, $this->nonStructProperties);
     }
 
-    /**
-     * Returns null when the property doesn't exist
-     */
     public function getProperty(string $key): mixed
     {
         if (\array_key_exists($key, $this->structProperties)) {
@@ -108,6 +116,14 @@ class ContentElement extends Struct
         return \array_key_exists($key, $this->structProperties) || \array_key_exists($key, $this->nonStructProperties);
     }
 
+    /**
+     * Called at different lifecycle stages:
+     * - Design time: static config values (persisted)
+     * - Hydration: loaded data stored under the data requirement key
+     * - Context resolution: context data stored under the property alias or consumer key
+     *
+     * After hydration, there is no distinction between these sources.
+     */
     public function setProperty(string $key, mixed $value): void
     {
         if ($value instanceof Struct) {
@@ -267,7 +283,7 @@ class ContentElement extends Struct
     {
         $data = parent::jsonSerialize();
 
-        // Remove internal structCache from output (should not be exposed via API)
+        // Remove internal property stores from output (should not be exposed via API)
         unset(
             $data['structProperties'],
             $data['nonStructProperties'],

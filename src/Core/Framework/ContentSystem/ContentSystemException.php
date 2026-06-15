@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @final
@@ -34,6 +35,11 @@ class ContentSystemException extends HttpException
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
     public const UNRESOLVABLE_TYPE_CLASS = 'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS';
+    public const ELEMENT_TYPE_DUPLICATE = 'CONTENT_SYSTEM__ELEMENT_TYPE_DUPLICATE';
+    public const ELEMENT_TYPES_INVALID = 'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID';
+    public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
+    public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
+    public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -260,6 +266,62 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ROUTES_ALREADY_LOADED,
             'Content system routes are already loaded.'
+        );
+    }
+
+    public static function elementTypeDuplicate(string $name, string $existingSource, string $newSource): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::ELEMENT_TYPE_DUPLICATE,
+            'Element type "{{ name }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
+            ['name' => $name, 'existingSource' => $existingSource, 'newSource' => $newSource]
+        );
+    }
+
+    public static function elementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function elementTypesInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPES_INVALID,
+            'Element type validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    public static function elementTypeInvalidFilename(string $segment, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPE_INVALID_FILENAME,
+            'Invalid element type filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['segment' => $segment, 'file' => $file]
+        );
+    }
+
+    public static function elementTypeNotFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ELEMENT_TYPE_NOT_FOUND,
+            'Element type "{{ name }}" not found',
+            ['name' => $name]
         );
     }
 }

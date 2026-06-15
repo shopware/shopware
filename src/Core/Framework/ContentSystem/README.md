@@ -54,7 +54,7 @@ Domain-specific content system classes live in their owning domain module — no
 - **Event/Listener/** - Pre/post hydration pipeline transformations
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
-- **Layout/** - Element tree, entities, field types, scaffolding
+- **Layout/** - Element tree, entities, field types, scaffolding, element type system
 - **Output/** - Response formatting and partial rendering
 - **SalesChannel/** - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation

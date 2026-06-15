@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
@@ -16,11 +17,13 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
@@ -90,10 +93,6 @@ class InfoControllerTest extends TestCase
         $workerConfig = $data['adminWorker'];
         static::assertArrayHasKey('enableAdminWorker', $workerConfig);
         static::assertTrue($workerConfig['enableAdminWorker']);
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertArrayHasKey('enableQueueStatsWorker', $workerConfig);
-            static::assertTrue($workerConfig['enableQueueStatsWorker']);
-        }
         static::assertArrayHasKey('enableNotificationWorker', $workerConfig);
         static::assertTrue($workerConfig['enableNotificationWorker']);
         static::assertArrayHasKey('transports', $workerConfig);
@@ -185,6 +184,51 @@ class InfoControllerTest extends TestCase
         static::assertSame('bar', $data['foo']);
     }
 
+    #[DataProvider('returnsFirstMigrationDateProvider')]
+    #[TestDox('returns first migration date as $_dataName')]
+    public function testConfigReturnsFirstMigrationDate(?string $migrationDate, mixed $expected): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn($migrationDate);
+
+        $data = $this->getConfigData();
+
+        static::assertSame($expected, $data['settings']['firstMigrationDate']);
+    }
+
+    /**
+     * @return iterable<string, array{string|null, string|null}>
+     */
+    public static function returnsFirstMigrationDateProvider(): iterable
+    {
+        yield 'null when migration info returns null' => [null, null];
+        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('includes queue stats worker flag when legacy feature is inactive')]
+    public function testConfigIncludesQueueStatsWorkerWhenLegacyFlagInactive(): void
+    {
+        $data = $this->getConfigData();
+
+        static::assertTrue($data['adminWorker']['enableQueueStatsWorker']);
+    }
+
+    #[TestDox('returns disabled message stats when stats service is not enabled')]
+    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(enabled: false)
+        );
+
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['enabled']);
+        static::assertNull($data['stats']);
+    }
+
+    #[TestDox('preserves floating-point precision in message stats response')]
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
         $this->statsService->method('getStats')->willReturn(
@@ -205,53 +249,70 @@ class InfoControllerTest extends TestCase
         static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
-    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
+    #[TestDox('returns empty types array when no element types are registered')]
+    public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
     {
-        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
 
-        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
         $content = $response->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('settings', $data);
-        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
-        static::assertNull($data['settings']['firstMigrationDate']);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([], $data['types']);
     }
 
-    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
+    #[TestDox('returns content system element types as JSON')]
+    public function testContentSystemElementTypes(): void
     {
-        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+        $spec = new ContentSystemElementTypeSpecification(
+            name: 'Sw:Alert',
+            label: 'Alert',
+            description: 'Alert component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Alert summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
 
-        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        static::assertSame(200, $response->getStatusCode());
         $content = $response->getContent();
         static::assertIsString($content);
 
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('settings', $data);
-        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
-        static::assertNull($data['settings']['firstMigrationDate']);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('types', $data);
+        static::assertCount(1, $data['types']);
+        static::assertSame('Sw:Alert', $data['types'][0]['name']);
+        static::assertSame('core', $data['types'][0]['source']);
     }
 
-    public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
+    #[TestDox('returns empty data loader types when no loaders are registered')]
+    public function testContentSystemDataLoaderTypesReturnsEmptyWhenNoLoaders(): void
     {
-        $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
+        $schemaGenerator = static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class);
+        $schemaGenerator->method('getSchema')->willReturn(['sources' => []]);
 
-        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
+        $response = $controller->contentSystemDataLoaderTypes();
+
         $content = $response->getContent();
         static::assertIsString($content);
-
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('settings', $data);
-        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
-        static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+        static::assertSame(['sources' => []], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     #[TestDox('returns content system data loader type schema as JSON')]
-    public function testContentSystemDataLoaderTypeSchema(): void
+    public function testContentSystemDataLoaderTypes(): void
     {
         $expected = [
             'sources' => [
@@ -291,10 +352,28 @@ class InfoControllerTest extends TestCase
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function getConfigData(): array
+    {
+        $content = $this->createController()
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+
+        static::assertIsString($content);
+
+        return json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow'], ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null, ?ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator = null): InfoController
-    {
+    private function createController(
+        array $adminWorkerTransports = ['slow'],
+        ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null,
+        ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
+        ?ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator = null,
+    ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
             'shopware.filesystem.private_allowed_extensions' => false,
@@ -324,6 +403,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $entitySchemaGenerator ?? static::createStub(ContentLayoutAssignableEntitySchemaGenerator::class),
             null,
         );

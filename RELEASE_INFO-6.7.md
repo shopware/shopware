@@ -2,6 +2,11 @@
 
 ## Storefront
 
+### Storefront cache hash no longer varies by language
+
+The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.
+Store API requests still include the language id in the cache hash, as the same Store API URL can return different languages via the `sw-language-id` header.
+
 ### Central extension point for content before/after list prices
 
 A new template `@Storefront/storefront/component/product/list-price-affix.html.twig` is rendered inside every list price display (product box, product detail buy widget, advanced pricing table). It replaces the deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets as the single place to inject content around list prices.
@@ -90,6 +95,11 @@ Empty values fall back to the default request context instead of being forwarded
 Whitespace-only values are still rejected as malformed IDs.
 
 For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
+
+### Administration users receive default runtime privileges
+
+Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
+The Administration role editor also adds these privileges to newly generated role permission sets.
 
 ## Core
 

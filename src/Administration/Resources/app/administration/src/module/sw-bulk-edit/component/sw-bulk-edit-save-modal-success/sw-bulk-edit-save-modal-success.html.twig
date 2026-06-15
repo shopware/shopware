@@ -30,7 +30,7 @@
             v-if="hasSkippedDocuments"
             :title="$t('sw-bulk-edit.modal.success.documentGenerationSkipped', {
                 count: documentGenerationResult.skipped
-            })"
+            }, documentGenerationResult.skipped)"
             variant="info"
             class="sw-bulk-edit-save-modal-success__info-document-generation"
         />
@@ -44,7 +44,7 @@
             <mt-banner
                 :title="$t('sw-bulk-edit.modal.success.documentGenerationFailed', {
                     count: documentGenerationResult.failed
-                })"
+                }, documentGenerationResult.failed)"
                 variant="critical"
                 class="sw-bulk-edit-save-modal-success__warning-document-generation"
             />
@@ -52,7 +52,6 @@
             <sw-bulk-edit-document-generation-failed-list
                 v-if="hasFailedDocumentRows"
                 :rows="failedDocumentRows"
-                :items-per-page="5"
             />
         </template>
     </div>

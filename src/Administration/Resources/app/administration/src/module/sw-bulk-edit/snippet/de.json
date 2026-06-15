@@ -262,8 +262,8 @@
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "Keine Dokumente vorhanden",
-        "documentGenerationSkipped": "{count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
-        "documentGenerationFailed": "{count} Dokumente konnten nicht erzeugt werden.",
+        "documentGenerationSkipped": "{count} Dokument wurde nicht erzeugt, weil es bereits existiert. | {count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
+        "documentGenerationFailed": "{count} Dokument konnte nicht erzeugt werden. | {count} Dokumente konnten nicht erzeugt werden.",
         "failedDocuments": {
           "columnOrder": "Bestellung",
           "columnDocumentType": "Dokumenttyp",

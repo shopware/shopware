@@ -129,10 +129,14 @@ export default {
         documentTypeLabels() {
             const documentTypes = Array.isArray(this.downloadOrderDocuments?.value) ? this.downloadOrderDocuments.value : [];
             const labels = {
-                invoice: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice'),
-                storno: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.storno'),
-                credit_note: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote'),
-                delivery_note: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote'),
+                [DOCUMENT_TYPES.INVOICE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice'),
+                [DOCUMENT_TYPES.CANCELLATION_INVOICE]: this.$t(
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.storno',
+                ),
+                [DOCUMENT_TYPES.CREDIT_NOTE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote'),
+                [DOCUMENT_TYPES.DELIVERY_NOTE]: this.$t(
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote',
+                ),
             };
 
             documentTypes.forEach((documentType) => {

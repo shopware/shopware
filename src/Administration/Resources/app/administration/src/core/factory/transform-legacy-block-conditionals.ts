@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { LegacyConditionRenderOrderSegment } from 'src/app/composables/use-block-context';
+import type { LegacyConditionRenderOrderSegment } from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 
 const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;

@@ -4,7 +4,7 @@
  */
 
 import { createShimSlot, resetShimSlotState } from 'src/app/component/structure/sw-block-override/shim/create-shim-slot';
-import useBlockContext from 'src/app/composables/use-block-context';
+import useLegacyConditionContext from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
 
 function makeEntry(overrides: Partial<BlockEntry> = {}): BlockEntry {
@@ -106,7 +106,7 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
         });
 
         it('reserves legacy condition cases from block entry metadata', () => {
-            const { legacyIf, legacyConditionContext, clearLegacyConditionChain } = useBlockContext();
+            const { legacyIf, legacyConditionContext, clearLegacyConditionChain } = useLegacyConditionContext();
             const chainKey = '42:reservation_chain';
             const slot = createShimSlot(
                 makeEntry({
@@ -152,7 +152,7 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
         });
 
         it('clears reserved legacy condition chains on unmount', () => {
-            const { legacyIf, legacyConditionContext } = useBlockContext();
+            const { legacyIf, legacyConditionContext } = useLegacyConditionContext();
             const chainKey = '43:clear_chain';
             const slot = createShimSlot(
                 makeEntry({

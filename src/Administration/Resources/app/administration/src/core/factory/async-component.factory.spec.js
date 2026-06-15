@@ -3295,8 +3295,10 @@ describe('core/factory/async-component.factory.ts', () => {
             const swBlock = (await import('src/app/component/structure/sw-block-override/sw-block/index')).default;
             const swBlockParent = (await import('src/app/component/structure/sw-block-override/sw-block-parent/index'))
                 .default;
-            const useBlockContext = (await import('src/app/composables/use-block-context')).default;
-            const { legacyIf, legacyElseIf, legacyElse } = useBlockContext();
+            const useLegacyConditionContext = (
+                await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')
+            ).default;
+            const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
             const getLegacyBlockConditionKey = (vm, blockName) => {
                 const componentUid = vm.$?.uid;

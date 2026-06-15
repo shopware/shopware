@@ -29,14 +29,17 @@ describe('use-block-context', () => {
 
     beforeEach(async () => {
         useBlockContext = (await import('./use-block-context')).default;
+        const useLegacyConditionContext = (
+            await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')
+        ).default;
 
-        const blockContext = useBlockContext();
-        legacyIf = blockContext.legacyIf;
-        legacyElseIf = blockContext.legacyElseIf;
-        legacyElse = blockContext.legacyElse;
-        reserveLegacyConditionCases = blockContext.reserveLegacyConditionCases;
-        clearLegacyConditionChain = blockContext.clearLegacyConditionChain;
-        legacyConditionContext = blockContext.legacyConditionContext;
+        const legacyConditionBlockContext = useLegacyConditionContext();
+        legacyIf = legacyConditionBlockContext.legacyIf;
+        legacyElseIf = legacyConditionBlockContext.legacyElseIf;
+        legacyElse = legacyConditionBlockContext.legacyElse;
+        reserveLegacyConditionCases = legacyConditionBlockContext.reserveLegacyConditionCases;
+        clearLegacyConditionChain = legacyConditionBlockContext.clearLegacyConditionChain;
+        legacyConditionContext = legacyConditionBlockContext.legacyConditionContext;
     });
 
     afterEach(() => {

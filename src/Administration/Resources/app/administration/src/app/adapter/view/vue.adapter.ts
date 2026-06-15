@@ -53,13 +53,13 @@ import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
-import useBlockContext from '../../composables/use-block-context';
-import type { LegacyConditionCaseOptions } from '../../composables/use-block-context';
+import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
+import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
-const { legacyIf, legacyElseIf, legacyElse } = useBlockContext();
+const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
 function getLegacyBlockConditionKey(instance: ComponentPublicInstance, chainKey: string): string {
     const componentUid = instance.$?.uid;

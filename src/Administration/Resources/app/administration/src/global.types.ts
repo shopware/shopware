@@ -30,7 +30,7 @@ import type ShopIdChangeService from 'src/core/service/api/shop-id-change.servic
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
-import type { LegacyConditionCaseOptions } from 'src/app/composables/use-block-context';
+import type { LegacyConditionCaseOptions } from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 import type {
     Store,
     mapActions as mapVuexActions,

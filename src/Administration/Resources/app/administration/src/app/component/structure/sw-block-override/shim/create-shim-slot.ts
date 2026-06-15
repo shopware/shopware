@@ -14,9 +14,9 @@
  */
 
 import { h, shallowRef, type Slot } from 'vue';
-import useBlockContext from 'src/app/composables/use-block-context';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
+import useLegacyConditionContext from './legacy-condition-context';
 
 type DataScope = Record<string | symbol, unknown>;
 type DataScopeWithAppContext = DataScope & {
@@ -102,7 +102,7 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     // reused shim instance even when the host component proxy identity is stable.
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
-    const { reserveLegacyConditionCases, clearLegacyConditionChain } = useBlockContext();
+    const { reserveLegacyConditionCases, clearLegacyConditionChain } = useLegacyConditionContext();
     /** Drops persisted chain state when the owning shim component is removed. */
     const clearExtensionChain = () => {
         getReservedLegacyConditionChainKeys(dataScopeRef.value, entry).forEach((chainKey) => {

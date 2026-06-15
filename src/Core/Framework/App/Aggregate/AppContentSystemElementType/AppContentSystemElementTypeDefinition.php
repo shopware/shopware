@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType;
 
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -56,7 +55,6 @@ class AppContentSystemElementTypeDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new JsonField('schema', 'schema'))->addFlags(new Required()),
             (new StringField('hash', 'hash', 64))->addFlags(new Required()),
-            new BoolField('active', 'active'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
     }

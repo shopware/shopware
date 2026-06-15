@@ -95,7 +95,7 @@ Type names must be globally unique across core, bundles, plugins, and apps. Dupl
 
 ### App Lifecycle
 
-When an app is activated or deactivated, `ElementTypeStateService` toggles the `active` column on its element types and invalidates the registry cache. If the app has no element types, both the DB write and cache invalidation are skipped. `DatabaseTypeLoader` queries `WHERE active = 1`, so deactivated types are excluded from the registry on the next request.
+App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its element types from the registry on the next request without any extra write. Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
 
 Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type examples)
 

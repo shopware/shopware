@@ -78,7 +78,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
                 $filters = $criteria->getFilters();
                 static::assertCount(2, $filters);
                 static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('active', $filters[0]->getField());
+                static::assertSame('app.active', $filters[0]->getField());
                 static::assertInstanceOf(NotFilter::class, $filters[1]);
                 static::assertArrayHasKey('app', $criteria->getAssociations());
 
@@ -93,7 +93,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $payload = $repo->upserts[0][0];
 
         static::assertSame('DemoApp:Hero', $payload['name']);
-        static::assertTrue($payload['active']);
         static::assertSame($this->ids->get('app'), $payload['appId']);
         static::assertIsString($payload['id']);
         static::assertIsArray($payload['schema']);
@@ -237,26 +236,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertSame([], $repo->deletes);
     }
 
-    #[TestDox('upserts with active false when app is inactive')]
-    public function testUpsertsWithActiveFalseWhenAppIsInactive(): void
-    {
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new AppContentSystemElementTypeCollection(),
-            new AppContentSystemElementTypeCollection(),
-        ]);
-
-        $persister = $this->buildPersister($repo);
-        $persister->persist($this->buildContext($this->buildRealFilesystem(), active: false));
-
-        static::assertCount(1, $repo->upserts);
-        $payload = $repo->upserts[0][0];
-
-        static::assertSame('DemoApp:Hero', $payload['name']);
-        static::assertFalse($payload['active']);
-        static::assertSame($this->ids->get('app'), $payload['appId']);
-    }
-
     #[TestDox('deletes all existing types and invalidates cache when app ships no YAML files')]
     public function testDeletesAllTypesWhenYamlRemoved(): void
     {
@@ -308,7 +287,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $orphanedEntity->setName('DemoApp:Hero');
         $orphanedEntity->setHash('hash');
         $orphanedEntity->setSchema([]);
-        $orphanedEntity->setActive(false);
         $orphanedEntity->setAppId($this->ids->create('deleted-app'));
 
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
@@ -440,7 +418,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $inactiveEntity->setName('DemoApp:Hero');
         $inactiveEntity->setHash('hash');
         $inactiveEntity->setSchema([]);
-        $inactiveEntity->setActive(false);
         $inactiveEntity->setAppId($this->ids->create('other-app'));
 
         $otherApp = new AppEntity();
@@ -501,12 +478,11 @@ class ContentSystemElementTypePersisterTest extends TestCase
         );
     }
 
-    private function buildContext(Filesystem $filesystem, bool $active = true): AppPersistContext
+    private function buildContext(Filesystem $filesystem): AppPersistContext
     {
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
         $app->setName('DemoApp');
-        $app->setActive($active);
 
         return new AppPersistContext(
             manifest: static::createStub(Manifest::class),

@@ -45,7 +45,7 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
             'SELECT t.name, t.schema, a.name as app_name
              FROM app_content_system_element_type t
              INNER JOIN app a ON t.app_id = a.id
-             WHERE t.active = 1'
+             WHERE a.active = 1'
         );
 
         $resolvedSpecificationDtos = [];

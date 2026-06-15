@@ -14,7 +14,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - **Loaders**: `Loader/AbstractContentSystemElementTypeLoader` (base contract), `Loader/YamlTypeLoader` (filesystem), `Loader/DatabaseTypeLoader` (app types, prod only), `Loader/ElementTypeNameResolver` (path → name)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
 - **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)
-- **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`, `App/ContentSystem/ElementTypeStateService` (activate/deactivate lifecycle)
+- **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`, `App/Lifecycle/Handler/ContentSystemElementTypeLifecycleHandler` (persists app types on install/update)
 - **Collision Detection**: `Validation/ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types)
 - **Type Map Bridge**: `Schema/ContentSystemDataLoaderTypeMap` — connects FQCNs to loader sources
 
@@ -31,4 +31,4 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - `TranslatableTypeValidator` enforces: `translatable` only on `string` type
 - `TypedEnumValidator` enforces: `enum` only on primitives, must be list, values match declared type
 - `TypedDefaultValidator` enforces: `default` only on primitives, value matches declared type
-- `DatabaseTypeLoader` queries `WHERE active = 1` — deactivated app types excluded from registry. `ElementTypeCollisionDetector` also considers inactive types to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.
+- `DatabaseTypeLoader` joins `app` and queries `WHERE app.active = 1` — types of deactivated apps excluded from registry (no denormalized `active` column on the type). `ElementTypeCollisionDetector` also considers types of inactive apps to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.

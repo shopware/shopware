@@ -146,8 +146,8 @@ class ContentSystemElementTypePersister
     private function loadInactiveAppTypeNames(string $excludeAppId, Context $context): array
     {
         $criteria = new Criteria();
-        // Inactive types from other apps still occupy name space; exclude the current app's own deactivated types
-        $criteria->addFilter(new EqualsFilter('active', false));
+        // Types of inactive apps still occupy name space; exclude the current app's own types
+        $criteria->addFilter(new EqualsFilter('app.active', false));
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('appId', $excludeAppId)]));
         $criteria->addAssociation('app');
 
@@ -201,7 +201,6 @@ class ContentSystemElementTypePersister
                 'name' => $resolvedDto->name,
                 'schema' => $normalized,
                 'hash' => $hash,
-                'active' => $context->app->isActive(),
                 'appId' => $context->app->getId(),
             ];
         }

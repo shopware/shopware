@@ -26,14 +26,12 @@ class Migration1773442200AddAppContentSystemElementTypeTable extends MigrationSt
                 `name` VARCHAR(255) NOT NULL,
                 `schema` JSON NOT NULL,
                 `hash` VARCHAR(64) NOT NULL,
-                `active` TINYINT(1) NOT NULL DEFAULT 1,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
                 -- name is globally unique across all apps; DB safety net for application-level checkCollision()
                 UNIQUE KEY `uniq.app_content_system_element_type.name` (`name`),
                 KEY `fk.app_content_system_element_type.app_id` (`app_id`),
-                KEY `idx.app_content_system_element_type.app_id_active` (`app_id`, `active`),
                 CONSTRAINT `fk.app_content_system_element_type.app_id`
                     FOREIGN KEY (`app_id`) REFERENCES `app` (`id`)
                     ON DELETE CASCADE ON UPDATE CASCADE

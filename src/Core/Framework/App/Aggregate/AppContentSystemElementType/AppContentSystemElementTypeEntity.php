@@ -26,8 +26,6 @@ class AppContentSystemElementTypeEntity extends Entity
 
     protected string $hash;
 
-    protected bool $active = true;
-
     protected ?AppEntity $app = null;
 
     public function getAppId(): string
@@ -74,16 +72,6 @@ class AppContentSystemElementTypeEntity extends Entity
     public function setHash(string $hash): void
     {
         $this->hash = $hash;
-    }
-
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): void
-    {
-        $this->active = $active;
     }
 
     public function getApp(): ?AppEntity

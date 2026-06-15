@@ -16,6 +16,8 @@
                 :to="getLinkToProp"
                 :active-class="routerActiveClass"
                 :exact-active-class="routerActiveClass"
+                :aria-expanded="collapsibleOpen"
+                @click="toggleSubmenu"
                 @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
             >
                 {% block sw_admin_menu_item_icon_linked %}
@@ -37,24 +39,9 @@
                 </span>
                 {% endblock %}
 
-                {% block sw_admin_menu_item_router_arrow %}
-                <mt-icon
-                    v-if="entry.level > 1 && children.length"
-                    name="regular-chevron-right"
-                    size="8"
-                    class="sw-admin-menu__navigation-link-icon-arrow"
-                />
-                {% endblock %}
-
                 <slot name="additional-text"></slot>
-            </router-link>
 
-            <MtCollapsibleTrigger
-                type="button"
-                class="sw-admin-menu__navigation-submenu-expand"
-                :aria-label="getEntryLabel"
-                @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
-            >
+                {% block sw_admin_menu_item_expand_indicator_linked %}
                 <span class="sw-admin-menu__navigation-link-expand-icon-box">
                     <mt-icon
                         :name="expandIcon"
@@ -62,7 +49,8 @@
                         class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
                     />
                 </span>
-            </MtCollapsibleTrigger>
+                {% endblock %}
+            </router-link>
         </template>
 
         <MtCollapsibleTrigger
@@ -169,15 +157,6 @@
             </span>
             {% endblock %}
 
-            {% block sw_admin_menu_item_arrow_indicator_link %}
-            <mt-icon
-                v-if="entry.level > 1 && children.length"
-                name="regular-chevron-right"
-                size="8"
-                class="sw-admin-menu__navigation-link-icon-arrow"
-            />
-            {% endblock %}
-
             <slot name="additional-text"></slot>
         </router-link>
         {% endblock %}
@@ -207,15 +186,6 @@
             >
                 {{ getEntryLabel }}
             </span>
-            {% endblock %}
-
-            {% block sw_admin_menu_item_external_arrow_indicator %}
-            <mt-icon
-                v-if="entry.level > 1 && children.length"
-                name="regular-chevron-right"
-                size="8"
-                class="sw-admin-menu__navigation-link-icon-arrow"
-            />
             {% endblock %}
 
             <slot name="additional-text"></slot>
@@ -248,15 +218,6 @@
             {% endblock %}
 
             <slot name="additional-text"></slot>
-
-            {% block sw_admin_menu_item_arrow_indicator %}
-            <mt-icon
-                v-if="!sidebarExpanded && entry.level > 1 && children.length"
-                name="regular-chevron-right"
-                size="8"
-                class="sw-admin-menu__navigation-link-icon-arrow"
-            />
-            {% endblock %}
 
             {% block sw_admin_menu_item_expand_indicator %}
             <mt-icon

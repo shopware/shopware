@@ -347,8 +347,12 @@ export default {
             if (meta.$current) {
                 const matchingPaths = this.getEntryHierarchy(meta.$current.path);
                 const isInPath = matchingPaths.includes(path);
+                const isCurrentRoute = matchingPaths[0] === path;
 
-                if (isInPath && this.children.length > 0 && this.submenuVisuallyOpen) {
+                // Only drop the highlight when a descendant route is active and our
+                // submenu is open (the child is highlighted instead). When this entry's
+                // own page is the current route, keep it active.
+                if (isInPath && !isCurrentRoute && this.children.length > 0 && this.submenuVisuallyOpen) {
                     return false;
                 }
 
@@ -371,8 +375,11 @@ export default {
                 const isActive = compareTo
                     ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0
                     : false;
+                const isCurrentRoute = compareTo
+                    ? compareTo.replace(/-/g, '.').replace(/\.index/g, '') === path.replace(/\.index/g, '')
+                    : false;
 
-                if (isActive && this.children.length > 0 && this.submenuVisuallyOpen) {
+                if (isActive && !isCurrentRoute && this.children.length > 0 && this.submenuVisuallyOpen) {
                     return false;
                 }
 
@@ -411,6 +418,14 @@ export default {
             }
 
             return `admin-menu-sub-${index}`;
+        },
+
+        toggleSubmenu() {
+            if (!this.usesCollapsible) {
+                return;
+            }
+
+            this.onCollapsibleOpenUpdate(!this.collapsibleOpen);
         },
 
         onCollapsibleOpenUpdate(open) {

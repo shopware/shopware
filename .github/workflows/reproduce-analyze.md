@@ -173,12 +173,9 @@ insufficient. Read the checked-out repo for DAL schema / service signatures as n
 
 Write a complete, schema-valid **`analysis.json`** to the workspace root — plus the executor's
 script (`repro.spec.ts` for playwright, `ReproTest.php` for direct; none for http) and
-`fixtures.json` when the bug needs seeded entities — then **`upload_artifact`** the files you
-produced and ONLY those: call it ONCE with `filters` set to the exact filenames you wrote, e.g.
-`filters: ["analysis.json", "fixtures.json", "repro.spec.ts"]` (use `ReproTest.php` for a direct
-plan; omit `fixtures.json` if you seeded nothing). **NEVER pass a `path`, a directory, `.`, or a
-broad glob** — the workspace is a full Shopware checkout, and uploading it yields a ~45 MB
-artifact. HARD BUDGET: write a best-effort `analysis.json` within your first ~6
+`fixtures.json` when the bug needs seeded entities — then call **`upload_artifact`** on those
+files (only the files you produced — the `allowed-paths` config scopes the upload to them).
+HARD BUDGET: write a best-effort `analysis.json` within your first ~6
 tool calls; refine only if turns remain; NEVER finish without it on disk (a lower `confidence`
 is the escape valve, not more exploration).
 

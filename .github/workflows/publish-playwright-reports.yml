@@ -59,9 +59,19 @@ jobs:
               return;
             }
 
-            core.setOutput('run-attempt', String(workflowRun.run_attempt ?? ''));
+            if (!workflowRun.run_attempt) {
+              core.setFailed(`Workflow run ${workflowRun.id} is missing run_attempt.`);
+              return;
+            }
+
+            if (!workflowRun.html_url) {
+              core.setFailed(`Workflow run ${workflowRun.id} is missing html_url.`);
+              return;
+            }
+
+            core.setOutput('run-attempt', String(workflowRun.run_attempt));
             core.setOutput('run-id', String(workflowRun.id));
-            core.setOutput('run-url', workflowRun.html_url ?? '');
+            core.setOutput('run-url', workflowRun.html_url);
 
       - name: Check if trusted upload is configured
         id: check-aws-allowed
@@ -99,14 +109,8 @@ jobs:
               },
             );
 
-            const matches = artifacts.filter((artifact) =>
-              artifact.name.startsWith('ats-') ||
-              artifact.name.startsWith('ats-changed-') ||
-              artifact.name.startsWith('playwright-report-update-')
-            );
-
-            if (matches.length === 0) {
-              core.notice('No Playwright report artifacts found.');
+            if (artifacts.length === 0) {
+              core.notice('No workflow artifacts found for the source run.');
               core.setOutput('found', 'false');
               return;
             }
@@ -115,7 +119,7 @@ jobs:
 
             const metadata = [];
 
-            for (const artifact of matches) {
+            for (const artifact of artifacts) {
               const download = await github.rest.actions.downloadArtifact({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

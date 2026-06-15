@@ -261,7 +261,22 @@
         "description": "Mehrfachänderung abgeschlossen.",
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden",
+        "documentGenerationSkipped": "{count} Dokument wurde nicht erzeugt, weil es bereits existiert. | {count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
+        "documentGenerationFailed": "{count} Dokument konnte nicht erzeugt werden. | {count} Dokumente konnten nicht erzeugt werden.",
+        "failedDocuments": {
+          "columnOrder": "Bestellung",
+          "columnDocumentType": "Dokumenttyp",
+          "downloadResult": "Ergebnis herunterladen",
+          "downloadHeadline": "Fehlgeschlagene Dokumente",
+          "downloadFileName": "bulk-edit-dokumentenerstellung-ergebnis",
+          "documentTypes": {
+            "invoice": "Rechnung",
+            "storno": "Stornorechnung",
+            "creditNote": "Gutschrift",
+            "deliveryNote": "Lieferschein"
+          }
+        }
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",

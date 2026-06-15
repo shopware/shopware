@@ -241,6 +241,28 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
 
+    public function testResolveAdminSourceAddsDefaultUserPrivileges(): void
+    {
+        $user = $this->createUser([], false);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+
+        $source = $context->getSource();
+        foreach (AdminApiSource::DEFAULT_USER_PRIVILEGES as $privilege) {
+            static::assertTrue($source->isAllowed($privilege), $privilege);
+        }
+
+        static::assertFalse($source->isAllowed('product:read'));
+    }
+
     /**
      * @return iterable<string, array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
      */

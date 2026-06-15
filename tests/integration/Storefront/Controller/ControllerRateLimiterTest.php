@@ -67,11 +67,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Group('slow')]
 class ControllerRateLimiterTest extends TestCase
 {
+    use ClockSensitiveTrait;
     use CustomerTestTrait;
     use OrderFixture;
     use RateLimiterTestTrait;
     use StorefrontControllerTestBehaviour;
-    use ClockSensitiveTrait;
 
     private Context $context;
 

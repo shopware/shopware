@@ -191,7 +191,7 @@ runs:
           run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
@@ -199,7 +199,7 @@ runs:
               retention-days: 3
           continue-on-error: true
 
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
           if: ${{ always() && hashFiles(format('{0}/playwright-report/index.html', inputs.directory)) }}
           with:
               name: playwright-html-report-${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}${{ inputs.major && '-major' || '' }}

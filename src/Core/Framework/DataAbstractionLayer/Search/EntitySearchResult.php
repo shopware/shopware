@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -168,11 +169,321 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getAt() instead.
+     *
      * @return TElement|null
      */
     public function getAt(int $position)
     {
         return $this->entities->getAt($position);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->fill() instead.
+     *
+     * @param array<TElement> $entities
+     */
+    public function fill(array $entities): void
+    {
+        parent::fill($entities);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->set() instead.
+     *
+     * @param string|null $key
+     * @param TElement $element
+     */
+    public function set($key, $element): void
+    {
+        parent::set($key, $element);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->get() instead.
+     *
+     * @param string $key
+     *
+     * @return TElement|null
+     */
+    public function get($key)
+    {
+        return parent::get($key);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->count() or getTotal() instead.
+     */
+    public function count(): int
+    {
+        return parent::count();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->isEmpty() instead.
+     */
+    public function isEmpty(): bool
+    {
+        return parent::isEmpty();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getKeys() instead.
+     *
+     * @return list<string>
+     */
+    public function getKeys(): array
+    {
+        return parent::getKeys();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->has() instead.
+     *
+     * @param string $key
+     */
+    public function has($key): bool
+    {
+        return parent::has($key);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->map() instead.
+     *
+     * @template TMapped
+     *
+     * @param \Closure(TElement): TMapped $closure
+     *
+     * @return array<string, TMapped>
+     */
+    public function map(\Closure $closure): array
+    {
+        return parent::map($closure);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->reduce() instead.
+     *
+     * @template TReduced
+     *
+     * @param \Closure(TReduced, TElement): TReduced $closure
+     * @param TReduced $initial
+     *
+     * @return TReduced
+     */
+    public function reduce(\Closure $closure, $initial = null)
+    {
+        return parent::reduce($closure, $initial);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->fmap() instead.
+     *
+     * @template TMapped
+     *
+     * @param \Closure(TElement): (TMapped|false|null) $closure
+     *
+     * @return array<string, TMapped>
+     */
+    public function fmap(\Closure $closure): array
+    {
+        return parent::fmap($closure);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->flatMap() instead.
+     *
+     * @template TMapped
+     *
+     * @param \Closure(TElement): (TMapped|iterable<*, TMapped|null>|null) $closure
+     *
+     * @return array<string, TMapped>
+     */
+    public function flatMap(\Closure $closure): array
+    {
+        return parent::flatMap($closure);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->sort() instead.
+     *
+     * @param \Closure(TElement, TElement): int $closure
+     */
+    public function sort(\Closure $closure): void
+    {
+        parent::sort($closure);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterInstance() instead.
+     *
+     * @param class-string $class
+     */
+    public function filterInstance(string $class): static
+    {
+        return parent::filterInstance($class);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getElements() instead.
+     *
+     * @return array<string, TElement>
+     */
+    public function getElements(): array
+    {
+        return parent::getElements();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->first() instead.
+     *
+     * @return TElement|null
+     */
+    public function first()
+    {
+        return parent::first();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->firstWhere() instead.
+     *
+     * @param \Closure(TElement): bool $closure
+     *
+     * @return TElement|null
+     */
+    public function firstWhere(\Closure $closure)
+    {
+        return parent::firstWhere($closure);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->last() instead.
+     *
+     * @return TElement|null
+     */
+    public function last()
+    {
+        return parent::last();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->remove() instead.
+     *
+     * @param string $key
+     */
+    public function remove($key): void
+    {
+        parent::remove($key);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities() instead.
+     *
+     * @return \Traversable<TElement>
+     */
+    public function getIterator(): \Traversable
+    {
+        return parent::getIterator();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getIds() instead.
+     *
+     * @return array<string>
+     */
+    public function getIds(): array
+    {
+        return parent::getIds();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterByProperty() instead.
+     *
+     * @param mixed $value
+     */
+    public function filterByProperty(string $property, $value): static
+    {
+        return parent::filterByProperty($property, $value);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterAndReduceByProperty() instead.
+     *
+     * @param mixed $value
+     */
+    public function filterAndReduceByProperty(string $property, $value): static
+    {
+        return parent::filterAndReduceByProperty($property, $value);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->merge() instead.
+     *
+     * @param EntityCollection<TElement> $collection
+     */
+    public function merge(EntityCollection $collection): void
+    {
+        parent::merge($collection);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->insert() instead.
+     *
+     * @param TElement $entity
+     */
+    public function insert(int $position, Entity $entity): void
+    {
+        parent::insert($position, $entity);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getList() instead.
+     *
+     * @param array<string> $ids
+     */
+    public function getList(array $ids): static
+    {
+        return parent::getList($ids);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->sortByIdArray() instead.
+     *
+     * @param array<array-key, array<string>|string> $ids
+     */
+    public function sortByIdArray(array $ids): void
+    {
+        parent::sortByIdArray($ids);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getCustomFieldsValues() instead.
+     *
+     * @return array<string, mixed>
+     */
+    public function getCustomFieldsValues(string ...$fields): array
+    {
+        return parent::getCustomFieldsValues(...$fields);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getCustomFieldsValue() instead.
+     *
+     * @return array<string, mixed>
+     */
+    public function getCustomFieldsValue(string $field): array
+    {
+        return parent::getCustomFieldsValue($field);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->setCustomFields() instead.
+     *
+     * @param array<string, array<string, mixed>> $values
+     */
+    public function setCustomFields(array $values): void
+    {
+        parent::setCustomFields($values);
     }
 
     /**

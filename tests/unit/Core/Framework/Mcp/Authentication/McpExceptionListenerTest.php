@@ -115,7 +115,7 @@ class McpExceptionListenerTest extends TestCase
 
         $response = $event->getResponse();
         static::assertNotNull($response);
-        static::assertSame(500, $response->getStatusCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
 
         $body = json_decode((string) $response->getContent(), true);
         static::assertSame(Error::SERVER_ERROR, $body['error']['code']);

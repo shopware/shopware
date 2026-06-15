@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Context;
@@ -32,13 +33,13 @@ class AdminSearcherTest extends TestCase
 
     private AdminSearcher $searcher;
 
-    private AdminSearchRegistry&MockObject $registry;
+    private AdminSearchRegistry&Stub $registry;
 
     protected function setUp(): void
     {
         $this->client = $this->createMock(Client::class);
 
-        $this->registry = $this->getMockBuilder(AdminSearchRegistry::class)->disableOriginalConstructor()->getMock();
+        $this->registry = static::createStub(AdminSearchRegistry::class);
 
         $indexer = new ProductAdminSearchIndexer(
             $this->createMock(Connection::class),
@@ -178,6 +179,45 @@ class AdminSearcherTest extends TestCase
 
         static::assertNotEmpty($data['product']);
         static::assertSame(1, $data['product']['total']);
+    }
+
+    public function testSearchReturnsEmptyResultWhenClientFailsAndExceptionsAreSuppressed(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->willThrowException(new \RuntimeException('No alive nodes found in your cluster'));
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'prod', false, new NullLogger());
+        $searcher = new AdminSearcher(
+            $this->client,
+            $this->registry,
+            $searchHelper,
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            $this->createMock(ElasticsearchHelper::class),
+            '5s',
+            20,
+            'query_then_fetch',
+        );
+
+        $data = $searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
+
+        static::assertSame([], $data);
+    }
+
+    public function testSearchThrowsWhenClientFailsAndExceptionsAreEnabled(): void
+    {
+        $exception = new \RuntimeException('No alive nodes found in your cluster');
+
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->willThrowException($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
     }
 
     /**

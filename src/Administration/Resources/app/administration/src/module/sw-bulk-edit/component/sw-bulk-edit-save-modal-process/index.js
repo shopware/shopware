@@ -120,6 +120,7 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
+            Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
             try {
                 await this.createDocuments();
                 await this.deleteDocuments();
@@ -164,43 +165,125 @@ export default {
             const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
+            const documentGroups = [
+                [
+                    'invoice',
+                    invoiceDocuments,
+                ],
+                [
+                    'storno',
+                    stornoDocuments,
+                ],
+                [
+                    'credit_note',
+                    creditNoteDocuments,
+                ],
+                [
+                    'delivery_note',
+                    deliveryNoteDocuments,
+                ],
+            ];
 
-            if (invoiceDocuments.length > 0) {
-                await this.createDocument('invoice', invoiceDocuments);
+            let totalRequested = 0;
+            let totalErrors = 0;
+            let totalSkipped = 0;
+            const failedItems = [];
+
+            for (const [
+                documentType,
+                documents,
+            ] of documentGroups) {
+                if (documents.length <= 0) {
+                    continue;
+                }
+
+                const {
+                    requested,
+                    failed,
+                    skipped,
+                    failedItems: documentFailedItems,
+                } = await this.createDocument(documentType, documents);
+
+                totalRequested += requested;
+                totalErrors += failed;
+                totalSkipped += skipped ?? 0;
+                failedItems.push(...(documentFailedItems ?? []));
             }
 
-            if (stornoDocuments.length > 0) {
-                await this.createDocument('storno', stornoDocuments);
-            }
-
-            if (creditNoteDocuments.length > 0) {
-                await this.createDocument('credit_note', creditNoteDocuments);
-            }
-
-            if (deliveryNoteDocuments.length > 0) {
-                await this.createDocument('delivery_note', deliveryNoteDocuments);
-            }
+            Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(
+                totalRequested,
+                totalErrors,
+                totalSkipped,
+                failedItems,
+            );
         },
 
         async createDocument(documentType, payload) {
+            const requestedTotal = payload.length;
+
             if (payload.length <= this.requestsPerPayload) {
-                await this.orderDocumentApiService.generate(documentType, payload);
+                const response = await this.orderDocumentApiService.generate(documentType, payload);
                 this.document[documentType].isReached = 100;
 
-                return Promise.resolve();
+                return this.getDocumentGenerationResult(response, documentType, requestedTotal);
             }
 
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
             const percentages = Math.round(100 / chunkedPayload.length);
 
-            return Promise.all(
+            const results = await Promise.all(
                 chunkedPayload.map(async (item) => {
-                    await this.orderDocumentApiService.generate(documentType, item);
+                    const response = await this.orderDocumentApiService.generate(documentType, item);
                     this.document[documentType].isReached = this.document[documentType].isReached + percentages;
+
+                    return this.getDocumentGenerationResult(response, documentType, item.length);
                 }),
-            ).then(() => {
-                this.document[documentType].isReached = 100;
-            });
+            );
+
+            this.document[documentType].isReached = 100;
+
+            return {
+                requested: requestedTotal,
+                failed: results.reduce((total, result) => total + result.failed, 0),
+                skipped: results.reduce((total, result) => total + result.skipped, 0),
+                failedItems: results.flatMap((result) => result.failedItems),
+            };
+        },
+
+        getDocumentGenerationResult(response, documentType, requested) {
+            const generatedDocuments = response?.data?.data;
+
+            if (!Array.isArray(generatedDocuments)) {
+                throw new Error('Invalid document generation response');
+            }
+
+            const failedItems = this.getFailedDocumentGenerationItems(response?.data?.errors ?? {}, documentType);
+            const failed = failedItems.length;
+
+            return {
+                requested,
+                failed,
+                skipped: Math.max(requested - generatedDocuments.length - failed, 0),
+                failedItems,
+            };
+        },
+
+        getFailedDocumentGenerationItems(errors, documentType) {
+            return Object.entries(errors).map(
+                ([
+                    orderId,
+                    orderErrors,
+                ]) => {
+                    const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
+
+                    return {
+                        orderId,
+                        documentType,
+                        errorCode: error?.code,
+                        detail: error?.detail,
+                    };
+                },
+            );
         },
 
         async deleteDocuments() {

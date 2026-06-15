@@ -109,7 +109,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
                 Criteria.multi('OR', [

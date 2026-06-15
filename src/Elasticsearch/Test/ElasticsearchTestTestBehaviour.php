@@ -2,14 +2,17 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -100,6 +103,77 @@ trait ElasticsearchTestTestBehaviour
     abstract protected function getDiContainer(): ContainerInterface;
 
     abstract protected function runWorker(): void;
+
+    /**
+     * @param list<string> $enabledFields
+     */
+    protected function setSearchConfiguration(bool $andLogic = true, array $enabledFields = ['name']): void
+    {
+        $connection = $this->getDiContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            'UPDATE product_search_config SET and_logic = ? WHERE language_id = ?',
+            [(int) $andLogic, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $configId = $connection->fetchOne(
+            'SELECT id FROM product_search_config WHERE language_id = ?',
+            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $connection->executeStatement(
+            'DELETE FROM product_search_config_field WHERE product_search_config_id = ? AND field LIKE "customFields%"',
+            [$configId]
+        );
+
+        $connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 0, tokenize = 0 WHERE product_search_config_id = ?',
+            [$configId]
+        );
+
+        $connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1, tokenize = 1 WHERE product_search_config_id = :configId AND field IN (:fields)',
+            ['configId' => $configId, 'fields' => $enabledFields],
+            ['fields' => ArrayParameterType::STRING]
+        );
+
+        foreach ($enabledFields as $enabledField) {
+            if (str_contains($enabledField, 'customFields')) {
+                $connection->insert(
+                    'product_search_config_field',
+                    [
+                        'id' => Uuid::randomBytes(),
+                        'product_search_config_id' => $configId,
+                        'field' => $enabledField,
+                        'searchable' => 1,
+                        'tokenize' => 0,
+                        'ranking' => 0,
+                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                );
+            }
+        }
+    }
+
+    /**
+     * @param array<string, int> $scores
+     */
+    protected function setSearchScores(array $scores): void
+    {
+        $connection = $this->getDiContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            'UPDATE product_search_config_field SET ranking = 0 WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?)',
+            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        foreach ($scores as $field => $ranking) {
+            $connection->executeStatement(
+                'UPDATE product_search_config_field SET ranking = ? WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?) AND field = ?',
+                [$ranking, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
+            );
+        }
+    }
 
     protected function clearElasticsearch(): void
     {

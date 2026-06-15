@@ -103,8 +103,7 @@ class TranslationLoaderTest extends TestCase
 
         $loader = $this->getTranslationLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
         $loader->load('es-ES', $this->context);
     }
 
@@ -317,8 +316,7 @@ class TranslationLoaderTest extends TestCase
 
         $loader = $this->getTranslationLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
         $loader->load('es-ES', $this->context);
     }
 

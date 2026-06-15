@@ -178,8 +178,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage(\sprintf('Provided filter of class %s is not supported', CustomFilter::class));
+        $this->expectExceptionObject(ElasticsearchException::unsupportedFilter(CustomFilter::class));
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
 

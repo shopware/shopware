@@ -162,9 +162,7 @@ export default Shopware.Mixin.register(
             },
 
             term(newValue) {
-                if (newValue && newValue.length) {
-                    this.freshSearchTerm = true;
-                }
+                this.freshSearchTerm = !!newValue?.length;
             },
 
             sortBy() {

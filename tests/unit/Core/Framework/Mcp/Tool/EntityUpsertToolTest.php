@@ -221,6 +221,23 @@ class EntityUpsertToolTest extends TestCase
         static::assertFalse($result['_meta']['dryRun']);
     }
 
+    public function testUnknownEntityReturnsError(): void
+    {
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->expects($this->never())->method('getRepository');
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $result = $this->decode(($tool)('unknown_entity', '{"name": "Test"}'));
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('unknown_entity', $result['error']);
+        static::assertStringContainsString('shopware://entities', $result['error']);
+    }
+
     /**
      * @param (MockObject&EntityRepository<EntityCollection<Entity>>)|null $repository
      */

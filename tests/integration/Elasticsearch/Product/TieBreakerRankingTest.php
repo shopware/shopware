@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,7 +19,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
@@ -71,7 +68,7 @@ class TieBreakerRankingTest extends TestCase
 
         static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $this->setSearchConfiguration($searchFields);
+        $this->setSearchConfiguration(true, $searchFields);
         $this->setSearchScores($fieldScores);
 
         $this->indexElasticSearch();
@@ -244,54 +241,5 @@ class TieBreakerRankingTest extends TestCase
             ->price(100)
             ->visibility()
             ->build();
-    }
-
-    /**
-     * @param list<string> $fields
-     */
-    private function setSearchConfiguration(array $fields): void
-    {
-        $connection = static::getContainer()->get(Connection::class);
-
-        $connection->executeStatement(
-            'UPDATE product_search_config SET and_logic = 1 WHERE language_id = ?',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        $configId = $connection->fetchOne(
-            'SELECT id FROM product_search_config WHERE language_id = ?',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        $connection->executeStatement(
-            'UPDATE product_search_config_field SET searchable = 0, tokenize = 0 WHERE product_search_config_id = ?',
-            [$configId]
-        );
-
-        $connection->executeStatement(
-            'UPDATE product_search_config_field SET searchable = 1, tokenize = 1 WHERE product_search_config_id = :configId AND field IN (:fields)',
-            ['configId' => $configId, 'fields' => $fields],
-            ['fields' => ArrayParameterType::STRING]
-        );
-    }
-
-    /**
-     * @param array<string, int> $scores
-     */
-    private function setSearchScores(array $scores): void
-    {
-        $connection = static::getContainer()->get(Connection::class);
-
-        $connection->executeStatement(
-            'UPDATE product_search_config_field SET ranking = 0 WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?)',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        foreach ($scores as $field => $ranking) {
-            $connection->executeStatement(
-                'UPDATE product_search_config_field SET ranking = ? WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?) AND field = ?',
-                [$ranking, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
-            );
-        }
     }
 }

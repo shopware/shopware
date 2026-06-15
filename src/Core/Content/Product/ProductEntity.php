@@ -140,6 +140,8 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaDescription = null;
 
     protected ?string $metaTitle = null;
@@ -576,6 +578,16 @@ class ProductEntity extends Entity implements \Stringable
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
     }
 
     public function getMetaTitle(): ?string

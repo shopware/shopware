@@ -81,8 +81,7 @@ class MailTemplateServiceTest extends TestCase
             $mailTemplateRepository
         );
 
-        static::expectException(MailTemplateException::class);
-        static::expectExceptionMessage('Mail Template not found.');
+        $this->expectExceptionObject(MailTemplateException::templateNotFound());
 
         $mailTemplateService->loadTemplate(Uuid::randomHex(), Context::createDefaultContext());
     }

@@ -129,6 +129,55 @@ class TermFilterTest extends TestCase
         static::assertSame($expected, $result);
     }
 
+    public function testFilterWithNonStringValueDoesNotThrow(): void
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => 42,
+                        'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => 42,
+                        'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
+                ],
+            ],
+        ];
+
+        /** @phpstan-ignore argument.type (snippet value is intentionally a non-string here) */
+        $result = (new TermFilter())->filter($snippets, '42');
+
+        static::assertSame($expected, $result);
+    }
+
     public function testFilterWithKeyMatch(): void
     {
         $snippets = [

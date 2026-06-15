@@ -37,7 +37,19 @@ async function createWrapper(options = {}) {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-entity-single-select': true,
-                'sw-sales-channel-defaults-select': true,
+                'sw-sales-channel-defaults-select': {
+                    props: [
+                        'criteria',
+                        'disabled',
+                        'propertyName',
+                    ],
+                    template: `
+                        <sw-sales-channel-defaults-select-stub
+                            :disabled="disabled"
+                            :property-name="propertyName"
+                        />
+                    `,
+                },
                 'router-link': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
@@ -1145,29 +1157,30 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it.each([
         [
-            'currencyCriteria',
+            'currencies',
             'name',
         ],
         [
-            'shippingMethodCriteria',
+            'shippingMethods',
             'name',
         ],
         [
-            'paymentMethodCriteria',
+            'paymentMethods',
             'distinguishableName',
         ],
         [
-            'countryCriteria',
+            'countries',
             'name',
         ],
         [
-            'languageCriteria',
+            'languages',
             'name',
         ],
-    ])('should have %s with alphabetical sort', async (criteriaName, sortField) => {
+    ])('should pass alphabetical sort criteria to %s defaults select', async (propertyName, sortField) => {
         const wrapper = await createWrapper();
 
-        const criteria = wrapper.vm[criteriaName];
+        const field = wrapper.getComponent(`sw-sales-channel-defaults-select-stub[property-name="${propertyName}"]`);
+        const criteria = field.props('criteria');
 
         expect(criteria.parse().sort[0]).toEqual({ field: sortField, order: 'ASC', naturalSorting: false });
     });
@@ -1175,7 +1188,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should filter language criteria by active languages', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.languageCriteria.parse().filter).toEqual([
+        const field = wrapper.getComponent('sw-sales-channel-defaults-select-stub[property-name="languages"]');
+        const criteria = field.props('criteria');
+
+        expect(criteria.parse().filter).toEqual([
             { type: 'equals', field: 'active', value: true },
         ]);
     });

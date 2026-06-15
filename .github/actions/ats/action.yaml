@@ -195,6 +195,7 @@ runs:
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
+              # publish-playwright-reports.yml reuses this artifact, so bundle the HTML report here too.
               path: |
                   ${{ inputs.directory }}/test-results/
                   ${{ inputs.directory }}/playwright-report/

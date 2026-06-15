@@ -493,6 +493,7 @@ jobs:
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
+          # publish-playwright-reports.yml reuses this artifact, so bundle the HTML report here too.
           path: |
             new-shopware/tests/acceptance/test-results/
             new-shopware/tests/acceptance/playwright-report/

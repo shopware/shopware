@@ -41,7 +41,7 @@ jobs:
               const runId = Number(runIdInput);
 
               if (!Number.isInteger(runId) || runId <= 0) {
-                core.setFailed(`Invalid workflow_run_id: ${runIdInput}`);
+                core.setFailed(`Invalid workflow_run_id: '${runIdInput}' (must be a positive integer)`);
                 return;
               }
 
@@ -109,7 +109,7 @@ jobs:
               },
             );
 
-            // Keep these patterns aligned with the ATS/update artifact names that bundle playwright-report/.
+            // ATS acceptance artifacts and the update artifact bundle playwright-report/ alongside test-results/.
             const candidatePatterns = [/^ats(?:-changed)?-/, /^playwright-report-update-/];
             const artifactsWithReports = artifacts.filter((artifact) =>
               candidatePatterns.some((pattern) => pattern.test(artifact.name))

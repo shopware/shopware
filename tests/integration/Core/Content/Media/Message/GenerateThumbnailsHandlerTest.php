@@ -184,8 +184,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
             return;
         }
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository);
 

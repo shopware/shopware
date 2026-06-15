@@ -196,6 +196,29 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame([], $actualConfig[0]['elements']);
     }
 
+    public function testCacheRelevantMetadataIsExposedInElementConfig(): void
+    {
+        $config = [
+            [
+                'title' => [
+                    'en-GB' => 'Basic configuration',
+                ],
+                'name' => null,
+                'elements' => [
+                    [
+                        'name' => 'storefrontVisibility',
+                        'type' => 'bool',
+                        'cacheRelevant' => true,
+                    ],
+                ],
+            ],
+        ];
+
+        $actualConfig = $this->getConfiguration($config);
+
+        static::assertTrue($actualConfig[0]['elements'][0]['config']['cacheRelevant']);
+    }
+
     public function testConfigFromPlugin(): void
     {
         $config = [

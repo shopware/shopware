@@ -563,6 +563,14 @@ $this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChanne
 
 Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
 
+For plugin and app configuration fields rendered through `Resources/config/config.xml`, mark fields that affect cached storefront output with `cache-relevant="true"` so Administration saves continue to invalidate HTTP cache entries:
+
+```xml
+<input-field type="bool" cache-relevant="true">
+    <name>showBanner</name>
+</input-field>
+```
+
 ## Removed SystemConfig exceptions
 
 The following exceptions were removed:

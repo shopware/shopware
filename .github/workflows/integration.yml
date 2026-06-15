@@ -209,7 +209,10 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
+        # Only the Elasticsearch path shard needs OpenSearch (matches the "Wait for
+        # OpenSearch" gate below); every other shard uses the cheap alpine placeholder
+        # instead of pulling the full OpenSearch image it never uses.
+        image: ${{ contains(matrix.test.path, 'Elasticsearch') && matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"

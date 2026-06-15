@@ -8,6 +8,7 @@ use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
@@ -36,6 +37,7 @@ class StoreClientFactoryTest extends TestCase
         $middlewares = [
             new StoreSessionExpiredMiddleware($connection, new RequestStack()),
             new ShopSecretInvalidMiddleware($connection, new StaticSystemConfigService()),
+            new RetryFailedStoreRequestMiddleware(),
         ];
 
         $factory = new StoreClientFactory(new StaticSystemConfigService(['core.store.apiUri' => 'http://shopware.swag']));

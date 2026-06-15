@@ -2,6 +2,11 @@
 
 ## Storefront
 
+### Storefront cache hash no longer varies by language
+
+The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.
+Store API requests still include the language id in the cache hash, as the same Store API URL can return different languages via the `sw-language-id` header.
+
 ### Central extension point for content before/after list prices
 
 A new template `@Storefront/storefront/component/product/list-price-affix.html.twig` is rendered inside every list price display (product box, product detail buy widget, advanced pricing table). It replaces the deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets as the single place to inject content around list prices.
@@ -49,6 +54,23 @@ This prevents leading or trailing whitespace from being stored in standard addre
 
 Existing customer address records are not changed.
 
+### New `contentSelector` option for the `AlertAriaPlugin`
+
+The `AlertAriaPlugin` now supports a `contentSelector` option to define the content element inside the `aria-live` region that is toggled to trigger the screenreader.
+It defaults to `.alert-content-container`. Override it when applying the plugin to custom markup that is not based on the alert template:
+
+```twig
+<div class="cart-live-update visually-hidden"
+     role="status"
+     aria-live="polite"
+     data-alert-aria="true"
+     data-alert-aria-options='{{ { contentSelector: ".cart-live-update-content" }|json_encode }}'>
+    <div class="cart-live-update-content">
+        {# ... content that should be announced ... #}
+    </div>
+</div>
+```
+
 ## API
 
 ### Plain JSON API includes preserve extension wrappers
@@ -73,6 +95,11 @@ Empty values fall back to the default request context instead of being forwarded
 Whitespace-only values are still rejected as malformed IDs.
 
 For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
+
+### Administration users receive default runtime privileges
+
+Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
+The Administration role editor also adds these privileges to newly generated role permission sets.
 
 ## Core
 
@@ -180,7 +207,7 @@ The field is disabled by default. Enable `parent.name` in the product search con
 
 Product listings can now load a shortened, HTML-free excerpt of the product description instead of the full text, which significantly reduces database load, transfer size and memory usage for catalogs with large descriptions. Previously the complete description was loaded for every product box even though the storefront only displays a few clamped lines.
 
-This reduced loading is **disabled by default** (opt-in) and can be enabled per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
+This reduced loading is **enabled for fresh installations** and **disabled for existing shops**, which keep the full listing loading on update and can opt in per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
 
 A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
@@ -355,6 +382,25 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+
+### Orders no longer break on missing rule conditions in price definitions
+
+If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound`/`InvalidConditionException`. Such conditions are substituted with a new internal `UnknownConditionRule` whose `match()` always returns `false`.
+
+The original rule payload is preserved verbatim on reads, order versioning and normal saves, so the order stays fully accessible and editable in the Administration and is restored automatically once the contributing plugin is reinstalled. Recalculation also succeeds, but because it recomputes the cart, a discount whose missing condition no longer matches any line item is removed (fail-closed) rather than preserved — so an order that is recalculated and saved may lose that discount line. When that happens, the recalculation result now contains a `promotion-discount-unknown-condition` warning (`PromotionDiscountUnknownConditionError`, shown as a notification in the Administration order detail page), so the discount is not removed silently.
+
+Note that `match()` returning `false` only yields a fail-closed result for a standalone condition or inside an `AndRule`. Inside an `OrRule`/`XorRule` the surrounding container can still match through its other branches, and inside a `NotRule` the result is inverted to always-match.
+
+Note for API consumers: writes to price-definition fields that reference an unregistered rule condition are now accepted instead of rejected, so order versioning and saves keep working. A mistyped condition name in an Admin API write is therefore no longer reported as a validation error — the condition is stored as-is and will simply never match.
 
 ### Backward compatible invalid locales
 

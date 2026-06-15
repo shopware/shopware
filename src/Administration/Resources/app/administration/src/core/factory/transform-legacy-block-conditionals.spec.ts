@@ -104,6 +104,30 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         );
     });
 
+    it('preserves camelCase props and event names while rewriting conditionals', () => {
+        const template = `
+            <div>
+                <sw-block name="case_block">
+                    <my-component
+                        :lineItems="lineItems"
+                        @update:modelValue="onUpdate"
+                        v-if="showComponent"
+                    />
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain(':lineItems="lineItems"');
+        expect(transformedTemplate).toContain('@update:modelValue="onUpdate"');
+        expect(transformedTemplate).not.toContain(':lineitems="lineItems"');
+        expect(transformedTemplate).not.toContain('@update:modelvalue="onUpdate"');
+        expect(transformedTemplate).toContain(
+            `v-if="$swLegacyBlockIf('case_block:0', showComponent, ${options(0, true, 'defaultSlot')})"`,
+        );
+    });
+
     it('rewrites native legacy conditionals after a later sw-block-parent', () => {
         const template = `
             <div>

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerialize
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -33,8 +33,7 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 {
     public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
     {
-        $this->expectException(ExpectedArrayException::class);
-        static::expectExceptionMessage('Expected data at /0/recoveryCustomer to be an array.');
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
 
         new StaticDefinitionInstanceRegistry(
             [
@@ -67,8 +66,7 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
     public function testExceptionInEncodeIsThrownIfDataIsNotArray(): void
     {
-        $this->expectException(ExpectedArrayException::class);
-        static::expectExceptionMessage('Expected data at /0/recoveryCustomer to be an array.');
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
 
         new StaticDefinitionInstanceRegistry(
             [

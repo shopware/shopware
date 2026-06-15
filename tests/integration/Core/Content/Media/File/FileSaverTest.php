@@ -154,8 +154,11 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile(
+                'SVG files with active content are not allowed.'
+                . \PHP_EOL . 'Event handler attributes not allowed: onload'
+                . \PHP_EOL . 'Attributes not allowed: onload'
+            ));
 
             $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {
@@ -336,8 +339,7 @@ SVG;
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
 
         $context = Context::createDefaultContext();
 
@@ -442,8 +444,7 @@ SVG;
         $path = $png->getPath();
         $this->getPublicFilesystem()->write($path, 'some content');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The provided file name is too long, the maximum length is 255 characters.');
+        $this->expectExceptionObject(MediaException::fileNameTooLong(255));
 
         $this->fileSaver->persistFileToMedia(
             $mediaFile,
@@ -456,8 +457,7 @@ SVG;
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
         $id = Uuid::randomHex();
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::mediaNotFound($id)->getMessage());
+        $this->expectExceptionObject(MediaException::mediaNotFound($id));
 
         $context = Context::createDefaultContext();
         $this->fileSaver->renameMedia($id, 'new file destination', $context);
@@ -467,8 +467,7 @@ SVG;
     {
         $id = Uuid::randomHex();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::missingFile($id)->getMessage());
+        $this->expectExceptionObject(MediaException::missingFile($id));
 
         $context = Context::createDefaultContext();
 
@@ -504,8 +503,7 @@ SVG;
 
         $this->mediaRepository->create($data, $context);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "original_media.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('original_media', 'png'));
 
         $this->fileSaver->renameMedia($ids->get('old'), 'original_media', $context);
     }
@@ -739,8 +737,7 @@ SVG;
     {
         $png = $this->getPng();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName())->getMessage());
+        $this->expectExceptionObject(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName()));
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
@@ -796,8 +793,7 @@ SVG;
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::fileExtensionNotSupported($mediaId, 'php')->getMessage());
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $this->mediaRepository->create(
             [

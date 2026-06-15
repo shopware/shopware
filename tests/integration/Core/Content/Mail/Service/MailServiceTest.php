@@ -36,11 +36,13 @@ class MailServiceTest extends TestCase
 
     public function testThrowSalesChannelNotFound(): void
     {
+        $salesChannelId = Uuid::randomHex();
+
         static::expectException(ConstraintViolationException::class);
 
         $data = [
             'recipients' => ['foo@bar.de'],
-            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
             'subject' => 'test',
             'senderName' => 'test',
             'contentHtml' => 'test',

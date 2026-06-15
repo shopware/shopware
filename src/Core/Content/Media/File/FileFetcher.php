@@ -41,6 +41,10 @@ class FileFetcher
             throw MediaException::invalidContentLength();
         }
 
+        if ($bytesWritten === 0) {
+            throw MediaException::emptyFile();
+        }
+
         return new MediaFile(
             $fileName,
             FileInfoHelper::getMimeType($fileName, $extension),
@@ -73,6 +77,10 @@ class FileFetcher
         } finally {
             fclose($inputStream);
             fclose($destStream);
+        }
+
+        if ($writtenBytes === 0) {
+            throw MediaException::emptyFile();
         }
 
         $mimeType = FileInfoHelper::getMimeType($fileName, $fileExtension);

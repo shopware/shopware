@@ -123,6 +123,40 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSizesAttrWithValueForEveryBreakpoint(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-with-columns.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Regression test for https://github.com/shopware/shopware/issues/16710.
+        // Every breakpoint entry in the auto-generated sizes attribute must carry
+        // a non-empty value. Before the fix the xxl entry was missing and produced
+        // "(min-width: ...px) ," in the rendered output.
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+
+        $entries = array_map('trim', explode(',', $matches['sizes']));
+        $fallback = array_pop($entries);
+
+        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+
+        foreach ($entries as $i => $entry) {
+            static::assertMatchesRegularExpression(
+                '/^\(min-width:[^)]*\)\s+\S+/',
+                $entry,
+                \sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
+            );
+        }
+    }
+
+    /**
      * @param array<string, mixed> $data
      *
      * @throws SyntaxError

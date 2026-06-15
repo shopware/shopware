@@ -102,13 +102,12 @@ SVG);
     }
 
     #[DataProvider('unsafeSvgProvider')]
-    public function testUnsafeSvgIsRejected(string $svgContent): void
+    public function testUnsafeSvgIsRejected(string $svgContent, string $messageAppendix): void
     {
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.' . \PHP_EOL . $messageAppendix));
 
             $this->validator->validate($file);
         } finally {
@@ -121,8 +120,7 @@ SVG);
         $file = $this->createSvgFile('<?xml version="1.0" encoding="UTF-8"?><xml/>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -135,8 +133,7 @@ SVG);
         $file = $this->createSvgFile('<svg xmlns="http://www.w3.org/2000/svg"><g></svg>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -149,8 +146,7 @@ SVG);
         $file = $this->createSvgFile('<svg xmlns="https://example.com/svg"></svg>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -165,6 +161,7 @@ SVG);
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"></svg>
 SVG,
+            'Event handler attributes not allowed: onload' . \PHP_EOL . 'Attributes not allowed: onload',
         ];
 
         yield 'script element' => [
@@ -172,6 +169,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>
 SVG,
+            'Elements not allowed: script',
         ];
 
         yield 'style element with url reference' => [
@@ -179,6 +177,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><style>.a{fill:url(https://attacker.invalid/fill);}</style></svg>
 SVG,
+            'External style references not allowed: style',
         ];
 
         yield 'foreign object element' => [
@@ -186,6 +185,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><foreignObject><body/></foreignObject></svg>
 SVG,
+            'Elements not allowed: foreignobject, body',
         ];
 
         yield 'external href' => [
@@ -193,6 +193,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><image href="https://attacker.invalid/x.png"/></svg>
 SVG,
+            'External references not allowed: href',
         ];
 
         yield 'xlink href with data uri' => [
@@ -200,6 +201,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="data:image/svg+xml;base64,PHN2Zz48L3N2Zz4="/></svg>
 SVG,
+            'External references not allowed: xlink:href',
         ];
 
         yield 'fill with external url' => [
@@ -207,6 +209,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect fill="url(https://attacker.invalid/pattern)"/></svg>
 SVG,
+            'External style references not allowed: fill',
         ];
 
         yield 'stroke with data url' => [
@@ -214,6 +217,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10" stroke="url(data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=)"/></svg>
 SVG,
+            'External style references not allowed: stroke',
         ];
 
         yield 'mask with external url' => [
@@ -221,6 +225,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect mask="url(https://attacker.invalid/mask)"/></svg>
 SVG,
+            'External style references not allowed: mask',
         ];
 
         yield 'clip-path with external url' => [
@@ -228,6 +233,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect clip-path="url(https://attacker.invalid/clip)"/></svg>
 SVG,
+            'External style references not allowed: clip-path',
         ];
 
         yield 'style element with @import rule' => [
@@ -235,6 +241,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><style>@import "https://attacker.invalid/evil.css";</style></svg>
 SVG,
+            'External style references not allowed: style',
         ];
 
         yield 'style attribute with @import rule' => [
@@ -242,6 +249,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect style="@import 'https://attacker.invalid/evil.css'"/></svg>
 SVG,
+            'External style references not allowed: style',
         ];
 
         yield 'animation element' => [
@@ -249,6 +257,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><animate attributeName="x" from="0" to="10" dur="1s"/></svg>
 SVG,
+            'Elements not allowed: animate' . \PHP_EOL . 'Attributes not allowed: attributename, from, to, dur',
         ];
 
         yield 'processing instruction' => [
@@ -257,6 +266,7 @@ SVG,
 <?xml-stylesheet href="https://attacker.invalid/x.css" type="text/css"?>
 <svg xmlns="http://www.w3.org/2000/svg"></svg>
 SVG,
+            'Node types not allowed: xml-stylesheet',
         ];
 
         yield 'doctype' => [
@@ -265,6 +275,7 @@ SVG,
 <!DOCTYPE svg>
 <svg xmlns="http://www.w3.org/2000/svg"></svg>
 SVG,
+            'Node types not allowed: svg',
         ];
     }
 
@@ -465,13 +476,12 @@ SVG);
     }
 
     #[DataProvider('anchorElementBypassAttemptsProvider')]
-    public function testAnchorElementDoesNotBypassReferenceChecks(string $svgContent): void
+    public function testAnchorElementDoesNotBypassReferenceChecks(string $svgContent, string $messageAppendix): void
     {
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.' . \PHP_EOL . $messageAppendix));
 
             $this->validator->validate($file);
         } finally {
@@ -486,6 +496,7 @@ SVG);
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><a href="https://attacker.invalid"><rect width="10" height="10"/></a></svg>
 SVG,
+            'External references not allowed: href',
         ];
 
         yield 'anchor with javascript pseudo scheme' => [
@@ -493,6 +504,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"><rect width="10" height="10"/></a></svg>
 SVG,
+            'External references not allowed: href',
         ];
 
         yield 'anchor with data uri' => [
@@ -500,6 +512,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><a xlink:href="data:image/svg+xml;base64,PHN2Zy8+"><rect width="10" height="10"/></a></svg>
 SVG,
+            'External references not allowed: xlink:href',
         ];
     }
 
@@ -560,13 +573,12 @@ SVG);
      * must still be rejected.
      */
     #[DataProvider('newlyAllowedAttributesDoNotBypassValueChecksProvider')]
-    public function testNewlyAllowedAttributesDoNotBypassValueChecks(string $svgContent): void
+    public function testNewlyAllowedAttributesDoNotBypassValueChecks(string $svgContent, string $messageAppendix): void
     {
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.' . \PHP_EOL . $messageAppendix));
 
             $this->validator->validate($file);
         } finally {
@@ -581,6 +593,7 @@ SVG);
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect cursor="url(https://attacker.invalid/cursor.png), auto"/></svg>
 SVG,
+            'External style references not allowed: cursor',
         ];
 
         yield 'filter with external url' => [
@@ -588,6 +601,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><rect filter="url(https://attacker.invalid/filter)"/></svg>
 SVG,
+            'External style references not allowed: filter',
         ];
 
         yield 'marker-end with external url' => [
@@ -595,6 +609,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="0" x2="10" y2="0" stroke="black" marker-end="url(https://attacker.invalid/arrow)"/></svg>
 SVG,
+            'External style references not allowed: marker-end',
         ];
 
         yield 'event handler on newly allowlisted-capable element (image)' => [
@@ -602,6 +617,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><image href="#x" onload="alert(1)"/></svg>
 SVG,
+            'Event handler attributes not allowed: onload' . \PHP_EOL . 'Attributes not allowed: onload',
         ];
 
         yield 'image element with external href' => [
@@ -609,6 +625,7 @@ SVG,
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"><image href="https://attacker.invalid/leak.png"/></svg>
 SVG,
+            'External references not allowed: href',
         ];
     }
 

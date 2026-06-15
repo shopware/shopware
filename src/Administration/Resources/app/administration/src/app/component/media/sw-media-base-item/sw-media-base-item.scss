@@ -190,6 +190,8 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
         }
 
         .sw-media-base-item__name-container {
+            min-width: 0;
+            overflow: hidden;
             margin: 0;
             text-align: left;
             font-size: $font-size-xs;

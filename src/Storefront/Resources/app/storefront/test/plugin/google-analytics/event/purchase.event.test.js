@@ -86,5 +86,6 @@ describe('plugin/google-analytics/events/purchase.event', () => {
         expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();
     });
+
 });
 

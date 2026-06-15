@@ -287,13 +287,14 @@ class McpServerControllerTest extends TestCase
             $request->attributes->set('oauth_access_token_id', $tokenId);
         }
 
+        $rateLimitException = new RateLimitExceededException(time() + 60);
+
         $this->rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::MCP, $expectedKey)
-            ->willThrowException(new RateLimitExceededException(time() + 60));
+            ->willThrowException($rateLimitException);
 
-        $this->expectException(McpException::class);
-        $this->expectExceptionMessage('MCP endpoint throttled');
+        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
         $this->controller->handle($request);
     }
@@ -617,6 +618,45 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $names = array_column($data['result']['prompts'] ?? [], 'name');
         static::assertSame(['prompt-a'], array_values($names));
+    }
+
+    public function testListResponseIsPassedThroughWhenBodyCannotBeParsed(): void
+    {
+        // A tools/list request without a prior initialize handshake: the MCP server answers
+        // with a JSON-RPC error body (no "result"), which McpJsonRpcResponse::fromJson() cannot
+        // parse. filterListResponse() must then return the upstream response untouched.
+        $server = Server::builder()
+            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
+            ->build();
+
+        $listBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/list',
+            'params' => [],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn([
+            'tools' => ['tool-a'],
+            'resources' => null,
+            'prompts' => null,
+        ]);
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json'],
+            $listBody,
+        );
+
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($data);
+        static::assertArrayNotHasKey('result', $data, 'Unparseable upstream body must be passed through unfiltered');
     }
 
     public function testHandleLogsRequestWhenLoggerIsProvided(): void

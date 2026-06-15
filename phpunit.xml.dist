@@ -26,6 +26,7 @@
             <directory suffix="Exception.php">src</directory>
 
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
+            <file>src/Core/Content/Resources/config/routes_test.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>
             <directory suffix="Event.php">src/Administration/Notification/</directory>

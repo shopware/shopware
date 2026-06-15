@@ -196,8 +196,7 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testCreateRequestOptionsThrowsExceptionWhenNoAppSecret(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App registration for "TestApp" failed: App secret is missing');
+        $this->expectExceptionObject(AppException::registrationFailed('TestApp', 'App secret is missing'));
 
         $context = Context::createDefaultContext();
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);

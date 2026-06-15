@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,7 +32,7 @@ final class AppFixture
         return Manifest::createFromXmlFile($manifestPath);
     }
 
-    public function createApp(Manifest $manifest): AppEntity
+    public function createApp(Manifest $manifest, ?string $appSecret = 's3cr3t'): AppEntity
     {
         $id = Uuid::randomHex();
         $metadata = $manifest->getMetadata();
@@ -40,7 +40,7 @@ final class AppFixture
         $labels = $metadata->getLabel();
         $label = $labels['en-GB'] ?? reset($labels) ?: $name;
 
-        $this->appRepository->create([[
+        $app = [
             'id' => $id,
             'name' => $name,
             'active' => true,
@@ -48,7 +48,6 @@ final class AppFixture
             'version' => $metadata->getVersion(),
             'label' => $label,
             'accessToken' => 'test',
-            'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => $name,
                 'accessKey' => $name,
@@ -57,7 +56,13 @@ final class AppFixture
             'aclRole' => [
                 'name' => $name,
             ],
-        ]], Context::createDefaultContext());
+        ];
+
+        if ($appSecret !== null) {
+            $app['appSecret'] = $appSecret;
+        }
+
+        $this->appRepository->create([$app], Context::createDefaultContext());
 
         return $this->getApp($id);
     }
@@ -67,7 +72,7 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
+    ): AppPersistContext {
         return UnitAppFixture::createInstallContext($app, $manifest, $appFilesystem, $defaultLocale);
     }
 
@@ -76,7 +81,7 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
+    ): AppPersistContext {
         return UnitAppFixture::createUpdateContext($app, $manifest, $appFilesystem, $defaultLocale);
     }
 

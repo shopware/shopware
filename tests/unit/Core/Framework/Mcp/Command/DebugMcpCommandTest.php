@@ -535,6 +535,47 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('No capability found with name \'does-not-exist\'', $tester->getDisplay());
     }
 
+    public function testDetailViewSkipsNonArrayPropertyDefinitions(): void
+    {
+        $schema = [
+            'type' => 'object',
+            'properties' => [
+                'valid-param' => ['type' => 'string', 'description' => 'A valid param'],
+                'bad-param' => 'not-an-array',
+            ],
+            'required' => ['valid-param'],
+        ];
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('schema-tool', null, $schema, 'Does things', null),
+            'Acme\\SchemaTool',
+            true,
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute(['name' => 'schema-tool']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('valid-param', $output);
+        static::assertStringNotContainsString('bad-param', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testArrayHandlerWithObjectInstanceShowsClassName(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('object-tool', null, self::inputSchema(), null, null),
+            [new \stdClass(), 'handle'],
+            true,
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute([]);
+
+        static::assertStringContainsString('stdClass::handle', $tester->getDisplay());
+    }
+
     private function makeCommand(
         Registry $registry,
         ?McpAllowlistProvider $allowlistProvider = null,

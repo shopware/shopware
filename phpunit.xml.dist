@@ -148,6 +148,8 @@
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/PropertySpecificationDto.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/SlotSpecificationDto.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Validation/ValidPropertyConstraints.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Loader/ResolvedElementTypeSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Schema/ContentLayoutAssignableEntitySchemaGenerator.php</file>
             <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Breadcrumb/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Category/ContentSystem/DataLoader/</directory>
@@ -156,8 +158,6 @@
             <directory suffix="LoaderConfig.php">src/Core/Checkout/Shipping/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/System/Currency/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/System/Language/ContentSystem/DataLoader/</directory>
-            <file>src/Core/Framework/ContentSystem/Layout/Type/Loader/ResolvedElementTypeSpecificationDto.php</file>
-            <file>src/Core/Framework/ContentSystem/Schema/ContentLayoutAssignableEntitySchemaGenerator.php</file>
         </exclude>
     </source>
     <php>

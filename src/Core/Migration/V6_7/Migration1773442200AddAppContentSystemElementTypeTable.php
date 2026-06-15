@@ -38,8 +38,4 @@ class Migration1773442200AddAppContentSystemElementTypeTable extends MigrationSt
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

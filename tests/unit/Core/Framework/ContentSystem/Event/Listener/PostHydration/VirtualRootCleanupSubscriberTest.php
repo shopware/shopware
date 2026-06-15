@@ -21,14 +21,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(VirtualRootCleanupSubscriber::class)]
 class VirtualRootCleanupSubscriberTest extends TestCase
 {
-    private VirtualRootWrapper $wrapper;
-
     private VirtualRootCleanupSubscriber $subscriber;
 
     protected function setUp(): void
     {
-        $this->wrapper = new VirtualRootWrapper();
-        $this->subscriber = new VirtualRootCleanupSubscriber($this->wrapper);
+        $this->subscriber = new VirtualRootCleanupSubscriber(new VirtualRootWrapper());
     }
 
     #[TestDox('unwraps virtual root after hydration, restoring original elements')]
@@ -44,7 +41,8 @@ class VirtualRootCleanupSubscriberTest extends TestCase
             new Request(),
         );
 
-        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $specification);
+        $wrapper = new VirtualRootWrapper();
+        $virtualRoot = $wrapper->wrap([$root1, $root2], $specification);
         $event = EventFactory::postHydration([$virtualRoot], [$requirement]);
 
         $this->subscriber->__invoke($event);

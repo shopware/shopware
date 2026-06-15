@@ -22,6 +22,6 @@ final readonly class LayoutReference
 
     public static function fromEntity(ContentLayoutEntity $entity): self
     {
-        return self::create($entity->getId(), $entity->getName(), $entity->getVersionId());
+        return self::create($entity->getId(), $entity->getName(), $entity->getVersion());
     }
 }

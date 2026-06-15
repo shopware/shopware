@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheFinalizer;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
+use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\ContentSystem\ResolvedContentLayout;
@@ -51,27 +53,8 @@ class ContentRouteTest extends TestCase
         $this->contentPipeline = static::createStub(ContentPipeline::class);
     }
 
-    #[TestDox('returns content page from pipeline via response factory')]
-    public function testLoadReturnsContentPageFromPipeline(): void
-    {
-        $request = new Request();
-        $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
-
-        $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request));
-        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
-        $this->contentPipeline->method('load')->willReturn($contentPage);
-        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
-
-        $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
-
-        $result = $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
-
-        static::assertInstanceOf(ContentRouteResponse::class, $result);
-        static::assertSame($contentPage, $result->getContentPage());
-    }
-
-    #[TestDox('collects layout and specification cache tags')]
-    public function testLoadCollectsLayoutAndSpecificationCacheTags(): void
+    #[TestDox('returns content page from pipeline and collects layout and specification cache tags')]
+    public function testLoadReturnsContentPageAndCollectsCacheTags(): void
     {
         $request = new Request();
         $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
@@ -89,28 +72,36 @@ class ContentRouteTest extends TestCase
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
 
-        $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+        $result = $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
 
+        static::assertInstanceOf(ContentRouteResponse::class, $result);
+        static::assertSame($contentPage, $result->getContentPage());
         static::assertContains('content-layout-layout-1', $collectedTags);
         static::assertContains('product-abc', $collectedTags);
     }
 
-    #[TestDox('finalizes cache context on request')]
-    public function testLoadFinalizesCacheContextOnRequest(): void
+    #[TestDox('marks the request uncacheable when the pipeline disables the cache context')]
+    public function testLoadDisablesHttpCacheWhenPipelineDisablesCacheContext(): void
     {
         $request = new Request();
         $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
 
         $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request));
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
-        $this->contentPipeline->method('load')->willReturn($contentPage);
+        $this->contentPipeline->method('load')->willReturnCallback(
+            function (RenderableLayout $layout, RenderingSpecification $specification, RenderingCacheContext $cacheContext) use ($contentPage): ContentPage {
+                $cacheContext->disable();
+
+                return $contentPage;
+            }
+        );
         $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
 
         $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
 
-        static::assertNull($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
+        static::assertFalse($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 
     #[TestDox('throws layout not found when the resolved layout does not exist')]

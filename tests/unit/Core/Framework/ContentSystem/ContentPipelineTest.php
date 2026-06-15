@@ -45,8 +45,8 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('hydrates elements and dispatches lifecycle events in FULL mode')]
-    public function testLoadHydratesElementsInFullMode(): void
+    #[TestDox('dispatches pre- and post-hydration lifecycle events in order in FULL mode')]
+    public function testLoadDispatchesLifecycleEventsInFullMode(): void
     {
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
 
@@ -62,9 +62,23 @@ class ContentPipelineTest extends TestCase
         $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
         static::assertSame([PreContentHydrationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
+    }
+
+    #[TestDox('hydrates elements in FULL mode')]
+    public function testLoadHydratesElementsInFullMode(): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+
         static::assertNotEmpty($result->elements);
     }
 
@@ -86,6 +100,33 @@ class ContentPipelineTest extends TestCase
         static::assertSame('section', $elements[0]->getComponent());
         static::assertSame($layoutId, $result->layoutId);
         static::assertSame('My Layout', $result->layoutName);
+        static::assertSame('1.0', $result->layoutVersion);
+    }
+
+    #[TestDox('renders elements mutated by a PreContentHydration subscriber instead of the original layout')]
+    public function testLoadRendersElementsMutatedDuringPreHydration(): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+
+        $injected = ContentElementBuilder::create('injected', 'injected-id')->build();
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            function (object $event) use ($injected) {
+                if ($event instanceof PreContentHydrationEvent) {
+                    $event->elements = [$injected];
+                }
+
+                return $event;
+            }
+        );
+
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
+
+        $elements = iterator_to_array($result->elements, false);
+        static::assertCount(1, $elements);
+        static::assertSame('injected-id', $elements[0]->getId());
     }
 
     private function createLayoutEntity(string $layoutId, string $name = 'Test Layout'): ContentLayoutEntity

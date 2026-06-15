@@ -23,16 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ContentElement::class)]
 class ContentElementTest extends TestCase
 {
-    private ContentElement $element;
-
-    protected function setUp(): void
-    {
-        $this->element = ContentElementBuilder::create('test-component')
-            ->withProperty('label', 'hello')
-            ->withProperty('myStruct', new StubStruct())
-            ->build();
-    }
-
     #[TestDox('stores Struct value and scalar value separately via setProperty')]
     public function testSetPropertyDispatchesStructAndScalarToDifferentBuckets(): void
     {
@@ -55,14 +45,6 @@ class ContentElementTest extends TestCase
 
         static::assertSame($struct, $element->getProperty('myStruct'));
         static::assertSame('hello', $element->getProperty('myScalar'));
-    }
-
-    #[TestDox('returns null when property key does not exist')]
-    public function testGetPropertyReturnsNullForMissingKey(): void
-    {
-        $element = ContentElementBuilder::create('test-component')->build();
-
-        static::assertNull($element->getProperty('nonexistent'));
     }
 
     #[TestDox('merges struct and non-struct properties into a single array')]
@@ -100,7 +82,20 @@ class ContentElementTest extends TestCase
     #[TestDox('returns correct boolean for hasProperty when key is $key')]
     public function testHasPropertyReturnsTrueForExistingAndFalseForMissing(string $key, bool $expected): void
     {
-        static::assertSame($expected, $this->element->hasProperty($key));
+        $element = ContentElementBuilder::create('test-component')
+            ->withProperty('label', 'hello')
+            ->withProperty('myStruct', new StubStruct())
+            ->build();
+
+        static::assertSame($expected, $element->hasProperty($key));
+    }
+
+    #[TestDox('returns null when property key does not exist')]
+    public function testGetPropertyReturnsNullForMissingKey(): void
+    {
+        $element = ContentElementBuilder::create('test-component')->build();
+
+        static::assertNull($element->getProperty('nonexistent'));
     }
 
     #[TestDox('returns true when at least one data requirement is declared')]

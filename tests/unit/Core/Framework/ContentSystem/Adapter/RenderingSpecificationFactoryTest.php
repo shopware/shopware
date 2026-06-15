@@ -43,26 +43,16 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertSame($request, $result->specification->request);
         static::assertSame('element-42', $result->specification->targetElementId);
         static::assertSame(['product-abc123'], $result->specification->cacheTags);
-    }
 
-    #[TestDox('pairs the resolved layout id with a specification with null target element and empty cache tags')]
-    public function testCreateAssemblesSpecificationWithNullTargetAndEmptyCacheTags(): void
-    {
-        $request = new Request();
-        $context = Generator::generateSalesChannelContext();
-        $path = '/category/xyz';
-        $specData = new SpecificationData([], PlaceholderValues::from([]));
-
-        $source = new StaticSpecificationSource(
+        $defaultsSource = new StaticSpecificationSource(
             layoutId: 'layout-2',
-            specificationData: $specData,
+            specificationData: new SpecificationData([], PlaceholderValues::from([])),
         );
 
-        $factory = new RenderingSpecificationFactory();
-        $result = $factory->create($source, $path, $request, $context);
+        $defaultsResult = $factory->create($defaultsSource, $path, $request, $context);
 
-        static::assertSame('layout-2', $result->layoutId);
-        static::assertNull($result->specification->targetElementId);
-        static::assertSame([], $result->specification->cacheTags);
+        static::assertSame('layout-2', $defaultsResult->layoutId);
+        static::assertNull($defaultsResult->specification->targetElementId);
+        static::assertSame([], $defaultsResult->specification->cacheTags);
     }
 }

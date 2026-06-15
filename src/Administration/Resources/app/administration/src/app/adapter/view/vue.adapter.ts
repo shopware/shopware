@@ -61,14 +61,14 @@ import useSession from '../../composables/use-session';
 const { Component, State, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useBlockContext();
 
-function getLegacyBlockConditionKey(instance: ComponentPublicInstance, blockName: string): string {
+function getLegacyBlockConditionKey(instance: ComponentPublicInstance, chainKey: string): string {
     const componentUid = instance.$?.uid;
 
     if (typeof componentUid !== 'number') {
-        return blockName;
+        return chainKey;
     }
 
-    return `${componentUid}:${blockName}`;
+    return `${componentUid}:${chainKey}`;
 }
 
 type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
@@ -208,26 +208,26 @@ export default class VueAdapter extends ViewAdapter {
         });
         this.app.config.globalProperties.$swLegacyBlockIf = function legacyBlockIf(
             this: ComponentPublicInstance,
-            blockName: string,
+            chainKey: string,
             expression: unknown,
             options: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
+            return legacyIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
         };
         this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
             this: ComponentPublicInstance,
-            blockName: string,
+            chainKey: string,
             expression: unknown,
             options: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
+            return legacyElseIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
         };
         this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
             this: ComponentPublicInstance,
-            blockName: string,
+            chainKey: string,
             options: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
+            return legacyElse(getLegacyBlockConditionKey(this, chainKey), options);
         };
 
         /**

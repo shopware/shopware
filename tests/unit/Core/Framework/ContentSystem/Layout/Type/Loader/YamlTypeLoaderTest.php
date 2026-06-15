@@ -160,7 +160,7 @@ class YamlTypeLoaderTest extends TestCase
 
         // Parse message varies by Symfony version, so assert file path + error prefix
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage($this->tempDir . '/bad.yaml');
+        $this->expectExceptionMessageMatches('/' . preg_quote($this->tempDir . '/bad.yaml', '/') . '/');
         $loader->load();
     }
 
@@ -193,7 +193,7 @@ class YamlTypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('types[Sw:Invalid].label');
+        $this->expectExceptionMessageMatches('/types\[Sw:Invalid\]\.label/');
         $loader->load();
     }
 

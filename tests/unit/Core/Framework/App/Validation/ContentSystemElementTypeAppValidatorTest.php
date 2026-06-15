@@ -66,8 +66,7 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
 
         $validator = new ContentSystemElementTypeAppValidator($loader);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unexpected filesystem error');
+        $this->expectExceptionObject(new \RuntimeException('Unexpected filesystem error'));
         $validator->validate($manifest, Context::createDefaultContext());
     }
 

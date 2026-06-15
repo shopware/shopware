@@ -121,7 +121,7 @@ class DatabaseTypeLoaderTest extends TestCase
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), static::createStub(ValidatorInterface::class), $connection, 'prod');
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('App:Broken');
+        $this->expectExceptionMessageMatches('/App:Broken/');
         $loader->load();
     }
 }

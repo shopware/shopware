@@ -1,0 +1,35 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentSkeletonPage": {
+                "type": "object",
+                "description": "Layout metadata with element trees before hydration.",
+                "properties": {
+                    "layoutId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "layoutName": {
+                        "type": "string"
+                    },
+                    "layoutVersion": {
+                        "type": ["string", "null"]
+                    },
+                    "elements": {
+                        "type": "array",
+                        "description": "Pre-hydration element trees without loaded data",
+                        "items": { "$ref": "#/components/schemas/ContentElement" }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_skeleton_page"]
+                    }
+                },
+                "required": ["apiAlias", "layoutId", "layoutName", "elements"]
+            }
+        }
+    }
+}

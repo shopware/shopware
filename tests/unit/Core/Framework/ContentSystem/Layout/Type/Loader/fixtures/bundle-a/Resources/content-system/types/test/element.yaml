@@ -1,0 +1,24 @@
+meta:
+  label: "Test Element"
+  description: "A test element for unit tests."
+  icon: "default"
+  category: "content"
+  copilot:
+    summary: "A summary"
+    hints:
+      - "hint one"
+
+properties:
+  title:
+    type: string
+    translatable: true
+    title: "Title"
+    description: "The title"
+
+slots:
+  - name: default
+    maxElements: 5
+    allowList:
+      - "text-block"
+      - "image"
+    description: "Main slot"

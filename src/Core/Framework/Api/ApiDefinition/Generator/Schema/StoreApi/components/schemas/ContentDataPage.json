@@ -1,0 +1,38 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentDataPage": {
+                "type": "object",
+                "description": "Layout metadata with deduplicated property data and element-to-data mappings.",
+                "properties": {
+                    "layoutId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "layoutName": {
+                        "type": "string"
+                    },
+                    "layoutVersion": {
+                        "type": ["string", "null"]
+                    },
+                    "data": {
+                        "type": "object",
+                        "description": "Deduplicated property values (refId => value)"
+                    },
+                    "assignments": {
+                        "type": "object",
+                        "description": "Element-to-property mappings (elementId => {propKey => refId})"
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_data_page"]
+                    }
+                },
+                "required": ["apiAlias", "layoutId", "layoutName", "data", "assignments"]
+            }
+        }
+    }
+}

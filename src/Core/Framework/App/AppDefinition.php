@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
@@ -143,6 +144,7 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('taxProviders', TaxProviderDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('scriptConditions', AppScriptConditionDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('contentElementTypes', AppContentSystemElementTypeDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowEvents', AppFlowEventDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),

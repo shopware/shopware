@@ -349,9 +349,6 @@ export default {
                 const isInPath = matchingPaths.includes(path);
                 const isCurrentRoute = matchingPaths[0] === path;
 
-                // Only drop the highlight when a descendant route is active and our
-                // submenu is open (the child is highlighted instead). When this entry's
-                // own page is the current route, keep it active.
                 if (isInPath && !isCurrentRoute && this.children.length > 0 && this.submenuVisuallyOpen) {
                     return false;
                 }

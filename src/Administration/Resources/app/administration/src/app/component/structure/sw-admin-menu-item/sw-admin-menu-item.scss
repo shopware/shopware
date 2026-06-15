@@ -104,7 +104,7 @@ $nesting-line-indent: 36px;
     }
 }
 
-.navigation-list-item--nested > .sw-admin-menu__sub-navigation-list:has(
+.navigation-list-item--nested:last-child > .sw-admin-menu__sub-navigation-list:has(
 > .sw-admin-menu__navigation-list-item:last-child:not(.is--entry-expanded)
 )::before {
     bottom: var(--scale-size-12);

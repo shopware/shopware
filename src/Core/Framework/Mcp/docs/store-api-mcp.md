@@ -104,6 +104,20 @@ authenticated Store API client can access all registered Store API MCP capabilit
 Fine-grained access control at the sales-channel or customer tier is a deliberate
 future extension point.
 
+## Rate Limiting
+
+Every request is rate-limited via `McpRateLimiter` before the protocol runs. The Store
+API endpoint uses its own bucket (`mcp_store_api`, configured under
+`shopware.api.rate_limiter` in `shopware.yaml`), separate from the Admin API
+(`mcp_admin_api`). The key is `salesChannelId + sw-context-token`, falling back to the
+client IP when no sales-channel context is present.
+
+The Store API limits are intentionally tighter than the Admin API: this endpoint is
+public and the context token is cheap to rotate, so the effective protection is closer to
+per-IP. When the limit is exceeded the endpoint returns HTTP 429 (`McpException::throttled`).
+Per-tool limits and a `Retry-After` header are tracked as future improvements in
+`src/Core/Framework/Mcp/AGENTS.md`.
+
 ## Browser-based Clients (CORS)
 
 The endpoint supports browser-based MCP clients. The global CORS handling

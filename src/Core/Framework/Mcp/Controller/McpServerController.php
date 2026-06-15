@@ -22,11 +22,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
-use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
@@ -62,7 +60,7 @@ class McpServerController
         private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
         private readonly ?ResponseFactoryInterface $responseFactory,
         private readonly ?StreamFactoryInterface $streamFactory,
-        private readonly RateLimiter $rateLimiter,
+        private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
@@ -89,7 +87,7 @@ class McpServerController
         }
 
         $this->sessionIdValidator->validate($request);
-        $this->rateLimit($request);
+        $this->rateLimiter->enforceForAdminApi($request);
 
         $this->logger?->debug('MCP request', [
             'method' => $request->getMethod(),
@@ -291,19 +289,6 @@ class McpServerController
             return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
-        }
-    }
-
-    private function rateLimit(Request $request): void
-    {
-        $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
-            ?: $request->getClientIp()
-            ?: 'unknown';
-
-        try {
-            $this->rateLimiter->ensureAccepted(RateLimiter::MCP, $key);
-        } catch (RateLimitExceededException $e) {
-            throw McpException::throttled($e->getWaitTime(), $e);
         }
     }
 }

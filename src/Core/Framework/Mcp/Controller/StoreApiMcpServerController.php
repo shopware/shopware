@@ -9,13 +9,10 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +49,7 @@ class StoreApiMcpServerController
         private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
         private readonly ?ResponseFactoryInterface $responseFactory,
         private readonly ?StreamFactoryInterface $streamFactory,
-        private readonly RateLimiter $rateLimiter,
+        private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?LoggerInterface $logger = null,
     ) {
@@ -77,7 +74,7 @@ class StoreApiMcpServerController
         }
 
         $this->sessionIdValidator->validate($request);
-        $this->rateLimit($request);
+        $this->rateLimiter->enforceForStoreApi($request);
 
         $this->logger?->debug('Store API MCP request', [
             'method' => $request->getMethod(),
@@ -95,20 +92,5 @@ class StoreApiMcpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
-    }
-
-    private function rateLimit(Request $request): void
-    {
-        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        $key = $salesChannelContext instanceof SalesChannelContext
-            ? $salesChannelContext->getSalesChannelId() . '-' . $salesChannelContext->getToken()
-            : ($request->getClientIp() ?: 'unknown');
-
-        try {
-            $this->rateLimiter->ensureAccepted(RateLimiter::MCP, $key);
-        } catch (RateLimitExceededException $e) {
-            throw McpException::throttled($e->getWaitTime(), $e);
-        }
     }
 }

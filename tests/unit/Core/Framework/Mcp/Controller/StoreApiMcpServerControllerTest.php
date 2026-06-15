@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -87,7 +88,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $this->rateLimiter
             ->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::MCP, 'sales-channel-id-context-token');
+            ->with(RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token');
 
         $controller = $this->buildController(
             new ServerRequest('GET', '/store-api/_mcp'),
@@ -146,7 +147,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
             $this->psr17,
             $this->psr17,
-            $this->rateLimiter,
+            new McpRateLimiter($this->rateLimiter),
             new McpSessionIdValidator(),
         );
     }

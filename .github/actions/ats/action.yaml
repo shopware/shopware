@@ -124,7 +124,6 @@ runs:
               install-admin: true
               install-storefront: true
               env: prod
-              composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
               php-version: ${{ inputs.php-version }}
 
         - name: Build js

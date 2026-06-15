@@ -8,6 +8,7 @@ on:
 permissions:
   actions: read
   id-token: write
+  issues: write
   pull-requests: write
 
 concurrency:
@@ -33,6 +34,9 @@ jobs:
           if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
             echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
             echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty; skipping trusted report publishing." >&2
+          elif [ -z "${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Variable PLAYWRIGHT_TRACES_DOMAIN is empty; skipping trusted report publishing." >&2
           else
             echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
           fi
@@ -106,9 +110,11 @@ jobs:
           import os
           import re
           import secrets
+          import shutil
           import subprocess
           import zipfile
           from pathlib import Path
+          from stat import S_ISLNK
 
           artifacts = json.loads(Path('artifacts/metadata.json').read_text())
           staging_root = Path('playwright-report-artifacts')
@@ -125,11 +131,33 @@ jobs:
               extract_dir.mkdir(parents=True, exist_ok=True)
 
               with zipfile.ZipFile(artifact['file']) as archive:
+                  base_dir = extract_dir.resolve()
                   for member in archive.infolist():
                       member_path = Path(member.filename)
+                      target_path = (base_dir / member_path).resolve()
+                      mode = member.external_attr >> 16
+
                       if member_path.is_absolute() or '..' in member_path.parts:
                           raise RuntimeError(f'Unsafe artifact entry detected in {artifact["name"]}: {member.filename}')
-                  archive.extractall(extract_dir)
+
+                      if S_ISLNK(mode):
+                          raise RuntimeError(f'Symlink entries are not allowed in {artifact["name"]}: {member.filename}')
+
+                      try:
+                          target_path.relative_to(base_dir)
+                      except ValueError as error:
+                          raise RuntimeError(
+                              f'Artifact entry escapes extraction directory in {artifact["name"]}: {member.filename}'
+                          ) from error
+
+                      if member.is_dir():
+                          target_path.mkdir(parents=True, exist_ok=True)
+                          continue
+
+                      target_path.parent.mkdir(parents=True, exist_ok=True)
+
+                      with archive.open(member) as source, open(target_path, 'wb') as destination_file:
+                          shutil.copyfileobj(source, destination_file)
 
               report_root = None
 
@@ -145,7 +173,7 @@ jobs:
                   print(f'No Playwright HTML report found in artifact {artifact["name"]}, skipping.')
                   continue
 
-              destination = f'{os.environ["REPORT_PREFIX"]}/{os.environ["WORKFLOW_RUN_ID"]}-{os.environ["WORKFLOW_RUN_ATTEMPT"]}/{sanitize(artifact["name"])}-{secrets.token_hex(6)}'
+              destination = f'{os.environ["REPORT_PREFIX"]}/{os.environ["WORKFLOW_RUN_ID"]}-{os.environ["WORKFLOW_RUN_ATTEMPT"]}/{sanitize(artifact["name"])}-{secrets.token_hex(16)}'
 
               subprocess.run(
                   ['aws', 's3', 'cp', str(report_root), f's3://{os.environ["S3_BUCKET"]}/{destination}/', '--recursive'],
@@ -203,7 +231,19 @@ jobs:
               ? JSON.parse(fs.readFileSync(process.env.REPORTS_FILE, 'utf8'))
               : [];
 
-            const pullRequests = context.payload.workflow_run.pull_requests ?? [];
+            let pullRequests = context.payload.workflow_run.pull_requests ?? [];
+
+            if (pullRequests.length === 0) {
+              pullRequests = await github.paginate(
+                github.rest.repos.listPullRequestsAssociatedWithCommit,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: context.payload.workflow_run.head_sha,
+                  per_page: 100,
+                },
+              );
+            }
 
             if (pullRequests.length === 0) {
               core.notice('No pull request is associated with this workflow run.');

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -85,6 +86,56 @@ class SalesChannelRuleTest extends TestCase
             null,
             false,
         ];
+    }
+
+    public function testItGetsConfig(): void
+    {
+        $salesChannelRule = new SalesChannelRule(Rule::OPERATOR_EQ, []);
+
+        $config = $salesChannelRule->getConfig();
+
+        static::assertSame(
+            [
+                'operatorSet' => [
+                    'operators' => [
+                        '=',
+                        '!=',
+                    ],
+                    'isMatchAny' => true,
+                ],
+                'fields' => [
+                    'salesChannelIds' => [
+                        'name' => 'salesChannelIds',
+                        'type' => 'multi-entity-id-select',
+                        'config' => [
+                            'entity' => 'sales_channel',
+                            'criteria' => [
+                                'associations' => [
+                                    'type',
+                                ],
+                                'filters' => [
+                                    [
+                                        'type' => 'not',
+                                        'operator' => 'AND',
+                                        'queries' => [
+                                            [
+                                                'type' => 'equalsAny',
+                                                'field' => 'type.id',
+                                                'value' => [
+                                                    Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
+                                                    Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $config->getData()
+        );
     }
 
     public function testProvidesConstraints(): void

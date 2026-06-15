@@ -8,8 +8,6 @@ on:
 permissions:
   actions: read
   id-token: write
-  issues: write
-  pull-requests: write
 
 concurrency:
   group: publish-playwright-reports-${{ github.event.workflow_run.id }}
@@ -219,84 +217,3 @@ jobs:
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
               summary.write('\n'.join(summary_lines) + '\n')
           PY
-
-      - name: Comment on pull request
-        if: ${{ steps.download-artifacts.outputs.found == 'true' }}
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        env:
-          REPORTS_FILE: uploaded-reports.json
-        with:
-          script: |
-            const fs = require('node:fs');
-
-            const reports = fs.existsSync(process.env.REPORTS_FILE)
-              ? JSON.parse(fs.readFileSync(process.env.REPORTS_FILE, 'utf8'))
-              : [];
-
-            let pullRequests = context.payload.workflow_run.pull_requests ?? [];
-
-            if (pullRequests.length === 0) {
-              pullRequests = await github.paginate(
-                github.rest.repos.listPullRequestsAssociatedWithCommit,
-                {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  commit_sha: context.payload.workflow_run.head_sha,
-                  per_page: 100,
-                },
-              );
-            }
-
-            if (pullRequests.length === 0) {
-              core.notice('No pull request is associated with this workflow run.');
-              return;
-            }
-
-            const marker = '<!-- shopware-playwright-html-report -->';
-            const reportLines = reports.length === 0
-              ? ['No Playwright HTML reports were uploaded for this run.']
-              : reports.map((report) => `- \`${report.artifact}\`: ${report.url}`);
-
-            const body = [
-              marker,
-              '## Playwright HTML reports',
-              '',
-              `Source run: ${process.env.WORKFLOW_RUN_URL}`,
-              '',
-              ...reportLines,
-            ].join('\n');
-
-            for (const pullRequest of pullRequests) {
-              const comments = await github.paginate(
-                github.rest.issues.listComments,
-                {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: pullRequest.number,
-                  per_page: 100,
-                },
-              );
-
-              const existing = comments.find((comment) =>
-                comment.user?.type === 'Bot' &&
-                typeof comment.body === 'string' &&
-                comment.body.includes(marker),
-              );
-
-              if (existing) {
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: existing.id,
-                  body,
-                });
-                continue;
-              }
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pullRequest.number,
-                body,
-              });
-            }

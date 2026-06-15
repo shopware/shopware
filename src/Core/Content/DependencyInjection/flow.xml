@@ -200,6 +200,8 @@
         <service id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SalesChannelContextStorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
             <tag name="flow.storer"/>
         </service>
 

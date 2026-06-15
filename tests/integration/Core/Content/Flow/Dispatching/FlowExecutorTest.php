@@ -368,8 +368,6 @@ class FlowExecutorTest extends TestCase
 
     private function createCustomerAwareFlow(IdsCollection $idsCollection): void
     {
-        $idsCollection->set('customer-group', $this->salesChannelContext->getCustomerGroupId());
-
         $this->flowRepository->create([
             [
                 'name' => 'On customer double opt in registration',

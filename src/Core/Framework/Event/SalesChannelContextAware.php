@@ -14,5 +14,9 @@ interface SalesChannelContextAware extends SalesChannelAware
 {
     public const SALES_CHANNEL_CONTEXT = 'salesChannelContext';
 
+    public const SALES_CHANNEL_DOMAIN_ID = 'salesChannelDomainId';
+
+    public const SALES_CHANNEL_CUSTOMER_ID = 'salesChannelCustomerId';
+
     public function getSalesChannelContext(): SalesChannelContext;
 }

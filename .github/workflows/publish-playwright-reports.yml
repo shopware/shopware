@@ -115,7 +115,7 @@ jobs:
             );
 
             // Integration tests publish ATS acceptance artifacts with the ats- prefix.
-            // Update tests publish playwright-report-update- artifacts, and both artifact types bundle playwright-report/ alongside test-results/.
+            // Update tests publish playwright-report-update- artifacts, and both artifact types bundle the HTML report under test-results/playwright-report/.
             const artifactPrefixes = ['ats-', 'playwright-report-update-'];
             const artifactsWithReports = artifacts.filter((artifact) =>
               artifactPrefixes.some((prefix) => artifact.name.startsWith(prefix))

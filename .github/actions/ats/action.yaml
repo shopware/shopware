@@ -195,10 +195,8 @@ runs:
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
-              # publish-playwright-reports.yml reuses this artifact, so bundle the HTML report here too.
-              path: |
-                  ${{ inputs.directory }}/test-results/
-                  ${{ inputs.directory }}/playwright-report/
+              # publish-playwright-reports.yml reuses the HTML report bundled under test-results/.
+              path: ${{ inputs.directory }}/test-results/
               retention-days: 3
           continue-on-error: true
 
@@ -216,7 +214,7 @@ runs:
               fi
 
         - name: Configure AWS credentials
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/playwright-report/*', inputs.directory)) }}
           uses: aws-actions/configure-aws-credentials@v4
           with:
             aws-region: eu-central-1
@@ -225,7 +223,7 @@ runs:
 
         - name: Upload Playwright HTML report to S3
           working-directory: ${{ inputs.directory }}
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/playwright-report/*', inputs.directory)) }}
           shell: bash
           run: |
                 set -euo pipefail
@@ -234,13 +232,13 @@ runs:
                 # build the destination prefix and export it for subsequent steps
                 REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-                aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
+                aws s3 cp "test-results/playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
 
                 echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
                 echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
 
         - name: Publish S3 Static Website URL
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/test-results/playwright-report/*', inputs.directory)) }}
           shell: bash
           run: |
                 set -euo pipefail

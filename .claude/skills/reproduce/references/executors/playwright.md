@@ -18,6 +18,16 @@ locator fumbles) — it will be redundant at best and flaky at worst. (Storefron
 login, when an issue genuinely needs it, is still yours to author — follow the locator
 rules below.)
 
+**Storefront CMS-block specs — reach the block via a CATEGORY page.** For a bug in a CMS
+element (product slider, image, text) on the storefront, seed the block on a **category** and
+navigate to its SEO URL (e.g. `await page.goto('/Repro-Category/')`) — categories render
+reliably through the sales-channel navigation. **AVOID landing-page routes (`/landingPage/{id}`)
+and raw CMS-page routes**: a landing page renders only when it is `active` AND assigned to the
+sales channel, so it easily returns "Page not found" and the spec dies at
+`PRECONDITION_NOT_FOUND` — a false negative (hit live on #32). Anchor the precondition on the
+block's semantic REGION (its aria-label, e.g. a product slider's
+`getByRole('region', {name:/Product gallery containing/i})`), never on a seeded product name.
+
 ## Locators — version-stable, semantic ONLY
 - Use `getByRole(role, {name})` / `getByLabel` / `getByText` / `getByPlaceholder` with
   case-insensitive regex and accessible/visible names. `getByRole` and `getByLabel` both

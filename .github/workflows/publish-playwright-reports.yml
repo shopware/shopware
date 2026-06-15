@@ -1,0 +1,259 @@
+name: Publish Playwright reports
+
+on:
+  workflow_run:
+    workflows: ["Integration tests"]
+    types: [completed]
+
+permissions:
+  actions: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: publish-playwright-reports-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    env:
+      PLAYWRIGHT_TRACES_DOMAIN: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
+      REPORT_PREFIX: playwright-reports
+      S3_BUCKET: shopware-ci-playwright-traces
+      WORKFLOW_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+      WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+      WORKFLOW_RUN_URL: ${{ github.event.workflow_run.html_url }}
+    steps:
+      - name: Check if trusted upload is configured
+        id: check-aws-allowed
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty; skipping trusted report publishing." >&2
+          else
+            echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download staged Playwright report artifacts
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        id: download-artifacts
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.payload.workflow_run.id,
+                per_page: 100,
+              },
+            );
+
+            const matches = artifacts.filter((artifact) => artifact.name.startsWith('playwright-html-report-'));
+
+            if (matches.length === 0) {
+              core.notice('No staged Playwright HTML report artifacts found.');
+              core.setOutput('found', 'false');
+              return;
+            }
+
+            fs.mkdirSync('artifacts', { recursive: true });
+
+            const metadata = [];
+
+            for (const artifact of matches) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
+              });
+
+              const file = path.join('artifacts', `${artifact.id}.zip`);
+              fs.writeFileSync(file, Buffer.from(download.data));
+
+              metadata.push({
+                file,
+                id: artifact.id,
+                name: artifact.name,
+              });
+            }
+
+            fs.writeFileSync('artifacts/metadata.json', JSON.stringify(metadata, null, 2));
+            core.setOutput('found', 'true');
+
+      - name: Configure AWS credentials
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && steps.download-artifacts.outputs.found == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: eu-central-1
+          role-session-name: gha-playwright-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+      - name: Upload Playwright HTML reports to S3
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && steps.download-artifacts.outputs.found == 'true' }}
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          import os
+          import re
+          import secrets
+          import subprocess
+          import zipfile
+          from pathlib import Path
+
+          artifacts = json.loads(Path('artifacts/metadata.json').read_text())
+          staging_root = Path('playwright-report-artifacts')
+          staging_root.mkdir(exist_ok=True)
+
+          uploads = []
+
+          def sanitize(name: str) -> str:
+              sanitized = re.sub(r'[^A-Za-z0-9._-]+', '-', name).strip('-').lower()
+              return sanitized or 'playwright-report'
+
+          for artifact in artifacts:
+              extract_dir = staging_root / sanitize(artifact['name'])
+              extract_dir.mkdir(parents=True, exist_ok=True)
+
+              with zipfile.ZipFile(artifact['file']) as archive:
+                  for member in archive.infolist():
+                      member_path = Path(member.filename)
+                      if member_path.is_absolute() or '..' in member_path.parts:
+                          raise RuntimeError(f'Unsafe artifact entry detected in {artifact["name"]}: {member.filename}')
+                  archive.extractall(extract_dir)
+
+              report_root = None
+
+              if (extract_dir / 'index.html').is_file():
+                  report_root = extract_dir
+              else:
+                  for candidate in extract_dir.rglob('index.html'):
+                      if candidate.parent.name == 'playwright-report':
+                          report_root = candidate.parent
+                          break
+
+              if report_root is None:
+                  print(f'No Playwright HTML report found in artifact {artifact["name"]}, skipping.')
+                  continue
+
+              destination = f'{os.environ["REPORT_PREFIX"]}/{os.environ["WORKFLOW_RUN_ID"]}-{os.environ["WORKFLOW_RUN_ATTEMPT"]}/{sanitize(artifact["name"])}-{secrets.token_hex(6)}'
+
+              subprocess.run(
+                  ['aws', 's3', 'cp', str(report_root), f's3://{os.environ["S3_BUCKET"]}/{destination}/', '--recursive'],
+                  check=True,
+              )
+
+              uploads.append(
+                  {
+                      'artifact': artifact['name'],
+                      'url': f'https://{os.environ["PLAYWRIGHT_TRACES_DOMAIN"]}/{destination}/index.html',
+                  }
+              )
+
+          Path('uploaded-reports.json').write_text(json.dumps(uploads, indent=2))
+          print(f'Uploaded {len(uploads)} Playwright report(s).')
+          PY
+
+      - name: Publish report summary
+        if: ${{ steps.download-artifacts.outputs.found == 'true' }}
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          uploaded_reports = json.loads(Path('uploaded-reports.json').read_text()) if Path('uploaded-reports.json').exists() else []
+
+          summary_lines = [
+              '### Playwright HTML reports',
+              '',
+              f'Source run: {os.environ["WORKFLOW_RUN_URL"]}',
+              '',
+          ]
+
+          if not uploaded_reports:
+              summary_lines.append('No Playwright HTML reports were uploaded.')
+          else:
+              summary_lines.extend([f'- `{report["artifact"]}`: {report["url"]}' for report in uploaded_reports])
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('\n'.join(summary_lines) + '\n')
+          PY
+
+      - name: Comment on pull request
+        if: ${{ steps.download-artifacts.outputs.found == 'true' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          REPORTS_FILE: uploaded-reports.json
+        with:
+          script: |
+            const fs = require('node:fs');
+
+            const reports = fs.existsSync(process.env.REPORTS_FILE)
+              ? JSON.parse(fs.readFileSync(process.env.REPORTS_FILE, 'utf8'))
+              : [];
+
+            const pullRequests = context.payload.workflow_run.pull_requests ?? [];
+
+            if (pullRequests.length === 0) {
+              core.notice('No pull request is associated with this workflow run.');
+              return;
+            }
+
+            const issueNumber = pullRequests[0].number;
+            const marker = '<!-- shopware-playwright-html-report -->';
+            const reportLines = reports.length === 0
+              ? ['No Playwright HTML reports were uploaded for this run.']
+              : reports.map((report) => `- \`${report.artifact}\`: ${report.url}`);
+
+            const body = [
+              marker,
+              '## Playwright HTML reports',
+              '',
+              `Source run: ${process.env.WORKFLOW_RUN_URL}`,
+              '',
+              ...reportLines,
+            ].join('\n');
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                per_page: 100,
+              },
+            );
+
+            const existing = comments.find((comment) =>
+              comment.user?.type === 'Bot' &&
+              typeof comment.body === 'string' &&
+              comment.body.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body,
+            });

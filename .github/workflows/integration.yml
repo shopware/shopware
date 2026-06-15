@@ -496,10 +496,17 @@ jobs:
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        if: ${{ always() && hashFiles('new-shopware/tests/acceptance/playwright-report/index.html') }}
+        with:
+          name: playwright-html-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
+          path: new-shopware/tests/acceptance/playwright-report/
+          retention-days: 3
+        continue-on-error: true
+
       - name: Check if this run should attempt AWS operations
         id: check-aws-allowed
-        if: ${{ github.repository_owner == 'shopware' &&
-              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: ${{ github.repository_owner == 'shopware' && github.event_name != 'pull_request' }}
         shell: bash
         run: |
               if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then

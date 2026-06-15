@@ -199,11 +199,18 @@ runs:
               retention-days: 3
           continue-on-error: true
 
+        - uses: actions/upload-artifact@v4
+          if: ${{ always() && hashFiles(format('{0}/playwright-report/index.html', inputs.directory)) }}
+          with:
+              name: playwright-html-report-${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}${{ inputs.major && '-major' || '' }}
+              path: ${{ inputs.directory }}/playwright-report/
+              retention-days: 3
+          continue-on-error: true
+
 
         - name: Check if this run should attempt AWS operations
           id: check-aws-allowed
-          if: ${{ github.repository_owner == 'shopware' &&
-              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+          if: ${{ github.repository_owner == 'shopware' && github.event_name != 'pull_request' }}
           shell: bash
           run: |
               if [ -z "${{ inputs.playwright-role-arn }}" ]; then

@@ -1404,6 +1404,33 @@
                             "type": "string"
                         }
                     }
+                },
+                "svg": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "allowed_elements": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_reference_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             },
             "title": "Media"

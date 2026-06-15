@@ -28,6 +28,8 @@ class MediaUploadControllerTest extends TestCase
     use MediaFixtures;
 
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    final public const SAFE_SVG = __DIR__ . '/fixtures/safe.svg';
+    final public const UNSAFE_SVG = __DIR__ . '/fixtures/unsafe.svg';
 
     /**
      * @var EntityRepository<MediaCollection>
@@ -136,6 +138,63 @@ class MediaUploadControllerTest extends TestCase
         static::assertStringEndsWith('new file name', $media->getFileName());
 
         $this->assertMediaApiResponse();
+    }
+
+    public function testUploadValidSvgFromBinary(): void
+    {
+        $url = \sprintf(
+            '/api/_action/media/%s/upload',
+            $this->mediaId
+        );
+
+        $this->getBrowser()->request(
+            'POST',
+            $url . '?extension=svg',
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/svg+xml',
+                'HTTP_CONTENT-LENGTH' => filesize(self::SAFE_SVG),
+            ],
+            (string) file_get_contents(self::SAFE_SVG)
+        );
+
+        $media = $this->getMediaEntity();
+
+        static::assertSame('svg', $media->getFileExtension());
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
+        $this->assertMediaEventThrown();
+    }
+
+    public function testUploadInvalidSvgFromBinaryReturnsBadRequest(): void
+    {
+        $url = \sprintf(
+            '/api/_action/media/%s/upload',
+            $this->mediaId
+        );
+
+        $this->getBrowser()->request(
+            'POST',
+            $url . '?extension=svg',
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/svg+xml',
+                'HTTP_CONTENT-LENGTH' => filesize(self::UNSAFE_SVG),
+            ],
+            (string) file_get_contents(self::UNSAFE_SVG)
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('CONTENT__MEDIA_INVALID_FILE', $responseData['errors'][0]['code']);
+        static::assertSame('Provided file is invalid: SVG files with active content are not allowed..', $responseData['errors'][0]['detail']);
+        static::assertEmpty($media->getPath());
+        static::assertNull($this->thrownMediaEvent);
     }
 
     public function testUploadFromURL(): void

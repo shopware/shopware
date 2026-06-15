@@ -13,6 +13,7 @@
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

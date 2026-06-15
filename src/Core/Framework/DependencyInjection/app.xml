@@ -107,6 +107,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <tag name="shopware.app_lifecycle.persister" priority="-300"/>
         </service>

@@ -46,6 +46,7 @@ class FileSaver
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly ThumbnailService $thumbnailService,
+        private readonly FileContentValidationStrategy $fileContentValidationStrategy,
         private readonly MetadataLoader $metadataLoader,
         private readonly TypeDetector $typeDetector,
         private readonly MessageBusInterface $messageBus,
@@ -78,6 +79,7 @@ class FileSaver
         );
 
         $this->validateFileExtension($mediaFile, $mediaId, $context, $currentMedia->isPrivate());
+        $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->removeOldMediaData($currentMedia, $context);
 
@@ -371,7 +373,7 @@ class FileSaver
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
 
         foreach ($event->getWhitelist() as $extension) {
-            if ($fileExtension === mb_strtolower((string) $extension)) {
+            if ($fileExtension === mb_strtolower($extension)) {
                 return;
             }
         }

@@ -116,6 +116,8 @@ class InfoControllerTest extends TestCase
         static::assertFalse($settings['private_allowed_extensions']);
         static::assertArrayHasKey('enableHtmlSanitizer', $settings);
         static::assertTrue($settings['enableHtmlSanitizer']);
+        static::assertArrayHasKey('minSearchTermLength', $settings);
+        static::assertSame(2, $settings['minSearchTermLength']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];

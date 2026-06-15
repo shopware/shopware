@@ -1,0 +1,261 @@
+name: "Reproduce: execute"
+
+# Deterministic half of the reproduce pipeline (the part gh-aw cannot express): the parallel
+# reported‖trunk provision/execute/verdict/report matrix.  *** DRAFT ***
+#
+# Paired with the gh-aw agent edge `.github/workflows/reproduce-analyze.md` ("Reproduce: analyze"):
+# that workflow derives the plan and uploads it; this one runs it. Triggered `on: workflow_run`
+# when the analyze workflow completes, it downloads the analysis artifact and runs the legs.
+# Together the pair REPLACES the hand-written reproduce.yml (retired at cutover — it collides
+# with the analyze workflow on the ci:reproduce / /reproduce triggers).
+#
+# Every bin/*.sh here (matrix, leg-plan, provision, run-leg, verdict, report, seed,
+# embed-evidence) is reused UNCHANGED from reproduce.yml; the only new code is this file's
+# workflow_run trigger + the `bootstrap` job that re-hydrates the plan from the analyze run.
+
+on:
+  workflow_run:
+    workflows: ["Reproduce: analyze"] # MUST match the analyze workflow's compiled `name:`
+    types: [completed]
+
+concurrency:
+  group: reproduce-execute-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+env:
+  # setup-shopware pulls node20 sub-actions; force node24 to silence the deprecation warning.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+  issues: write # matrix.sh needs-info/low-confidence draft + the final verdict comment
+  actions: read # download the analyze run's artifacts (cross-run)
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Bootstrap: re-hydrate the plan from the analyze run. Replaces gate+analyze.
+  # Runs only if the analyze run SUCCEEDED and produced a plan (if it emitted
+  # needs_info / noop there's no analysis.json → nothing to execute, exit clean).
+  # --------------------------------------------------------------------------
+  bootstrap:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+      issue: ${{ steps.ctx.outputs.issue }}
+      targets: ${{ steps.matrix.outputs.targets }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      # gh-aw uploads the agent's `upload-artifact` safe-output under this fixed name.
+      - name: Download plan from the analyze run
+        continue-on-error: true # absent when analyze emitted needs_info/noop (no plan)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: safe-outputs-upload-artifacts
+          path: plan
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Download reproduce context (issue number)
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: reproduce-context
+          path: ctx
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - id: gate
+        run: |
+          set -euo pipefail
+          if [ -f plan/analysis.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Analyze produced no plan (needs_info / noop) — nothing to execute."
+          fi
+      - id: ctx
+        if: steps.gate.outputs.run == 'true'
+        run: echo "issue=$(jq -r '.issue_number' ctx/reproduce-context.json)" >> "$GITHUB_OUTPUT"
+      # Stage the plan + scripts at the workspace root so matrix.sh and the legs find them.
+      - if: steps.gate.outputs.run == 'true'
+        run: cp plan/* . 2>/dev/null || true
+      # Same target matrix as today (reported‖trunk dedup; needs-info / <0.4 confidence bails).
+      - id: matrix
+        if: steps.gate.outputs.run == 'true'
+        env:
+          ISSUE: ${{ steps.ctx.outputs.issue }}
+          BRANCH: trunk
+          SKIP_REPORTED: "false"
+          POST: "true"
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/actions/repro/bin/matrix.sh
+      # Re-publish as "analysis" so the leg/verdict/report jobs download it normally (unchanged).
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.gate.outputs.run == 'true'
+        with:
+          name: analysis
+          path: |
+            analysis.json
+            fixtures.json
+            repro.spec.ts
+            ReproTest.php
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Reproduce: one parallel leg per target. Identical to reproduce.yml's job,
+  # only `needs`/`if`/matrix source change (bootstrap instead of gate+analyze).
+  # --------------------------------------------------------------------------
+  reproduce:
+    needs: bootstrap
+    if: needs.bootstrap.outputs.run == 'true' && needs.bootstrap.outputs.targets != '[]' && needs.bootstrap.outputs.targets != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJSON(needs.bootstrap.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: analysis
+      - id: plan
+        env:
+          LEG_VERSION: ${{ matrix.version }}
+          BRANCH: trunk
+        run: bash .github/actions/repro/bin/leg-plan.sh
+      - id: provision
+        if: steps.plan.outputs.executor == 'http' || steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct'
+        continue-on-error: true
+        uses: ./.github/actions/repro/provision
+        with:
+          version: ${{ steps.plan.outputs.version }}
+          admin-build: ${{ steps.plan.outputs.admin_build }}
+          storefront-build: ${{ steps.plan.outputs.storefront_build }}
+      - name: Seed fixtures
+        id: seed
+        if: steps.provision.outcome == 'success'
+        continue-on-error: true
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+        run: PAYLOAD=fixtures.json bash .github/actions/repro/bin/seed.sh
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        with:
+          node-version: 22
+      - name: Install Playwright
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        run: |
+          npm init -y >/dev/null
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Mark leg blocked
+        if: steps.provision.outcome == 'failure' || steps.seed.outcome == 'failure'
+        env:
+          TARGET: ${{ steps.plan.outputs.role }}
+          FAILED: ${{ steps.seed.outcome == 'failure' && 'seed' || 'provision' }}
+        run: bash .github/actions/repro/bin/leg-blocked.sh
+      - name: Run executor
+        if: steps.provision.outcome != 'failure' && steps.seed.outcome != 'failure'
+        env:
+          TARGET: ${{ steps.plan.outputs.role }}
+          EXECUTOR: ${{ steps.plan.outputs.executor }}
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+          SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
+        run: bash .github/actions/repro/bin/run-leg.sh
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: repro-${{ steps.plan.outputs.role }}
+          path: |
+            result.json
+            repro.sh
+            repro.spec.ts
+            ReproTest.php
+            phpunit-output.txt
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Verdict: deterministic decision from leg statuses + Analyze confidence.
+  # --------------------------------------------------------------------------
+  verdict:
+    needs: [bootstrap, reproduce]
+    if: always() && needs.bootstrap.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      has_results: ${{ steps.v.outputs.has_results }}
+      verdict: ${{ steps.v.outputs.verdict }}
+      fix_candidate: ${{ steps.v.outputs.fix_candidate }}
+      unsure_reason: ${{ steps.v.outputs.unsure_reason }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: v
+        run: MODE=reproduce ART=artifacts bash .github/actions/repro/bin/verdict.sh
+
+  # --------------------------------------------------------------------------
+  # Report: render the comment from verdict + per-leg evidence, post on the issue.
+  # (Commit attribution — the gated agent step — is deferred; it is another agentic
+  # slice that belongs on the gh-aw side or a small follow-up, not this deterministic job.)
+  # --------------------------------------------------------------------------
+  report:
+    needs: [bootstrap, reproduce, verdict]
+    if: always() && needs.bootstrap.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write # post the comment
+      contents: write # push inline evidence (gated by vars.REPRO_EVIDENCE_BRANCH)
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: render
+        env:
+          MODE: reproduce
+          ISSUE: ${{ needs.bootstrap.outputs.issue }}
+          VERDICT: ${{ needs.verdict.outputs.verdict }}
+          FIX: ${{ needs.verdict.outputs.fix_candidate }}
+          UNSURE: ${{ needs.verdict.outputs.unsure_reason }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash .github/actions/repro/bin/report.sh
+      - name: Embed inline evidence
+        if: needs.verdict.outputs.verdict != 'blocked' && vars.REPRO_EVIDENCE_BRANCH != ''
+        continue-on-error: true
+        env:
+          BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          TOKEN: ${{ github.token }}
+        run: bash .github/actions/repro/bin/embed-evidence.sh
+      - name: Post comment
+        # 'blocked' = infra/seed failure, not a bug verdict → keep it in the job summary only.
+        if: needs.verdict.outputs.verdict != 'blocked' && needs.bootstrap.outputs.issue != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          retries: 3
+          retry-exempt-status-codes: 400,403,404,422
+          script: |
+            const fs = require('fs');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number('${{ needs.bootstrap.outputs.issue }}'),
+              body: fs.readFileSync('comment.md', 'utf8'),
+            });

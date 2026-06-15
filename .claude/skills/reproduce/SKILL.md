@@ -21,11 +21,11 @@ drives the deterministic jobs that execute it. You do **not** label, comment, or
 the structured output is the deliverable.
 
 This skill drives the **interactive** path (Claude Code / opencode / Codex CLI in the
-repo). The **unattended CI path** is a hand-written multi-job workflow at
-`.github/workflows/reproduce.yml` — a parallel reported‖trunk matrix that a single-job
-agentic workflow can't express — which runs the Analyze phase via
-`anthropics/claude-code-action` and the deterministic legs as plain jobs. Both surfaces
-share this rubric and `references/SCHEMA.md` so they cannot drift.
+repo). The **unattended CI path** is a [gh-aw](https://github.com/github/gh-aw) workflow pair:
+`reproduce-analyze.md` runs the Analyze phase (a gh-aw agent) and uploads the plan, and
+`reproduce-execute.yml` runs the deterministic reported‖trunk matrix on `workflow_run` — a
+split a single agentic workflow can't express. Both surfaces share this rubric and
+`references/SCHEMA.md` so they cannot drift.
 
 ## Phases
 

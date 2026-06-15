@@ -49,11 +49,9 @@ class Content extends Bundle
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
         $loader->load('shared.xml');
-        $loader->load('content_system.xml');
 
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('product_export_tracking.php');
-
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('media_test.xml');

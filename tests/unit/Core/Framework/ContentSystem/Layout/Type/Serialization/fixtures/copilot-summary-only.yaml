@@ -1,0 +1,5 @@
+meta:
+  label: "Alert"
+  description: "Alert message."
+  copilot:
+    summary: "Custom copilot summary."

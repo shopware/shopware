@@ -69,6 +69,8 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
 
     /**
@@ -567,6 +569,31 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemElementTypeDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE,
+            'Element type name collision while persisting types for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemElementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
         );
     }
 

@@ -7,20 +7,15 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
-use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterField;
-use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterListField;
-use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingField;
-use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
-use Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementListField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsField;
-use Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -140,11 +135,6 @@ class SchemaBuilder
         ElementSlotsField::class => Types::JSON,
         ContextProvidersField::class => Types::JSON,
         ContextConsumersField::class => Types::JSON,
-        ParameterBindingField::class => Types::JSON,
-        ParameterBindingsField::class => Types::JSON,
-        ResolutionConfigField::class => Types::JSON,
-        CriteriaFilterField::class => Types::JSON,
-        CriteriaFilterListField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,

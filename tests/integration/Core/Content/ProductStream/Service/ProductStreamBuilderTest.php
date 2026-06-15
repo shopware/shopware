@@ -220,10 +220,9 @@ class ProductStreamBuilderTest extends TestCase
             ]],
         ]], Context::createDefaultContext());
 
-        $this->expectException(FeatureException::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionObject(FeatureException::error(
             'Tried to access deprecated functionality: Method "Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria" instead.'
-        );
+        ));
 
         Feature::fake(['v6.8.0.0'], function () use ($ids): void {
             $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());

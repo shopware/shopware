@@ -166,10 +166,10 @@ class ProductStreamProcessorTest extends TestCase
 
         $exception = new EntityNotFoundException('product_stream', 'deleted-product-stream-id');
 
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
         $this->productStreamBuilder->expects($this->once())
-            ->method('buildFilters')
-            ->with('deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
             ->willThrowException($exception);
 
         $this->logger->expects($this->once())

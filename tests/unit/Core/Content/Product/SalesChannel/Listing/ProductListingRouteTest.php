@@ -125,8 +125,8 @@ class ProductListingRouteTest extends TestCase
                 ]
             )])]);
 
-        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $productStreamBuilder->method('buildFilters')->willReturn([]);
+        $productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria');
 
         $cacheTagCollector = $this->createMock(CacheTagCollector::class);
         $calls = [

@@ -40,8 +40,8 @@ jobs:
               const runIdInput = process.env.WORKFLOW_RUN_ID_INPUT ?? '';
               const runId = Number(runIdInput);
 
-              if (!Number.isInteger(runId) || runId <= 0) {
-                core.setFailed(`Invalid workflow_run_id input: '${runIdInput}' (must be a positive integer). Please provide a valid Integration workflow run ID.`);
+              if (!Number.isInteger(runId) || runId < 1) {
+                core.setFailed(`Invalid workflow_run_id input: '${runIdInput}' (must be a positive integer greater than zero). Please provide a valid Integration workflow run ID.`);
                 return;
               }
 
@@ -114,8 +114,8 @@ jobs:
               },
             );
 
-            // Integration tests only upload ATS acceptance artifacts with the ats- prefix here.
-            // The playwright-report-update- artifact also bundles playwright-report/ alongside test-results/.
+            // Integration tests publish ATS acceptance artifacts with the ats- prefix.
+            // Update tests publish playwright-report-update- artifacts, and both artifact types bundle playwright-report/ alongside test-results/.
             const artifactPrefixes = ['ats-', 'playwright-report-update-'];
             const artifactsWithReports = artifacts.filter((artifact) =>
               artifactPrefixes.some((prefix) => artifact.name.startsWith(prefix))

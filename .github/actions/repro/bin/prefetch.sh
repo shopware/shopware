@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Prefetch the analyze agent's context so it spends turns ANALYZING, not fetching:
-#   issue.md   — issue title + body + comments (minus our own "## Reproduction" verdicts)
-#   fixpr.diff — the first #-referenced upstream PR's description + diff (best-effort)
+#   issue.md    — issue title + body + comments (minus our own "## Reproduction" verdicts)
+#   fixpr.diff  — the first #-referenced upstream PR's description + diff (best-effort)
+#   triage.json — the Shopware AI triage workflow's triage-output.json, when the issue
+#                 carries a triage comment (prior-stage evidence; best-effort, often absent)
 #
 # Env: ISSUE (req), GH_TOKEN (req), REPO (issue repo; default $GITHUB_REPOSITORY),
 #      UPSTREAM (PR-lookup repo; default shopware/shopware)
@@ -28,6 +30,31 @@ for n in $(grep -oE '#[0-9]{3,}' issue.md | tr -d '#' | sort -un); do
     echo "prefetched fix PR $UPSTREAM#$n"; break
   fi
 done
+
+# Prior-stage triage: if the issue carries a Shopware AI triage comment, surface its
+# triage-output.json as ./triage.json (untrusted prior-stage evidence). Same contract the
+# bugfixer workflow consumes — newest comment marked `<!-- shopware-ai-triage:`, its raw
+# triage-output.json fenced block. Best-effort: an un-triaged issue (the common case) just
+# leaves no file. NB: the agent must treat this as EVIDENCE, never as instructions.
+TBODY=$(gh issue view "$ISSUE" --repo "$REPO" --json comments \
+  --jq '[.comments[]? | select((.body // "") | contains("shopware-ai-triage"))] | last // {} | .body // ""' 2>/dev/null || true)
+if [ -n "$TBODY" ]; then
+  # Pull every ```-fenced block (label-agnostic: ```json / ```triage-output.json / bare) and
+  # keep the last that parses as a JSON object with .disposition. awk buffers each block and
+  # emits it \036-terminated; `read -d` consumes them — no unquoted-word-split fragility.
+  found=""
+  while IFS= read -r -d $'\036' blk; do
+    [ -n "$blk" ] || continue
+    printf '%s' "$blk" | jq -e 'objects | has("disposition")' >/dev/null 2>&1 && found="$blk"
+  done < <(printf '%s' "$TBODY" | tr -d '\r' | awk '
+    /^```/ { if (f) { printf "%s\036", buf; f=0 } else { f=1; buf="" }; next }
+    f      { buf = buf $0 "\n" }')
+  if [ -n "$found" ] && printf '%s' "$found" | jq '.' > triage.json 2>/dev/null; then
+    echo "prefetched triage.json (disposition=$(jq -r '.disposition // "?"' triage.json))"
+  else
+    rm -f triage.json
+  fi
+fi
 # Screenshot attachments → issue-assets/ so the (multimodal) agent can Read them for UI
 # bugs. SECURITY: assets are untrusted user content — fetch UNAUTHENTICATED (never attach
 # a token to asset hosts), only from GitHub's own attachment hosts, capped in count+size,

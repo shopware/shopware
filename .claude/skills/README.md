@@ -23,8 +23,10 @@ No flags, no plugins — drop into a session and just describe what you want.
 ## Unattended CI twin
 
 A skill can also run unattended in CI. The `reproduce` skill's CI surface is a
-hand-written multi-job workflow at [`.github/workflows/reproduce.yml`](../../.github/workflows/reproduce.yml)
-(a parallel reported‖trunk matrix), which shares the skill's rubric and
-[`references/SCHEMA.md`](reproduce/references/SCHEMA.md) so the interactive and
-unattended paths cannot drift. See the pipeline overview at
+[GitHub Agentic Workflow](https://github.com/github/gh-aw) pair (same architecture as
+`triage` / `bugfixer`): [`reproduce-analyze.md`](../../.github/workflows/reproduce-analyze.md)
+runs the agentic Analyze phase and uploads the plan; [`reproduce-execute.yml`](../../.github/workflows/reproduce-execute.yml)
+runs the deterministic reported‖trunk matrix + verdict + report on `workflow_run`. Both share
+the skill's rubric and [`references/SCHEMA.md`](reproduce/references/SCHEMA.md) so the
+interactive and unattended paths cannot drift. See the pipeline overview at
 [`.github/actions/repro/README.md`](../../.github/actions/repro/README.md).

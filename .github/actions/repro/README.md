@@ -14,9 +14,9 @@ for by trial and error.
    workflow **hard-fails** rather than fabricating a plan.
 2. Trigger a run by either:
    - applying the `ci:reproduce` label to an issue, **or**
-   - `gh workflow run reproduce.yml -f issue_number=<N> -f post_comment=true`
-3. The workflow reads the issue, reproduces, and (when triggered by a label, or with
-   `post_comment=true`) comments the verdict. Manual runs default to job-summary-only.
+   - `gh aw run reproduce-analyze -F issue_number=<N>` (manual dispatch).
+3. `reproduce-analyze` (gh-aw) derives the plan and uploads it; `reproduce-execute` then
+   provisions the reported‖trunk legs, runs the executor, and comments the verdict on the issue.
 
 ## Phases
 
@@ -69,8 +69,9 @@ for the full JSON contracts.
 ## Layout
 
 ```
-.github/workflows/reproduce.yml        orchestrator (gate→analyze→reproduce→verdict→report)
-.github/workflows/reproduce-eval.yml   skillgrade eval for the Analyze phase
+.github/workflows/reproduce-analyze.md      gh-aw analyze edge (→ reproduce-analyze.lock.yml)
+.github/workflows/reproduce-execute.yml     deterministic matrix (workflow_run): bootstrap→reproduce→verdict→report
+.github/workflows/reproduce-eval.yml        skillgrade eval for the Analyze phase
 .github/actions/repro/provision/       setup-shopware + server-ready poll
 .github/actions/repro/bin/run-http.sh        http executor
 .github/actions/repro/bin/run-playwright.sh  playwright executor

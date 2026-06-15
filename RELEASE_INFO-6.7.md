@@ -2,6 +2,11 @@
 
 ## Storefront
 
+### Storefront cache hash no longer varies by language
+
+The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.
+Store API requests still include the language id in the cache hash, as the same Store API URL can return different languages via the `sw-language-id` header.
+
 ### Central extension point for content before/after list prices
 
 A new template `@Storefront/storefront/component/product/list-price-affix.html.twig` is rendered inside every list price display (product box, product detail buy widget, advanced pricing table). It replaces the deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets as the single place to inject content around list prices.

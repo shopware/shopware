@@ -3423,6 +3423,44 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.find('.false-case').exists()).toBe(false);
         });
 
+        it('fails loudly when a legacy Twig conditional shim is rendered without host data scope', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentFactory.register('native-block-legacy-twig-shim-missing-data-scope', {
+                data() {
+                    return {
+                        condition1: false,
+                    };
+                },
+                template: `
+                    <div>
+                        <sw-block name="twig_shim_block">
+                            <div v-if="condition1" class="condition-one">one</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-shim-missing-data-scope', {
+                template: `
+                    {% block twig_shim_block %}
+                        {% parent %}
+                        <div v-else class="twig-fallback">fallback</div>
+                    {% endblock %}
+                `,
+            });
+
+            try {
+                await expect(mountNativeBlockComponent('native-block-legacy-twig-shim-missing-data-scope')).rejects.toThrow(
+                    '[sw-block] Legacy Twig conditional override for block "twig_shim_block" ' +
+                        'in component "native-block-legacy-twig-shim-missing-data-scope" requires host data scope. ' +
+                        'Pass :data="$dataScope()" to <sw-block name="twig_shim_block">.',
+                );
+            } finally {
+                consoleWarn.mockRestore();
+            }
+        });
+
         it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 

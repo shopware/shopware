@@ -116,7 +116,11 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
                 const helper = resolveAllowedLegacyBlockHelper(dataScopeRef.value, helperName);
 
                 if (typeof helper !== 'function') {
-                    return undefined;
+                    throw new Error(
+                        `[sw-block] Legacy Twig conditional override for block "${blockName}" ` +
+                            `in component "${entry.componentName}" requires host data scope. ` +
+                            `Pass :data="$dataScope()" to <sw-block name="${blockName}">.`,
+                    );
                 }
 
                 return (helper as LegacyBlockHelper)(...args);

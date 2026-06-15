@@ -1,6 +1,6 @@
 # Adapter
 
-Connects CMS-capable entities (Product, Category, Landing Page) and domain-scoped content (Header, Footer) to the rendering pipeline. Specification sources implement `supports()` to claim paths, then `RenderingSpecificationFactory` assembles `RenderingSpecification` objects from discrete resolution steps.
+Connects CMS-capable entities (Product, Category, Landing Page) and domain-scoped content (Header, Footer) to the rendering pipeline. Specification sources implement `supports()` to claim paths, then `RenderingSpecificationFactory` assembles a `ResolvedContentLayout` (layout ID plus `RenderingSpecification`) from discrete resolution steps.
 
 ## Resolution Strategies
 
@@ -11,7 +11,7 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 ## Key Classes
 
 - `RenderingSpecificationResolver` - Iterates sources via `supports()`, delegates to `RenderingSpecificationFactory`
-- `RenderingSpecificationFactory` - Assembles specification from source's discrete resolution steps
+- `RenderingSpecificationFactory` - Assembles a `ResolvedContentLayout` from the source's discrete resolution steps
 - `AbstractSpecificationSource` - Base class: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`
 - Entity sources moved to domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
 - Domain-aware sources moved to Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`

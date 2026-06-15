@@ -6,7 +6,8 @@
 - **Header/Footer Sources**: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 - **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config)
 - **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
-- **Pipeline**: `ContentPipeline` (steps 2-5), `RenderingMode` (FULL vs SKELETON)
+- **Pipeline**: `ContentPipeline` (steps 3-5), `RenderingMode` (FULL vs SKELETON)
+- **Layout Value Objects**: `RenderableLayout` (reference + elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 - **Schema**: `Schema/ContentSystemDataLoaderTypeResolver`, `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeSchemaGenerator`
 - **Entity Type Schema**: `Schema/ContentLayoutAssignableEntitySchemaGenerator`
@@ -19,8 +20,8 @@
 ## Constraints
 
 - `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
-- `ContentPipeline::load()`: layout load → PreHydration events → hydration (FULL mode only) → PostHydration events
-- Specification resolution happens in `ContentRoute`, NOT in `ContentPipeline`
+- `ContentPipeline::load()`: receives a loaded `RenderableLayout` → PreHydration events → hydration (FULL mode only) → PostHydration events
+- Specification resolution and layout-entity loading happen in `ContentRoute`, NOT in `ContentPipeline`
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 - Data loader type introspection: `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` on all tagged loaders at build time — loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc; wildcard loaders listen to `ContentSystemDataLoaderTypesResolvedEvent` for runtime expansion
 - Schema API endpoint: `GET /api/_info/content-system-data-loader-types.json` (registered in `InfoController`)

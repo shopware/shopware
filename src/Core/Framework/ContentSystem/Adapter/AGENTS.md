@@ -4,7 +4,7 @@
 
 - `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`
 - `RenderingSpecificationResolver` - Iterates sources, checks `supports()`, calls `RenderingSpecificationFactory::create()`
-- `RenderingSpecificationFactory` - Assembles `RenderingSpecification` from source steps
+- `RenderingSpecificationFactory` - Assembles `ResolvedContentLayout` (layout ID plus `RenderingSpecification`) from source steps
 - Entity sources co-located with domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
 - Domain-aware sources in Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 - `EntityLayoutResolver`, `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity resolution

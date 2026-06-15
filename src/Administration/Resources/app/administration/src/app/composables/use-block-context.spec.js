@@ -178,6 +178,7 @@ describe('use-block-context', () => {
                 shimExtensionCases: [],
                 nativeExtensionCases: [],
                 persistent: false,
+                keepShimResultsForNextReservation: false,
             },
         });
 
@@ -210,6 +211,7 @@ describe('use-block-context', () => {
                     caseResult(false),
                 ],
                 persistent: true,
+                keepShimResultsForNextReservation: false,
             },
         });
 
@@ -227,6 +229,7 @@ describe('use-block-context', () => {
                     caseResult(false),
                 ],
                 persistent: true,
+                keepShimResultsForNextReservation: false,
             },
         });
     });
@@ -283,6 +286,7 @@ describe('use-block-context', () => {
                 ],
                 nativeExtensionCases: [],
                 persistent: true,
+                keepShimResultsForNextReservation: true,
             },
         });
     });
@@ -310,6 +314,7 @@ describe('use-block-context', () => {
                     caseResult(false),
                 ],
                 persistent: true,
+                keepShimResultsForNextReservation: true,
             },
         });
     });
@@ -334,6 +339,7 @@ describe('use-block-context', () => {
                     caseResult(false),
                 ],
                 persistent: true,
+                keepShimResultsForNextReservation: true,
             },
         });
     });
@@ -365,7 +371,31 @@ describe('use-block-context', () => {
                 ],
                 nativeExtensionCases: [],
                 persistent: true,
+                keepShimResultsForNextReservation: true,
             },
         });
+    });
+
+    it('keeps native extension cases pending until stale shim cases re-evaluate', async () => {
+        // Initial parent render: the reserved shim case is pending, so the native fallback must wait.
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+
+        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
+        expect(legacyElseIf('test', false, shimCase(0))).toBe(false);
+
+        // Follow-up render after the shim resolved to false: the native fallback can now render.
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+        expect(legacyElse('test', nativeCase(0))).toBe(true);
+
+        await Promise.resolve();
+
+        // Later parent render: the old false result is stale, so the native fallback must wait again.
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
+        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
     });
 });

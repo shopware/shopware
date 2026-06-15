@@ -145,6 +145,7 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
                 ],
                 nativeExtensionCases: [],
                 persistent: true,
+                keepShimResultsForNextReservation: false,
             });
 
             clearLegacyConditionChain(chainKey);

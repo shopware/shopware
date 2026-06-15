@@ -21,6 +21,8 @@ type LegacyConditionChain = {
     nativeExtensionCases: LegacyConditionCaseList;
     // Keeps shim chains alive across ticks until their owning shim component unmounts.
     persistent: boolean;
+    // Keeps freshly evaluated shim results available for the next reservation.
+    keepShimResultsForNextReservation: boolean;
 };
 
 /**
@@ -98,6 +100,7 @@ function createLegacyConditionChain(): LegacyConditionChain {
         shimExtensionCases: [],
         nativeExtensionCases: [],
         persistent: false,
+        keepShimResultsForNextReservation: false,
     };
 }
 
@@ -181,6 +184,9 @@ function setLegacyCaseResult(
         chain.persistent &&
         (previous?.result !== nextResult.result || previous?.isStartingCondition !== nextResult.isStartingCondition)
     ) {
+        if (options.renderOrderSegment === 'shimExtension') {
+            chain.keepShimResultsForNextReservation = true;
+        }
         scheduleChainUpdate(chainKey);
     }
 }
@@ -272,6 +278,15 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
 
     const caseList = chain.shimExtensionCases;
     let hasNewReservation = false;
+    const keepShimResultsForNextReservation = chain.keepShimResultsForNextReservation;
+
+    if (keepShimResultsForNextReservation) {
+        queueMicrotask(() => {
+            if (legacyConditionContext[chainKey] === chain) {
+                chain.keepShimResultsForNextReservation = false;
+            }
+        });
+    }
 
     for (
         let currentIndex = reservation.caseStartIndex;
@@ -280,6 +295,10 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
     ) {
         if (!(currentIndex in caseList)) {
             // Undefined means the case exists, but the shim has not evaluated it yet.
+            caseList[currentIndex] = undefined;
+            hasNewReservation = true;
+        } else if (!keepShimResultsForNextReservation && caseList[currentIndex] !== undefined) {
+            // Clear existing results for re-reserved slots to ensure they are up-to-date with the latest shim evaluation.
             caseList[currentIndex] = undefined;
             hasNewReservation = true;
         }

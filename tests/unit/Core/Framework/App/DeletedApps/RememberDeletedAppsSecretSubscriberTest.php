@@ -59,7 +59,8 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $appId = Uuid::randomHex();
         $event = new AppDeletedEvent(
             $appId,
-            Context::createDefaultContext()
+            Context::createDefaultContext(),
+            keepUserData: true
         );
 
         $foundApp = new AppEntity();
@@ -72,6 +73,28 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->deletedAppsGateway->expects($this->once())
             ->method('insertSecretForDeletedApp')
             ->with('test-app', 'secret-123');
+
+        $this->subscriber->saveSecretFromDeletedApp($event);
+    }
+
+    public function testSecretIsNotSavedWhenUserDataIsNotKept(): void
+    {
+        $appId = Uuid::randomHex();
+        $event = new AppDeletedEvent(
+            $appId,
+            Context::createDefaultContext(),
+            keepUserData: false
+        );
+
+        $foundApp = new AppEntity();
+        $foundApp->setId($appId);
+        $foundApp->setName('test-app');
+        $foundApp->setAppSecret('secret-123');
+
+        $this->appRepository->searches = [[$foundApp]];
+
+        $this->deletedAppsGateway->expects($this->never())
+            ->method('insertSecretForDeletedApp');
 
         $this->subscriber->saveSecretFromDeletedApp($event);
     }

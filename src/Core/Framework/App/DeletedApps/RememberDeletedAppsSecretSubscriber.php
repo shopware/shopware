@@ -39,6 +39,11 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
 
     public function saveSecretFromDeletedApp(AppDeletedEvent $event): void
     {
+        // The old secret is only needed to re-register an app that kept its data; otherwise a re-install starts fresh.
+        if (!$event->keepUserData()) {
+            return;
+        }
+
         $criteria = new Criteria([$event->getAppId()]);
         $app = $this->appRepository->search($criteria, $event->getContext())->first();
 

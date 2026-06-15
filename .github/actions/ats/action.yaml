@@ -117,13 +117,13 @@ runs:
           uses: shopware/setup-shopware@main
           with:
               mysql-version: "builtin"
+              npm-version: 11.8.0
               shopware-version: ${{ github.ref }}
               shopware-repository: ${{ github.repository }}
               install: ${{ inputs.install }}
               install-admin: true
               install-storefront: true
               env: prod
-              composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
               php-version: ${{ inputs.php-version }}
 
         - name: Build js
@@ -151,6 +151,10 @@ runs:
           with:
               node-version: 22
 
+        - name: Install npm
+          shell: bash
+          run: npm install -g npm@11.8.0
+
         - name: Cache npm packages
           uses: actions/cache@v4
           with:
@@ -162,9 +166,10 @@ runs:
                   ${{ runner.os }}-${{ inputs.directory }}
 
         - name: Install dependencies
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npm ci
+          # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
+          uses: ./.github/actions/npm-ci-retry
+          with:
+              working-directory: ${{ inputs.directory }}
 
         - name: Refresh Package List
           shell: bash

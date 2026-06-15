@@ -79,8 +79,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
         $commandTester = new CommandTester($this->productExportGenerateCommand);
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
+        $this->expectExceptionObject(ProductExportException::salesChannelNotAllowed());
 
         $commandTester->execute([
             'sales-channel-id' => $nonStorefrontSalesChannelId,

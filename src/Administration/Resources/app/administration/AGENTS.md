@@ -45,7 +45,8 @@ Jest                # Testing framework
 
 ## Coding guidelines
 - Write Jest tests for all new features and bug fixes
-  - Locate tests in the same folder as the code they are testing, using the `.spec.js` suffix
+  - Locate tests in the same folder as the code they are testing, using the `.spec.ts` suffix.
+  - Split big tests (500+ lines) into a `.spec/` directory named after the original spec. Each file in that directory must cover a logical scenario or behavior group, similar to how related tests are grouped with `describe` blocks, for example `sw-compontent-name.spec/validation.spec.ts`. See `adr/2026-05-06-split-large-administration-test-files.md`.
 - Use TypeScript for all new code
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Follow existing code style and patterns
@@ -53,6 +54,7 @@ Jest                # Testing framework
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.
+In a Docker environment prepend `docker compose exec web ...`.
 
 ```bash
 # Linting

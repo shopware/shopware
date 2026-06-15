@@ -3,6 +3,7 @@
 namespace Shopware\Core\Installer\Configuration;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
@@ -15,12 +16,16 @@ use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 #[Package('framework')]
 class AdminConfigurationService
 {
+    public function __construct(private readonly ClockInterface $clock)
+    {
+    }
+
     /**
      * @param AdminUser $user
      */
     public function createAdmin(array $user, Connection $connection): void
     {
-        $userProvisioner = new UserProvisioner($connection);
+        $userProvisioner = new UserProvisioner($connection, $this->clock);
         $userProvisioner->provision(
             $user['username'],
             $user['password'],

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -121,7 +122,7 @@ class WebhookClientTest extends TestCase
         $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
         $guzzle = new Client(['handler' => $handlerStack]);
-        $client = new WebhookClient($guzzle);
+        $client = new WebhookClient($guzzle, new NativeClock());
 
         $requests = [
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1', headers: ['X-Custom' => 'value1']),
@@ -177,7 +178,7 @@ class WebhookClientTest extends TestCase
         $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
 
-        $client = new WebhookClient(new Client(['handler' => $handlerStack]));
+        $client = new WebhookClient(new Client(['handler' => $handlerStack]), new NativeClock());
 
         $results = $client->sendBatch([
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
@@ -266,13 +267,84 @@ class WebhookClientTest extends TestCase
         static::assertNull($result->body);
     }
 
+    public function testSendSuccessRecordsProcessingTimeSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], '{}'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertNotNull($result->processingTimeSeconds);
+        static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
+    }
+
+    public function testSendFailureRecordsProcessingTimeSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new ConnectException('Connection refused', new Request('POST', 'https://example.com')),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertFalse($result->successful());
+        static::assertNotNull($result->processingTimeSeconds);
+        static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
+    }
+
+    public function testSendBatchFulfilledRecordsProcessingTimeSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], '{}'),
+            new Response(201, [], '{}'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+
+        $results = $client->sendBatch([
+            'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
+            'hook2' => $this->createWebhookRequest(url: 'https://example.com/hook2'),
+        ]);
+
+        static::assertCount(2, $results);
+        foreach ($results as $key => $result) {
+            static::assertTrue($result->successful(), \sprintf('Expected result "%s" to be successful', $key));
+            static::assertNotNull($result->processingTimeSeconds, \sprintf('Expected result "%s" to have processingTimeSeconds', $key));
+            static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds, \sprintf('Expected result "%s" processingTimeSeconds >= 0', $key));
+        }
+    }
+
+    public function testSendBatchRejectedRecordsProcessingTimeSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook1')),
+            new ConnectException('Timeout', new Request('POST', 'https://example.com/hook2')),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+
+        $results = $client->sendBatch([
+            'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
+            'hook2' => $this->createWebhookRequest(url: 'https://example.com/hook2'),
+        ]);
+
+        static::assertCount(2, $results);
+        foreach ($results as $key => $result) {
+            static::assertFalse($result->successful(), \sprintf('Expected result "%s" to be a failure', $key));
+            static::assertNotNull($result->processingTimeSeconds, \sprintf('Expected result "%s" to have processingTimeSeconds', $key));
+            static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds, \sprintf('Expected result "%s" processingTimeSeconds >= 0', $key));
+        }
+    }
+
     private function createClient(MockHandler $mockHandler): WebhookClient
     {
         $stack = HandlerStack::create($mockHandler);
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
 
-        return new WebhookClient($guzzle);
+        return new WebhookClient($guzzle, new NativeClock());
     }
 
     /**

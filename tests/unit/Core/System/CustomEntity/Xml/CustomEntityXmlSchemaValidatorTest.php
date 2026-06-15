@@ -23,17 +23,13 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
 
         $validator = new CustomEntityXmlSchemaValidator();
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No entities found in parsed xml file');
+        $this->expectExceptionObject(new \RuntimeException('No entities found in parsed xml file'));
 
         $validator->validate($schema);
     }
 
-    /**
-     * @param class-string<\Throwable> $exceptionClass
-     */
     #[DataProvider('xmlProvider')]
-    public function testValidate(string $xml, string $exceptionClass, string $expectedMessage): void
+    public function testValidate(string $xml, \Exception $expectedException): void
     {
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
@@ -47,16 +43,15 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
 
         $validator = new CustomEntityXmlSchemaValidator();
 
-        $this->expectException($exceptionClass);
-        $this->expectExceptionMessage($expectedMessage);
+        $this->expectExceptionObject($expectedException);
 
         $validator->validate($schema);
     }
 
     /**
-     * @return iterable<string, array{0: string, 1: class-string<\Throwable>, 2: string}>
+     * @return \Generator<string, array{0: string, 1: \Exception}>
      */
-    public static function xmlProvider(): iterable
+    public static function xmlProvider(): \Generator
     {
         yield 'custom-fields-aware-but-no-label' => [
             <<<'XML'
@@ -67,9 +62,9 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 </fields>
             </entity>
             XML,
-            CustomEntityException::class,
-            'Entity must have a label property when it is custom field aware',
+            CustomEntityException::noLabelProperty(),
         ];
+
         yield 'custom-fields-aware-non-existent-label-prop' => [
             <<<'XML'
             <entity custom-fields-aware="true" label-property="label">
@@ -79,9 +74,9 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 </fields>
             </entity>
             XML,
-            CustomEntityException::class,
-            'Entity label_property "label" is not defined in fields',
+            CustomEntityException::labelPropertyNotDefined('label'),
         ];
+
         yield 'custom-fields-aware-non-string-label-prop' => [
             <<<'XML'
             <entity custom-fields-aware="true" label-property="name">
@@ -91,9 +86,9 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 </fields>
             </entity>
             XML,
-            CustomEntityException::class,
-            'Entity label_property "name" must be a string field',
+            CustomEntityException::labelPropertyWrongType('name'),
         ];
+
         yield 'cascade-delete-to-core-table' => [
             <<<'XML'
             <entity name="ce_test">
@@ -103,9 +98,9 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 </fields>
             </entity>
             XML,
-            \RuntimeException::class,
-            'Cascade delete and referencing core tables are not allowed, field products',
+            new \RuntimeException('Cascade delete and referencing core tables are not allowed, field products'),
         ];
+
         yield 'reverse-required-to-core-table' => [
             <<<'XML'
             <entity name="ce_test">
@@ -115,8 +110,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 </fields>
             </entity>
             XML,
-            \RuntimeException::class,
-            'Reverse required when referencing core tables is not allowed, field products',
+            new \RuntimeException('Reverse required when referencing core tables is not allowed, field products'),
         ];
     }
 }

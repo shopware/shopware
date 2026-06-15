@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -407,6 +408,53 @@ class CacheInvalidationSubscriberTest extends TestCase
             });
 
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, false));
+    }
+
+    public function testInvalidateStreamIdsWithProductStreamFilterWrites(): void
+    {
+        $streamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([
+                EntityCacheKeyGenerator::buildStreamTag($streamId),
+                EntityCacheKeyGenerator::buildStreamTag($deletedStreamId),
+            ]);
+
+        $subscriber->invalidateStreamIds(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    'product_stream_filter',
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            ['productStreamId' => $streamId],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_DELETE,
+                            new EntityExistence(
+                                'product_stream_filter',
+                                ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                                true,
+                                false,
+                                false,
+                                ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                            ),
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
     }
 
     public function createSnippetEvent(): EntityWrittenContainerEvent

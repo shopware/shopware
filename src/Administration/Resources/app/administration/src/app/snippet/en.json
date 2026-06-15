@@ -18,6 +18,7 @@
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
       "THEME__INVALID_SCSS_VAR": "SCSS value \"{value}\" is not valid for type \"{type}\"."
     },
     "default": {
@@ -49,7 +50,8 @@
       "back": "Back",
       "discard": "Discard",
       "submit": "Submit",
-      "attention": "Warning"
+      "attention": "Warning",
+      "configure": "Configure"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -668,7 +670,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",
@@ -702,7 +704,8 @@
         "isNoneOf": "Is none of | Are none of",
         "gross": "Gross",
         "net": "Net",
-        "empty": "Is empty | Are empty"
+        "empty": "Is empty | Are empty",
+        "between": "Is between | Are between"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
@@ -754,11 +757,11 @@
         "customerCampaignCodeRule": "Campaign code (customer)",
         "orderAffiliateCodeRule": "Affiliate code (order)",
         "orderCampaignCodeRule": "Campaign code (order)",
-        "cartAmountRule": "Grand total",
-        "cartPositionPrice": "Total",
-        "goodsCountRule": "Total quantity of distinct products",
-        "goodsPriceRule": "Subtotal of all items",
-        "cartTotalPurchasePrice": "Total of all purchase prices",
+        "cartAmountRule": "Cart total (incl. shipping)",
+        "cartPositionPrice": "Cart sum of items (excl. shipping)",
+        "goodsCountRule": "Number of distinct products",
+        "goodsPriceRule": "Subtotal of goods (excl. discounts/fees)",
+        "cartTotalPurchasePrice": "Sum of purchase prices",
         "lineItemOfTypeRule": {
           "label": "Item of type",
           "product": "Product",
@@ -768,12 +771,12 @@
         "lineItemsInCartCountRule": "Quantity of distinct items",
         "promotionsInCartCountRule": "Quantity of discounts",
         "lineItemUnitPriceRule": "Item unit price",
-        "lineItemTotalPriceRule": "Item subtotal",
+        "lineItemTotalPriceRule": "Item total (qty × price)",
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
-        "orderDeliveryStatusRule": "Delivery status (flow)",
-        "orderCreatedByAdminRule": "Order created by administrator (flow)",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by administrator",
         "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
@@ -839,7 +842,7 @@
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
-        "lineItemGoodsTotalRule": "Total quantity of all products",
+        "lineItemGoodsTotalRule": "Total product quantity (units)",
         "orderTotalAmountRule": "Total value of completed (done) orders",
         "promotionValueRule": "Subtotal of all discounts",
         "promotionCodeOfType": "Promotions with code option",

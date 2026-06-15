@@ -62,6 +62,14 @@ final class RevocationRequestEvent extends Event implements SalesChannelAware, M
         ];
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
+    public function getRevocationRequestFormData(): array
+    {
+        return $this->formData;
+    }
+
     public function getContext(): Context
     {
         return $this->context;

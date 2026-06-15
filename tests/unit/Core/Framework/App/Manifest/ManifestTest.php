@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 
@@ -38,20 +39,16 @@ class ManifestTest extends TestCase
 
     public function testCreateFromXmlFileThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
-        $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
-        $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
+        $xmlFile = __DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml';
 
-        Manifest::createFromXmlFile(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml');
+        $this->expectExceptionObject(AppException::xmlParsingException($xmlFile, ''));
+
+        Manifest::createFromXmlFile($xmlFile);
     }
 
     public function testCreateFromXmlThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
-        $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
-        $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
+        $this->expectExceptionObject(AppXmlParsingException::cannotParseContent(''));
 
         Manifest::createFromXml((string) file_get_contents(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml'));
     }
@@ -123,8 +120,7 @@ class ManifestTest extends TestCase
         $fileContent = file_get_contents(__DIR__ . $file);
         static::assertIsString($fileContent);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Unable to parse file "/_fixtures/invalidShippingMethods-manifest.xml". Message: name must not be empty');
+        $this->expectExceptionObject(AppException::xmlParsingException('/_fixtures/invalidShippingMethods-manifest.xml', 'name must not be empty'));
 
         Manifest::validate($fileContent, $file);
     }

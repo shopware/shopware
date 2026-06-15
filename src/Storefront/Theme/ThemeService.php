@@ -90,14 +90,48 @@ class ThemeService implements ResetInterface
 
         // refresh the runtime config only if not using the StaticFileConfigLoader (no database)
         if (!$this->configLoader instanceof StaticFileConfigLoader) {
+            $importMap = null;
+            if ($this->themeCompiler instanceof ThemeCompiler) {
+                $importMap = $this->themeCompiler->buildComponentImportMap(
+                    $configurationCollection ?? $this->extensionRegistry->getConfigurations()
+                );
+
+                $importMap ??= ['imports' => []];
+            }
+
             $this->themeRuntimeConfigService->refreshRuntimeConfig(
                 $themeId,
                 $themeConfig,
                 $context,
                 true,
-                $configurationCollection
+                $configurationCollection,
+                $importMap,
             );
         }
+    }
+
+    public function refreshThemeImportMap(
+        string $salesChannelId,
+        string $themeId,
+        Context $context,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null
+    ): void {
+        if ($this->configLoader instanceof StaticFileConfigLoader || !$this->themeCompiler instanceof ThemeCompiler) {
+            return;
+        }
+
+        $configurationCollection ??= $this->extensionRegistry->getConfigurations();
+        $themeConfig = $this->configLoader->load($themeId, $context);
+        $importMap = $this->themeCompiler->buildComponentImportMap($configurationCollection) ?? ['imports' => []];
+
+        $this->themeRuntimeConfigService->refreshRuntimeConfig(
+            $themeId,
+            $themeConfig,
+            $context,
+            false,
+            $configurationCollection,
+            $importMap,
+        );
     }
 
     /**

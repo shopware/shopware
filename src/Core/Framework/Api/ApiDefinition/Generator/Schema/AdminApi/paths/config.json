@@ -26,6 +26,7 @@
                     "enableAdminWorker": true,
                     "enableNotificationWorker": true,
                     "transports": [
+                      "webhook",
                       "async",
                       "low_priority"
                     ]

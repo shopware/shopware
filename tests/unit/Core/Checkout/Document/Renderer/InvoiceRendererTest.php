@@ -40,6 +40,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -123,6 +124,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $validator,
+            new NativeClock()
         );
 
         $operations = [
@@ -210,6 +212,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            new NativeClock()
         );
 
         $operations = [
@@ -263,6 +266,7 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            new NativeClock()
         );
 
         $operations = [

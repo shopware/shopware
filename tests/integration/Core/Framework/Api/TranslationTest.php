@@ -134,7 +134,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testEmptyLanguageIdError(): void
+    public function testEmptyLanguageIdFallsBackToDefaultLanguage(): void
     {
         $baseResource = '/api/category';
         $headerName = $this->getLangHeaderName();
@@ -142,10 +142,10 @@ class TranslationTest extends TestCase
 
         $this->getBrowser()->jsonRequest('GET', $baseResource, [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(412, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(RoutingException::LANGUAGE_NOT_FOUND, $data['errors'][0]['code']);
+        static::assertArrayHasKey('data', $data);
     }
 
     public function testInvalidUuidLanguageIdError(): void

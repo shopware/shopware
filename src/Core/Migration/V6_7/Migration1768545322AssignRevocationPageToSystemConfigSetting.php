@@ -59,10 +59,19 @@ class Migration1768545322AssignRevocationPageToSystemConfigSetting extends Migra
 
     private function getPageId(Connection $connection): ?string
     {
-        return $connection->fetchOne(
-            'SELECT cms_page_id FROM cms_page_translation WHERE name = :name',
-            ['name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name']]
+        $pageByteId = $connection->fetchOne(
+            'SELECT cms_page_id FROM cms_page_translation WHERE name = :name AND cms_page_version_id = :versionId',
+            [
+                'name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'],
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
         );
+
+        if (!\is_string($pageByteId)) {
+            return null;
+        }
+
+        return $pageByteId;
     }
 
     private function isPageAssigned(Connection $connection): bool

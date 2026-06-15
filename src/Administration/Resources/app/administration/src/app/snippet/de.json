@@ -18,6 +18,7 @@
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
       "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\"."
     },
     "default": {
@@ -49,7 +50,8 @@
       "back": "Zurück",
       "discard": "Verwerfen",
       "submit": "Absenden",
-      "attention": "Warnung"
+      "attention": "Warnung",
+      "configure": "Konfigurieren"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -668,7 +670,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",
@@ -702,7 +704,8 @@
         "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer | Sind leer"
+        "empty": "Ist leer | Sind leer",
+        "between": "Ist zwischen | Sind zwischen"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -754,11 +757,11 @@
         "customerCampaignCodeRule": "Kampagnen-Code (Kunde)",
         "orderAffiliateCodeRule": "Affiliate-Code (Bestellung)",
         "orderCampaignCodeRule": "Kampagnen-Code (Bestellung)",
-        "cartAmountRule": "Gesamtsumme",
-        "cartPositionPrice": "Summe",
-        "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
-        "goodsPriceRule": "Zwischensumme aller Positionen",
-        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
+        "cartAmountRule": "Warenkorb-Gesamtsumme (inkl. Versand)",
+        "cartPositionPrice": "Summe der Positionen (ohne Versand)",
+        "goodsCountRule": "Anzahl unterschiedlicher Produkte",
+        "goodsPriceRule": "Zwischensumme der Warenpositionen (ohne Rabatte/Zuschläge)",
+        "cartTotalPurchasePrice": "Summe der Einkaufspreise",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",
@@ -768,12 +771,12 @@
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
-        "lineItemTotalPriceRule": "Positionszwischensumme",
+        "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
-        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
-        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
@@ -839,7 +842,7 @@
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
-        "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
+        "lineItemGoodsTotalRule": "Gesamtmenge der Produkte (Stück)",
         "orderTotalAmountRule": "Gesamtwert aller abgeschlossenen Bestellungen",
         "promotionValueRule": "Zwischensumme aller Rabatte",
         "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",

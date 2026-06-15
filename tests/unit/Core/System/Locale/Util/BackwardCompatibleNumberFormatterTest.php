@@ -31,8 +31,7 @@ class BackwardCompatibleNumberFormatterTest extends TestCase
 
     public function testItThrowsExceptionIfGivenLocaleIsInvalid(): void
     {
-        static::expectException(FeatureException::class);
-        static::expectExceptionMessage('Tried to access deprecated functionality: The locale "us" is no valid PHP locale. Please use a valid locale.');
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: The locale "us" is no valid PHP locale. Please use a valid locale.'));
 
         new BackwardCompatibleNumberFormatter('us', \NumberFormatter::DECIMAL);
     }

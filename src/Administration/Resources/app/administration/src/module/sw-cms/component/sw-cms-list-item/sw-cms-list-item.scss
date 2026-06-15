@@ -31,6 +31,9 @@
     .sw-cms-list-item__image {
         position: relative;
         background-color: var(--color-elevation-surface-raised);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 90% 90%;
         border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
         height: 120px;

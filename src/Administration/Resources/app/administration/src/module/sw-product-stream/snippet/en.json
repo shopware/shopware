@@ -102,7 +102,6 @@
         "tags": "Tags",
         "tax": "Tax",
         "taxRate": "Tax rate",
-        "type": "Type",
         "unit": "Unit",
         "variations": "Variants",
         "visibilities": "Visibility",
@@ -139,7 +138,6 @@
       "titleResult": "Product group",
       "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
       "messageSaveError": "Dynamic product group \"{name}\" could not be saved.",
-      "buttonOpenPreview": "Preview",
       "productStreamIndexingWarning": {
         "title": "Dynamic Product Group indexing is disabled",
         "message": "Some features may not work as expected: <ul><li>Category pages may not reflect changes until the HTTP cache expires or is manually cleared.</li><li>The rule condition \"Item in dynamic product group\" will never be true.</li></ul>",

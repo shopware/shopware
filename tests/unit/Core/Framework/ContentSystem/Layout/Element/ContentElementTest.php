@@ -319,7 +319,6 @@ class ContentElementTest extends TestCase
     private function createRenderingSpecification(array $values): RenderingSpecification
     {
         return new RenderingSpecification(
-            'layout-id',
             [],
             PlaceholderValues::from($values),
             new Request(),

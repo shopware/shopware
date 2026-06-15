@@ -42,7 +42,6 @@ class VirtualRootWrapperTest extends TestCase
     public function testRequiresWrappingNoRequirements(): void
     {
         $specification = new RenderingSpecification(
-            'layout-1',
             [],
             PlaceholderValues::from([]),
             new Request(),
@@ -166,7 +165,6 @@ class VirtualRootWrapperTest extends TestCase
         $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
 
         return new RenderingSpecification(
-            'layout-1',
             [$requirement],
             PlaceholderValues::from([]),
             new Request(),

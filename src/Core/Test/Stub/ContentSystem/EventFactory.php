@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
@@ -36,11 +37,8 @@ class EventFactory
     ): PreContentHydrationEvent {
         return new PreContentHydrationEvent(
             $elements,
-            'layout-1',
-            'Test',
-            null,
+            LayoutReference::create('layout-1', 'Test', null),
             new RenderingSpecification(
-                'layout-1',
                 $dataRequirements,
                 $placeholderValues ?? PlaceholderValues::from([]),
                 new Request(),
@@ -63,11 +61,8 @@ class EventFactory
     ): PostHydrationEvent {
         return new PostHydrationEvent(
             $elements,
-            'layout-1',
-            'Test',
-            null,
+            LayoutReference::create('layout-1', 'Test', null),
             new RenderingSpecification(
-                'layout-1',
                 $dataRequirements,
                 PlaceholderValues::from([]),
                 new Request(),

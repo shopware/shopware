@@ -14,7 +14,6 @@ final readonly class RenderingSpecification
      * @param list<string> $cacheTags
      */
     public function __construct(
-        public string $layoutId,
         public array $dataRequirements,
         public PlaceholderValues $placeholderValues,
         public Request $request,

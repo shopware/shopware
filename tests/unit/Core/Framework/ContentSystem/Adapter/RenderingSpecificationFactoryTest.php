@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(RenderingSpecificationFactory::class)]
 class RenderingSpecificationFactoryTest extends TestCase
 {
-    #[TestDox('assembles specification from all source methods including cache tags')]
+    #[TestDox('pairs the resolved layout id with a specification assembled from all source methods')]
     public function testCreateAssemblesSpecificationFromAllSourceMethods(): void
     {
         $request = new Request();
@@ -38,14 +38,14 @@ class RenderingSpecificationFactoryTest extends TestCase
         $result = $factory->create($source, $path, $request, $context);
 
         static::assertSame('layout-1', $result->layoutId);
-        static::assertSame([], $result->dataRequirements);
-        static::assertSame($placeholders, $result->placeholderValues);
-        static::assertSame($request, $result->request);
-        static::assertSame('element-42', $result->targetElementId);
-        static::assertSame(['product-abc123'], $result->cacheTags);
+        static::assertSame([], $result->specification->dataRequirements);
+        static::assertSame($placeholders, $result->specification->placeholderValues);
+        static::assertSame($request, $result->specification->request);
+        static::assertSame('element-42', $result->specification->targetElementId);
+        static::assertSame(['product-abc123'], $result->specification->cacheTags);
     }
 
-    #[TestDox('assembles specification with null target element and empty cache tags')]
+    #[TestDox('pairs the resolved layout id with a specification with null target element and empty cache tags')]
     public function testCreateAssemblesSpecificationWithNullTargetAndEmptyCacheTags(): void
     {
         $request = new Request();
@@ -62,7 +62,7 @@ class RenderingSpecificationFactoryTest extends TestCase
         $result = $factory->create($source, $path, $request, $context);
 
         static::assertSame('layout-2', $result->layoutId);
-        static::assertNull($result->targetElementId);
-        static::assertSame([], $result->cacheTags);
+        static::assertNull($result->specification->targetElementId);
+        static::assertSame([], $result->specification->cacheTags);
     }
 }

@@ -281,7 +281,7 @@ Listeners modify elements before or after hydration—computing derived values, 
 Both events expose the same properties. Only `elements` is mutable:
 
 - `elements` — `list<ContentElement>`, mutable
-- `layoutId`, `layoutName`, `layoutVersionId` — layout metadata (readonly)
+- `layout` — `LayoutReference` exposing `id`, `name`, `version` of the rendered layout (readonly)
 - `specification` — `RenderingSpecification` (readonly)
 - `mode` — `RenderingMode` (readonly)
 - `salesChannelContext` — `SalesChannelContext` (readonly)

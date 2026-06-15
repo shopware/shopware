@@ -39,7 +39,6 @@ class VirtualRootCleanupSubscriberTest extends TestCase
 
         $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
         $specification = new RenderingSpecification(
-            'layout-1',
             [$requirement],
             PlaceholderValues::from([]),
             new Request(),

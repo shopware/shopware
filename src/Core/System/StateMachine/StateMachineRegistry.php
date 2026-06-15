@@ -7,6 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -200,7 +201,7 @@ class StateMachineRegistry implements ResetInterface
         // first on purpose: if it fails, the state update (and its entity-written events for indexers,
         // cache invalidation and webhooks) is never performed. Nested DAL transactions are handled via
         // DBAL savepoints.
-        $this->connection->transactional(function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
+        RetryableTransaction::transactional($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
             $repository->upsert($data, $context);
         });

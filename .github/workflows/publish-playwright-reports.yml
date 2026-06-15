@@ -41,7 +41,7 @@ jobs:
               const runId = Number(runIdInput);
 
               if (!Number.isInteger(runId) || runId <= 0) {
-                core.setFailed(`Invalid workflow_run_id: '${runIdInput}' (must be a positive integer). Workflow cannot proceed without a valid run ID.`);
+                core.setFailed(`Invalid workflow_run_id input: '${runIdInput}' (must be a positive integer). Please provide a valid Integration workflow run ID.`);
                 return;
               }
 

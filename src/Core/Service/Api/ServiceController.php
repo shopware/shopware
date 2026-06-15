@@ -139,7 +139,7 @@ class ServiceController
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appLifecycle->delete($service->getId(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->uninstall($service->getId(), ['id' => $service->getId()], $context);
         });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

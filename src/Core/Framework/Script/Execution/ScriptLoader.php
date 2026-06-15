@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -26,7 +26,7 @@ class ScriptLoader implements EventSubscriberInterface
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly ScriptPersister $scriptPersister,
+        private readonly ScriptLifecycleHandler $scriptPersister,
         private readonly TagAwareAdapterInterface $cache,
         string $cacheDir,
         private readonly bool $debug

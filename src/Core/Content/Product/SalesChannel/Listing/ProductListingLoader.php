@@ -35,6 +35,61 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingLoader
 {
     /**
+     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
+     * data required by the default storefront product boxes. Nested association fields (e.g.
+     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_FIELDS = [
+        'id',
+        'versionId',
+        'parentId',
+        'productNumber',
+        'displayGroup',
+        'states',
+        'childCount',
+        'name',
+        'descriptionTeaser',
+        'available',
+        'availableStock',
+        'stock',
+        'isCloseout',
+        'minPurchase',
+        'maxPurchase',
+        'purchaseSteps',
+        'purchaseUnit',
+        'referenceUnit',
+        'unitId',
+        'taxId',
+        'price',
+        'prices.ruleId',
+        'prices.price',
+        'prices.quantityStart',
+        'prices.quantityEnd',
+        'cheapestPrice',
+        'variantListingConfig',
+        'variation',
+        'options.group',
+        'coverId',
+        'cover.media.url',
+        'cover.media.alt',
+        'cover.media.title',
+        'cover.media.mediaTypeRaw',
+        'cover.media.thumbnailsRo',
+        'manufacturerId',
+        'manufacturer.name',
+        'ratingAverage',
+        'releaseDate',
+        'markAsTopseller',
+        'deliveryTimeId',
+        'deliveryTime.name',
+        'deliveryTime.min',
+        'deliveryTime.max',
+        'deliveryTime.unit',
+    ];
+
+    /**
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $productRepository
@@ -68,6 +123,13 @@ class ProductListingLoader
     private function _load(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+
+        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
+            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        }
+
         $clone = clone $criteria;
 
         $idResult = $this->extensions->publish(

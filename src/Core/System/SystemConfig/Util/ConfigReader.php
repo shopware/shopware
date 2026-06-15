@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
+use Symfony\Component\Config\Util\XmlUtils;
 
 #[Package('framework')]
 class ConfigReader extends XmlReader
@@ -192,7 +193,7 @@ class ConfigReader extends XmlReader
             return $elementData;
         }
 
-        $elementData['cacheRelevant'] = filter_var($element->getAttribute('cache-relevant'), \FILTER_VALIDATE_BOOLEAN);
+        $elementData['cacheRelevant'] = XmlUtils::phpize($element->getAttribute('cache-relevant'));
 
         return $elementData;
     }

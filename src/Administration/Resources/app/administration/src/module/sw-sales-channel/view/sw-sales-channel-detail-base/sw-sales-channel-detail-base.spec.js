@@ -1143,18 +1143,41 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have currency criteria with sort', async () => {
+    it.each([
+        [
+            'currencyCriteria',
+            'name',
+        ],
+        [
+            'shippingMethodCriteria',
+            'name',
+        ],
+        [
+            'paymentMethodCriteria',
+            'distinguishableName',
+        ],
+        [
+            'countryCriteria',
+            'name',
+        ],
+        [
+            'languageCriteria',
+            'name',
+        ],
+    ])('should have %s with alphabetical sort', async (criteriaName, sortField) => {
         const wrapper = await createWrapper();
 
-        const criteria = wrapper.vm.currencyCriteria;
+        const criteria = wrapper.vm[criteriaName];
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                sort: expect.arrayContaining([
-                    { field: 'name', order: 'ASC', naturalSorting: false },
-                ]),
-            }),
-        );
+        expect(criteria.parse().sort[0]).toEqual({ field: sortField, order: 'ASC', naturalSorting: false });
+    });
+
+    it('should filter language criteria by active languages', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.languageCriteria.parse().filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should return filters from filter registry', async () => {

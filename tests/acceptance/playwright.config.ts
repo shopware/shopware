@@ -57,7 +57,7 @@ export default defineConfig({
     /* There are still some issues with running the tests in parallel */
     workers: process.env.CI ? 1 : 1,
 
-    reporter: [['html', { outputFolder: 'test-results/playwright-report' }]],
+    reporter: 'html',
 
     timeout: 60_000,
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

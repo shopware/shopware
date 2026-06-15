@@ -529,12 +529,12 @@ jobs:
             # build the destination prefix and export it for subsequent steps
             REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-            if [ ! -f "test-results/playwright-report/index.html" ]; then
+            if [ ! -f "playwright-report/index.html" ]; then
             echo "No Playwright report found, skipping upload."
             exit 0
             fi
 
-            aws s3 cp "test-results/playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
             echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
             echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 

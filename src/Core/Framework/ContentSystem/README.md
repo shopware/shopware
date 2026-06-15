@@ -37,7 +37,7 @@ Module root:
 - `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
 - `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
-- `SpecificationData` - Bundles data requirements + placeholders from layout resolution
+- `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
 
 ## Domain Placement
 

@@ -67,29 +67,21 @@ class EntityLayoutContextFactory
         return $layoutId;
     }
 
-    /**
-     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
-     */
     public function resolveSpecificationData(
         string $path,
         Request $request,
         SalesChannelContext $context,
-        EntityRepository $repository,
         AbstractContentLayoutAssignableDefinition $definition
     ): SpecificationData {
         $entityId = $this->extractEntityId($path, $definition);
 
-        $layoutData = $this->layoutResolver->resolve(
-            $entityId,
-            $request,
-            $context,
-            $repository,
-            $definition
-        );
-
         return new SpecificationData(
             dataRequirements: array_values($definition->getPageDataRequirements($context)),
-            placeholderValues: $layoutData->placeholderValues,
+            placeholderValues: $this->layoutResolver->resolvePlaceholders(
+                $definition->getContentLayoutEntityIdField(),
+                $entityId,
+                $request,
+            ),
         );
     }
 

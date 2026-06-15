@@ -40,7 +40,7 @@ class CategorySpecificationSource extends AbstractSpecificationSource
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
-        return $this->contextFactory->resolveSpecificationData($path, $request, $context, $this->repository, $this->definition);
+        return $this->contextFactory->resolveSpecificationData($path, $request, $context, $this->definition);
     }
 
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string

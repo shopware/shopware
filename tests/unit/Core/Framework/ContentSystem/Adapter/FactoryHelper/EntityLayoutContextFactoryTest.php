@@ -8,10 +8,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
-use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\LayoutResolutionResult;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -94,26 +92,24 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
     }
 
-    #[TestDox('resolves specification data with requirements from definition')]
+    #[TestDox('resolves specification data without requiring a layout assignment')]
     public function testReturnsSpecificationDataFromDefinition(): void
     {
         $entityId = Uuid::randomHex();
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
-        $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult(static::createStub(AbstractContentLayoutAssignmentEntity::class), $placeholders));
+        $this->layoutResolver->method('resolvePlaceholders')
+            ->willReturn($placeholders);
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
         $definition->method('getPageDataRequirements')->willReturn([]);
 
-        $repository = $this->createRepository();
         $context = Generator::generateSalesChannelContext();
 
         $result = $this->factory->resolveSpecificationData(
             '/product/' . $entityId,
             new Request(),
             $context,
-            $repository,
             $definition
         );
 

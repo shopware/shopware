@@ -132,7 +132,7 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
     { /* Extract post ID from path; query blog_post_content_layout with sales channel fallback; return layout ID */ }
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
-    { /* Resolve assignment; build data requirements and placeholder values; return SpecificationData */ }
+    { /* Build data requirements and placeholder values from the path and request — no layout assignment lookup needed; return SpecificationData */ }
 
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string
     { /* Extract optional elementId from request query parameters */ }

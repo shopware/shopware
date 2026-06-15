@@ -15,7 +15,9 @@ test(
         await ShopCustomer.attemptsTo(Login(customer));
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
 
-        const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(untouchedOrder.orderNumber);
+        const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(
+            untouchedOrder.orderNumber
+        );
         await ShopCustomer.expects(untouchedOrderItemLocators.orderStatus).toContainText('Open');
 
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
@@ -29,7 +31,7 @@ test(
         await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
         await ShopCustomer.expects(orderItemLocators.orderShippingMethod).toContainText('Standard');
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Cancelled');
-        await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
+        await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Close');
         // ensure other order is unaffected
         await ShopCustomer.expects(untouchedOrderItemLocators.orderStatus).toContainText('Open');
     }

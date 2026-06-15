@@ -136,7 +136,7 @@ class ServiceLifecycle
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $this->appManager->delete($service->app, $context);
+        $this->appManager->uninstall($service->app, $context);
     }
 
     /**

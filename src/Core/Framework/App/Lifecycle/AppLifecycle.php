@@ -34,14 +34,24 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appManager->install($manifest, $parameters, $context);
     }
 
+    public function activate(string $appId, Context $context): void
+    {
+        $this->appManager->activate($this->loadApp($appId, $context), $context);
+    }
+
+    public function deactivate(string $appId, Context $context): void
+    {
+        $this->appManager->deactivate($this->loadApp($appId, $context), $context);
+    }
+
     public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->appManager->update($manifest, $parameters, $this->loadApp($app['id'], $context), $context);
     }
 
-    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
+    public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
-        $this->appManager->delete($this->loadApp($app['id'], $context), $context, $keepUserData);
+        $this->appManager->uninstall($this->loadApp($app['id'], $context), $context, $keepUserData);
     }
 
     private function loadApp(string $id, Context $context): AppEntity

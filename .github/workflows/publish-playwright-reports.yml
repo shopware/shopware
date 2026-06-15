@@ -59,6 +59,11 @@ jobs:
               return;
             }
 
+            if (!workflowRun.id) {
+              core.setFailed('Workflow run is missing id.');
+              return;
+            }
+
             if (!workflowRun.run_attempt) {
               core.setFailed(`Workflow run ${workflowRun.id} is missing run_attempt.`);
               return;
@@ -109,7 +114,8 @@ jobs:
               },
             );
 
-            // ATS acceptance artifacts and playwright-report-update-* bundle playwright-report/ alongside test-results/.
+            // Integration tests only upload ATS acceptance artifacts with the ats- prefix here.
+            // The playwright-report-update- artifact also bundles playwright-report/ alongside test-results/.
             const artifactPrefixes = ['ats-', 'playwright-report-update-'];
             const artifactsWithReports = artifacts.filter((artifact) =>
               artifactPrefixes.some((prefix) => artifact.name.startsWith(prefix))

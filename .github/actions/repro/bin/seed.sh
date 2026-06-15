@@ -46,7 +46,14 @@ AUTH=(-H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H '
 # 2. Resolve install-specific ids referenced by the payload as placeholders.
 # NOTE: keep this set in sync with run-http.sh's resolver (the two diverged once).
 search () { curl -sS --max-time 30 -X POST "$BASE/api/search/$1" "${AUTH[@]}" -d "$2"; }
-SC_JSON=$(search sales-channel '{"limit":1,"filter":[{"type":"equals","field":"active","value":true}]}')
+# Resolve the sales channel the store-api executor authenticates as (SC_ID, passed by
+# provision) so the product is seeded visible in THAT channel; else fall back to the oldest
+# active SC (createdAt ASC matches provision's `ORDER BY created_at`, keeping the two in sync).
+if [ -n "${SC_ID:-}" ]; then
+  SC_JSON=$(search sales-channel '{"limit":1,"filter":[{"type":"equals","field":"id","value":"'"$SC_ID"'"}]}')
+else
+  SC_JSON=$(search sales-channel '{"limit":1,"filter":[{"type":"equals","field":"active","value":true}],"sort":[{"field":"createdAt","order":"ASC"}]}')
+fi
 SC=$(echo "$SC_JSON"  | jq -r '.data[0].id // empty')
 NAV=$(echo "$SC_JSON" | jq -r '.data[0].navigationCategoryId // empty')
 TAX=$(search tax '{"limit":1}'      | jq -r '.data[0].id // empty')

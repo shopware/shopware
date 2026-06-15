@@ -66,7 +66,13 @@ fi
 if [ "$NEED_IDS" = 1 ]; then
   A=(-H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H 'Accept: application/json')
   q() { curl -sS --max-time 30 -X POST "$BASE/api/search/$1" "${A[@]}" -d "$2"; }
-  SCJ=$(q sales-channel '{"limit":1,"filter":[{"type":"equals","field":"active","value":true}]}')
+  # Prefer the SC the access key belongs to (SC_ID from provision), so {{SC}} in a request
+  # matches the channel the store-api authenticates as; else the oldest active SC (matches seed).
+  if [ -n "${SC_ID:-}" ]; then
+    SCJ=$(q sales-channel '{"limit":1,"filter":[{"type":"equals","field":"id","value":"'"$SC_ID"'"}]}')
+  else
+    SCJ=$(q sales-channel '{"limit":1,"filter":[{"type":"equals","field":"active","value":true}],"sort":[{"field":"createdAt","order":"ASC"}]}')
+  fi
   SC=$(echo "$SCJ" | jq -r '.data[0].id // empty')
   NAV_CAT=$(echo "$SCJ" | jq -r '.data[0].navigationCategoryId // empty')
   # storefrontUrl must be a registered SC domain (a basic-setup default SC is headless,

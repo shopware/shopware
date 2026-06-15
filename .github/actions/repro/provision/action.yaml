@@ -35,6 +35,9 @@ outputs:
   access_key:
     description: "store-api sales-channel access key"
     value: ${{ steps.access-key.outputs.key }}
+  sc_id:
+    description: "id (hex) of the sales channel the access key belongs to — seed visibility into THIS SC"
+    value: ${{ steps.access-key.outputs.sc_id }}
 
 runs:
   using: "composite"
@@ -96,7 +99,14 @@ runs:
         # DATABASE_URL is exported by setup-shopware. Read the default sales channel key.
         eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s",
           $u["host"]??"127.0.0.1", $u["port"]??3306, $u["user"]??"root", $u["pass"]??"", ltrim($u["path"]??"/","/"));')"
-        KEY=$(mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" -N -e \
-          "SELECT access_key FROM sales_channel WHERE active=1 ORDER BY created_at LIMIT 1;")
+        # Emit BOTH the access key AND its sales-channel id (hex). The seed must make the
+        # product visible in EXACTLY this SC — seed.sh + run-http.sh used to resolve the SC
+        # independently (search first-active, unsorted) and could pick a DIFFERENT active SC,
+        # yielding CONTENT__PRODUCT_NOT_FOUND on store-api when an install has >1 active SC.
+        ROW=$(mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" -N -e \
+          "SELECT LOWER(HEX(id)), access_key FROM sales_channel WHERE active=1 ORDER BY created_at LIMIT 1;")
+        SC_ID=$(printf '%s' "$ROW" | cut -f1)
+        KEY=$(printf '%s' "$ROW" | cut -f2)
         echo "::add-mask::$KEY"
         echo "key=$KEY" >> "$GITHUB_OUTPUT"
+        echo "sc_id=$SC_ID" >> "$GITHUB_OUTPUT"

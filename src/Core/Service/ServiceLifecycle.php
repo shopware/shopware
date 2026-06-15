@@ -45,7 +45,6 @@ class ServiceLifecycle
         private readonly RequirementsValidator $requirementsValidator,
         private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
-        private readonly ServiceSkipList $skipList,
     ) {
     }
 
@@ -64,10 +63,6 @@ class ServiceLifecycle
         }
 
         if (!$this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
-            // cannot exist yet (e.g. services disabled, or an unmet install requirement); remember it so
-            // discovery stops re-fetching it from the registry every run
-            $this->skipList->skip($entry->name);
-
             return false;
         }
 
@@ -96,7 +91,6 @@ class ServiceLifecycle
         }
 
         $this->uninstall($entry->name, $context);
-        $this->skipList->skip($entry->name);
     }
 
     /**
@@ -108,7 +102,6 @@ class ServiceLifecycle
         foreach ($this->serviceStorage->findAll($context) as $service) {
             if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
                 $this->uninstall($service->name, $context);
-                $this->skipList->skip($service->name);
             }
         }
     }

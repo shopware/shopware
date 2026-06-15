@@ -24,7 +24,6 @@ class AllServiceInstaller
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ServiceSkipList $skipList,
     ) {
     }
 
@@ -41,11 +40,6 @@ class AllServiceInstaller
 
         $installedServices = [];
         foreach ($this->getNewServices($existingServices) as $entry) {
-            // already classified as not-installable; don't hit the registry for it again
-            if ($this->skipList->shouldSkip($entry->name)) {
-                continue;
-            }
-
             if ($this->serviceLifecycle->install($entry, $context)) {
                 $installedServices[] = $entry->name;
             }
@@ -60,9 +54,6 @@ class AllServiceInstaller
 
     public function scheduleInstall(): void
     {
-        // forget what we skipped so the scheduled discovery re-evaluates every service from scratch
-        $this->skipList->clear();
-
         $this->messageBus->dispatch(new InstallServicesMessage());
     }
 

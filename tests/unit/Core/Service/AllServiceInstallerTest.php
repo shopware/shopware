@@ -13,7 +13,6 @@ use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
-use Shopware\Core\Service\ServiceSkipList;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -35,15 +34,12 @@ class AllServiceInstallerTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    private ServiceSkipList&MockObject $skipList;
-
     protected function setUp(): void
     {
         $this->registryClient = $this->createMock(ServiceRegistryClient::class);
         $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->skipList = $this->createMock(ServiceSkipList::class);
     }
 
     public function testDiscoveredServicesAreHandedToServiceLifecycle(): void
@@ -90,18 +86,6 @@ class AllServiceInstallerTest extends TestCase
         static::assertSame([], $installer->install(Context::createDefaultContext()));
     }
 
-    public function testSkipListedServicesAreNotHandled(): void
-    {
-        $installer = $this->installer($this->buildAppRepository());
-
-        $this->registryClient->method('getAll')->willReturn([$this->entry('GatedService')]);
-        $this->skipList->method('shouldSkip')->with('GatedService')->willReturn(true);
-
-        $this->serviceLifecycle->expects($this->never())->method('install');
-
-        static::assertSame([], $installer->install(Context::createDefaultContext()));
-    }
-
     public function testReturnsOnlyTheServicesThatWereInstalled(): void
     {
         $installer = $this->installer($this->buildAppRepository());
@@ -130,11 +114,9 @@ class AllServiceInstallerTest extends TestCase
         static::assertSame([], $installer->install(Context::createDefaultContext()));
     }
 
-    public function testScheduleInstallClearsTheSkipListAndDispatchesMessage(): void
+    public function testScheduleInstallDispatchesMessage(): void
     {
         $installer = $this->installer($this->buildAppRepository());
-
-        $this->skipList->expects($this->once())->method('clear');
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
@@ -155,7 +137,6 @@ class AllServiceInstallerTest extends TestCase
             $this->serviceLifecycle,
             $this->messageBus,
             $this->eventDispatcher,
-            $this->skipList,
         );
     }
 

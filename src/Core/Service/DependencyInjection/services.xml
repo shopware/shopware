@@ -45,7 +45,6 @@
             <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceSkipList"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceStorage">
@@ -60,18 +59,12 @@
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
         </service>
 
-        <service id="Shopware\Core\Service\ServiceSkipList">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
-        </service>
-
         <service id="Shopware\Core\Service\AllServiceInstaller">
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="messenger.bus.default"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceSkipList"/>
         </service>
 
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTask">

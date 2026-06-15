@@ -27,7 +27,6 @@ use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
-use Shopware\Core\Service\ServiceSkipList;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -63,8 +62,6 @@ class ServiceLifecycleTest extends TestCase
 
     private ServiceClientFactory&MockObject $serviceClientFactory;
 
-    private ServiceSkipList&MockObject $skipList;
-
     protected function setUp(): void
     {
         $this->appManager = $this->createMock(AppManager::class);
@@ -78,7 +75,6 @@ class ServiceLifecycleTest extends TestCase
         $this->registryClient = $this->createMock(Client::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
         $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $this->skipList = $this->createMock(ServiceSkipList::class);
     }
 
     public function testInstallInstallsWhenInstallationRequirementsAreMet(): void
@@ -122,14 +118,13 @@ class ServiceLifecycleTest extends TestCase
         static::assertTrue($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
 
-    public function testInstallSkipsAndRemembersWhenInstallationRequirementsAreNotMet(): void
+    public function testInstallSkipsWhenInstallationRequirementsAreNotMet(): void
     {
         $this->fetchReturnsAppInfo();
         $this->requirementsMet(false);
 
         $this->appManager->expects($this->never())->method('install');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
-        $this->skipList->expects($this->once())->method('skip')->with('MyCoolService');
 
         static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
@@ -302,7 +297,7 @@ class ServiceLifecycleTest extends TestCase
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }
 
-    public function testUpdateUninstallsAndRemembersWhenInstallationRequirementsAreNotMet(): void
+    public function testUpdateUninstallsWhenInstallationRequirementsAreNotMet(): void
     {
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $context = Context::createDefaultContext();
@@ -312,7 +307,6 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->once())->method('delete')->with($app, $context);
-        $this->skipList->expects($this->once())->method('skip')->with('MyCoolService');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', $context);
     }
@@ -402,7 +396,6 @@ class ServiceLifecycleTest extends TestCase
         $this->requirementsMet(false);
 
         $this->appManager->expects($this->once())->method('delete')->with($app, $context);
-        $this->skipList->expects($this->once())->method('skip')->with('MyCoolService');
 
         // findAll() walks the installed services, then uninstall() looks the service up again by name
         /** @var StaticEntityRepository<AppCollection> $appRepo */
@@ -417,7 +410,6 @@ class ServiceLifecycleTest extends TestCase
         $this->requirementsMet(true);
 
         $this->appManager->expects($this->never())->method('delete');
-        $this->skipList->expects($this->never())->method('skip');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->reevaluateInstalled(Context::createDefaultContext());
     }
@@ -526,7 +518,6 @@ class ServiceLifecycleTest extends TestCase
             $this->requirementsValidator,
             $this->registryClient,
             $serviceClientFactory ?? $this->serviceClientFactory,
-            $this->skipList,
         );
     }
 

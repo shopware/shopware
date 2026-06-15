@@ -331,6 +331,35 @@ class CartRestorerTest extends TestCase
         static::assertInstanceOf(SalesChannelContextRestoredEvent::class, $salesChannelRestoredEvent);
     }
 
+    public function testRestoreWithRevokedTokensCreatesContextWithCustomer(): void
+    {
+        $customerGroupId = Uuid::randomHex();
+        static::getContainer()->get('customer_group.repository')->create([
+            ['id' => $customerGroupId, 'name' => 'special group'],
+        ], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->update([
+            ['id' => $this->customerId, 'groupId' => $customerGroupId],
+        ], Context::createDefaultContext());
+
+        // The customer was logged in before, so a customer bound context exists
+        $customerToken = Uuid::randomHex();
+        $customerContext = $this->createSalesChannelContext($customerToken);
+        $this->contextPersister->save($customerToken, [], $customerContext->getSalesChannelId(), $this->customerId);
+
+        // All customer tokens get revoked, e.g. by a password change through the administration
+        $this->contextPersister->revokeAllCustomerTokens($this->customerId);
+
+        // The storefront session still uses the revoked token, which is anonymous now
+        $currentContext = $this->createSalesChannelContext($customerToken);
+
+        $restoredContext = $this->cartRestorer->restore($this->customerId, $currentContext);
+
+        $customer = $restoredContext->getCustomer();
+        static::assertNotNull($customer);
+        static::assertSame($this->customerId, $customer->getId());
+        static::assertSame($customerGroupId, $restoredContext->getCustomerGroupId());
+    }
+
     public function testGuestContextAndCartAreDeleted(): void
     {
         $currentContextToken = Uuid::randomHex();

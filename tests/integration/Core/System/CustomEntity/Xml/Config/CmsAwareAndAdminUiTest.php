@@ -113,7 +113,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     private function uninstallApp(AppEntity $appEntity): void
     {
-        $this->appLifecycle->delete($appEntity->getName(), ['id' => $appEntity->getId()], $this->context);
+        $this->appLifecycle->uninstall($appEntity->getName(), ['id' => $appEntity->getId()], $this->context);
     }
 
     private function installPlugin(): PluginEntity

@@ -12,6 +12,7 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -194,7 +195,7 @@ class SystemConfigControllerTest extends TestCase
         yield 'without silent' => [
             new Request([], ['foo' => '1']),
             null,
-            null,
+            true,
         ];
 
         yield 'with silent' => [
@@ -212,8 +213,27 @@ class SystemConfigControllerTest extends TestCase
         yield 'with sales channel' => [
             new Request(['salesChannelId' => 'sc-id'], ['foo' => '1']),
             'sc-id',
-            null,
+            true,
         ];
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
+    public function testSaveConfigurationWithoutSilentUsesServiceDefaultBeforeFeatureFlag(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->expects($this->once())
+            ->method('setMultiple')
+            ->with(['foo' => '1'], null);
+
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $systemConfig,
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $data = $controller->saveConfiguration(new Request([], ['foo' => '1']));
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $data->getStatusCode());
     }
 
     #[DataProvider('batchSaveConfigurationProvider')]
@@ -250,7 +270,7 @@ class SystemConfigControllerTest extends TestCase
         yield 'without silent' => [
             new Request([], ['null' => []]),
             null,
-            null,
+            true,
         ];
 
         yield 'with silent' => [
@@ -264,6 +284,25 @@ class SystemConfigControllerTest extends TestCase
             null,
             false,
         ];
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
+    public function testBatchSaveConfigurationWithoutSilentUsesServiceDefaultBeforeFeatureFlag(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->expects($this->once())
+            ->method('setMultiple')
+            ->with([], null);
+
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $systemConfig,
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $data = $controller->batchSaveConfiguration(new Request([], ['null' => []]), Context::createDefaultContext());
+
+        static::assertSame('{}', $data->getContent());
     }
 
     public function testBatchSaveConfigurationFailure(): void

@@ -1,6 +1,13 @@
 import type Repository from 'src/core/data/repository.data';
 
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
+import { castContentElementNodes } from 'src/module/sw-experience-studio/util/content-element-label.util';
+import {
+    duplicateElementInLayout,
+    findElementLocation,
+    removeElementFromLayout,
+    sanitizeContentElementLayoutForWrite,
+} from 'src/module/sw-experience-studio/util/content-element.util';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
@@ -130,6 +137,44 @@ export default Shopware.Component.wrapComponentConfig({
 
         onAddElement(): void {
             // Element insertion will be implemented in a follow-up step.
+        },
+
+        onDuplicateElement(elementId: string): void {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const result = duplicateElementInLayout(layoutElements, elementId);
+
+            if (!result) {
+                return;
+            }
+
+            this.layout.layout = sanitizeContentElementLayoutForWrite(layoutElements);
+            this.selectedElementId = result.duplicatedId;
+        },
+
+        onDeleteElement(elementId: string): void {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const removed = removeElementFromLayout(layoutElements, elementId);
+
+            if (!removed) {
+                return;
+            }
+
+            this.layout.layout = sanitizeContentElementLayoutForWrite(layoutElements);
+
+            if (
+                this.selectedElementId !== null
+                && findElementLocation(layoutElements, this.selectedElementId) === null
+            ) {
+                this.selectedElementId = null;
+            }
         },
 
         async onSave(): Promise<void> {

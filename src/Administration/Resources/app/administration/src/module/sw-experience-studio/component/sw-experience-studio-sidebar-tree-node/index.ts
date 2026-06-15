@@ -37,6 +37,8 @@ export default Shopware.Component.wrapComponentConfig({
     emits: [
         'select-element',
         'add-element',
+        'duplicate-element',
+        'delete-element',
     ],
 
     data(): {
@@ -100,6 +102,14 @@ export default Shopware.Component.wrapComponentConfig({
                 parentElementId: this.contentElement.id,
                 slotName,
             });
+        },
+
+        onDuplicateElement(): void {
+            this.$emit('duplicate-element', this.contentElement.id);
+        },
+
+        onDeleteElement(): void {
+            this.$emit('delete-element', this.contentElement.id);
         },
     },
 });

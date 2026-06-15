@@ -30,7 +30,9 @@
         "title": "Structure",
         "emptyState": "No elements in this layout yet.",
         "addElement": "Add element",
-        "configureElement": "Configure element"
+        "configureElement": "Configure element",
+        "duplicateElement": "Duplicate element",
+        "deleteElement": "Delete element"
       },
       "preview": {
         "title": "Preview",

@@ -45,6 +45,40 @@
         <div class="sw-experience-studio-sidebar-tree-node__actions">
             <button
                 v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.duplicateElement'),
+                    disabled: allowEdit
+                }"
+                class="sw-experience-studio-sidebar-tree-node__action"
+                type="button"
+                :disabled="!allowEdit || undefined"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.duplicateElement')"
+                @click.stop="onDuplicateElement"
+            >
+                <mt-icon
+                    name="regular-duplicate"
+                    size="16px"
+                />
+            </button>
+
+            <button
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.deleteElement'),
+                    disabled: allowEdit
+                }"
+                class="sw-experience-studio-sidebar-tree-node__action"
+                type="button"
+                :disabled="!allowEdit || undefined"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.deleteElement')"
+                @click.stop="onDeleteElement"
+            >
+                <mt-icon
+                    name="regular-trash"
+                    size="16px"
+                />
+            </button>
+
+            <button
+                v-tooltip="{
                     message: $t('sw-experience-studio.detail.sidebarTree.configureElement'),
                     disabled: allowEdit
                 }"
@@ -120,6 +154,8 @@
                         :depth="depth + 1"
                         @select-element="$emit('select-element', $event)"
                         @add-element="$emit('add-element', $event)"
+                        @duplicate-element="$emit('duplicate-element', $event)"
+                        @delete-element="$emit('delete-element', $event)"
                     />
                 </div>
                 {% endblock %}

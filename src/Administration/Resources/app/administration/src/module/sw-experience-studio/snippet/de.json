@@ -30,7 +30,9 @@
         "title": "Struktur",
         "emptyState": "Dieses Layout enthält noch keine Elemente.",
         "addElement": "Element hinzufügen",
-        "configureElement": "Element konfigurieren"
+        "configureElement": "Element konfigurieren",
+        "duplicateElement": "Element duplizieren",
+        "deleteElement": "Element löschen"
       },
       "preview": {
         "title": "Vorschau",

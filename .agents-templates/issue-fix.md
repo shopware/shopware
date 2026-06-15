@@ -94,6 +94,7 @@ The agent must perform these steps in order:
 16. Suggest one very short Conventional Commit message for the staged change.
 17. Suggest a short pull request title and description.
 18. Commit and create the pull request only if the user explicitly signs off on the staged changes.
+19. After creating the pull request, give the user the pull request link.
 
 ## Validation Rules
 
@@ -236,12 +237,11 @@ After explicit user sign-off, the agent should:
 3. use the Conventional Commit message as the PR title unless the user requested a different title
 4. include a short PR description
 5. include a `Fixes: <issue-reference>` line in the PR description
+6. return the created pull request URL to the user
 
 The PR description should stay short and include:
 
 - a concise summary of the fix
-- the root cause in one short paragraph or bullet
-- the checks that were run
 - `Fixes: <issue-reference>`
 
 ## Output Requirements

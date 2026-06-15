@@ -144,7 +144,7 @@ module.exports = {
         '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
         '^lodash-es/(.*)$': 'lodash/$1',
-        vue$: 'vue/dist/vue.cjs.js',
+        '^vue$': 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [

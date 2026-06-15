@@ -215,8 +215,7 @@ class PrivilegesTest extends TestCase
 
         $this->privileges->requestPrivileges($appId, ['customer:read', 'customer:update'], $context);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('A privilege cannot be present in both the accept and revoke lists simultaneously.');
+        $this->expectExceptionObject(AppException::conflictingPrivilegeUpdate());
 
         $this->privileges->updatePrivileges($appId, ['customer:read'], ['customer:read'], $context);
     }

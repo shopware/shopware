@@ -41,8 +41,7 @@ class AppDownloaderTest extends TestCase
 
         $this->httpClient->method('request')->willReturn($response);
 
-        $this->expectException(AppDownloadException::class);
-        $this->expectExceptionMessage('App could not be downloaded from: "http://example.com/file.zip".');
+        $this->expectExceptionObject(AppDownloadException::transportError('http://example.com/file.zip'));
 
         $this->appDownloader->download('http://example.com/file.zip', '/path/to/file.zip');
     }
@@ -101,8 +100,7 @@ class AppDownloaderTest extends TestCase
 
     public function testDownloadFromFilesystemWrapsException(): void
     {
-        $this->expectException(AppDownloadException::class);
-        $this->expectExceptionMessage('App could not be downloaded from: "/some/file.zip".');
+        $this->expectExceptionObject(AppDownloadException::transportError('/some/file.zip'));
 
         $fs = new \League\Flysystem\Filesystem(new InMemoryFilesystemAdapter());
 

@@ -18,7 +18,7 @@
         grid-gap: 4px;
 
         img {
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 2px;
             display: block;
             object-fit: cover;

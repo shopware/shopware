@@ -50,6 +50,7 @@ describe('QuantitySelectorPlugin tests', () => {
                 <button type="button" class="btn btn-light image-plus-btn js-btn-plus">
                         <svg></svg>
                 </button>
+                <span class="input-group-text js-quantity-selector-unit" data-unit-singular="box" data-unit-plural="boxes">boxes</span>
             </div>
             <div
                 class="quantity-area-live visually-hidden"
@@ -96,7 +97,7 @@ describe('QuantitySelectorPlugin tests', () => {
             {
                 stepUp: mockStepUpFn,
                 stepDown: mockStepDownFn,
-            }
+            },
         );
 
         jest.useFakeTimers();
@@ -163,6 +164,30 @@ describe('QuantitySelectorPlugin tests', () => {
 
         plusBtn.dispatchEvent(new Event('click', {bubbles: true}));
         expect(areaLive.innerHTML).toBe('Quantity of Test Product set to 21.');
+    });
+
+    test('should update unit label on quantity change', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const unitLabel = document.querySelector('.js-quantity-selector-unit');
+
+        input.value = 1;
+        input.dispatchEvent(new Event('change', {bubbles: true}));
+        expect(unitLabel.textContent).toBe('box');
+
+        input.value = 2;
+        input.dispatchEvent(new Event('change', {bubbles: true}));
+        expect(unitLabel.textContent).toBe('boxes');
+    });
+
+    test('should keep singular unit label when no plural is configured', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const unitLabel = document.querySelector('.js-quantity-selector-unit');
+
+        unitLabel.removeAttribute('data-unit-plural');
+        input.value = 2;
+        input.dispatchEvent(new Event('change', {bubbles: true}));
+
+        expect(unitLabel.textContent).toBe('box');
     });
 
     test('should update area live on init but not on change if mode is set to "onload"', () => {

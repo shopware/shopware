@@ -80,137 +80,133 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: MockHandler, 2: bool, 3: string|null, 4?: string}>
+     * @return iterable<string, array{0: Request, 1: MockHandler, 2: bool, 3: string|null, 4?: string}>
      */
-    public static function requestDataIsValidProvider(): array
+    public static function requestDataIsValidProvider(): iterable
     {
-        return [
-            'request with no captcha input' => [
-                self::getRequest(),
-                new MockHandler(),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with null captcha input' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => null,
-                ]),
-                new MockHandler(),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with no secret key' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler(),
-                self::IS_INVALID,
-                null,
-            ],
-            'request with empty secret key' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler(),
-                self::IS_INVALID,
-                '',
-            ],
-            'request with request exception' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new RequestException('Error Communicating with Server', new GuzzleRequest('POST', 'test')),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with server exception' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new ServerException('Server Exception', new GuzzleRequest('POST', 'test'), new Response()),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with result false' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with no response' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], null),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with result true and score lower than default threshold' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], json_encode(['success' => true, 'score' => '0.1'], \JSON_THROW_ON_ERROR)),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-            ],
-            'request with result true and score higher default threshold' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], json_encode(['success' => true, 'score' => '0.6'], \JSON_THROW_ON_ERROR)),
-                ]),
-                self::IS_VALID,
-                'secret123',
-            ],
-            'request with result true and score lower than config threshold' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], json_encode(['success' => true, 'score' => '0.6'], \JSON_THROW_ON_ERROR)),
-                ]),
-                self::IS_INVALID,
-                'secret123',
-                '0.7',
-            ],
-            'request with result true and score higher than config threshold' => [
-                self::getRequest([
-                    GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                new MockHandler([
-                    new Response(200, [], json_encode(['success' => true, 'score' => '0.8'], \JSON_THROW_ON_ERROR)),
-                ]),
-                self::IS_VALID,
-                'secret123',
-                '0.7',
-            ],
+        yield 'request with no captcha input' => [
+            self::getRequest(),
+            new MockHandler(),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with null captcha input' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => null,
+            ]),
+            new MockHandler(),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with no secret key' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler(),
+            self::IS_INVALID,
+            null,
+        ];
+        yield 'request with empty secret key' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler(),
+            self::IS_INVALID,
+            '',
+        ];
+        yield 'request with request exception' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new RequestException('Error Communicating with Server', new GuzzleRequest('POST', 'test')),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with server exception' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new ServerException('Server Exception', new GuzzleRequest('POST', 'test'), new Response()),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with result false' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with no response' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], null),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with result true and score lower than default threshold' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], json_encode(['success' => true, 'score' => '0.1'], \JSON_THROW_ON_ERROR)),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+        ];
+        yield 'request with result true and score higher default threshold' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], json_encode(['success' => true, 'score' => '0.6'], \JSON_THROW_ON_ERROR)),
+            ]),
+            self::IS_VALID,
+            'secret123',
+        ];
+        yield 'request with result true and score lower than config threshold' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], json_encode(['success' => true, 'score' => '0.6'], \JSON_THROW_ON_ERROR)),
+            ]),
+            self::IS_INVALID,
+            'secret123',
+            '0.7',
+        ];
+        yield 'request with result true and score higher than config threshold' => [
+            self::getRequest([
+                GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            new MockHandler([
+                new Response(200, [], json_encode(['success' => true, 'score' => '0.8'], \JSON_THROW_ON_ERROR)),
+            ]),
+            self::IS_VALID,
+            'secret123',
+            '0.7',
         ];
     }
 
     /**
-     * @return array<string, array{0: string, 1: bool, 2: bool}>
+     * @return iterable<string, array{0: string, 1: bool, 2: bool}>
      */
-    public static function requestDataSupportProvider(): array
+    public static function requestDataSupportProvider(): iterable
     {
-        return [
-            'with get method and inactive captcha' => ['GET', false, false],
-            'with get method and active captcha' => ['GET', true, false],
-            'with post method and inactive captcha' => ['POST', false, false],
-            'with post method and active captcha' => ['POST', true, true],
-        ];
+        yield 'with get method and inactive captcha' => ['GET', false, false];
+        yield 'with get method and active captcha' => ['GET', true, false];
+        yield 'with post method and inactive captcha' => ['POST', false, false];
+        yield 'with post method and active captcha' => ['POST', true, true];
     }
 
     /**

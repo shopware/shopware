@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-customer-color-mail-to-link: $color-shopware-brand-500;
+$sw-customer-color-mail-to-link: var(--color-text-brand-default);
 
 .sw-customer-card {
     .sw-customer-card__metadata {

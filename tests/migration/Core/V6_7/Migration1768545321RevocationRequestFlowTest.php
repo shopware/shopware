@@ -24,6 +24,11 @@ class Migration1768545321RevocationRequestFlowTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545321, (new Migration1768545321RevocationRequestFlow())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $migration = new Migration1768545321RevocationRequestFlow();

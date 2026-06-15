@@ -1,10 +1,15 @@
-.sw-select-result-list__content {
-    .sw-select-rule-create__create-rule-item:hover {
-        background-color: var(--color-background-brand-default);
+.sw-select-rule-create__popover {
+    .sw-select-rule-create__create-rule-item {
         color: var(--color-text-primary-default);
+
+        &:hover {
+            background-color: var(--color-background-brand-default);
+        }
     }
 
     .sw-select-result-list__item-list {
-        border-top: 1px solid var(--color-border-primary-default);
+        border-top: 1px solid var(--color-border-secondary-default);
+        margin-top: var(--scale-size-8);
+        padding-top: var(--scale-size-8);
     }
 }

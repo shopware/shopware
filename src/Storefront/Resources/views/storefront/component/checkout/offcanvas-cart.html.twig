@@ -110,9 +110,6 @@
                                                            class="form-control"
                                                            placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
                                                            id="addPromotionOffcanvasCartInput"
-                                                           aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
-                                                           aria-describedby="addPromotionOffcanvasCart"
-                                                           required="required"
                                                            aria-invalid="false">
                                                 {% endblock %}
 
@@ -120,7 +117,7 @@
                                                     <button class="btn btn-outline-secondary offcanvas-cart-promotion-button"
                                                             type="submit"
                                                             id="addPromotionOffcanvasCart"
-                                                            aria-labelledby="addPromotionOffcanvasCartInput">
+                                                            aria-label="{{ 'checkout.addPromotionApplyAction'|trans|striptags }}">
                                                         {% sw_icon 'checkmark' %}
                                                     </button>
                                                 {% endblock %}

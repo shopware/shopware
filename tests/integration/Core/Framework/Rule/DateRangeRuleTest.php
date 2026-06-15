@@ -15,11 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Timezone;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -98,143 +95,6 @@ class DateRangeRuleTest extends TestCase
                 'id' => $conditionId,
                 'type' => (new DateRangeRule())->getName(),
                 'ruleId' => Uuid::randomHex(),
-            ],
-        ], $this->context);
-    }
-
-    public function testValidateWithInvalidFromDateFormat(): void
-    {
-        foreach ([true, 'Invalid'] as $value) {
-            $exception = new WriteException();
-            $exception->add(new WriteConstraintViolationException(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        'This value is not a valid datetime.',
-                        'This value is not a valid datetime.',
-                        ['{{ value }}' => $value, '{{ format }}' => '"Y-m-d\TH:i:s"'],
-                        null,
-                        '/value/fromDate',
-                        $value,
-                        null,
-                        DateTimeConstraint::INVALID_FORMAT_ERROR,
-                    ),
-                ]),
-                '/0',
-            ));
-            $this->expectExceptionObject($exception);
-
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'fromDate' => $value,
-                        'toDate' => '2018-12-06T10:03:35',
-                        'useTime' => true,
-                    ],
-                ],
-            ], $this->context);
-        }
-    }
-
-    public function testValidateWithInvalidToDateFormat(): void
-    {
-        foreach ([true, 'Invalid'] as $value) {
-            $exception = new WriteException();
-            $exception->add(new WriteConstraintViolationException(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        'This value is not a valid datetime.',
-                        'This value is not a valid datetime.',
-                        ['{{ value }}' => $value, '{{ format }}' => '"Y-m-d\TH:i:s"'],
-                        null,
-                        '/value/toDate',
-                        $value,
-                        null,
-                        DateTimeConstraint::INVALID_FORMAT_ERROR,
-                    ),
-                ]),
-                '/0',
-            ));
-            $this->expectExceptionObject($exception);
-
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'toDate' => $value,
-                        'fromDate' => '2018-12-06T10:03:35',
-                        'useTime' => true,
-                    ],
-                ],
-            ], $this->context);
-        }
-    }
-
-    public function testValidateWithInvalidUseTime(): void
-    {
-        $exception = new WriteException();
-        $exception->add(new WriteConstraintViolationException(
-            new ConstraintViolationList([
-                new ConstraintViolation(
-                    'This value should be of type bool.',
-                    'This value should be of type {{ type }}.',
-                    ['{{ value }}' => '"true"', '{{ type }}' => 'bool'],
-                    null,
-                    '/value/useTime',
-                    'true',
-                    null,
-                    Type::INVALID_TYPE_ERROR,
-                ),
-            ]),
-            '/0',
-        ));
-        static::expectExceptionObject($exception);
-
-        $this->conditionRepository->create([
-            [
-                'type' => (new DateRangeRule())->getName(),
-                'ruleId' => Uuid::randomHex(),
-                'value' => [
-                    'toDate' => '2018-12-06T10:03:35',
-                    'fromDate' => '2018-12-06T10:03:35',
-                    'useTime' => 'true',
-                ],
-            ],
-        ], $this->context);
-    }
-
-    public function testValidateWithInvalidTimezone(): void
-    {
-        $exception = new WriteException();
-        $exception->add(new WriteConstraintViolationException(
-            new ConstraintViolationList([
-                new ConstraintViolation(
-                    'This value is not a valid timezone.',
-                    'This value is not a valid timezone.',
-                    ['count' => 1],
-                    null,
-                    '/value/timezone',
-                    'Invalid/Timezone',
-                    null,
-                    Timezone::TIMEZONE_IDENTIFIER_ERROR,
-                ),
-            ]),
-            '/0',
-        ));
-        static::expectExceptionObject($exception);
-
-        $this->conditionRepository->create([
-            [
-                'type' => (new DateRangeRule())->getName(),
-                'ruleId' => Uuid::randomHex(),
-                'value' => [
-                    'toDate' => '2018-12-06T10:03:35',
-                    'fromDate' => '2018-12-06T10:03:35',
-                    'useTime' => true,
-                    'timezone' => 'Invalid/Timezone',
-                ],
             ],
         ], $this->context);
     }

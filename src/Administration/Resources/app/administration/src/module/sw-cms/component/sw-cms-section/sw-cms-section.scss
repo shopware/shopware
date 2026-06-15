@@ -1,15 +1,13 @@
-@import "~scss/variables";
-
 .sw-cms-stage {
     &.is--mobile,
     &.is--tablet-portrait,
     &.is--tablet-landscape {
-        background: $color-gray-50 !important;
+        background: var(--color-background-secondary-default) !important;
 
         .sw-cms-section__wrapper {
-            border: 30px solid $color-gray-100;
+            border: 30px solid var(--color-border-primary-default);
             border-radius: 15px;
-            box-shadow: 0 0 0 1px $color-gray-300;
+            box-shadow: 0 0 0 1px var(--color-border-primary-default);
         }
     }
 
@@ -49,19 +47,19 @@
     position: relative;
     background-repeat: no-repeat;
     background-position: center center;
-    border-top: 1px solid $color-gray-300;
-    border-bottom: 1px solid $color-gray-300;
+    border-top: 1px solid var(--color-border-primary-default);
+    border-bottom: 1px solid var(--color-border-primary-default);
     display: grid;
     grid-template-columns: 60px 1fr;
     align-items: center;
     justify-items: center;
 
     &.is--active {
-        border-color: $color-shopware-brand-500;
+        border-color: var(--color-border-brand-default);
 
         .sw-cms-section__actions {
             .mt-icon {
-                color: $color-shopware-brand-500;
+                color: var(--color-icon-brand-default);
             }
         }
     }
@@ -103,7 +101,7 @@
 
     .sw-cms-section__wrapper {
         transition: max-width 0.4s ease-in-out, border-width 0.4s ease-in-out;
-        background: #fff;
+        background: var(--color-elevation-surface-raised);
         padding: 4px;
         width: 100%;
     }
@@ -114,7 +112,7 @@
 
     .sw-cms-section__actions {
         width: 60px;
-        background: $color-gray-50;
+        background: var(--color-background-secondary-default);
         height: 100%;
     }
 
@@ -132,7 +130,7 @@
         }
 
         .sw-cms-section__empty-stage {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
             text-align: center;
             cursor: pointer;
             height: 100%;
@@ -142,11 +140,11 @@
             align-items: center;
             flex-direction: column;
             border-radius: 10px;
-            border: 2px dashed $color-gray-300;
+            border: 2px dashed var(--color-border-primary-default);
 
             &.is--valid-drop {
-                background-color: $color-shopware-brand-50;
-                border-color: $color-shopware-brand-500;
+                background-color: var(--color-background-brand-default);
+                border-color: var(--color-border-brand-default);
             }
 
             .mt-icon {

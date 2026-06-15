@@ -40,6 +40,11 @@ class Migration1754398573ChangeAllLineItemsRuleValueTypeTest extends TestCase
         $migration->update($this->connection);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1754398573, (new Migration1754398573ChangeAllLineItemsRuleValueType())->getCreationTimestamp());
+    }
+
     public function testShouldUpdateAllLineItemsRuleValue(): void
     {
         static::assertSame(6, $this->getConditionCount());

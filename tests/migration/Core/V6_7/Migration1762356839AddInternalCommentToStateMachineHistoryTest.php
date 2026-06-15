@@ -22,6 +22,11 @@ class Migration1762356839AddInternalCommentToStateMachineHistoryTest extends Tes
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1762356839, (new Migration1762356839AddInternalCommentToStateMachineHistory())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1762356839AddInternalCommentToStateMachineHistory();

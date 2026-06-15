@@ -2,9 +2,9 @@
 @import "~scss/mixins";
 
 $sw-media-index-font-size-navigation: $font-size-m;
-$sw-media-index-color-breadcrumb-icon: $color-shopware-brand-500;
-$sw-media-index-color-navigation-parent: $color-darkgray-300;
-$sw-media-index-page-background-color: $color-white;
+$sw-media-index-color-breadcrumb-icon: var(--color-text-brand-default);
+$sw-media-index-color-navigation-parent: var(--color-text-primary-default);
+$sw-media-index-page-background-color: var(--color-elevation-surface-default);
 
 .sw-media-index {
     .sw-media-index__navigation {

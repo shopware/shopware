@@ -144,6 +144,48 @@ return (new Config())
         }
     })
     ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $agenticCommercePatterns = [
+            // PHP — product export provider, validators and tracking that back the agentic-commerce sales channel type
+            'src/Core/Content/ProductExport/Provider/*AgenticCommerce*',
+            'src/Core/Content/ProductExport/Provider/OpenAi*',
+            'src/Core/Content/ProductExport/Subscriber/*AgenticCommerce*',
+            'src/Core/Content/ProductExport/Validator/OpenAi*',
+            'src/Core/Content/ProductExport/Validator/AbstractProviderValidator.php',
+            'src/Core/Content/ProductExport/Error/JsonlValidationError.php',
+            'src/Core/Content/ProductExport/Error/ProviderValidationError.php',
+            'src/Core/Content/ProductExport/Tracking/**',
+            'src/Core/Migration/**/*AgenticCommerce*',
+            'src/Core/Migration/**/*AgenticAi*',
+            // Administration — agentic-commerce sales channel UI
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/**',
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/**',
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/**',
+        ];
+
+        $matched = [];
+        foreach ($agenticCommercePatterns as $pattern) {
+            foreach ($files->matches($pattern) as $file) {
+                $matched[$file->name] = true;
+            }
+        }
+
+        if (count($matched) === 0) {
+            return;
+        }
+
+        ksort($matched);
+
+        $context->warning(
+            'This Pull Request touches the <strong>Agentic Commerce Sales Channel</strong> feature.<br/>'
+            . 'If you added or changed functionality here, please consider porting the change to the compatibility plugin'
+            . ' SwagAgenticCommerce (https://github.com/shopware/SwagAgenticCommerce) so it is also available to merchants on older Shopware versions.<br/><br/>'
+            . 'Affected files:<br/>'
+            . implode('<br/>', array_keys($matched))
+        );
+    })
+    ->useRule(function (Context $context): void {
         function checkMigrationForBundle(string $bundle, Context $context): void
         {
             $files = $context->platform->pullRequest->getFiles();
@@ -392,10 +434,10 @@ return (new Config())
         }
 
         if (\count($missingUnitTests) > 0) {
-            $context->warning(
+            $context->failure(
                 'Please be kind and add unit tests for your new code in these files: <br/><br/>'
                 . implode('<br/>', $missingUnitTests)
-                . '<br/><br/>If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
+                . '<br/> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
             );
         }
     })
@@ -408,8 +450,12 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
+            $composerFileName = (string) $composerFile->name;
+
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, '/Test/')
+                || str_starts_with($composerFileName, 'tests/')
+                || str_contains($composerFileName, '/test/')
+                || str_contains($composerFileName, '/Test/')
             ) {
                 continue;
             }

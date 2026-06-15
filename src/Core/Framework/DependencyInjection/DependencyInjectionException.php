@@ -13,6 +13,8 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
+    private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
     public static function projectDirNotInContainer(): self
     {
@@ -47,6 +49,26 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
             \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+        );
+    }
+
+    public static function unknownMcpToolDependency(string $dependentTool, string $missingDependency): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MCP_UNKNOWN_TOOL_DEPENDENCY,
+            'MCP tool "{{ dependentTool }}" declares a dependency on "{{ missingDependency }}" which is not registered. Check the tool name or register the missing tool.',
+            ['dependentTool' => $dependentTool, 'missingDependency' => $missingDependency],
+        );
+    }
+
+    public static function duplicateMcpToolName(string $toolName, string $existingServiceId, string $newServiceId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MCP_DUPLICATE_TOOL_NAME,
+            'Duplicate MCP tool name "{{ toolName }}": services "{{ existingServiceId }}" and "{{ newServiceId }}" conflict. Use a unique namespace prefix (e.g. "your-plugin-tool-name").',
+            ['toolName' => $toolName, 'existingServiceId' => $existingServiceId, 'newServiceId' => $newServiceId],
         );
     }
 }

@@ -24,6 +24,11 @@ class Migration1747746986OrderTaxCalculationTypeTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1747746986, (new Migration1747746986OrderTaxCalculationType())->getCreationTimestamp());
+    }
+
     public function testAddedColumn(): void
     {
         if (TableHelper::columnExists($this->connection, 'order', 'tax_calculation_type')) {

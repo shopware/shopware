@@ -221,4 +221,14 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(wrapper.vm.customer.salutationId).toBe('1');
     });
+
+    it('should set the initial limit on the addresses association criteria', async () => {
+        await flushPromises();
+
+        const criteria = wrapper.vm.defaultCriteria;
+        const addressesAssociation = criteria.getAssociation('addresses');
+
+        expect(addressesAssociation.limit).toBe(criteria.limit);
+        expect(addressesAssociation.limit).toBe(25);
+    });
 });

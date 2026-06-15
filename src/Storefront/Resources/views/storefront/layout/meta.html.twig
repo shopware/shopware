@@ -8,6 +8,7 @@
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
     {% set metaAuthor = (metaInformation.author != '') ? metaInformation.author : config('core.basicInformation.metaAuthor') %}
+    {% set importmapData = import_map() %}
 
     <head>
         {% block layout_head_meta_tags %}
@@ -135,15 +136,57 @@
             </title>
         {% endblock %}
 
+        {% block layout_head_theme_css_vars %}
+            {%- set themeCssVars = theme_css_vars() -%}
+            {%- if themeCssVars is not empty -%}
+                <style>
+                    :root {
+                    {%- for key, value in themeCssVars -%}
+                        --{{ key|raw }}: {{ value|raw }};
+                    {%- endfor -%}
+                    }
+                </style>
+            {%- endif -%}
+        {% endblock %}
+
         {% block layout_head_stylesheet %}
-            {% if isHMRMode %}
+            {% if isHMRMode and not feature('v6.8.0.0') %}
+                {# @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. #}
                 {# CSS will be loaded from the JS automatically #}
             {% else %}
-                {% set assets = theme_config('assets.css') %}
+                {% set componentStyles = importmapData.styles ?? [] %}
+                {# In dev-server mode, all styles are served by the import map. #}
+                {% set assets = (importmapData.isDevServer ?? false) ? [] : (theme_config('assets.css') ?? []) %}
                 {% for file in assets %}
                     <link rel="stylesheet"
-                      href="{{ asset(file, 'theme') }}">
+                          href="{{ asset(file, 'theme') }}">
                 {% endfor %}
+                {% for url in componentStyles %}
+                    <link rel="stylesheet" href="{{ url }}">
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {# ludtwig-ignore twig-json-encode-escape-js #}
+        {% block layout_head_javascript_importmap %}
+            {% set importmapImports = importmapData.imports ?? {} %}
+            {% set importmapScopes = importmapData.scopes ?? {} %}
+
+            {% if importmapImports is not empty %}
+                <script type="importmap">
+                    {
+                        "imports": {{ importmapImports|json_encode|raw }}{% if importmapScopes is not empty %},
+                        "scopes": {{ importmapScopes|json_encode|raw }}{% endif %}
+                    }
+                </script>
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_head_javascript_shopware_runtime %}
+            {# Load the shopware runtime module as an ES module before the storefront scripts.#}
+            {% set shopwareModuleUrl = importmapData.imports['shopware'] ?? null %}
+            {% if shopwareModuleUrl %}
+                <script type="module" src="{{ shopwareModuleUrl }}"></script>
             {% endif %}
         {% endblock %}
 
@@ -235,25 +278,55 @@
             {% sw_include '@Storefront/storefront/utilities/form-validation-config.html.twig' %}
         {% endblock %}
 
-        {% block layout_head_javascript_hmr_mode %}
-            {% if isHMRMode %}
-                {% block layout_head_javascript_hmr_dev %}
-                    {# Entry point for dev-server #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
-                    {% for script in theme_scripts() %}
-                        <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
-                    {% endfor %}
-                {% endblock %}
-            {% else %}
-                {% block layout_head_javascript_prod %}
-                    <script>
-                        window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
-                    </script>
-                    {% for script in theme_scripts() %}
-                        <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% endblock %}
-            {% endif %}
-        {% endblock %}
+        {# @deprecated tag:v6.8.0 - Will be removed. Use block `layout_head_javascript_assets` instead. #}
+        {% if not feature('v6.8.0.0') %}
+            {% block layout_head_javascript_hmr_mode %}
+                {% if isHMRMode and not feature('v6.8.0.0') %}
+                    {# @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. #}
+                    {% block layout_head_javascript_hmr_dev %}
+                        {# Entry point for dev-server #}
+                        <script type="text/javascript" src="/_webpack_hot_proxy_/storefront/hot-reloading.js" defer></script>
+                        {% for script in theme_scripts() %}
+                            <script type="text/javascript" src="{{ script|replace({'js/': '/_webpack_hot_proxy_/'}) }}" defer></script>
+                        {% endfor %}
+                    {% endblock %}
+                {% else %}
+                    {{ sw_block('layout_head_javascript_assets') }}
+                {% endif %}
+            {% endblock %}
+        {% endif %}
+
+        {% if feature('v6.8.0.0') %}
+            {% block layout_head_javascript_assets %}
+                {% set isDevServer = importmapData.isDevServer ?? false %}
+                {% set devScripts = importmapData.scripts ?? [] %}
+
+                {% if isDevServer and devScripts is not empty %}
+                    {% block layout_head_javascript_dev_server %}
+                        {# @deprecated tag:v6.8.0 - Webpack hot proxy is no longer supported. #}
+                        {% if not feature('v6.8.0.0') %}
+                            {# This adds compatibility for files expecting the Webpack hot proxy. #}
+                            <script>
+                                window.themeJsPublicPath = '';
+                                window.module = window.module || { hot: null };
+                            </script>
+                        {% endif %}
+
+                        {% for url in devScripts %}
+                            <script type="module" src="{{ url }}"></script>
+                        {% endfor %}
+                    {% endblock %}
+                {% else %}
+                    {% block layout_head_javascript_prod %}
+                        <script>
+                            window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+                        </script>
+                        {% for script in theme_scripts() %}
+                            <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+                        {% endfor %}
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+        {% endif %}
     </head>
 {% endblock %}

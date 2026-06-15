@@ -109,7 +109,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
                 Criteria.multi('OR', [
@@ -170,6 +170,10 @@ export default {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        showNumberRangeStateFields() {
+            return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
         ...mapPropertyErrors('numberRange', [
@@ -267,23 +271,23 @@ export default {
         },
 
         getPreview() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
             return this.numberRangeService
-                .previewPattern(this.numberRange.type.technicalName, this.numberRange.pattern, this.numberRange.start)
+                .previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start)
                 .then((response) => {
                     this.preview = response.number;
                 });
         },
 
         getState() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
-            return this.numberRangeService.previewPattern(this.numberRange.type.technicalName, '{n}', 0).then((response) => {
+            return this.numberRangeService.previewPatternByNumberRangeId(this.numberRange.id, '{n}', 0).then((response) => {
                 if (response.number > 1) {
                     this.state = response.number - 1;
                     return Promise.resolve();

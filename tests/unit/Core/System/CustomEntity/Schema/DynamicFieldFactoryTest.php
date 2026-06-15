@@ -30,8 +30,7 @@ class DynamicFieldFactoryTest extends TestCase
 
     public function testCreateThrowsAnExceptionWhenTheServiceIsNotFound(): void
     {
-        $this->expectException(ServiceNotFoundException::class);
-        $this->expectExceptionMessage('You have requested a non-existent service "Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry".');
+        $this->expectExceptionObject(new ServiceNotFoundException('Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry'));
 
         $factory = new DynamicFieldFactory();
 

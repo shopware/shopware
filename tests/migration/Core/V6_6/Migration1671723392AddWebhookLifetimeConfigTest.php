@@ -25,6 +25,11 @@ class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase
         $this->connection->delete('system_config', ['configuration_key' => 'core.webhook.entryLifetimeSeconds']);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1671723392, (new Migration1671723392AddWebhookLifetimeConfig())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertEmpty($this->getConfig());

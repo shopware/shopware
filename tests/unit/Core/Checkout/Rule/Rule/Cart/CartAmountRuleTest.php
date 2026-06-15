@@ -11,9 +11,14 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -180,11 +185,66 @@ class CartAmountRuleTest extends TestCase
     {
         $result = (new CartAmountRule())->getConstraints();
 
-        static::assertArrayHasKey('amount', $result);
-        static::assertIsArray($result['amount']);
+        static::assertEquals([
+            'amount' => RuleConstraints::float(),
+            'operator' => RuleConstraints::numericOperators(false),
+        ], $result);
+    }
 
-        static::assertArrayHasKey('operator', $result);
-        static::assertIsArray($result['operator']);
+    public function testConstraintsRejectMissingAmount(): void
+    {
+        $violations = $this->validateConstraint('amount', null);
+
+        $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
+    }
+
+    public function testConstraintsAcceptNumericStringAmount(): void
+    {
+        $violations = $this->validateConstraint('amount', '0.1');
+
+        static::assertCount(0, $violations);
+    }
+
+    public function testConstraintsAcceptIntegerAmount(): void
+    {
+        $violations = $this->validateConstraint('amount', 3);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('validNumericOperators')]
+    public function testConstraintsAcceptAvailableOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('invalidNumericOperators')]
+    public function testConstraintsRejectInvalidOperator(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        $this->assertViolationCode($violations, Choice::NO_SUCH_CHOICE_ERROR);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function validNumericOperators(): \Generator
+    {
+        yield 'equals' => [CartAmountRule::OPERATOR_EQ];
+        yield 'not equals' => [CartAmountRule::OPERATOR_NEQ];
+        yield 'less than or equals' => [CartAmountRule::OPERATOR_LTE];
+        yield 'greater than or equals' => [CartAmountRule::OPERATOR_GTE];
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidNumericOperators(): \Generator
+    {
+        yield 'unknown operator' => ['Invalid'];
     }
 
     public function testGetConfig(): void
@@ -193,5 +253,19 @@ class CartAmountRuleTest extends TestCase
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $data['operatorSet']['operators']);
         static::assertSame('amount', $data['fields']['amount']['name']);
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new CartAmountRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode): void
+    {
+        static::assertCount(1, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

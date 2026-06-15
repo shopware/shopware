@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
@@ -194,7 +195,7 @@ class PromotionExtensionCodesTest extends TestCase
         static::assertInstanceOf(LineItem::class, $discountLineItem);
         static::assertFalse($discountLineItem->isRemovable());
 
-        $this->expectExceptionMessage('Line item with identifier');
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($discountLineItem->getId()));
         $this->cartService->remove($cart, $discountLineItem->getId(), $this->context);
     }
 

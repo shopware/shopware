@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -103,7 +104,8 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             $connection,
             $themeFileSystem,
-            $themePathBuilder
+            $themePathBuilder,
+            new NativeClock()
         );
 
         $handler->run();

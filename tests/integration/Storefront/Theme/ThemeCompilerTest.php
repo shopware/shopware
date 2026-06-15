@@ -86,8 +86,6 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
     }
 
@@ -442,7 +440,6 @@ PHP_EOL;
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
-
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
@@ -456,8 +453,6 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
 
         $exception = null;

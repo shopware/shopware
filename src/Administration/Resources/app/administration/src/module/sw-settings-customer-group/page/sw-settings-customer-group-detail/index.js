@@ -314,7 +314,9 @@ export default {
             }
 
             try {
-                await this.customerGroupRepository.save(this.customerGroup);
+                await this.customerGroupRepository
+                    .save(this.customerGroup)
+                    .then((response) => (response !== undefined ? this.loadCustomerGroup() : Promise.resolve()));
 
                 this.isSaveSuccessful = true;
             } catch (_err) {

@@ -125,5 +125,10 @@
 
             <tag name="shopware.cms.data_resolver"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNameCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
     </services>
 </container>

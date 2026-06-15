@@ -10,7 +10,6 @@
 
         .sw-cms-el-config-product-slider__tab-settings {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(185px, 305px));
             gap: 0 30px;
         }
     }
@@ -33,7 +32,7 @@
 
         .sw-cms-el-config-product-slider__select-product-number {
             display: inline;
-            color: $color-gray-400;
+            color: var(--color-text-secondary-default);
             margin-left: 10px;
         }
     }

@@ -52,16 +52,18 @@
                 {% endblock %}
             </div>
 
-            {% block cms_form_revocation_input_contract_number %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                    with {
-                    fieldName: 'contractNumber',
-                    required: true,
-                    additionalClass: 'col-md-12',
-                    label: 'revocationRequest.contractNumberLabel',
-                    placeholder: 'revocationRequest.contractNumberPlaceholder'
-                } %}
-            {% endblock %}
+            <div class="row g-2">
+                {% block cms_form_revocation_input_contract_number %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'contractNumber',
+                        required: true,
+                        additionalClass: 'col-md-12',
+                        label: 'revocationRequest.contractNumberLabel',
+                        placeholder: 'revocationRequest.contractNumberPlaceholder'
+                    } %}
+                {% endblock %}
+            </div>
 
             <div class="row g-2">
                 {% block cms_form_revocation_comment_textarea %}

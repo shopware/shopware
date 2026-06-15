@@ -27,8 +27,7 @@ class ExceptionLoggerTest extends TestCase
             ->with(LogLevel::ERROR, 'test');
 
         if ($expectException) {
-            $this->expectException(\Exception::class);
-            $this->expectExceptionMessage('test');
+            $this->expectExceptionObject(new \Exception('test'));
         }
 
         $logger = new ExceptionLogger($environment, $enforceThrow, $psrLogger);

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -83,6 +85,10 @@ async function createWrapper() {
                             }),
                         create: () => ({ id: 'id' }),
                     }),
+                },
+                userConfigService: {
+                    search: () => Promise.resolve({ data: {} }),
+                    upsert: () => Promise.resolve(),
                 },
             },
         },

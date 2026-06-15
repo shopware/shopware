@@ -52,7 +52,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             'currency': productData.currency || ProductPageHelper.getCurrency(),
             'value': productData.value,
             'items': [{
-                'id': productId,
+                'id': productData.id ?? productId,
                 'name': formData.get('product-name') || productData.name,
                 'quantity': formData.get(`lineItems[${productId}][quantity]`),
                 'brand': formData.get('brand-name') || productData.brand,

@@ -58,7 +58,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
                         && $request->attributes->get('attribute') === 'value'
                         && $request->cookies->get('cookie') === 'value'
                         && $request->server->get('HTTP_HOST') === 'example.com'
-                        && $request->hasSession();
+                        && $request->hasSession(true);
                 }),
                 HttpKernelInterface::MAIN_REQUEST,
                 false
@@ -134,8 +134,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         $this->store->expects($this->never())->method('write');
         $this->cache->expects($this->never())->method('delete');
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Kernel error');
+        $this->expectExceptionObject(new \Exception('Kernel error'));
 
         try {
             ($this->handler)($message);
@@ -154,7 +153,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
             ->method('handle')
             ->with(
                 static::callback(static function (Request $request) {
-                    return $request->hasSession()
+                    return $request->hasSession(true)
                         && $request->getSession() instanceof Session;
                 }),
                 HttpKernelInterface::MAIN_REQUEST,

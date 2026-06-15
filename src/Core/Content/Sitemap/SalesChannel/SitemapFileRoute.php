@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Content\Sitemap\Extension\SitemapFileExtension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -54,13 +56,18 @@ class SitemapFileRoute
         }
 
         $fileName = basename($filePath);
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($fileName);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
 
         $headers = [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 HeaderUtils::DISPOSITION_ATTACHMENT,
                 $fileName,
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName) ?: ''
+                $filenameFallback
             ),
             'Content-Length' => $this->fileSystem->fileSize($filePath),
             'Content-Type' => 'application/octet-stream',

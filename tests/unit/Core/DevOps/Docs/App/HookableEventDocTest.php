@@ -40,7 +40,7 @@ class HookableEventDocTest extends TestCase
     }
 
     /**
-     * @return array<string, array{
+     * @return iterable<string, array{
      *     string,
      *     list<string>,
      *     string,
@@ -48,32 +48,30 @@ class HookableEventDocTest extends TestCase
      *     array<string, string>
      * }>
      */
-    public static function entityWrittenProvider(): array
+    public static function entityWrittenProvider(): iterable
     {
-        return [
-            'with permissions' => [
-                'product.written',
-                ['a', 'b'],
-                'Triggers when a product is written',
-                '`a` `b`',
-                [
-                    'entity' => 'product',
-                    'operation' => EntityWriteResult::OPERATION_UPDATE . ' ' . EntityWriteResult::OPERATION_INSERT,
-                    'primaryKey' => 'array string',
-                    'payload' => 'array',
-                ],
+        yield 'with permissions' => [
+            'product.written',
+            ['a', 'b'],
+            'Triggers when a product is written',
+            '`a` `b`',
+            [
+                'entity' => 'product',
+                'operation' => EntityWriteResult::OPERATION_UPDATE . ' ' . EntityWriteResult::OPERATION_INSERT,
+                'primaryKey' => 'array string',
+                'payload' => 'array',
             ],
-            'without permissions' => [
-                'foo.deleted',
-                [],
-                'Triggers when a foo is deleted',
-                '-',
-                [
-                    'entity' => 'foo',
-                    'operation' => 'deleted',
-                    'primaryKey' => 'array string',
-                    'payload' => 'array',
-                ],
+        ];
+        yield 'without permissions' => [
+            'foo.deleted',
+            [],
+            'Triggers when a foo is deleted',
+            '-',
+            [
+                'entity' => 'foo',
+                'operation' => 'deleted',
+                'primaryKey' => 'array string',
+                'payload' => 'array',
             ],
         ];
     }

@@ -115,8 +115,7 @@ class ConvertGuestRouteTest extends TestCase
         $this->customer->setGuest(false);
         $requestDataBag = new RequestDataBag(['password' => 'new-password']);
 
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Customer with id "test-customer-id" is not a guest');
+        $this->expectExceptionObject(CustomerException::registeredCustomerCannotBeConverted('test-customer-id'));
 
         $this->route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
     }

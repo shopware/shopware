@@ -650,7 +650,10 @@
         }
       },
       "productName": {
-        "label": "Product Name"
+        "label": "Product name"
+      },
+      "categoryName": {
+        "label": "Category name"
       },
       "html": {
         "label": "HTML",
@@ -662,6 +665,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Category name"
+        },
         "productHeading": {
           "label": "Product name & manufacturer logo"
         },

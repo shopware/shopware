@@ -10,18 +10,7 @@
                 "summary": "Cancel an order",
                 "description": "Cancels an order. The order state will be set to 'cancelled'.",
                 "operationId": "cancelOrder",
-                "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    }
-                ],
+                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -72,16 +61,6 @@
                 "description": "List orders of a customer.",
                 "operationId": "readOrder",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "sw-include-search-info",
                         "in": "header",
@@ -202,18 +181,7 @@
                 "summary": "Update the payment method of an order",
                 "description": "Changes the payment method of a specific order. You can use the /order route to find out if the payment method of an order can be changed - take a look at the `paymentChangeable`- array in the response.",
                 "operationId": "orderSetPayment",
-                "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    }
-                ],
+                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -282,16 +250,6 @@
                         "name": "downloadId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"

@@ -40,11 +40,13 @@
                     :address="address"
                     :customer="orderCustomer"
                     :countries="countries"
+                    :disabled="!acl.can('order.editor')"
                 />
                 <sw-custom-field-set-renderer
                     :entity="address"
                     variant="tabs"
                     :sets="addressCustomFieldSets"
+                    :disabled="!acl.can('order.editor')"
                 />
                 {% endblock %}
             </div>
@@ -90,6 +92,7 @@
             variant="primary"
             size="small"
             data-analytics-id="sw-order-address-modal.save"
+            :disabled="!acl.can('order.editor')"
             @click="onSave"
         >
             {{ $t('global.default.apply') }}
@@ -99,4 +102,3 @@
     {% endblock %}
 </sw-modal>
 {% endblock %}
-

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @final
@@ -47,8 +48,8 @@ class CustomerAgeRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $birthday = (new \DateTime())->setTimestamp($birthday->getTimestamp());
-        $now = new \DateTime();
+        $birthday = new \DateTime('@' . $birthday->getTimestamp());
+        $now = Clock::get()->now();
 
         $age = $now->diff($birthday)->y;
 

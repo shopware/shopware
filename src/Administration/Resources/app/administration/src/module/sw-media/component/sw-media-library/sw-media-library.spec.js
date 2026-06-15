@@ -5,14 +5,17 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';
 
 class Repository {
-    constructor(entityName, amounts) {
+    constructor(entityName, amounts, total) {
         this.#entityName = entityName;
         this.#amounts = amounts;
+        this.#total = total;
     }
 
     #entityName = '';
 
     #amounts = [];
+
+    #total;
 
     invocation = 0;
 
@@ -37,19 +40,25 @@ class Repository {
             });
         }
 
+        if (this.#total !== undefined) {
+            data.total = this.#total;
+        }
+
         return Promise.resolve(data);
     }
 }
 
-async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
-    const mediaRepositoryMock = new Repository('media', mediaAmount);
-    const folderRepositoryMock = new Repository('media_folder', folderAmount);
+async function createWrapper({ mediaAmount = [5], folderAmount = [5], limit = 5, mediaTotal, folderTotal } = {}) {
+    const mediaRepositoryMock = new Repository('media', mediaAmount, mediaTotal);
+    const folderRepositoryMock = new Repository('media_folder', folderAmount, folderTotal);
+
+    const props = { selection: [] };
+    if (limit !== null) {
+        props.limit = limit;
+    }
 
     return mount(await wrapTestComponent('sw-media-library', { sync: true }), {
-        props: {
-            selection: [],
-            limit: 5,
-        },
+        props,
         global: {
             renderStubDefaultSlot: true,
             stubs: {
@@ -90,7 +99,7 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
 }
 
 describe('src/module/sw-media/component/sw-media-library/index', () => {
-    it('should allow loading of additional folders', async () => {
+    it('should load a further page of folders and media via "Load more"', async () => {
         const wrapper = await createWrapper({
             folderAmount: [
                 5,
@@ -99,58 +108,40 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             ],
             mediaAmount: [
                 5,
+                5,
                 3,
             ],
+            folderTotal: 13,
+            mediaTotal: 13,
         });
         await flushPromises();
 
-        // Check that it starts with the correct amounts
+        // First page is loaded, more than one further page remains
         expect(wrapper.vm.subFolders).toHaveLength(5);
         expect(wrapper.vm.items).toHaveLength(5);
-        expect(wrapper.vm.selectableItems).toHaveLength(10);
-
-        // Check that additional media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(false);
         expect(wrapper.vm.folderLoaderDone).toBe(false);
 
-        // Initiate another load
-        let loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(true);
+        // "Load more" cannot finish everything, so both buttons are offered
+        expect(wrapper.get('.sw-media-library__load-more-button').exists()).toBe(true);
+        expect(wrapper.get('.sw-media-library__load-all-button').exists()).toBe(true);
+
+        // Load one more page of folders and media
         wrapper.vm.loadNextItems();
         await flushPromises();
 
-        // Check that appropriate amounts were loaded
         expect(wrapper.vm.subFolders).toHaveLength(10);
-        expect(wrapper.vm.items).toHaveLength(8);
-        expect(wrapper.vm.selectableItems).toHaveLength(18);
+        expect(wrapper.vm.items).toHaveLength(10);
 
-        // Check that additional folders can be loaded, but not media
-        expect(wrapper.vm.itemLoaderDone).toBe(true);
-        expect(wrapper.vm.folderLoaderDone).toBe(false);
-
-        // Initiate another load
-        loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(true);
-        wrapper.vm.loadNextItems();
-        await flushPromises();
-
-        // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders).toHaveLength(13);
-        expect(wrapper.vm.items).toHaveLength(8);
-        expect(wrapper.vm.selectableItems).toHaveLength(21);
-
-        // Check that no further media and folders can be loaded
-        expect(wrapper.vm.itemLoaderDone).toBe(true);
-        expect(wrapper.vm.folderLoaderDone).toBe(true);
-
-        // Check that the 'Load more' button disappeared
-        loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(false);
+        // Now only one page remains, so "Load more" is hidden and only "Load all" stays
+        expect(wrapper.find('.sw-media-library__load-more-button').exists()).toBe(false);
+        expect(wrapper.get('.sw-media-library__load-all-button').exists()).toBe(true);
     });
 
-    it('should allow loading of additional media', async () => {
+    it('should load every remaining element via "Load all"', async () => {
         const wrapper = await createWrapper({
             folderAmount: [
+                5,
                 5,
                 3,
             ],
@@ -159,52 +150,66 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                 5,
                 3,
             ],
+            folderTotal: 13,
+            mediaTotal: 13,
         });
         await flushPromises();
 
-        // Check that it starts with the correct amounts
-        expect(wrapper.vm.subFolders).toHaveLength(5);
-        expect(wrapper.vm.items).toHaveLength(5);
-        expect(wrapper.vm.selectableItems).toHaveLength(10);
+        const loadAllButton = wrapper.get('.sw-media-library__load-all-button');
+        expect(loadAllButton.exists()).toBe(true);
 
-        // Check that more media and folders can be loaded
-        expect(wrapper.vm.itemLoaderDone).toBe(false);
-        expect(wrapper.vm.folderLoaderDone).toBe(false);
-
-        // Initiate another load
-        let loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(true);
-        wrapper.vm.loadNextItems();
+        // Load everything in one go
+        await wrapper.vm.loadAll();
         await flushPromises();
 
-        // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders).toHaveLength(8);
-        expect(wrapper.vm.items).toHaveLength(10);
-        expect(wrapper.vm.selectableItems).toHaveLength(18);
-
-        // Check that more media can be loaded, but not folders
-        expect(wrapper.vm.itemLoaderDone).toBe(false);
-        expect(wrapper.vm.folderLoaderDone).toBe(true);
-
-        // Initiate another load
-        loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(true);
-        wrapper.vm.loadNextItems();
-        await flushPromises();
-
-        // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders).toHaveLength(8);
+        expect(wrapper.vm.subFolders).toHaveLength(13);
         expect(wrapper.vm.items).toHaveLength(13);
-        expect(wrapper.vm.selectableItems).toHaveLength(21);
-
-        // Check that no further media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(true);
         expect(wrapper.vm.folderLoaderDone).toBe(true);
 
-        // Check that the 'Load more' button disappeared
-        loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
-        expect(loadMoreButton.exists()).toBe(false);
+        // Both buttons disappear once everything is loaded
+        expect(wrapper.find('.sw-media-library__load-all-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-library__load-more-button').exists()).toBe(false);
     });
+
+    it('should only show "Load all" when a single "Load more" would already load everything', async () => {
+        const wrapper = await createWrapper({
+            folderAmount: [
+                5,
+                3,
+            ],
+            mediaAmount: [
+                5,
+                3,
+            ],
+            folderTotal: 8,
+            mediaTotal: 8,
+        });
+        await flushPromises();
+
+        // One more page per loader would finish everything
+        expect(wrapper.vm.loadMoreLoadsEverything).toBe(true);
+        expect(wrapper.vm.showLoadMoreButton).toBe(false);
+        expect(wrapper.vm.showLoadAllButton).toBe(true);
+
+        expect(wrapper.find('.sw-media-library__load-more-button').exists()).toBe(false);
+        expect(wrapper.get('.sw-media-library__load-all-button').exists()).toBe(true);
+    });
+
+    it('should show no load buttons when everything fits on the first page', async () => {
+        const wrapper = await createWrapper({
+            folderAmount: [3],
+            mediaAmount: [2],
+            folderTotal: 3,
+            mediaTotal: 2,
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.allLoaded).toBe(true);
+        expect(wrapper.find('.sw-media-library__load-more-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-library__load-all-button').exists()).toBe(false);
+    });
+
     it('should limit association loading to 25', async () => {
         const wrapper = await createWrapper();
 
@@ -379,6 +384,14 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             sort: [{ field: 'name', order: 'asc', naturalSorting: false }],
             'total-count-mode': 1,
         });
+    });
+
+    it('should default the limit to 100 for folders and media', async () => {
+        const wrapper = await createWrapper({ limit: null });
+
+        expect(wrapper.vm.limit).toBe(100);
+        expect(wrapper.vm.nextFoldersCriteria.limit).toBe(100);
+        expect(wrapper.vm.nextMediaCriteria.limit).toBe(100);
     });
 
     it('should return filters from filter registry', async () => {

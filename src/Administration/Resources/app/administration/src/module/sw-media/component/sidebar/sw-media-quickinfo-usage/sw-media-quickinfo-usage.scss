@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
-$sw-media-quickinfo-usage-hover-color: $color-shopware-brand-500;
-$sw-media-quickinfo-usage-hover-background: #e3f3ff;
+$sw-media-quickinfo-usage-hover-color: var(--color-text-brand-default);
+$sw-media-quickinfo-usage-hover-background: var(--color-background-brand-default);
 
 .sw-media-quickinfo-usage {
     .sw-media-quickinfo-usage__loading-indicator {

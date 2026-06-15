@@ -105,6 +105,46 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         static::assertSame('10 cm', $result);
     }
 
+    public function testConvertWithAutoDetectedUnitFromSalesChannelContextFallback(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'kg',
+            ]
+        );
+
+        $context->setMeasurementSystem($measurementUnits);
+
+        $twigContext = ['salesChannelContext' => $context];
+
+        $measurementUnit = $this->createMeasurementDisplayUnitEntity(
+            'mm',
+            'length',
+            10.0,
+            2
+        );
+
+        $this->unitProvider
+            ->expects($this->once())
+            ->method('getUnitInfo')
+            ->with('mm')
+            ->willReturn($measurementUnit);
+
+        $this->unitConverter
+            ->expects($this->once())
+            ->method('convert')
+            ->with(100.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, '100', 'mm');
+
+        static::assertSame('10 cm', $result);
+    }
+
     public function testConvertWithExplicitToUnit(): void
     {
         $twigContext = [];

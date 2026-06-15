@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>paymentPersister</name>
+        <label>Swag unit test payment method persister</label>
+        <description>Test for installing payment methods</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+
+    <payments>
+        <payment-method>
+            <identifier>paymentWithIcon</identifier>
+            <name>Payment Method With Icon</name>
+            <description>This is a simple description</description>
+            <pay-url>https://payment.example.com/pay</pay-url>
+            <finalize-url>https://payment.example.com/finalize</finalize-url>
+            <icon>icon.png</icon>
+        </payment-method>
+    </payments>
+</manifest>

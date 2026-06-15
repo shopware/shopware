@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-country-list-color-error: $color-crimson-500;
-$sw-country-list-color-success: $color-emerald-500;
+$sw-country-list-color-error: var(--color-icon-critical-default);
+$sw-country-list-color-success: var(--color-icon-positive-default);
 
 .sw-settings-country-list {
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {

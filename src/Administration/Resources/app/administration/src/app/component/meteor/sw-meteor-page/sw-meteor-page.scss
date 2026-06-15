@@ -54,7 +54,7 @@
     }
 
     .sw-meteor-page__head-area {
-        color: #0c1f34;
+        color: var(--color-text-primary-default);
         position: sticky;
         top: 0;
         display: grid;
@@ -62,11 +62,11 @@
         grid-column-gap: 8px;
         grid-template-columns: 1fr minmax(0, 960px) 1fr;
         width: 100%;
-        background: $color-white;
+        background: var(--color-elevation-surface-default);
         padding: 12px 12px 0;
         z-index: $z-index-page-header;
         margin-bottom: 48px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-meteor-page__smart-bar-navigation {
             margin-bottom: 12px;
@@ -86,7 +86,7 @@
         top: 100%;
         height: 4px;
         width: 100%;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 20%), transparent);
+        background: linear-gradient(to bottom, var(--color-elevation-shadow-default), transparent);
     }
 
     .sw-meteor-page__head-area-top-bar-content {
@@ -109,7 +109,7 @@
             width: 100%;
             display: block;
             height: 1px;
-            background-color: $color-gray-300;
+            background-color: var(--color-border-primary-default);
             transform: translate(0, 12px);
         }
     }
@@ -181,7 +181,7 @@
             .sw-meteor-page__smart-bar-title {
                 @include truncate;
 
-                color: #0c1f34;
+                color: var(--color-text-primary-default);
                 line-height: 1.2;
                 font-size: $font-size-xl;
                 margin-right: 8px;
@@ -212,7 +212,7 @@
 
         .mt-button {
             margin: 6px 4px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
 
             &:first-child {
                 margin-left: 0;

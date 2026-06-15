@@ -95,17 +95,19 @@
             {% endblock %}
 
             {% block component_review_form_content %}
-                {% sw_include '@Storefront/storefront/component/form/form-textarea.html.twig' with {
-                    label: 'detail.reviewFormContentLabel'|trans|sw_sanitize,
-                    id: 'reviewContent',
-                    name: 'content',
-                    value: data.get('content'),
-                    violationPath: '/content',
-                    validationRules: 'required,minLength',
-                    minlength: '40',
-                    additionalClass: 'col-12 product-detail-review-form-content',
-                    description: 'detail.reviewTextMinLengthHint'|trans|sw_sanitize
-                } %}
+                <div class="row g-2">
+                    {% sw_include '@Storefront/storefront/component/form/form-textarea.html.twig' with {
+                        label: 'detail.reviewFormContentLabel'|trans|sw_sanitize,
+                        id: 'reviewContent',
+                        name: 'content',
+                        value: data.get('content'),
+                        violationPath: '/content',
+                        validationRules: 'required,minLength',
+                        minlength: '40',
+                        additionalClass: 'col-12 product-detail-review-form-content',
+                        description: 'detail.reviewTextMinLengthHint'|trans|sw_sanitize
+                    } %}
+                </div>
             {% endblock %}
 
             {% block component_review_form_footer %}

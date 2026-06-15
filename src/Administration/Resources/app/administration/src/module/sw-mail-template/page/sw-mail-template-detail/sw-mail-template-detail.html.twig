@@ -267,31 +267,163 @@
                     {% endblock %}
                 </mt-card>
                 {% block sw_mail_template_detail_preview_modal %}
-                <sw-modal
-                    v-if="mailPreview"
-                    class="sw-mail-template-preview-modal"
-                    :title="$t('sw-mail-template.detail.previewModalTitle')"
+                <template v-if="!feature.isActive('v6.8.0.0')">
+                    <sw-modal
+                        v-if="mailPreview"
+                        class="sw-mail-template-preview-modal"
+                        :title="$t('sw-mail-template.detail.previewModalTitle')"
+                        :is-loading="isLoading"
+                        @modal-close="onCancelShowPreview"
+                    >
+                        <template v-if="!isLoading">
+                            <div class="sw-mail-template-preview-modal__subject">
+                                <h3 class="sw-mail-template-preview-modal__subject-title">
+                                    {{ $t('sw-mail-template.detail.options.labelSubject') }}
+                                </h3>
+                                <mt-banner
+                                    v-if="mailPreview.subject.type === 'error'"
+                                    class="sw-mail-template-preview-modal__subject-error"
+                                    variant="critical"
+                                    :title="mailPreview.subject.errorTitle"
+                                >
+                                    {{ mailPreview.subject.errorMessage }}
+                                </mt-banner>
+                                <div
+                                    v-else
+                                    class="sw-mail-template-preview-modal__subject-content"
+                                >
+                                    {{ mailPreview.subject.content }}
+                                </div>
+                            </div>
+                            <div class="sw-mail-template-preview-modal__sender-name">
+                                <h3 class="sw-mail-template-preview-modal__sender-name-title">
+                                    {{ $t('sw-mail-template.detail.options.labelSenderName') }}
+                                </h3>
+                                <mt-banner
+                                    v-if="mailPreview.senderName.type === 'error'"
+                                    class="sw-mail-template-preview-modal__sender-name-error"
+                                    variant="critical"
+                                    :title="mailPreview.senderName.errorTitle"
+                                >
+                                    {{ mailPreview.senderName.errorMessage }}
+                                </mt-banner>
+                                <div
+                                    v-else
+                                    class="sw-mail-template-preview-modal__sender-name-content"
+                                >
+                                    {{ mailPreview.senderName.content }}
+                                </div>
+                            </div>
+                            <div class="sw-mail-template-preview-modal__plain-text">
+                                <h3 class="sw-mail-template-preview-modal__plain-text-title">
+                                    {{ $t('sw-mail-template.detail.mailText.labelContentPlain') }}
+                                </h3>
+                                <mt-banner
+                                    v-if="mailPreview.headerPlain.type === 'error'"
+                                    class="sw-mail-template-preview-modal__plain-text-error"
+                                    variant="critical"
+                                    :title="`Mail header (Plain text): ${mailPreview.headerPlain.errorTitle}`"
+                                >
+                                    {{ mailPreview.headerPlain.errorMessage }}
+                                </mt-banner>
+                                <pre
+                                    v-else
+                                    class="sw-mail-template-preview-modal__plain-text-content"
+                                >{{ mailPreview.headerPlain.content }}</pre>
+                                <mt-banner
+                                    v-if="mailPreview.contentPlain.type === 'error'"
+                                    class="sw-mail-template-preview-modal__plain-text-error"
+                                    variant="critical"
+                                    :title="`Mail content (Plain text): ${mailPreview.contentPlain.errorTitle}`"
+                                >
+                                    {{ mailPreview.contentPlain.errorMessage }}
+                                </mt-banner>
+                                <pre
+                                    v-else
+                                    class="sw-mail-template-preview-modal__plain-text-content"
+                                >{{ mailPreview.contentPlain.content }}</pre>
+                                <mt-banner
+                                    v-if="mailPreview.footerPlain.type === 'error'"
+                                    class="sw-mail-template-preview-modal__plain-text-error"
+                                    variant="critical"
+                                    :title="`Mail footer (Plain text): ${mailPreview.footerPlain.errorTitle}`"
+                                >
+                                    {{ mailPreview.footerPlain.errorMessage }}
+                                </mt-banner>
+                                <pre
+                                    v-else
+                                    class="sw-mail-template-preview-modal__plain-text-content"
+                                >{{ mailPreview.footerPlain.content }}</pre>
+                            </div>
+                            <div class="sw-mail-template-preview-modal__html">
+                                <h3 class="sw-mail-template-preview-modal__html-title">
+                                    {{ $t('sw-mail-template.detail.mailText.labelContentHtml') }}
+                                </h3>
+                                <mt-banner
+                                    v-if="mailPreview.headerHtml.type === 'error'"
+                                    class="sw-mail-template-preview-modal__html-error"
+                                    variant="critical"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailHeaderHtmlLabel')}: ${mailPreview.headerHtml.errorTitle}`"
+                                >
+                                    {{ mailPreview.headerHtml.errorMessage }}
+                                </mt-banner>
+                                <div
+                                    v-else
+                                    class="sw-mail-template-preview-modal__html-content"
+                                    v-html="mailPreview.headerHtml.content"
+                                ></div>
+                                <mt-banner
+                                    v-if="mailPreview.contentHtml.type === 'error'"
+                                    class="sw-mail-template-preview-modal__html-error"
+                                    variant="critical"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailContentHtmlLabel')}: ${mailPreview.contentHtml.errorTitle}`"
+                                >
+                                    {{ mailPreview.contentHtml.errorMessage }}
+                                </mt-banner>
+                                <div
+                                    v-else
+                                    class="sw-mail-template-preview-modal__html-content"
+                                    v-html="mailPreview.contentHtml.content"
+                                ></div>
+                                <mt-banner
+                                    v-if="mailPreview.footerHtml.type === 'error'"
+                                    class="sw-mail-template-preview-modal__html-error"
+                                    variant="critical"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailFooterHtmlLabel')}: ${mailPreview.footerHtml.errorTitle}`"
+                                >
+                                    {{ mailPreview.footerHtml.errorMessage }}
+                                </mt-banner>
+                                <div
+                                    v-else
+                                    class="sw-mail-template-preview-modal__html-content"
+                                    v-html="mailPreview.footerHtml.content"
+                                ></div>
+                            </div>
+                        </template>
+
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Extend `sw-mail-template-preview-modal` instead. #}
+                        {% block sw_mail_template_detail_preview_modal_footer %}
+                        <template #modal-footer>
+                            {# @deprecated tag:v6.8.0 - Block will be removed. Extend `sw-mail-template-preview-modal` instead. #}
+                            {% block sw_mail_template_detail_preview_modal_footer_cancel %}
+                            <mt-button
+                                size="small"
+                                variant="secondary"
+                                @click="onCancelShowPreview"
+                            >
+                                {{ $t('global.default.close') }}
+                            </mt-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                </template>
+                <sw-mail-template-preview-modal
+                    v-if="feature.isActive('v6.8.0.0') && mailPreview"
+                    :mail-preview="mailPreview"
                     :is-loading="isLoading"
                     @modal-close="onCancelShowPreview"
-                >
-                    <template v-if="!isLoading">
-                        <span v-html="mailPreview"></span>
-                    </template>
-
-                    {% block sw_mail_template_detail_preview_modal_footer %}
-                    <template #modal-footer>
-                        {% block sw_mail_template_detail_preview_modal_footer_cancel %}
-                        <mt-button
-                            size="small"
-                            variant="secondary"
-                            @click="onCancelShowPreview"
-                        >
-                            {{ $t('global.default.close') }}
-                        </mt-button>
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-                </sw-modal>
+                />
                 {% endblock %}
                 {% endblock %}
             </template>
@@ -340,6 +472,22 @@
                     />
                     {% endblock %}
 
+                    <mt-select
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
+                        </template>
+                    </mt-select>
+
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
                     <mt-button
                         :disabled="isSendButtonDisabled"
@@ -358,67 +506,87 @@
             <sw-sidebar-item
                 icon="regular-code"
                 :title="$t('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
-                :disabled="isLoading || !hasTemplateData"
+                :disabled="isLoading"
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
-                    {% block sw_mail_template_available_variables_tree %}
-                    <sw-tree
-                        class="sw-mail-template-detail__available-variables-sidebar-container__tree"
-                        :searchable="false"
-                        :disable-context-menu="true"
-                        :on-change-route="() => { return false; }"
-                        :items="loadedAvailableVariables"
-                        :sortable="false"
-                        @get-tree-items="onGetTreeItems"
+                    <mt-select
+                        class="sw-mail-template-detail__available-variables-sidebar-trigger-select"
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
                     >
-                        {% block sw_mail_template_available_variables_tree_headline %}
-                        <template #headline>
-                            <span></span>
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
                         </template>
-                        {% endblock %}
+                    </mt-select>
 
-                        {% block sw_mail_template_available_variables_tree_items %}
-                        <template
-                            #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                    <div class="sw-mail-template-detail__available-variables-sidebar-container-tree-container">
+                        {% block sw_mail_template_available_variables_tree %}
+                        <sw-tree
+                            class="sw-mail-template-detail__available-variables-sidebar-container__tree"
+                            :searchable="false"
+                            :allow-create-categories="false"
+                            :disable-context-menu="true"
+                            :on-change-route="() => { return false; }"
+                            :items="loadedAvailableVariables"
+                            :sortable="false"
+                            @get-tree-items="onGetTreeItems"
                         >
-                            {% block sw_mail_template_available_variables_tree_items_item %}
-                            <sw-tree-item
-                                v-for="(item) in treeItems"
-                                :key="item.id"
-                                :item="item"
-                                :disable-context-menu="disableContextMenu"
-                                :on-change-route="onChangeRoute"
-                                :sortable="false"
-                                :display-checkbox="false"
-                            >
-                                {% block sw_mail_template_available_variables_tree_items_item_grip %}
-                                <template #grip>
-                                    <span></span>
-                                </template>
-                                {% endblock %}
-
-                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
-                                <template #actions="{ item }">
-                                    <mt-icon
-                                        v-if="item.childCount === 0"
-                                        v-tooltip="{
-                                            message: $t('sw-mail-template.detail.sidebar.copyTooltip'),
-                                            width: 150,
-                                            position: 'bottom'
-                                        }"
-                                        name="regular-products-s"
-                                        class="sw-mail-template-detail__copy_icon"
-                                        @click="onCopyVariable(item.schema)"
-                                    />
-                                </template>
-                                {% endblock %}
-                            </sw-tree-item>
+                            {% block sw_mail_template_available_variables_tree_headline %}
+                            <template #headline>
+                                <span></span>
+                            </template>
                             {% endblock %}
-                        </template>
+
+                            {% block sw_mail_template_available_variables_tree_items %}
+                            <template
+                                #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                            >
+                                {% block sw_mail_template_available_variables_tree_items_item %}
+                                <sw-tree-item
+                                    v-for="(item) in treeItems"
+                                    :key="item.id"
+                                    :item="item"
+                                    :disable-context-menu="disableContextMenu"
+                                    :on-change-route="onChangeRoute"
+                                    :sortable="false"
+                                    :display-checkbox="false"
+                                >
+                                    {% block sw_mail_template_available_variables_tree_items_item_grip %}
+                                    <template #grip>
+                                        <span></span>
+                                    </template>
+                                    {% endblock %}
+
+                                    {% block sw_mail_template_available_variables_tree_items_item_actions %}
+                                    <template #actions="{ item }">
+                                        <mt-icon
+                                            v-if="item.childCount === 0"
+                                            v-tooltip="{
+                                                message: $t('sw-mail-template.detail.sidebar.copyTooltip'),
+                                                width: 150,
+                                                position: 'bottom'
+                                            }"
+                                            name="regular-products-s"
+                                            class="sw-mail-template-detail__copy_icon"
+                                            @click="onCopyVariable(item.schema)"
+                                        />
+                                    </template>
+                                {% endblock %}
+                                </sw-tree-item>
+                                {% endblock %}
+                            </template>
+                            {% endblock %}
+                        </sw-tree>
                         {% endblock %}
-                    </sw-tree>
-                    {% endblock %}
+                    </div>
                 </div>
             </sw-sidebar-item>
             {% endblock %}
@@ -429,12 +597,57 @@
                 :title="$t('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="!previewAllowed"
                 class="sw-mail-template-detail__show-preview-sidebar"
-                @click="onClickShowPreview"
-            />
+            >
+                <div class="sw-mail-template-detail__show-preview-sidebar-container">
+                    <sw-entity-single-select
+                        v-model:value="testMailSalesChannelId"
+                        name="sw-field--previewSalesChannelId"
+                        entity="sales_channel"
+                        :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                        show-clearable-button
+                    >
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.previewSalesChannelHint') }}
+                        </template>
+                    </sw-entity-single-select>
+
+                    <mt-select
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
+                        </template>
+                    </mt-select>
+
+                    <mt-button
+                        variant="secondary"
+                        :disabled="!triggerEvent || !acl.can('api_send_email')"
+                        @click="onClickShowPreview"
+                    >
+                        {{ $t('sw-mail-template.detail.previewModalTitle') }}
+                    </mt-button>
+                </div>
+            </sw-sidebar-item>
             {% endblock %}
 
             {% block sw_mail_template_detail_sidebar_inner_media %}
-            <sw-sidebar-media-item ref="mediaSidebarItem">
+            <sw-sidebar-media-item
+                ref="mediaSidebarItem"
+                class="sw-mail-template-detail__media-sidebar"
+            >
                 <template
                     #context-menu-items="media"
                 >

@@ -510,7 +510,15 @@
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                     media: mediaItems|first,
-                                                                    attributes: attributes
+                                                                    attributes: attributes,
+                                                                    sizes: {
+                                                                        xs: '100vw',
+                                                                        sm: '100vw',
+                                                                        md: '100vw',
+                                                                        lg: '60vw',
+                                                                        xl: '50vw',
+                                                                        xxl: '800px'
+                                                                    }
                                                                 } %}
                                                             {% endblock %}
                                                         {% endif %}

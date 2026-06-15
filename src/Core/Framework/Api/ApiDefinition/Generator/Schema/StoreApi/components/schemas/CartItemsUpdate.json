@@ -1,0 +1,91 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartItemsUpdate": {
+                "type": "object",
+                "required": ["items"],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CartLineItemUpdate"
+                        }
+                    }
+                }
+            },
+            "CartLineItemUpdate": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/OrderLineItem/properties/type"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "referencedId": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "object"
+                    },
+                    "stackable": {
+                        "type": "boolean"
+                    },
+                    "removable": {
+                        "type": "boolean"
+                    },
+                    "coverId": {
+                        "type": "string"
+                    },
+                    "priceDefinition": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "number"
+                            },
+                            "percentage": {
+                                "type": "number"
+                            },
+                            "quantity": {
+                                "type": "integer"
+                            },
+                            "isCalculated": {
+                                "type": "boolean"
+                            },
+                            "listPrice": {
+                                "type": "number"
+                            },
+                            "taxRules": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "taxRate": {
+                                            "type": "number"
+                                        },
+                                        "percentage": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

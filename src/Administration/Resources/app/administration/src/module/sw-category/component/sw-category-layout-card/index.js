@@ -66,6 +66,14 @@ export default {
             const pageType = this.cmsPageTypeService.getType(this.cmsPage.type);
             return pageType ? this.$t(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
         },
+
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-category.base.cms.defaultTitle');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
+        },
     },
 
     methods: {

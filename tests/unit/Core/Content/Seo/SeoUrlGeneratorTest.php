@@ -180,8 +180,7 @@ class SeoUrlGeneratorTest extends TestCase
             $parser
         );
 
-        $this->expectException(InvalidTemplateException::class);
-        $this->expectExceptionMessage('Syntax error');
+        $this->expectExceptionObject(new InvalidTemplateException('Syntax error'));
         iterator_to_array($generator->generate(['entity-1'], '{% for value in %}', $route, $this->context, $this->salesChannel), false);
     }
 
@@ -251,8 +250,7 @@ class SeoUrlGeneratorTest extends TestCase
             $router
         );
 
-        $this->expectException(InvalidTemplateException::class);
-        $this->expectExceptionMessage('Error:');
+        $this->expectExceptionObject(new InvalidTemplateException('Error:'));
         iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $route, $this->context, $this->salesChannel), false);
     }
 

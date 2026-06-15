@@ -63,11 +63,11 @@ class MediaUploadV2ControllerTest extends TestCase
             'POST',
             '/api/_action/media/external-link',
             [
-                'url' => 'https://localhost:8000/image.jpg',
+                'url' => 'https://localhost:8000/Geschenkt%C3%BCte.jpg',
                 'mimeType' => 'image/jpeg',
                 'thumbnails' => [
-                    ['url' => 'https://localhost:8000/image-200.jpg', 'width' => 200, 'height' => 150],
-                    ['url' => 'https://localhost:8000/image-400.jpg', 'width' => 400, 'height' => 300],
+                    ['url' => 'https://localhost:8000/Geschenkt%C3%BCte-200.jpg', 'width' => 200, 'height' => 150],
+                    ['url' => 'https://localhost:8000/Geschenkt%C3%BCte-400.jpg', 'width' => 400, 'height' => 300],
                 ],
             ],
         );
@@ -79,6 +79,11 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertArrayHasKey('id', $responseData);
         $mediaId = $responseData['id'];
 
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->first();
+
+        static::assertNotNull($media);
+        static::assertSame('https://localhost:8000/Geschenktüte.jpg', $media->getPath());
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mediaId', $mediaId));
         $thumbnails = $this->mediaThumbnailRepository->search($criteria, $context);
@@ -86,8 +91,8 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(2, $thumbnails->getTotal());
 
         $urls = $thumbnails->map(static fn ($t) => $t->getPath());
-        static::assertContains('https://localhost:8000/image-200.jpg', $urls);
-        static::assertContains('https://localhost:8000/image-400.jpg', $urls);
+        static::assertContains('https://localhost:8000/Geschenktüte-200.jpg', $urls);
+        static::assertContains('https://localhost:8000/Geschenktüte-400.jpg', $urls);
     }
 
     public function testAddAndDeleteExternalThumbnailsForMedia(): void

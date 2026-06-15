@@ -23,11 +23,11 @@
             row-gap: 0;
 
             .mt-progress-bar__fill {
-                background: #667f99;
+                background: var(--color-background-brand-default);
             }
 
             .mt-progress-bar__track {
-                background: $color-gray-200;
+                background: var(--color-background-primary-disabled);
             }
 
             .mt-field-label,

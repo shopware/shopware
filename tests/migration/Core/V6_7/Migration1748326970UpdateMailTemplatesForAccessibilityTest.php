@@ -26,6 +26,11 @@ class Migration1748326970UpdateMailTemplatesForAccessibilityTest extends TestCas
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1748326970, (new Migration1748326970UpdateMailTemplatesForAccessibility())->getCreationTimestamp());
+    }
+
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $migration = new Migration1748326970UpdateMailTemplatesForAccessibility();

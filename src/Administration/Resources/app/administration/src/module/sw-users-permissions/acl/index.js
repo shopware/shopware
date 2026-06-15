@@ -32,6 +32,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'system_config:create',
                 'system_config:update',
                 'system_config:delete',
+                'api_action_user_mcp-allowlist',
             ],
             dependencies: [
                 'users_and_permissions.viewer',

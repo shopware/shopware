@@ -102,7 +102,10 @@ export default {
                 .addAssociation('requestedGroup')
                 .addAssociation('boundSalesChannel');
 
-            criteria.getAssociation('addresses').addSorting(Criteria.sort('firstName'), 'ASC', false);
+            criteria
+                .getAssociation('addresses')
+                .addSorting(Criteria.sort('firstName'), 'ASC', false)
+                .setLimit(criteria.limit);
 
             return criteria;
         },

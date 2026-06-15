@@ -44,6 +44,7 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
                 "UPDATE `product`
                  SET `product`.`type` = 'digital'
                  WHERE `type` <> 'digital' AND JSON_CONTAINS(states, '\"is-download\"')
+                 ORDER BY `id`
                  LIMIT {$batchSize};"
             );
         } while ($affected > 0);

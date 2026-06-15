@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -67,6 +68,11 @@ class ProductListingRouteTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamFilterCollection>
+     */
+    private EntityRepository $productStreamFilterRepository;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -79,6 +85,10 @@ class ProductListingRouteTest extends TestCase
         /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
+
+        /** @var EntityRepository<ProductStreamFilterCollection> */
+        $productStreamFilterRepository = static::getContainer()->get('product_stream_filter.repository');
+        $this->productStreamFilterRepository = $productStreamFilterRepository;
     }
 
     public function testLoadProducts(): void
@@ -95,6 +105,59 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(6, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testReturnsHttpNotFoundWhenRequestedPageExceedsLastPage(): void
+    {
+        $this->createData();
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=99'
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(404, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $payload);
+        static::assertSame('PRODUCT__LISTING_PAGE_OUT_OF_RANGE', $payload['errors'][0]['code']);
+    }
+
+    public function testReturnsHttpOkWhenRequestedPageEqualsLastPage(): void
+    {
+        $this->createData(); // 6 products
+
+        // limit=2 → lastPage = ceil(6/2) = 3. p=3 must succeed.
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=3&limit=2'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertSame(3, $payload['page']);
+    }
+
+    public function testReturnsHttpOkOnFirstPageEvenWhenOnlyOnePageOfResults(): void
+    {
+        $this->createData(); // 6 products, default limit 24 → lastPage = 1
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=1'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertCount(6, $payload['elements']);
     }
 
     public function testLoadProductsUsingDynamicGroupWithEmptyProductStreamId(): void
@@ -194,6 +257,43 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(2, $response['elements']);
         static::assertEqualsCanonicalizing([$this->variantIds['redL'], $this->variantIds['redXl']], array_column($response['elements'], 'id'));
+    }
+
+    public function testLoadProductsUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertContains($response['elements'][0]['id'], [$this->variantIds['redL'], $this->variantIds['redXl']]);
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        $this->productStreamFilterRepository->update([[
+            'id' => $filterId,
+            'field' => 'options.id',
+            'value' => $this->optionIds['green'],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertContains($response['elements'][0]['id'], [$this->variantIds['greenL'], $this->variantIds['greenXl']]);
     }
 
     public function testIncludes(): void

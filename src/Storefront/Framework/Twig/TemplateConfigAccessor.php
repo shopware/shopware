@@ -17,7 +17,8 @@ class TemplateConfigAccessor
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
-        private readonly ThemeScripts $themeScripts
+        private readonly ThemeScripts $themeScripts,
+        private readonly string $kernelEnvironment = 'prod',
     ) {
     }
 
@@ -44,11 +45,56 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<int, string> $items
+     * @return list<string> $items
      */
     public function scripts(): array
     {
-        return $this->themeScripts->getThemeScripts();
+        return array_values($this->themeScripts->getThemeScripts());
+    }
+
+    /**
+     * Returns the full import map data: top-level imports, optional scoped imports for extensions,
+     * and optional ordered lists of CSS and JS URLs.
+     *
+     * When the Vite component dev server is running it writes a flag file that
+     * IS the complete map (all entries already contain full dev-server URLs).
+     * That map is returned with `isDevServer: true` added so that the template
+     * can treat dev-server component CSS as a replacement for the compiled theme
+     * stylesheet (the dev server re-compiles component SCSS on the fly).
+     *
+     * In production the stored map already contains full URLs pre-computed at theme
+     * compile time. The `styles` key,
+     * if present, lists the component CSS files at public/storefront/components/ that must be
+     * loaded alongside the regular compiled theme stylesheet.
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
+     */
+    public function importMap(): array
+    {
+        // Vite dev server running: the flag file already provides the complete map.
+        // Only active in the dev environment — never in production or test.
+        if ($this->kernelEnvironment === 'dev') {
+            $devMap = $this->themeScripts->getDevImportMap();
+            if ($devMap !== null) {
+                return $devMap + ['isDevServer' => true];
+            }
+        }
+
+        return $this->themeScripts->getImportMap() ?? ['imports' => []];
+    }
+
+    /**
+     * Returns all theme config fields that have `"scss": true` (the default) as a key/value
+     * map so Twig can render custom properties with context-appropriate escaping.
+     *
+     * Delegates to ThemeConfigValueAccessor::getCssVarValues() so values are resolved
+     * the same way as theme_config() — media URLs substituted, cached per sales channel.
+     *
+     * @return array<string, string|int>
+     */
+    public function themeCssVars(SalesChannelContext $context, ?string $themeId): array
+    {
+        return $this->themeConfigAccessor->getCssVarValues($context, $themeId);
     }
 
     /**

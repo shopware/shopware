@@ -37,7 +37,7 @@ final class ContactFormEvent extends Event implements SalesChannelAware, MailAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('contactFormData', new ObjectType());
+            ->add(FlowMailVariables::CONTACT_FORM_DATA, new ObjectType());
     }
 
     /**

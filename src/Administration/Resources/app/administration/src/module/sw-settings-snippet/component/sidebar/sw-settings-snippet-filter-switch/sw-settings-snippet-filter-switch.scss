@@ -1,6 +1,4 @@
-@import "~scss/variables";
-
-$sw-settings-snippets-sidebar-border: $color-gray-300;
+$sw-settings-snippets-sidebar-border: var(--color-border-primary-default);
 
 .sw-settings-snippet-filter-switch {
     .sw-settings-snippet-filter-switch__field {

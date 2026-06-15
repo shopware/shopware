@@ -48,7 +48,12 @@
                                             {% sw_icon 'plus' style {size: 'xs'} %}
                                         </button>
                                         {% if product.translated.packUnit %}
-                                            <span class="input-group-text">
+                                            <span
+                                                class="input-group-text js-quantity-selector-unit"
+                                                data-unit-singular="{{ product.translated.packUnit|e('html_attr') }}"
+                                                {% if product.translated.packUnitPlural %}
+                                                    data-unit-plural="{{ product.translated.packUnitPlural|e('html_attr') }}"
+                                                {% endif %}>
                                                 {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
                                                     {{ product.translated.packUnitPlural }}
                                                 {% elseif product.translated.packUnit %}

@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -39,7 +40,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class), new NativeClock());
     }
 
     public function testLoad(): void
@@ -358,7 +359,8 @@ class SalesChannelContextPersisterTest extends TestCase
             $this->connection,
             $this->createMock(EventDispatcher::class),
             static::getContainer()->get(CartPersister::class),
-            $lifeTimeInterval
+            new NativeClock(),
+            $lifeTimeInterval,
         );
         $token = Uuid::randomHex();
 

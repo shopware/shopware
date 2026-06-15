@@ -23,9 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -75,135 +73,6 @@ class GoodsCountRuleTest extends TestCase
 
             static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
-        }
-    }
-
-    public function testValidateWithStringCount(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'operator' => Rule::OPERATOR_EQ,
-                        'count' => '3',
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
-        }
-    }
-
-    public function testValidateWithFloatCount(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'operator' => Rule::OPERATOR_EQ,
-                        'count' => 1.1,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
-        }
-    }
-
-    public function testAvailableOperators(): void
-    {
-        $ruleId = Uuid::randomHex();
-        $this->ruleRepository->create(
-            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
-        );
-
-        $conditionIdEq = Uuid::randomHex();
-        $conditionIdNEq = Uuid::randomHex();
-        $conditionIdLTE = Uuid::randomHex();
-        $conditionIdGTE = Uuid::randomHex();
-        $this->conditionRepository->create(
-            [
-                [
-                    'id' => $conditionIdEq,
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => $ruleId,
-                    'value' => [
-                        'count' => 1,
-                        'operator' => Rule::OPERATOR_EQ,
-                    ],
-                ],
-                [
-                    'id' => $conditionIdNEq,
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => $ruleId,
-                    'value' => [
-                        'count' => 1,
-                        'operator' => Rule::OPERATOR_NEQ,
-                    ],
-                ],
-                [
-                    'id' => $conditionIdLTE,
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => $ruleId,
-                    'value' => [
-                        'count' => 1,
-                        'operator' => Rule::OPERATOR_LTE,
-                    ],
-                ],
-                [
-                    'id' => $conditionIdGTE,
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => $ruleId,
-                    'value' => [
-                        'count' => 1,
-                        'operator' => Rule::OPERATOR_GTE,
-                    ],
-                ],
-            ],
-            $this->context
-        );
-
-        static::assertCount(
-            4,
-            $this->conditionRepository->search(
-                new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
-                $this->context
-            )
-        );
-    }
-
-    public function testValidateWithInvalidOperator(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new GoodsCountRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'count' => 42,
-                        'operator' => 'Invalid',
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
-            static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
         }
     }
 

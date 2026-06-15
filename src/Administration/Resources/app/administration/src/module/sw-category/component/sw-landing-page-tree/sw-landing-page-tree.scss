@@ -1,6 +1,4 @@
-@import "~scss/variables";
-
-$sw-tree-item-color-background: $color-gray-50;
+$sw-tree-item-color-background: var(--color-background-secondary-default);
 
 .sw-landing-page-tree {
     height: 100%;

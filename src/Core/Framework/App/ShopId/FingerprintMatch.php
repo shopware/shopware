@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Framework\Log\Package;
 
 /**

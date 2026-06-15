@@ -175,11 +175,11 @@
 
                 {% block sw_order_list_grid_columns_delivery_address %}
                 <template #column-primaryOrderDelivery.shippingOrderAddress.street="{ item }">
-                    <template v-if="item.primaryOrderDelivery?.shippingOrderAddress">
-                        <span v-if="item.primaryOrderDelivery.shippingOrderAddress.company">{{ item.primaryOrderDelivery.shippingOrderAddress.company }}<span v-if="item.primaryOrderDelivery.shippingOrderAddress.department"> - {{ item.primaryOrderDelivery.shippingOrderAddress.department }}</span>,</span>
-                        {{ item.primaryOrderDelivery.shippingOrderAddress.street }},
-                        {{ item.primaryOrderDelivery.shippingOrderAddress.zipcode }}
-                        {{ item.primaryOrderDelivery.shippingOrderAddress.city }}
+                    <template v-if="getDeliveryAddress(item)">
+                        <span v-if="getDeliveryAddress(item).company">{{ getDeliveryAddress(item).company }}<span v-if="getDeliveryAddress(item).department"> - {{ getDeliveryAddress(item).department }}</span>,</span>
+                        {{ getDeliveryAddress(item).street }},
+                        {{ getDeliveryAddress(item).zipcode }}
+                        {{ getDeliveryAddress(item).city }}
                     </template>
 
                 </template>
@@ -209,7 +209,7 @@
                 {% block sw_order_list_grid_columns_transaction_state %}
                 <template #column-primaryOrderTransaction.stateMachineState.name="{ item }">
                     <div
-                        v-if="item.primaryOrderTransaction?.stateMachineState"
+                        v-if="getTransactionState(item)"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -217,7 +217,7 @@
                             rounded
                         />
 
-                        {{ item.primaryOrderTransaction.stateMachineState.translated.name }}
+                        {{ getTransactionState(item).translated.name }}
                     </div>
                 </template>
                 {% endblock %}
@@ -225,7 +225,7 @@
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-primaryOrderDelivery.stateMachineState.name="{ item }">
                     <div
-                        v-if="item.primaryOrderDelivery?.stateMachineState"
+                        v-if="getDeliveryState(item)"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -233,7 +233,7 @@
                             rounded
                         />
 
-                        {{ item.primaryOrderDelivery.stateMachineState.translated.name }}
+                        {{ getDeliveryState(item).translated.name }}
                     </div>
                 </template>
                 {% endblock %}
@@ -421,11 +421,11 @@
                         {% block sw_order_list_bulk_edit_grid_columns_transaction_state %}
                         <template #column-primaryOrderTransaction.stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="item.primaryOrderTransaction?.stateMachineState"
+                                v-if="getTransactionState(item)"
                                 :variant="getVariantFromPaymentState(item)"
                                 appearance="pill"
                             >
-                                {{ item.primaryOrderTransaction.stateMachineState.translated.name }}
+                                {{ getTransactionState(item).translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}
@@ -433,11 +433,11 @@
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
                         <template #column-primaryOrderDelivery.stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="item.primaryOrderDelivery?.stateMachineState"
+                                v-if="getDeliveryState(item)"
                                 :variant="getVariantFromDeliveryState(item)"
                                 appearance="pill"
                             >
-                                {{ item.primaryOrderDelivery.stateMachineState.translated.name }}
+                                {{ getDeliveryState(item).translated.name }}
                             </sw-label>
                         </template>
                         {% endblock %}

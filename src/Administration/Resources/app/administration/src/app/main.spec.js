@@ -89,6 +89,7 @@ describe('src/app/main.ts', () => {
                     addCondition: jest.fn(() => {}),
                     getRestrictionsByGroup: jest.fn(() => []),
                     addAwarenessConfiguration: jest.fn(() => {}),
+                    registerDeprecation: jest.fn(() => {}),
                 };
             });
         });

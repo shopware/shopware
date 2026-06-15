@@ -229,6 +229,8 @@
                         class="sw-cms-detail__empty-stage"
                     >
 
+                        {% block sw_cms_detail_stage_empty_stage_content %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_detail_stage_empty_stage_content` instead. #}
                         {% block sw_cms_detail_stage_empty_stade_content %}
                         <div class="sw-cms-detail__empty-stage-content">
                             <h2 class="sw-cms-detail__empty-stage-headline">
@@ -244,6 +246,7 @@
                                 @stage-section-add="onAddSection($event, 0, true)"
                             />
                         </div>
+                        {% endblock %}
                         {% endblock %}
                     </div>
                     {% endblock %}

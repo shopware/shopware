@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -104,6 +105,10 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productStreamId = $category->get('productStreamId');
 
         if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && \is_string($productStreamId) && $productStreamId !== '') {
+            $this->cacheTagCollector->addTag(
+                EntityCacheKeyGenerator::buildStreamTag($productStreamId)
+            );
+
             $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
 
             return;

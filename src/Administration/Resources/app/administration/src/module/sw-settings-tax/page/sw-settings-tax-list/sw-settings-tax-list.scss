@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-settings-tax-list-color-success: $color-emerald-500;
+$sw-settings-tax-list-color-success: var(--color-icon-positive-default);
 
 .sw-settings-tax-list {
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
@@ -12,7 +12,7 @@ $sw-settings-tax-list-color-success: $color-emerald-500;
 
 .sw-settings-tax-provider-list-content {
     &__bg {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         text-align: right;
         height: 81px;
         padding: 20px;
@@ -26,7 +26,7 @@ $sw-settings-tax-list-color-success: $color-emerald-500;
         display: grid;
         grid-template-columns: auto 1fr auto auto;
         align-items: center;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
         margin-bottom: 16px;
         column-gap: 16px;

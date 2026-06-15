@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
@@ -39,7 +40,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $taskRegistry->expects($this->once())->method('registerTasks');
 
         $signalCachePool = new ArrayAdapter();
-        $subscriber = new PluginLifecycleSubscriber($taskRegistry, $signalCachePool);
+        $subscriber = new PluginLifecycleSubscriber($taskRegistry, $signalCachePool, new NativeClock());
         $subscriber->afterPluginStateChange();
 
         static::assertTrue($signalCachePool->hasItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY));

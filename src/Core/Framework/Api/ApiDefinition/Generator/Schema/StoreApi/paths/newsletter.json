@@ -140,9 +140,7 @@
                                           "type": "boolean"
                                         },
                                         "status": {
-                                            "description": "The subscription status.",
-                                            "type": "string",
-                                            "enum": ["notSet", "optIn", "optOut", "direct"]
+                                            "$ref": "#/components/schemas/NewsletterStatus"
                                         }
                                     },
                                     "type": "object"

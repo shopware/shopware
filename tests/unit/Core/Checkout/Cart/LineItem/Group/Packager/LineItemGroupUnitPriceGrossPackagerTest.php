@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Packager;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager;
@@ -24,7 +24,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
 
     private LineItemGroupPackagerInterface $packager;
 
-    private MockObject&SalesChannelContext $context;
+    private Stub&SalesChannelContext $context;
 
     protected function setUp(): void
     {
@@ -32,7 +32,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
 
         $this->packager = new LineItemGroupUnitPriceGrossPackager();
 
-        $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     /**

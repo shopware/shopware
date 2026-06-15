@@ -238,33 +238,31 @@ class AppUrlVerifierTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: list<int>, 1: list<array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool}>, 2: VerificationStatus}>
+     * @return iterable<string, array{0: list<int>, 1: list<array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool}>, 2: VerificationStatus}>
      */
-    public static function backoffScenarioProvider(): array
+    public static function backoffScenarioProvider(): iterable
     {
-        return [
-            '500 > 500 > 500 (soft fail retries with exponential backoff)' => [
-                [500, 500, 500],
-                [
-                    self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true),  // first attempt
-                    self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
-                    self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
-                    self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
-                    self::step(1, VerificationStatus::SOFT_FAIL, 3, 3, true), // on boundary2 (third attempt)
-                ],
-                VerificationStatus::SOFT_FAIL,
+        yield '500 > 500 > 500 (soft fail retries with exponential backoff)' => [
+            [500, 500, 500],
+            [
+                self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true),  // first attempt
+                self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
+                self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
+                self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
+                self::step(1, VerificationStatus::SOFT_FAIL, 3, 3, true), // on boundary2 (third attempt)
             ],
-            '500 > 500 > 204 (soft fail is converted to pass on retry)' => [
-                [500, 500, 204],
-                [
-                    self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true), // first attempt
-                    self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
-                    self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
-                    self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
-                    self::step(1, VerificationStatus::PASS, 3, 3, true), // on boundary2 (final attempt)
-                ],
-                VerificationStatus::PASS,
+            VerificationStatus::SOFT_FAIL,
+        ];
+        yield '500 > 500 > 204 (soft fail is converted to pass on retry)' => [
+            [500, 500, 204],
+            [
+                self::step(0, VerificationStatus::SOFT_FAIL, 1, 1, true), // first attempt
+                self::step(60 - 1, VerificationStatus::SOFT_FAIL, 1, 1, true), // inside backoff1 (no retry)
+                self::step(1, VerificationStatus::SOFT_FAIL, 2, 2, true), // on boundary1 (second attempt)
+                self::step(120 - 1, VerificationStatus::SOFT_FAIL, 2, 2, true), // inside backoff2 (no retry)
+                self::step(1, VerificationStatus::PASS, 3, 3, true), // on boundary2 (final attempt)
             ],
+            VerificationStatus::PASS,
         ];
     }
 

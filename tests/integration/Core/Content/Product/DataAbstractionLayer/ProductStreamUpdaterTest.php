@@ -15,12 +15,16 @@ use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
@@ -42,6 +46,11 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private EntityRepository $productStreamRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
+    private EntityRepository $salesChannelLanguageRepository;
+
     private SalesChannelContext $salesChannel;
 
     private ProductStreamUpdater $productStreamUpdater;
@@ -50,6 +59,7 @@ class ProductStreamUpdaterTest extends TestCase
     {
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
+        $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
         $this->salesChannel = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->productStreamUpdater = static::getContainer()->get(ProductStreamUpdater::class);
     }
@@ -314,6 +324,29 @@ class ProductStreamUpdaterTest extends TestCase
         );
     }
 
+    public function testProductStreamIndexingConsidersNonDefaultLanguageCustomFields(): void
+    {
+        $languageId = $this->createAssignedLanguage('de-DE-' . Uuid::randomHex(), 'Test locale', 'Test', 'Test language');
+        $streamId = $this->createCustomFieldStream('Custom field stream');
+        $productId = $this->createTranslatedProductWithNonDefaultLanguageCustomFieldMatch($languageId);
+
+        $indexMessage = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
+        $this->productStreamUpdater->handle($indexMessage);
+
+        $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    public function testUpdateProductsConsidersNonDefaultLanguageCustomFields(): void
+    {
+        $languageId = $this->createAssignedLanguage('de-DE-' . Uuid::randomHex(), 'Update locale', 'Update', 'Update language');
+        $streamId = $this->createCustomFieldStream('Custom field stream update');
+        $productId = $this->createTranslatedProductWithNonDefaultLanguageCustomFieldMatch($languageId);
+
+        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+
+        $this->assertProductIsInStream($productId, $streamId);
+    }
+
     private function createProduct(string $productId): void
     {
         $this->productRepository->create(
@@ -369,5 +402,117 @@ class ProductStreamUpdaterTest extends TestCase
                 ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
             ],
         ];
+    }
+
+    private function createCustomFieldStream(string $name): string
+    {
+        $streamId = Uuid::randomHex();
+        $writtenEvent = $this->productStreamRepository->create([
+            [
+                'id' => $streamId,
+                'name' => $name,
+                'filters' => [
+                    [
+                        'type' => 'equals',
+                        'field' => 'customFields.test_stream_checkbox',
+                        'value' => 'active',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $message = $productStreamIndexer->update($writtenEvent);
+
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+
+        $productStreamIndexer->handle($message);
+
+        return $streamId;
+    }
+
+    private function createTranslatedProductWithNonDefaultLanguageCustomFieldMatch(string $languageId): string
+    {
+        $productId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => $productId,
+                'stock' => 1,
+                'active' => true,
+                'price' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 100,
+                        'net' => 9,
+                        'linked' => false,
+                    ],
+                ],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['taxRate' => 19, 'name' => 'with id'],
+                'visibilities' => [
+                    ['salesChannelId' => $this->salesChannel->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'translations' => [
+                    [
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'name' => 'Test Product',
+                        'customFields' => null,
+                    ],
+                    [
+                        'languageId' => $languageId,
+                        'name' => 'Test Product Non-Default',
+                        'customFields' => ['test_stream_checkbox' => 'active'],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return $productId;
+    }
+
+    private function assertProductIsInStream(string $productId, string $streamId): void
+    {
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('streams');
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertIsArray($product->getStreamIds());
+        static::assertContains($streamId, $product->getStreamIds());
+    }
+
+    private function createAssignedLanguage(string $localeCode, string $localeName, string $territory, string $languageName): string
+    {
+        $localeId = Uuid::randomHex();
+        $languageId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
+        $localeRepository = static::getContainer()->get('locale.repository');
+        $localeRepository->create([
+            ['id' => $localeId, 'code' => $localeCode, 'name' => $localeName, 'territory' => $territory],
+        ], $context);
+
+        /** @var EntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = static::getContainer()->get('language.repository');
+        $languageRepository->create([
+            [
+                'id' => $languageId,
+                'name' => $languageName,
+                'localeId' => $localeId,
+                'translationCodeId' => $localeId,
+            ],
+        ], $context);
+
+        $this->salesChannelLanguageRepository->create([
+            [
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'languageId' => $languageId,
+            ],
+        ], $context);
+
+        return $languageId;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
@@ -59,6 +60,14 @@ class CmsBlockPersister implements PersisterInterface
         }
 
         $this->deleteOldCmsBlocks($existingCmsBlocks, $context->context);
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     private function deleteOldCmsBlocks(AppCmsBlockCollection $toBeRemoved, Context $context): void

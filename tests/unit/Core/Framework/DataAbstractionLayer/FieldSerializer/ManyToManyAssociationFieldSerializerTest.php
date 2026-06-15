@@ -57,8 +57,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $this->expectException(ExpectedArrayException::class);
-        $this->expectExceptionMessage('Expected data at /galleries/0 to be an array.');
+        $this->expectExceptionObject(new ExpectedArrayException('/galleries/0'));
 
         $serializer->normalize($field, [
             'galleries' => [
@@ -71,19 +70,17 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
     {
         $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage(\sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class));
-
-        $serializer->decode(
-            new ManyToManyAssociationField(
-                'galleries',
-                'MediaGallery',
-                'MediaGalleryMapping',
-                'media_id',
-                'gallery_id',
-            ),
-            []
+        $field = new ManyToManyAssociationField(
+            'galleries',
+            'MediaGallery',
+            'MediaGalleryMapping',
+            'media_id',
+            'gallery_id',
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::decodeHandledByHydrator($field));
+
+        $serializer->decode($field, []);
     }
 
     public function testNormalizeThrowsExceptionIfMappingDefinitionHasNoForeignKeys(): void
@@ -115,8 +112,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage(\sprintf('Foreign key for association "galleries" not found. Please add one to "%s"', MediaGalleryMappingDefinition::class));
+        $this->expectExceptionObject(DataAbstractionLayerException::foreignKeyNotFoundInDefinition('galleries', MediaGalleryMappingDefinition::class));
         $serializer->normalize($field, [
             'galleries' => [
                 ['id' => 'gallery-id-1'],

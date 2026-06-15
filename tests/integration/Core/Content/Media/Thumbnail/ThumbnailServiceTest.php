@@ -153,8 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailNotSupported($media->getId())->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailNotSupported($media->getId()));
         $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,
@@ -597,11 +596,12 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function strictModeConditionsProvider(): array
+    public static function strictModeConditionsProvider(): iterable
     {
-        return [[true], [false]];
+        yield 'strict mode conditions true' => [true];
+        yield 'strict mode conditions false' => [false];
     }
 
     #[DataProvider('strictModeConditionsProvider')]

@@ -30,6 +30,14 @@ use Symfony\Component\Validator\Validation;
  */
 class StaticEntityRepository extends EntityRepository
 {
+    public const CREATE = 'create';
+
+    public const UPDATE = 'update';
+
+    public const UPSERT = 'upsert';
+
+    public const DELETE = 'delete';
+
     /**
      * @var array<array<mixed>>
      */
@@ -202,6 +210,20 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function getPayloads(string $operation): array
+    {
+        return match ($operation) {
+            self::CREATE => $this->flattenPayloads($this->creates),
+            self::UPDATE => $this->flattenPayloads($this->updates),
+            self::UPSERT => $this->flattenPayloads($this->upserts),
+            self::DELETE => $this->flattenPayloads($this->deletes),
+            default => throw new \InvalidArgumentException(\sprintf('Unknown write operation "%s"', $operation)),
+        };
+    }
+
+    /**
      * @param array<array<string, mixed|null>> $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
@@ -228,6 +250,24 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return new NestedEventCollection([$event]);
+    }
+
+    /**
+     * @param array<array<mixed>> $writePayloads
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function flattenPayloads(array $writePayloads): array
+    {
+        $payloads = [];
+        foreach ($writePayloads as $writePayload) {
+            foreach ($writePayload as $payload) {
+                $payloads[] = $payload;
+            }
+        }
+
+        /** @var list<array<string, mixed>> $payloads */
+        return $payloads;
     }
 
     /**

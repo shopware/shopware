@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -129,6 +130,88 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($firstPath));
         static::assertFalse($this->getPublicFilesystem()->has($secondPath));
         static::assertFalse($this->getPublicFilesystem()->has($thirdPath));
+    }
+
+    public function testDeleteNotUsedMediaWithGracePeriodHandlesEmptyBatchFromEventListener(): void
+    {
+        $this->setFixtureContext($this->context);
+
+        $txt = $this->getTxt();
+        $this->getPublicFilesystem()->writeStream($txt->getPath(), \fopen(self::FIXTURE_FILE, 'r'));
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            UnusedMediaSearchEvent::class,
+            static function (UnusedMediaSearchEvent $event): void {
+                $event->markAsUsed($event->getUnusedIds());
+            }
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        $purger = new UnusedMediaPurger(
+            $this->mediaRepo,
+            $connection,
+            $eventDispatcher,
+        );
+
+        $deleted = $purger->deleteNotUsedMedia(gracePeriodDays: 1);
+        $this->runWorker();
+
+        static::assertSame(0, $deleted);
+
+        $stillExisting = $this->mediaRepo
+            ->search(new Criteria([$txt->getId()]), $this->context)
+            ->get($txt->getId());
+        static::assertNotNull($stillExisting);
+    }
+
+    public function testGetNotUsedMediaWithOffsetAndGracePeriodHandlesEmptyBatchFromEventListener(): void
+    {
+        $this->setFixtureContext($this->context);
+
+        $txt = $this->getTxt();
+        $this->getPublicFilesystem()->writeStream($txt->getPath(), \fopen(self::FIXTURE_FILE, 'r'));
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            UnusedMediaSearchEvent::class,
+            static function (UnusedMediaSearchEvent $event): void {
+                $event->markAsUsed($event->getUnusedIds());
+            }
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        $purger = new UnusedMediaPurger(
+            $this->mediaRepo,
+            $connection,
+            $eventDispatcher,
+        );
+
+        $batches = iterator_to_array($purger->getNotUsedMedia(offset: 0, gracePeriodDays: 1), false);
+
+        static::assertSame([[]], $batches);
+    }
+
+    public function testGetNotUsedMediaWithOffsetPastEndDoesNotCrash(): void
+    {
+        $this->setFixtureContext($this->context);
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        $purger = new UnusedMediaPurger(
+            $this->mediaRepo,
+            $connection,
+            new EventDispatcher(),
+        );
+
+        $batches = iterator_to_array($purger->getNotUsedMedia(offset: 99999, gracePeriodDays: 1), false);
+
+        static::assertSame([[]], $batches);
     }
 
     public function testDeleteNotUsedMediaDoesNotDeleteA11yDocumentMedia(): void

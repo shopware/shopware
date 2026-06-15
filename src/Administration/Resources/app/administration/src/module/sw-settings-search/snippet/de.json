@@ -6,11 +6,11 @@
     },
     "page": {
       "generalTab": "Allgemein",
-      "liveSearchTab": "Echtzeit-Suche"
+      "liveSearchTab": "Echtzeitsuche"
     },
     "generalTab": {
-      "labelSearchBehaviour": "Such-Verhalten",
-      "textTitleSearchBehaviour": "Lege ein Such-Verhalten für Deine Verkaufskanäle fest.",
+      "labelSearchBehaviour": "Suchverhalten",
+      "textTitleSearchBehaviour": "Lege ein Suchverhalten für Deine Verkaufskanäle fest.",
       "labelSearchAndCondition": "“UND”-Suche",
       "textSearchAndConditionExplain": "Suchergebnisse beinhalten jeden einzelnen eingegebenen Suchbegriff.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die beide Suchbegriffe \"Jeans\" und \"Sommer\" enthalten.",
       "labelSearchOrCondition": "“ODER”-Suche",
@@ -64,6 +64,7 @@
       },
       "configFields": {
         "name": "Produktname",
+        "parentName": "Elternname",
         "description": "Produktbeschreibung",
         "productNumber": "Produktnummer",
         "manufacturerNumber": "Herstellernummer",

@@ -138,6 +138,36 @@ class TemplatePersisterTest extends TestCase
         $persister->persist($this->buildContext(false));
     }
 
+    public function testActivateUpdatesInactiveTemplates(): void
+    {
+        $appId = $this->ids->get('app1');
+        $templateIds = [$this->ids->get('template1'), $this->ids->get('template2')];
+        $this->templateRepository->addSearch($templateIds);
+        $this->cacheClearer->expects($this->once())->method('clearHttpCache');
+
+        $this->buildPersister([])->activate($this->buildApp($appId), Context::createDefaultContext());
+
+        static::assertSame([
+            ['id' => $templateIds[0], 'active' => true],
+            ['id' => $templateIds[1], 'active' => true],
+        ], $this->templateRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testDeactivateUpdatesActiveTemplates(): void
+    {
+        $appId = $this->ids->get('app1');
+        $templateIds = [$this->ids->get('template1'), $this->ids->get('template2')];
+        $this->templateRepository->addSearch($templateIds);
+        $this->cacheClearer->expects($this->once())->method('clearHttpCache');
+
+        $this->buildPersister([])->deactivate($this->buildApp($appId), Context::createDefaultContext());
+
+        static::assertSame([
+            ['id' => $templateIds[0], 'active' => false],
+            ['id' => $templateIds[1], 'active' => false],
+        ], $this->templateRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
     /**
      * @param array<string, string> $templates
      */
@@ -153,8 +183,7 @@ class TemplatePersisterTest extends TestCase
 
     private function buildContext(bool $isInstall): AppLifecycleContext
     {
-        $app = new AppEntity();
-        $app->setId($this->ids->get('app1'));
+        $app = $this->buildApp($this->ids->get('app1'));
         $app->setActive(true);
 
         return new AppLifecycleContext(
@@ -191,5 +220,13 @@ class TemplatePersisterTest extends TestCase
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         return $repo;
+    }
+
+    private function buildApp(string $appId): AppEntity
+    {
+        $app = new AppEntity();
+        $app->setId($appId);
+
+        return $app;
     }
 }

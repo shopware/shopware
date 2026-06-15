@@ -16,6 +16,11 @@ use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
 #[CoversClass(Migration1696262484AddDefaultSendMailOptions::class)]
 class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1696262484, (new Migration1696262484AddDefaultSendMailOptions())->getCreationTimestamp());
+    }
+
     public function testValueNotExist(): void
     {
         $connection = KernelLifecycleManager::getConnection();

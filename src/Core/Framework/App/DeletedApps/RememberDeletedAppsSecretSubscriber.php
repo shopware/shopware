@@ -27,7 +27,7 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
     ) {
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             AppDeletedEvent::class => 'saveSecretFromDeletedApp',

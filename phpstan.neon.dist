@@ -1,14 +1,12 @@
 includes:
     - phpstan-baseline.php
+    # computes the analysed paths with node_modules subtrees pruned, see the file header
+    - phpstan-paths.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
     tmpDir: var/cache/phpstan
-    paths:
-        - src
-        - tests
-
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:

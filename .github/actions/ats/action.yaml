@@ -195,15 +195,9 @@ runs:
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
-              path: ${{ inputs.directory }}/test-results/
-              retention-days: 3
-          continue-on-error: true
-
-        - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
-          if: ${{ always() && hashFiles(format('{0}/playwright-report/index.html', inputs.directory)) }}
-          with:
-              name: playwright-html-report-${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}${{ inputs.major && '-major' || '' }}
-              path: ${{ inputs.directory }}/playwright-report/
+              path: |
+                  ${{ inputs.directory }}/test-results/
+                  ${{ inputs.directory }}/playwright-report/
               retention-days: 3
           continue-on-error: true
 

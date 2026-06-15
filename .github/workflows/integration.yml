@@ -493,14 +493,9 @@ jobs:
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
-          path: new-shopware/tests/acceptance/test-results/
-          retention-days: 3
-
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
-        if: ${{ always() && hashFiles('new-shopware/tests/acceptance/playwright-report/index.html') }}
-        with:
-          name: playwright-html-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
-          path: new-shopware/tests/acceptance/playwright-report/
+          path: |
+            new-shopware/tests/acceptance/test-results/
+            new-shopware/tests/acceptance/playwright-report/
           retention-days: 3
         continue-on-error: true
 

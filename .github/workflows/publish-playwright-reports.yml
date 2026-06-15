@@ -1,6 +1,11 @@
 name: Publish Playwright reports
 
 on:
+  workflow_dispatch:
+    inputs:
+      workflow_run_id:
+        description: Integration workflow run ID to publish reports from
+        required: true
   workflow_run:
     workflows: ["Integration tests"]
     types: [completed]
@@ -10,21 +15,54 @@ permissions:
   id-token: write
 
 concurrency:
-  group: publish-playwright-reports-${{ github.event.workflow_run.id }}
+  group: publish-playwright-reports-${{ github.event.workflow_run.id || github.event.inputs.workflow_run_id || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   publish:
-    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.event == 'pull_request' }}
     runs-on: ubuntu-24.04
     env:
       PLAYWRIGHT_TRACES_DOMAIN: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
       REPORT_PREFIX: playwright-reports
       S3_BUCKET: shopware-ci-playwright-traces
-      WORKFLOW_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
-      WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
-      WORKFLOW_RUN_URL: ${{ github.event.workflow_run.html_url }}
     steps:
+      - name: Resolve source workflow run
+        id: source-run
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          WORKFLOW_RUN_ID_INPUT: ${{ github.event.inputs.workflow_run_id }}
+        with:
+          script: |
+            let workflowRun = context.payload.workflow_run ?? null;
+
+            if (context.eventName === 'workflow_dispatch') {
+              const runIdInput = process.env.WORKFLOW_RUN_ID_INPUT ?? '';
+              const runId = Number(runIdInput);
+
+              if (!Number.isInteger(runId) || runId <= 0) {
+                core.setFailed(`Invalid workflow_run_id input: ${runIdInput}`);
+                return;
+              }
+
+              const { data } = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+              });
+
+              workflowRun = data;
+            }
+
+            if (!workflowRun) {
+              core.setFailed('Unable to resolve the source workflow run.');
+              return;
+            }
+
+            core.setOutput('run-attempt', String(workflowRun.run_attempt ?? ''));
+            core.setOutput('run-id', String(workflowRun.id));
+            core.setOutput('run-url', workflowRun.html_url ?? '');
+
       - name: Check if trusted upload is configured
         id: check-aws-allowed
         env:
@@ -56,15 +94,19 @@ jobs:
               {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                run_id: context.payload.workflow_run.id,
+                run_id: Number('${{ steps.source-run.outputs.run-id }}'),
                 per_page: 100,
               },
             );
 
-            const matches = artifacts.filter((artifact) => artifact.name.startsWith('playwright-html-report-'));
+            const matches = artifacts.filter((artifact) =>
+              artifact.name.startsWith('ats-') ||
+              artifact.name.startsWith('ats-changed-') ||
+              artifact.name.startsWith('playwright-report-update-')
+            );
 
             if (matches.length === 0) {
-              core.notice('No staged Playwright HTML report artifacts found.');
+              core.notice('No Playwright report artifacts found.');
               core.setOutput('found', 'false');
               return;
             }
@@ -99,12 +141,15 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6
         with:
           aws-region: eu-central-1
-          role-session-name: gha-playwright-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          role-session-name: gha-playwright-${{ steps.source-run.outputs.run-id }}-${{ steps.source-run.outputs.run-attempt }}
           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
 
       - name: Upload Playwright HTML reports to S3
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && steps.download-artifacts.outputs.found == 'true' }}
         shell: bash
+        env:
+          WORKFLOW_RUN_ATTEMPT: ${{ steps.source-run.outputs.run-attempt }}
+          WORKFLOW_RUN_ID: ${{ steps.source-run.outputs.run-id }}
         run: |
           python <<'PY'
           import json
@@ -194,6 +239,8 @@ jobs:
       - name: Publish report summary
         if: ${{ steps.download-artifacts.outputs.found == 'true' }}
         shell: bash
+        env:
+          WORKFLOW_RUN_URL: ${{ steps.source-run.outputs.run-url }}
         run: |
           python <<'PY'
           import json

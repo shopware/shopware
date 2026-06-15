@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -42,6 +43,33 @@ class SalesChannelRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
-            ->entitySelectField('salesChannelIds', SalesChannelDefinition::ENTITY_NAME, true);
+            ->entitySelectField(
+                'salesChannelIds',
+                SalesChannelDefinition::ENTITY_NAME,
+                true,
+                [
+                    'criteria' => [
+                        'associations' => [
+                            'type',
+                        ],
+                        'filters' => [
+                            [
+                                'type' => 'not',
+                                'operator' => 'AND',
+                                'queries' => [
+                                    [
+                                        'type' => 'equalsAny',
+                                        'field' => 'type.id',
+                                        'value' => [
+                                            Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
+                                            Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            );
     }
 }

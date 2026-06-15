@@ -617,7 +617,7 @@ class PluginLifecycleService
     {
         // Release session lock before container rebuild (to avoid holding file based session lock during long operation)
         $request = $this->requestStack->getCurrentRequest();
-        if ($request && $request->hasSession() && $request->getSession()->isStarted()) {
+        if ($request && $request->hasSession(true) && $request->getSession()->isStarted()) {
             $request->getSession()->save(); // Releases flock() on session file
         }
 

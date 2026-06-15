@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\PlatformRequest;
@@ -51,6 +52,7 @@ class McpServerControllerTest extends TestCase
             static::createStub(ResponseFactoryInterface::class),
             static::createStub(StreamFactoryInterface::class),
             $this->rateLimiter,
+            new McpSessionIdValidator(),
         );
     }
 
@@ -640,6 +642,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             static::createStub(RateLimiter::class),
+            new McpSessionIdValidator(),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -803,6 +806,7 @@ class McpServerControllerTest extends TestCase
             $nullArg === 'responseFactory' ? null : $psr17,
             $nullArg === 'streamFactory' ? null : $psr17,
             static::createStub(RateLimiter::class),
+            new McpSessionIdValidator(),
         );
 
         $response = $controller->handle(new Request());
@@ -840,6 +844,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             static::createStub(RateLimiter::class),
+            new McpSessionIdValidator(),
             allowlistFilter: new McpAllowlistFilter(),
         );
 
@@ -866,6 +871,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             $rateLimiter ?? static::createStub(RateLimiter::class),
+            new McpSessionIdValidator(),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
         );

@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\PlatformRequest;
@@ -146,6 +147,7 @@ class StoreApiMcpServerControllerTest extends TestCase
             $this->psr17,
             $this->psr17,
             $this->rateLimiter,
+            new McpSessionIdValidator(),
         );
     }
 

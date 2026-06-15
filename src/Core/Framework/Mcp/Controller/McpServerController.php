@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -34,7 +35,6 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -63,6 +63,7 @@ class McpServerController
         private readonly ?ResponseFactoryInterface $responseFactory,
         private readonly ?StreamFactoryInterface $streamFactory,
         private readonly RateLimiter $rateLimiter,
+        private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
@@ -87,7 +88,7 @@ class McpServerController
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
-        $this->validateSessionId($request);
+        $this->sessionIdValidator->validate($request);
         $this->rateLimit($request);
 
         $this->logger?->debug('MCP request', [
@@ -290,20 +291,6 @@ class McpServerController
             return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
-        }
-    }
-
-    /**
-     * The MCP SDK transport parses the session header with Uuid::fromString(),
-     * which throws on malformed input. Reject garbage early with a clean 400
-     * instead of surfacing a 500 from the transport.
-     */
-    private function validateSessionId(Request $request): void
-    {
-        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
-
-        if ($sessionId !== null && !Uuid::isValid($sessionId)) {
-            throw McpException::invalidSessionId();
         }
     }
 

@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -20,7 +21,6 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -53,6 +53,7 @@ class StoreApiMcpServerController
         private readonly ?ResponseFactoryInterface $responseFactory,
         private readonly ?StreamFactoryInterface $streamFactory,
         private readonly RateLimiter $rateLimiter,
+        private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?LoggerInterface $logger = null,
     ) {
     }
@@ -75,7 +76,7 @@ class StoreApiMcpServerController
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
-        $this->validateSessionId($request);
+        $this->sessionIdValidator->validate($request);
         $this->rateLimit($request);
 
         $this->logger?->debug('Store API MCP request', [
@@ -94,20 +95,6 @@ class StoreApiMcpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
-    }
-
-    /**
-     * The MCP SDK transport parses the session header with Uuid::fromString(),
-     * which throws on malformed input. Reject garbage early with a clean 400
-     * instead of surfacing a 500 from the transport.
-     */
-    private function validateSessionId(Request $request): void
-    {
-        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
-
-        if ($sessionId !== null && !Uuid::isValid($sessionId)) {
-            throw McpException::invalidSessionId();
-        }
     }
 
     private function rateLimit(Request $request): void

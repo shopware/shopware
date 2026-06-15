@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -106,6 +107,8 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpExceptionListener::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(McpSessionIdValidator::class);
+
     $services->set(McpServerController::class)
         ->public()
         ->args([
@@ -115,6 +118,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(RateLimiter::class),
+            service(McpSessionIdValidator::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
@@ -155,6 +159,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.psr17_factory')->nullOnInvalid(),
             service('mcp.psr17_factory')->nullOnInvalid(),
             service(RateLimiter::class),
+            service(McpSessionIdValidator::class),
             service('logger'),
         ])
         ->tag('controller.service_arguments')

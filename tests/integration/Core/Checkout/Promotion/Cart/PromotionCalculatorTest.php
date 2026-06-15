@@ -363,8 +363,8 @@ class PromotionCalculatorTest extends TestCase
 
         // Ensure that non-stackable items are still not stackable!
         $customLineItem = $toCalculate->get($customLineItem->getId());
-        self::assertNotNull($customLineItem);
-        self::assertFalse($customLineItem->isStackable());
+        static::assertNotNull($customLineItem);
+        static::assertFalse($customLineItem->isStackable());
     }
 
     private function getPromotionId(bool $preventCombination = false, int $priority = 1, bool $useCodes = true, string $type = PromotionDiscountEntity::TYPE_ABSOLUTE): string

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
+use Symfony\Component\Config\Util\XmlUtils;
 
 #[Package('framework')]
 class ConfigReader extends XmlReader
@@ -158,6 +159,8 @@ class ConfigReader extends XmlReader
             'componentName' => $element->getAttribute('name'),
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
     }
 
@@ -174,7 +177,25 @@ class ConfigReader extends XmlReader
             'type' => $swFieldType,
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
+    }
+
+    /**
+     * @param array<string, mixed> $elementData
+     *
+     * @return array<string, mixed>
+     */
+    private function addCacheRelevantAttribute(\DOMElement $element, array $elementData): array
+    {
+        if (!$element->hasAttribute('cache-relevant')) {
+            return $elementData;
+        }
+
+        $elementData['cacheRelevant'] = XmlUtils::phpize($element->getAttribute('cache-relevant'));
+
+        return $elementData;
     }
 
     /**

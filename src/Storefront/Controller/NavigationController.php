@@ -5,10 +5,10 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -189,11 +189,11 @@ class NavigationController extends StorefrontController
 
         $headerParameters = $request->get('headerParameters') ?? [];
 
-        if (array_key_exists('isNewContentStructure', $headerParameters)) {
+        if (\array_key_exists('isNewContentStructure', $headerParameters)) {
             return $this->renderStorefront('@Storefront/storefront/page/content/header.html.twig', [
                 'header' => $header,
                 'headerParameters' => $headerParameters,
-                'isNewContentStructure' => true
+                'isNewContentStructure' => true,
             ]);
         }
 

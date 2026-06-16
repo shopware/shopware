@@ -28,7 +28,8 @@
                 class="sw-experience-studio-toolbar__history-action"
                 type="button"
                 :aria-label="$t('sw-experience-studio.detail.toolbar.undo')"
-                disabled
+                :disabled="!allowSave || !canUndo || undefined"
+                @click="onUndo"
             >
                 <mt-icon
                     name="regular-undo"
@@ -40,7 +41,8 @@
                 class="sw-experience-studio-toolbar__history-action"
                 type="button"
                 :aria-label="$t('sw-experience-studio.detail.toolbar.redo')"
-                disabled
+                :disabled="!allowSave || !canRedo || undefined"
+                @click="onRedo"
             >
                 <mt-icon
                     name="regular-redo"

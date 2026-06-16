@@ -14,10 +14,14 @@
                 :current-viewport="currentViewport"
                 :allow-save="allowSave"
                 :preview-sales-channel-id="previewSalesChannelId"
+                :can-undo="canUndo"
+                :can-redo="canRedo"
                 @back="onClickBack"
                 @viewport-change="onViewportChange"
                 @preview-sales-channel-change="onPreviewSalesChannelChange"
                 @save="onSave"
+                @undo="onUndo"
+                @redo="onRedo"
             />
             {% endblock %}
 

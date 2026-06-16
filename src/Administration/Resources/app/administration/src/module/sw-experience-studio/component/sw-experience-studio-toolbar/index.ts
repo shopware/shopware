@@ -39,6 +39,16 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        canUndo: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        canRedo: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     emits: [
@@ -46,6 +56,8 @@ export default Shopware.Component.wrapComponentConfig({
         'viewport-change',
         'save',
         'preview-sales-channel-change',
+        'undo',
+        'redo',
     ],
 
     computed: {
@@ -75,6 +87,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSave(): void {
             this.$emit('save');
+        },
+
+        onUndo(): void {
+            this.$emit('undo');
+        },
+
+        onRedo(): void {
+            this.$emit('redo');
         },
     },
 });

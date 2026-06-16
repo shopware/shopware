@@ -1,5 +1,6 @@
 import type Repository from 'src/core/data/repository.data';
 
+import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
 import { castContentElementNodes } from 'src/module/sw-experience-studio/util/content-element-label.util';
 import {
@@ -8,12 +9,18 @@ import {
     removeElementFromLayout,
     sanitizeContentElementLayoutForWrite,
 } from 'src/module/sw-experience-studio/util/content-element.util';
+import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
 const { Mixin } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
+
+type LayoutMutationResult = false | {
+    selectedElementId?: string | null;
+};
 
 /**
  * @private
@@ -39,6 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
         currentViewport: Viewport;
         selectedElementId: string | null;
         previewSalesChannelId: string | null;
+        historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
     } {
         return {
             layout: null,
@@ -47,6 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
             currentViewport: 'desktop',
             selectedElementId: null,
             previewSalesChannelId: null,
+            historyKeydownHandler: null,
         };
     },
 
@@ -74,12 +83,41 @@ export default Shopware.Component.wrapComponentConfig({
         isCreateMode(): boolean {
             return this.$route.name === 'sw.experience.studio.create';
         },
+
+        editorStore() {
+            return Shopware.Store.get('experienceStudioEditor');
+        },
+
+        canUndo(): boolean {
+            return this.editorStore.canUndo;
+        },
+
+        canRedo(): boolean {
+            return this.editorStore.canRedo;
+        },
     },
 
     created(): void {
         Shopware.Store.get('adminMenu').collapseSidebar();
+        this.historyKeydownHandler = (event: KeyboardEvent): void => {
+            this.onHistoryKeydown(event);
+        };
         void this.loadLayout();
         void this.loadDefaultPreviewSalesChannel();
+    },
+
+    mounted(): void {
+        if (this.historyKeydownHandler) {
+            document.addEventListener('keydown', this.historyKeydownHandler);
+        }
+    },
+
+    beforeUnmount(): void {
+        if (this.historyKeydownHandler) {
+            document.removeEventListener('keydown', this.historyKeydownHandler);
+        }
+
+        this.editorStore.reset();
     },
 
     methods: {
@@ -96,6 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api);
             }
 
+            this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
         },
 
@@ -139,41 +178,124 @@ export default Shopware.Component.wrapComponentConfig({
             // Element insertion will be implemented in a follow-up step.
         },
 
-        onDuplicateElement(elementId: string): void {
+        applyLayoutMutation(
+            mutator: (layout: ContentElementNode[]) => LayoutMutationResult,
+        ): void {
             if (!this.layout || !this.allowSave) {
                 return;
             }
 
             const layoutElements = castContentElementNodes(this.layout.layout);
-            const result = duplicateElementInLayout(layoutElements, elementId);
+            const workingLayout = cloneDeep(layoutElements);
+            const result = mutator(workingLayout);
 
-            if (!result) {
+            if (result === false) {
                 return;
             }
 
-            this.layout.layout = sanitizeContentElementLayoutForWrite(layoutElements);
-            this.selectedElementId = result.duplicatedId;
+            this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
+            this.layout.layout = sanitizeContentElementLayoutForWrite(workingLayout);
+
+            if (result.selectedElementId !== undefined) {
+                this.selectedElementId = result.selectedElementId;
+            }
+        },
+
+        onDuplicateElement(elementId: string): void {
+            this.applyLayoutMutation((layout) => {
+                const result = duplicateElementInLayout(layout, elementId);
+
+                if (!result) {
+                    return false;
+                }
+
+                return {
+                    selectedElementId: result.duplicatedId,
+                };
+            });
         },
 
         onDeleteElement(elementId: string): void {
-            if (!this.layout || !this.allowSave) {
+            this.applyLayoutMutation((layout) => {
+                if (!removeElementFromLayout(layout, elementId)) {
+                    return false;
+                }
+
+                if (
+                    this.selectedElementId !== null
+                    && findElementLocation(layout, this.selectedElementId) === null
+                ) {
+                    return {
+                        selectedElementId: null,
+                    };
+                }
+
+                return {};
+            });
+        },
+
+        onUndo(): void {
+            if (!this.layout || !this.canUndo) {
                 return;
             }
 
             const layoutElements = castContentElementNodes(this.layout.layout);
-            const removed = removeElementFromLayout(layoutElements, elementId);
+            const previousEntry = this.editorStore.undo(layoutElements, this.selectedElementId);
 
-            if (!removed) {
+            if (!previousEntry) {
                 return;
             }
 
-            this.layout.layout = sanitizeContentElementLayoutForWrite(layoutElements);
+            this.layout.layout = previousEntry.layout;
+            this.selectedElementId = previousEntry.selectedElementId;
+        },
+
+        onRedo(): void {
+            if (!this.layout || !this.canRedo) {
+                return;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const nextEntry = this.editorStore.redo(layoutElements, this.selectedElementId);
+
+            if (!nextEntry) {
+                return;
+            }
+
+            this.layout.layout = nextEntry.layout;
+            this.selectedElementId = nextEntry.selectedElementId;
+        },
+
+        onHistoryKeydown(event: KeyboardEvent): void {
+            if (!this.allowSave) {
+                return;
+            }
+
+            const target = event.target;
 
             if (
-                this.selectedElementId !== null
-                && findElementLocation(layoutElements, this.selectedElementId) === null
+                target instanceof HTMLInputElement
+                || target instanceof HTMLTextAreaElement
+                || (target instanceof HTMLElement && target.isContentEditable)
             ) {
-                this.selectedElementId = null;
+                return;
+            }
+
+            const isModifierPressed = event.ctrlKey || event.metaKey;
+
+            if (!isModifierPressed) {
+                return;
+            }
+
+            if (event.key === 'z' && !event.shiftKey) {
+                event.preventDefault();
+                this.onUndo();
+                return;
+            }
+
+            if ((event.key === 'z' && event.shiftKey) || event.key === 'y') {
+                event.preventDefault();
+                this.onRedo();
             }
         },
 

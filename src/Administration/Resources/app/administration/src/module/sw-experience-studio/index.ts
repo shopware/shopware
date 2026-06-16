@@ -1,6 +1,7 @@
 import defaultSearchConfiguration from './default-search-configuration';
 
 import './acl';
+import './store/experience-studio-editor.store';
 
 /**
  * @private

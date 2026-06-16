@@ -42,6 +42,22 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # Safe speedup: cache only Composer's DOWNLOAD cache, keyed per version. This can
+    # never change the built shop (Composer content-addresses + verifies every package),
+    # so a stale or missing cache only costs re-downloads, never correctness. The heavier
+    # wins (vendor/, built assets, a pre-seed DB dump) are deliberately NOT cached here —
+    # they need staleness handling and are a separate, riskier change. `~/.cache/composer`
+    # is Composer's default dir; if setup-shopware overrides COMPOSER_CACHE_DIR this step
+    # is a harmless no-op. Per-version key + prefix restore-keys = one cache per ref.
+    - name: Cache Composer downloads
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v4
+      with:
+        path: ~/.cache/composer
+        key: ${{ runner.os }}-repro-composer-${{ inputs.version }}-${{ inputs.php-version }}
+        restore-keys: |
+          ${{ runner.os }}-repro-composer-${{ inputs.version }}-
+          ${{ runner.os }}-repro-composer-
+
     # Install only what the surface needs. http/direct → no JS build at all.
     - name: Setup Shopware
       uses: shopware/setup-shopware@e12701e21d8a6003103426969ba544cdc91bf41c # v2.0.12

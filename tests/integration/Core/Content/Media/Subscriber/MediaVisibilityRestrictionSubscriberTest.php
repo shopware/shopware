@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -38,6 +39,8 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
      */
     private EntityRepository $mediaFolderRepository;
 
+    private Connection $connection;
+
     private Context $salesChannelContext;
 
     private IdsCollection $ids;
@@ -46,6 +49,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
     {
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
 
         $this->salesChannelContext = Context::createDefaultContext(new SalesChannelApiSource($this->ids->get('sales-channel')));
@@ -92,6 +96,30 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         static::assertNotContains($privateMediaId, $mediaIds, 'Private media should not be found');
         static::assertNotContains($publicMediaId, $mediaIds, 'Public media should not be found when filtering for private');
         static::assertCount(0, $mediaIds, 'No media should be returned when searching for private media');
+    }
+
+    public function testSearchPrivateProductDownloadMediaIsAllowed(): void
+    {
+        $privateFolderId = $this->createMediaFolder('private-media-folder', 'private-folder', true);
+        $productDownloadFolderId = $this->getProductDownloadFolderId();
+
+        $privateMediaId = $this->createMedia('private-media', 'private-file', $privateFolderId, true);
+        $privateProductDownloadMediaId = $this->createMedia(
+            'private-product-download-media',
+            'private-product-download-file',
+            $productDownloadFolderId,
+            true
+        );
+
+        $criteria = new Criteria([
+            $privateMediaId,
+            $privateProductDownloadMediaId,
+        ]);
+        $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
+        $mediaIds = array_map(static fn ($media) => $media->getId(), $result->getEntities()->getElements());
+
+        static::assertNotContains($privateMediaId, $mediaIds, 'Private media outside the product download folder should not be found');
+        static::assertContains($privateProductDownloadMediaId, $mediaIds, 'Private product download media should be found');
     }
 
     public function testSearchPublicMediaFolderIsFound(): void
@@ -252,5 +280,23 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         ], $this->salesChannelContext);
 
         return $id;
+    }
+
+    private function getProductDownloadFolderId(): string
+    {
+        $folderId = $this->connection->fetchOne(
+            <<<'SQL'
+                SELECT LOWER(HEX(`media_folder`.`id`))
+                FROM `media_folder`
+                INNER JOIN `media_default_folder`
+                    ON `media_default_folder`.`id` = `media_folder`.`default_folder_id`
+                WHERE `media_default_folder`.`entity` = :entity
+            SQL,
+            ['entity' => 'product_download']
+        );
+
+        static::assertIsString($folderId);
+
+        return $folderId;
     }
 }

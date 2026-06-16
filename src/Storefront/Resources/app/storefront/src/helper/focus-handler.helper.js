@@ -20,6 +20,7 @@ export default class FocusHandler {
         this._focusMap = new Map();
 
         // Reference to the currently active focus-trap guard element.
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
         this._focusTrapGuard = null;
 
         this._focusAbleElements = `
@@ -179,20 +180,20 @@ export default class FocusHandler {
     /**
      * Inserts a temporary focusable element directly after the given element to keep the Bootstrap
      * focus-trap working when a modal/offcanvas is the last focusable markup before `</body>`.
-     * Without it, tabbing forward escapes to the browser UI without firing a `focusin` event that
-     * Bootstrap could catch to pull focus back inside.
+     * Without it, tabbing forward escapes the modal/offcanvas and the focus is lost.
      *
-     * @see https://github.com/twbs/bootstrap/issues/42503
+     * @internal
+     * @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
      * @param {HTMLElement} afterEl The element the focus-trap is applied to (e.g. modal or offcanvas).
      * @return {HTMLElement|null}
      */
-    addFocusTrapGuard(afterEl) {
+    _addFocusTrapGuard(afterEl) {
         if (!afterEl || !afterEl.parentNode) {
             return null;
         }
 
         // Ensure there is never more than one focus-trap guard at a time.
-        this.removeFocusTrapGuard();
+        this._removeFocusTrapGuard();
 
         const focusTrapGuard = document.createElement('div');
         focusTrapGuard.setAttribute('tabindex', '0');
@@ -205,9 +206,12 @@ export default class FocusHandler {
     }
 
     /**
-     * Removes the focus-trap guard element that was added via `addFocusTrapGuard`.
+     * Removes the focus-trap guard element that was added via `_addFocusTrapGuard`.
+     *
+     * @internal
+     * @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
      */
-    removeFocusTrapGuard() {
+    _removeFocusTrapGuard() {
         if (!this._focusTrapGuard) {
             return;
         }

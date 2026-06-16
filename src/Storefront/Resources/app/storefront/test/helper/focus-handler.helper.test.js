@@ -207,12 +207,13 @@ describe('focus-handler.helper', () => {
         });
     });
 
-    describe('addFocusTrapGuard', () => {
+    // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+    describe('_addFocusTrapGuard', () => {
         test('inserts a focus-trap guard directly after the given element', () => {
             document.body.innerHTML = '<div class="modal">Modal</div>';
 
             const modal = document.querySelector('.modal');
-            const guard = focusHandler.addFocusTrapGuard(modal);
+            const guard = focusHandler._addFocusTrapGuard(modal);
 
             expect(guard).toBeInstanceOf(HTMLDivElement);
             expect(guard.getAttribute('tabindex')).toBe('0');
@@ -222,14 +223,14 @@ describe('focus-handler.helper', () => {
         });
 
         test('returns null and does nothing when no element is given', () => {
-            expect(focusHandler.addFocusTrapGuard()).toBeNull();
+            expect(focusHandler._addFocusTrapGuard()).toBeNull();
             expect(focusHandler._focusTrapGuard).toBeNull();
         });
 
         test('returns null when the given element has no parent node', () => {
             const detachedEl = document.createElement('div');
 
-            expect(focusHandler.addFocusTrapGuard(detachedEl)).toBeNull();
+            expect(focusHandler._addFocusTrapGuard(detachedEl)).toBeNull();
             expect(focusHandler._focusTrapGuard).toBeNull();
         });
 
@@ -238,8 +239,8 @@ describe('focus-handler.helper', () => {
 
             const modal = document.querySelector('.modal');
 
-            const firstGuard = focusHandler.addFocusTrapGuard(modal);
-            const secondGuard = focusHandler.addFocusTrapGuard(modal);
+            const firstGuard = focusHandler._addFocusTrapGuard(modal);
+            const secondGuard = focusHandler._addFocusTrapGuard(modal);
 
             expect(document.querySelectorAll('.js-focus-trap-guard')).toHaveLength(1);
             expect(firstGuard.isConnected).toBe(false);
@@ -247,14 +248,14 @@ describe('focus-handler.helper', () => {
         });
     });
 
-    describe('removeFocusTrapGuard', () => {
+    describe('_removeFocusTrapGuard', () => {
         test('removes the previously added focus-trap guard', () => {
             document.body.innerHTML = '<div class="modal">Modal</div>';
 
             const modal = document.querySelector('.modal');
-            const guard = focusHandler.addFocusTrapGuard(modal);
+            const guard = focusHandler._addFocusTrapGuard(modal);
 
-            focusHandler.removeFocusTrapGuard();
+            focusHandler._removeFocusTrapGuard();
 
             expect(guard.isConnected).toBe(false);
             expect(document.querySelector('.js-focus-trap-guard')).toBeNull();
@@ -262,7 +263,7 @@ describe('focus-handler.helper', () => {
         });
 
         test('does nothing when no focus-trap guard is present', () => {
-            expect(() => focusHandler.removeFocusTrapGuard()).not.toThrow();
+            expect(() => focusHandler._removeFocusTrapGuard()).not.toThrow();
             expect(focusHandler._focusTrapGuard).toBeNull();
         });
     });

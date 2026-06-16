@@ -53,8 +53,7 @@ class InstallTranslationCommandTest extends TestCase
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('You must specify either --all or --locales to run the InstallTranslationCommand.');
+        $this->expectExceptionObject(SnippetException::noArgumentsProvided());
         $tester->execute([], ['interactive' => false]);
     }
 

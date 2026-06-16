@@ -76,10 +76,12 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
+        '!src/**/*.spec/**',
         '!**/*.d.ts',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.js',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.ts',
         '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+        '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/**',
 
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
@@ -165,7 +167,12 @@ module.exports = {
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
         '<rootDir>/src/**/*.spec.ts',
+        '<rootDir>/src/**/*.spec/*.spec.js',
+        '<rootDir>/src/**/*.spec/*.spec.ts',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',

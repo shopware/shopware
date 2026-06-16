@@ -112,8 +112,12 @@ export default class FormFieldTogglePlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener('change', this._onChange.bind(this));
-        this.el.addEventListener('change', this._onChange.bind(this));
+        if (!this._boundOnChange) {
+            this._boundOnChange = this._onChange.bind(this);
+        }
+
+        this.el.removeEventListener('change', this._boundOnChange);
+        this.el.addEventListener('change', this._boundOnChange);
     }
 
     /**

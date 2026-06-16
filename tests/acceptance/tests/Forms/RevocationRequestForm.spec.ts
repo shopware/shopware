@@ -3,9 +3,22 @@ import { expect, test } from '@fixtures/AcceptanceTest';
 test(
     'As a merchant, I want to switch on and off the revocation request form',
     { tag: ['@Form', '@Revocation', '@Storefront'] },
-    async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
+    async ({
+        AddProductToCart,
+        ShopCustomer,
+        StorefrontCheckoutRegister,
+        StorefrontHome,
+        StorefrontProductDetail,
+        TestDataService,
+    }) => {
+        const revocationButtonName = /Revoke a contract|Vertrag widerrufen/i;
         const revocationFormButton = () => {
-            return StorefrontHome.page.getByRole('link', { name: /Revoke a contract|Vertrag widerrufen/i });
+            return StorefrontHome.page.getByRole('link', { name: revocationButtonName });
+        };
+        const minimalFooterRevocationButton = () => {
+            return StorefrontCheckoutRegister.page
+                .locator('.footer-minimal .footer-revocation-button')
+                .getByRole('link', { name: revocationButtonName });
         };
 
         const openStorefrontHome = async () => {
@@ -32,6 +45,56 @@ test(
             }).toPass({
                 intervals: [1_000, 2_500],
             });
+        });
+
+        await test.step('Check if the revocation button is visible without opening the footer column on mobile', async () => {
+            await TestDataService.setSystemConfig({
+                'core.basicInformation.showRevocationButton': true,
+                'core.basicInformation.useDefaultCookieConsent': false,
+            });
+
+            await StorefrontHome.page.setViewportSize({ width: 390, height: 844 });
+
+            await ShopCustomer.expects(async () => {
+                await openStorefrontHome();
+                await StorefrontHome.page.locator('.footer-main').scrollIntoViewIfNeeded();
+
+                const collapsedHotlineContent = StorefrontHome.page.locator('#collapseFooterHotline');
+
+                await expect(collapsedHotlineContent).toBeHidden();
+                await expect(collapsedHotlineContent.getByRole('link', { name: revocationButtonName })).toHaveCount(0);
+                await expect(revocationFormButton()).toBeVisible();
+            }).toPass({
+                intervals: [1_000, 2_500],
+            });
+        });
+
+        await test.step('Check if the revocation button is visible in the minimal footer', async () => {
+            const product = await TestDataService.createBasicProduct();
+
+            await TestDataService.setSystemConfig({
+                'core.basicInformation.showRevocationButton': true,
+                'core.basicInformation.useDefaultCookieConsent': false,
+            });
+
+            await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+            await ShopCustomer.attemptsTo(AddProductToCart(product));
+
+            for (const viewport of [
+                { width: 390, height: 844 },
+                { width: 1280, height: 720 },
+            ]) {
+                await StorefrontCheckoutRegister.page.setViewportSize(viewport);
+
+                await ShopCustomer.expects(async () => {
+                    await ShopCustomer.goesTo(`${StorefrontCheckoutRegister.url()}?a=${Date.now()}`);
+                    await StorefrontCheckoutRegister.page.locator('.footer-minimal').scrollIntoViewIfNeeded();
+
+                    await expect(minimalFooterRevocationButton()).toBeVisible();
+                }).toPass({
+                    intervals: [1_000, 2_500],
+                });
+            }
         });
     }
 );

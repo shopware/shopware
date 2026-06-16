@@ -64,6 +64,7 @@ class ContentTest extends TestCase
             'media_test',
             'installed.json',
             'MailerConfigurationCompilerPass.php',
+            'ThumbnailProcessorCompilerPass.php',
         ];
 
         static::assertSame($expectedResources, $resourceFiles);

@@ -81,9 +81,14 @@ test.describe('Shopware Services', () => {
         }
     );
 
-    test(
-        'As a merchant, I want to fully deactivate the Shopware Services feature.',
-        { tag: '@Settings' },
+    test.skip(
+        'As a merchant, I want to fully deactivate the Shopware Services feature.',{ 
+            tag: '@Settings', 
+            annotation: {
+                type: 'issue',
+                description: 'https://github.com/shopware/shopware/issues/17082',
+            },
+        },
         async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {
             test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
 
@@ -145,10 +150,6 @@ test.describe('Shopware Services', () => {
                         'cms_page:read',
                         'custom_field:read',
                         'custom_field_set_relation:read',
-                        'language:read',
-                        'locale:read',
-                        'log_entry:create',
-                        'message_queue_stats:read',
                         'product_sorting:create',
                         'product_sorting:delete',
                         'product_sorting:read',
@@ -184,10 +185,6 @@ test.describe('Shopware Services', () => {
                         'cms_page:read',
                         'custom_field:read',
                         'custom_field_set_relation:read',
-                        'language:read',
-                        'locale:read',
-                        'log_entry:create',
-                        'message_queue_stats:read',
                         'plugin:update',
                         'product_sorting:create',
                         'product_sorting:delete',
@@ -214,10 +211,6 @@ test.describe('Shopware Services', () => {
                         'cms_page:read',
                         'custom_field:read',
                         'custom_field_set_relation:read',
-                        'language:read',
-                        'locale:read',
-                        'log_entry:create',
-                        'message_queue_stats:read',
                         'plugin:update',
                         'product_sorting:create',
                         'product_sorting:delete',

@@ -22,11 +22,10 @@
     <template #smart-bar-actions>
         {% block sw_settings_storefront_actions_save %}
         <sw-button-process
+            v-model:process-success="isSaveSuccessful"
             :is-loading="isLoading"
-            :process-success="isSaveSuccessful"
             variant="primary"
-            @process-finish="onSaveFinish"
-            @click="savestorefrontSettings"
+            @click="saveStorefrontSettings"
         >
             {{ $t('global.default.save') }}
         </sw-button-process>
@@ -45,11 +44,86 @@
                 :title="$t('sw-settings-storefront.configuration.cardTitle')"
                 class="sw-settings-storefront__input-fields"
             >
+                <template #toolbar>
+                    {% block sw_settings_storefront_sales_channel_switch %}
+                    <div class="sw-settings-storefront__sales-channel-switch">
+                        <sw-sales-channel-switch
+                            label=""
+                            @change-sales-channel-id="onSalesChannelChanged"
+                        />
+                    </div>
+                    {% endblock %}
+                </template>
 
+                {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules` instead. #}
                 {% block sw_settings_storefront_smtp_settings %}
-                <sw-settings-storefront-configuration :storefront-settings="storefrontSettings"/>
+                {% block sw_settings_storefront_settings_icon_cache %}
+                <sw-inherit-wrapper
+                    v-model:value="currentSalesChannelStorefrontSettings['core.storefrontSettings.iconCache']"
+                    :inherited-value="storefrontSettings['core.storefrontSettings.iconCache']"
+                    :has-parent="!isGlobalConfig"
+                >
+                    <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
+                        <mt-switch
+                            :model-value="currentValue"
+                            :disabled="isInherited"
+                            :is-inheritance-field="isInheritField"
+                            :is-inherited="isInherited"
+                            bordered
+                            :label="$t('sw-settings-storefront.configuration.iconCache')"
+                            :help-text="$t('sw-settings-storefront.configuration.iconCacheToolTip')"
+                            @update:model-value="updateCurrentValue"
+                            @inheritance-restore="restoreInheritance"
+                            @inheritance-remove="removeInheritance"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
                 {% endblock %}
 
+                {% block sw_settings_storefront_settings_speculation_rules %}
+                <sw-inherit-wrapper
+                    v-model:value="currentSalesChannelStorefrontSettings['core.storefrontSettings.speculationRules']"
+                    :inherited-value="storefrontSettings['core.storefrontSettings.speculationRules']"
+                    :has-parent="!isGlobalConfig"
+                >
+                    <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
+                        <mt-switch
+                            :model-value="currentValue"
+                            :disabled="isInherited"
+                            :is-inheritance-field="isInheritField"
+                            :is-inherited="isInherited"
+                            bordered
+                            :label="$t('sw-settings-storefront.configuration.speculationRules.title')"
+                            :help-text="$t('sw-settings-storefront.configuration.speculationRules.description')"
+                            @update:model-value="updateCurrentValue"
+                            @inheritance-restore="restoreInheritance"
+                            @inheritance-remove="removeInheritance"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+                {% endblock %}
+                {% endblock %}
+
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_storefront_global %}
+            <mt-card
+                position-identifier="sw-settings-storefront--global-settings"
+                :title="$t('sw-settings-storefront.configuration.theme.cardTitle')"
+                class="sw-settings-storefront__input-fields"
+            >
+                {% block sw_settings_storefront_settings_theme_async %}
+                <mt-switch
+                    v-model="storefrontSettings['core.storefrontSettings.asyncThemeCompilation']"
+                    v-tooltip.top="{
+                        message: $t('sw-settings-storefront.configuration.theme.asyncTooltip'),
+                        showOnDisabledElements: true
+                    }"
+                    bordered
+                    :label="$t('sw-settings-storefront.configuration.theme.async')"
+                />
+                {% endblock %}
             </mt-card>
             {% endblock %}
         </sw-card-view>

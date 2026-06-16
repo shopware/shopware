@@ -43,7 +43,10 @@ class ProductStorerTest extends TestCase
 
     public function testStoreWithAware(): void
     {
-        $event = new ReviewFormEvent(Context::createDefaultContext(), '', new MailRecipientStruct([]), new DataBag(), '', '');
+        $product = new ProductEntity();
+        $product->setId('product-id');
+
+        $event = new ReviewFormEvent(Context::createDefaultContext(), '', new MailRecipientStruct([]), new DataBag(), 'product-id', '', $product);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(ProductAware::PRODUCT_ID, $stored);

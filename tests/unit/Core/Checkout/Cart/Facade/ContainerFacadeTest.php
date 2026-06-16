@@ -94,8 +94,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Absolute discount my-discount requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object');
+        $this->expectExceptionObject(CartException::missingDefaultPriceCollectionForDiscount('my-discount'));
 
         $facade->discount('my-discount', 'absolute', new PriceCollection([new Price(Uuid::randomHex(), 5, 5, false)]), 'my-discount');
     }
@@ -104,8 +103,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Discount type "foo" is not supported');
+        $this->expectExceptionObject(CartException::discountTypeNotSupported('my-discount', 'foo'));
 
         $facade->discount('my-discount', 'foo', 10, 'my-discount');
     }
@@ -158,8 +156,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Absolute surcharge my-surcharge requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object');
+        $this->expectExceptionObject(CartException::missingDefaultPriceCollectionForSurcharge('my-surcharge'));
 
         $facade->surcharge('my-surcharge', 'absolute', new PriceCollection([new Price(Uuid::randomHex(), 5, 5, false)]), 'my-surcharge');
     }
@@ -168,8 +165,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Surcharge type "foo" is not supported');
+        $this->expectExceptionObject(CartException::surchargeTypeNotSupported('my-surcharge', 'foo'));
 
         $facade->surcharge('my-surcharge', 'foo', 10, 'my-surcharge');
     }

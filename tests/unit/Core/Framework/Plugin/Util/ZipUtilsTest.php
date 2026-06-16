@@ -15,16 +15,14 @@ class ZipUtilsTest extends TestCase
 {
     public function testExceptionIsThrownIfZipFileDoesNotExist(): void
     {
-        static::expectException(PluginException::class);
-        static::expectExceptionMessage('No such zip file: /some/file/that/does/not/exist.zip');
+        $this->expectExceptionObject(PluginException::cannotExtractNoSuchFile('/some/file/that/does/not/exist.zip'));
 
         ZipUtils::openZip('/some/file/that/does/not/exist.zip');
     }
 
     public function testExceptionIsThrownIfZipIsInvalid(): void
     {
-        static::expectException(PluginException::class);
-        static::expectExceptionMessage(\sprintf('%s is not a zip archive.', __FILE__));
+        $this->expectExceptionObject(PluginException::cannotExtractInvalidZipFile(__FILE__));
 
         ZipUtils::openZip(__FILE__);
     }

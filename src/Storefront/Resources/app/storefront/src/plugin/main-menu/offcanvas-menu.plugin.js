@@ -39,8 +39,12 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
-        this.el.addEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
+        if (!this._boundGetLinkEventHandler) {
+            this._boundGetLinkEventHandler = this._getLinkEventHandler.bind(this);
+        }
+
+        this.el.removeEventListener(this.options.triggerEvent, this._boundGetLinkEventHandler);
+        this.el.addEventListener(this.options.triggerEvent, this._boundGetLinkEventHandler);
 
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();

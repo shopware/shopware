@@ -373,7 +373,8 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async", "low_priority"]
+        # Keep webhook before async so inline admin-worker failures scheduled for retry are drained.
+        transports: ["webhook", "async", "low_priority"]
 
     auto_update:
         enabled: true
@@ -484,6 +485,8 @@ shopware:
         fields:
             - name: product_translation.description
               sets: ["basic", "media", "HTML5"]
+            - name: product_translation.descriptionTeaser
+              sets: []
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
@@ -673,6 +676,7 @@ shopware:
           - digital
         search_keyword:
             indexing: true
+            relevant_keyword_count: 8
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

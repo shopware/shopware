@@ -55,8 +55,7 @@ class SetPaymentOrderRouteTest extends TestCase
     #[DataProvider('requestDataProvider')]
     public function testInvalidRequest(Request $request): void
     {
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('Invalid UUID provided:');
+        $this->expectExceptionObject(OrderException::invalidUuid(''));
 
         $paymentOrderRoute = new SetPaymentOrderRoute(
             $this->createMock(OrderService::class),
@@ -103,9 +102,6 @@ class SetPaymentOrderRouteTest extends TestCase
 
     public function testInvalidPaymentMethod(): void
     {
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('The payment method with id');
-
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
@@ -137,15 +133,17 @@ class SetPaymentOrderRouteTest extends TestCase
             ->method('getCustomer')
             ->willReturn($customer);
 
-        $request = self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => Uuid::randomHex()]);
+        $paymentMethodId = Uuid::randomHex();
+        $request = self::getRequest(['paymentMethodId' => $paymentMethodId, 'orderId' => Uuid::randomHex()]);
+
+        $this->expectExceptionObject(OrderException::paymentMethodNotAvailable($paymentMethodId));
 
         $paymentOrderRoute->setPayment($request, $salesChannelContext);
     }
 
     public function testPaymentNotChangeable(): void
     {
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('Payment methods of order with current payment transaction type can not be changed.');
+        $this->expectExceptionObject(OrderException::paymentMethodNotChangeable());
 
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());

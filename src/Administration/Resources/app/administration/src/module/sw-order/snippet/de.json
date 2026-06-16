@@ -545,11 +545,21 @@
       "orderDateFilter": {
         "label": "Bestelldatum",
         "options": {
-          "lastYear": "Letztes Jahr",
-          "lastQuarter": "Letzes Quartal",
-          "lastMonth": "Letzter Monat",
-          "lastWeek": "Letzte Woche",
-          "lastDay": "Letzter Tag",
+          "today": "Heute",
+          "yesterday": "Gestern",
+          "currentWeek": "Aktuelle Woche",
+          "lastWeek": "Letzte 7 Tage",
+          "lastCalendarWeek": "Vorherige Woche",
+          "currentMonth": "Aktueller Monat",
+          "lastMonth": "Letzte 30 Tage",
+          "lastCalendarMonth": "Vorheriger Monat",
+          "currentQuarter": "Aktuelles Quartal",
+          "lastQuarter": "Vorheriges Quartal",
+          "last3Months": "Letzte 3 Monate",
+          "last6Months": "Letzte 6 Monate",
+          "last12Months": "Letzte 12 Monate",
+          "currentYear": "Aktuelles Jahr",
+          "previousYear": "Vorheriges Jahr",
           "custom": "Benutzerdefiniert"
         }
       },

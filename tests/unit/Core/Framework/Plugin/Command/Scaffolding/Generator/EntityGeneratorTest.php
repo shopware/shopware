@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -19,7 +20,7 @@ class EntityGeneratorTest extends TestCase
 {
     public function testCommandOptions(): void
     {
-        $generator = new EntityGenerator();
+        $generator = new EntityGenerator(new MockClock());
 
         static::assertTrue($generator->hasCommandOption());
         static::assertNotEmpty($generator->getCommandOptionName());
@@ -48,7 +49,7 @@ class EntityGeneratorTest extends TestCase
         $io->method('confirm')->willReturn($confirmResponse);
         $io->method('ask')->willReturn($entitiesAnswerInput);
 
-        (new EntityGenerator())
+        (new EntityGenerator(new MockClock()))
             ->addScaffoldConfig($configuration, $input, $io);
 
         static::assertSame($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -217,7 +218,7 @@ class EntityGeneratorTest extends TestCase
     {
         $stubs = new StubCollection();
 
-        (new EntityGenerator(new \DateTimeImmutable('1988-01-01 00:00:00')))
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
             ->generateStubs($config, $stubs);
 
         static::assertCount(\count($expected), $stubs);

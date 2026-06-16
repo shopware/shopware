@@ -111,5 +111,19 @@
         </template>
     </sw-single-select>
     {% endblock %}
+
+    {% block sw_order_address_selection_selected_address %}
+    <div
+        v-if="selectedAddress"
+        class="sw-order-address-selection__selected-address"
+    >
+
+        <sw-address
+            class="sw-order-address-selection__selected-address-content"
+            :address="selectedAddress"
+            :formatting-address="selectedAddressFormatting"
+        />
+    </div>
+    {% endblock %}
 </div>
 {% endblock %}

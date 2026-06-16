@@ -74,33 +74,26 @@
             {% endblock %}
 
             {% block sw_manufacturer_list_grid %}
-            <sw-entity-listing
+            <sw-meteor-entity-data-table
                 v-else-if="entitySearchable"
+                ref="manufacturerTable"
                 class="sw-manufacturer-list__grid"
-                detail-route="sw.manufacturer.detail"
-                :is-loading="isLoading"
-                :columns="manufacturerColumns"
                 :repository="manufacturerRepository"
-                :data-source="manufacturers"
-                :criteria-limit="limit"
-                :sort-by="currentSortBy"
-                :sort-direction="sortDirection"
-                :disable-data-fetching="true"
-                :allow-edit="acl.can('product_manufacturer.editor') || undefined"
-                :allow-inline-edit="acl.can('product_manufacturer.editor') || undefined"
-                :allow-delete="acl.can('product_manufacturer.deleter') || undefined"
-                :show-selections="acl.can('product_manufacturer.deleter') || undefined"
-                identifier="sw-manufacturer-list"
-                @update-records="updateTotal"
-                @page-change="onPageChange"
-                @column-sort="onSortColumn"
-            >
-                {% block sw_manufacturer_list_grid_columns_name_preview %}
-                <template #preview-name="{ item }">
-                    <sw-media-preview-v2 :source="item.mediaId" />
-                </template>
-                {% endblock %}
-            </sw-entity-listing>
+                :columns="manufacturerColumns"
+                :criteria="manufacturerCriteria"
+                :initial-page="page"
+                :initial-limit="limit"
+                :initial-search-term="term"
+                :initial-sort="{ property: sortBy, direction: sortDirection }"
+                layout="full"
+                detail-route="sw.manufacturer.detail"
+                :searchable="false"
+                :reloadable="true"
+                :selectable="acl.can('product_manufacturer.deleter')"
+                @load-success="onMeteorTableLoadSuccess"
+                @load-error="onMeteorTableLoadError"
+                @state-change="onMeteorTableStateChange"
+            />
             {% endblock %}
 
         </div>

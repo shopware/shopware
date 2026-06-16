@@ -73,6 +73,8 @@ export type SwMeteorEntityDataTableColumn =
 
 export type SwMeteorEntityDataTableSortDirection = 'ASC' | 'DESC';
 
+export type SwMeteorEntityDataTableLayout = 'default' | 'full';
+
 export type SwMeteorEntityDataTableState = {
     page: number;
     limit: number;

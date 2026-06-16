@@ -14,7 +14,11 @@ import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/dat
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import SwMeteorEntityDataTable from './sw-meteor-entity-data-table.vue';
-import type { SwMeteorEntityDataTableColumn, SwMeteorEntityDataTableState } from './sw-meteor-entity-data-table.types';
+import type {
+    SwMeteorEntityDataTableColumn,
+    SwMeteorEntityDataTableLayout,
+    SwMeteorEntityDataTableState,
+} from './sw-meteor-entity-data-table.types';
 
 const componentName = 'sw-meteor-entity-data-table';
 const { Criteria } = Shopware.Data;
@@ -46,6 +50,7 @@ type TestProps = {
     initialSearchTerm?: string;
     initialSort?: SwMeteorEntityDataTableState['sort'] | null;
     paginationOptions?: number[];
+    layout?: SwMeteorEntityDataTableLayout;
     searchable?: boolean;
     reloadable?: boolean;
     selectable?: boolean;
@@ -104,6 +109,7 @@ const MtDataTableStub = {
         'sortDirection',
         'searchValue',
         'isLoading',
+        'layout',
         'allowRowSelection',
         'selectedRows',
         'disableSearch',
@@ -344,6 +350,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 'initialSearchTerm',
                 'initialSort',
                 'paginationOptions',
+                'layout',
                 'searchable',
                 'reloadable',
                 'selectable',
@@ -394,6 +401,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 sortBy: '',
                 sortDirection: 'ASC',
                 searchValue: '',
+                layout: 'default',
                 allowRowSelection: false,
                 selectedRows: [],
                 disableSearch: false,
@@ -403,6 +411,16 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 disableSettingsTable: true,
             }),
         );
+    });
+
+    it('forwards the full layout option to mt-data-table', () => {
+        const wrapper = createWrapper({
+            props: {
+                layout: 'full',
+            },
+        });
+
+        expect(getTable(wrapper).props('layout')).toBe('full');
     });
 
     it('resolves columns by declaration order and keeps renderer options while stripping sorting metadata', () => {

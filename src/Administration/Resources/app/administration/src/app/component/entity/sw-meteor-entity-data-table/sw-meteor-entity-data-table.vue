@@ -12,6 +12,7 @@
             :sort-direction="state.sort?.direction ?? 'ASC'"
             :search-value="state.searchTerm"
             :is-loading="loading"
+            :layout="layout"
             :allow-row-selection="selectable"
             :selected-rows="selectedIds"
             :disable-search="!searchable"
@@ -62,6 +63,7 @@ import type Repository from 'src/core/data/repository.data';
 import type {
     SwMeteorEntityDataTableColumn,
     SwMeteorEntityDataTableColumnRenderer,
+    SwMeteorEntityDataTableLayout,
     SwMeteorEntityDataTableSortDirection,
     SwMeteorEntityDataTableState,
 } from './sw-meteor-entity-data-table.types';
@@ -100,6 +102,7 @@ type SwMeteorEntityDataTableProps = {
     initialSearchTerm?: string;
     initialSort?: SwMeteorEntityDataTableState['sort'] | null;
     paginationOptions?: number[];
+    layout?: SwMeteorEntityDataTableLayout;
     searchable?: boolean;
     reloadable?: boolean;
     selectable?: boolean;
@@ -211,6 +214,12 @@ export default defineComponent({
                     50,
                 ];
             },
+        },
+
+        layout: {
+            type: String as PropType<SwMeteorEntityDataTableProps['layout']>,
+            required: false,
+            default: 'default',
         },
 
         searchable: {
@@ -563,5 +572,21 @@ function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): S
 <style lang="scss">
 .sw-meteor-entity-data-table {
     width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    &__table.mt-data-table__layout-full {
+        min-height: 0;
+        margin: 0;
+
+        > .mt-card__content {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        > .mt-card__footer {
+            flex: 0 0 auto;
+        }
+    }
 }
 </style>

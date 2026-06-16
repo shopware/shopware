@@ -26,10 +26,10 @@ class NoNativeTimeFunctionRule implements Rule
      *   - Migrations are one-off DB scripts run outside the app lifecycle; DI/clock is not available.
      *   - Hydrators parse stored datetime strings from DB rows, not the current clock.
      *   - Test fixtures often construct explicit datetime for assertions.
-     *   - Profilers measure real wall-clock time by definition.
+     *   - Profilers and the telemetry facade measure real elapsed time by definition.
      *   - Dev tooling (PHPStan rules, CLI commands) runs outside the app domain.
      */
-    protected const EXEMPT_PATH_PATTERN = '#(/Migration/|Hydrator\.php$|/Test/|/tests/|/Profiling/|Profiler|/DevOps/)#';
+    protected const EXEMPT_PATH_PATTERN = '#(/Migration/|Hydrator\.php$|/Test/|/tests/|/Profiling/|Profiler|Telemetry|/DevOps/)#';
 
     private const ERROR_MESSAGE = 'Do not use native time reads. They cannot be frozen in tests. Use Psr\Clock\ClockInterface to inject a controllable clock.';
 

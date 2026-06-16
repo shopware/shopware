@@ -93,6 +93,18 @@ Rules:
   (e.g. `0192f3c4a5b67890abcdef0123456789`) — the admin sync API rejects non-UUID
   strings (`FRAMEWORK__WRITE_CONSTRAINT_VIOLATION`). Use `{{SC}}/{{NAV_CAT}}/{{TAX}}/
   {{CURRENCY}}` placeholders for install-specific ids; `seed.sh` resolves them.
+- **A sync-valid payload is not the same as a storefront-VISIBLE one.** The sync API only
+  enforces field-level write constraints; the repro then reaches the entity through the
+  storefront / store-api, which applies filters the sync API does NOT — `active`, sales-channel
+  `visibilities` (visibility ≥ 10 for `{{SC}}`), a navigable category (under `{{NAV_CAT}}`
+  carrying the intended `cmsPageId`), a child product whose parent declares
+  `configuratorSettings` for each option, and so on. A graph that seeds with HTTP 200 but omits
+  such a link renders EMPTY, so the executor's precondition can't be met → the leg is
+  `inconclusive` / `PRECONDITION_NOT_FOUND` — never a false `reproduced`, but a wasted run.
+  Therefore, for any NESTED fixture (CMS pages, variant/configurator products, flows,
+  multi-line carts) do NOT hand-write the entity graph from memory: `rg` the entity name under
+  `tests/` (or reuse the fix PR's own test data) for a known-good factory/fixture and mirror
+  its required links and field shapes rather than inventing config keys.
 - **Executor authoring contracts live in [`references/executors/`](executors/)** — once you
   pick the layer, read the ONE file for its executor and follow it:
   - [`executors/http.md`](executors/http.md) — `request`/`requests` (assertion on the FINAL

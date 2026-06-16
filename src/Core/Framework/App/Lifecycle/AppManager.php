@@ -33,6 +33,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -71,6 +72,8 @@ class AppManager
         private readonly PermissionLifecycleService $permissionLifecycle,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
+        private readonly AppSecretRotationService $appSecretRotationService,
+        private readonly ManifestFactory $manifestFactory,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly EntityRepository $languageRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -117,15 +120,64 @@ class AppManager
             true
         );
 
-        $event = new AppInstalledEvent($app, $manifest, $context);
-        $this->eventDispatcher->dispatch($event);
-        $this->scriptExecutor->execute(new AppInstalledHook($event));
+        $this->dispatchInstalled($app, $manifest, $context);
 
         if ($parameters->activate) {
             $this->activate($app, $context);
         }
 
         $this->updateAclRole($app->getName(), $context);
+    }
+
+    /**
+     * Refreshes the setup handshake with the app server: the app receives the current shop URL and
+     * new credentials. No lifecycle events are emitted because the shop identity is unchanged — the
+     * app server still knows this shop and only needs the updated connection details.
+     */
+    public function refreshRegistration(AppEntity $app, Context $context): void
+    {
+        $manifest = $this->manifestFactory->createFromApp($app);
+
+        if (!$manifest->getSetup()) {
+            return;
+        }
+
+        $this->appSecretRotationService->rotateNow(
+            $app->getId(),
+            $context,
+            AppSecretRotationService::TRIGGER_SHOP_MOVE
+        );
+    }
+
+    /**
+     * Runs the registration handshake again and re-emits the install lifecycle events. Intended
+     * for shop identity changes: the caller must have discarded the shop id beforehand, so the app
+     * server sees the registration as a brand-new shop and needs the lifecycle events to bring its
+     * state to parity. No local app state is modified.
+     *
+     * Events are only emitted after a successful handshake and follow the order of a regular
+     * installation: app-installed for every app, then app-activated if the app is active.
+     */
+    public function reregister(AppEntity $app, Context $context): void
+    {
+        $manifest = $this->manifestFactory->createFromApp($app);
+
+        if (!$manifest->getSetup()) {
+            return;
+        }
+
+        $wasActive = $app->isActive();
+        $this->appSecretRotationService->rotateNow(
+            $app->getId(),
+            $context,
+            AppSecretRotationService::TRIGGER_SHOP_MOVE
+        );
+
+        $this->dispatchInstalled($app, $manifest, $context);
+
+        if ($wasActive) {
+            $this->dispatchActivated($app, $context);
+        }
     }
 
     public function update(Manifest $manifest, AppUpdateParameters $parameters, AppEntity $app, Context $context): void
@@ -196,9 +248,7 @@ class AppManager
 
         $this->activeAppsLoader->reset();
 
-        $event = new AppActivatedEvent($app, $context);
-        $this->eventDispatcher->dispatch($event);
-        $this->scriptExecutor->execute(new AppActivatedHook($event));
+        $this->dispatchActivated($app, $context);
     }
 
     public function deactivate(AppEntity $app, Context $context, bool $deactivateForDeletion = false): void
@@ -240,6 +290,20 @@ class AppManager
         if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
             throw AppException::notCompatible($manifest->getMetadata()->getName());
         }
+    }
+
+    private function dispatchInstalled(AppEntity $app, Manifest $manifest, Context $context): void
+    {
+        $event = new AppInstalledEvent($app, $manifest, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppInstalledHook($event));
+    }
+
+    private function dispatchActivated(AppEntity $app, Context $context): void
+    {
+        $event = new AppActivatedEvent($app, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppActivatedHook($event));
     }
 
     /**

@@ -11,7 +11,7 @@ jobs:
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
-      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+      COMPOSER_ROOT_VERSION: 6.6.9999999-dev
       APP_URL: http://localhost:8000
     services:
       database:
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
-          ref: "v6.7.10.2"
+          ref: "v6.6.10.19"
           fetch-depth: "0"
           fetch-tags: "true"
 
@@ -107,7 +107,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
-          ref: "v6.7.10.2"
+          ref: "v6.6.10.19"
           fetch-depth: "0"
           fetch-tags: "true"
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
@@ -139,16 +139,16 @@ jobs:
 
       - name: Require core version
         run: |
-          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "v6.7.10.2" tag
+          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "v6.6.10.19" tag
 
       - name: Commit assets
         if: matrix.package != 'core'
         run: |
-          bash .github/bin/split.bash commit "${{ matrix.package }}" "v6.7.10.2 (+ assets)"
+          bash .github/bin/split.bash commit "${{ matrix.package }}" "v6.6.10.19 (+ assets)"
 
       - name: Tag commit
         run: |
-          bash .github/bin/split.bash tag "${{ matrix.package }}" "v6.7.10.2"
+          bash .github/bin/split.bash tag "${{ matrix.package }}" "v6.6.10.19"
 
       - name: Diff
         if: matrix.package != 'core'
@@ -159,7 +159,7 @@ jobs:
 
       - name: Push
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "v6.7.10.2"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "v6.6.10.19"
 
   draft-release-notes:
     needs: split
@@ -179,7 +179,7 @@ jobs:
           DRY_RUN: ''
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/create_github_release.bash draft "v6.7.10.2"
+          bash .github/bin/create_github_release.bash draft "v6.6.10.19"
 
   create-sbp-release:
     needs: split
@@ -200,7 +200,7 @@ jobs:
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "v6.7.10.2"
+          bash .github/bin/sbp_release.bash create "v6.6.10.19"
 
   update-milestones:
     needs: split

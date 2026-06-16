@@ -42,19 +42,28 @@ fixtures — the report is public.
 2. **Otherwise derive the cheapest faithful plan.** Pick the cheapest faithful `layer`
    (`service` < `*-api` < `*-ui`; escalate only when a cheaper layer cannot fire the
    symptom) and its matching `executor`: `service` → `direct`, `*-api` → `http`,
-   `*-ui` → `playwright`. THEN READ `references/executors/<executor>.md` and FOLLOW that
+   `admin-ui` → `playwright`. THEN READ `references/executors/<executor>.md` and FOLLOW that
    file's authoring contract for the script that executor needs (http → `request`/`requests`
    in analysis.json, no separate file; playwright → `repro.spec.ts`; direct →
    `ReproTest.php`; set `script_path` accordingly).
-   - **When you pick `*-ui` (playwright), also consider an http `precheck`.** A storefront
-     render depends on a perfectly-seeded entity graph and is the most fragile path; if the
-     SAME symptom is observable in a store-api/service response (e.g. the category/CMS-page
-     resolve endpoint exposes the product-slider element and its products), ALSO emit a
-     `precheck` http sub-plan (see SCHEMA `precheck`). Mark it `trusted: true` ONLY when it
-     faithfully exhibits the DOCUMENTED symptom (fix-PR-derived, or asserting that symptom on
-     a real API response); a trusted+conclusive precheck lets execute skip the browser leg.
-     If you cannot assert the symptom faithfully at the API level, omit `precheck` and rely on
-     playwright alone — never mark a guessed precheck `trusted`.
+   - **`storefront-ui` is NOT automatically playwright — split it by symptom FIRST.** If the
+     symptom is in the **server-rendered HTML** (snippet/translation text, Twig logic, a
+     server-rendered CMS block, price/markup in the listing — anything present in the page's
+     INITIAL HTML), prefer `direct` with a **functional render test** (cheapest, deterministic
+     — renders the real controller→Twig and asserts the HTML; see `executors/direct.md`). The `http` executor asserts JSON/status only and cannot check
+     rendered HTML — use it only when the SAME data is exposed by a store-api JSON endpoint
+     (then it is the `store-api` layer). A functional render test needs no asset build
+     (`build_profile.storefront_build: false`) and sidesteps the browser/CMS-render fragility
+     entirely. Reserve `playwright` for **client-side** symptoms that only appear after JS
+     runs (offcanvas/ajax cart, image zoom, scroll/lazy-load) and for all `admin-ui` bugs
+     (the admin is a client-rendered SPA).
+   - **When you DO pick playwright but the symptom is also API-observable, add an http
+     `precheck`** (see SCHEMA `precheck`): a `precheck` http sub-plan run before the browser
+     leg. Mark it `trusted: true` ONLY when it faithfully exhibits the DOCUMENTED symptom
+     (fix-PR-derived, or asserting that symptom on a real store-api/service response); a
+     trusted+conclusive precheck lets execute skip the browser leg. If you cannot assert the
+     symptom faithfully at the API level, omit `precheck` — never mark a guessed precheck
+     `trusted`.
 
 ## Economy (hard budget)
 

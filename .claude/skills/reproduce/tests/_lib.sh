@@ -39,12 +39,14 @@ check_schema_analysis() {
     check "schema-version-1" '.schema_version == "1"'
     check "layer-valid"      '.layer as $l | ["service","store-api","admin-api","storefront-ui","admin-ui"] | index($l) != null'
     check "executor-valid"   '.executor as $e | ["direct","http","playwright"] | index($e) != null'
+    # storefront-ui may run in the browser (playwright) OR, for a server-rendered symptom,
+    # via a functional render test (direct) / page GET (http). admin-ui is a client-rendered
+    # SPA → playwright only. *-api → http; service → direct.
     check "executor-matches-layer" '
-        (.layer | test("-ui$")) as $ui
-        | (.layer | test("-api$") or . == "store-api") as $api
-        | (.executor == "playwright" and $ui)
-          or (.executor == "http" and $api)
-          or (.executor == "direct" and .layer == "service")'
+        (.layer == "service"    and .executor == "direct")
+        or ((.layer == "store-api" or .layer == "admin-api") and .executor == "http")
+        or (.layer == "admin-ui"     and .executor == "playwright")
+        or (.layer == "storefront-ui" and (.executor == "playwright" or .executor == "direct" or .executor == "http"))'
     check "build-profile-object" '(.build_profile | type) == "object"'
     check "targets-valid"    '(.targets // []) | (type == "array") and (all(.[]; . == "reported" or . == "trunk"))'
 }

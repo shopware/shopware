@@ -61,9 +61,19 @@ Rules:
 - `layer` is the cheapest surface that genuinely exercises the symptom. Order:
   `service` < `store-api` / `admin-api` < `storefront-ui` / `admin-ui`. Escalate
   only when a cheaper layer cannot fire the symptom; record why in the agent's reasoning.
-- `executor` follows `layer`: `service` → `direct`, `*-api` → `http`, `*-ui` → `playwright`.
-- `build_profile` enables only the surface `layer` needs. `storefront_build` /
-  `theme_build` are `true` only for `storefront-ui`. A `direct` or `http` plan builds neither.
+- `executor` follows `layer`: `service` → `direct`, `*-api` → `http`, `admin-ui` →
+  `playwright`. **`storefront-ui` is NOT automatically playwright** — split it by symptom:
+  **server-rendered** HTML (snippet/translation text, Twig logic, server-rendered CMS block,
+  price/markup in the listing — anything in the page's INITIAL HTML) → `direct` (a functional
+  render test, cheapest + deterministic; the `http` executor asserts JSON/status only, so it
+  cannot check rendered HTML — use it only when the SAME data is exposed by a store-api JSON
+  endpoint, which is then the `store-api` layer). **Client-side** symptoms that only appear
+  after JS runs (offcanvas/ajax cart, image zoom, scroll/lazy-load) → `playwright`. The admin
+  is a client-rendered SPA, so `admin-ui` always needs the browser.
+- `build_profile` enables only the surface `layer` needs. `storefront_build` / `theme_build`
+  are `true` only for a `storefront-ui` plan that runs in the BROWSER (`playwright`); a
+  server-rendered `storefront-ui` check (`direct`/`http`) asserts the server HTML and needs no
+  asset build, so it leaves them `false`. A `service`/`*-api` plan builds neither.
 - The agent does NOT choose which versions to run — the **workflow** computes that from
   `version`: two legs (reported = `version`, trunk) normally; **one leg (trunk only) when
   `version == trunk` or on a manual `workflow_dispatch` rerun** ("not on manual rerun").

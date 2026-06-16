@@ -1,8 +1,27 @@
-# Executor: `direct` (service / DAL — PHPUnit integration test)
+# Executor: `direct` (service / DAL / storefront-render — PHPUnit integration test)
 
-Use when the bug can't fire faithfully through store-api (`http`) or the UI (`playwright`)
-— license-gated paths, an internal service/indexer/calculation, or heavy domain setup. The
-symptom is typically a computed value or a service behaviour, not an HTTP/DOM surface.
+Use for a symptom that is faithful WITHOUT a browser. Two flavors:
+1. **Service / DAL** (the default below) — an internal service/indexer/calculation, a DAL
+   behaviour, license-gated paths, or heavy domain setup. The symptom is a computed value or
+   service behaviour, not an HTTP/DOM surface.
+2. **Storefront server-render** — the bug is in **server-rendered storefront HTML**
+   (snippet/translation text, Twig logic, a server-rendered CMS block, price/markup in the
+   listing). Render the real page and assert on its HTML: faithful (it exercises the actual
+   controller→CMS-resolver→Twig path) AND deterministic (no browser, no SEO/asset-build race).
+   The class additionally uses
+   `Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour`:
+   ```php
+   // Create the entities you need via getContainer() repositories in setUp() — integration
+   // -test DAL writes index synchronously, so SEO URLs / CMS data are ready immediately.
+   $response = $this->request('GET', '/Some-Category/', []);  // SEO URL or technical route
+   $html = (string) $response->getContent();
+   // Assert the HEALTHY rendered output, so it FAILS on the buggy version (→ reproduced) and
+   // PASSES when healthy (→ not_reproduced):
+   static::assertStringContainsString('<expected server-rendered text>', $html);
+   ```
+   Set `build_profile.storefront_build: false` — server HTML needs no compiled assets. Use
+   this ONLY for the INITIAL server HTML; if the symptom is injected by JS after load
+   (offcanvas, ajax, zoom, lazy-load) it is NOT in the rendered HTML → use `playwright`.
 
 ## What you author
 Generate `ReproTest.php` (set `script_path: "ReproTest.php"`):

@@ -419,8 +419,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->setCustomFields() instead.
-     *
-     * @param array<string, array<string, mixed>> $values
      */
     public function setCustomFields(array $values): void
     {

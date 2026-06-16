@@ -42,6 +42,13 @@ A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDe
 
 New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 
+### Country state field visibility in address forms
+
+Storefront address forms now respect the country `displayStateInRegistration` setting.
+When disabled, the country state field is hidden unless `forceStateInRegistration` is enabled, in which case the required state field is still shown.
+During the update, `displayStateInRegistration` is activated for every country that has at least one configured state/region.
+This keeps existing storefront address forms showing their state selector until the setting is disabled explicitly.
+
 ### Checkout gateway blocked method fallback
 
 Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.

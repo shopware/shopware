@@ -17,6 +17,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
         vatIdRequired: 'data-vat-id-required',
         stateRequired: 'data-state-required',
+        stateDisplayed: 'data-display-state-in-registration',
         zipcodeRequired: 'data-zipcode-required',
         scopeElementSelector: null,
         prefix: null,
@@ -56,6 +57,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
         const stateRequired = !!countrySelectCurrentOption.getAttribute(this.options.stateRequired);
+        const stateDisplayed = this._getStateDisplayed(countrySelectCurrentOption, stateRequired);
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
         const zipcodeRequired = !!countrySelectCurrentOption.getAttribute(this.options.zipcodeRequired);
@@ -65,7 +67,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         if (!initialCountryId) {
             return;
         }
-        this.requestStateData(initialCountryId, initialCountryStateId, stateRequired);
+        this.requestStateData(initialCountryId, initialCountryStateId, stateRequired, stateDisplayed);
 
         if (zipcodeRequired) {
             this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
@@ -83,7 +85,8 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const countrySelect = event.target.options[event.target.selectedIndex];
         const stateRequired = !!countrySelect.getAttribute(this.options.stateRequired);
-        this.requestStateData(countryId, null, stateRequired);
+        const stateDisplayed = this._getStateDisplayed(countrySelect, stateRequired);
+        this.requestStateData(countryId, null, stateRequired, stateDisplayed);
         const vatIdRequired = !!countrySelect.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
@@ -97,7 +100,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
     }
 
-    requestStateData(countryId, countryStateId = null, stateRequired = false) {
+    requestStateData(countryId, countryStateId = null, stateRequired = false, stateDisplayed = true) {
         fetch(`${window.router['frontend.country.country-data']}?countryId=${encodeURIComponent(countryId)}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -105,7 +108,7 @@ export default class CountryStateSelectPlugin extends Plugin {
             },
         })
             .then(response => response.json())
-            .then(content => this._updateStateSelect(content.states, stateRequired, countryStateId));
+            .then(content => this._updateStateSelect(content.states, stateRequired, countryStateId, stateDisplayed));
     }
 
     /**
@@ -148,12 +151,13 @@ export default class CountryStateSelectPlugin extends Plugin {
         });
     }
 
-    _updateStateSelect(states, stateRequired, countryStateId) {
+    _updateStateSelect(states, stateRequired, countryStateId, stateDisplayed = true) {
         const countryStateSelect = this.scopeElement.querySelector(this.options.countryStateSelectSelector);
         const placeholder = countryStateSelect.querySelector(this.options.countryStatePlaceholderSelector);
+        const stateSelectOptions = (stateRequired || stateDisplayed) ? states : [];
 
         this._removeStateOptions(countryStateSelect);
-        this._addStateOptions(states, countryStateId, countryStateSelect);
+        this._addStateOptions(stateSelectOptions, countryStateId, countryStateSelect);
 
         if (stateRequired) {
             window.formValidation.setFieldRequired(countryStateSelect);
@@ -235,5 +239,19 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
 
         this._updateVatIdField(vatIdInput, vatIdRequired);
+    }
+
+    _getStateDisplayed(countrySelectOption, stateRequired) {
+        if (stateRequired) {
+            return true;
+        }
+
+        if (!countrySelectOption.hasAttribute(this.options.stateDisplayed)) {
+            return true;
+        }
+
+        const stateDisplayed = countrySelectOption.getAttribute(this.options.stateDisplayed);
+
+        return stateDisplayed !== '' && stateDisplayed !== '0' && stateDisplayed !== 'false';
     }
 }

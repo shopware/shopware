@@ -118,10 +118,7 @@ export default {
             errors.forEach((e) => {
                 const mappedError = errorMap[e?.code];
 
-                const message =
-                    mappedError?.message ||
-                    e?.detail ||
-                    this.$t('sw-customer.detail.messageSaveError');
+                const message = mappedError?.message || e?.detail || this.$t('sw-customer.detail.messageSaveError');
 
                 this.createNotificationError({
                     message,

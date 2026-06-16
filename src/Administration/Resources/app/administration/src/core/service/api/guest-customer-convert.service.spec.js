@@ -101,8 +101,6 @@ describe('GuestCustomerConvertService', () => {
             ],
         });
 
-        await expect(
-            guestCustomerConvertService.convert(customerId, {}),
-        ).rejects.toThrow();
+        await expect(guestCustomerConvertService.convert(customerId, {})).rejects.toThrow();
     });
 });

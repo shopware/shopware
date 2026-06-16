@@ -22,11 +22,10 @@ class GuestCustomerConvertService extends ApiService {
     async convert(customerId, payload, additionalParams = {}, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        const response = await this.httpClient
-            .post(`/_action/customer-convert/${customerId}`, payload, {
-                params: {...additionalParams},
-                headers,
-            });
+        const response = await this.httpClient.post(`/_action/customer-convert/${customerId}`, payload, {
+            params: { ...additionalParams },
+            headers,
+        });
         return ApiService.handleResponse(response);
     }
 }

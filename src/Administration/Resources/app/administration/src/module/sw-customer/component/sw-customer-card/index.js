@@ -147,7 +147,7 @@ export default {
         },
 
         canUseConvertCustomer() {
-             return this.customer.guest && this.acl.can('customer.editor');
+            return this.customer.guest && this.acl.can('customer.editor');
         },
 
         customerImitationWarning() {

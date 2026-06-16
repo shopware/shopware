@@ -10,6 +10,7 @@
 
     <services>
         <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber">
@@ -274,7 +275,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="integration.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
@@ -303,6 +303,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -574,20 +576,19 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="-100"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy">
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="100"/>
         </service>

@@ -252,6 +252,13 @@ class ContentSystemExceptionTest extends TestCase
             'mystery_entity',
         ];
 
+        yield 'entity type resolution unsupported' => [
+            ContentSystemException::entityTypeResolutionUnsupported(),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED',
+            'supportsEntityType() returns true',
+        ];
+
         yield 'invalid layout structure with violations' => [
             ContentSystemException::invalidLayoutStructure(
                 new ConstraintViolationList([

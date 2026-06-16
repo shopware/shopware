@@ -56,7 +56,7 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertSame([], $defaultsResult->specification->cacheTags);
     }
 
-    #[TestDox('createWithoutLayout assembles a bare specification without resolving a layout id or cache tags')]
+    #[TestDox('assembles a bare specification without resolving a layout id or cache tags')]
     public function testCreateWithoutLayoutAssemblesBareSpecification(): void
     {
         $request = new Request();
@@ -68,7 +68,6 @@ class RenderingSpecificationFactoryTest extends TestCase
             specificationData: $specData,
             targetElementId: 'element-42',
             cacheTags: ['product-abc123'],
-            supportsEntityType: true,
             failOnResolveLayoutId: true,
         );
 

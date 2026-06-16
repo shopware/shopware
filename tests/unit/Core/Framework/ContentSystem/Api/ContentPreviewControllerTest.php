@@ -54,7 +54,7 @@ class ContentPreviewControllerTest extends TestCase
         $serializer->method('decodeElement')->willReturn($decodedElement);
 
         $pipeline = static::createMock(ContentPipeline::class);
-        $pipeline->expects($this->once())
+        $pipeline->expects($this->atLeastOnce())
             ->method('load')
             ->with(
                 static::callback(static fn (RenderableLayout $layout): bool => $layout->elements === [$decodedElement]

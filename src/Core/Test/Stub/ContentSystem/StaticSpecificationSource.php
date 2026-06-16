@@ -23,7 +23,7 @@ class StaticSpecificationSource extends AbstractSpecificationSource
         private readonly ?SpecificationData $specificationData = null,
         private readonly ?string $targetElementId = null,
         private readonly array $cacheTags = [],
-        private readonly bool $supportsEntityType = false,
+        private readonly ?string $supportedEntityType = null,
         private readonly bool $failOnResolveLayoutId = false,
     ) {
     }
@@ -53,7 +53,7 @@ class StaticSpecificationSource extends AbstractSpecificationSource
 
     public function supportsEntityType(string $entityType): bool
     {
-        return $this->supportsEntityType;
+        return $entityType === $this->supportedEntityType;
     }
 
     public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData

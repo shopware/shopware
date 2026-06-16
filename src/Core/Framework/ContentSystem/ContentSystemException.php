@@ -41,6 +41,7 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
     public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
+    public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
@@ -334,6 +335,15 @@ class ContentSystemException extends HttpException
             self::UNKNOWN_ENTITY_TYPE,
             'No content layout specification source can handle entity type "{{ entityType }}"',
             ['entityType' => $entityType]
+        );
+    }
+
+    public static function entityTypeResolutionUnsupported(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_TYPE_RESOLUTION_UNSUPPORTED,
+            'resolveSpecificationDataForEntity() must only be called on a source whose supportsEntityType() returns true.'
         );
     }
 

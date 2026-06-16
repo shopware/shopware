@@ -87,21 +87,25 @@ class RenderingSpecificationResolverTest extends TestCase
         $resolver->resolve($path, $request, $context);
     }
 
-    #[TestDox('resolveWithoutLayout selects the first source matching the entity type')]
+    #[TestDox('selects the first source matching the entity type')]
     public function testResolveWithoutLayoutSelectsSourceByEntityType(): void
     {
         $request = new Request();
         $context = Generator::generateSalesChannelContext();
         $placeholders = PlaceholderValues::from(['productId' => 'prod-1']);
 
-        $nonMatching = new StaticSpecificationSource(supportsEntityType: false);
-        $matching = new StaticSpecificationSource(
+        $categorySource = new StaticSpecificationSource(
+            specificationData: new SpecificationData([], PlaceholderValues::from([])),
+            targetElementId: 'category-element',
+            supportedEntityType: 'category',
+        );
+        $productSource = new StaticSpecificationSource(
             specificationData: new SpecificationData([], $placeholders),
             targetElementId: 'element-7',
-            supportsEntityType: true,
+            supportedEntityType: 'product',
         );
 
-        $resolver = new RenderingSpecificationResolver([$nonMatching, $matching], new RenderingSpecificationFactory());
+        $resolver = new RenderingSpecificationResolver([$categorySource, $productSource], new RenderingSpecificationFactory());
 
         $specification = $resolver->resolveWithoutLayout('product', 'prod-1', $request, $context);
 
@@ -110,7 +114,7 @@ class RenderingSpecificationResolverTest extends TestCase
         static::assertSame('element-7', $specification->targetElementId);
     }
 
-    #[TestDox('resolveWithoutLayout does not resolve a layout assignment')]
+    #[TestDox('does not resolve a layout assignment')]
     public function testResolveWithoutLayoutDoesNotResolveLayoutAssignment(): void
     {
         $request = new Request();
@@ -118,7 +122,7 @@ class RenderingSpecificationResolverTest extends TestCase
 
         $source = new StaticSpecificationSource(
             specificationData: new SpecificationData([], PlaceholderValues::from([])),
-            supportsEntityType: true,
+            supportedEntityType: 'product',
             failOnResolveLayoutId: true,
         );
 
@@ -129,13 +133,13 @@ class RenderingSpecificationResolverTest extends TestCase
         static::assertSame([], $specification->dataRequirements);
     }
 
-    #[TestDox('resolveWithoutLayout throws unknownEntityType when no source matches the entity type')]
+    #[TestDox('throws unknownEntityType when no source matches the entity type')]
     public function testResolveWithoutLayoutThrowsUnknownEntityType(): void
     {
         $request = new Request();
         $context = Generator::generateSalesChannelContext();
 
-        $source = new StaticSpecificationSource(supportsEntityType: false);
+        $source = new StaticSpecificationSource(supportedEntityType: 'product');
 
         $resolver = new RenderingSpecificationResolver([$source], new RenderingSpecificationFactory());
 

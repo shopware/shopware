@@ -101,4 +101,20 @@ class HeaderSpecificationSourceTest extends TestCase
 
         $this->source->resolveLayoutId('', new Request(), $context);
     }
+
+    #[TestDox('does not support entity-type resolution by default')]
+    public function testSupportsEntityTypeDefaultsToFalse(): void
+    {
+        static::assertFalse($this->source->supportsEntityType('product'));
+    }
+
+    #[TestDox('throws when entity specification data is resolved on a source that does not support entity types')]
+    public function testResolveSpecificationDataForEntityThrowsWhenEntityTypeUnsupported(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $this->expectExceptionObject(ContentSystemException::entityTypeResolutionUnsupported());
+
+        $this->source->resolveSpecificationDataForEntity('prod-1', new Request(), $context);
+    }
 }

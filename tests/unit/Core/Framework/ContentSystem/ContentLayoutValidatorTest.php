@@ -66,4 +66,14 @@ class ContentLayoutValidatorTest extends TestCase
 
         static::assertCount(2, $validator->validate($roots));
     }
+
+    #[TestDox('returns no violations for an empty layout element list')]
+    public function testReturnsNoViolationsForEmptyLayoutList(): void
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+
+        $validator = new ContentLayoutValidator($registry);
+
+        static::assertCount(0, $validator->validate([]));
+    }
 }

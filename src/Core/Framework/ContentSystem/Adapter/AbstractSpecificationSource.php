@@ -43,6 +43,6 @@ abstract class AbstractSpecificationSource
      */
     public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData
     {
-        throw ContentSystemException::unknownEntityType($entityId);
+        throw ContentSystemException::entityTypeResolutionUnsupported();
     }
 }

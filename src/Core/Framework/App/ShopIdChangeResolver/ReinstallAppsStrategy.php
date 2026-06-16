@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
@@ -32,7 +33,8 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -52,19 +54,24 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
 
         // Re-registering contacts external app servers. If one app is unreachable we still want the
         // remaining apps to learn about the shop change, then report all failed apps together.
-        /** @var array<string, \Throwable> $failedApps */
+        /** @var list<string> $failedApps */
         $failedApps = [];
 
         foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
             try {
                 $this->appManager->reregister($app, $context);
             } catch (\Throwable $e) {
-                $failedApps[$app->getName()] = $e;
+                $this->logger->error('Failed to re-register app after shop ID change.', [
+                    'appName' => $app->getName(),
+                    'exception' => $e,
+                ]);
+
+                $failedApps[] = $app->getName();
             }
         }
 
         if ($failedApps !== []) {
-            throw AppException::reRegistrationFailed(array_keys($failedApps), reset($failedApps));
+            throw AppException::reinstallAppsFailed($failedApps);
         }
     }
 }

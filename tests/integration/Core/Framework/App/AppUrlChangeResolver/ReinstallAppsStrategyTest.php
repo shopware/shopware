@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -68,7 +69,8 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             static::getContainer()->get('app.repository'),
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
         $reinstallAppsResolver->resolve($this->context);
@@ -90,7 +92,8 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             static::getContainer()->get('app.repository'),
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
         $reinstallAppsResolver->resolve($this->context);
@@ -123,10 +126,11 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver = new ReinstallAppsStrategy(
             $appRepository,
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
-        $this->expectExceptionObject(AppException::reRegistrationFailed(['test']));
+        $this->expectExceptionObject(AppException::reinstallAppsFailed(['test']));
 
         $reinstallAppsResolver->resolve($this->context);
     }

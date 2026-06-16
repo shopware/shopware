@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -68,7 +69,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
             static::getContainer()->get('app.repository'),
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -90,7 +92,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
             static::getContainer()->get('app.repository'),
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -128,13 +131,11 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
             $appRepository,
             $appManager,
-            $this->shopIdProvider
+            $this->shopIdProvider,
+            new NullLogger()
         );
 
-        $this->expectExceptionObject(AppException::reRegistrationFailed(
-            ['test'],
-            recoveryHint: 'After resolving the issue, retry each failed app with "bin/console app:secret:rotate <app-name>".'
-        ));
+        $this->expectExceptionObject(AppException::shopMoveFailed(['test']));
 
         $moveShopPermanentlyResolver->resolve($this->context);
     }

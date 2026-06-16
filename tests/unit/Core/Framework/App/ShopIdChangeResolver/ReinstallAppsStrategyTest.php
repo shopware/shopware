@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -28,7 +29,8 @@ class ReinstallAppsStrategyTest extends TestCase
         $strategy = new ReinstallAppsStrategy(
             $appRepository,
             $this->createMock(AppManager::class),
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         static::assertSame(ReinstallAppsStrategy::STRATEGY_NAME, $strategy->getName());
@@ -59,7 +61,8 @@ class ReinstallAppsStrategyTest extends TestCase
         $strategy = new ReinstallAppsStrategy(
             $appRepository,
             $appManager,
-            $shopIdProvider
+            $shopIdProvider,
+            $this->createMock(LoggerInterface::class)
         );
 
         $strategy->resolve($context);
@@ -71,6 +74,7 @@ class ReinstallAppsStrategyTest extends TestCase
     {
         $appOne = AppFixture::createAppEntity(name: 'app-one', id: 'app-one-id');
         $appTwo = AppFixture::createAppEntity(name: 'app-two', id: 'app-two-id');
+        $exception = new \RuntimeException('Could not reach app server');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('deleteShopId');
@@ -79,11 +83,20 @@ class ReinstallAppsStrategyTest extends TestCase
         $calls = 0;
         $appManager->expects($this->exactly(2))
             ->method('reregister')
-            ->willReturnCallback(static function () use (&$calls): void {
+            ->willReturnCallback(static function () use (&$calls, $exception): void {
                 if (++$calls === 1) {
-                    throw new \RuntimeException('Could not reach app server');
+                    throw $exception;
                 }
             });
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Failed to re-register app after shop ID change.',
+                static::callback(static fn (array $context): bool => ($context['appName'] ?? null) === 'app-one'
+                    && ($context['exception'] ?? null) === $exception)
+            );
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
@@ -91,10 +104,11 @@ class ReinstallAppsStrategyTest extends TestCase
         $strategy = new ReinstallAppsStrategy(
             $appRepository,
             $appManager,
-            $shopIdProvider
+            $shopIdProvider,
+            $logger
         );
 
-        $this->expectExceptionObject(AppException::reRegistrationFailed(['app-one']));
+        $this->expectExceptionObject(AppException::reinstallAppsFailed(['app-one']));
 
         $strategy->resolve(Context::createDefaultContext());
     }

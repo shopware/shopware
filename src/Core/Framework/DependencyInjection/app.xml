@@ -579,6 +579,7 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="-100"/>
         </service>
@@ -587,6 +588,7 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="100"/>
         </service>

@@ -574,22 +574,28 @@ class AppException extends HttpException
     /**
      * @param list<string> $failedAppNames
      */
-    public static function reRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null, ?string $recoveryHint = null): self
+    public static function shopMoveFailed(array $failedAppNames): self
     {
-        $message = 'Failed to re-register {{ count }} app(s): {{ apps }}';
-        $parameters = ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)];
-
-        if ($recoveryHint !== null) {
-            $message .= ' {{ recoveryHint }}';
-            $parameters['recoveryHint'] = $recoveryHint;
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::RE_REGISTRATION_FAILED,
-            $message,
-            $parameters,
-            $previous
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'retry each failed app with "bin/console app:secret:rotate <app-name>".',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
+        );
+    }
+
+    /**
+     * @param list<string> $failedAppNames
+     */
+    public static function reinstallAppsFailed(array $failedAppNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'run the shop ID change strategy "reinstall-apps" again.',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
         );
     }
 

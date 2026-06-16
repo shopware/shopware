@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -31,7 +32,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $strategy = new MoveShopPermanentlyStrategy(
             $appRepository,
             $this->createMock(AppManager::class),
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         static::assertSame(MoveShopPermanentlyStrategy::STRATEGY_NAME, $strategy->getName());
@@ -54,7 +56,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $strategy = new MoveShopPermanentlyStrategy(
             $appRepository,
             $appManager,
-            $shopIdProvider
+            $shopIdProvider,
+            $this->createMock(LoggerInterface::class)
         );
 
         $strategy->resolve(Context::createDefaultContext());
@@ -89,7 +92,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $strategy = new MoveShopPermanentlyStrategy(
             $appRepository,
             $appManager,
-            $shopIdProvider
+            $shopIdProvider,
+            $this->createMock(LoggerInterface::class)
         );
 
         $strategy->resolve($context);
@@ -101,6 +105,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
     {
         $appOne = AppFixture::createAppEntity(name: 'app-one', id: 'app-one-id');
         $appTwo = AppFixture::createAppEntity(name: 'app-two', id: 'app-two-id');
+        $exception = new \RuntimeException('Could not reach app server');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')
@@ -110,11 +115,20 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $calls = 0;
         $appManager->expects($this->exactly(2))
             ->method('refreshRegistration')
-            ->willReturnCallback(static function () use (&$calls): void {
+            ->willReturnCallback(static function () use (&$calls, $exception): void {
                 if (++$calls === 1) {
-                    throw new \RuntimeException('Could not reach app server');
+                    throw $exception;
                 }
             });
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Failed to re-register app after shop ID change.',
+                static::callback(static fn (array $context): bool => ($context['appName'] ?? null) === 'app-one'
+                    && ($context['exception'] ?? null) === $exception)
+            );
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
@@ -122,13 +136,11 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $strategy = new MoveShopPermanentlyStrategy(
             $appRepository,
             $appManager,
-            $shopIdProvider
+            $shopIdProvider,
+            $logger
         );
 
-        $this->expectExceptionObject(AppException::reRegistrationFailed(
-            ['app-one'],
-            recoveryHint: 'After resolving the issue, retry each failed app with "bin/console app:secret:rotate <app-name>".'
-        ));
+        $this->expectExceptionObject(AppException::shopMoveFailed(['app-one']));
 
         $strategy->resolve(Context::createDefaultContext());
     }

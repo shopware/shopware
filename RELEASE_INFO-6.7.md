@@ -98,6 +98,20 @@ The Administration role editor also adds these privileges to newly generated rol
 
 ## Core
 
+### `EntitySearchResult` and result subclasses deprecated
+
+`EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` are deprecated for v6.8.0.
+In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`.
+
+To prepare:
+
+- Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result.
+- In Twig, use `{% for x in searchResult.entities %}` instead of `{% for x in searchResult %}`, and `searchResult.entities` instead of `searchResult.elements`.
+- Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
+- For `ProductListingResult` and `ProductReviewResult`, use the new `fromSearchResult()` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
+
+See `UPGRADE-6.8.md` for the detailed migration steps.
+
 ### Stored mail template type data deprecated
 
 The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.

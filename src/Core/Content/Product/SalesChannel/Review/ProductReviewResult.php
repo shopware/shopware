@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\CreateFromTrait;
 
 /**
  * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult.
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
+    use CreateFromTrait;
+
     protected ?string $parentId = null;
 
     protected string $productId;

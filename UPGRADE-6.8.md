@@ -161,10 +161,11 @@ Previously, these routes could return all customer addresses because the underly
 
 ## `EntitySearchResult` and subclasses are deprecated
 
-Two related structural changes are planned for v6.8.0:
+Related structural changes planned for v6.8.0:
 
 1. `EntitySearchResult` will no longer extend `EntityCollection`.
 2. `ProductListingResult` and `ProductReviewResult` will no longer extend `EntitySearchResult`.
+3. The `EntitySearchResult` constructor signature will change: the `$entity` parameter will be removed and the remaining parameters will reorder. Code that constructs `EntitySearchResult` directly (or via `new ProductListingResult(...)` / `new ProductReviewResult(...)`) must be updated.
 
 ## Removed stored `mail_template_type.template_data`
 

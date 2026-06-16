@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\CreateFromTrait;
 
 /**
  * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult.
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductListingResult extends EntitySearchResult
 {
+    use CreateFromTrait;
+
     protected ?string $sorting = null;
 
     /**

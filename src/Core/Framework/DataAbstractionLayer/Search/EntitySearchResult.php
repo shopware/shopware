@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
-class EntitySearchResult extends EntityCollection
+class EntitySearchResult extends EntityCollection implements \JsonSerializable
 {
     use StateAwareTrait;
 
@@ -32,6 +32,8 @@ class EntitySearchResult extends EntityCollection
     protected ?int $limit = null;
 
     /**
+     * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
+     *
      * @param TEntityCollection $entities
      */
     final public function __construct(
@@ -50,9 +52,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
-     *
-     * @return static<TEntityCollection>
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filter() instead.
      */
     public function filter(\Closure $closure): static
     {
@@ -60,9 +60,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
-     *
-     * @return static<TEntityCollection>
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->slice() instead.
      */
     public function slice(int $offset, ?int $length = null): static
     {
@@ -140,6 +138,9 @@ class EntitySearchResult extends EntityCollection
         return $this->page;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; the result wrapper becomes immutable.
+     */
     public function setPage(int $page): void
     {
         $this->page = $page;
@@ -150,18 +151,24 @@ class EntitySearchResult extends EntityCollection
         return $this->limit;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; the result wrapper becomes immutable.
+     */
     public function setLimit(int $limit): void
     {
         $this->limit = $limit;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. The entity name is no longer exposed by the result wrapper.
+     */
     public function getEntity(): string
     {
         return $this->entity;
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; pass the entity name at construction.
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. The entity name is no longer exposed by the result wrapper.
      */
     public function setEntity(string $entity): void
     {
@@ -170,8 +177,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getAt() instead.
-     *
-     * @return TElement|null
      */
     public function getAt(int $position)
     {
@@ -180,8 +185,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->fill() instead.
-     *
-     * @param array<TElement> $entities
      */
     public function fill(array $entities): void
     {
@@ -190,9 +193,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->set() instead.
-     *
-     * @param string|null $key
-     * @param TElement $element
      */
     public function set($key, $element): void
     {
@@ -201,10 +201,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->get() instead.
-     *
-     * @param string $key
-     *
-     * @return TElement|null
      */
     public function get($key)
     {
@@ -229,8 +225,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getKeys() instead.
-     *
-     * @return list<string>
      */
     public function getKeys(): array
     {
@@ -239,8 +233,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->has() instead.
-     *
-     * @param string $key
      */
     public function has($key): bool
     {
@@ -249,12 +241,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->map() instead.
-     *
-     * @template TMapped
-     *
-     * @param \Closure(TElement): TMapped $closure
-     *
-     * @return array<string, TMapped>
      */
     public function map(\Closure $closure): array
     {
@@ -263,13 +249,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->reduce() instead.
-     *
-     * @template TReduced
-     *
-     * @param \Closure(TReduced, TElement): TReduced $closure
-     * @param TReduced $initial
-     *
-     * @return TReduced
      */
     public function reduce(\Closure $closure, $initial = null)
     {
@@ -278,12 +257,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->fmap() instead.
-     *
-     * @template TMapped
-     *
-     * @param \Closure(TElement): (TMapped|false|null) $closure
-     *
-     * @return array<string, TMapped>
      */
     public function fmap(\Closure $closure): array
     {
@@ -292,12 +265,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->flatMap() instead.
-     *
-     * @template TMapped
-     *
-     * @param \Closure(TElement): (TMapped|iterable<*, TMapped|null>|null) $closure
-     *
-     * @return array<string, TMapped>
      */
     public function flatMap(\Closure $closure): array
     {
@@ -306,8 +273,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->sort() instead.
-     *
-     * @param \Closure(TElement, TElement): int $closure
      */
     public function sort(\Closure $closure): void
     {
@@ -316,8 +281,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterInstance() instead.
-     *
-     * @param class-string $class
      */
     public function filterInstance(string $class): static
     {
@@ -326,8 +289,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getElements() instead.
-     *
-     * @return array<string, TElement>
      */
     public function getElements(): array
     {
@@ -336,8 +297,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->first() instead.
-     *
-     * @return TElement|null
      */
     public function first()
     {
@@ -346,10 +305,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->firstWhere() instead.
-     *
-     * @param \Closure(TElement): bool $closure
-     *
-     * @return TElement|null
      */
     public function firstWhere(\Closure $closure)
     {
@@ -358,8 +313,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->last() instead.
-     *
-     * @return TElement|null
      */
     public function last()
     {
@@ -368,8 +321,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->remove() instead.
-     *
-     * @param string $key
      */
     public function remove($key): void
     {
@@ -378,8 +329,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities() instead.
-     *
-     * @return \Traversable<TElement>
      */
     public function getIterator(): \Traversable
     {
@@ -388,8 +337,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getIds() instead.
-     *
-     * @return array<string>
      */
     public function getIds(): array
     {
@@ -428,8 +375,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->insert() instead.
-     *
-     * @param TElement $entity
      */
     public function insert(int $position, Entity $entity): void
     {
@@ -458,8 +403,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getCustomFieldsValues() instead.
-     *
-     * @return array<string, mixed>
      */
     public function getCustomFieldsValues(string ...$fields): array
     {
@@ -468,8 +411,6 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getCustomFieldsValue() instead.
-     *
-     * @return array<string, mixed>
      */
     public function getCustomFieldsValue(string $field): array
     {
@@ -487,7 +428,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed alongside filter() and slice().
      *
      * @param iterable<TElement> $elements
      *

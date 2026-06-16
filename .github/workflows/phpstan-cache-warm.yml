@@ -1,22 +1,8 @@
 name: PHPStan cache warm (trunk)
 
-# Keeps trunk's PHPStan result cache fresh after every merge.
-#
-# Why: the php.yml "PHPStan" job restores its result cache via the
-# "phpstan-result-cache-" key prefix, but that cache is only refreshed by the
-# nightly run -- so by mid-day it is up to ~24h stale and PRs restore a cache
-# whose metadata (config / Symfony container / composer) no longer matches the
-# current tree. PHPStan then discards the whole cache and re-analyses from
-# scratch (~13 min, the PR pipeline's long pole). Measured: ~64% of PHPStan
-# runs over a 7-day window were cold.
-#
-# This workflow re-runs PHPStan on trunk after each merge and saves the cache
-# under the SAME key prefix php.yml restores from. PRs based on current trunk
-# (that do not themselves change config/DI/dependencies) then restore a
-# minutes-old, matching cache and reuse it incrementally (~15-100s).
-#
-# It is purely additive: no change to php.yml and no code change. Each warm run
-# restores the previous warm cache, so it is itself incremental and cheap.
+# Refreshes trunk's PHPStan result cache after every merge so PRs restore a
+# current cache instead of the up-to-24h-old nightly one. Saves under the same
+# "phpstan-result-cache-" key the php.yml PHPStan job reads from.
 
 on:
   push:

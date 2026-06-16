@@ -1,0 +1,11 @@
+diff --git a/composer.json b/composer.json
+index aaaaaaa..bbbbbbb 100644
+--- a/composer.json
++++ b/composer.json
+@@ -20,7 +20,7 @@
+     "require": {
+-        "symfony/console": "^7.1.5",
++        "symfony/console": "^7.1.7",
+         "symfony/dependency-injection": "^7.1.5"
+     }
+ }

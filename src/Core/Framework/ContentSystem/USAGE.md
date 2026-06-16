@@ -41,13 +41,33 @@ The Content System enables dynamic, data-driven layouts for your shop. Core capa
 
 ```mermaid
 graph LR
-    A["Layout Loading:<br/>Load layout"] --> B["Placeholder Replacement:<br/>{{productId}}"]
-    B --> C["Data Loading:<br/>Load entities"]
-    C --> D["Context Distribution:<br/>Share data"]
-    D --> E["Rendering:<br/>Display layout"]
+    REQ(["GET /store-api/content/{path}"]) --> A
 
-    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    class A,B,C,D,E process
+    A["Layout Loading<br/>fetch assigned layout"]
+    B["Placeholder Replacement<br/>{{productId}} → UUID"]
+
+    subgraph HYDR["Hydration &nbsp;(FULL mode only)"]
+        direction TB
+        C["Data Loading<br/>load required entities"]
+        D["Context Distribution<br/>share data down the tree"]
+        C -- "loaded data" --> D
+    end
+
+    E["Rendering<br/>build the response"]
+    RES(["Full · Decomposed<br/>Skeleton · Data"])
+
+    A -- "layout tree" --> B
+    B -- "resolved values" --> C
+    D -- "hydrated tree" --> E
+    E --> RES
+    B -. "skeleton:<br/>skip hydration" .-> E
+
+    classDef io fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
+    classDef step fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+    classDef hydr fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#e65100
+    class REQ,RES io
+    class A,B,E step
+    class C,D hydr
 ```
 
 ## Content Sections
@@ -58,12 +78,12 @@ The Content System serves three distinct sections, each with its own resolution 
 
 Each section supports four response formats via separate endpoints:
 
-| Format | Suffix | Description |
-|--------|--------|-------------|
-| **Full** | *(none)* | Returns complete element trees with hydrated data (simpler integration) |
-| **Decomposed** | `-decomposed` | Returns decomposed format with deduplicated data (optimized payloads) |
-| **Skeleton** | `-skeleton` | Returns layout structure without hydrated data (client-side hydration) |
-| **Data** | `-data` | Returns data and assignments without skeleton (data refresh) |
+| Format         | Suffix        | Description                                                             |
+|----------------|---------------|-------------------------------------------------------------------------|
+| **Full**       | *(none)*      | Returns complete element trees with hydrated data (simpler integration) |
+| **Decomposed** | `-decomposed` | Returns decomposed format with deduplicated data (optimized payloads)   |
+| **Skeleton**   | `-skeleton`   | Returns layout structure without hydrated data (client-side hydration)  |
+| **Data**       | `-data`       | Returns data and assignments without skeleton (data refresh)            |
 
 ### Partial Rendering
 
@@ -75,18 +95,22 @@ Header and footer sections do not support partial rendering.
 
 A layout can contain multiple root elements. Each root is an independent tree with separate context scope -- providers in one root cannot provide context to elements in another root. Element IDs must be unique across all roots.
 
+### Previewing a Draft
+
+The sections above describe the Store API that serves **saved** layouts. To render an unsaved draft against real entity data -- for example from the Administration before saving -- use the Admin API preview endpoint (`POST /api/_action/content-system/preview/entity`). The available element types, data sources, and entity types are discoverable through the introspection endpoints. Both are documented in `ADMINISTRATION.md`.
+
 ## Entity-Based Rendering (Main Section)
 
 Products, Categories, and Landing Pages can render directly using ContentSystem layouts. This is the primary method for rendering entity-based pages.
 
 **Endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content/{path}` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content/{path}`            | Full response       |
 | `GET /store-api/content-decomposed/{path}` | Decomposed response |
-| `GET /store-api/content-skeleton/{path}` | Skeleton only |
-| `GET /store-api/content-data/{path}` | Data only |
+| `GET /store-api/content-skeleton/{path}`   | Skeleton only       |
+| `GET /store-api/content-data/{path}`       | Data only           |
 
 **Supported path patterns:**
 - `product/{productId}` - Product detail pages
@@ -133,11 +157,11 @@ Entity-based rendering automatically loads the main entity before rendering your
 
 **Auto-loaded entities and associations:**
 
-| Endpoint | Entity | Context Key | Pre-loaded Associations |
-|----------|--------|-------------|------------------------|
-| `/store-api/content/product/{productId}` | ProductEntity | `product` | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media` |
-| `/store-api/content/category/{categoryId}` | CategoryEntity | `category` | `media`, `translations` |
-| `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none) |
+| Endpoint                                          | Entity            | Context Key    | Pre-loaded Associations                                                                             |
+|---------------------------------------------------|-------------------|----------------|-----------------------------------------------------------------------------------------------------|
+| `/store-api/content/product/{productId}`          | ProductEntity     | `product`      | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media` |
+| `/store-api/content/category/{categoryId}`        | CategoryEntity    | `category`     | `media`, `translations`                                                                             |
+| `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none)                                                                                              |
 
 **Usage example:**
 
@@ -211,21 +235,21 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
 
 **Header endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content-header` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content-header`            | Full response       |
 | `GET /store-api/content-header-decomposed` | Decomposed response |
-| `GET /store-api/content-header-skeleton` | Skeleton only |
-| `GET /store-api/content-header-data` | Data only |
+| `GET /store-api/content-header-skeleton`   | Skeleton only       |
+| `GET /store-api/content-header-data`       | Data only           |
 
 **Footer endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content-footer` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content-footer`            | Full response       |
 | `GET /store-api/content-footer-decomposed` | Decomposed response |
-| `GET /store-api/content-footer-skeleton` | Skeleton only |
-| `GET /store-api/content-footer-data` | Data only |
+| `GET /store-api/content-footer-skeleton`   | Skeleton only       |
+| `GET /store-api/content-footer-data`       | Data only           |
 
 **Database tables:**
 - `header_content_layout` - Header layout assignments

@@ -29,10 +29,10 @@ Element types define what content components exist, their properties, and their 
 
 ### Registration
 
-| Source  | Directory                        | Name Prefix     | Customizable |
-|---------|----------------------------------|-----------------|--------------|
-| Plugin  | `Resources/content-system/types` | Plugin class name | Yes, via `Plugin::getContentTypeDirectory()` |
-| App     | `Resources/content-system/types` | App name        | No           |
+| Source | Directory                        | Name Prefix       | Customizable                                 |
+|--------|----------------------------------|-------------------|----------------------------------------------|
+| Plugin | `Resources/content-system/types` | Plugin class name | Yes, via `Plugin::getContentTypeDirectory()` |
+| App    | `Resources/content-system/types` | App name          | No                                           |
 
 The compiler pass discovers YAML files automatically. No service registration needed.
 
@@ -99,6 +99,10 @@ App activation state is read live, not denormalized onto the element type rows. 
 
 Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type examples)
 
+### Discoverability
+
+A registered type appears in `GET /api/_info/content-system-element-types.json`, which the Administration reads to offer the type (with its property and slot schema) in the layout editor. See `ADMINISTRATION.md`.
+
 ---
 
 ## Custom Specification Sources
@@ -153,6 +157,10 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
 ```
 
 Reference: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php`
+
+### Assignment-Free Resolution (Preview Support)
+
+The steps above resolve a layout from a path for the Store API. To also let the Admin preview action render a draft against an entity that has no assignment yet, an entity-backed source overrides two more methods: `supportsEntityType(string $entityType): bool` (match the source's content-layout entity type) and `resolveSpecificationDataForEntity(string $entityId, Request, SalesChannelContext): SpecificationData` (build the spec data from the entity id directly, with no assignment lookup). An assignable entity type registered this way also appears in `GET /api/_info/content-system-entity-types.json`. See `ADMINISTRATION.md`.
 
 ---
 
@@ -266,6 +274,10 @@ return ContentDataLoaderResult::cached($entity, 'product-' . $entityId);
 ```
 
 Reference: `Hydration/DataLoader/EntityLoader/`
+
+### Discoverability
+
+A registered loader's `source` value and the type(s) it produces appear in `GET /api/_info/content-system-data-loader-types.json`, which the Administration reads to offer the data source when authoring `data_requirements`. Wildcard loaders expand at runtime via `ContentSystemDataLoaderTypesResolvedEvent`. See `ADMINISTRATION.md`.
 
 ---
 
@@ -382,7 +394,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
 | `SpecificationData`       | Return type of `resolveSpecificationData()` (bundles data requirements + placeholders) |
 | `PlaceholderValues`       | Immutable placeholder map, created via `PlaceholderValues::from(array $values)`        |
-| `RenderingSpecification`  | Data requirements, placeholders, request, target element, cache tags                  |
+| `RenderingSpecification`  | Data requirements, placeholders, request, target element, cache tags                   |
 | `ResolvedContentLayout`   | Resolver output: layout ID plus the `RenderingSpecification`                           |
 | `LayoutReference`         | Immutable layout identity: `id`, `name`, `version`                                     |
 | `RenderableLayout`        | Loaded layout handed to the pipeline: a `LayoutReference` plus its element list        |

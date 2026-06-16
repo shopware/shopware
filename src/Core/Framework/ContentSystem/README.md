@@ -38,6 +38,7 @@ Module root:
 - `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
+- `ContentLayoutValidator` - Lean draft-layout validation: traverses the decoded element tree and collects a violation per unregistered component (used by the preview action)
 
 ## Domain Placement
 
@@ -49,9 +50,14 @@ Domain-specific content system classes live in their owning domain module — no
 
 **DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.context_factory`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
 
+## Administration API
+
+Admin-facing endpoints — layout preview plus the type-introspection routes the Administration consumes — are documented in `ADMINISTRATION.md`.
+
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
+- **Api/** - Admin API controllers (layout preview action)
 - **Cache/** - HTTP cache integration and invalidation
 - **Event/** - Hydration lifecycle event definitions
 - **Event/Listener/** - Pre/post hydration pipeline transformations

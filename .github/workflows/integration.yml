@@ -450,7 +450,12 @@ jobs:
       - name: Install
         working-directory: old-shopware
         run: |
-          sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
+          if grep -q "shopware.store.frw:" config/services.yaml; then
+            sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'/" config/services.yaml
+            sed -i -e "s/shopware.store.frw: true/shopware.store.frw: false/" config/services.yaml
+          else
+            printf "\nparameters:\n shopware.store.frw: '0'\n" >> config/services.yaml
+          fi
           bin/console system:install --basic-setup --drop-database --create-database
 
       - name: Download latest WebInstaller

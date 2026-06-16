@@ -76,22 +76,25 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     }
 
     /**
-     * @return array<string, array{options: string, available: string, productNumber: string, isCloseout: string}>
+     * @return array<string, array{options: string, productNumber: string, available: string, isCloseout: string}>
      */
     private function getCombinations(string $productId, Context $context, string $salesChannelId): array
     {
+        $parent = $this->fetchParent($productId, $context);
+
         $query = $this->connection->createQueryBuilder();
         $query->from('product');
-        $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
 
         $query->andWhere('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
-        $query->andWhere('IFNULL(product.active, parent.active) = :active');
+        $query->andWhere('IFNULL(product.active, :parentActive) = :active');
         $query->andWhere('product.option_ids IS NOT NULL');
 
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('active', true);
+        $query->setParameter('parentActive', $parent['active']);
+        $query->setParameter('parentIsCloseout', $parent['is_closeout']);
 
         $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
@@ -102,14 +105,34 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
             'product.option_ids as options',
             'product.product_number as productNumber',
             'product.available',
-            'IFNULL(product.is_closeout, parent.is_closeout) as isCloseout',
+            'IFNULL(product.is_closeout, :parentIsCloseout) as isCloseout',
         );
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array{options: string, available: string, productNumber: string, isCloseout: string}> $unique */
+        /** @var array<string, array{options: string, productNumber: string, available: string, isCloseout: string}> $unique */
         $unique = FetchModeHelper::groupUnique($combinations);
 
         return $unique;
+    }
+
+    /**
+     * @return array{active: int|null, is_closeout: int|null}
+     */
+    private function fetchParent(string $productId, Context $context): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('active', 'is_closeout');
+        $query->from('product');
+        $query->where('id = :id');
+        $query->andWhere('version_id = :versionId');
+
+        $query->setParameter('id', Uuid::fromHexToBytes($productId));
+        $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
+
+        /** @var array{active: int|null, is_closeout: int|null}|false $parent */
+        $parent = $query->executeQuery()->fetchAssociative();
+
+        return $parent ?: ['active' => null, 'is_closeout' => null];
     }
 }

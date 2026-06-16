@@ -90,7 +90,10 @@ class MaintenanceModeResolver
     private function isClientAllowed(Request $request): bool
     {
         $main = $this->requestStack->getMainRequest();
-        $allowlist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST) ?? '';
+        $allowlist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)
+            // @deprecated tag:v6.8.0 - remove the fallback to the deprecated attribute
+            ?? $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST)
+            ?? '';
 
         /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $allowlist);

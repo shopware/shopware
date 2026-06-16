@@ -117,6 +117,8 @@ class SalesChannelEntity extends Entity
     protected bool $maintenance;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be renamed to $maintenanceIpAllowlist
+     *
      * @var array<mixed>|null
      */
     protected ?array $maintenanceIpWhitelist = null;

@@ -121,10 +121,16 @@ class MaintenanceController extends StorefrontController
 
     private function addAllowlistIpHeader(Request $request, Response $response): void
     {
-        if ($ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)) {
+        $ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)
+            // @deprecated tag:v6.8.0 - remove the fallback to the deprecated attribute
+            ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
+
+        if ($ips) {
             $ips = implode(',', json_decode($ips, true, flags: \JSON_THROW_ON_ERROR));
 
             $response->headers->set(HttpCacheKernel::MAINTENANCE_ALLOWLIST_HEADER, $ips);
+            // @deprecated tag:v6.8.0 - remove setting the deprecated header
+            $response->headers->set(HttpCacheKernel::MAINTENANCE_WHITELIST_HEADER, $ips);
         }
     }
 }

@@ -53,21 +53,25 @@ A plugin subclasses it, receives the decorated route by constructor injection, a
 
 **Problems:**
 
-* Each route carries a second class (the abstract base) that only restates method signatures.
-The signature now lives in two places and has to be kept in sync.
-* The smallest possible extension is a full class plus a service decoration.
-The boilerplate dwarfs the actual change.
+* Decorating a route can re-declare the `#[Route]` attribute, and that is dangerous.
+A copied attribute can silently drop or change a route default such as `_routeScope` or a "login required" flag, which alters or disables the route without any error.
+* A wrong route attribute breaks the decoration chain.
+The attribute that "wins" decides which service id Symfony resolves the controller from.
+In a chain like Plugin A -> Plugin B -> Core, if Plugin B redefines the core route attribute, Symfony fetches Plugin B's controller directly and Plugin A's decoration never runs.
+This has already caused subtle failures in real multi-plugin setups, where a decorator was silently ignored and took hours to track down.
+* The danger is already codified.
+`NoRouteOverrideInDecoratorsRule` forbids decorators from defining route attributes at all: "only the core route should define the @Route attribute".
+That means safe decoration has to target the concrete implementation rather than the abstract base, which undercuts the abstract class as the intended extension point.
 * There is one hook point per method.
 Reading the result, mutating arguments, and recovering from an exception all collapse into "reimplement the method and remember to call the parent".
-* Composition between plugins is implicit.
-Order depends on decoration priority, and a decorator that forgets to call `getDecorated()` silently drops every decorator below it.
-* `getDecorated()` is dead weight on the concrete class.
-It exists only to throw `DecorationPatternException`.
+* Each route carries a second class (the abstract base) that only restates method signatures, so the signature lives in two places and has to be kept in sync.
+The smallest possible extension is still a full class plus a service decoration, and `getDecorated()` is dead weight on the concrete class that exists only to throw `DecorationPatternException`.
 
 ## The extension event system
 
 `ExtensionDispatcher::publish()` wraps the route body.
 The route keeps its public method and `#[Route]` attribute, moves the body into a private method, and hands that body to the dispatcher together with an `Extension` instance carrying the input parameters.
+`ProductListingLoader` already works this way (it publishes `ResolveListingExtension` around its load logic), so the route case is the same pattern applied to controllers.
 
 ```php
 #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['GET', 'POST'])]
@@ -153,16 +157,20 @@ class AddTrackingHeaderSubscriber implements EventSubscriberInterface
 ## Comparing the two approaches
 
 The decorator pattern gives full control: a decorator sits in the call chain and can do anything around the inner call, including changing the injected dependencies it was built with.
-That control is also its cost.
-Every extension is a class, the contract is duplicated in the abstract base, and the only hook is "replace the method".
+That control comes with a real hazard.
+While decorating a route a plugin can re-declare the `#[Route]` attribute, and a wrong attribute either changes the route's behavior or breaks the decoration chain so a downstream decorator never runs.
+`NoRouteOverrideInDecoratorsRule` exists precisely because this goes wrong in practice, and it pushes safe decoration onto the concrete class rather than the abstract base the pattern was built around.
+On top of that, every extension is a class, the contract is duplicated in the abstract base, and the only hook is "replace the method".
 
-The event system trades that raw control for less surface and more precise hooks.
+The event system trades that raw control for less surface and more precise hooks, and it leaves the route definition alone.
+The `#[Route]` attribute stays on the core class, so none of the route-resolution pitfalls apply.
 A subscriber cannot swap the route's constructor dependencies, but for the cases plugins actually use (read the result, adjust the input, replace the output, recover from an error) it is a single method on a subscriber.
 The three events separate concerns that the decorator merges, and `stopPropagation()` makes "replace the route" explicit instead of "forget to call the parent".
-Composition follows the normal event listener priority, the same model used everywhere else in the platform.
+A single subscriber can also bundle several routes' extension points together instead of shipping one decorator class per route.
 
 | Concern                     | Decorator + abstract base                     | Extension events                               |
 |-----------------------------|-----------------------------------------------|------------------------------------------------|
+| Route definition safety     | Re-declares `#[Route]`, can break resolution  | Route attribute stays on the core class        |
 | Minimal extension           | New class + service decoration                | One subscriber method                          |
 | Per-route maintenance       | Abstract base mirrors every signature         | One `Extension` subclass holding the params    |
 | Hook points                 | Whole method, one override                    | `.pre`, `.post`, `.error`                      |
@@ -172,7 +180,7 @@ Composition follows the normal event listener priority, the same model used ever
 | Access to route internals   | Full (can wrap dependencies)                  | Limited to the published parameters            |
 
 The one capability we give up is wrapping the route's own dependencies.
-In practice plugins decorate routes to influence input and output, not to rebuild the route's collaborators, so the loss is small against the boilerplate it removes.
+In practice plugins decorate routes to influence input and output, not to rebuild the route's collaborators, so the loss is small against the route-safety problems and boilerplate it removes.
 
 ## Decision
 
@@ -238,7 +246,8 @@ Plugins that relied on a specific decoration order need to set listener prioriti
 ## Considered alternatives
 
 1. **Keep the decorator pattern and abstract classes.**
-No migration cost and full wrapping power, but the boilerplate and the single coarse hook stay, and we keep maintaining two parallel extension systems in the codebase.
+No migration cost and full wrapping power, but the boilerplate and the single coarse hook stay, and the route-redefinition hazard that `NoRouteOverrideInDecoratorsRule` guards against stays with it.
+We would also keep maintaining two parallel extension systems in the codebase.
 Rejected because we already committed to the extension event system elsewhere and want one model for route extension.
 
 2. **Generate the abstract base classes to cut maintenance.**
@@ -250,3 +259,11 @@ Rejected in favor of moving to the events.
 Publish through the dispatcher and keep the abstract classes for those who prefer decoration.
 This is the transition state during deprecation, but as a permanent choice it doubles the surface plugin authors have to understand and the core has to maintain.
 Rejected as an end state, accepted only for the deprecation window.
+
+## Open points
+
+Chained behavior carries over from decoration and needs an explicit interaction model.
+Several extensions can act on the same operation, and one that rewrites `$extension->result` on `.post` has no signal that another already changed it.
+We are not adding conflict detection here, because existing requirements already depend on this kind of layering and the mechanism has to keep allowing it.
+What is open is how we document and order the interaction: whether routes that expect layered subscribers should state the contract for reading versus replacing the result, and how listener priorities are meant to be used across plugins.
+This should be settled before the events are recommended as the default extension path.

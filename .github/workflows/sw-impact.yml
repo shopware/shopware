@@ -34,6 +34,7 @@ jobs:
     steps:
       - name: Install sw-impact
         run: |
+          set -euo pipefail
           mkdir -p "$SW_IMPACT_BIN_DIR"
           curl --fail --location --show-error --silent "$SW_IMPACT_ARCHIVE_URL" --output "$SW_IMPACT_ARCHIVE"
           tar -xzf "$SW_IMPACT_ARCHIVE" -C "$SW_IMPACT_BIN_DIR"

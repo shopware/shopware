@@ -119,7 +119,7 @@ class SalesChannelEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Will be renamed to $maintenanceIpAllowlist
      *
-     * @var array<mixed>|null
+     * @var list<string>|null
      */
     protected ?array $maintenanceIpWhitelist = null;
 
@@ -369,7 +369,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<string>|null
      */
     public function getMaintenanceIpAllowlist(): ?array
     {
@@ -377,7 +377,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param array<mixed>|null $maintenanceIpAllowlist
+     * @param list<string>|null $maintenanceIpAllowlist
      */
     public function setMaintenanceIpAllowlist(?array $maintenanceIpAllowlist): void
     {
@@ -387,7 +387,7 @@ class SalesChannelEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use getMaintenanceIpAllowlist() instead.
      *
-     * @return array<mixed>|null
+     * @return list<string>|null
      */
     public function getMaintenanceIpWhitelist(): ?array
     {
@@ -402,7 +402,7 @@ class SalesChannelEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use setMaintenanceIpAllowlist() instead.
      *
-     * @param array<mixed>|null $maintenanceIpWhitelist
+     * @param list<string>|null $maintenanceIpWhitelist
      */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {

@@ -784,7 +784,7 @@ $this->mediaUploadService->assertValidExternalUrl($url);
 
 ## Removed `maintenanceIpWhitelist` wording of the sales channel in favor of `maintenanceIpAllowlist`
 
-The non-inclusive `maintenanceIpWhitelist` wording on the sales channel was removed and replaced by `maintenanceIpAllowlist` (deprecated since 6.7):
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel was removed and replaced by `maintenanceIpAllowlist`:
 
 * `\Shopware\Core\System\SalesChannel\SalesChannelEntity`: `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()` were removed. Use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead.
 * DAL: the field `maintenanceIpWhitelist` was renamed to `maintenanceIpAllowlist` and the database column `sales_channel.maintenance_ip_whitelist` to `sales_channel.maintenance_ip_allowlist`. Update criteria, associations and write payloads accordingly.

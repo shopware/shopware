@@ -70,6 +70,7 @@
             <argument type="service" id="scheduled_task.repository" />
             <argument type="service" id="logger"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler" />
         </service>
         <!-- endregion Message handlers -->
@@ -112,6 +113,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy" />
             <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileCleanupService"/>
             <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.media.remote_thumbnails.enable%</argument>
         </service>
 
@@ -133,6 +135,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument>%shopware.filesystem.private_local_download_strategy%</argument>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.filesystem.private_local_path_prefix%</argument>
         </service>
         <!-- endregion File Services-->
@@ -260,6 +263,7 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\MediaFolderService">
@@ -321,6 +325,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
             <argument>%shopware.filesystem.public%</argument>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="shopware.filesystem.s3.client" on-invalid="null"/>
             <argument>%shopware.media.presigned_upload.expiration_minutes%</argument>
             <argument>%shopware.media.presigned_upload.enabled%</argument>
@@ -352,6 +357,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Api\PresignedUploadController" public="true">

@@ -48,7 +48,7 @@ request_github() {
   local method; method="${1}"
   local url; url="${2}"
   local data; data="${3:-}"
-  local curl_opts; curl_opts="-sSf"
+  local curl_opts; curl_opts="-sS --fail-with-body"
 
   if [ -n "${TRACE:-}" ]; then
     curl_opts="${curl_opts} --trace-ascii -"

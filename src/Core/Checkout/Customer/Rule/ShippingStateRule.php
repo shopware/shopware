@@ -43,7 +43,10 @@ class ShippingStateRule extends Rule
             return false;
         }
 
-        if (!$state = $scope->getSalesChannelContext()->getShippingLocation()->getState()) {
+        $state = $scope->getSalesChannelContext()->getShippingLocation()->getState()
+            ?? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryState();
+
+        if (!$state) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

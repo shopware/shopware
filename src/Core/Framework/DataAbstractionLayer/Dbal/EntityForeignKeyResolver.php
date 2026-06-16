@@ -21,9 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Determines all associated data for a definition.
@@ -32,8 +34,10 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * @internal
  */
 #[Package('framework')]
-class EntityForeignKeyResolver
+class EntityForeignKeyResolver implements ResetInterface
 {
+    private ArrayStruct $restrictDeleteMetaFields;
+
     /**
      * @internal
      */
@@ -41,6 +45,7 @@ class EntityForeignKeyResolver
         private readonly Connection $connection,
         private readonly EntityDefinitionQueryHelper $queryHelper
     ) {
+        $this->restrictDeleteMetaFields = new ArrayStruct();
     }
 
     /**
@@ -48,14 +53,14 @@ class EntityForeignKeyResolver
      * Example:
      *  [
      *      "order_customer" => [
-     *          "cace68bdbca140b6ac43a083fb19f82b",
-     *          "50330f5531ed485fbd72ba016b20ea2a",
+     *          ["id => "cace68bdbca140b6ac43a083fb19f82b"],
+     *          ["id => "50330f5531ed485fbd72ba016b20ea2a"],
      *      ],
      *      "order_address" => [
-     *          "29d6334b01e64be28c89a5f1757fd661",
-     *          "484ef1124595434fa9b14d6d2cc1e9f8",
-     *          "601133b1173f4ca3aeda5ef64ad38355",
-     *          "9fd6c61cf9844a8984a45f4e5b55a59c",
+     *          ["id => "29d6334b01e64be28c89a5f1757fd661"],
+     *          ["id => "484ef1124595434fa9b14d6d2cc1e9f8"],
+     *          ["id => "601133b1173f4ca3aeda5ef64ad38355"],
+     *          ["id => "9fd6c61cf9844a8984a45f4e5b55a59c"],
      *      ]
      *  ]
      *
@@ -63,7 +68,7 @@ class EntityForeignKeyResolver
      *
      * @throws \RuntimeException
      *
-     * @return array<string, list<string>>
+     * @return array<string, list<array<string, mixed>>>
      */
     public function getAffectedDeleteRestrictions(
         EntityDefinition $definition,
@@ -71,7 +76,11 @@ class EntityForeignKeyResolver
         Context $context,
         bool $restrictDeleteOnlyFirstLevel = false
     ): array {
-        return $this->fetch($definition, $ids, RestrictDelete::class, $context, $restrictDeleteOnlyFirstLevel);
+        $this->reset();
+
+        $this->fetch($definition, $ids, RestrictDelete::class, $context, $restrictDeleteOnlyFirstLevel);
+
+        return $this->restrictDeleteMetaFields->getVars();
     }
 
     /**
@@ -147,6 +156,11 @@ class EntityForeignKeyResolver
     public function getAllReverseInherited(EntityDefinition $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, ReverseInherited::class, $context);
+    }
+
+    public function reset(): void
+    {
+        $this->restrictDeleteMetaFields = new ArrayStruct();
     }
 
     /**
@@ -226,6 +240,21 @@ class EntityForeignKeyResolver
             $alias .= '.mapping';
         }
 
+        if ($class === RestrictDelete::class) {
+            foreach ($root->getRestrictDeleteMetaFields() as $field) {
+                if (!$field instanceof StorageAware) {
+                    continue;
+                }
+
+                $query->addSelect(\sprintf(
+                    '%s.%s as _%s',
+                    EntityDefinitionQueryHelper::escape($root->getEntityName()),
+                    EntityDefinitionQueryHelper::escape($field->getStorageName()),
+                    $field->getPropertyName()
+                ));
+            }
+        }
+
         $primaryKeys = $association->getReferenceDefinition()->getPrimaryKeys()->filter(static function (Field $field) {
             if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
                 return false;
@@ -275,14 +304,27 @@ class EntityForeignKeyResolver
         if ($primaryKeys->count() === 1) {
             $property = $primaryKeys->first()?->getPropertyName();
             \assert(\is_string($property));
-            $affected = array_column($affected, $property);
 
             // prevent infinite loop when entity points to itself
             if ($root === $association->getReferenceDefinition()) {
                 $flatIds = array_column($ids, $property);
 
-                $affected = array_values(array_diff($affected, $flatIds));
+                $affected = array_values(array_filter(
+                    $affected,
+                    static fn (array $row) => !\in_array($row[$property], $flatIds, true)
+                ));
             }
+
+            if ($class === RestrictDelete::class) {
+                $this->buildRestrictDeleteMetaData(
+                    $association->getReferenceDefinition()->getEntityName(),
+                    $root,
+                    $affected,
+                    $property
+                );
+            }
+
+            $affected = array_column($affected, $property);
         }
 
         // prevent circular reference for many to many
@@ -307,5 +349,34 @@ class EntityForeignKeyResolver
         $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context, $restrictDeleteOnlyFirstLevel);
 
         return array_merge($formatted, $nested);
+    }
+
+    /**
+     * @param list<array<string, string>> $affected
+     */
+    private function buildRestrictDeleteMetaData(
+        string $entityName,
+        EntityDefinition $root,
+        array $affected,
+        string $property,
+    ): void {
+        foreach ($affected as $row) {
+            $params = [$property => $row[$property]];
+
+            $rootParams = $root->getRestrictDeleteMetaFields()->map(
+                static fn (Field $field) => $field instanceof IdField
+                    ? Uuid::fromBytesToHex($row['_' . $field->getPropertyName()])
+                    : $row['_' . $field->getPropertyName()]
+            );
+
+            if ($rootParams !== []) {
+                $params[$root->getEntityName()] = $rootParams;
+            }
+
+            $merged = $this->restrictDeleteMetaFields->get($entityName) ?? [];
+            $merged[] = $params;
+
+            $this->restrictDeleteMetaFields->set($entityName, $merged);
+        }
     }
 }

@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -33,7 +35,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $appRepository,
             $this->createMock(AppManager::class),
             $this->createMock(ShopIdProvider::class),
-            $this->createMock(LoggerInterface::class)
+            new NullLogger()
         );
 
         static::assertSame(MoveShopPermanentlyStrategy::STRATEGY_NAME, $strategy->getName());
@@ -57,7 +59,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $appRepository,
             $appManager,
             $shopIdProvider,
-            $this->createMock(LoggerInterface::class)
+            new NullLogger()
         );
 
         $strategy->resolve(Context::createDefaultContext());
@@ -93,7 +95,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $appRepository,
             $appManager,
             $shopIdProvider,
-            $this->createMock(LoggerInterface::class)
+            new NullLogger()
         );
 
         $strategy->resolve($context);
@@ -121,14 +123,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
                 }
             });
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with(
-                'Failed to re-register app after shop ID change.',
-                static::callback(static fn (array $context): bool => ($context['appName'] ?? null) === 'app-one'
-                    && ($context['exception'] ?? null) === $exception)
-            );
+        $logger = new TestHandler();
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
@@ -137,11 +132,19 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $appRepository,
             $appManager,
             $shopIdProvider,
-            $logger
+            new Logger('test', [$logger])
         );
 
         $this->expectExceptionObject(AppException::shopMoveFailed(['app-one']));
 
-        $strategy->resolve(Context::createDefaultContext());
+        try {
+            $strategy->resolve(Context::createDefaultContext());
+        } finally {
+            $records = $logger->getRecords();
+            static::assertCount(1, $records);
+            static::assertSame('Failed to re-register app after shop ID change.', $records[0]->message);
+            static::assertSame('app-one', $records[0]->context['appName']);
+            static::assertSame($exception, $records[0]->context['exception']);
+        }
     }
 }

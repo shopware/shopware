@@ -4,10 +4,6 @@ test(
     'As an admin user, I want to create a rule',
     { tag: '@Rule' },
     async ({ AdminRuleDetail, AdminRuleListing, ShopAdmin, IdProvider, TestDataService }) => {
-        const today = new Date();
-        const yesterday = new Date();
-        yesterday.setHours(today.getHours() - 30);
-
         const { id: uniqueId } = IdProvider.getIdPair();
         const { id: taxId, name: taxName } = await TestDataService.createTaxRate();
         const { name: ruleTag } = await TestDataService.createTag(`Test tag - ${uniqueId}`);
@@ -21,8 +17,8 @@ test(
             taxId,
             taxName,
             customerSurname: 'Schmitz-Rimpler',
-            fromDate: yesterday.toISOString().split('.')[0],
-            toDate: today.toISOString().split('.')[0],
+            fromDate: '2025-01-14T08:30:00',
+            toDate: '2025-01-15T16:45:00',
             quantity: 5,
             isAdminOrder: false,
             stock: 10,

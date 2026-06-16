@@ -19,6 +19,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -102,7 +103,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     private function createHandler(): CleanupCorruptedMediaHandler
     {
-        return new CleanupCorruptedMediaHandler($this->scheduledTaskRepository, $this->logger, $this->mediaRepository);
+        return new CleanupCorruptedMediaHandler($this->scheduledTaskRepository, $this->logger, $this->mediaRepository, new NativeClock());
     }
 
     private function assertCleanupFilters(Criteria $criteria, ?string $lastId = null): void

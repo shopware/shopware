@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
@@ -15,13 +16,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
+class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, ResetInterface
 {
+    private const PRODUCT_DOWNLOAD_ENTITY = 'product_download';
+
+    private ?string $productDownloadMediaFolderId = null;
+
+    public function __construct(private readonly Connection $connection)
+    {
+    }
+
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
@@ -57,6 +67,11 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
             MediaDefinition::ENTITY_NAME => $this->sanitizeAllAggregations($event->getCriteria(), $this->getMediaRestriction()),
             default => null,
         };
+    }
+
+    public function reset(): void
+    {
+        $this->productDownloadMediaFolderId = null;
     }
 
     private function addMediaFolderRestriction(Criteria $criteria): void
@@ -110,14 +125,18 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getMediaRestriction(): MultiFilter
+    private function getMediaRestriction(): Filter
     {
-        return new MultiFilter('OR', [
+        $filters = [
             new EqualsFilter('private', false),
             new MultiFilter('AND', [
                 new EqualsFilter('private', true),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                new EqualsFilter('mediaFolderId', $this->getProductDownloadMediaFolderId()),
             ]),
+        ];
+
+        return new MultiFilter('OR', [
+            ...$filters,
         ]);
     }
 
@@ -127,5 +146,27 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
             new EqualsFilter('media_folder.configuration.private', false),
             new EqualsFilter('media_folder.configuration.private', null),
         ]);
+    }
+
+    private function getProductDownloadMediaFolderId(): string
+    {
+        if ($this->productDownloadMediaFolderId !== null) {
+            return $this->productDownloadMediaFolderId;
+        }
+
+        $folderId = $this->connection->fetchOne(
+            <<<'SQL'
+                SELECT LOWER(HEX(`media_folder`.`id`))
+                FROM `media_folder`
+                INNER JOIN `media_default_folder`
+                    ON `media_default_folder`.`id` = `media_folder`.`default_folder_id`
+                WHERE `media_default_folder`.`entity` = :entity
+            SQL,
+            ['entity' => self::PRODUCT_DOWNLOAD_ENTITY]
+        );
+
+        \assert(\is_string($folderId));
+
+        return $this->productDownloadMediaFolderId = $folderId;
     }
 }

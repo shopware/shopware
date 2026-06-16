@@ -782,6 +782,25 @@ MediaUploadService::validateExternalUrl($url);
 $this->mediaUploadService->assertValidExternalUrl($url);
 ```
 
+## Deprecated `maintenanceIpWhitelist` wording of the sales channel in favor of `maintenanceIpAllowlist`
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`. The deprecated members keep working and will be replaced with the next major. Migrate your code to the new members now:
+
+* `\Shopware\Core\System\SalesChannel\SalesChannelEntity`: use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead of the deprecated `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()`.
+* `\Shopware\Core\SalesChannelRequest`: use the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead of the deprecated `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST`.
+* `\Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: use the constant `MAINTENANCE_ALLOWLIST_HEADER` instead of the deprecated `MAINTENANCE_WHITELIST_HEADER`.
+
+```php
+// Before
+$salesChannel->getMaintenanceIpWhitelist();
+
+// After
+$salesChannel->getMaintenanceIpAllowlist();
+```
+
+> [!NOTE]
+> The DAL field `maintenanceIpWhitelist`, the database column `sales_channel.maintenance_ip_whitelist` and the Admin API field are intentionally left unchanged in this release. They will be renamed to `maintenanceIpAllowlist` with the next major.
+
 # Administration
 
 <details>

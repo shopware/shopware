@@ -65,7 +65,7 @@ class MaintenanceController extends StorefrontController
             $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
             $response->headers->set('Retry-After', '3600');
 
-            $this->addWhitelistIpHeader($request, $response);
+            $this->addAllowlistIpHeader($request, $response);
 
             return $response;
         }
@@ -82,7 +82,7 @@ class MaintenanceController extends StorefrontController
         $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
         $response->headers->set('Retry-After', '3600');
 
-        $this->addWhitelistIpHeader($request, $response);
+        $this->addAllowlistIpHeader($request, $response);
 
         return $response;
     }
@@ -114,17 +114,17 @@ class MaintenanceController extends StorefrontController
             ['page' => $cmsPage]
         );
 
-        $this->addWhitelistIpHeader($request, $response);
+        $this->addAllowlistIpHeader($request, $response);
 
         return $response;
     }
 
-    private function addWhitelistIpHeader(Request $request, Response $response): void
+    private function addAllowlistIpHeader(Request $request, Response $response): void
     {
-        if ($ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST)) {
+        if ($ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)) {
             $ips = implode(',', json_decode($ips, true, flags: \JSON_THROW_ON_ERROR));
 
-            $response->headers->set(HttpCacheKernel::MAINTENANCE_WHITELIST_HEADER, $ips);
+            $response->headers->set(HttpCacheKernel::MAINTENANCE_ALLOWLIST_HEADER, $ips);
         }
     }
 }

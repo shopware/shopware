@@ -203,6 +203,12 @@ class RequestTransformer implements RequestTransformerInterface
         );
 
         $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST,
+            $salesChannel['maintenanceIpWhitelist']
+        );
+
+        // @deprecated tag:v6.8.0 - remove this block, the deprecated attribute is kept in sync for backwards compatibility only
+        $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
             $salesChannel['maintenanceIpWhitelist']
         );

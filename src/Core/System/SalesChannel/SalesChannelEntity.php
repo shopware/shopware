@@ -28,6 +28,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -368,17 +369,47 @@ class SalesChannelEntity extends Entity
     /**
      * @return array<mixed>|null
      */
-    public function getMaintenanceIpWhitelist(): ?array
+    public function getMaintenanceIpAllowlist(): ?array
     {
         return $this->maintenanceIpWhitelist;
     }
 
     /**
+     * @param array<mixed>|null $maintenanceIpAllowlist
+     */
+    public function setMaintenanceIpAllowlist(?array $maintenanceIpAllowlist): void
+    {
+        $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getMaintenanceIpAllowlist() instead.
+     *
+     * @return array<mixed>|null
+     */
+    public function getMaintenanceIpWhitelist(): ?array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getMaintenanceIpAllowlist()')
+        );
+
+        return $this->getMaintenanceIpAllowlist();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use setMaintenanceIpAllowlist() instead.
+     *
      * @param array<mixed>|null $maintenanceIpWhitelist
      */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
-        $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'setMaintenanceIpAllowlist()')
+        );
+
+        $this->setMaintenanceIpAllowlist($maintenanceIpWhitelist);
     }
 
     public function getCurrency(): ?CurrencyEntity

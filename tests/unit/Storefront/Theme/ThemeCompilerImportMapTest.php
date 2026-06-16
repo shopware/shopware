@@ -10,13 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
-use Shopware\Storefront\Theme\ScssPhpCompiler;
+use Shopware\Storefront\Theme\AbstractScssCompiler;
+use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
@@ -28,15 +29,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerImportMapTest extends TestCase
 {
-    public static ?FilesystemOperator $buildMetaFilesystemForFetch = null;
-
-    private Filesystem $tempFilesystem;
+    private Filesystem $assetFilesystem;
 
     private ThemeCompiler $compiler;
 
     protected function setUp(): void
     {
-        $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->assetFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->compiler = $this->createCompilerForBundleBuildMeta();
     }
 
@@ -92,8 +91,8 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapSkipsBundleWhenBuildMetaJsonIsInvalid(): void
     {
         $path = 'bundles/brokenextension/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/brokenextension/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '{invalid json');
+        $this->assetFilesystem->createDirectory('bundles/brokenextension/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '{invalid json');
         $collection = new StorefrontPluginConfigurationCollection([
             new StorefrontPluginConfiguration('Storefront'),
             new StorefrontPluginConfiguration('BrokenExtension'),
@@ -495,8 +494,8 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapIgnoresEmptyBuildMetaContent(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '');
+        $this->assetFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '');
 
         static::assertSame(
             [
@@ -511,8 +510,8 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapNormalizesScalarBuildMetaJsonToEmptyArrays(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '1');
+        $this->assetFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '1');
 
         static::assertSame(
             [
@@ -569,7 +568,7 @@ class ThemeCompilerImportMapTest extends TestCase
         );
     }
 
-    public function testBuildComponentImportMapResolvesVersionedPackagePath(): void
+    public function testBuildComponentImportMapReadsUnversionedFilesystemPathAndEmitsVersionedPublicUrls(): void
     {
         $versionedMeta = [
             'manifest' => [
@@ -583,7 +582,7 @@ class ThemeCompilerImportMapTest extends TestCase
         ];
 
         $this->writeJson(
-            '_assets/v/123/bundles/storefront/storefront/components/.vite/build-meta.json',
+            'bundles/storefront/storefront/components/.vite/build-meta.json',
             $versionedMeta
         );
 
@@ -594,6 +593,121 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertSame(
             'https://cdn.example.com/_assets/v/123/bundles/storefront/storefront/components/Sw/Custom/Test-HASH.js',
             $result['imports']['Sw:Custom:Test']
+        );
+    }
+
+    public function testBuildComponentImportMapFetchesBuildMetaFromGlobalAssetUrlWhenMissingOnFilesystem(): void
+    {
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyPlugin'),
+        ]);
+
+        $compiler = $this->createCompilerWithFetchPublicFileOverride(
+            [
+                'global_asset' => new UrlPackage('https://global.cdn.example.com/_assets/v/123', new EmptyVersionStrategy()),
+            ],
+            static function (string $url): string|false {
+                if ($url !== 'https://global.cdn.example.com/_assets/v/123/bundles/myplugin/storefront/components/.vite/build-meta.json') {
+                    return false;
+                }
+
+                return json_encode([
+                    'manifest' => [
+                        'MyPlugin/Card.ts' => [
+                            'file' => 'MyPlugin/Card-HTTP.js',
+                            'name' => 'MyPlugin/Card',
+                            'isEntry' => true,
+                        ],
+                    ],
+                    'vendorMap' => [],
+                ], \JSON_THROW_ON_ERROR);
+            },
+        );
+
+        $result = $this->assertImportMap($compiler->buildComponentImportMap($collection));
+
+        static::assertSame(
+            'https://global.cdn.example.com/_assets/v/123/bundles/myplugin/storefront/components/MyPlugin/Card-HTTP.js',
+            $result['imports']['MyPlugin:Card']
+        );
+    }
+
+    public function testBuildComponentImportMapDoesNotFetchPublicUrlForNonGlobalAssetPackages(): void
+    {
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
+
+        $compiler = $this->createCompilerWithFetchPublicFileOverride(
+            [
+                'asset' => new UrlPackage('https://cdn.example.com/_assets/v/ae6dd181', new EmptyVersionStrategy()),
+                'public' => new UrlPackage('https://cdn.example.com/public', new EmptyVersionStrategy()),
+            ],
+            static function (string $url): string|false {
+                throw new \RuntimeException('fetchPublicFile must not be called for non-global_asset packages: ' . $url);
+            },
+        );
+
+        $result = $this->assertImportMap($compiler->buildComponentImportMap($collection));
+
+        static::assertSame(
+            'https://cdn.example.com/_assets/v/ae6dd181/bundles/storefront/storefront/shopware/shopware.js',
+            $result['imports']['shopware']
+        );
+        static::assertArrayNotHasKey('MyExtension:Card', $result['imports']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testBuildComponentImportMapPrefersAssetFilesystemOverGlobalAssetUrl(): void
+    {
+        $this->writeJson(
+            'bundles/myplugin/storefront/components/.vite/build-meta.json',
+            [
+                'manifest' => [
+                    'MyPlugin/Card.ts' => [
+                        'file' => 'MyPlugin/Card-FROM-FS.js',
+                        'name' => 'MyPlugin/Card',
+                        'isEntry' => true,
+                    ],
+                ],
+                'vendorMap' => [],
+            ]
+        );
+
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyPlugin'),
+        ]);
+
+        $compiler = $this->createCompilerWithFetchPublicFileOverride(
+            [
+                'global_asset' => new UrlPackage('https://global.cdn.example.com/_assets/v/123', new EmptyVersionStrategy()),
+            ],
+            static function (string $url): string|false {
+                if ($url !== 'https://global.cdn.example.com/_assets/v/123/bundles/myplugin/storefront/components/.vite/build-meta.json') {
+                    return false;
+                }
+
+                return json_encode([
+                    'manifest' => [
+                        'MyPlugin/Card.ts' => [
+                            'file' => 'MyPlugin/Card-FROM-HTTP.js',
+                            'name' => 'MyPlugin/Card',
+                            'isEntry' => true,
+                        ],
+                    ],
+                    'vendorMap' => [],
+                ], \JSON_THROW_ON_ERROR);
+            },
+        );
+
+        $result = $this->assertImportMap($compiler->buildComponentImportMap($collection));
+
+        static::assertSame(
+            'https://global.cdn.example.com/_assets/v/123/bundles/myplugin/storefront/components/MyPlugin/Card-FROM-FS.js',
+            $result['imports']['MyPlugin:Card']
         );
     }
 
@@ -615,50 +729,82 @@ class ThemeCompilerImportMapTest extends TestCase
      */
     private function createCompilerForBundleBuildMeta(array $packages = []): ThemeCompiler
     {
-        $themePathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        return $this->createCompilerWithFetchPublicFileOverride(
+            $packages,
+            static fn (string $_url): false => false,
+        );
+    }
+
+    /**
+     * @param array<string, UrlPackage> $packages
+     * @param \Closure(string): (string|false) $fetchPublicFile
+     */
+    private function createCompilerWithFetchPublicFileOverride(array $packages, \Closure $fetchPublicFile): ThemeCompiler
+    {
+        $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
         $themePathBuilder->method('assemblePath')->willReturn('theme-path');
         if ($packages === []) {
             $packages = [
                 'public' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy()),
             ];
         }
-        self::$buildMetaFilesystemForFetch = $this->tempFilesystem;
 
-        return new class($this->createMock(FilesystemOperator::class), $this->createMock(FilesystemOperator::class), new CopyBatchInputFactory(), $this->createMock(ThemeFileResolver::class), true, $this->createMock(EventDispatcherInterface::class), $this->createMock(ThemeFilesystemResolver::class), $packages, $this->createMock(CacheInvalidator::class), $this->createMock(LoggerInterface::class), $themePathBuilder, $this->createMock(ScssPhpCompiler::class), [], false, 'public') extends ThemeCompiler {
+        $assetFilesystem = $this->assetFilesystem;
+
+        return new class($this->createMock(FilesystemOperator::class), $this->createMock(FilesystemOperator::class), $assetFilesystem, new CopyBatchInputFactory(), $this->createMock(ThemeFileResolver::class), true, $this->createMock(EventDispatcherInterface::class), $this->createMock(ThemeFilesystemResolver::class), $packages, $this->createMock(CacheInvalidator::class), $this->createMock(LoggerInterface::class), $themePathBuilder, $this->createMock(AbstractScssCompiler::class), [], false, 'public', $fetchPublicFile) extends ThemeCompiler {
+            /**
+             * @var \Closure(string): (string|false)
+             */
+            private readonly \Closure $fetchPublicFileCallback;
+
+            /**
+             * @param array<string, AssetPackage> $packages
+             * @param \Closure(string): (string|false) $fetchPublicFileCallback
+             */
+            public function __construct(
+                FilesystemOperator $filesystem,
+                FilesystemOperator $tempFilesystem,
+                FilesystemOperator $assetFilesystem,
+                CopyBatchInputFactory $copyBatchInputFactory,
+                ThemeFileResolver $themeFileResolver,
+                bool $debug,
+                EventDispatcherInterface $eventDispatcher,
+                ThemeFilesystemResolver $themeFilesystemResolver,
+                array $packages,
+                CacheInvalidator $cacheInvalidator,
+                LoggerInterface $logger,
+                AbstractThemePathBuilder $themePathBuilder,
+                AbstractScssCompiler $scssCompiler,
+                array $customAllowedRegex,
+                bool $validate,
+                string $visibility,
+                \Closure $fetchPublicFileCallback,
+            ) {
+                $this->fetchPublicFileCallback = $fetchPublicFileCallback;
+
+                parent::__construct(
+                    $filesystem,
+                    $tempFilesystem,
+                    $assetFilesystem,
+                    $copyBatchInputFactory,
+                    $themeFileResolver,
+                    $debug,
+                    $eventDispatcher,
+                    $themeFilesystemResolver,
+                    $packages,
+                    $cacheInvalidator,
+                    $logger,
+                    $themePathBuilder,
+                    $scssCompiler,
+                    $customAllowedRegex,
+                    $validate,
+                    $visibility,
+                );
+            }
+
             protected function fetchPublicFile(string $url): string|false
             {
-                $buildMetaFilesystem = ThemeCompilerImportMapTest::$buildMetaFilesystemForFetch;
-                if (!$buildMetaFilesystem instanceof FilesystemOperator) {
-                    return false;
-                }
-
-                $path = parse_url($url, \PHP_URL_PATH);
-                if (!\is_string($path) || $path === '') {
-                    return false;
-                }
-
-                $path = ltrim($path, '/');
-                if ($path === '') {
-                    return false;
-                }
-
-                try {
-                    if (!$buildMetaFilesystem->fileExists($path)) {
-                        $bundlesPos = strpos($path, 'bundles/');
-                        if ($bundlesPos === false) {
-                            return false;
-                        }
-
-                        $path = substr($path, $bundlesPos);
-                        if ($path === '' || !$buildMetaFilesystem->fileExists($path)) {
-                            return false;
-                        }
-                    }
-
-                    return $buildMetaFilesystem->read($path);
-                } catch (\Throwable) {
-                    return false;
-                }
+                return ($this->fetchPublicFileCallback)($url);
             }
         };
     }
@@ -669,11 +815,11 @@ class ThemeCompilerImportMapTest extends TestCase
     private function writeJson(string $path, array $data): void
     {
         $directory = \dirname($path);
-        if ($directory !== '.' && !$this->tempFilesystem->directoryExists($directory)) {
-            $this->tempFilesystem->createDirectory($directory);
+        if ($directory !== '.' && !$this->assetFilesystem->directoryExists($directory)) {
+            $this->assetFilesystem->createDirectory($directory);
         }
 
-        $this->tempFilesystem->write(
+        $this->assetFilesystem->write(
             $path,
             json_encode($data, \JSON_THROW_ON_ERROR),
         );

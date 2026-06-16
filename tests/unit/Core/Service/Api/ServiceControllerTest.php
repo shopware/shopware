@@ -239,7 +239,7 @@ class ServiceControllerTest extends TestCase
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
 
-        $this->appLifecycle->expects($this->once())->method('delete')->with($this->appId, ['id' => $this->appId], $context);
+        $this->appLifecycle->expects($this->once())->method('uninstall')->with($this->appId, ['id' => $this->appId], $context);
         $controller->uninstall('MyCoolService', $context);
     }
 

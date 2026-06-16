@@ -6,9 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -57,11 +54,22 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private CustomFieldService $customFieldService;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because a data-provided test (testSearch) can no longer also receive
+     * the ids via #[Depends] - see NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
+
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     protected function tearDown(): void
@@ -89,29 +97,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->rollBack();
     }
 
-    #[DoesNotPerformAssertions]
-    #[TestDox('Warmup Elasticsearch index and test data for dependent tests')]
-    public function testIndexing(): IdsCollection
+    public function testAndSearch(): void
     {
-        $this->connection->executeStatement('DELETE FROM product');
+        $ids = self::$indexedIds;
 
-        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
-
-        $this->clearElasticsearch();
-        $this->registerCustomFieldsMapping();
-        $this->indexElasticSearch();
-
-        $ids = new IdsCollection();
-        $this->createData($ids);
-
-        $this->refreshIndex();
-
-        return $ids;
-    }
-
-    #[Depends('testIndexing')]
-    public function testAndSearch(IdsCollection $ids): void
-    {
         $this->setSearchConfiguration(true, ['name']);
         $this->setSearchScores([]);
 
@@ -135,9 +124,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    #[Depends('testIndexing')]
-    public function testOrSearch(IdsCollection $ids): void
+    public function testOrSearch(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name']);
         $this->setSearchScores([]);
 
@@ -167,10 +157,11 @@ class ProductSearchQueryBuilderTest extends TestCase
      * @param list<string> $config
      * @param list<string> $expectedProducts
      */
-    #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
-    public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
+    public function testSearch(array $config, string $term, array $expectedProducts): void
     {
+        $ids = self::$indexedIds;
+
         $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
@@ -196,9 +187,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSearchWithStopWord(IdsCollection $ids): void
+    public function testSearchWithStopWord(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description']);
         $this->setSearchScores([]);
 
@@ -214,9 +206,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
     }
 
-    #[Depends('testIndexing')]
-    public function testScoring(IdsCollection $ids): void
+    public function testScoring(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);
         $this->setSearchScores(['name' => 0, 'description' => 0, 'customSearchKeywords' => 50]);
 
@@ -325,6 +318,24 @@ class ProductSearchQueryBuilderTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    private function buildIndex(): IdsCollection
+    {
+        $this->connection->executeStatement('DELETE FROM product');
+
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
+
+        $this->clearElasticsearch();
+        $this->registerCustomFieldsMapping();
+        $this->indexElasticSearch();
+
+        $ids = new IdsCollection();
+        $this->createData($ids);
+
+        $this->refreshIndex();
+
+        return $ids;
     }
 
     private function createData(IdsCollection $ids): void

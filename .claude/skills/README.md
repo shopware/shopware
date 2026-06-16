@@ -7,6 +7,7 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 | Skill | Trigger phrases (examples) | What it does |
 |---|---|---|
 | [`triage`](triage/SKILL.md) | "triage issue #X", "classify this bug", "is this a duplicate", "what severity is #N" | Triages a Shopware 6 GitHub bug issue — identifies the affected code area, checks for related fixes or duplicates, and emits a Markdown summary (disposition, severity, suggested labels, confidence, evidence). |
+| [`sw-review`](sw-review/SKILL.md) | "review PR #X", "security review this branch", "review my staged changes" | Reviews a Shopware 6 PR or local diff through calibrated persona lenses, dedupes findings, and emits Markdown or schema-valid JSON depending on invocation mode. |
 
 ## How auto-loading works
 

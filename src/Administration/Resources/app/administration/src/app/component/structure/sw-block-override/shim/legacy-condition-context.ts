@@ -189,6 +189,7 @@ function legacyIf(chainKey: string, expression: unknown, options: LegacyConditio
 
 /** Continues the chain only when no earlier case matched. */
 function legacyElseIf(chainKey: string, expression: unknown, options: LegacyConditionCaseOptions): boolean {
+    trackLegacyConditionChain(chainKey);
     const chain = legacyConditionContext[chainKey];
 
     if (!chain) {

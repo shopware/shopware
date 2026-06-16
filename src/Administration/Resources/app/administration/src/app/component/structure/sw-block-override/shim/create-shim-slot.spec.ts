@@ -5,7 +5,7 @@
 
 import { createShimSlot, resetShimSlotState } from 'src/app/component/structure/sw-block-override/shim/create-shim-slot';
 import useLegacyConditionContext from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
-import type { BlockEntry } from 'src/core/factory/twig-block-index';
+import type { BlockEntry } from 'src/core/factory/transform-legacy-block-conditionals';
 
 function makeEntry(overrides: Partial<BlockEntry> = {}): BlockEntry {
     return {

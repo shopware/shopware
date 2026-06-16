@@ -14,7 +14,7 @@
  */
 
 import { h, shallowRef, type Slot } from 'vue';
-import type { BlockEntry } from 'src/core/factory/twig-block-index';
+import type { BlockEntry } from 'src/core/factory/transform-legacy-block-conditionals';
 import swBlockParent from '../sw-block-parent/index';
 import useLegacyConditionContext from './legacy-condition-context';
 

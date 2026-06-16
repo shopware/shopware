@@ -2,12 +2,14 @@
  * @sw-package framework
  */
 
+import { compile } from '@vue/compiler-dom';
 import {
     indexTwigBlocksFromTemplate,
     getBlockEntries,
     hasBlockEntries,
     resetBlockIndex,
 } from 'src/core/factory/twig-block-index';
+import transformNativeLegacyBlockConditionals from 'src/core/factory/transform-legacy-block-conditionals';
 
 describe('core/factory/twig-block-index.ts', () => {
     afterEach(() => {
@@ -129,6 +131,48 @@ describe('core/factory/twig-block-index.ts', () => {
                     caseStartIndex: 1,
                 },
             ]);
+        });
+
+        it('rebuilds indexed Twig condition chains with native continuation aliases', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block block_2 %}
+                    <div v-else-if="conditionFromPlugin" class="plugin-two">plugin two</div>
+                {% endblock %}
+            `,
+            );
+
+            const nativeTemplate = transformNativeLegacyBlockConditionals(
+                `
+                <sw-block name="block_1">
+                    <div v-if="condition1" class="one">one</div>
+                </sw-block>
+
+                <sw-block name="block_2">
+                    <div v-else-if="condition2" class="two">two</div>
+                </sw-block>
+            `,
+                'sw-product-detail',
+            );
+            const [entry] = getBlockEntries('block_2');
+
+            expect(nativeTemplate).toContain(
+                `v-if="$swLegacyBlockElseIf('block_1:0', condition2, ${options(1, false, 'defaultSlot')})"`,
+            );
+            expect(entry.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElseIf('block_1:0', conditionFromPlugin, ${options(0, false, 'shimExtension')})"`,
+            );
+            expect(entry.innerTemplate).not.toContain('v-else-if="conditionFromPlugin"');
+            expect(entry.innerTemplate).not.toContain(`$swLegacyBlockElseIf('block_2:0'`);
+            expect(entry.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'block_1:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+            expect(() => compile(entry.innerTemplate)).not.toThrow();
         });
 
         it('accumulates multiple entries for the same block name from separate calls', () => {

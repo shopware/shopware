@@ -52,6 +52,15 @@ export type LegacyTwigBlockSequenceTransformEntry = LegacyTwigBlockSequenceEntry
     legacyConditionCases: LegacyConditionCaseReservation[];
 };
 
+/**
+ * @private
+ */
+export type BlockEntry = {
+    componentName: string;
+    innerTemplate: string;
+    legacyConditionCases: LegacyConditionCaseReservation[];
+};
+
 type BlockConditionChainInfo = {
     children: Element[];
     blockName: string;
@@ -81,6 +90,55 @@ const GLOBAL_LEGACY_HELPERS = {
     elseIf: '$swLegacyBlockElseIf',
     else: '$swLegacyBlockElse',
 } satisfies LegacyBlockHelperNames;
+
+type LegacyConditionContinuationContext = Record<string, string>;
+
+const legacyConditionContinuationContexts = new Map<string, LegacyConditionContinuationContext>();
+let legacyConditionContinuationContextVersion = 0;
+const legacyTwigBlockIndex = new Map<string, BlockEntry[]>();
+const indexedLegacyTwigBlockEntries: Array<{
+    componentName: string;
+    entries: LegacyTwigBlockSequenceEntry[];
+}> = [];
+
+let legacyTwigBlockIndexDirty = false;
+let legacyTwigBlockIndexVersion = -1;
+
+function resetLegacyConditionContinuationContexts(): void {
+    legacyConditionContinuationContexts.clear();
+    legacyConditionContinuationContextVersion += 1;
+}
+
+function storeLegacyConditionContinuationAlias(
+    componentName: string,
+    localChainKey: string,
+    fullChainKey: string,
+): void {
+    const context = legacyConditionContinuationContexts.get(componentName) ?? {};
+
+    if (context[localChainKey] === fullChainKey) {
+        return;
+    }
+
+    context[localChainKey] = fullChainKey;
+    legacyConditionContinuationContexts.set(componentName, context);
+    legacyConditionContinuationContextVersion += 1;
+}
+
+function getChainKeyForRewrite(
+    chain: BlockConditionChainInfo,
+    renderOrderSegment: LegacyConditionRenderOrderSegment,
+    continuationContext: LegacyConditionContinuationContext | undefined,
+): string {
+    const localChainKey = createLegacyConditionChainKey(chain.blockName, chain.index);
+    const chainKey = chain.fullChainKey ?? localChainKey;
+
+    if (renderOrderSegment !== 'shimExtension' || !continuationContext) {
+        return chainKey;
+    }
+
+    return continuationContext[localChainKey] ?? chainKey;
+}
 
 /** Escapes block names for helper calls embedded in single-quoted Vue expressions. */
 function escapeSingleQuotedString(value: string): string {
@@ -126,7 +184,7 @@ function createLegacyConditionChainKey(blockName: string, chainIndex: number): s
  *
  * @private
  */
-export default function transformNativeLegacyBlockConditionals(template: string): string {
+export default function transformNativeLegacyBlockConditionals(template: string, componentName?: string): string {
     if (template.indexOf('<sw-block') === -1 || !CONDITIONAL_REG_EXP.test(template) || typeof document === 'undefined') {
         return template;
     }
@@ -162,14 +220,14 @@ export default function transformNativeLegacyBlockConditionals(template: string)
         });
     });
 
-    fillChainIndices(blockConditionInfos);
+    fillChainIndices(blockConditionInfos, {}, componentName);
 
     const allRewrites: RewriteInfo[] = [];
     blockConditionInfos.forEach((blockInfo) => {
         blockInfo.conditionalChains
             .filter((chain) => shouldPerformChainRewrite(chain))
             .forEach((chain) => {
-                const rewrites = constructChainAttributeRewrites(chain, template, blockInfo.renderOrderSegment);
+                const rewrites = constructChainAttributeRewrites(chain, blockInfo.renderOrderSegment, componentName);
                 allRewrites.push(...rewrites);
             });
     });
@@ -262,6 +320,7 @@ function parseBlockTemplateChildren(template: string): Element[] {
 function fillChainIndices(
     blockConditionInfos: BlockConditionInfo[],
     caseStartIndexByChainKey: Record<string, number> = {},
+    componentName?: string,
 ): void {
     let lastChain: BlockConditionChainInfo | null = null;
     let startingChain: BlockConditionChainInfo | null = null;
@@ -271,13 +330,23 @@ function fillChainIndices(
     // Iterate over blocks in order and assign chain keys, ensuring that continuation chains receive the same key as their leading chain.
     blockConditionInfos.forEach((blockInfo) => {
         blockInfo.conditionalChains.forEach((chain) => {
+            const localChainKey = createLegacyConditionChainKey(blockInfo.blockName, chain.index);
+
             if (chain.starting) {
-                chain.fullChainKey = createLegacyConditionChainKey(blockInfo.blockName, chain.index);
+                chain.fullChainKey = localChainKey;
                 lastChain = chain;
                 startingChain = chain;
             } else if (startingChain && lastChain) {
                 chain.fullChainKey = startingChain.fullChainKey;
                 lastChain.followedBy = chain;
+                if (
+                    componentName &&
+                    blockInfo.renderOrderSegment !== 'shimExtension' &&
+                    chain.fullChainKey &&
+                    localChainKey !== chain.fullChainKey
+                ) {
+                    storeLegacyConditionContinuationAlias(componentName, localChainKey, chain.fullChainKey);
+                }
             }
 
             if (chain.fullChainKey) {
@@ -322,11 +391,15 @@ function getAttributeCode(template: string, attributeName: string): string {
 
 function constructChainAttributeRewrites(
     chain: BlockConditionChainInfo,
-    template: string,
     renderOrderSegment: LegacyConditionRenderOrderSegment,
+    componentName?: string,
 ): RewriteInfo[] {
     const rewrites: RewriteInfo[] = [];
-    const chainKey = chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index);
+    const chainKey = getChainKeyForRewrite(
+        chain,
+        renderOrderSegment,
+        componentName ? legacyConditionContinuationContexts.get(componentName) : undefined,
+    );
 
     chain.children.forEach((child, localSegmentCaseIndex) => {
         const segmentCaseIndex = (chain.caseStartIndex ?? 0) + localSegmentCaseIndex;
@@ -416,6 +489,7 @@ function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string
  */
 export function transformLegacyTwigBlockSequenceConditionals(
     initialEntries: LegacyTwigBlockSequenceEntry[],
+    componentName: string,
     caseStartIndexByChainKey: Record<string, number> = {},
 ): LegacyTwigBlockSequenceTransformEntry[] {
     const blockConditonalChains: BlockConditionInfo[] = [];
@@ -436,7 +510,8 @@ export function transformLegacyTwigBlockSequenceConditionals(
         });
     });
     // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive the same key as their leading chain.
-    fillChainIndices(blockConditonalChains, caseStartIndexByChainKey);
+    fillChainIndices(blockConditonalChains, caseStartIndexByChainKey, componentName);
+    const continuationContext = legacyConditionContinuationContexts.get(componentName);
 
     // Step 3: Apply the helper function rewrites to each chain
 
@@ -447,17 +522,105 @@ export function transformLegacyTwigBlockSequenceConditionals(
                 ...chains
                     .filter((chain) => shouldPerformChainRewrite(chain))
                     .map((chain) => ({
-                        chainKey: chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index),
+                        chainKey: getChainKeyForRewrite(chain, 'shimExtension', continuationContext),
                         caseStartIndex: chain.caseStartIndex ?? 0,
                         caseCount: chain.children.length,
                     })),
             );
             chains.forEach((chain) => {
-                const rewrites = constructChainAttributeRewrites(chain, entry.innerTemplate, 'shimExtension');
+                const rewrites = constructChainAttributeRewrites(chain, 'shimExtension', componentName);
                 entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
             });
         }
     });
 
     return entries;
+}
+
+function collectExistingCaseStartIndices(): Record<string, number> {
+    const caseStartIndexByChainKey: Record<string, number> = {};
+
+    legacyTwigBlockIndex.forEach((entries) => {
+        entries.forEach(({ legacyConditionCases }) => {
+            legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
+                caseStartIndexByChainKey[chainKey] = Math.max(
+                    caseStartIndexByChainKey[chainKey] ?? 0,
+                    caseStartIndex + caseCount,
+                );
+            });
+        });
+    });
+
+    return caseStartIndexByChainKey;
+}
+
+function ensureLegacyTwigBlockIndex(): void {
+    if (!legacyTwigBlockIndexDirty && legacyTwigBlockIndexVersion === legacyConditionContinuationContextVersion) {
+        return;
+    }
+
+    legacyTwigBlockIndex.clear();
+
+    indexedLegacyTwigBlockEntries.forEach(({ componentName, entries }) => {
+        const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
+            entries,
+            componentName,
+            collectExistingCaseStartIndices(),
+        );
+
+        transformedEntries.forEach((entry) => {
+            const existing = legacyTwigBlockIndex.get(entry.blockName) ?? [];
+
+            existing.push({
+                componentName,
+                innerTemplate: entry.innerTemplate,
+                legacyConditionCases: entry.legacyConditionCases,
+            });
+
+            legacyTwigBlockIndex.set(entry.blockName, existing);
+        });
+    });
+
+    legacyTwigBlockIndexDirty = false;
+    legacyTwigBlockIndexVersion = legacyConditionContinuationContextVersion;
+}
+
+/**
+ * @private
+ */
+export function indexLegacyTwigBlockConditionEntries(
+    componentName: string,
+    entries: LegacyTwigBlockSequenceEntry[],
+): void {
+    indexedLegacyTwigBlockEntries.push({ componentName, entries });
+    legacyTwigBlockIndexDirty = true;
+}
+
+/**
+ * @private
+ */
+export function getLegacyTwigBlockEntries(blockName: string): BlockEntry[] {
+    ensureLegacyTwigBlockIndex();
+
+    return legacyTwigBlockIndex.get(blockName) ?? [];
+}
+
+/**
+ * @private
+ */
+export function hasLegacyTwigBlockEntries(blockName: string): boolean {
+    ensureLegacyTwigBlockIndex();
+
+    return legacyTwigBlockIndex.has(blockName);
+}
+
+/**
+ * @private
+ */
+export function resetLegacyTwigBlockConditionIndex(): void {
+    legacyTwigBlockIndex.clear();
+    indexedLegacyTwigBlockEntries.length = 0;
+    legacyTwigBlockIndexDirty = false;
+    legacyTwigBlockIndexVersion = -1;
+    resetLegacyConditionContinuationContexts();
 }

@@ -271,6 +271,41 @@ describe('use-block-context', () => {
         }
     });
 
+    it('updates shim else-if cases when previous default slot cases change', async () => {
+        const { nextTick, ref, watchEffect } = await import('vue');
+        const defaultCondition = ref(false);
+        const shimElseIfResults = [];
+        const stopEffects = [];
+
+        try {
+            stopEffects.push(
+                watchEffect(() => {
+                    legacyIf('test', defaultCondition.value, defaultCase(0, true));
+                    reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+                }),
+            );
+
+            stopEffects.push(
+                watchEffect(() => {
+                    shimElseIfResults.push(legacyElseIf('test', true, shimCase(0)));
+                }),
+            );
+
+            expect(shimElseIfResults.at(-1)).toBe(true);
+
+            defaultCondition.value = true;
+
+            await Promise.resolve();
+            await nextTick();
+
+            expect(shimElseIfResults.at(-1)).toBe(false);
+        } finally {
+            stopEffects.forEach((stopEffect) => {
+                stopEffect();
+            });
+        }
+    });
+
     it('updates reserved extension cases by their stable shim condition chain index', () => {
         expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 

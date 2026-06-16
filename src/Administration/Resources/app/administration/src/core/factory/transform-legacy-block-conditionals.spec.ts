@@ -10,6 +10,8 @@ function options(segmentCaseIndex: number, isStartingCondition: boolean, renderO
     return `{ segmentCaseIndex: ${segmentCaseIndex}, isStartingCondition: ${isStartingCondition}, renderOrderSegment: '${renderOrderSegment}' }`;
 }
 
+const TEST_COMPONENT = 'test-component';
+
 describe('core/factory/transform-legacy-block-conditionals.ts', () => {
     it('rewrites legacy v-if / v-else cases across sw-block boundaries', () => {
         const template = `
@@ -244,20 +246,23 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
     });
 
     it('keeps whitespace between rewritten v-if and following attributes', () => {
-        const transformedEntries = transformLegacyTwigBlockSequenceConditionals([
-            {
-                blockName: 'leading-block',
-                innerTemplate: '<div v-if="showLeading" class="leading-case"></div>',
-            },
-            {
-                blockName: 'middle-block',
-                innerTemplate: '<div v-else-if="showMiddle" class="middle-case"></div>',
-            },
-            {
-                blockName: 'fallback-block',
-                innerTemplate: '<div v-else class="legacy-else"></div>',
-            },
-        ]);
+        const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
+            [
+                {
+                    blockName: 'leading-block',
+                    innerTemplate: '<div v-if="showLeading" class="leading-case"></div>',
+                },
+                {
+                    blockName: 'middle-block',
+                    innerTemplate: '<div v-else-if="showMiddle" class="middle-case"></div>',
+                },
+                {
+                    blockName: 'fallback-block',
+                    innerTemplate: '<div v-else class="legacy-else"></div>',
+                },
+            ],
+            TEST_COMPONENT,
+        );
 
         expect(transformedEntries[1].innerTemplate).toContain(
             `v-if="$swLegacyBlockElseIf('leading-block:0', showMiddle, ${options(1, false, 'shimExtension')})" class="middle-case"`,
@@ -275,12 +280,15 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             <div v-else class="false-case">false</div>
         `;
 
-        const [entry] = transformLegacyTwigBlockSequenceConditionals([
-            {
-                blockName: 'test-block',
-                innerTemplate: template,
-            },
-        ]);
+        const [entry] = transformLegacyTwigBlockSequenceConditionals(
+            [
+                {
+                    blockName: 'test-block',
+                    innerTemplate: template,
+                },
+            ],
+            TEST_COMPONENT,
+        );
 
         expect(entry.innerTemplate).toContain('<sw-block-parent />');
         expect(entry.innerTemplate).toContain(
@@ -303,12 +311,15 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             <div v-else-if="showRed" class="red-case">red</div>
         `;
 
-        const [entry] = transformLegacyTwigBlockSequenceConditionals([
-            {
-                blockName: 'test-block',
-                innerTemplate: template,
-            },
-        ]);
+        const [entry] = transformLegacyTwigBlockSequenceConditionals(
+            [
+                {
+                    blockName: 'test-block',
+                    innerTemplate: template,
+                },
+            ],
+            TEST_COMPONENT,
+        );
 
         expect(entry.innerTemplate).toContain(
             `v-if="$swLegacyBlockElseIf('test-block:0', showRed, ${options(0, false, 'shimExtension')})"`,
@@ -324,12 +335,15 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             <div v-else class="false-case">false</div>
         `;
 
-        const [entry] = transformLegacyTwigBlockSequenceConditionals([
-            {
-                blockName: 'test-block',
-                innerTemplate: template,
-            },
-        ]);
+        const [entry] = transformLegacyTwigBlockSequenceConditionals(
+            [
+                {
+                    blockName: 'test-block',
+                    innerTemplate: template,
+                },
+            ],
+            TEST_COMPONENT,
+        );
 
         expect(entry.innerTemplate).toContain('<sw-block-parent />');
         expect(entry.innerTemplate).toContain(
@@ -351,6 +365,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
                     innerTemplate: template,
                 },
             ],
+            TEST_COMPONENT,
             { 'second-block:0': 1 },
         );
 
@@ -375,15 +390,18 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
                     <div v-if="condition">Test</div>
                 </sw-block>
             `);
-            const [extensionEntry] = transformLegacyTwigBlockSequenceConditionals([
-                {
-                    blockName: 'test_block',
-                    innerTemplate: `
-                        <sw-block-parent />
-                        <div v-else>Test else</div>
-                    `,
-                },
-            ]);
+            const [extensionEntry] = transformLegacyTwigBlockSequenceConditionals(
+                [
+                    {
+                        blockName: 'test_block',
+                        innerTemplate: `
+                            <sw-block-parent />
+                            <div v-else>Test else</div>
+                        `,
+                    },
+                ],
+                TEST_COMPONENT,
+            );
 
             expect(nativeTemplate).toContain(
                 `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, 'defaultSlot')})"`,
@@ -404,16 +422,19 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             const [
                 leadingEntry,
                 fallbackEntry,
-            ] = transformLegacyTwigBlockSequenceConditionals([
-                {
-                    blockName: 'test_block',
-                    innerTemplate: '<div v-if="condition">Test</div>',
-                },
-                {
-                    blockName: 'test_block2',
-                    innerTemplate: '<div v-else>Test else</div>',
-                },
-            ]);
+            ] = transformLegacyTwigBlockSequenceConditionals(
+                [
+                    {
+                        blockName: 'test_block',
+                        innerTemplate: '<div v-if="condition">Test</div>',
+                    },
+                    {
+                        blockName: 'test_block2',
+                        innerTemplate: '<div v-else>Test else</div>',
+                    },
+                ],
+                TEST_COMPONENT,
+            );
 
             expect(leadingEntry.innerTemplate).toContain(
                 `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, 'shimExtension')})"`,

@@ -234,7 +234,7 @@ function registerNormalizedTemplate(item) {
     // Apply overrides
     templateDefinition = applyTemplateOverrides(templateDefinition.name);
     templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
-    templateDefinition.html = transformNativeLegacyBlockConditionals(templateDefinition.html);
+    templateDefinition.html = transformNativeLegacyBlockConditionals(templateDefinition.html, templateDefinition.name);
 
     // Final template will be written to the registry
     normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);

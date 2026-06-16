@@ -4,10 +4,8 @@
  *
  * Block index for the Twig → Native Block Runtime Adapter.
  *
- * Populated synchronously whenever `async-component.factory.ts` processes a
- * `Shopware.Component.override()` call that carries a Twig template string.
- * At render time `sw-block` resolves entries from this prebuilt Map and injects
- * the shim slots without any additional Twig parsing on the hot path.
+ * Twig block entries are parsed synchronously whenever `async-component.factory.ts`
+ * processes a `Shopware.Component.override()` call.
  *
  * TwigJS is imported here for parsing only. The global TwigJS singleton is
  * already configured by `template.factory.js` (output tokens filtered,
@@ -16,25 +14,24 @@
 
 import Twig from 'twig';
 import reconstructInnerTemplate, { type TwigToken } from './reconstruct-twig-template';
-import { transformLegacyTwigBlockSequenceConditionals } from './transform-legacy-block-conditionals';
+import {
+    indexLegacyTwigBlockConditionEntries,
+    type LegacyTwigBlockSequenceEntry,
+} from './transform-legacy-block-conditionals';
 
 /**
  * @private
  */
-export type LegacyConditionCaseReservation = {
-    chainKey: string;
-    caseStartIndex: number;
-    caseCount: number;
-};
+export {
+    getLegacyTwigBlockEntries as getBlockEntries,
+    hasLegacyTwigBlockEntries as hasBlockEntries,
+    resetLegacyTwigBlockConditionIndex as resetBlockIndex,
+} from './transform-legacy-block-conditionals';
 
 /**
  * @private
  */
-export interface BlockEntry {
-    componentName: string;
-    innerTemplate: string;
-    legacyConditionCases: LegacyConditionCaseReservation[];
-}
+export type { BlockEntry } from './transform-legacy-block-conditionals';
 
 type ParsedTwigToken = {
     type: string;
@@ -57,7 +54,23 @@ function isBlockToken(token: ParsedTwigToken): token is ParsedBlockToken {
     return token.type === 'logic' && typeof token.token?.blockName === 'string';
 }
 
-const blockIndex = new Map<string, BlockEntry[]>();
+function parseTwigBlockEntries(componentName: string, rawTemplate: string): LegacyTwigBlockSequenceEntry[] | null {
+    let parsed: ReturnType<typeof Twig.twig>;
+
+    try {
+        parsed = Twig.twig({ data: rawTemplate, rethrow: true });
+    } catch (error) {
+        console.warn(`[sw-block] Failed to parse Twig template for "${componentName}":`, error);
+        return null;
+    }
+
+    const parsedTokens = parsed.tokens as ParsedTwigToken[];
+
+    return parsedTokens.filter(isBlockToken).map((token) => ({
+        blockName: token.token.blockName,
+        innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
+    }));
+}
 
 /**
  * Parses `rawTemplate` with TwigJS and indexes every top-level `{% block %}`
@@ -70,69 +83,11 @@ const blockIndex = new Map<string, BlockEntry[]>();
  * @private
  */
 export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string): void {
-    let parsed: ReturnType<typeof Twig.twig>;
+    const entries = parseTwigBlockEntries(componentName, rawTemplate);
 
-    try {
-        parsed = Twig.twig({ data: rawTemplate, rethrow: true });
-    } catch (error) {
-        console.warn(`[sw-block] Failed to parse Twig template for "${componentName}":`, error);
+    if (!entries) {
         return;
     }
 
-    const parsedTokens = parsed.tokens as ParsedTwigToken[];
-
-    const entries = parsedTokens.filter(isBlockToken).map((token) => ({
-        blockName: token.token.blockName,
-        innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
-    }));
-
-    const caseStartIndexByChainKey: Record<string, number> = {};
-    entries.forEach(({ blockName }) => {
-        getBlockEntries(blockName).forEach(({ legacyConditionCases }) => {
-            legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
-                caseStartIndexByChainKey[chainKey] = Math.max(
-                    caseStartIndexByChainKey[chainKey] ?? 0,
-                    caseStartIndex + caseCount,
-                );
-            });
-        });
-    });
-
-    const transformedEntries = transformLegacyTwigBlockSequenceConditionals(entries, caseStartIndexByChainKey);
-
-    transformedEntries.forEach((entry) => {
-        const existing = getBlockEntries(entry.blockName);
-
-        existing.push({
-            componentName,
-            innerTemplate: entry.innerTemplate,
-            legacyConditionCases: entry.legacyConditionCases,
-        });
-
-        blockIndex.set(entry.blockName, existing);
-    });
-}
-
-/**
- * @private
- */
-export function getBlockEntries(blockName: string): BlockEntry[] {
-    return blockIndex.get(blockName) ?? [];
-}
-
-/**
- * @private
- */
-export function hasBlockEntries(blockName: string): boolean {
-    return blockIndex.has(blockName);
-}
-
-/**
- * Clears the block index. Exposed for test teardown only — do not call in
- * production code.
- *
- * @private
- */
-export function resetBlockIndex(): void {
-    blockIndex.clear();
+    indexLegacyTwigBlockConditionEntries(componentName, entries);
 }

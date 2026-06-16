@@ -345,8 +345,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterByProperty() instead.
-     *
-     * @param mixed $value
      */
     public function filterByProperty(string $property, $value): static
     {
@@ -355,8 +353,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->filterAndReduceByProperty() instead.
-     *
-     * @param mixed $value
      */
     public function filterAndReduceByProperty(string $property, $value): static
     {
@@ -365,8 +361,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->merge() instead.
-     *
-     * @param EntityCollection<TElement> $collection
      */
     public function merge(EntityCollection $collection): void
     {
@@ -383,8 +377,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->getList() instead.
-     *
-     * @param array<string> $ids
      */
     public function getList(array $ids): static
     {
@@ -393,8 +385,6 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed. Use getEntities()->sortByIdArray() instead.
-     *
-     * @param array<array-key, array<string>|string> $ids
      */
     public function sortByIdArray(array $ids): void
     {

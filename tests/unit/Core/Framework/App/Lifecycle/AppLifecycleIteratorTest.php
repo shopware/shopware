@@ -134,7 +134,7 @@ class AppLifecycleIteratorTest extends TestCase
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $appLifecycle->expects($this->never())->method('install');
         $appLifecycle->expects($this->never())->method('update');
-        $appLifecycle->expects($this->once())->method('delete');
+        $appLifecycle->expects($this->once())->method('uninstall');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,
@@ -165,7 +165,7 @@ class AppLifecycleIteratorTest extends TestCase
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $appLifecycle->expects($this->never())->method('install');
         $appLifecycle->expects($this->never())->method('update');
-        $appLifecycle->expects($this->never())->method('delete');
+        $appLifecycle->expects($this->never())->method('uninstall');
 
         $lifecycle->iterateOverApps(
             $appLifecycle,

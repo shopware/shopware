@@ -669,6 +669,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.description',
             },
             {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
+            },
+            {
                 label: 'translations.DEFAULT.metaTitle',
                 value: 'translations.DEFAULT.metaTitle',
             },
@@ -756,6 +760,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.description',
                 value: 'translations.DEFAULT.description',
+            },
+            {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
             },
             {
                 label: 'translations.DEFAULT.metaTitle',
@@ -847,6 +855,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.description',
                 value: 'translations.DEFAULT.description',
+            },
+            {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
             },
             {
                 label: 'translations.DEFAULT.metaTitle',

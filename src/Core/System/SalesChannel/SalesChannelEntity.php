@@ -117,7 +117,12 @@ class SalesChannelEntity extends Entity
     protected bool $maintenance;
 
     /**
-     * @deprecated tag:v6.8.0 - Will be renamed to $maintenanceIpAllowlist
+     * @var list<string>|null
+     */
+    protected ?array $maintenanceIpAllowlist = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use $maintenanceIpAllowlist instead.
      *
      * @var list<string>|null
      */
@@ -373,7 +378,7 @@ class SalesChannelEntity extends Entity
      */
     public function getMaintenanceIpAllowlist(): ?array
     {
-        return $this->maintenanceIpWhitelist;
+        return $this->maintenanceIpAllowlist;
     }
 
     /**
@@ -381,6 +386,7 @@ class SalesChannelEntity extends Entity
      */
     public function setMaintenanceIpAllowlist(?array $maintenanceIpAllowlist): void
     {
+        $this->maintenanceIpAllowlist = $maintenanceIpAllowlist;
         $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
     }
 

@@ -1,0 +1,109 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Migration\V6_7\Migration1781614580AddMaintenanceIpAllowlistToSalesChannel;
+
+/**
+ * @internal
+ */
+#[Package('discovery')]
+#[CoversClass(Migration1781614580AddMaintenanceIpAllowlistToSalesChannel::class)]
+class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends TestCase
+{
+    use KernelTestBehaviour;
+
+    private Connection $connection;
+
+    private Migration1781614580AddMaintenanceIpAllowlistToSalesChannel $migration;
+
+    private string $salesChannelId;
+
+    private ?string $originalWhitelist = null;
+
+    protected function setUp(): void
+    {
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->migration = new Migration1781614580AddMaintenanceIpAllowlistToSalesChannel();
+
+        $id = $this->connection->fetchOne('SELECT id FROM `sales_channel` LIMIT 1');
+        static::assertIsString($id);
+        $this->salesChannelId = $id;
+        $this->originalWhitelist = $this->connection->fetchOne(
+            'SELECT maintenance_ip_whitelist FROM `sales_channel` WHERE id = :id',
+            ['id' => $this->salesChannelId]
+        ) ?: null;
+    }
+
+    #[After]
+    public function cleanUp(): void
+    {
+        // make sure the column exists again for the remaining test suite
+        $this->migration->update($this->connection);
+
+        $this->connection->update(
+            'sales_channel',
+            [
+                'maintenance_ip_whitelist' => $this->originalWhitelist,
+                'maintenance_ip_allowlist' => $this->originalWhitelist,
+            ],
+            ['id' => $this->salesChannelId]
+        );
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1781614580, $this->migration->getCreationTimestamp());
+    }
+
+    public function testMigrationAddsColumnAndCopiesData(): void
+    {
+        $this->rollback();
+
+        static::assertFalse($this->columnExists());
+
+        $this->connection->update(
+            'sales_channel',
+            ['maintenance_ip_whitelist' => json_encode(['127.0.0.1', '::1'], \JSON_THROW_ON_ERROR)],
+            ['id' => $this->salesChannelId]
+        );
+
+        // running twice must be idempotent
+        $this->migration->update($this->connection);
+        $this->migration->update($this->connection);
+
+        static::assertTrue($this->columnExists());
+
+        $allowlist = $this->connection->fetchOne(
+            'SELECT maintenance_ip_allowlist FROM `sales_channel` WHERE id = :id',
+            ['id' => $this->salesChannelId]
+        );
+
+        static::assertIsString($allowlist);
+        static::assertSame(['127.0.0.1', '::1'], json_decode($allowlist, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    private function rollback(): void
+    {
+        $this->connection->executeStatement('DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_insert');
+        $this->connection->executeStatement('DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_update');
+
+        if ($this->columnExists()) {
+            $this->connection->executeStatement('ALTER TABLE `sales_channel` DROP COLUMN `maintenance_ip_allowlist`');
+        }
+    }
+
+    private function columnExists(): bool
+    {
+        return $this->connection->fetchOne(
+            'SHOW COLUMNS FROM `sales_channel` LIKE :column',
+            ['column' => 'maintenance_ip_allowlist']
+        ) !== false;
+    }
+}

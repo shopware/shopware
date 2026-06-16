@@ -104,7 +104,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         $salesChannelData = $builder->select(
             'sales_channel.id AS id',
             'sales_channel.maintenance AS maintenance',
-            'sales_channel.maintenance_ip_whitelist as maintenanceIpWhitelist'
+            'sales_channel.maintenance_ip_allowlist as maintenanceIpAllowlist'
         )
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')
@@ -146,7 +146,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
 
         try {
             /** @var list<string> $allowedIps */
-            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
+            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpAllowlist'] ?? ''));
         } catch (UtilException) {
             return;
         }

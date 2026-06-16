@@ -107,7 +107,7 @@ class RequestTransformerTest extends TestCase
                 'languageId' => $languageId,
                 'themeId' => $themeId,
                 'maintenance' => '0',
-                'maintenanceIpWhitelist' => '',
+                'maintenanceIpAllowlist' => '',
                 'locale' => 'en-GB',
                 'themeName' => 'Storefront',
                 'parentThemeName' => '',

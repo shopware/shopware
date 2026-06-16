@@ -128,7 +128,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the sales channel is enabled.'),
             (new BoolField('hreflang_active', 'hreflangActive'))->addFlags(new ApiAware())->setDescription('When set to true, the sales channel pages are available in different languages.'),
             (new BoolField('maintenance', 'maintenance'))->addFlags(new ApiAware())->setDescription('When `true`, it indicates that the sales channel is undergoing maintenance, and shopping is temporarily unavailable during this period.'),
-            /** @deprecated tag:v6.8.0 - Will be renamed to (new ListField('maintenance_ip_allowlist', 'maintenanceIpAllowlist', StringField::class)) */
+            (new ListField('maintenance_ip_allowlist', 'maintenanceIpAllowlist', StringField::class))->setDescription('List of IP addresses allowed to access the sales channel while the maintenance mode is active.'),
+            /** @deprecated tag:v6.8.0 - Will be removed, use `maintenanceIpAllowlist` instead. */
             (new ListField('maintenance_ip_whitelist', 'maintenanceIpWhitelist', StringField::class))->setDescription('List of IP addresses used when the maintenance mode is active.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),

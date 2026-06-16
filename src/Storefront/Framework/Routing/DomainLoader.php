@@ -44,7 +44,7 @@ class DomainLoader extends AbstractDomainLoader
             'LOWER(HEX(domain.language_id)) languageId',
             'LOWER(HEX(theme.id)) themeId',
             'sales_channel.maintenance maintenance',
-            'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
+            'sales_channel.maintenance_ip_allowlist maintenanceIpAllowlist',
             'snippet_set.iso as locale',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',

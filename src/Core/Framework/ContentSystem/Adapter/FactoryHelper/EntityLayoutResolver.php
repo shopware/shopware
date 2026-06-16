@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -28,60 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
 class EntityLayoutResolver
 {
     /**
-     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
-     */
-    public function resolve(
-        string $entityId,
-        Request $request,
-        SalesChannelContext $context,
-        EntityRepository $repository,
-        AbstractContentLayoutAssignableDefinition $definition
-    ): LayoutResolutionResult {
-        $entityIdField = $definition->getContentLayoutEntityIdField();
-        $entityType = $definition->getContentLayoutEntityType();
-
-        $assignment = $this->findLayoutAssignment($entityIdField, $entityId, $context, $repository);
-
-        if ($assignment === null) {
-            throw ContentSystemException::layoutAssignmentNotFound(
-                $entityType,
-                $entityId,
-                $context->getSalesChannel()->getId()
-            );
-        }
-
-        $placeholderValues = $this->buildPlaceholderValues($entityIdField, $entityId, $request);
-
-        return new LayoutResolutionResult(
-            assignment: $assignment,
-            placeholderValues: $placeholderValues
-        );
-    }
-
-    /**
-     * Finds layout assignment with sales channel fallback priority: specific → global (null).
-     *
-     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
-     */
-    public function findLayoutAssignment(
-        string $entityIdField,
-        string $entityId,
-        SalesChannelContext $context,
-        EntityRepository $repository
-    ): ?AbstractContentLayoutAssignmentEntity {
-        $criteria = $this->buildAssignmentCriteria($entityIdField, $entityId, $context);
-        $criteria->addAssociation('contentLayout');
-
-        $entity = $repository->search($criteria, $context->getContext())->first();
-
-        if (!$entity instanceof AbstractContentLayoutAssignmentEntity) {
-            return null;
-        }
-
-        return $entity;
-    }
-
-    /**
      * Returns only the content layout ID without loading the full assignment or contentLayout association.
      *
      * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
@@ -103,6 +47,19 @@ class EntityLayoutResolver
         return $entity->getContentLayoutId();
     }
 
+    public function resolvePlaceholders(
+        string $entityIdField,
+        string $entityId,
+        Request $request
+    ): PlaceholderValues {
+        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
+
+        return PlaceholderValues::from(array_merge(
+            [$entityIdField => $entityId],
+            $scalarParameters
+        ));
+    }
+
     private function buildAssignmentCriteria(string $entityIdField, string $entityId, SalesChannelContext $context): Criteria
     {
         $criteria = new Criteria();
@@ -115,18 +72,5 @@ class EntityLayoutResolver
         $criteria->setLimit(1);
 
         return $criteria;
-    }
-
-    private function buildPlaceholderValues(
-        string $entityIdField,
-        string $entityId,
-        Request $request
-    ): PlaceholderValues {
-        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
-
-        return PlaceholderValues::from(array_merge(
-            [$entityIdField => $entityId],
-            $scalarParameters
-        ));
     }
 }

@@ -6,8 +6,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Bundles data requirements and placeholder values since both are
- * produced from the same layout assignment resolution.
+ * Bundles the data requirements derived from the entity definition with the
+ * placeholder values derived from the request path and query parameters.
  */
 #[Package('framework')]
 final readonly class SpecificationData

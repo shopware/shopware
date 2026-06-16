@@ -4,11 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter\FactoryHelper
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -29,41 +26,17 @@ class EntityLayoutResolverTest extends TestCase
         $this->resolver = new EntityLayoutResolver();
     }
 
-    #[TestDox('returns layout resolution result with assignment and placeholders')]
-    public function testReturnsResolutionResultWithAssignmentAndPlaceholders(): void
+    #[TestDox('builds placeholder values from entity id field and scalar query parameters, ignoring non-scalar parameters')]
+    public function testResolvePlaceholdersMergesEntityIdWithScalarQueryParameters(): void
     {
-        $entityId = Uuid::randomHex();
-        $layoutId = Uuid::randomHex();
-        $entity = $this->createAssignmentEntity($layoutId);
+        $request = new Request(['color' => 'red', 'tags' => ['a', 'b']]);
 
-        $repository = $this->createRepository($entity);
+        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1', $request);
 
-        $definition = $this->createDefinitionMock('product', 'productId');
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
-
-        static::assertSame($entity, $result->assignment);
-        static::assertSame($entityId, $result->placeholderValues->all()['productId']);
-    }
-
-    #[TestDox('throws layout assignment not found when no assignment exists')]
-    public function testThrowsWhenNoAssignment(): void
-    {
-        $entityId = Uuid::randomHex();
-
-        $repository = $this->createRepository();
-
-        $definition = $this->createDefinitionMock('product', 'productId');
-        $context = Generator::generateSalesChannelContext();
-
-        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
-            'product',
-            $entityId,
-            $context->getSalesChannel()->getId()
-        ));
-
-        $this->resolver->resolve($entityId, new Request(), $context, $repository, $definition);
+        static::assertSame(
+            ['productId' => 'product-id-1', 'color' => 'red'],
+            $result->all()
+        );
     }
 
     #[TestDox('returns layout ID when assignment exists')]
@@ -110,14 +83,5 @@ class EntityLayoutResolverTest extends TestCase
         $entity->setContentLayoutId($layoutId);
 
         return $entity;
-    }
-
-    private function createDefinitionMock(string $entityType, string $entityIdField): AbstractContentLayoutAssignableDefinition&Stub
-    {
-        $definition = static::createStub(AbstractContentLayoutAssignableDefinition::class);
-        $definition->method('getContentLayoutEntityType')->willReturn($entityType);
-        $definition->method('getContentLayoutEntityIdField')->willReturn($entityIdField);
-
-        return $definition;
     }
 }

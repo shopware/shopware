@@ -115,6 +115,20 @@ Rules:
     `expect`) and `toBeInViewport` (not `toBeVisible`) rules.
   - [`executors/direct.md`](executors/direct.md) — `ReproTest.php`: a PHPUnit integration
     test reusing the fix PR's setup; PHPUnit summary → status mapping.
+- `precheck` (OPTIONAL, only meaningful with a `*-ui` primary): a cheap **http** sub-plan run
+  BEFORE the expensive browser leg, so the most fixture-fragile path (the storefront render)
+  can be skipped when a faithful API check already settles the leg. Shape = the http
+  executor's own fields plus a `trusted` boolean — `{ "trusted": true, "request": {...},
+  "assertion": {...} }` (issue/version are inherited from the parent plan). Decision rule
+  (enforced by `bin/run-precheck.sh`): a **trusted + conclusive** precheck stands as the leg
+  verdict and skips Playwright; an **untrusted or inconclusive** precheck is corroboration
+  only and Playwright still runs. Set `trusted: true` ONLY when the precheck faithfully
+  exhibits the DOCUMENTED symptom — either it is derived from the fix PR's regression test, OR
+  it asserts that symptom against a real store-api/service response (the same data the UI
+  renders, e.g. the category/CMS-page resolve endpoint's product-slider element). A *guessed*
+  precheck must NEVER be `trusted` (it could "reproduce" a different problem → a false
+  `reproduced`). Omit `precheck` entirely when no faithful API-level assertion of the symptom
+  exists.
 - `script_path` names the generated script (`repro.spec.ts` for playwright, `ReproTest.php`
   for direct; omit for http). `assertion.field` is a jq path used only by `response_field`;
   `assertion.locator` is a human reference to the endpoint/UI element.

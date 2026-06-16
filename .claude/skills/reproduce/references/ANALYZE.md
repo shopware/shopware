@@ -46,6 +46,15 @@ fixtures — the report is public.
    file's authoring contract for the script that executor needs (http → `request`/`requests`
    in analysis.json, no separate file; playwright → `repro.spec.ts`; direct →
    `ReproTest.php`; set `script_path` accordingly).
+   - **When you pick `*-ui` (playwright), also consider an http `precheck`.** A storefront
+     render depends on a perfectly-seeded entity graph and is the most fragile path; if the
+     SAME symptom is observable in a store-api/service response (e.g. the category/CMS-page
+     resolve endpoint exposes the product-slider element and its products), ALSO emit a
+     `precheck` http sub-plan (see SCHEMA `precheck`). Mark it `trusted: true` ONLY when it
+     faithfully exhibits the DOCUMENTED symptom (fix-PR-derived, or asserting that symptom on
+     a real API response); a trusted+conclusive precheck lets execute skip the browser leg.
+     If you cannot assert the symptom faithfully at the API level, omit `precheck` and rely on
+     playwright alone — never mark a guessed precheck `trusted`.
 
 ## Economy (hard budget)
 

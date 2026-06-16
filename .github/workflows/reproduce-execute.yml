@@ -145,12 +145,26 @@ jobs:
           APP_URL: ${{ steps.provision.outputs.app_url }}
           SC_ID: ${{ steps.provision.outputs.sc_id }}
         run: PAYLOAD=fixtures.json bash .github/actions/repro/bin/seed.sh
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      # Staged precheck: for a playwright leg, try analyze's cheap http precheck FIRST. A
+      # TRUSTED + conclusive precheck stands as the leg verdict and skips the (expensive,
+      # render-dependent) Playwright steps below; otherwise it is corroboration only. See
+      # bin/run-precheck.sh. continue-on-error: a precheck failure must never block the leg.
+      - name: Run precheck (cheap http; may skip Playwright)
+        id: precheck
         if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        continue-on-error: true
+        env:
+          TARGET: ${{ steps.plan.outputs.role }}
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+          SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
+          SC_ID: ${{ steps.provision.outputs.sc_id }}
+        run: bash .github/actions/repro/bin/run-precheck.sh
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success' && steps.precheck.outputs.decisive != 'true'
         with:
           node-version: 22
       - name: Install Playwright
-        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success' && steps.precheck.outputs.decisive != 'true'
         run: |
           npm init -y >/dev/null
           npm i -D @playwright/test
@@ -162,7 +176,7 @@ jobs:
           FAILED: ${{ steps.seed.outcome == 'failure' && 'seed' || 'provision' }}
         run: bash .github/actions/repro/bin/leg-blocked.sh
       - name: Run executor
-        if: steps.provision.outcome != 'failure' && steps.seed.outcome != 'failure'
+        if: steps.provision.outcome != 'failure' && steps.seed.outcome != 'failure' && steps.precheck.outputs.decisive != 'true'
         env:
           TARGET: ${{ steps.plan.outputs.role }}
           EXECUTOR: ${{ steps.plan.outputs.executor }}
@@ -176,6 +190,8 @@ jobs:
           name: repro-${{ steps.plan.outputs.role }}
           path: |
             result.json
+            precheck-result.json
+            precheck.json
             repro.sh
             repro.spec.ts
             ReproTest.php

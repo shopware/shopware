@@ -48,4 +48,19 @@ check "single-leg trunk clean -> not_repro"    not_reproducible "$(verdict null 
 check "inconclusive -> needs_human_review"     needs_human_review "$(verdict inconclusive not_reproduced)"
 check "low-confidence plan -> needs_human"     needs_human_review "$(verdict reproduced reproduced true)"
 
+# --- staged precheck gate (bin/run-precheck.sh): a TRUSTED + conclusive http precheck
+# decides the leg and skips the playwright run; an UNTRUSTED or INCONCLUSIVE precheck is
+# corroboration only and playwright still runs. A guessed precheck never decides → the
+# pipeline can never emit a false `reproduced` from a precheck.
+decisive () { # decisive <trusted> <precheck_status>
+  if [ "$1" = true ] && { [ "$2" = reproduced ] || [ "$2" = not_reproduced ]; }; then echo true; else echo false; fi
+}
+echo "staged precheck gate:"
+check "trusted+reproduced -> decides leg"       true  "$(decisive true  reproduced)"
+check "trusted+not_reproduced -> decides leg"   true  "$(decisive true  not_reproduced)"
+check "trusted+inconclusive -> fall back"       false "$(decisive true  inconclusive)"
+check "trusted+blocked -> fall back"            false "$(decisive true  blocked)"
+check "untrusted+reproduced -> fall back"       false "$(decisive false reproduced)"
+check "untrusted+not_reproduced -> fall back"   false "$(decisive false not_reproduced)"
+
 [ "$fail" = 0 ] && echo "PASS" || { echo "FAILURES"; exit 1; }

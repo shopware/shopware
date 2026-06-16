@@ -26,6 +26,11 @@ describe('pseudo-modal.util tests', () => {
             document.body.appendChild(html);
         });
 
+        window.focusHandler = {
+            addFocusTrapGuard: jest.fn(),
+            removeFocusTrapGuard: jest.fn(),
+        };
+
         jest.useFakeTimers();
         pseudoModal = initialModal();
     });

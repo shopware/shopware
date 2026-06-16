@@ -263,6 +263,8 @@ function create(initialTab = 'shipping') {
     window.focusHandler = {
         saveFocusState: jest.fn(),
         resumeFocusState: jest.fn(),
+        addFocusTrapGuard: jest.fn(),
+        removeFocusTrapGuard: jest.fn(),
     };
 
     const addressManager = new AddressManagerPlugin(element, {

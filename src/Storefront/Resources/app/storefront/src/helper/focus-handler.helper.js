@@ -1,4 +1,3 @@
-// Class for the temporary focusable element that keeps the Bootstrap focus-trap working.
 const FOCUS_TRAP_GUARD_CLASS = 'js-focus-trap-guard';
 
 /**
@@ -20,7 +19,7 @@ export default class FocusHandler {
         // Stores different focus states.
         this._focusMap = new Map();
 
-        // Reference to the currently active focus-trap guard element (if any).
+        // Reference to the currently active focus-trap guard element.
         this._focusTrapGuard = null;
 
         this._focusAbleElements = `

@@ -51,7 +51,7 @@ https://getbootstrap.com/docs/5.2/components/modal
  * working when it is the last focusable element before `</body>`. Pinned inside the viewport so the
  * browser does not scroll to the bottom of the page while focus briefly bumps to it.
  *
- * @see https://github.com/twbs/bootstrap/issues/42503
+ * @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
  */
 .js-focus-trap-guard {
     position: fixed;

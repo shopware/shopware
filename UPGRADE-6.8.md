@@ -148,10 +148,10 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
-## Customer default address detail routes return only the configured default address
+## Reference-based Admin API detail routes use one-to-one associations
 
-The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
-Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
+Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
 </details>
 

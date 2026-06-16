@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 
+// Keeps the current mt-data-table renderer contract pinned while sw-meteor-entity-data-table is built on top of it.
+// Remove this once the upstream custom-cell and built-in renderer API is covered by Meteor's own public tests.
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import MtDataTable from '@shopware-ag/meteor-component-library/dist/esm/MtDataTable';

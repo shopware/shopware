@@ -100,7 +100,7 @@ const syncComponents = new Set<string>();
 function rejectNativeShopwareComponentName(componentName: string, componentConfiguration: unknown): false {
     warn(
         'ComponentFactory',
-        `The component "${componentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use Shopware.Component.overrideComponentSetup() and/or sw-block instead.`,
+        `The component "${componentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`,
         componentConfiguration,
     );
 

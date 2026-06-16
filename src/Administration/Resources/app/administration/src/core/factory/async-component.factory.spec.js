@@ -13,7 +13,7 @@ import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { isNativeShopwareComponentName, nativeShopwareComponentNames } from 'src/app/component/native-shopware-components';
 
 const nativeShopwareComponentName = 'sw-meteor-entity-data-table';
-const nativeComponentWarning = `The component "${nativeShopwareComponentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use Shopware.Component.overrideComponentSetup() and/or sw-block instead.`;
+const nativeComponentWarning = `The component "${nativeShopwareComponentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`;
 
 function createComponentMatrix(components) {
     const possibilities = [

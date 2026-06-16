@@ -6,67 +6,79 @@
 
 export type SwMeteorEntityDataTableColumnRenderer = 'text' | 'number' | 'price' | 'badge';
 
-export type SwMeteorEntityDataTableColumn = {
-    property: string;
-    dataIndex?: string;
-    label: string;
-    renderer?: SwMeteorEntityDataTableColumnRenderer;
-    rendererOptions?: unknown;
-    position?: number;
-    sortable?: boolean;
-    allowResize?: boolean;
-    visible?: boolean;
-    width?: string | number;
-    naturalSorting?: boolean;
-    useCustomSort?: boolean;
-    clickable?: boolean;
-};
+/**
+ * Mirrors MtColorBadgeVariant from @shopware-ag/meteor-component-library so consumers get the
+ * same badge variants the mt-data-table badge renderer accepts.
+ */
+export type SwMeteorEntityDataTableBadgeVariant = 'default' | 'warning' | 'critical' | 'positive' | 'info';
 
-export type SwMeteorEntityDataTableNormalizedColumn = {
-    label: string;
+type SwMeteorEntityDataTableBaseColumn = {
     property: string;
-    renderer: SwMeteorEntityDataTableColumnRenderer;
-    position: number;
-    rendererOptions?: unknown;
+    label: string;
     sortable?: boolean;
-    allowResize?: boolean;
-    visible?: boolean;
     width?: number;
+    visible?: boolean;
+
+    /**
+     * DAL field or fields used for sorting. Defaults to `property`.
+     */
+    sortField?: string | string[];
+    naturalSorting?: boolean;
+};
+
+export type SwMeteorEntityDataTableTextColumn = SwMeteorEntityDataTableBaseColumn & {
+    renderer?: 'text';
+    clickable?: boolean;
+    previewImage?: string;
+};
+
+export type SwMeteorEntityDataTableNumberColumn = SwMeteorEntityDataTableBaseColumn & {
+    renderer: 'number';
     clickable?: boolean;
 };
 
-export type SwMeteorEntityDataTableColumnSortMetadata = {
-    property: string;
-    dataIndex: string;
-    naturalSorting: boolean;
-    useCustomSort: boolean;
-    sourceColumn: SwMeteorEntityDataTableColumn;
+export type SwMeteorEntityDataTableBadgeColumn = SwMeteorEntityDataTableBaseColumn & {
+    renderer: 'badge';
+    rendererOptions: {
+        renderItemBadge: (
+            data: unknown,
+            columnDefinition: SwMeteorEntityDataTableBadgeColumn,
+        ) => {
+            label: string;
+            variant: SwMeteorEntityDataTableBadgeVariant;
+        };
+    };
 };
 
-export type SwMeteorEntityDataTableColumnNormalization = {
-    columns: SwMeteorEntityDataTableNormalizedColumn[];
-    sortMetadataByProperty: Record<string, SwMeteorEntityDataTableColumnSortMetadata>;
-};
-
-export type SwMeteorEntityDataTableSelectionChangePayload = string[];
-
-export type SwMeteorEntityDataTableOpenDetailsPayload = {
-    id: string;
-};
-
-export type SwMeteorEntityDataTableContextSelectPayload<TEntity = unknown> = {
-    key: string;
-    data: TEntity;
+export type SwMeteorEntityDataTablePriceColumn = SwMeteorEntityDataTableBaseColumn & {
+    renderer: 'price';
+    rendererOptions: {
+        currencyId: string;
+        currencyISOCode: string;
+        source: 'gross' | 'net';
+    };
+    clickable?: boolean;
 };
 
 /**
- * mt-data-table exposes one detail action. The wrapper maps both allowEdit and allowView
- * to that action when showActions is enabled, so Meteor cannot distinguish the edit/view label yet.
+ * Discriminated on `renderer`. `badge` and `price` require their `rendererOptions`, matching the
+ * underlying mt-data-table column definitions. Column order follows declaration order; the wrapper
+ * assigns the table `position` internally.
  */
-export type SwMeteorEntityDataTableActionAclProps = {
-    allowEdit?: boolean;
-    allowView?: boolean;
-    allowDelete?: boolean;
-    allowBulkDelete?: boolean;
-    showActions?: boolean;
+export type SwMeteorEntityDataTableColumn =
+    | SwMeteorEntityDataTableTextColumn
+    | SwMeteorEntityDataTableNumberColumn
+    | SwMeteorEntityDataTableBadgeColumn
+    | SwMeteorEntityDataTablePriceColumn;
+
+export type SwMeteorEntityDataTableSortDirection = 'ASC' | 'DESC';
+
+export type SwMeteorEntityDataTableState = {
+    page: number;
+    limit: number;
+    searchTerm: string;
+    sort?: {
+        property: string;
+        direction: SwMeteorEntityDataTableSortDirection;
+    };
 };

@@ -1,60 +1,48 @@
 <template>
-    <sw-block name="sw_meteor_entity_data_table" :data="blockDataScope">
-        <div class="sw-meteor-entity-data-table">
-            <sw-block name="sw_meteor_entity_data_table_before_table" :data="blockDataScope" />
+    <div class="sw-meteor-entity-data-table">
+        <mt-data-table
+            class="sw-meteor-entity-data-table__table"
+            :data-source="records"
+            :columns="resolvedColumns"
+            :current-page="state.page"
+            :pagination-limit="state.limit"
+            :pagination-options="paginationOptions"
+            :pagination-total-items="total"
+            :sort-by="state.sort?.property ?? ''"
+            :sort-direction="state.sort?.direction ?? 'ASC'"
+            :search-value="state.searchTerm"
+            :is-loading="loading"
+            :allow-row-selection="selectable"
+            :selected-rows="selectedIds"
+            :disable-search="!searchable"
+            :enable-reload="reloadable"
+            :disable-edit="true"
+            :disable-delete="true"
+            :disable-settings-table="true"
+            @sort-change="setSort"
+            @pagination-current-page-change="setPage"
+            @pagination-limit-change="setLimit"
+            @search-value-change="setSearchTerm"
+            @selection-change="onSelectionChange"
+            @multiple-selection-change="onMultipleSelectionChange"
+            @reload="reload"
+            @open-details="openDetail"
+        >
+            <template
+                v-if="$slots.toolbar"
+                #toolbar
+            >
+                <slot name="toolbar" />
+            </template>
 
-            <sw-block name="sw_meteor_entity_data_table_table" :data="blockDataScope">
-                <mt-data-table
-                    class="sw-meteor-entity-data-table__table"
-                    :data-source="dataSource"
-                    :columns="normalizedColumns"
-                    :current-page="page"
-                    :pagination-limit="limit"
-                    :pagination-options="paginationOptions"
-                    :pagination-total-items="totalItems"
-                    :sort-by="sortBy"
-                    :sort-direction="sortDirection"
-                    :search-value="searchTerm"
-                    :is-loading="loading"
-                    :allow-row-selection="allowRowSelection"
-                    :allow-bulk-delete="tableAllowBulkDelete"
-                    :allow-bulk-edit="allowBulkEdit"
-                    :selected-rows="selectedIds"
-                    :disable-row-select="disableRowSelect"
-                    :disable-search="disableSearch"
-                    :disable-edit="tableDisableEdit"
-                    :disable-delete="tableDisableDelete"
-                    :disable-settings-table="disableSettingsTable"
-                    :enable-reload="enableReload"
-                    :column-changes="columnChanges"
-                    :additional-context-buttons="tableAdditionalContextButtons"
-                    @sort-change="setSort"
-                    @pagination-current-page-change="setPage"
-                    @pagination-limit-change="setLimit"
-                    @search-value-change="onSearchValueChange"
-                    @selection-change="onSelectionChange"
-                    @multiple-selection-change="onMultipleSelectionChange"
-                    @reload="onReload"
-                    @open-details="onOpenDetails"
-                    @context-select="onContextSelect"
-                >
-                    <template #toolbar="toolbarScope">
-                        <sw-block name="sw_meteor_entity_data_table_toolbar" :data="blockDataScope">
-                            <slot name="toolbar" v-bind="toolbarScope || {}"></slot>
-                        </sw-block>
-                    </template>
-
-                    <template #empty-state="emptyStateScope">
-                        <sw-block name="sw_meteor_entity_data_table_empty_state" :data="blockDataScope">
-                            <slot name="empty-state" v-bind="emptyStateScope || {}"></slot>
-                        </sw-block>
-                    </template>
-                </mt-data-table>
-            </sw-block>
-
-            <sw-block name="sw_meteor_entity_data_table_after_table" :data="blockDataScope" />
-        </div>
-    </sw-block>
+            <template
+                v-if="$slots['empty-state']"
+                #empty-state
+            >
+                <slot name="empty-state" />
+            </template>
+        </mt-data-table>
+    </div>
 </template>
 
 <script lang="ts">
@@ -71,11 +59,11 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import { normalizeSwMeteorEntityDataTableColumns } from './sw-meteor-entity-data-table-column-normalizer';
 import type {
     SwMeteorEntityDataTableColumn,
-    SwMeteorEntityDataTableColumnSortMetadata,
-    SwMeteorEntityDataTableNormalizedColumn,
+    SwMeteorEntityDataTableColumnRenderer,
+    SwMeteorEntityDataTableSortDirection,
+    SwMeteorEntityDataTableState,
 } from './sw-meteor-entity-data-table.types';
 
 type SwMeteorEntityDataTableEntityName = keyof EntitySchema.Entities;
@@ -89,17 +77,17 @@ type SwMeteorEntityDataTableRecord =
 
 type SwMeteorEntityDataTableRecords = EntityCollection<SwMeteorEntityDataTableEntityName> | SwMeteorEntityDataTableRecord[];
 
-type SwMeteorEntityDataTableColumnChanges = {
-    property?: string;
-    position?: number;
+type SwMeteorEntityDataTableResolvedColumn = {
+    property: string;
+    label: string;
+    renderer: SwMeteorEntityDataTableColumnRenderer;
+    position: number;
+    sortable?: boolean;
     width?: number;
     visible?: boolean;
-};
-
-type SwMeteorEntityDataTableAdditionalContextButton = {
-    type?: 'default' | 'active' | 'critical';
-    label: string;
-    key: string;
+    clickable?: boolean;
+    previewImage?: string;
+    rendererOptions?: unknown;
 };
 
 type SwMeteorEntityDataTableProps = {
@@ -107,38 +95,15 @@ type SwMeteorEntityDataTableProps = {
     columns: SwMeteorEntityDataTableColumn[];
     criteria?: CriteriaType | null;
     context?: ApiContext | null;
-    identifier?: string | null;
-    detailRoute?: string | null;
-    allowEdit?: boolean;
-    allowView?: boolean;
-    allowDelete?: boolean;
-    allowBulkDelete?: boolean;
-    allowBulkEdit?: boolean;
-    allowRowSelection?: boolean;
-    showActions?: boolean;
-    showSettings?: boolean;
-    enableReload?: boolean;
-    records?: SwMeteorEntityDataTableRecords | null;
-    total?: number | null;
-    isLoading?: boolean;
-    disableDataFetching?: boolean;
-    disableSearch?: boolean;
-    searchValue?: string;
-    paginationOptions?: number[];
     initialPage?: number;
     initialLimit?: number;
-    title?: string;
-    subtitle?: string;
-    caption?: string;
-    layout?: 'default' | 'full';
-    additionalContextButtons?: SwMeteorEntityDataTableAdditionalContextButton[];
-};
-
-type SwMeteorEntityDataTableSortDirection = 'ASC' | 'DESC';
-
-type SwMeteorEntityDataTableContextSelectPayload = {
-    key: string;
-    data: SwMeteorEntityDataTableRecord;
+    initialSearchTerm?: string;
+    initialSort?: SwMeteorEntityDataTableState['sort'] | null;
+    paginationOptions?: number[];
+    searchable?: boolean;
+    reloadable?: boolean;
+    selectable?: boolean;
+    detailRoute?: string | null;
 };
 
 type SelectionChangePayload = {
@@ -154,50 +119,26 @@ type MultipleSelectionChangePayload = {
 type SwMeteorEntityDataTableRouter = Pick<Router, 'push'>;
 
 type SwMeteorEntityDataTablePublicApi = {
-    dataSource: Ref<SwMeteorEntityDataTableRecords>;
-    totalItems: Ref<number>;
-    page: Ref<number>;
-    limit: Ref<number>;
-    sortBy: Ref<string>;
-    sortDirection: Ref<SwMeteorEntityDataTableSortDirection>;
-    searchTerm: Ref<string>;
+    records: Ref<SwMeteorEntityDataTableRecords>;
+    total: Ref<number>;
     loading: Ref<boolean>;
+    state: Ref<SwMeteorEntityDataTableState>;
     selectedIds: Ref<string[]>;
-    columnChanges: Ref<Record<string, SwMeteorEntityDataTableColumnChanges>>;
-    normalizedColumns: ComputedRef<SwMeteorEntityDataTableNormalizedColumn[]>;
+    resolvedColumns: ComputedRef<SwMeteorEntityDataTableResolvedColumn[]>;
     buildCriteria: () => CriteriaType;
-    loadData: () => Promise<void>;
-    setSort: (property: string, direction: SwMeteorEntityDataTableSortDirection) => Promise<void> | void;
-    setPage: (page: number) => Promise<void> | void;
-    setLimit: (limit: number) => Promise<void> | void;
+    load: () => Promise<void>;
+    reload: () => Promise<void>;
+    setPage: (page: number) => Promise<void>;
+    setLimit: (limit: number) => Promise<void>;
+    setSearchTerm: (term: string) => Promise<void>;
+    setSort: (property: string, direction: SwMeteorEntityDataTableSortDirection) => Promise<void>;
     setSelectedIds: (selectedIds: string[]) => void;
-    deleteItem: (id: string) => Promise<void>;
-    deleteItems: (ids: string[]) => Promise<void>;
-};
-
-type SwMeteorEntityDataTableBlockDataScope = {
-    [Property in keyof SwMeteorEntityDataTablePublicApi]: SwMeteorEntityDataTablePublicApi[Property] extends Ref<
-        infer TValue
-    >
-        ? TValue
-        : SwMeteorEntityDataTablePublicApi[Property];
 };
 
 type SwMeteorEntityDataTablePrivateApi = {
-    blockDataScope: ComputedRef<SwMeteorEntityDataTableBlockDataScope>;
-    disableRowSelect: Ref<string[]>;
-    tableAllowBulkDelete: ComputedRef<boolean>;
-    tableDisableEdit: ComputedRef<boolean>;
-    tableDisableDelete: ComputedRef<boolean>;
-    tableAdditionalContextButtons: ComputedRef<SwMeteorEntityDataTableAdditionalContextButton[]>;
-    disableSettingsTable: ComputedRef<boolean>;
-    columnSortMetadataByProperty: ComputedRef<Record<string, SwMeteorEntityDataTableColumnSortMetadata>>;
     onSelectionChange: (payload: SelectionChangePayload) => void;
     onMultipleSelectionChange: (payload: MultipleSelectionChangePayload) => void;
-    onSearchValueChange: (term: string) => void;
-    onOpenDetails: (record: SwMeteorEntityDataTableRecord) => void;
-    onContextSelect: (payload: SwMeteorEntityDataTableContextSelectPayload) => void;
-    onReload: () => void;
+    openDetail: (record: SwMeteorEntityDataTableRecord) => void;
 };
 
 declare global {
@@ -207,8 +148,6 @@ declare global {
 }
 
 type SetupProps = SwMeteorEntityDataTableProps & Record<string, unknown>;
-
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default defineComponent({
@@ -237,106 +176,28 @@ export default defineComponent({
             default: null,
         },
 
-        identifier: {
-            type: String,
+        initialPage: {
+            type: Number,
             required: false,
-            default: null,
+            default: 1,
         },
 
-        detailRoute: {
-            type: String,
+        initialLimit: {
+            type: Number,
             required: false,
-            default: null,
+            default: 25,
         },
 
-        allowEdit: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        allowView: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        allowDelete: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        allowBulkDelete: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        allowBulkEdit: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        allowRowSelection: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        showActions: {
-            type: Boolean,
-            required: false,
-            default: true,
-        },
-
-        showSettings: {
-            type: Boolean,
-            required: false,
-            default: true,
-        },
-
-        enableReload: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        records: {
-            type: Array as PropType<SwMeteorEntityDataTableRecords | null>,
-            required: false,
-            default: null,
-        },
-
-        total: {
-            type: Number as PropType<SwMeteorEntityDataTableProps['total']>,
-            required: false,
-            default: null,
-        },
-
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        disableDataFetching: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        disableSearch: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        searchValue: {
+        initialSearchTerm: {
             type: String,
             required: false,
             default: '',
+        },
+
+        initialSort: {
+            type: Object as PropType<SwMeteorEntityDataTableProps['initialSort']>,
+            required: false,
+            default: null,
         },
 
         paginationOptions: {
@@ -352,70 +213,37 @@ export default defineComponent({
             },
         },
 
-        initialPage: {
-            type: Number,
+        searchable: {
+            type: Boolean,
             required: false,
-            default: 1,
+            default: true,
         },
 
-        initialLimit: {
-            type: Number,
+        reloadable: {
+            type: Boolean,
             required: false,
-            default: 25,
+            default: false,
         },
 
-        title: {
+        selectable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        detailRoute: {
             type: String,
             required: false,
-            default: '',
-        },
-
-        subtitle: {
-            type: String,
-            required: false,
-            default: '',
-        },
-
-        caption: {
-            type: String,
-            required: false,
-            default: '',
-        },
-
-        layout: {
-            type: String as PropType<'default' | 'full'>,
-            required: false,
-            default: 'default',
-            validator(value: string): boolean {
-                return [
-                    'default',
-                    'full',
-                ].includes(value);
-            },
-        },
-
-        additionalContextButtons: {
-            type: Array as PropType<SwMeteorEntityDataTableAdditionalContextButton[]>,
-            required: false,
-            default() {
-                return [];
-            },
+            default: null,
         },
     },
 
     emits: [
-        'update-records',
-        'load-failed',
-        'sort-change',
-        'page-change',
-        'search-change',
+        'state-change',
         'selection-change',
-        'open-details',
-        'context-select',
-        'delete-finish',
-        'delete-failed',
-        'bulk-delete-finish',
-        'bulk-delete-failed',
+        'load-success',
+        'load-error',
+        'open-detail',
     ],
 
     setup(rawProps, context: SetupContext) {
@@ -434,168 +262,177 @@ export default defineComponent({
                 context,
             },
             (setupProps, setupContext) => {
-                const dataSource: Ref<SwMeteorEntityDataTableRecords> = ref(setupProps.records ?? []);
-                const totalItems = ref(resolveTotal(setupProps.records, setupProps.total));
-                const page = ref(setupProps.initialPage ?? 1);
-                const limit = ref(setupProps.initialLimit ?? 25);
-                const sortBy = ref('');
-                const sortDirection = ref<SwMeteorEntityDataTableSortDirection>('ASC');
-                const searchTerm = ref(setupProps.searchValue ?? '');
-                const loading = ref(setupProps.records !== null ? setupProps.isLoading === true : false);
+                const { Criteria } = Shopware.Data;
+                const records: Ref<SwMeteorEntityDataTableRecords> = ref([]);
+                const total = ref(0);
+                const loading = ref(false);
                 const selectedIds = ref<string[]>([]);
-                const columnChanges = ref({});
-                const disableRowSelect = ref<string[]>([]);
-                const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
-                const isControlledDataMode = computed(() => setupProps.records !== null);
-                const columnNormalization = computed(() => {
-                    return normalizeSwMeteorEntityDataTableColumns(setupProps.columns);
+                const state = ref<SwMeteorEntityDataTableState>({
+                    page: setupProps.initialPage ?? 1,
+                    limit: setupProps.initialLimit ?? 25,
+                    searchTerm: setupProps.initialSearchTerm ?? '',
+                    sort: setupProps.initialSort ?? undefined,
                 });
-                void columnNormalization.value;
+                const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
 
-                const normalizedColumns = computed(() => columnNormalization.value.columns);
-                const columnSortMetadataByProperty = computed(() => columnNormalization.value.sortMetadataByProperty);
+                // Sequences overlapping loads so a slow earlier response cannot overwrite a newer one.
+                let latestLoadToken = 0;
 
-                function buildCriteria() {
+                const resolvedColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
+                    // Column order follows declaration order; explicit positions are not part of the API.
+                    return setupProps.columns.map((column, index) => resolveMeteorColumn(column, index * 100));
+                });
+
+                function cloneState(): SwMeteorEntityDataTableState {
+                    const currentState = state.value;
+
+                    return {
+                        page: currentState.page,
+                        limit: currentState.limit,
+                        searchTerm: currentState.searchTerm,
+                        ...(currentState.sort
+                            ? {
+                                  sort: {
+                                      ...currentState.sort,
+                                  },
+                              }
+                            : {}),
+                    };
+                }
+
+                function emitStateChange(): void {
+                    setupContext.emit('state-change', cloneState());
+                }
+
+                function buildCriteria(): CriteriaType {
                     const criteria = setupProps.criteria
                         ? Criteria.fromCriteria(setupProps.criteria)
-                        : new Criteria(page.value, limit.value);
+                        : new Criteria(state.value.page, state.value.limit);
 
-                    criteria.setPage(page.value);
-                    criteria.setLimit(limit.value);
-                    criteria.setTerm(searchTerm.value);
+                    criteria.setPage(state.value.page);
+                    criteria.setLimit(state.value.limit);
+                    criteria.setTerm(state.value.searchTerm);
                     criteria.resetSorting();
 
-                    const sortMetadata = getActiveSortMetadata();
+                    const activeSort = state.value.sort;
 
-                    getActiveSortingFields().forEach((field) => {
+                    if (!activeSort) {
+                        return criteria;
+                    }
+
+                    const activeColumn = setupProps.columns.find((column) => column.property === activeSort.property);
+                    const sortFields = toArray(activeColumn?.sortField ?? activeSort.property);
+
+                    sortFields.forEach((field) => {
                         criteria.addSorting(
-                            Criteria.sort(field, sortDirection.value, sortMetadata?.naturalSorting ?? false),
+                            Criteria.sort(field, activeSort.direction, activeColumn?.naturalSorting === true),
                         );
                     });
 
                     return criteria;
                 }
 
-                async function loadData(): Promise<void> {
-                    if (isControlledDataMode.value || setupProps.disableDataFetching) {
-                        return;
-                    }
-
+                async function load(): Promise<void> {
+                    const loadToken = (latestLoadToken += 1);
                     loading.value = true;
 
                     try {
                         const searchContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-                        const result = await setupProps.repository.search(
-                            buildCriteria(),
-                            searchContext,
-                        );
+                        const result = await setupProps.repository.search(buildCriteria(), searchContext);
 
-                        dataSource.value = result;
-                        totalItems.value = resolveTotal(result, result.total);
+                        if (loadToken !== latestLoadToken) {
+                            return;
+                        }
 
-                        setupContext.emit('update-records', result);
-                    } catch (errorResponse) {
-                        setupContext.emit('load-failed', errorResponse);
+                        records.value = result;
+                        total.value = resolveTotal(result);
+
+                        setupContext.emit('load-success', {
+                            records: result,
+                            total: total.value,
+                            state: cloneState(),
+                        });
+                    } catch (error) {
+                        if (loadToken !== latestLoadToken) {
+                            return;
+                        }
+
+                        setupContext.emit('load-error', {
+                            error,
+                            state: cloneState(),
+                        });
                     } finally {
-                        loading.value = false;
+                        if (loadToken === latestLoadToken) {
+                            loading.value = false;
+                        }
                     }
                 }
 
-                function getActiveSortMetadata(): SwMeteorEntityDataTableColumnSortMetadata | null {
-                    if (!sortBy.value) {
-                        return null;
-                    }
+                function setPage(nextPage: number): Promise<void> {
+                    state.value = {
+                        ...state.value,
+                        page: nextPage,
+                    };
 
-                    return columnSortMetadataByProperty.value[sortBy.value] ?? null;
+                    emitStateChange();
+
+                    return load();
                 }
 
-                function getActiveSortingFields(): string[] {
-                    const sortMetadata = getActiveSortMetadata();
-                    const dataIndex = sortMetadata?.dataIndex ?? sortBy.value;
+                function setLimit(nextLimit: number): Promise<void> {
+                    state.value = {
+                        ...state.value,
+                        page: 1,
+                        limit: nextLimit,
+                    };
 
-                    return dataIndex
-                        .split(',')
-                        .map((field) => field.trim())
-                        .filter((field) => field.length > 0);
+                    emitStateChange();
+
+                    return load();
                 }
 
-                function emitPageChange(): void {
-                    setupContext.emit('page-change', {
-                        page: page.value,
-                        limit: limit.value,
-                    });
-                }
+                function setSearchTerm(term: string): Promise<void> {
+                    state.value = {
+                        ...state.value,
+                        page: 1,
+                        searchTerm: term,
+                    };
 
-                function resetPage(): void {
-                    if (page.value === 1) {
-                        return;
-                    }
+                    emitStateChange();
 
-                    page.value = 1;
-                    emitPageChange();
+                    return load();
                 }
 
                 function setSort(
                     property: string,
                     direction: SwMeteorEntityDataTableSortDirection,
-                ): Promise<void> | void {
-                    const sortMetadata = columnSortMetadataByProperty.value[property];
+                ): Promise<void> {
+                    state.value = {
+                        ...state.value,
+                        page: 1,
+                        sort: {
+                            property,
+                            direction,
+                        },
+                    };
 
-                    sortBy.value = property;
-                    sortDirection.value = direction;
-                    resetPage();
+                    emitStateChange();
 
-                    setupContext.emit('sort-change', {
-                        property,
-                        dataIndex: sortMetadata?.dataIndex ?? property,
-                        direction,
-                        naturalSorting: sortMetadata?.naturalSorting ?? false,
-                    });
-
-                    if (sortMetadata?.useCustomSort) {
-                        return;
-                    }
-
-                    return loadData();
-                }
-
-                function setPage(nextPage: number): Promise<void> {
-                    page.value = nextPage;
-                    emitPageChange();
-
-                    return loadData();
-                }
-
-                function setLimit(nextLimit: number): Promise<void> {
-                    limit.value = nextLimit;
-                    page.value = 1;
-                    emitPageChange();
-
-                    return loadData();
+                    return load();
                 }
 
                 function setSelectedIds(nextSelectedIds: string[]): void {
-                    selectedIds.value = [
-                        ...nextSelectedIds,
-                    ];
+                    const uniqueSelectedIds = nextSelectedIds.filter((id, index) => nextSelectedIds.indexOf(id) === index);
 
-                    setupContext.emit('selection-change', selectedIds.value);
-                }
+                    selectedIds.value = uniqueSelectedIds;
 
-                function deleteItem(): Promise<void> {
-                    return Promise.resolve();
-                }
-
-                function deleteItems(): Promise<void> {
-                    return Promise.resolve();
+                    setupContext.emit('selection-change', [
+                        ...uniqueSelectedIds,
+                    ]);
                 }
 
                 function onSelectionChange(payload: SelectionChangePayload): void {
                     if (payload.value) {
-                        if (selectedIds.value.includes(payload.id)) {
-                            return;
-                        }
-
                         setSelectedIds([
                             ...selectedIds.value,
                             payload.id,
@@ -608,32 +445,21 @@ export default defineComponent({
 
                 function onMultipleSelectionChange(payload: MultipleSelectionChangePayload): void {
                     if (payload.value) {
-                        const nextSelectedIds = [
+                        setSelectedIds([
                             ...selectedIds.value,
-                            ...payload.selections.filter((id) => !selectedIds.value.includes(id)),
-                        ];
-
-                        setSelectedIds(nextSelectedIds);
+                            ...payload.selections,
+                        ]);
                         return;
                     }
 
                     setSelectedIds(selectedIds.value.filter((id) => !payload.selections.includes(id)));
                 }
 
-                function onSearchValueChange(term: string): void {
-                    searchTerm.value = term;
-                    resetPage();
-
-                    setupContext.emit('search-change', term);
-
-                    void loadData();
+                function reload(): Promise<void> {
+                    return load();
                 }
 
-                function onOpenDetails(record: SwMeteorEntityDataTableRecord): void {
-                    const openDetailsPayload = {
-                        id: record.id,
-                    };
-
+                function openDetail(record: SwMeteorEntityDataTableRecord): void {
                     if (setupProps.detailRoute) {
                         void getRouter(instanceRouter)?.push({
                             name: setupProps.detailRoute,
@@ -643,167 +469,51 @@ export default defineComponent({
                         });
                     }
 
-                    setupContext.emit('open-details', openDetailsPayload);
+                    setupContext.emit('open-detail', {
+                        id: record.id,
+                        record,
+                    });
                 }
-
-                function onContextSelect(payload: SwMeteorEntityDataTableContextSelectPayload): void {
-                    setupContext.emit('context-select', payload);
-                }
-
-                function onReload(): void {
-                    void loadData();
-                }
-
-                const tableAllowBulkDelete = computed(() => {
-                    return setupProps.allowBulkDelete === true && setupProps.allowDelete === true;
-                });
-                const tableDisableEdit = computed(() => {
-                    return setupProps.showActions === false || !(setupProps.allowEdit === true || setupProps.allowView === true);
-                });
-                const tableDisableDelete = computed(() => {
-                    return setupProps.showActions === false || setupProps.allowDelete !== true;
-                });
-                const tableAdditionalContextButtons = computed(() => {
-                    if (setupProps.showActions === false) {
-                        return [];
-                    }
-
-                    return setupProps.additionalContextButtons ?? [];
-                });
-                const disableSettingsTable = computed(() => !setupProps.showSettings);
-
-                const blockDataScope = computed(() => ({
-                    dataSource: dataSource.value,
-                    totalItems: totalItems.value,
-                    page: page.value,
-                    limit: limit.value,
-                    sortBy: sortBy.value,
-                    sortDirection: sortDirection.value,
-                    searchTerm: searchTerm.value,
-                    loading: loading.value,
-                    selectedIds: selectedIds.value,
-                    columnChanges: columnChanges.value,
-                    normalizedColumns: normalizedColumns.value,
-                    buildCriteria,
-                    loadData,
-                    setSort,
-                    setPage,
-                    setLimit,
-                    setSelectedIds,
-                    deleteItem,
-                    deleteItems,
-                }));
-
-                watch(
-                    () => setupProps.records,
-                    (nextRecords) => {
-                        if (!isControlledDataMode.value) {
-                            void loadData();
-                            return;
-                        }
-
-                        dataSource.value = nextRecords ?? [];
-                        totalItems.value = resolveTotal(nextRecords, setupProps.total);
-                    },
-                );
-
-                watch(
-                    () => setupProps.total,
-                    (nextTotal) => {
-                        if (!isControlledDataMode.value) {
-                            return;
-                        }
-
-                        totalItems.value = resolveTotal(dataSource.value, nextTotal);
-                    },
-                );
-
-                watch(
-                    () => setupProps.isLoading,
-                    (nextIsLoading) => {
-                        if (!isControlledDataMode.value) {
-                            return;
-                        }
-
-                        loading.value = nextIsLoading === true;
-                    },
-                );
-
-                watch(
-                    () => setupProps.searchValue,
-                    (nextSearchValue) => {
-                        searchTerm.value = nextSearchValue ?? '';
-
-                        void loadData();
-                    },
-                );
 
                 watch(
                     () => setupProps.criteria,
                     () => {
-                        void loadData();
+                        void load();
                     },
                 );
 
                 watch(
                     () => setupProps.context,
                     () => {
-                        void loadData();
-                    },
-                );
-
-                watch(
-                    () => setupProps.disableDataFetching,
-                    (nextDisableDataFetching) => {
-                        if (nextDisableDataFetching) {
-                            return;
-                        }
-
-                        void loadData();
+                        void load();
                     },
                 );
 
                 onMounted(() => {
-                    void loadData();
+                    void load();
                 });
 
                 return {
                     public: {
-                        dataSource,
-                        totalItems,
-                        page,
-                        limit,
-                        sortBy,
-                        sortDirection,
-                        searchTerm,
+                        records,
+                        total,
                         loading,
+                        state,
                         selectedIds,
-                        columnChanges,
-                        normalizedColumns,
+                        resolvedColumns,
                         buildCriteria,
-                        loadData,
-                        setSort,
+                        load,
+                        reload,
                         setPage,
                         setLimit,
+                        setSearchTerm,
+                        setSort,
                         setSelectedIds,
-                        deleteItem,
-                        deleteItems,
                     },
                     private: {
-                        blockDataScope,
-                        disableRowSelect,
-                        tableAllowBulkDelete,
-                        tableDisableEdit,
-                        tableDisableDelete,
-                        tableAdditionalContextButtons,
-                        disableSettingsTable,
-                        columnSortMetadataByProperty,
                         onSelectionChange,
                         onMultipleSelectionChange,
-                        onSearchValueChange,
-                        onOpenDetails,
-                        onContextSelect,
-                        onReload,
+                        openDetail,
                     },
                 };
             },
@@ -811,16 +521,32 @@ export default defineComponent({
     },
 });
 
-function resolveTotal(records: SwMeteorEntityDataTableRecords | null | undefined, total: number | null | undefined): number {
-    if (typeof total === 'number') {
-        return total;
-    }
+function toArray<TValue>(value: TValue | TValue[]): TValue[] {
+    return Array.isArray(value) ? value : [value];
+}
 
-    if (records && 'total' in records && typeof records.total === 'number') {
+function resolveMeteorColumn(
+    column: SwMeteorEntityDataTableColumn,
+    position: number,
+): SwMeteorEntityDataTableResolvedColumn {
+    // sortField/naturalSorting are wrapper-only and must not reach mt-data-table.
+    const meteorColumn = { ...column } as Record<string, unknown>;
+    delete meteorColumn.sortField;
+    delete meteorColumn.naturalSorting;
+
+    return {
+        ...meteorColumn,
+        renderer: column.renderer ?? 'text',
+        position,
+    } as SwMeteorEntityDataTableResolvedColumn;
+}
+
+function resolveTotal(records: SwMeteorEntityDataTableRecords): number {
+    if ('total' in records && typeof records.total === 'number') {
         return records.total;
     }
 
-    return records?.length ?? 0;
+    return records.length;
 }
 
 function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): SwMeteorEntityDataTableRouter | undefined {

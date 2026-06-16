@@ -172,8 +172,28 @@ class Framework extends Bundle
             MeterProvider::bindMeter($this->container);
         }
 
-        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
-        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
+        // @deprecated tag:v6.8.0 - remove this if block
+        if ($this->container->hasParameter('shopware.cache.cache_compression') && $this->container->getParameter('shopware.cache.cache_compression') !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+            );
+
+            $this->container->setParameter('shopware.cache.compress', $this->container->getParameter('shopware.cache.cache_compression'));
+        }
+
+        // @deprecated tag:v6.8.0 - remove this if block
+        if ($this->container->hasParameter('shopware.cache.cache_compression_method') && $this->container->getParameter('shopware.cache.cache_compression_method') !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+            );
+
+            $this->container->setParameter('shopware.cache.compression_method', $this->container->getParameter('shopware.cache.cache_compression_method'));
+        }
+
+        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.compress');
+        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.compression_method');
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
 
         /** @var StampedeProtectionConfigurator $stampedeProtectionConfigurator */

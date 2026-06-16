@@ -2,6 +2,20 @@
 
 ## Storefront
 
+### Storefront cache hash no longer varies by language
+
+The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.
+Store API requests still include the language id in the cache hash, as the same Store API URL can return different languages via the `sw-language-id` header.
+
+### Central extension point for content before/after list prices
+
+A new template `@Storefront/storefront/component/product/list-price-affix.html.twig` is rendered inside every list price display (product box, product detail buy widget, advanced pricing table). It replaces the deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets as the single place to inject content around list prices.
+
+Content can be provided in two ways:
+
+- Without code: create a translation snippet with a custom key and enter that key in the new sales-channel-aware system config settings `core.listing.beforeListPriceSnippetKey` / `core.listing.afterListPriceSnippetKey`. The snippet content is rendered sanitized, wrapped in a `list-price-affix list-price-affix-{before|after}` span.
+- In a theme or plugin: override the block `component_list_price_affix_content` once; the `position` variable (`before` / `after`) allows position-specific output.
+
 ### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
 
 The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
@@ -28,6 +42,13 @@ A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDe
 
 New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 
+### Country state field visibility in address forms
+
+Storefront address forms now respect the country `displayStateInRegistration` setting.
+When disabled, the country state field is hidden unless `forceStateInRegistration` is enabled, in which case the required state field is still shown.
+During the update, `displayStateInRegistration` is activated for every country that has at least one configured state/region.
+This keeps existing storefront address forms showing their state selector until the setting is disabled explicitly.
+
 ### Checkout gateway blocked method fallback
 
 Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
@@ -39,6 +60,23 @@ Customer address fields submitted through storefront registration and address up
 This prevents leading or trailing whitespace from being stored in standard address fields such as first name, last name, street, city, and zipcode.
 
 Existing customer address records are not changed.
+
+### New `contentSelector` option for the `AlertAriaPlugin`
+
+The `AlertAriaPlugin` now supports a `contentSelector` option to define the content element inside the `aria-live` region that is toggled to trigger the screenreader.
+It defaults to `.alert-content-container`. Override it when applying the plugin to custom markup that is not based on the alert template:
+
+```twig
+<div class="cart-live-update visually-hidden"
+     role="status"
+     aria-live="polite"
+     data-alert-aria="true"
+     data-alert-aria-options='{{ { contentSelector: ".cart-live-update-content" }|json_encode }}'>
+    <div class="cart-live-update-content">
+        {# ... content that should be announced ... #}
+    </div>
+</div>
+```
 
 ## API
 
@@ -65,6 +103,11 @@ Whitespace-only values are still rejected as malformed IDs.
 
 For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
 
+### Administration users receive default runtime privileges
+
+Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
+The Administration role editor also adds these privileges to newly generated role permission sets.
+
 ## Core
 
 ### Storefront snippets of self-managed apps are loaded
@@ -73,6 +116,27 @@ Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed ap
 Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
 The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
 Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+#### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+#### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
 
 ### Stored mail template type data deprecated
 
@@ -107,6 +171,16 @@ Implement `previewPatternByNumberRangeId()` for persisted number-range previews 
 
 The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
 Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+
+### Orders no longer break on missing rule conditions in price definitions
+
+If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound`/`InvalidConditionException`. Such conditions are substituted with a new internal `UnknownConditionRule` whose `match()` always returns `false`.
+
+The original rule payload is preserved verbatim on reads, order versioning and normal saves, so the order stays fully accessible and editable in the Administration and is restored automatically once the contributing plugin is reinstalled. Recalculation also succeeds, but because it recomputes the cart, a discount whose missing condition no longer matches any line item is removed (fail-closed) rather than preserved — so an order that is recalculated and saved may lose that discount line. When that happens, the recalculation result now contains a `promotion-discount-unknown-condition` warning (`PromotionDiscountUnknownConditionError`, shown as a notification in the Administration order detail page), so the discount is not removed silently.
+
+Note that `match()` returning `false` only yields a fail-closed result for a standalone condition or inside an `AndRule`. Inside an `OrRule`/`XorRule` the surrounding container can still match through its other branches, and inside a `NotRule` the result is inverted to always-match.
+
+Note for API consumers: writes to price-definition fields that reference an unregistered rule condition are now accepted instead of rejected, so order versioning and saves keep working. A mistyped condition name in an Admin API write is therefore no longer reported as a validation error — the condition is stored as-is and will simply never match.
 
 ### Elasticsearch: Dedicated `completion` field for admin-search autocomplete
 
@@ -174,8 +248,21 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 The new `parent.name` search field allows variants to be found through their parent product name and ranked independently from the variant's own `name`.
 
 The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
+### Reduced product data in listings via description teaser
+
+Product listings can now load a shortened, HTML-free excerpt of the product description instead of the full text, which significantly reduces database load, transfer size and memory usage for catalogs with large descriptions. Previously the complete description was loaded for every product box even though the storefront only displays a few clamped lines.
+
+This reduced loading is **enabled for fresh installations** and **disabled for existing shops**, which keep the full listing loading on update and can opt in per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
+
+A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
 ## Administration
+
+### Cache-relevant extension configuration fields
+
+As a follow-up to [Reduced HTTP cache invalidation on system config changes](#reduced-http-cache-invalidation-on-system-config-changes), plugin and app `Resources/config/config.xml` files can now mark fields that affect cached storefront output with the `cache-relevant="true"` attribute on `<input-field>` or `<component>`.
+
+When a marked field is changed in the Administration system config renderer, the save request explicitly sends `silent=false`, so HTTP cache entries tagged with `system.config-{salesChannelId}` are invalidated. Unmarked fields keep the default system config write behavior.
 
 ### Storefront icon cache and speculation rules can be configured per sales channel
 
@@ -282,6 +369,14 @@ Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues
 Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
 When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
 See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
+
+## Critical Fixes
+
+### Admin worker no longer blocks same-session API requests on PHP session locks
+
+Fixed a session-locking issue that could slow down concurrent Administration requests when the browser-based admin worker is used together with native PHP file session storage.
+In that setup, an admin queue worker request could initialize the current PHP session while consuming messages and keep the session file locked until the long-poll request returned.
+Concurrent Admin API requests from the same browser session, for example sync or save requests, no longer wait for that admin worker session lock.
 
 # 6.7.11.0
 
@@ -587,6 +682,12 @@ See `UPGRADE-6.8.md` for migration details.
 A new "Agentic Commerce" sales channel type is available in this release.
 The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
 The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
+### [Experimental] Breadcrumb category referrer
+
+Shopware now supports building product breadcrumbs based on the referring category. When a customer lands on a product detail page from a category listing, the breadcrumb can dynamically reflect the category path they came from.
+
+To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and activate the "Build breadcrumb based on referrer category" setting in Settings > Products.
 
 ## API
 

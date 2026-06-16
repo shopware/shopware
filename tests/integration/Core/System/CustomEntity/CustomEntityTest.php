@@ -180,7 +180,7 @@ class CustomEntityTest extends TestCase
 
         foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
             // we keep user data, uninstall with removing user data is tested in the cleanupAppData() method
-            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+            $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
         }
 
         // with keepUserData=true the custom entity schema is not removed during app uninstall,
@@ -209,7 +209,7 @@ class CustomEntityTest extends TestCase
         $exceptionThrown = false;
         try {
             foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
-                $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+                $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
             }
         } catch (AppException $e) {
             static::assertSame(AppException::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION, $e->getErrorCode());
@@ -1123,7 +1123,7 @@ class CustomEntityTest extends TestCase
         $context = Context::createDefaultContext();
 
         foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
-            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context);
+            $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context);
         }
 
         $connection = $container->get(Connection::class);

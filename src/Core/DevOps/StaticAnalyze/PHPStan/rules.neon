@@ -20,6 +20,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDelayStampRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnsafeRequestHasSessionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoLegacySqlHashFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule
@@ -27,7 +28,9 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\DataProviderRowArityRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoDependsWithDataProviderRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoExpectExceptionMessageRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
 

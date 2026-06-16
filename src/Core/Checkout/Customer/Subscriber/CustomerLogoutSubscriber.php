@@ -37,6 +37,7 @@ class CustomerLogoutSubscriber implements EventSubscriberInterface
 
         $mainRequest = $this->requestStack->getMainRequest();
 
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to logout removing impersonation state.) */
         if (!$mainRequest?->hasSession()) {
             return;
         }

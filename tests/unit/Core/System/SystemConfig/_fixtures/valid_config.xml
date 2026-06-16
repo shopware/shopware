@@ -39,7 +39,7 @@
             <defaultValue>"42.5"</defaultValue>
         </input-field>
 
-        <input-field type="bool">
+        <input-field type="bool" cache-relevant="true">
             <name>bool</name>
             <defaultValue>true</defaultValue>
         </input-field>
@@ -78,7 +78,7 @@
             <defaultValue>30</defaultValue>
         </input-field>
 
-        <component name="sw-select">
+        <component name="sw-select" cache-relevant="true">
             <name>mailMethodComponent</name>
             <disabled>true</disabled>
             <options>

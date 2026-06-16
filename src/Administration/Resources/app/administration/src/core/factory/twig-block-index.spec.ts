@@ -157,14 +157,19 @@ describe('core/factory/twig-block-index.ts', () => {
             );
             const [entry] = getBlockEntries('block_2');
 
-            expect(nativeTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('block_1:0', condition2, ${options(1, false, 'defaultSlot')})"`,
+            expect(nativeTemplate).toBe(`
+                <sw-block name="block_1">
+                    <div v-if="$swLegacyBlockIf('block_1:0', condition1, ${options(0, true, 'defaultSlot')})" class="one">one</div>
+                </sw-block>
+
+                <sw-block name="block_2">
+                    <div v-if="$swLegacyBlockElseIf('block_1:0', condition2, ${options(1, false, 'defaultSlot')})" class="two">two</div>
+                </sw-block>
+            `);
+            expect(entry.innerTemplate).toBe(
+                `                    <div v-if="$swLegacyBlockElseIf('block_1:0', conditionFromPlugin, ${options(0, false, 'shimExtension')})" class="plugin-two">plugin two</div>
+                `,
             );
-            expect(entry.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('block_1:0', conditionFromPlugin, ${options(0, false, 'shimExtension')})"`,
-            );
-            expect(entry.innerTemplate).not.toContain('v-else-if="conditionFromPlugin"');
-            expect(entry.innerTemplate).not.toContain(`$swLegacyBlockElseIf('block_2:0'`);
             expect(entry.legacyConditionCases).toEqual([
                 {
                     chainKey: 'block_1:0',

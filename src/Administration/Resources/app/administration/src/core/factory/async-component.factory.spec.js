@@ -3525,6 +3525,97 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.find('.condition-one').exists()).toBe(true);
             expect(wrapper.find('.condition-two').exists()).toBe(false);
             expect(wrapper.find('.fallback-condition').exists()).toBe(false);
+
+            await wrapper.setData({
+                condition1: false,
+                condition2: false,
+            });
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.condition-one').exists()).toBe(false);
+            expect(wrapper.find('.condition-two').exists()).toBe(false);
+            expect(wrapper.find('.fallback-condition').exists()).toBe(true);
+        });
+
+        it('continues adjacent named block condition chains for legacy Twig shim v-else-if cases', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentFactory.register('native-block-legacy-twig-adjacent-named-chain', {
+                data() {
+                    return {
+                        condition1: false,
+                        condition2: false,
+                        conditionFromPlugin: true,
+                    };
+                },
+                template: `
+                    <div>
+                        <sw-block name="adjacent_condition_block_one" :data="$dataScope()">
+                            <div v-if="condition1" class="native-one">one</div>
+                        </sw-block>
+
+                        <sw-block name="adjacent_condition_block_two" :data="$dataScope()">
+                            <div v-else-if="condition2" class="native-two">two</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-adjacent-named-chain', {
+                template: `
+                    {% block adjacent_condition_block_two %}
+                        <div v-else-if="conditionFromPlugin" class="plugin-two">plugin two</div>
+                    {% endblock %}
+                `,
+            });
+
+            const expectOnlyBranch = (wrapper, visibleBranch) => {
+                [
+                    '.native-one',
+                    '.native-two',
+                    '.plugin-two',
+                ].forEach((branch) => {
+                    expect(wrapper.find(branch).exists()).toBe(branch === visibleBranch);
+                });
+            };
+
+            const settleLegacyChain = async (wrapper) => {
+                await wrapper.vm.$nextTick();
+                await wrapper.vm.$nextTick();
+            };
+
+            let wrapper;
+
+            try {
+                wrapper = await mountNativeBlockComponent('native-block-legacy-twig-adjacent-named-chain');
+            } finally {
+                consoleWarn.mockRestore();
+            }
+
+            await settleLegacyChain(wrapper);
+            expectOnlyBranch(wrapper, '.plugin-two');
+
+            await wrapper.setData({ condition1: true });
+            await settleLegacyChain(wrapper);
+
+            expectOnlyBranch(wrapper, '.native-one');
+
+            await wrapper.setData({
+                condition1: false,
+                condition2: true,
+            });
+            await settleLegacyChain(wrapper);
+
+            expectOnlyBranch(wrapper, null);
+
+            await wrapper.setData({
+                condition2: false,
+                conditionFromPlugin: false,
+            });
+            await settleLegacyChain(wrapper);
+
+            expectOnlyBranch(wrapper, null);
         });
 
         it('keeps a later native fallback behind a legacy Twig shim condition', async () => {

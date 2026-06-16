@@ -9,6 +9,9 @@
 - **Pipeline**: `ContentPipeline` (steps 3-5), `RenderingMode` (FULL vs SKELETON)
 - **Layout Value Objects**: `RenderableLayout` (reference + elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
+- **Admin Preview API**: `Api/ContentPreviewController` — `POST /api/_action/content-system/preview/entity`; renders an unsaved draft layout against real entity data (assignment-free). See `ADMINISTRATION.md`
+- **Draft Validation**: `ContentLayoutValidator` (module root) + `Layout/Element/Visitor/ComponentRegistrationVisitor` — collects a violation per unregistered component
+- **Assignment-free resolution**: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout()` selects a source via `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` assembles a `RenderingSpecification` with no layout id
 - **Schema**: `Schema/ContentSystemDataLoaderTypeResolver`, `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeSchemaGenerator`
 - **Entity Type Schema**: `Schema/ContentLayoutAssignableEntitySchemaGenerator`
 - **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemDataLoaderTypeCompilerPass` — collects loader type info at build time

@@ -10,9 +10,9 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 ## Key Classes
 
-- `RenderingSpecificationResolver` - Iterates sources via `supports()`, delegates to `RenderingSpecificationFactory`
-- `RenderingSpecificationFactory` - Assembles a `ResolvedContentLayout` from the source's discrete resolution steps
-- `AbstractSpecificationSource` - Base class: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`
+- `RenderingSpecificationResolver` - Iterates sources via `supports()` (path-based, returns a `ResolvedContentLayout`) or `supportsEntityType()` (`resolveWithoutLayout()` — assignment-free, returns a bare `RenderingSpecification` for the preview action), delegating to `RenderingSpecificationFactory`
+- `RenderingSpecificationFactory` - `create()` assembles a `ResolvedContentLayout` from the source's discrete resolution steps; `createWithoutLayout()` assembles a `RenderingSpecification` with no layout id (no assignment lookup)
+- `AbstractSpecificationSource` - Base class: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, plus the assignment-free `supportsEntityType()` and `resolveSpecificationDataForEntity()` (default no-ops; overridden by entity sources)
 - Entity sources moved to domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
 - Domain-aware sources moved to Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 

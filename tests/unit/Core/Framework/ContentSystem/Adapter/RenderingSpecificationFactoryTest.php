@@ -55,4 +55,29 @@ class RenderingSpecificationFactoryTest extends TestCase
         static::assertNull($defaultsResult->specification->targetElementId);
         static::assertSame([], $defaultsResult->specification->cacheTags);
     }
+
+    #[TestDox('assembles a bare specification without resolving a layout id or cache tags')]
+    public function testCreateWithoutLayoutAssemblesBareSpecification(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $placeholders = PlaceholderValues::from(['productId' => 'abc123']);
+        $specData = new SpecificationData([], $placeholders);
+
+        $source = new StaticSpecificationSource(
+            specificationData: $specData,
+            targetElementId: 'element-42',
+            cacheTags: ['product-abc123'],
+            failOnResolveLayoutId: true,
+        );
+
+        $factory = new RenderingSpecificationFactory();
+        $specification = $factory->createWithoutLayout($source, 'abc123', $request, $context);
+
+        static::assertSame([], $specification->dataRequirements);
+        static::assertSame($placeholders, $specification->placeholderValues);
+        static::assertSame($request, $specification->request);
+        static::assertSame('element-42', $specification->targetElementId);
+        static::assertSame([], $specification->cacheTags);
+    }
 }

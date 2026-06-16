@@ -40,6 +40,9 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
     public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
+    public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
+    public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
+    public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -322,6 +325,40 @@ class ContentSystemException extends HttpException
             self::ELEMENT_TYPE_NOT_FOUND,
             'Element type "{{ name }}" not found',
             ['name' => $name]
+        );
+    }
+
+    public static function unknownEntityType(string $entityType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_ENTITY_TYPE,
+            'No content layout specification source can handle entity type "{{ entityType }}"',
+            ['entityType' => $entityType]
+        );
+    }
+
+    public static function entityTypeResolutionUnsupported(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_TYPE_RESOLUTION_UNSUPPORTED,
+            'resolveSpecificationDataForEntity() must only be called on a source whose supportsEntityType() returns true.'
+        );
+    }
+
+    public static function invalidLayoutStructure(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_LAYOUT_STRUCTURE,
+            'Invalid layout structure: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
         );
     }
 }

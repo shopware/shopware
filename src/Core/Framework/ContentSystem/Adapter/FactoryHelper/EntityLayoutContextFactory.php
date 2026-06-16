@@ -73,8 +73,20 @@ class EntityLayoutContextFactory
         SalesChannelContext $context,
         AbstractContentLayoutAssignableDefinition $definition
     ): SpecificationData {
-        $entityId = $this->extractEntityId($path, $definition);
+        return $this->buildSpecificationData(
+            $this->extractEntityId($path, $definition),
+            $request,
+            $context,
+            $definition,
+        );
+    }
 
+    public function buildSpecificationData(
+        string $entityId,
+        Request $request,
+        SalesChannelContext $context,
+        AbstractContentLayoutAssignableDefinition $definition
+    ): SpecificationData {
         return new SpecificationData(
             dataRequirements: array_values($definition->getPageDataRequirements($context)),
             placeholderValues: $this->layoutResolver->resolvePlaceholders(

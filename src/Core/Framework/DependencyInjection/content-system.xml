@@ -276,5 +276,20 @@
             <argument/>
             <tag name="routing.loader"/>
         </service>
+
+        <!-- Layout Validation -->
+        <service id="Shopware\Core\Framework\ContentSystem\ContentLayoutValidator">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+        </service>
+
+        <!-- Preview Action (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentLayoutValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentPipeline"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory"/>
+        </service>
     </services>
 </container>

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,8 +20,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[CoversClass(AbstractAgenticCommerceProductExportProvider::class)]
 class AbstractAgenticCommerceProductExportProviderTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextAddsProviderStruct(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -39,8 +45,13 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertInstanceOf(ArrayStruct::class, $result['provider']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextUsesOwnTrackingCodes(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider(['extra' => 'value']);
 
         $agenticChannel = new SalesChannelEntity();
@@ -65,8 +76,13 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertSame('value', $provider->get('extra'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextWithNoConfiguration(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -87,8 +103,13 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertNull($providerStruct->get('campaignCode'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextIncludesReferralCodeAndName(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -109,8 +130,13 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertSame('agentic-channel-id', $providerStruct->get(SalesChannelTrackingListener::QUERY_PARAM));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextMergesWithExistingContext(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();
@@ -130,8 +156,13 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertArrayHasKey('provider', $result);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextWithNullSalesChannelConfiguration(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = $this->createProvider();
 
         $agenticChannel = new SalesChannelEntity();

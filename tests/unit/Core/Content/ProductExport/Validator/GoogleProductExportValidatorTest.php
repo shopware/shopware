@@ -8,6 +8,7 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,8 +18,13 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(GoogleProductExportValidator::class)]
 class GoogleProductExportValidatorTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateDoesNothingForOtherProviders(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $entity->setProvider('open-ai');
 
@@ -29,8 +35,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorWhenFileFormatIsNotXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $entity->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
 
@@ -44,8 +55,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('file_format', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForMalformedXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -57,8 +73,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('xml', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForFeedWithoutItems(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -74,8 +95,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('item', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateDoesNotAddErrorsForValidGoogleFeed(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -88,8 +114,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForMissingRequiredGoogleField(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -103,8 +134,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('brand', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidLink(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -118,8 +154,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('link', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidAvailability(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -133,8 +174,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('availability', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidCondition(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -148,8 +194,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('condition', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidGender(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -163,8 +214,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('gender', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAcceptsValidGender(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -175,8 +231,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidSizeSystem(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -190,8 +251,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('size_system', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAcceptsValidSizeSystem(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -202,8 +268,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidAgeGroup(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -217,8 +288,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('age_group', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAcceptsValidAgeGroup(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -229,8 +305,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -244,8 +325,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('price', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorWhenIdentifiersAreMissingWithoutFlag(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -259,8 +345,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('identifier_exists', $error->getParameters()['field']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAcceptsIdentifierExistsNo(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 
@@ -275,8 +366,13 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testValidateAddsErrorForDuplicateIds(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $entity = $this->createProductExportEntity();
         $errors = new ErrorCollection();
 

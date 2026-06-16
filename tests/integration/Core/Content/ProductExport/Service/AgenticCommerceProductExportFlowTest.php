@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -57,8 +58,13 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testAgenticCommerceSalesChannelGeneratesOpenAiFeedFromExplicitProductExport(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 
@@ -167,6 +173,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 - will be removed
+     *
      * @param array<string, string> $config
      */
     #[DataProvider('provideTrackingCodeCombinations')]
@@ -175,6 +183,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         ?string $expectedAffiliate,
         ?string $expectedCampaign,
     ): void {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 
@@ -236,8 +246,13 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testAgenticCommerceSalesChannelGeneratesMappedVariantFieldsForOpenAiFeed(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $variant = $this->createExportableVariantProduct();
         $productStreamId = $this->createProductStreamForProduct($variant['id']);
 
@@ -318,8 +333,13 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertArrayNotHasKey('color_custom', $exportedProduct['variant_dict']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testAgenticCommerceSalesChannelGeneratesGoogleFeedFromExplicitProductExport(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 

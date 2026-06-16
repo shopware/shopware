@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\GoogleProductExportProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,8 +30,13 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(GoogleProductExportProvider::class)]
 class GoogleProductExportProviderTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testGetTechnicalNameReturnsGoogle(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $provider = new GoogleProductExportProvider(
             $this->createSalesChannelRepository(),
             $this->createMock(SystemConfigService::class)
@@ -39,8 +45,13 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame('google', $provider->getTechnicalName());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $repository = $this->createSalesChannelRepository();
         $salesChannel = $this->createSalesChannel(['DE', null, 'FR']);
         $productExport = $this->createProductExport($salesChannel->getId());
@@ -79,8 +90,13 @@ class GoogleProductExportProviderTest extends TestCase
         ], $providerContext->get('variantMapping'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -115,8 +131,13 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame(['US'], $renderContext['provider']->get('targetCountries'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -153,8 +174,13 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame('Merchant', $renderContext['provider']->get('sellerName'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $salesChannel = $this->createSalesChannel(['DE']);
         $salesChannelId = $salesChannel->getId();
         $productExport = $this->createProductExport($salesChannelId);

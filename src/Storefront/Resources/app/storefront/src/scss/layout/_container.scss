@@ -11,6 +11,10 @@ https://getbootstrap.com/docs/5.2/layout/containers
     min-height: 200px;
 }
 
+.content-page {
+    padding: 60px 0;
+}
+
 @include media-breakpoint-up(xl) {
     .container-main {
         min-height: 700px;

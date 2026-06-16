@@ -16,6 +16,7 @@ use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -54,6 +55,8 @@ class NavigationControllerTest extends TestCase
 
     private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlReplacer;
 
+    private AbstractContentRoute&MockObject $contentRoute;
+
     protected function setUp(): void
     {
         $this->pageLoader = $this->createMock(NavigationPageLoaderInterface::class);
@@ -74,6 +77,7 @@ class NavigationControllerTest extends TestCase
                 };
             });
         $this->categoryUrlGenerator = new CategoryUrlGenerator($this->seoUrlReplacer);
+        $this->contentRoute = $this->createMock(AbstractContentRoute::class);
 
         $this->controller = new NavigationControllerTestClass(
             $this->pageLoader,
@@ -82,6 +86,7 @@ class NavigationControllerTest extends TestCase
             $this->footerLoader,
             $this->categoryUrlGenerator,
             $this->seoUrlReplacer,
+            $this->contentRoute,
         );
     }
 

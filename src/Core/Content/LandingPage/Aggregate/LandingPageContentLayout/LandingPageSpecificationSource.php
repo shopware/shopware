@@ -55,4 +55,14 @@ class LandingPageSpecificationSource extends AbstractSpecificationSource
     {
         return $this->contextFactory->resolveCacheTags($path, $this->definition);
     }
+
+    public function supportsEntityType(string $entityType): bool
+    {
+        return $this->definition->getContentLayoutEntityType() === $entityType;
+    }
+
+    public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData
+    {
+        return $this->contextFactory->buildSpecificationData($entityId, $request, $context, $this->definition);
+    }
 }

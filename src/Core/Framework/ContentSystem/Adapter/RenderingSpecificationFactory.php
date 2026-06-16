@@ -36,4 +36,21 @@ class RenderingSpecificationFactory
             ),
         );
     }
+
+    public function createWithoutLayout(
+        AbstractSpecificationSource $source,
+        string $entityId,
+        Request $request,
+        SalesChannelContext $context,
+    ): RenderingSpecification {
+        $data = $source->resolveSpecificationDataForEntity($entityId, $request, $context);
+
+        return new RenderingSpecification(
+            dataRequirements: $data->dataRequirements,
+            placeholderValues: $data->placeholderValues,
+            request: $request,
+            targetElementId: $source->resolveTargetElementId('', $request, $context),
+            cacheTags: [],
+        );
+    }
 }

@@ -23,6 +23,8 @@ class StaticSpecificationSource extends AbstractSpecificationSource
         private readonly ?SpecificationData $specificationData = null,
         private readonly ?string $targetElementId = null,
         private readonly array $cacheTags = [],
+        private readonly bool $supportsEntityType = false,
+        private readonly bool $failOnResolveLayoutId = false,
     ) {
     }
 
@@ -33,6 +35,10 @@ class StaticSpecificationSource extends AbstractSpecificationSource
 
     public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
     {
+        if ($this->failOnResolveLayoutId) {
+            throw new \LogicException('StaticSpecificationSource::resolveLayoutId() must not be called on the layout-free preview path.');
+        }
+
         return $this->layoutId;
     }
 
@@ -40,6 +46,20 @@ class StaticSpecificationSource extends AbstractSpecificationSource
     {
         if ($this->specificationData === null) {
             throw new \LogicException('StaticSpecificationSource::resolveSpecificationData() called but no SpecificationData was configured.');
+        }
+
+        return $this->specificationData;
+    }
+
+    public function supportsEntityType(string $entityType): bool
+    {
+        return $this->supportsEntityType;
+    }
+
+    public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData
+    {
+        if ($this->specificationData === null) {
+            throw new \LogicException('StaticSpecificationSource::resolveSpecificationDataForEntity() called but no SpecificationData was configured.');
         }
 
         return $this->specificationData;

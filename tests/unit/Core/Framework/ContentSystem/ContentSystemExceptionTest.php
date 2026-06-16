@@ -244,5 +244,24 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND',
             'Sw:Unknown:Type',
         ];
+
+        yield 'unknown entity type' => [
+            ContentSystemException::unknownEntityType('mystery_entity'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE',
+            'mystery_entity',
+        ];
+
+        yield 'invalid layout structure with violations' => [
+            ContentSystemException::invalidLayoutStructure(
+                new ConstraintViolationList([
+                    new ConstraintViolation('id must be a non-empty string', null, [], null, '[0].id', null),
+                    new ConstraintViolation('component must be a non-empty string', null, [], null, '[1].component', null),
+                ])
+            ),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
+            '[0].id: id must be a non-empty string; [1].component: component must be a non-empty string',
+        ];
     }
 }

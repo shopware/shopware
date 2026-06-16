@@ -230,6 +230,10 @@
             <tag name="shopware.store_client.middleware"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware" public="true">
+            <tag name="shopware.store_client.middleware"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Store\Services\TrackingEventClient">
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>

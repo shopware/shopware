@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
+use Shopware\Core\Framework\ContentSystem\ResolvedContentLayout;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +32,7 @@ class RenderingSpecificationResolver
         string $path,
         Request $request,
         SalesChannelContext $context
-    ): RenderingSpecification {
+    ): ResolvedContentLayout {
         foreach ($this->sources as $source) {
             if ($source->supports($path, $request, $context)) {
                 return $this->factory->create($source, $path, $request, $context);

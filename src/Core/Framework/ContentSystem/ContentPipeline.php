@@ -6,11 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
-use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -23,34 +19,22 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class ContentPipeline
 {
-    /**
-     * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
-     */
     public function __construct(
-        private readonly EntityRepository $contentLayoutRepository,
         private readonly ContentElementHydrator $hydrationService,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
     public function load(
+        RenderableLayout $layout,
         RenderingSpecification $specification,
         RenderingCacheContext $cacheContext,
         RenderingMode $mode,
         SalesChannelContext $salesChannelContext,
     ): ContentPage {
-        $criteria = new Criteria([$specification->layoutId]);
-        $layoutEntity = $this->contentLayoutRepository->search($criteria, $salesChannelContext->getContext())->first();
-
-        if (!$layoutEntity instanceof ContentLayoutEntity) {
-            throw ContentSystemException::layoutNotFound($specification->layoutId);
-        }
-
         $preHydrationEvent = new PreContentHydrationEvent(
-            $layoutEntity->getLayout(),
-            $layoutEntity->getId(),
-            $layoutEntity->getName(),
-            $layoutEntity->getVersionId(),
+            $layout->elements,
+            $layout->reference,
             $specification,
             $mode,
             $salesChannelContext,
@@ -71,9 +55,7 @@ class ContentPipeline
 
         $afterHydrationEvent = new PostHydrationEvent(
             $elements,
-            $layoutEntity->getId(),
-            $layoutEntity->getName(),
-            $layoutEntity->getVersionId(),
+            $layout->reference,
             $specification,
             $mode,
             $salesChannelContext,
@@ -81,11 +63,13 @@ class ContentPipeline
         );
         $this->eventDispatcher->dispatch($afterHydrationEvent);
 
+        $reference = $afterHydrationEvent->layout;
+
         return new ContentPage(
-            $specification->layoutId,
+            $reference->id,
             $afterHydrationEvent->elements,
-            $afterHydrationEvent->layoutName,
-            $afterHydrationEvent->layoutVersionId
+            $reference->name,
+            $reference->version,
         );
     }
 }

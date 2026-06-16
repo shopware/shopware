@@ -18,10 +18,10 @@ Each section supports four response formats: full, decomposed, skeleton, and dat
 
 ## Rendering Pipeline
 
-The pipeline is source-independent — specification sources translate entity IDs into `RenderingSpecification` objects, and `ContentPipeline` renders without knowing the original data source.
+The pipeline is source-independent — specification sources translate entity IDs into a `ResolvedContentLayout` (layout ID plus `RenderingSpecification`), and `ContentPipeline` renders without knowing the original data source.
 
-1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the specification. See Adapter/.
-2. **Layout Loading** — `LayoutLoader` retrieves `ContentLayoutEntity` from repository.
+1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
+2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
 3. **PreHydration Events** — Listeners prepare layout: placeholder resolution, virtual root wrapping, partial rendering pruning. See Event/Listener/.
 4. **Hydration** (FULL mode only) — `ContentElementHydrator` loads data per element's requirements, then distributes context. Skipped in SKELETON mode. See Hydration/.
 5. **PostHydration Events** — Listeners finalize: virtual root cleanup, partial extraction. See Event/Listener/.
@@ -29,9 +29,12 @@ The pipeline is source-independent — specification sources translate entity ID
 ## Key Classes
 
 Module root:
-- `ContentPipeline` - Orchestrates steps 2-5 of the rendering pipeline
+- `ContentPipeline` - Orchestrates steps 3-5 of the rendering pipeline; receives the loaded `RenderableLayout` from the route
+- `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<ContentElement>`
+- `LayoutReference` - Immutable layout identity: id, name, version
+- `ResolvedContentLayout` - Resolver output: layout ID plus the `RenderingSpecification`
 - `ContentSection` - Enum: HEADER, FOOTER, MAIN
-- `RenderingSpecification` - Layout ID, data requirements, placeholders, request, target element, cache tags
+- `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
 - `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements + placeholders from layout resolution

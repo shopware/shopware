@@ -8,22 +8,20 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
+use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -47,13 +45,10 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('hydrates elements and dispatches lifecycle events in FULL mode')]
-    public function testLoadHydratesElementsInFullMode(): void
+    #[TestDox('dispatches pre- and post-hydration lifecycle events in order in FULL mode')]
+    public function testLoadDispatchesLifecycleEventsInFullMode(): void
     {
-        $layoutId = Uuid::randomHex();
-        $layoutEntity = $this->createLayoutEntity($layoutId);
-
-        $repository = $this->createLayoutRepository($layoutEntity);
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
 
         $dispatchedEvents = [];
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -64,12 +59,26 @@ class ContentPipelineTest extends TestCase
             }
         );
 
-        $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
-        $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
         static::assertSame([PreContentHydrationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
+    }
+
+    #[TestDox('hydrates elements in FULL mode')]
+    public function testLoadHydratesElementsInFullMode(): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+
         static::assertNotEmpty($result->elements);
     }
 
@@ -77,48 +86,47 @@ class ContentPipelineTest extends TestCase
     public function testLoadReturnsContentPageInSkeletonMode(): void
     {
         $layoutId = Uuid::randomHex();
-        $layoutEntity = $this->createLayoutEntity($layoutId, 'My Layout');
-
-        $repository = $this->createLayoutRepository($layoutEntity);
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($layoutId, 'My Layout'));
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
-        $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
-        $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
 
         $elements = iterator_to_array($result->elements, false);
         static::assertNotEmpty($elements);
         static::assertSame('section', $elements[0]->getComponent());
         static::assertSame($layoutId, $result->layoutId);
         static::assertSame('My Layout', $result->layoutName);
+        static::assertSame('1.0', $result->layoutVersion);
     }
 
-    #[TestDox('throws layout not found when layout does not exist')]
-    public function testLoadThrowsLayoutNotFoundWhenLayoutDoesNotExist(): void
+    #[TestDox('renders elements mutated by a PreContentHydration subscriber instead of the original layout')]
+    public function testLoadRendersElementsMutatedDuringPreHydration(): void
     {
-        $layoutId = Uuid::randomHex();
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity(Uuid::randomHex()));
 
-        $repository = $this->createLayoutRepository();
+        $injected = ContentElementBuilder::create('injected', 'injected-id')->build();
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            function (object $event) use ($injected) {
+                if ($event instanceof PreContentHydrationEvent) {
+                    $event->elements = [$injected];
+                }
 
-        $pipeline = new ContentPipeline($repository, $this->hydrator, $this->eventDispatcher);
-        $specification = new RenderingSpecification($layoutId, [], PlaceholderValues::from([]), new Request());
+                return $event;
+            }
+        );
 
-        $this->expectExceptionObject(ContentSystemException::layoutNotFound($layoutId));
+        $pipeline = new ContentPipeline($this->hydrator, $this->eventDispatcher);
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $pipeline->load($specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
-    }
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
 
-    /**
-     * @return StaticEntityRepository<ContentLayoutCollection>
-     */
-    private function createLayoutRepository(ContentLayoutEntity ...$entities): StaticEntityRepository
-    {
-        /** @var StaticEntityRepository<ContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([$entities]);
-
-        return $repository;
+        $elements = iterator_to_array($result->elements, false);
+        static::assertCount(1, $elements);
+        static::assertSame('injected-id', $elements[0]->getId());
     }
 
     private function createLayoutEntity(string $layoutId, string $name = 'Test Layout'): ContentLayoutEntity

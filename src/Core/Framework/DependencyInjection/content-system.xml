@@ -182,7 +182,6 @@
 
         <!-- Content Pipeline -->
         <service id="Shopware\Core\Framework\ContentSystem\ContentPipeline" public="true">
-            <argument type="service" id="content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

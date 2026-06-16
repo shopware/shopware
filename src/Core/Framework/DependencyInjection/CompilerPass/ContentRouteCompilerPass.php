@@ -54,6 +54,7 @@ class ContentRouteCompilerPass implements CompilerPassInterface
                     new Reference($resolverId),
                     $section,
                     new Reference(CacheTagCollector::class),
+                    new Reference('content_layout.repository'),
                     new Reference($formatHandlerId),
                     new Reference(ContentPipeline::class),
                     new Reference(CacheFinalizer::class),

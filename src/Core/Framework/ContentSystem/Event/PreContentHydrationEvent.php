@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Event;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
@@ -41,9 +42,7 @@ class PreContentHydrationEvent implements ShopwareSalesChannelEvent
      */
     public function __construct(
         public array $elements,
-        public readonly string $layoutId,
-        public readonly string $layoutName,
-        public readonly ?string $layoutVersionId,
+        public readonly LayoutReference $layout,
         public readonly RenderingSpecification $specification,
         public readonly RenderingMode $mode,
         public readonly SalesChannelContext $salesChannelContext,

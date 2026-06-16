@@ -42,7 +42,7 @@ class RenderingSpecificationResolverTest extends TestCase
         $result = $resolver->resolve($path, $request, $context);
 
         static::assertSame('layout-1', $result->layoutId);
-        static::assertSame($request, $result->request);
+        static::assertSame($request, $result->specification->request);
     }
 
     #[TestDox('skips sources that do not support the path')]

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter;
 
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
+use Shopware\Core\Framework\ContentSystem\ResolvedContentLayout;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,16 +21,19 @@ class RenderingSpecificationFactory
         string $path,
         Request $request,
         SalesChannelContext $context,
-    ): RenderingSpecification {
+    ): ResolvedContentLayout {
+        $layoutId = $source->resolveLayoutId($path, $request, $context);
         $data = $source->resolveSpecificationData($path, $request, $context);
 
-        return new RenderingSpecification(
-            layoutId: $source->resolveLayoutId($path, $request, $context),
-            dataRequirements: $data->dataRequirements,
-            placeholderValues: $data->placeholderValues,
-            request: $request,
-            targetElementId: $source->resolveTargetElementId($path, $request, $context),
-            cacheTags: $source->resolveCacheTags($path, $request, $context),
+        return ResolvedContentLayout::create(
+            $layoutId,
+            new RenderingSpecification(
+                dataRequirements: $data->dataRequirements,
+                placeholderValues: $data->placeholderValues,
+                request: $request,
+                targetElementId: $source->resolveTargetElementId($path, $request, $context),
+                cacheTags: $source->resolveCacheTags($path, $request, $context),
+            ),
         );
     }
 }

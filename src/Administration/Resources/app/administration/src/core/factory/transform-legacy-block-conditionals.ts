@@ -109,11 +109,7 @@ function resetLegacyConditionContinuationContexts(): void {
     legacyConditionContinuationContextVersion += 1;
 }
 
-function storeLegacyConditionContinuationAlias(
-    componentName: string,
-    localChainKey: string,
-    fullChainKey: string,
-): void {
+function storeLegacyConditionContinuationAlias(componentName: string, localChainKey: string, fullChainKey: string): void {
     const context = legacyConditionContinuationContexts.get(componentName) ?? {};
 
     if (context[localChainKey] === fullChainKey) {
@@ -588,10 +584,7 @@ function ensureLegacyTwigBlockIndex(): void {
 /**
  * @private
  */
-export function indexLegacyTwigBlockConditionEntries(
-    componentName: string,
-    entries: LegacyTwigBlockSequenceEntry[],
-): void {
+export function indexLegacyTwigBlockConditionEntries(componentName: string, entries: LegacyTwigBlockSequenceEntry[]): void {
     indexedLegacyTwigBlockEntries.push({ componentName, entries });
     legacyTwigBlockIndexDirty = true;
 }

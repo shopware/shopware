@@ -18,6 +18,15 @@
             />
 
             <mt-switch
+                :model-value="isDisplayStateInRegistrationActive"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="isDisplayStateInRegistrationDisabled || undefined"
+                :label="$t('sw-settings-country.detail.labelDisplayStateInRegistration')"
+                @update:model-value="updateCountry('displayStateInRegistration', $event)"
+            />
+
+            <mt-switch
                 :model-value="country.postalCodeRequired"
                 class="sw-settings-country-address-handling__option-items"
                 bordered

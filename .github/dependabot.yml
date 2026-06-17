@@ -13,6 +13,8 @@ updates:
       all:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
   - package-ecosystem: "github-actions"
     target-branch: 6.6.x
     directory: "/"
@@ -26,6 +28,8 @@ updates:
       all:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
 
   - package-ecosystem: "npm"
     target-branch: trunk

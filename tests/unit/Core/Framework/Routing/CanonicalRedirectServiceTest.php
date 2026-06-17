@@ -130,7 +130,8 @@ class CanonicalRedirectServiceTest extends TestCase
      */
     private static function getRequest(array $attributes): Request
     {
-        $request = Request::create($_SERVER['APP_URL'], Request::METHOD_GET);
+        $appUrl = \is_string($_SERVER['APP_URL'] ?? null) ? $_SERVER['APP_URL'] : 'http://localhost';
+        $request = Request::create($appUrl, Request::METHOD_GET);
 
         foreach ($attributes as $key => $attribute) {
             $request->attributes->set($key, $attribute);

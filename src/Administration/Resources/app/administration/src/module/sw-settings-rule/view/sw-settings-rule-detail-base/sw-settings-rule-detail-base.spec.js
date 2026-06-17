@@ -27,6 +27,22 @@ const defaultProps = {
     },
 };
 
+function buildRuleConditionService() {
+    const ruleConditionService = new RuleConditionService();
+
+    ruleConditionService.addCondition('cartLineItemProductType', {
+        label: 'global.sw-condition.condition.cartLineItemProductTypeRule',
+    });
+
+    ruleConditionService.registerDeprecation('cartLineItemProductStates', {
+        version: 'v6.8.0.0',
+        replacement: 'cartLineItemProductType',
+        label: 'global.sw-condition.condition.cartLineItemProductStatesRule',
+    });
+
+    return ruleConditionService;
+}
+
 async function createWrapper(props = defaultProps, privileges = ['rule.editor']) {
     return mount(await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }), {
         props,
@@ -62,7 +78,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'mt-banner': true,
             },
             provide: {
-                ruleConditionDataProviderService: new RuleConditionService(),
+                ruleConditionDataProviderService: buildRuleConditionService(),
                 acl: {
                     can: (identifier) => {
                         return privileges.includes(identifier);

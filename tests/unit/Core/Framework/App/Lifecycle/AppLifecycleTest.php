@@ -53,19 +53,19 @@ class AppLifecycleTest extends TestCase
         $appLifecycle->update($manifest, $parameters, ['id' => 'app-id', 'roleId' => 'role-id'], $context);
     }
 
-    public function testDeleteLoadsAppAndDelegatesToAppManager(): void
+    public function testUninstallLoadsAppAndDelegatesToAppManager(): void
     {
         $app = AppFixture::createAppEntity(id: 'app-id');
         $context = Context::createDefaultContext();
 
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->once())
-            ->method('delete')
+            ->method('uninstall')
             ->with($app, $context, true);
 
         $appLifecycle = new AppLifecycle($appManager, AppFixture::createAppRepository($app));
 
-        $appLifecycle->delete('test', ['id' => 'app-id'], $context, true);
+        $appLifecycle->uninstall('test', ['id' => 'app-id'], $context, true);
     }
 
     public function testUpdateThrowsWhenAppDoesNotExist(): void

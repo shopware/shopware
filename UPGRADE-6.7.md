@@ -7,6 +7,19 @@ The block `sw_integration_list_introduction` in `src/Administration/Resources/ap
 
 The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.
 
+## Rule builder condition error display rework
+
+`sw-condition-base` now reads errors directly from the `rule_condition` entity error store. A new `sw-condition-field-errors` component renders the labelled summary below the row.
+
+### Removals on `sw-condition-*` components
+
+* `mapPropertyErrors('condition', [...])` spreads have been removed from every individual `sw-condition-*` component, along with the `conditionValue*Error` computed properties they generated (e.g. `conditionValueOperatorError`). Read errors from the `rule_condition` entity error store instead.
+* The local `currentError` computed override has been removed from the individual `sw-condition-*` components; they now inherit `currentError` from `sw-condition-base`.
+* `hasError` prop on `sw-condition-type-select` has been removed.
+* `operatorClasses` and `hasError` computed properties on `sw-condition-operator-select` have been removed.
+* `typeSelectClasses` and `arrowColor` computed properties on `sw-condition-type-select` have been removed.
+* `currentError` has been removed from the `generic-condition.mixin.ts` mixin.
+
 ## Deprecation of `sw_settings_mailer_headline_agent` twig block
 
 The block `sw_settings_mailer_headline_agent` in `src/Administration/Resources/app/administration/src/module/sw-settings-mailer/page/sw-settings-mailer/sw-settings-mailer.html.twig` has been deprecated and will be removed in v6.8.0.

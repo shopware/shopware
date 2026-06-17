@@ -130,9 +130,11 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
 
-        /** @var array{active: int|null, is_closeout: int|null}|false $parent */
         $parent = $query->executeQuery()->fetchAssociative();
+        if ($parent === false) {
+            return ['active' => null, 'is_closeout' => null];
+        }
 
-        return $parent ?: ['active' => null, 'is_closeout' => null];
+        return $parent;
     }
 }

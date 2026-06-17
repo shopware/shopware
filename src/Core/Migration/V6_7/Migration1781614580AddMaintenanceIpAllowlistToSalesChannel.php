@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,12 +20,7 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannel extends Migrati
 
     public function update(Connection $connection): void
     {
-        $columnExists = $connection->fetchOne(
-            'SHOW COLUMNS FROM `sales_channel` LIKE :column',
-            ['column' => 'maintenance_ip_allowlist']
-        );
-
-        if ($columnExists === false) {
+        if (!TableHelper::columnExists($connection, 'sales_channel', 'maintenance_ip_allowlist')) {
             $connection->executeStatement('
                 ALTER TABLE `sales_channel`
                 ADD `maintenance_ip_allowlist` JSON NULL
@@ -43,6 +39,10 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannel extends Migrati
 
     public function updateDestructive(Connection $connection): void
     {
+        $this->removeTrigger($connection, 'sales_channel_maintenance_ip_allowlist_insert');
+        $this->removeTrigger($connection, 'sales_channel_maintenance_ip_allowlist_update');
+
+        $this->dropColumnIfExists($connection, 'sales_channel', 'maintenance_ip_whitelist');
     }
 
     /**

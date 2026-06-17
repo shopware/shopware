@@ -8,9 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @phpstan-import-type Domain from AbstractDomainLoader
- */
 #[Package('framework')]
 class DomainLoader extends AbstractDomainLoader
 {
@@ -60,8 +57,10 @@ class DomainLoader extends AbstractDomainLoader
         $query->andWhere('sales_channel.active');
         $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
-        /** @var array<string, Domain> $domains */
-        $domains = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
+        $domains = [];
+        foreach (FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative()) as $key => $row) {
+            $domains[(string) $key] = Domain::fromArray($row);
+        }
 
         return $domains;
     }

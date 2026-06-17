@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
+use Shopware\Storefront\Framework\Routing\Domain;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,7 +98,7 @@ class RequestTransformerTest extends TestCase
 
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
         $domainLoader->method('load')->willReturn([
-            $domainKey => [
+            $domainKey => Domain::fromArray([
                 'url' => $domainKey,
                 'id' => $domainId,
                 'salesChannelId' => $salesChannelId,
@@ -111,7 +112,7 @@ class RequestTransformerTest extends TestCase
                 'locale' => 'en-GB',
                 'themeName' => 'Storefront',
                 'parentThemeName' => '',
-            ],
+            ]),
         ]);
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader);

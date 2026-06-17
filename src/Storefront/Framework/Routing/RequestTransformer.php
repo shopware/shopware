@@ -11,7 +11,6 @@ use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 #[Package('framework')]
@@ -121,21 +120,21 @@ class RequestTransformer implements RequestTransformerInterface
          * getBaseUrl()  = /subdir/index.php (includes script name when explicitly in the url)
          */
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
-        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel->url);
         // if no replacement occurred, consider punycode urls
-        if ($baseUrl === $salesChannel['url']) {
+        if ($baseUrl === $salesChannel->url) {
             $baseUrl = str_replace(
                 $this->getSchemeAndAsciiHttpHost($request) . $request->getBasePath(),
                 '',
-                $salesChannel['url']
+                $salesChannel->url
             );
         }
 
         $resolved = $this->resolveSeoUrl(
             $request,
             $baseUrl,
-            $salesChannel['languageId'],
-            $salesChannel['salesChannelId']
+            $salesChannel->languageId,
+            $salesChannel->salesChannelId
         );
 
         $currentRequestUri = $request->getRequestUri();
@@ -187,34 +186,34 @@ class RequestTransformer implements RequestTransformerInterface
         );
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
-        $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
+        $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel->salesChannelId);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel->locale);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel->snippetSetId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel->currencyId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel->id);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel->themeId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel->themeName);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel->parentThemeName);
 
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,
-            (bool) $salesChannel['maintenance']
+            (bool) $salesChannel->maintenance
         );
 
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST,
-            $salesChannel['maintenanceIpAllowlist']
+            $salesChannel->maintenanceIpAllowlist
         );
 
         // @deprecated tag:v6.8.0 - remove this block, the deprecated attribute is kept in sync for backwards compatibility only
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
-            $salesChannel['maintenanceIpAllowlist']
+            $salesChannel->maintenanceIpAllowlist
         );
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $urlPath = parse_url($salesChannel['url'], \PHP_URL_PATH);
+            $urlPath = parse_url($salesChannel->url, \PHP_URL_PATH);
             if ($urlPath === false || $urlPath === null) {
                 $urlPath = '';
             }
@@ -230,7 +229,7 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
-        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->languageId);
         // add all headers from the original request, overrides the headers from the domain mapping if they are passed on the request directly
         $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
@@ -276,10 +275,7 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
-    /**
-     * @return Domain|null
-     */
-    private function findSalesChannel(Request $request): ?array
+    private function findSalesChannel(Request $request): ?Domain
     {
         $domains = $this->domainLoader->load();
 
@@ -302,8 +298,6 @@ class RequestTransformer implements RequestTransformerInterface
 
         // direct hit
         if ($domain !== null) {
-            $domain['url'] = rtrim($domain['url'], '/');
-
             return $domain;
         }
 
@@ -323,8 +317,6 @@ class RequestTransformer implements RequestTransformerInterface
                 $lastBaseUrl = $baseUrl;
             }
         }
-
-        $bestMatch['url'] = rtrim($bestMatch['url'], '/');
 
         return $bestMatch;
     }

@@ -309,6 +309,10 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 
 Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
 
+### Rule builder shows per-field errors on conditions
+
+Invalid condition inputs are now highlighted individually with a list of the affected fields below the row. All reversed date ranges are reported in one save instead of one at a time.
+
 ### Reworked timeframe options in `sw-date-filter`
 
 The order date filter dropdown now offers a 15-entry list, in display order:

@@ -94,7 +94,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('active', true);
         $query->setParameter('parentActive', $parent['active'], ParameterType::BOOLEAN);
-        $query->setParameter('parentIsCloseout', $parent['is_closeout']);
+        $query->setParameter('parentIsCloseout', $parent['is_closeout'], ParameterType::BOOLEAN);
 
         $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');

@@ -70,10 +70,8 @@ class CreateMailTemplateTraitTest extends TestCase
 
     public function testCreateMail(): void
     {
-        $enLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'en-GB');
-        static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'de-DE');
-        static::assertIsString($deLanguageByteId);
+        $enLanguageByteId = $this->getLanguageByteId('en-GB');
+        $deLanguageByteId = $this->getLanguageByteId('de-DE');
 
         // create new mail template
         $mailTemplateType = new MailTemplateTypeCreateStruct(
@@ -151,10 +149,8 @@ class CreateMailTemplateTraitTest extends TestCase
             $this->targetDirectory . '/de-plain.txt.twig',
         ]);
 
-        $enLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'en-GB');
-        static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'de-DE');
-        static::assertIsString($deLanguageByteId);
+        $enLanguageByteId = $this->getLanguageByteId('en-GB');
+        $deLanguageByteId = $this->getLanguageByteId('de-DE');
 
         // create new mail template
         $mailTemplateType = new MailTemplateTypeCreateStruct(
@@ -253,14 +249,7 @@ class CreateMailTemplateTraitTest extends TestCase
         );
 
         // de-DE already exists as a separate, non-default language
-        $deLanguageId = $this->connection->fetchOne(
-            'SELECT `language`.`id`
-             FROM `language`
-             INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-             WHERE `locale`.`code` = :code',
-            ['code' => 'de-DE']
-        );
-        static::assertIsString($deLanguageId);
+        $deLanguageId = $this->getLanguageByteId('de-DE');
 
         $mailTemplateType = new MailTemplateTypeCreateStruct(
             self::TEST_TECHNICAL_NAME,
@@ -306,6 +295,20 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertSame($mailTemplate->getEnSubject(), $enMailTranslation['subject']);
         $deMailTranslation = $this->findTranslationByLanguageId($deLanguageId, $templateTranslations);
         static::assertSame($mailTemplate->getDeSubject(), $deMailTranslation['subject']);
+    }
+
+    private function getLanguageByteId(string $locale): string
+    {
+        $languageByteId = $this->connection->fetchOne(
+            'SELECT `language`.`id`
+             FROM `language`
+             INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
+             WHERE `locale`.`code` = :code',
+            ['code' => $locale]
+        );
+        static::assertIsString($languageByteId);
+
+        return $languageByteId;
     }
 
     /**

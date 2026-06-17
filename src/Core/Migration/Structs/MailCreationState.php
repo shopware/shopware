@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Structs;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,9 +19,15 @@ class MailCreationState
 
     protected bool $mailTemplateExists = true;
 
-    protected ?string $enLanguageByteId;
+    /**
+     * @var array<string>
+     */
+    protected array $englishLanguageByteIds = [];
 
-    protected ?string $deLanguageByteId;
+    /**
+     * @var array<string>
+     */
+    protected array $germanLanguageByteIds = [];
 
     public function getMailTemplateTypeByteId(): ?string
     {
@@ -62,33 +69,93 @@ class MailCreationState
         $this->mailTemplateExists = false;
     }
 
+    /**
+     * @return array<string>
+     */
+    public function getEnglishLanguageByteIds(): array
+    {
+        return $this->englishLanguageByteIds;
+    }
+
+    /**
+     * @param array<string> $englishLanguageByteIds
+     */
+    public function setEnglishLanguageByteIds(array $englishLanguageByteIds): void
+    {
+        $this->englishLanguageByteIds = $englishLanguageByteIds;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getGermanLanguageByteIds(): array
+    {
+        return $this->germanLanguageByteIds;
+    }
+
+    /**
+     * @param array<string> $germanLanguageByteIds
+     */
+    public function setGermanLanguageByteIds(array $germanLanguageByteIds): void
+    {
+        $this->germanLanguageByteIds = $germanLanguageByteIds;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed without replacement
+     */
     public function hasEnLanguageByteId(): bool
     {
-        return $this->enLanguageByteId !== null;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'hasEnLanguageByteId() is deprecated.');
+
+        return $this->englishLanguageByteIds !== [];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use getEnglishLanguageByteIds() instead.
+     */
     public function getEnLanguageByteId(): ?string
     {
-        return $this->enLanguageByteId;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'getEnLanguageByteId() is deprecated. Use getEnglishLanguageByteIds() instead.');
+
+        return $this->englishLanguageByteIds[0] ?? null;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use setEnglishLanguageByteIds() instead.
+     */
     public function setEnLanguageByteId(?string $enLanguageByteId): void
     {
-        $this->enLanguageByteId = $enLanguageByteId;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'setEnLanguageByteId() is deprecated. Use setEnglishLanguageByteIds() instead.');
+        $this->englishLanguageByteIds = $enLanguageByteId !== null ? [$enLanguageByteId] : [];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed without replacement
+     */
     public function hasDeLanguageByteId(): bool
     {
-        return $this->deLanguageByteId !== null;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'hasDeLanguageByteId() is deprecated.');
+
+        return $this->germanLanguageByteIds !== [];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use getGermanLanguageByteIds() instead.
+     */
     public function getDeLanguageByteId(): ?string
     {
-        return $this->deLanguageByteId;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'getDeLanguageByteId() is deprecated. Use getGermanLanguageByteIds() instead.');
+
+        return $this->germanLanguageByteIds[0] ?? null;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use setGermanLanguageByteIds() instead.
+     */
     public function setDeLanguageByteId(?string $deLanguageByteId): void
     {
-        $this->deLanguageByteId = $deLanguageByteId;
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'setDeLanguageByteId() is deprecated. Use setGermanLanguageByteIds() instead.');
+        $this->germanLanguageByteIds = $deLanguageByteId !== null ? [$deLanguageByteId] : [];
     }
 }

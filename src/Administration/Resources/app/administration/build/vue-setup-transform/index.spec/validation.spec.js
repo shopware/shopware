@@ -240,10 +240,16 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
-    it('rejects TypeScript declare declarations because they are not runtime state', () => {
+    it.each([
+        'declare const count: number;',
+        'declare function count(): number;',
+        'declare class count {}',
+        'declare enum count { value }',
+        'declare namespace count { const value: number }',
+    ])('rejects TypeScript declare declarations because they are not runtime state: %s', (declaration) => {
         const source = stripIndent`
             <script setup lang="ts" sw-component="sw-my-component">
-            declare const count: number;
+            ${declaration}
             </script>
         `;
 

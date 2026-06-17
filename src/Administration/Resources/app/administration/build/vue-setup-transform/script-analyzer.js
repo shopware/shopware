@@ -168,6 +168,23 @@ function isFunctionNode(node) {
 }
 
 /**
+ * TypeScript ambient declarations are compile-time only and must not become setup callback code or returned state.
+ *
+ * @param {Statement} statement
+ * @returns {boolean}
+ */
+function isTypeScriptDeclareDeclaration(statement) {
+    return Boolean(
+        statement.declare &&
+            (statement.type === 'VariableDeclaration' ||
+                statement.type === 'TSDeclareFunction' ||
+                statement.type === 'ClassDeclaration' ||
+                statement.type === 'TSEnumDeclaration' ||
+                statement.type === 'TSModuleDeclaration'),
+    );
+}
+
+/**
  * Small AST walker used to avoid taking a heavier traversal dependency.
  *
  * @param {BabelNode | null | undefined} node
@@ -447,16 +464,16 @@ function isRuntimeInputAlias(declaration, mode) {
  * @returns {void}
  */
 function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode) {
-    if (statement.type === 'VariableDeclaration') {
-        if (statement.declare) {
-            // Vue preserves/hoists TypeScript declare declarations and does not return them from setup. Shopware setup
-            // rejects them because this transform only models runtime bindings that can enter public/private state.
-            throw new ShopwareSetupTransformError(
-                'TypeScript declare declarations are not runtime Shopware setup bindings.',
-                scriptOffset + getNodeRange(statement, scriptOffset).start,
-            );
-        }
+    if (isTypeScriptDeclareDeclaration(statement)) {
+        // Vue/TypeScript treat ambient declarations as type-only. The lowered callback only contains runtime setup
+        // code, so keeping or returning these declarations would produce invalid output.
+        throw new ShopwareSetupTransformError(
+            'TypeScript declare declarations are not runtime Shopware setup bindings.',
+            scriptOffset + getNodeRange(statement, scriptOffset).start,
+        );
+    }
 
+    if (statement.type === 'VariableDeclaration') {
         statement.declarations.forEach((declaration) => {
             if (isSetupInputDeclaration(declaration)) {
                 if (declaration.id.type !== 'Identifier') {

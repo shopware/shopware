@@ -186,13 +186,13 @@ function buildReport(groups) {
     const lines = [
         '*Nightly health summary*',
         `Run: <${runUrl}|${escapeSlackText(repository)} #${runId}> (${escapeSlackText(refName)}, ${escapeSlackText(eventName)}, attempt ${escapeSlackText(runAttempt)})`,
-        `Result: ${failedJobs.length === 0 ? 'success' : 'failure'} (${successfulJobs.length} successful, ${failedJobs.length} failed, ${skippedJobs.length} skipped)`,
+        `Result: ${failedJobs.length === 0 ? conclusionIcon('success') : conclusionIcon('failure')} (${conclusionIcon('success')} ${successfulJobs.length}, ${conclusionIcon('failure')} ${failedJobs.length}, ${conclusionIcon('skipped')} ${skippedJobs.length})`,
         '',
     ];
 
     for (const group of groups) {
         const failedInGroup = group.jobs.filter((job) => isFailureLike(job.conclusion)).length;
-        lines.push(`*${escapeSlackText(group.workflowName)}* (${group.jobs.length} jobs, ${failedInGroup} failed)`);
+        lines.push(`*${escapeSlackText(group.workflowName)}* (${group.jobs.length} jobs, ${conclusionIcon('failure')} ${failedInGroup})`);
 
         for (const job of group.jobs) {
             lines.push(formatJobLine(job));
@@ -207,12 +207,29 @@ function buildReport(groups) {
 function formatJobLine(job) {
     const conclusion = job.conclusion || 'unknown';
     const displayName = escapeSlackText(job.displayName);
+    const icon = conclusionIcon(conclusion);
 
     if (isFailureLike(conclusion)) {
-        return `- ${conclusion}: <${job.html_url}|${displayName}>`;
+        return `- ${icon} <${job.html_url}|${displayName}>`;
     }
 
-    return `- ${conclusion}: ${displayName}`;
+    return `- ${icon} ${displayName}`;
+}
+
+function conclusionIcon(conclusion) {
+    if (conclusion === 'success') {
+        return ':white_check_mark:';
+    }
+
+    if (conclusion === 'skipped') {
+        return ':heavy_minus_sign:';
+    }
+
+    if (isFailureLike(conclusion)) {
+        return ':x:';
+    }
+
+    return ':grey_question:';
 }
 
 function escapeSlackText(value) {

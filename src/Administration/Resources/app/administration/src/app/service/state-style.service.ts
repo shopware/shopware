@@ -8,7 +8,6 @@ type style = {
     icon: variantKeys;
     color: variantKeys;
     variant: variantKeys;
-    meteorVariant: meteorVariantKeys;
 };
 
 type storedStyle = {
@@ -32,7 +31,7 @@ type store = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type stateStyleService = {
     getPlaceholder: () => storedStyle;
-    getStyle: (stateMachine: string, state: string) => style;
+    getStyle: (stateMachine: string, state: string) => storedStyle;
     addStyle: (stateMachine: string, state: string, style: style) => void;
 };
 

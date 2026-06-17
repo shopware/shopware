@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Authentication;
 
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\McpException;
@@ -40,7 +40,7 @@ class McpAuthenticationListenerTest extends TestCase
 
     public function testSkipsNonMcpRoutes(): void
     {
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
         $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
@@ -53,7 +53,7 @@ class McpAuthenticationListenerTest extends TestCase
 
     public function testFallsThroughWhenNoAccessKeyHeaders(): void
     {
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
         $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
@@ -66,7 +66,7 @@ class McpAuthenticationListenerTest extends TestCase
 
     public function testFallsThroughToBearerJwtWhenNoAccessKeyHeaders(): void
     {
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
         $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
@@ -82,7 +82,7 @@ class McpAuthenticationListenerTest extends TestCase
     public function testRejectsUnsupportedKeyType(): void
     {
         $listener = new McpAuthenticationListener(
-            static::createStub(ClientRepository::class),
+            static::createStub(ClientRepositoryInterface::class),
             static::createStub(RateLimiter::class),
         );
 
@@ -99,7 +99,7 @@ class McpAuthenticationListenerTest extends TestCase
 
     public function testRejectsInvalidCredentialsAndDoesNotResetRateLimiter(): void
     {
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->method('validateClient')
             ->with('SWIAvalidintegrationkey12', 'wrong-secret', 'client_credentials')
             ->willReturn(false);
@@ -131,7 +131,7 @@ class McpAuthenticationListenerTest extends TestCase
             ->willThrowException($expected);
 
         $listener = new McpAuthenticationListener(
-            static::createStub(ClientRepository::class),
+            static::createStub(ClientRepositoryInterface::class),
             $rateLimiter,
         );
 
@@ -150,7 +150,7 @@ class McpAuthenticationListenerTest extends TestCase
         $accessKey = 'SWIAvalidintegrationkey12';
         $secret = 'my-secret-key';
 
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->method('validateClient')
             ->with($accessKey, $secret, 'client_credentials')
             ->willReturn(true);
@@ -180,7 +180,7 @@ class McpAuthenticationListenerTest extends TestCase
         $accessKey = 'SWUAvaliduseraccesskey123';
         $secret = 'my-secret-key';
 
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = $this->createMock(ClientRepositoryInterface::class);
         $clientRepository->method('validateClient')
             ->with($accessKey, $secret, 'client_credentials')
             ->willReturn(true);

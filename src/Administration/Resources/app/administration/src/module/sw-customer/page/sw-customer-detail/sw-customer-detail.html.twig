@@ -8,14 +8,12 @@
         <h2>
             {{ salutation(customer) }}
         </h2>
-        <sw-label
+        <mt-badge
             v-if="customer?.createdById"
-            appearance="pill"
-            size="small"
             class="sw-customer-detail__created-by-admin-label"
         >
             {{ $t('sw-customer.detail.labelCreatedByAdmin') }}
-        </sw-label>
+        </mt-badge>
     </template>
     {% endblock %}
 

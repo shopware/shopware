@@ -14,6 +14,7 @@ on:
         default: ""
 
 permissions:
+  actions: write
   contents: read
   id-token: write
   pull-requests: read
@@ -42,6 +43,7 @@ jobs:
           ref: .auto
           timeout: 30m
           token: ${{ steps.sts.outputs.token }}
+          upstream-token: ${{ github.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
 
@@ -67,6 +69,7 @@ jobs:
           timeout: 60m
           poll_interval: 1m
           token: ${{ steps.sts.outputs.token }}
+          upstream-token: ${{ github.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
 

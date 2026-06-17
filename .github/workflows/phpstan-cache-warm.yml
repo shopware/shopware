@@ -1,0 +1,48 @@
+name: PHPStan cache warm (trunk)
+
+# Refreshes trunk's PHPStan result cache after every merge so PRs restore a
+# current cache instead of the up-to-24h-old nightly one. Saves under the same
+# "phpstan-result-cache-" key the php.yml PHPStan job reads from.
+
+on:
+  push:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+concurrency:
+  group: phpstan-cache-warm
+  cancel-in-progress: false # let each warm run finish saving its cache
+
+jobs:
+  warm:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    name: "PHPStan cache warm"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Generate Schema
+        run: composer run framework:schema:dump
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            phpstan-result-cache-
+
+      - name: PHPStan
+        run: composer run phpstan -- --error-format=table --no-progress
+
+      - name: "Save result cache"
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        if: always()
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"

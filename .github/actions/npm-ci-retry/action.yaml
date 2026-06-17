@@ -1,0 +1,38 @@
+name: "npm ci with retry"
+description: >-
+  Runs `npm ci` (or an equivalent install command) with retries and offline
+  preference so transient registry resets (ECONNRESET) don't fail the job.
+  Cache `~/.npm` in a preceding step to make the retries reuse tarballs offline.
+
+inputs:
+  working-directory:
+    description: "Directory to run the install in."
+    required: false
+    default: "."
+  command:
+    description: "Install command to run (e.g. `npm ci` or `composer run npm:storefront ci`)."
+    required: false
+    default: "npm ci"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        npm_config_fetch_retries: "5"
+        npm_config_fetch_retry_mintimeout: "20000"
+        npm_config_fetch_retry_maxtimeout: "120000"
+        npm_config_prefer_offline: "true"
+      run: |
+        for attempt in 1 2 3; do
+          if ${{ inputs.command }}; then
+            break
+          fi
+          if [ "${attempt}" -eq 3 ]; then
+            echo "::error::'${{ inputs.command }}' failed after ${attempt} attempts"
+            exit 1
+          fi
+          echo "::warning::'${{ inputs.command }}' failed (attempt ${attempt}/3); retrying in $((attempt * 15))s"
+          sleep "$((attempt * 15))"
+        done

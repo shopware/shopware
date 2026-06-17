@@ -148,16 +148,38 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
-## Customer default address detail routes return only the configured default address
+## Reference-based Admin API detail routes use one-to-one associations
 
-The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
-Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
+Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
 </details>
 
 # Core
 
 <details>
+
+## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
 
 ## Removed stored `mail_template_type.template_data`
 
@@ -562,6 +584,14 @@ $this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChanne
 ```
 
 Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
+
+For plugin and app configuration fields rendered through `Resources/config/config.xml`, mark fields that affect cached storefront output with `cache-relevant="true"` so Administration saves continue to invalidate HTTP cache entries:
+
+```xml
+<input-field type="bool" cache-relevant="true">
+    <name>showBanner</name>
+</input-field>
+```
 
 ## Removed SystemConfig exceptions
 
@@ -1308,7 +1338,12 @@ The block `page_product_detail_product_buy_button_label` has been removed. Use `
 
 ## Deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets
 
-The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Override the new Twig blocks instead:
+The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Use one of the following replacements instead:
+
+- Without code, via system config: create a regular translation snippet with a custom key and enter that key in the new system config settings `core.listing.beforeListPriceSnippetKey` / `core.listing.afterListPriceSnippetKey` (Settings > Shop > Listing). The snippet content is rendered sanitized around every list price, per sales channel and language.
+- In a theme or plugin: override the central template `@Storefront/storefront/component/product/list-price-affix.html.twig` (block `component_list_price_affix_content`, with `position` set to `before` or `after`) to inject markup into all list price displays at once.
+
+To target a single display only, override the local Twig blocks instead:
 
 - `buy-widget-price.html.twig`: `buy_widget_was_price_before` / `buy_widget_was_price_after`
 - `block-price.html.twig`: `component_product_detail_block_list_price_before` / `component_product_detail_block_list_price_after`

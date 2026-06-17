@@ -104,7 +104,11 @@
                             {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
 
                             <span class="list-price list-price-no-line-through">
-                                {% block component_product_box_main_price_before %}{% endblock %}
+                                {% block component_product_box_main_price_before %}
+                                    {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                        position: 'before'
+                                    } %}
+                                {% endblock %}
 
                                 {# @deprecated tag:v6.8.0 - Snippet listing.beforeListPrice output will be removed. Use twig blocks instead. #}
                                 {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim|sw_sanitize }}{% endif %}
@@ -113,7 +117,11 @@
 
                                 <span class="list-price-price">{{ price.listPrice.price|currency }}</span>
 
-                                {% block component_product_box_main_price_after %}{% endblock %}
+                                {% block component_product_box_main_price_after %}
+                                    {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                        position: 'after'
+                                    } %}
+                                {% endblock %}
 
                                 {# @deprecated tag:v6.8.0 - Snippet listing.afterListPrice output will be removed. Use twig blocks instead. #}
                                 {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}{% endif %}

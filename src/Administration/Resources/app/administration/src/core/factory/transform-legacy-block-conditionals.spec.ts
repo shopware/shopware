@@ -106,6 +106,30 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         );
     });
 
+    it('rewrites quoted condition expressions without breaking the compiled template', () => {
+        const template = `
+            <div>
+                <sw-block name="quote-expression-block">
+                    <div v-if='state === "open"' class="open-case">open</div>
+                </sw-block>
+
+                <sw-block extends="quote-expression-block">
+                    <sw-block-parent />
+                    <div v-else class="fallback-case">fallback</div>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain(`$swLegacyBlockIf('quote-expression-block:0'`);
+        expect(transformedTemplate).toContain(
+            `$swLegacyBlockElse('quote-expression-block:0', ${options(0, false, 'nativeExtension')})`,
+        );
+        expect(transformedTemplate).not.toContain(`v-if='state === "open"'`);
+        expect(() => compile(transformedTemplate)).not.toThrow();
+    });
+
     it('preserves camelCase props and event names while rewriting conditionals', () => {
         const template = `
             <div>

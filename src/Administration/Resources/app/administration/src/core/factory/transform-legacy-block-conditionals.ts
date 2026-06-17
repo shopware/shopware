@@ -81,7 +81,7 @@ type BlockConditionInfo = {
 };
 
 type RewriteInfo = {
-    codeBefore: string;
+    codeBefore: string[];
     codeAfter: string;
 };
 
@@ -159,6 +159,10 @@ function createLegacyHelperExpression(
     }
 
     return `${helperName}('${escapedConditionKey}', ${createLegacyConditionOptionsCode(parameters)})`;
+}
+
+function escapeDoubleQuotedAttributeValue(value: string): string {
+    return value.replace(/"/g, '&quot;');
 }
 
 /** Expands self-closing custom components so the browser parser keeps the intended tree. */
@@ -385,6 +389,50 @@ function getAttributeCode(template: string, attributeName: string): string {
     return match[0] ?? '';
 }
 
+function createAttributeCodeCandidates(
+    attributeName: string,
+    expression: string | null,
+    serializedAttribute: string,
+): string[] {
+    const candidates = [serializedAttribute];
+
+    if (expression !== null) {
+        candidates.push(
+            `${attributeName}="${escapeDoubleQuotedAttributeValue(expression)}"`,
+            `${attributeName}='${expression.replace(/'/g, '&#39;')}'`,
+        );
+    }
+
+    return Array.from(new Set(candidates.filter(Boolean)));
+}
+
+function createLegacyHelperAttribute(
+    helperName: string,
+    chainKey: string,
+    expression: string | null | undefined,
+    parameters: HelperParameters,
+): string {
+    return `v-if="${escapeDoubleQuotedAttributeValue(createLegacyHelperExpression(helperName, chainKey, expression, parameters))}"`;
+}
+
+function addAttributeRewrite(
+    rewrites: RewriteInfo[],
+    child: Element,
+    attributeName: string,
+    helperName: string,
+    chainKey: string,
+    expression: string | null | undefined,
+    parameters: HelperParameters,
+): void {
+    const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
+    const oldExpression = getAttributeCode(codeBefore, attributeName);
+
+    rewrites.push({
+        codeBefore: createAttributeCodeCandidates(attributeName, expression ?? null, oldExpression),
+        codeAfter: createLegacyHelperAttribute(helperName, chainKey, expression, parameters),
+    });
+}
+
 function constructChainAttributeRewrites(
     chain: BlockConditionChainInfo,
     renderOrderSegment: LegacyConditionRenderOrderSegment,
@@ -400,28 +448,30 @@ function constructChainAttributeRewrites(
     chain.children.forEach((child, localSegmentCaseIndex) => {
         const segmentCaseIndex = (chain.caseStartIndex ?? 0) + localSegmentCaseIndex;
         if (child.hasAttribute('v-if')) {
-            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
-            const oldExpression = getAttributeCode(codeBefore, 'v-if');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.if, chainKey, child.getAttribute('v-if'), { isStartingCondition: chain.starting && localSegmentCaseIndex === 0, segmentCaseIndex, renderOrderSegment })}"`;
-            rewrites.push({
-                codeBefore: oldExpression,
-                codeAfter: newExpression,
+            addAttributeRewrite(rewrites, child, 'v-if', GLOBAL_LEGACY_HELPERS.if, chainKey, child.getAttribute('v-if'), {
+                isStartingCondition: chain.starting && localSegmentCaseIndex === 0,
+                segmentCaseIndex,
+                renderOrderSegment,
             });
         } else if (child.hasAttribute('v-else-if')) {
-            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
-            const oldExpression = getAttributeCode(codeBefore, 'v-else-if');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.elseIf, chainKey, child.getAttribute('v-else-if'), { isStartingCondition: false, segmentCaseIndex, renderOrderSegment })}"`;
-            rewrites.push({
-                codeBefore: oldExpression,
-                codeAfter: newExpression,
-            });
+            addAttributeRewrite(
+                rewrites,
+                child,
+                'v-else-if',
+                GLOBAL_LEGACY_HELPERS.elseIf,
+                chainKey,
+                child.getAttribute('v-else-if'),
+                {
+                    isStartingCondition: false,
+                    segmentCaseIndex,
+                    renderOrderSegment,
+                },
+            );
         } else if (child.hasAttribute('v-else')) {
-            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
-            const oldExpression = getAttributeCode(codeBefore, 'v-else');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.else, chainKey, undefined, { isStartingCondition: false, segmentCaseIndex, renderOrderSegment })}"`;
-            rewrites.push({
-                codeBefore: oldExpression,
-                codeAfter: newExpression,
+            addAttributeRewrite(rewrites, child, 'v-else', GLOBAL_LEGACY_HELPERS.else, chainKey, undefined, {
+                isStartingCondition: false,
+                segmentCaseIndex,
+                renderOrderSegment,
             });
         }
     });
@@ -443,22 +493,42 @@ function shouldPerformChainRewrite(chain: BlockConditionChainInfo): boolean {
     return !chain.starting || chain.followedBy !== undefined || chain.firstChainInBlock || chain.lastChainInBlock;
 }
 
+function findRewriteMatch(
+    rewrittenTemplate: string,
+    candidates: string[],
+    cursor: number,
+): { foundIndex: number; codeBefore: string } | null {
+    return candidates.reduce<{ foundIndex: number; codeBefore: string } | null>((bestMatch, codeBefore) => {
+        let foundIndex = rewrittenTemplate.indexOf(codeBefore, cursor);
+
+        while (
+            foundIndex !== -1 &&
+            codeBefore === 'v-else' &&
+            /[\w-]/.test(rewrittenTemplate.charAt(foundIndex + codeBefore.length))
+        ) {
+            foundIndex = rewrittenTemplate.indexOf(codeBefore, foundIndex + codeBefore.length);
+        }
+
+        if (foundIndex === -1) {
+            return bestMatch;
+        }
+
+        if (bestMatch === null || foundIndex < bestMatch.foundIndex) {
+            return { foundIndex, codeBefore };
+        }
+
+        return bestMatch;
+    }, null);
+}
+
 function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string {
     let cursor = 0;
     let rewrittenTemplate = template;
 
     rewrites.forEach((rewrite) => {
-        let foundIndex = rewrittenTemplate.indexOf(rewrite.codeBefore, cursor);
+        const match = findRewriteMatch(rewrittenTemplate, rewrite.codeBefore, cursor);
 
-        while (
-            foundIndex !== -1 &&
-            rewrite.codeBefore === 'v-else' &&
-            /[\w-]/.test(rewrittenTemplate.charAt(foundIndex + rewrite.codeBefore.length))
-        ) {
-            foundIndex = rewrittenTemplate.indexOf(rewrite.codeBefore, foundIndex + rewrite.codeBefore.length);
-        }
-
-        if (foundIndex === -1) {
+        if (match === null) {
             console.warn('Failed to apply rewrite because codeBefore was not found from cursor position.', {
                 codeBefore: rewrite.codeBefore,
                 codeAfter: rewrite.codeAfter,
@@ -468,11 +538,11 @@ function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string
         }
 
         rewrittenTemplate =
-            rewrittenTemplate.slice(0, foundIndex) +
+            rewrittenTemplate.slice(0, match.foundIndex) +
             rewrite.codeAfter +
-            rewrittenTemplate.slice(foundIndex + rewrite.codeBefore.length);
+            rewrittenTemplate.slice(match.foundIndex + match.codeBefore.length);
 
-        cursor = foundIndex + rewrite.codeAfter.length;
+        cursor = match.foundIndex + rewrite.codeAfter.length;
     });
 
     return rewrittenTemplate;

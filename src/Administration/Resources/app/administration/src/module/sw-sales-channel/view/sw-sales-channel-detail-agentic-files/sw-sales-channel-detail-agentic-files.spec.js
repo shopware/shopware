@@ -159,9 +159,7 @@ async function createWrapper(options = {}) {
                     },
                     $t: (key) => translations[key] ?? key,
                     $te: (key) =>
-                        Object.hasOwn(translations, key) ||
-                        key.includes('["llms.txt"]') ||
-                        key.includes('["agents.md"]'),
+                        Object.hasOwn(translations, key) || key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
                 },
             },
             props: {

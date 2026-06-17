@@ -103,16 +103,16 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'text/plain; charset=utf-8',
             [
                 new SalesChannelFileAdministrationTemplate(
-                    'Ucp',
-                    '@Ucp/files/agentic/llms.txt.twig',
-                    '{% block user_provided_content %}{% endblock %}',
-                    'extension',
-                ),
-                new SalesChannelFileAdministrationTemplate(
                     'Framework',
                     '@Framework/files/agentic/llms.txt.twig',
                     'Core template',
                     'base',
+                ),
+                new SalesChannelFileAdministrationTemplate(
+                    'Ucp',
+                    '@Ucp/files/agentic/llms.txt.twig',
+                    '{% block user_provided_content %}{% endblock %}',
+                    'extension',
                 ),
             ],
             true,
@@ -160,8 +160,8 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
     }

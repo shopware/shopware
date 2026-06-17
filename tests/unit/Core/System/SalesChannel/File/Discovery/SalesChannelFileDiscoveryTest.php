@@ -51,8 +51,8 @@ class SalesChannelFileDiscoveryTest extends TestCase
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']->contentType);
         static::assertSame(
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
             $files['llms.txt']->templates
         );
@@ -120,7 +120,7 @@ class SalesChannelFileDiscoveryTest extends TestCase
             $loader,
             '',
             new NamespaceHierarchyBuilder([
-                new SalesChannelFileStaticHierarchyBuilder(['Ucp' => -10, 'Framework' => 0]),
+                new SalesChannelFileStaticHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
             ]),
             new TemplateScopeDetector(new RequestStack()),
         );

@@ -53,7 +53,7 @@ class SalesChannelFileRendererTest extends TestCase
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
-            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => -10, 'Framework' => 0]),
+            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
         ]);
         $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
 
@@ -74,8 +74,8 @@ class SalesChannelFileRendererTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
 
@@ -105,7 +105,7 @@ class SalesChannelFileRendererTest extends TestCase
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
-            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => -10, 'Framework' => 0]),
+            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
         ]);
         $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
 
@@ -126,8 +126,8 @@ class SalesChannelFileRendererTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
 

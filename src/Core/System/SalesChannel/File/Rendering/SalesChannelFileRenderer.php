@@ -59,7 +59,7 @@ class SalesChannelFileRenderer
 
     private function getRenderTemplateName(SalesChannelFile $file): string
     {
-        $key = array_key_first($file->templates);
+        $key = array_key_last($file->templates);
         $templateName = $key === null ? null : $file->templates[$key];
 
         return \is_string($templateName) ? $templateName : $file->baseTemplateName;

@@ -121,10 +121,14 @@ class StoreApiMcpServerControllerTest extends TestCase
         $sfRequest = Request::create('/store-api/_mcp/tools/list', 'POST', content: $body);
         $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
 
-        // Should not throw while reconstructing the envelope; the SDK handles the batch as-is.
+        // The batch must reach the SDK intact: it parses both entries and rejects
+        // them with -32600 (invalid request, session required). A consumed or
+        // mangled body would instead surface as -32700 (parse error).
         $response = $controller->handle($sfRequest, 'tools/list');
 
-        static::assertInstanceOf(Response::class, $response);
+        $decoded = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('error', $decoded);
+        static::assertSame(-32600, $decoded['error']['code']);
     }
 
     public function testHandleCommandReturnsNotFoundWhenFeatureFlagIsInactive(): void

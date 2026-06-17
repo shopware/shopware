@@ -120,24 +120,24 @@ class StoreApiMcpServerController
     /**
      * Rewrites the request body so the path-derived command becomes the
      * JSON-RPC `method`. Only a single JSON-RPC object is rewritten; batch
-     * arrays and malformed bodies pass through untouched and are handled by the
-     * SDK transport (batch callers should use the bare /store-api/_mcp endpoint).
+     * arrays and malformed bodies are forwarded unchanged (batch callers should
+     * use the bare /store-api/_mcp endpoint). A fresh body stream is always
+     * returned because reading the original stream consumes it, which would
+     * leave the SDK transport with an empty body.
      */
     private function injectMethod(ServerRequestInterface $psrRequest, string $command): ServerRequestInterface
     {
+        \assert($this->streamFactory !== null);
+
         $raw = (string) $psrRequest->getBody();
         $decoded = $raw === '' ? [] : json_decode($raw, true);
 
-        if (!\is_array($decoded) || array_is_list($decoded)) {
-            return $psrRequest;
+        if (\is_array($decoded) && !array_is_list($decoded)) {
+            $decoded['jsonrpc'] ??= '2.0';
+            $decoded['method'] ??= $command;
+            $raw = json_encode($decoded, \JSON_THROW_ON_ERROR);
         }
 
-        $decoded['jsonrpc'] ??= '2.0';
-        $decoded['method'] ??= $command;
-
-        \assert($this->streamFactory !== null);
-        $body = $this->streamFactory->createStream(json_encode($decoded, \JSON_THROW_ON_ERROR));
-
-        return $psrRequest->withBody($body);
+        return $psrRequest->withBody($this->streamFactory->createStream($raw));
     }
 }

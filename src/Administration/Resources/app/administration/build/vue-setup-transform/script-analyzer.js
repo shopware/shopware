@@ -91,6 +91,8 @@ const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
     'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
 ].join(' ');
 
+const RESERVED_OVERRIDE_PRIVATE_PREFIX = '__swOverride_';
+
 /**
  * Converts Babel source ranges into the transform's compact range shape.
  *
@@ -595,14 +597,19 @@ function assertReservedMacroNames(bindings, mode, scriptOffset) {
     const helpers = mode === 'base' ? BASE_HELPERS : OVERRIDE_HELPERS;
 
     bindings.forEach((binding) => {
-        if (!helpers.has(binding.name)) {
-            return;
+        if (helpers.has(binding.name)) {
+            throw new ShopwareSetupTransformError(
+                `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
+                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+            );
         }
 
-        throw new ShopwareSetupTransformError(
-            `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
-            scriptOffset + getNodeRange(binding.node, scriptOffset).start,
-        );
+        if (binding.name.startsWith(RESERVED_OVERRIDE_PRIVATE_PREFIX)) {
+            throw new ShopwareSetupTransformError(
+                `"${binding.name}" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.`,
+                scriptOffset + getNodeRange(binding.node, scriptOffset).start,
+            );
+        }
     });
 }
 

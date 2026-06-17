@@ -236,5 +236,33 @@ swDefineOverride({ count });
                 },
             ],
         },
+        {
+            filename: 'reserved-override-private-variable.vue',
+            code: `<script setup sw-override="sw-my-component">
+const __swOverride_ab123_info = 'local';
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message:
+                        '"__swOverride_ab123_info" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.',
+                },
+            ],
+        },
+        {
+            filename: 'reserved-override-private-import.vue',
+            code: `<script setup sw-component="sw-my-component">
+import { __swOverride_ab123_info } from './state';
+
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        '"__swOverride_ab123_info" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.',
+                },
+            ],
+        },
     ],
 });

@@ -220,7 +220,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
 
@@ -237,7 +237,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
         expect(cardElement).toBeTruthy();
@@ -253,7 +253,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.get('.sw-product-detail-base__downloads');
         const cardTitle = cardElement.get('.mt-card__title');
@@ -265,7 +265,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should render media card title as mt-card title', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.get('.sw-product-detail-base__media');
         const cardTitle = cardElement.get('.sw-inherit-wrapper__card-title');

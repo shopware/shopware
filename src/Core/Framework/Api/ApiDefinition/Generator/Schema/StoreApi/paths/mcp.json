@@ -9,28 +9,19 @@
                 "description": "Starts an MCP session and negotiates the protocol version and capabilities. Returns the session ID in the `mcp-session-id` response header; send it back on all subsequent requests. This is a typed convenience endpoint for the `initialize` JSON-RPC method; standard MCP clients may also post the raw envelope to `/_mcp`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpInitialize",
                 "parameters": [
-                    {
-                        "name": "sw-context-token",
-                        "in": "header",
-                        "required": false,
-                        "description": "Standard Store API context token identifying the customer session. When provided, MCP tools operate in the context of that customer.",
-                        "schema": {"type": "string"}
-                    }
+                    {"$ref": "#/components/parameters/McpContextTokenHeader"}
                 ],
                 "requestBody": {
                     "required": true,
-                    "description": "JSON-RPC 2.0 request for `initialize`. The `method` is implied by the path. Omit `id` for a notification (no response expected).",
+                    "description": "JSON-RPC 2.0 request for `initialize`. The `method` is implied by the path.",
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "required": ["jsonrpc", "params"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {
-                                        "description": "Request identifier echoed back on the response.",
-                                        "oneOf": [{"type": "string"}, {"type": "integer"}]
-                                    },
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                     "params": {
                                         "type": "object",
                                         "required": ["protocolVersion", "capabilities", "clientInfo"],
@@ -44,14 +35,7 @@
                                                 "description": "Capabilities the client supports.",
                                                 "additionalProperties": true
                                             },
-                                            "clientInfo": {
-                                                "type": "object",
-                                                "required": ["name", "version"],
-                                                "properties": {
-                                                    "name": {"type": "string"},
-                                                    "version": {"type": "string"}
-                                                }
-                                            }
+                                            "clientInfo": {"$ref": "#/components/schemas/McpImplementationInfo"}
                                         }
                                     }
                                 }
@@ -62,20 +46,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the initialize result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server. Send it as a request header on all following requests.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["protocolVersion", "capabilities", "serverInfo"],
@@ -86,14 +65,7 @@
                                                     "description": "Capabilities the server supports (tools, resources, prompts, logging, ...).",
                                                     "additionalProperties": true
                                                 },
-                                                "serverInfo": {
-                                                    "type": "object",
-                                                    "required": ["name", "version"],
-                                                    "properties": {
-                                                        "name": {"type": "string"},
-                                                        "version": {"type": "string"}
-                                                    }
-                                                },
+                                                "serverInfo": {"$ref": "#/components/schemas/McpImplementationInfo"},
                                                 "instructions": {
                                                     "type": "string",
                                                     "description": "Usage instructions for the client / model."
@@ -106,7 +78,6 @@
                             }
                         }
                     },
-                    "202": {"description": "Notification accepted. Returned with an empty body for JSON-RPC notifications (requests without an `id`)."},
                     "400": {"$ref": "#/components/responses/400"},
                     "401": {"$ref": "#/components/responses/401"},
                     "429": {"$ref": "#/components/responses/429"}
@@ -121,13 +92,7 @@
                 "description": "Lists the tools available in the current sales-channel context, including each tool's `inputSchema`. Typed convenience endpoint for the `tools/list` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpToolsList",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -137,17 +102,9 @@
                                 "type": "object",
                                 "required": ["jsonrpc"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
-                                    "params": {
-                                        "type": "object",
-                                        "properties": {
-                                            "cursor": {
-                                                "type": "string",
-                                                "description": "Opaque pagination cursor from a previous `tools/list` result."
-                                            }
-                                        }
-                                    }
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
+                                    "params": {"$ref": "#/components/schemas/McpPaginatedRequestParams"}
                                 }
                             }
                         }
@@ -156,20 +113,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the tools/list result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["tools"],
@@ -192,10 +144,7 @@
                                                         "additionalProperties": true
                                                     }
                                                 },
-                                                "nextCursor": {
-                                                    "type": "string",
-                                                    "description": "Pagination cursor for the next page, absent on the last page."
-                                                }
+                                                "nextCursor": {"$ref": "#/components/schemas/McpNextCursor"}
                                             },
                                             "additionalProperties": true
                                         }
@@ -218,20 +167,8 @@
                 "description": "Invokes a tool by name with arguments matching its `inputSchema`. Typed convenience endpoint for the `tools/call` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpToolsCall",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    },
-                    {
-                        "name": "sw-context-token",
-                        "in": "header",
-                        "required": false,
-                        "description": "Standard Store API context token identifying the customer session.",
-                        "schema": {"type": "string"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"},
+                    {"$ref": "#/components/parameters/McpContextTokenHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -241,8 +178,8 @@
                                 "type": "object",
                                 "required": ["jsonrpc", "params"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                     "params": {
                                         "type": "object",
                                         "required": ["name"],
@@ -266,39 +203,22 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the tools/call result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["content"],
                                             "properties": {
                                                 "content": {
                                                     "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "required": ["type"],
-                                                        "description": "Content block. `type` is one of `text` (with `text`), `image`/`audio` (with base64 `data` and `mimeType`) or `resource` (with embedded `resource`).",
-                                                        "properties": {
-                                                            "type": {"type": "string", "enum": ["text", "image", "audio", "resource"]},
-                                                            "text": {"type": "string"},
-                                                            "data": {"type": "string"},
-                                                            "mimeType": {"type": "string"},
-                                                            "resource": {"type": "object", "additionalProperties": true}
-                                                        },
-                                                        "additionalProperties": true
-                                                    }
+                                                    "items": {"$ref": "#/components/schemas/McpContentBlock"}
                                                 },
                                                 "structuredContent": {
                                                     "type": "object",
@@ -331,13 +251,7 @@
                 "description": "Lists the resources available in the current sales-channel context. Typed convenience endpoint for the `resources/list` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpResourcesList",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -347,17 +261,9 @@
                                 "type": "object",
                                 "required": ["jsonrpc"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
-                                    "params": {
-                                        "type": "object",
-                                        "properties": {
-                                            "cursor": {
-                                                "type": "string",
-                                                "description": "Opaque pagination cursor from a previous `resources/list` result."
-                                            }
-                                        }
-                                    }
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
+                                    "params": {"$ref": "#/components/schemas/McpPaginatedRequestParams"}
                                 }
                             }
                         }
@@ -366,20 +272,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the resources/list result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["resources"],
@@ -398,10 +299,7 @@
                                                         "additionalProperties": true
                                                     }
                                                 },
-                                                "nextCursor": {
-                                                    "type": "string",
-                                                    "description": "Pagination cursor for the next page, absent on the last page."
-                                                }
+                                                "nextCursor": {"$ref": "#/components/schemas/McpNextCursor"}
                                             },
                                             "additionalProperties": true
                                         }
@@ -424,13 +322,7 @@
                 "description": "Reads the contents of a resource by URI. Typed convenience endpoint for the `resources/read` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpResourcesRead",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -440,8 +332,8 @@
                                 "type": "object",
                                 "required": ["jsonrpc", "params"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                     "params": {
                                         "type": "object",
                                         "required": ["uri"],
@@ -460,20 +352,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the resources/read result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["contents"],
@@ -515,13 +402,7 @@
                 "description": "Lists the prompts available in the current sales-channel context. Typed convenience endpoint for the `prompts/list` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPromptsList",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -531,17 +412,9 @@
                                 "type": "object",
                                 "required": ["jsonrpc"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
-                                    "params": {
-                                        "type": "object",
-                                        "properties": {
-                                            "cursor": {
-                                                "type": "string",
-                                                "description": "Opaque pagination cursor from a previous `prompts/list` result."
-                                            }
-                                        }
-                                    }
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
+                                    "params": {"$ref": "#/components/schemas/McpPaginatedRequestParams"}
                                 }
                             }
                         }
@@ -550,20 +423,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the prompts/list result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["prompts"],
@@ -594,10 +462,7 @@
                                                         "additionalProperties": true
                                                     }
                                                 },
-                                                "nextCursor": {
-                                                    "type": "string",
-                                                    "description": "Pagination cursor for the next page, absent on the last page."
-                                                }
+                                                "nextCursor": {"$ref": "#/components/schemas/McpNextCursor"}
                                             },
                                             "additionalProperties": true
                                         }
@@ -620,13 +485,7 @@
                 "description": "Returns the messages for a prompt by name, with arguments interpolated. Typed convenience endpoint for the `prompts/get` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPromptsGet",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -636,8 +495,8 @@
                                 "type": "object",
                                 "required": ["jsonrpc", "params"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                     "params": {
                                         "type": "object",
                                         "required": ["name"],
@@ -661,20 +520,15 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response carrying the prompts/get result.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "required": ["messages"],
@@ -687,11 +541,7 @@
                                                         "required": ["role", "content"],
                                                         "properties": {
                                                             "role": {"type": "string", "enum": ["user", "assistant"]},
-                                                            "content": {
-                                                                "type": "object",
-                                                                "description": "Content block, same shape as in `tools/call` results.",
-                                                                "additionalProperties": true
-                                                            }
+                                                            "content": {"$ref": "#/components/schemas/McpContentBlock"}
                                                         },
                                                         "additionalProperties": true
                                                     }
@@ -718,13 +568,7 @@
                 "description": "Liveness check. Returns an empty result. Typed convenience endpoint for the `ping` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPing",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the `initialize` response.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -734,8 +578,8 @@
                                 "type": "object",
                                 "required": ["jsonrpc"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]}
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"}
                                 }
                             }
                         }
@@ -750,8 +594,8 @@
                                     "type": "object",
                                     "required": ["jsonrpc", "id", "result"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                         "result": {
                                             "type": "object",
                                             "description": "Empty object.",
@@ -776,20 +620,8 @@
                 "description": "Raw JSON-RPC 2.0 entry point used by standard MCP clients over the Streamable HTTP transport. The `method` is supplied in the request body. For typed, per-method request and response schemas use the `/_mcp/{method}` endpoints (e.g. `/_mcp/tools/call`). Supports batch requests and notifications, which the per-method endpoints do not. Streaming responses are delivered as a `text/event-stream` body on this POST operation. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPost",
                 "parameters": [
-                    {
-                        "name": "mcp-session-id",
-                        "in": "header",
-                        "required": false,
-                        "description": "Session ID returned by the server in the `mcp-session-id` response header after a successful `initialize` request. Required for all subsequent requests within the same session.",
-                        "schema": {"type": "string", "format": "uuid"}
-                    },
-                    {
-                        "name": "sw-context-token",
-                        "in": "header",
-                        "required": false,
-                        "description": "Standard Store API context token identifying the customer session. When provided, MCP tools operate in the context of that customer.",
-                        "schema": {"type": "string"}
-                    }
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"},
+                    {"$ref": "#/components/parameters/McpContextTokenHeader"}
                 ],
                 "requestBody": {
                     "required": true,
@@ -800,11 +632,8 @@
                                 "type": "object",
                                 "required": ["jsonrpc", "method"],
                                 "properties": {
-                                    "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                    "id": {
-                                        "description": "Request identifier. Omit for notifications (fire-and-forget).",
-                                        "oneOf": [{"type": "string"}, {"type": "integer"}]
-                                    },
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
                                     "method": {"type": "string", "description": "MCP method name, e.g. `initialize`, `tools/call`."},
                                     "params": {"type": "object", "description": "Method-specific parameters."}
                                 }
@@ -815,30 +644,17 @@
                 "responses": {
                     "200": {
                         "description": "JSON-RPC response or Server-Sent Events stream. Contains either a `result` (success) or an `error` (failure), never both.",
-                        "headers": {
-                            "mcp-session-id": {
-                                "description": "Session ID assigned by the server. Returned on the `initialize` response and echoed on subsequent responses.",
-                                "schema": {"type": "string", "format": "uuid"}
-                            }
-                        },
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "required": ["jsonrpc"],
                                     "properties": {
-                                        "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                                        "id": {"oneOf": [{"type": "string"}, {"type": "integer"}, {"type": "null"}]},
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpNullableJsonRpcId"},
                                         "result": {"type": "object", "description": "Method-specific result payload.", "additionalProperties": true},
-                                        "error": {
-                                            "type": "object",
-                                            "required": ["code", "message"],
-                                            "properties": {
-                                                "code": {"type": "integer"},
-                                                "message": {"type": "string"},
-                                                "data": {"description": "Optional additional error information."}
-                                            }
-                                        }
+                                        "error": {"$ref": "#/components/schemas/McpJsonRpcError"}
                                     }
                                 }
                             },
@@ -886,6 +702,94 @@
                 "operationId": "storeApiMcpOptions",
                 "responses": {
                     "200": {"description": "CORS preflight accepted."}
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "McpSessionIdHeader": {
+                "name": "mcp-session-id",
+                "in": "header",
+                "required": false,
+                "description": "Session ID returned by the server in the `mcp-session-id` response header after a successful `initialize` request. Required for all subsequent requests within the same session.",
+                "schema": {"type": "string", "format": "uuid"}
+            },
+            "McpContextTokenHeader": {
+                "name": "sw-context-token",
+                "in": "header",
+                "required": false,
+                "description": "Standard Store API context token identifying the customer session. When provided, MCP tools operate in the context of that customer.",
+                "schema": {"type": "string"}
+            }
+        },
+        "headers": {
+            "McpSessionId": {
+                "description": "Session ID assigned by the server. Returned on the `initialize` response and echoed on subsequent responses. Send it as a request header on all following requests.",
+                "schema": {"type": "string", "format": "uuid"}
+            }
+        },
+        "schemas": {
+            "McpJsonRpcVersion": {
+                "type": "string",
+                "enum": ["2.0"],
+                "description": "JSON-RPC protocol version. Always `2.0`."
+            },
+            "McpJsonRpcId": {
+                "description": "JSON-RPC request identifier echoed back on the response. Omit on requests for notifications (fire-and-forget).",
+                "oneOf": [{"type": "string"}, {"type": "integer"}]
+            },
+            "McpNullableJsonRpcId": {
+                "description": "JSON-RPC response identifier. `null` when the request could not be parsed.",
+                "oneOf": [{"type": "string"}, {"type": "integer"}, {"type": "null"}]
+            },
+            "McpPaginatedRequestParams": {
+                "type": "object",
+                "description": "Optional pagination parameters for list methods.",
+                "properties": {
+                    "cursor": {
+                        "type": "string",
+                        "description": "Opaque pagination cursor returned as `nextCursor` by a previous list result."
+                    }
+                }
+            },
+            "McpNextCursor": {
+                "type": "string",
+                "description": "Pagination cursor for the next page, absent on the last page."
+            },
+            "McpContentBlock": {
+                "type": "object",
+                "required": ["type"],
+                "description": "Content block. `type` is one of `text` (with `text`), `image`/`audio` (with base64 `data` and `mimeType`) or `resource` (with embedded `resource`).",
+                "properties": {
+                    "type": {"type": "string", "enum": ["text", "image", "audio", "resource"]},
+                    "text": {"type": "string"},
+                    "data": {"type": "string"},
+                    "mimeType": {"type": "string"},
+                    "resource": {"type": "object", "additionalProperties": true}
+                },
+                "additionalProperties": true
+            },
+            "McpImplementationInfo": {
+                "type": "object",
+                "required": ["name", "version"],
+                "description": "Name and version of an MCP client or server implementation.",
+                "properties": {
+                    "name": {"type": "string"},
+                    "version": {"type": "string"}
+                }
+            },
+            "McpJsonRpcError": {
+                "type": "object",
+                "required": ["code", "message"],
+                "description": "JSON-RPC error object.",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "description": "JSON-RPC error code, e.g. -32700 parse error, -32600 invalid request, -32601 method not found, -32602 invalid params, -32603 internal error."
+                    },
+                    "message": {"type": "string"},
+                    "data": {"description": "Optional additional error information."}
                 }
             }
         }

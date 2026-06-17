@@ -36,7 +36,7 @@ jobs:
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
 
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # 4
         with:
           node-version: 22
 

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' || github.event_name == 'pull_request'
     steps:
-      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
+      - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # 1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -52,7 +52,7 @@ jobs:
         with:
           scope: shopware
           identity: ReadCollaborators
-      - uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
+      - uses: tspascoal/get-user-teams-membership@b2546c5affc730fd8e3d8483ae9ad3621938c2f9 # 4.0.2
         id: actorTeams
         with:
           username: ${{ github.actor }}

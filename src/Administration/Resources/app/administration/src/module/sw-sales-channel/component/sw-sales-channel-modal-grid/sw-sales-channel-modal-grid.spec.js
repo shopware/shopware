@@ -8,8 +8,16 @@ const PRODUCT_COMPARISON_TYPE_ID = Shopware.Defaults.productComparisonTypeId;
 const AGENTIC_COMMERCE_TYPE_ID = Shopware.Defaults.agenticCommerceTypeId;
 
 const mockSalesChannelTypes = [
-    { id: PRODUCT_COMPARISON_TYPE_ID, iconName: 'comparison-icon', translated: { name: 'Product Comparison', description: 'A comparison feed' } },
-    { id: AGENTIC_COMMERCE_TYPE_ID, iconName: 'agentic-icon', translated: { name: 'Agentic Commerce', description: 'Agentic Commerce' } },
+    {
+        id: PRODUCT_COMPARISON_TYPE_ID,
+        iconName: 'comparison-icon',
+        translated: { name: 'Product Comparison', description: 'A comparison feed' },
+    },
+    {
+        id: AGENTIC_COMMERCE_TYPE_ID,
+        iconName: 'agentic-icon',
+        translated: { name: 'Agentic Commerce', description: 'Agentic Commerce' },
+    },
 ];
 
 function createAddChannelAction({ disabled = () => false, loading = () => false } = {}) {
@@ -17,9 +25,9 @@ function createAddChannelAction({ disabled = () => false, loading = () => false 
 }
 
 async function createWrapper({ addChannelAction = createAddChannelAction(), productStreamsExist = true } = {}) {
-    const mockSearch = jest.fn().mockResolvedValue(
-        Object.assign([...mockSalesChannelTypes], { total: mockSalesChannelTypes.length }),
-    );
+    const mockSearch = jest
+        .fn()
+        .mockResolvedValue(Object.assign([...mockSalesChannelTypes], { total: mockSalesChannelTypes.length }));
 
     return mount(await wrapTestComponent('sw-sales-channel-modal-grid', { sync: true }), {
         props: {
@@ -30,15 +38,30 @@ async function createWrapper({ addChannelAction = createAddChannelAction(), prod
             stubs: {
                 'sw-grid': {
                     template: '<div class="sw-grid"><slot name="columns" v-for="item in items" :item="item" /></div>',
-                    props: ['items', 'selectable', 'header', 'table'],
+                    props: [
+                        'items',
+                        'selectable',
+                        'header',
+                        'table',
+                    ],
                 },
                 'sw-grid-column': {
                     template: '<div class="sw-grid-column"><slot /></div>',
-                    props: ['flex', 'align', 'label', 'dataIndex'],
+                    props: [
+                        'flex',
+                        'align',
+                        'label',
+                        'dataIndex',
+                    ],
                 },
                 'mt-button': {
                     template: '<button :disabled="disabled || undefined" @click="$emit(\'click\')"><slot /></button>',
-                    props: ['disabled', 'isLoading', 'size', 'variant'],
+                    props: [
+                        'disabled',
+                        'isLoading',
+                        'size',
+                        'variant',
+                    ],
                     emits: ['click'],
                 },
                 'mt-icon': {
@@ -47,7 +70,10 @@ async function createWrapper({ addChannelAction = createAddChannelAction(), prod
                 },
                 'mt-promo-badge': {
                     template: '<span class="mt-promo-badge" />',
-                    props: ['variant', 'size'],
+                    props: [
+                        'variant',
+                        'size',
+                    ],
                 },
                 'sw-loader': true,
                 'sw-extension-teaser-sales-channel': true,

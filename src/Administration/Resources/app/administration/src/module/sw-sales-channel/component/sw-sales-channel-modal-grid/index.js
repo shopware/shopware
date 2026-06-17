@@ -91,23 +91,23 @@ export default {
         },
 
         getTooltip(item) {
-            const isDisabledAgenticCommerceType = !this.showAgenticCommerceType() &&
-                this.isAgenticCommerceSalesChannelType(item.id);
-            const messageKey = isDisabledAgenticCommerceType ?
-                'sw-sales-channel.modal.messageAgenticCommerce' :
-                'sw-sales-channel.modal.messageNoProductStreams';
+            const isDisabledAgenticCommerceType =
+                !this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id);
+            const messageKey = isDisabledAgenticCommerceType
+                ? 'sw-sales-channel.modal.messageAgenticCommerce'
+                : 'sw-sales-channel.modal.messageNoProductStreams';
 
             return {
                 message: this.$t(messageKey),
                 showOnDisabledElements: true,
-                disabled: !this.isDisabled(item)
+                disabled: !this.isDisabled(item),
             };
         },
 
         isDisabled(item) {
-            return this.addChannelAction.disabled(item.id) || (
-                !this.showAgenticCommerceType() &&
-                this.isAgenticCommerceSalesChannelType(item.id)
+            return (
+                this.addChannelAction.disabled(item.id) ||
+                (!this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id))
             );
         },
 

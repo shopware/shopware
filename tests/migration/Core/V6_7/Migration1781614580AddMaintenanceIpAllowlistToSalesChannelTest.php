@@ -49,13 +49,6 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
     #[After]
     public function cleanUp(): void
     {
-        // restore the deprecated column if a destructive test dropped it
-        if (!TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_whitelist')) {
-            $this->connection->executeStatement(<<<'SQL'
-                ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL
-            SQL);
-        }
-
         // make sure the new column and the triggers exist again for the remaining test suite
         $this->migration->update($this->connection);
 
@@ -101,16 +94,6 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
 
         static::assertIsString($allowlist);
         static::assertSame(['127.0.0.1', '::1'], json_decode($allowlist, true, 512, \JSON_THROW_ON_ERROR));
-    }
-
-    public function testUpdateDestructiveRemovesDeprecatedColumn(): void
-    {
-        $this->migration->update($this->connection);
-
-        $this->migration->updateDestructive($this->connection);
-        $this->migration->updateDestructive($this->connection);
-
-        static::assertFalse(TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_whitelist'));
     }
 
     private function rollback(): void

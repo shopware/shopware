@@ -37,14 +37,6 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannel extends Migrati
         $this->addUpdateTrigger($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        $this->removeTrigger($connection, 'sales_channel_maintenance_ip_allowlist_insert');
-        $this->removeTrigger($connection, 'sales_channel_maintenance_ip_allowlist_update');
-
-        $this->dropColumnIfExists($connection, 'sales_channel', 'maintenance_ip_whitelist');
-    }
-
     /**
      * Keeps `maintenance_ip_allowlist` and the deprecated `maintenance_ip_whitelist` column in sync on insert.
      * The new column wins if both are provided; otherwise the populated column is mirrored to the other.

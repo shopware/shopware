@@ -1230,14 +1230,15 @@ class RegisterRouteTest extends TestCase
         );
 
         $createdCustomerId = null;
-        $newsletterSalesChannelIdsUpdated = false;
+        $calls = [];
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
         $customerRepository
             ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(static function (array $create) use (&$createdCustomerId) {
+            ->willReturnCallback(static function (array $create) use (&$createdCustomerId, &$calls) {
+                $calls[] = 'create';
                 $createdCustomerId = $create[0]['id'];
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
@@ -1245,8 +1246,8 @@ class RegisterRouteTest extends TestCase
         $customerRepository
             ->expects($this->once())
             ->method('search')
-            ->willReturnCallback(static function () use (&$newsletterSalesChannelIdsUpdated, $result) {
-                static::assertTrue($newsletterSalesChannelIdsUpdated);
+            ->willReturnCallback(static function () use (&$calls, $result) {
+                static::assertSame(['create', 'update'], $calls);
 
                 return $result;
             });
@@ -1255,12 +1256,12 @@ class RegisterRouteTest extends TestCase
         $customerNewsletterSalesChannelsUpdater
             ->expects($this->once())
             ->method('update')
-            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$newsletterSalesChannelIdsUpdated): void {
+            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$calls): void {
+                $calls[] = 'update';
+
                 static::assertNotNull($createdCustomerId);
                 static::assertSame([$createdCustomerId], $ids);
                 static::assertTrue($reverseUpdate);
-
-                $newsletterSalesChannelIdsUpdated = true;
             });
 
         $registerRoute = $this->createRegisterRoute(

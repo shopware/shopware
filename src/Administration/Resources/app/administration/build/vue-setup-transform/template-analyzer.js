@@ -133,6 +133,55 @@ function addPatternNames(pattern, scope) {
 }
 
 /**
+ * Collects outer-scope references used by one binding pattern without treating declarations as reads.
+ *
+ * @param {BabelNode | null | undefined} pattern
+ * @param {Set<string>} templateScope
+ * @param {Set<string>} references
+ * @returns {void}
+ */
+function collectPatternReferences(pattern, templateScope, references) {
+    if (!pattern) {
+        return;
+    }
+
+    if (pattern.type === 'Identifier') {
+        return;
+    }
+
+    if (pattern.type === 'RestElement') {
+        collectPatternReferences(pattern.argument, templateScope, references);
+        return;
+    }
+
+    if (pattern.type === 'AssignmentPattern') {
+        collectPatternReferences(pattern.left, templateScope, references);
+        collectBabelReferences(pattern.right, [templateScope], references, pattern, 'right');
+        return;
+    }
+
+    if (pattern.type === 'ArrayPattern') {
+        pattern.elements.forEach((element) => collectPatternReferences(element, templateScope, references));
+        return;
+    }
+
+    if (pattern.type === 'ObjectPattern') {
+        pattern.properties.forEach((property) => {
+            if (property.type === 'RestElement') {
+                collectPatternReferences(property.argument, templateScope, references);
+                return;
+            }
+
+            if (property.computed) {
+                collectBabelReferences(property.key, [templateScope], references, property, 'key');
+            }
+
+            collectPatternReferences(property.value, templateScope, references);
+        });
+    }
+}
+
+/**
  * Checks whether a name is declared by the template or JavaScript expression itself.
  *
  * @param {string} name
@@ -407,6 +456,30 @@ function collectSlotScopeNames(slotDirective) {
 }
 
 /**
+ * Returns outer references used by a Vue v-slot binding pattern, such as destructuring defaults and computed keys.
+ *
+ * @param {DirectiveNode | undefined}
+ * @param {Set<string>} templateScope
+ * @returns {Set<string>}
+ */
+function collectSlotScopeReferences(slotDirective, templateScope) {
+    const references = new Set();
+
+    if (!slotDirective?.exp?.content) {
+        return references;
+    }
+
+    try {
+        const { pattern } = parseBindingPattern(slotDirective.exp.content);
+        collectPatternReferences(pattern, templateScope, references);
+    } catch {
+        // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
+    }
+
+    return references;
+}
+
+/**
  * Returns v-for aliases declared on an element.
  *
  * @param {DirectiveNode | undefined}
@@ -434,6 +507,37 @@ function collectForScopeNames(forDirective) {
     });
 
     return scopeNames;
+}
+
+/**
+ * Returns outer references used in v-for aliases, such as destructuring defaults and computed keys.
+ *
+ * @param {DirectiveNode | undefined}
+ * @param {Set<string>} templateScope
+ * @returns {Set<string>}
+ */
+function collectForAliasReferences(forDirective, templateScope) {
+    const references = new Set();
+    const parseResult = forDirective?.forParseResult;
+
+    [
+        parseResult?.value,
+        parseResult?.key,
+        parseResult?.index,
+    ].forEach((expression) => {
+        if (!expression?.content) {
+            return;
+        }
+
+        try {
+            const { pattern } = parseBindingPattern(expression.content);
+            collectPatternReferences(pattern, templateScope, references);
+        } catch {
+            // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
+        }
+    });
+
+    return references;
 }
 
 /**
@@ -538,9 +642,11 @@ function collectTemplateReferences(children, initialScope) {
 
         const forDirective = getForDirective(node);
         const childScope = new Set(scope);
+        const slotScopeNames = new Set();
 
         if (forDirective) {
             collectDirectiveReferences(forDirective, scope).forEach((name) => references.add(name));
+            collectForAliasReferences(forDirective, scope).forEach((name) => references.add(name));
             collectForScopeNames(forDirective).forEach((name) => childScope.add(name));
         }
 
@@ -552,11 +658,15 @@ function collectTemplateReferences(children, initialScope) {
             collectDirectiveReferences(prop, childScope).forEach((name) => references.add(name));
 
             if (isDefaultSlotDirective(prop)) {
-                collectSlotScopeNames(prop).forEach((name) => childScope.add(name));
+                collectSlotScopeReferences(prop, childScope).forEach((name) => references.add(name));
+                collectSlotScopeNames(prop).forEach((name) => slotScopeNames.add(name));
             }
         });
 
-        node.children.forEach((child) => visit(child, childScope));
+        const scopedChildrenScope = new Set(childScope);
+        slotScopeNames.forEach((name) => scopedChildrenScope.add(name));
+
+        node.children.forEach((child) => visit(child, scopedChildrenScope));
     }
 
     children.forEach((child) => visit(child, new Set(initialScope)));
@@ -883,6 +993,8 @@ function analyzeOverrideTemplate(block, analysis) {
             const slotScope = collectSlotScopeNames(slotDirective);
             const references = collectTemplateReferences(node.children, slotScope);
             const mappings = [];
+
+            collectSlotScopeReferences(slotDirective, new Set()).forEach((name) => references.add(name));
 
             analysis.runtimeBindings.forEach((binding) => {
                 if (!references.has(binding.name)) {

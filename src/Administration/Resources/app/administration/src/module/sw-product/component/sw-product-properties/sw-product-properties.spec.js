@@ -675,6 +675,25 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
     });
 
+    it('should render card title as mt-card title', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-properties__card');
+        const cardTitle = cardElement.get('.sw-inherit-wrapper__card-title');
+
+        expect(cardTitle.classes()).toEqual(
+            expect.arrayContaining([
+                'mt-card__title',
+                'sw-inherit-wrapper__card-title',
+            ]),
+        );
+        expect(cardTitle.text()).toContain('sw-product.properties.cardTitle');
+        expect(cardTitle.find('.sw-inheritance-switch').exists()).toBeTruthy();
+        expect(cardElement.find('.sw-card__title').exists()).toBeFalsy();
+    });
+
     it('should close properties modal and call a callback', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

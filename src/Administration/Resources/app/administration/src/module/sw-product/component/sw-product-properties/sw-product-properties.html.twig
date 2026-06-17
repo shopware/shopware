@@ -18,8 +18,8 @@
             <template #title>
                 {% block sw_product_properties_card_title %}
                 <div
-                    class="sw-card__title"
-                    :class="{ 'is--inherited': isInherited }"
+                    class="mt-card__title sw-inherit-wrapper__card-title"
+                    :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                 >
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch

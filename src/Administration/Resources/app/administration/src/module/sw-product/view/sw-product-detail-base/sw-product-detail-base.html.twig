@@ -27,16 +27,11 @@
         <mt-card
             v-if="isDownloadCardVisible"
             class="sw-product-detail-base__downloads"
+            :title="$t('sw-product.detailBase.cardTitleDownloads')"
             :subtitle="$t('sw-product.detailBase.cardSubtitleDownloads')"
             :is-loading="loading.product || loading.customFieldSets || loading.downloads"
             position-identifier="sw-product-detail-base-downloads"
         >
-            <template #title>
-                <div class="sw-card__title">
-                    {{ $t('sw-product.detailBase.cardTitleDownloads') }}
-                </div>
-            </template>
-
             <sw-product-download-form
                 v-if="mediaFormVisible"
                 :product-id="product.id"
@@ -153,8 +148,8 @@
 
                         {% block sw_product_detail_base_media_card_title %}
                         <div
-                            class="sw-card__title"
-                            :class="{ 'sw-card__title__inherited': isInherited }"
+                            class="mt-card__title sw-inherit-wrapper__card-title"
+                            :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                         >
                             <sw-inheritance-switch
                                 v-if="isInheritField"

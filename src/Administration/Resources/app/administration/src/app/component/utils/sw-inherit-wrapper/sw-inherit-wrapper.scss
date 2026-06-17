@@ -37,23 +37,28 @@
         color: $color-shopware-brand-500;
     }
 
-    .sw-card__title,
-    .sw-inherit-wrapper__card-title {
-        .sw-inheritance-switch {
-            display: inline-block;
-            position: relative;
-            top: -1px;
-            margin-right: 4px;
-        }
+    .sw-card__title .sw-inheritance-switch {
+        display: inline-block;
+        position: relative;
+        top: -1px;
+        margin-right: 4px;
     }
 
     .sw-card__title.sw-card__title__inherited,
-    .sw-inherit-wrapper__card-title.sw-inherit-wrapper__card-title--inherited {
+    .sw-inherit-wrapper__card-title--inherited .sw-inherit-wrapper__card-title-text {
         color: $color-module-purple-900;
     }
 
     .sw-inherit-wrapper__card-title {
-        font-weight: var(--font-weight-semibold);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .sw-inherit-wrapper__card-title-text {
+        margin: 0;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
     }
 
     .sw-card__inherited .sw-card__content {

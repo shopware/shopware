@@ -139,6 +139,7 @@
 
                 {% block sw_product_detail_base_media_card %}
                 <mt-card
+                    :title="$t('sw-product.detailBase.cardTitleMedia')"
                     :subtitle="$t('sw-product.detailBase.cardSubtitleMedia')"
                     :is-loading="loading.product || loading.customFieldSets || loading.media"
                     :class="{ 'sw-card__inherited': isInherited }"
@@ -148,7 +149,7 @@
 
                         {% block sw_product_detail_base_media_card_title %}
                         <div
-                            class="mt-card__title sw-inherit-wrapper__card-title"
+                            class="sw-inherit-wrapper__card-title"
                             :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                         >
                             <sw-inheritance-switch
@@ -159,7 +160,11 @@
                                 @inheritance-remove="removeInheritance"
                             />
                             {# TODO: headline is not clickable yet #}
-                            {{ $t('sw-product.detailBase.cardTitleMedia') }}
+                            {% block sw_product_detail_base_media_card_title_text %}
+                            <h3 class="mt-card__title sw-inherit-wrapper__card-title-text">
+                                {{ $t('sw-product.detailBase.cardTitleMedia') }}
+                            </h3>
+                            {% endblock %}
                         </div>
                         {% endblock %}
 

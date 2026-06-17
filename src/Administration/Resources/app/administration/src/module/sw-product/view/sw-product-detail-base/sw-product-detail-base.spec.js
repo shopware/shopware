@@ -268,15 +268,17 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await flushPromises();
 
         const cardElement = wrapper.get('.sw-product-detail-base__media');
-        const cardTitle = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitleWrapper = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
 
+        expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
         expect(cardTitle.classes()).toEqual(
             expect.arrayContaining([
                 'mt-card__title',
-                'sw-inherit-wrapper__card-title',
+                'sw-inherit-wrapper__card-title-text',
             ]),
         );
-        expect(cardTitle.text()).toContain('sw-product.detailBase.cardTitleMedia');
+        expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleMedia');
         expect(cardElement.find('.sw-card__title').exists()).toBeFalsy();
     });
 

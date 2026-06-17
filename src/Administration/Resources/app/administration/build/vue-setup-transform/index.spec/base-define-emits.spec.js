@@ -89,6 +89,25 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         );
     });
 
+    it('supports defineEmits() wrapped in a TypeScript as expression', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const emit = defineEmits<{ save: [] }>() as ((event: 'save') => void);
+            const count = 1;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-emits-as.vue').code;
+
+        expect(result).toContain('const emit = defineEmits<{ save: [] }>();');
+        expect(result).toContain("const emit = (__shopwareSetupBindings.context.emit) as ((event: 'save') => void);");
+        expect(result.match(/defineEmits/g)).toHaveLength(1);
+    });
+
     it('rejects duplicate declarations', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">

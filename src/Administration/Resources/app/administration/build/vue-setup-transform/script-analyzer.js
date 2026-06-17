@@ -672,9 +672,31 @@ function isCompilerMacroCall(node, name) {
 }
 
 /**
+ * Returns the expression Vue treats as the compiler macro call through transparent TypeScript wrappers.
+ * Example: `defineProps<Props>() as Props` is collected as the inner `defineProps<Props>()` call while the
+ * replacement range still preserves `as Props` around the generated setup input.
+ *
+ * @param {BabelNode | null | undefined} node
+ * @returns {BabelNode | null | undefined}
+ */
+function unwrapTransparentMacroExpression(node) {
+    if (
+        node?.type === 'TSAsExpression' ||
+        node?.type === 'TSSatisfiesExpression' ||
+        node?.type === 'TSTypeAssertion' ||
+        node?.type === 'TSNonNullExpression' ||
+        node?.type === 'ParenthesizedExpression'
+    ) {
+        return unwrapTransparentMacroExpression(node.expression);
+    }
+
+    return node;
+}
+
+/**
  * Adds a direct top-level setup macro call to one of the analyzer buckets.
  *
- * @param {CallExpression | null | undefined} call
+ * @param {BabelNode | null | undefined} expression
  * @param {object} buckets
  * @param {CallExpression[]} buckets.definePropsCalls
  * @param {CallExpression[]} buckets.defineEmitsCalls
@@ -683,7 +705,9 @@ function isCompilerMacroCall(node, name) {
  * @param {Set<CallExpression>} buckets.topLevelUnsupportedMacroCalls
  * @returns {void}
  */
-function collectTopLevelSetupMacroCall(call, buckets) {
+function collectTopLevelSetupMacroCall(expression, buckets) {
+    const call = unwrapTransparentMacroExpression(expression);
+
     if (!call || call.type !== 'CallExpression' || call.callee.type !== 'Identifier') {
         return;
     }
@@ -768,14 +792,16 @@ function isWithDefaultsCall(node) {
  * @returns {boolean}
  */
 function isSetupInputDeclaration(declaration) {
+    const init = unwrapTransparentMacroExpression(declaration.init);
+
     return (
-        declaration.init?.type === 'CallExpression' &&
-        declaration.init.callee.type === 'Identifier' &&
-        (declaration.init.callee.name === 'defineProps' ||
-            declaration.init.callee.name === 'defineEmits' ||
-            declaration.init.callee.name === 'defineSlots' ||
-            declaration.init.callee.name === 'withDefaults' ||
-            declaration.init.callee.name === 'useSwProps')
+        init?.type === 'CallExpression' &&
+        init.callee.type === 'Identifier' &&
+        (init.callee.name === 'defineProps' ||
+            init.callee.name === 'defineEmits' ||
+            init.callee.name === 'defineSlots' ||
+            init.callee.name === 'withDefaults' ||
+            init.callee.name === 'useSwProps')
     );
 }
 

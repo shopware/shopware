@@ -148,6 +148,60 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
 
+    it('supports defineProps() wrapped in a TypeScript as expression', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const props = defineProps<{ initialCount?: number }>() as { initialCount?: number };
+            const count = props.initialCount ?? 0;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-props-as.vue').code;
+
+        expect(result).toContain('const props = defineProps<{ initialCount?: number }>();');
+        expect(result).toContain(
+            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
+        );
+        expect(result).toContain(
+            'const props = (__shopwareSetupBindings.props) as { initialCount?: number };',
+        );
+        expect(result.match(/defineProps/g)).toHaveLength(1);
+    });
+
+    it('supports withDefaults() wrapped in a TypeScript satisfies expression', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const props = withDefaults(defineProps<{
+                initialCount?: number;
+            }>(), {
+                initialCount: 3,
+            }) satisfies { initialCount: number };
+            const count = props.initialCount;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-props-satisfies.vue').code;
+
+        expect(result).toContain(`const props = withDefaults(defineProps<{
+    initialCount?: number;
+}>(), {
+    initialCount: 3,
+});`);
+        expect(result).toContain(
+            'const props = (__shopwareSetupBindings.props) satisfies { initialCount: number };',
+        );
+        expect(result.match(/defineProps/g)).toHaveLength(1);
+        expect(result.match(/withDefaults/g)).toHaveLength(1);
+    });
+
     it('rejects multiple base props macro declarations', () => {
         const source = stripIndent`
             <script setup lang="ts" sw-component="sw-my-component">

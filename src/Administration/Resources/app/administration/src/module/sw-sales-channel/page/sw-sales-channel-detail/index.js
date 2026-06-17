@@ -256,9 +256,9 @@ export default {
         getLoadSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('paymentMethods');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('countries');
+            criteria.getAssociation('paymentMethods').addSorting(Criteria.sort('distinguishableName', 'ASC'));
+            criteria.getAssociation('shippingMethods').addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('countries').addSorting(Criteria.sort('name', 'ASC'));
             criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria

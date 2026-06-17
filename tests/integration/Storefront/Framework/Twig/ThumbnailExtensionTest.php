@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -140,9 +141,53 @@ class ThumbnailExtensionTest extends TestCase
         // Every breakpoint entry in the auto-generated sizes attribute must carry
         // a non-empty value. Before the fix the xxl entry was missing and produced
         // "(min-width: ...px) ," in the rendered output.
-        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+        $sizes = self::getSizesAttribute($result);
 
-        $entries = array_map('trim', explode(',', $matches['sizes']));
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[DataProvider('productBoxLayoutProvider')]
+    public function testProductBoxThumbnailSizesContainXxlBreakpointValue(string $layout): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/product-box-thumbnail-sizes.html.twig', [
+            'layout' => $layout,
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        $sizes = self::getSizesAttribute($result);
+
+        self::assertSizesAttributeHasValueForEveryBreakpoint($sizes);
+        static::assertStringContainsString('(min-width: 1400px) 280px', $sizes);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function productBoxLayoutProvider(): iterable
+    {
+        yield 'standard layout' => ['standard'];
+        yield 'image layout' => ['image'];
+    }
+
+    private static function getSizesAttribute(string $result): string
+    {
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+        static::assertIsString($matches['sizes']);
+
+        return $matches['sizes'];
+    }
+
+    private static function assertSizesAttributeHasValueForEveryBreakpoint(string $sizes): void
+    {
+        $entries = array_map('trim', explode(',', $sizes));
         $fallback = array_pop($entries);
 
         static::assertNotEmpty($fallback, 'sizes fallback entry is empty');

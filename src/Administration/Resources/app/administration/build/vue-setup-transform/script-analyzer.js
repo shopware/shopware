@@ -79,6 +79,18 @@ const OVERRIDE_HELPERS = new Set([
     'useSwContext',
 ]);
 
+const WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE = [
+    'swDefinePublic() is a Shopware setup compile-time macro for base components.',
+    'It declares which setup bindings are public and may be replaced by overrides.',
+    'Override components must use swDefineOverride() to declare replacement bindings instead.',
+].join(' ');
+
+const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
+    'swDefineOverride() is a Shopware setup compile-time macro for override components.',
+    'It declares which base component bindings this override replaces.',
+    'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
+].join(' ');
+
 /**
  * Converts Babel source ranges into the transform's compact range shape.
  *
@@ -902,14 +914,14 @@ function analyzeShopwareSetupScript(script, options) {
 
     if (mode === 'override' && publicMarkerStatements.length > 0) {
         throw new ShopwareSetupTransformError(
-            'swDefinePublic() is only valid in base Shopware setup blocks.',
+            WRONG_MODE_SW_DEFINE_PUBLIC_MESSAGE,
             scriptOffset + getNodeRange(publicMarkerStatements[0], scriptOffset).start,
         );
     }
 
     if (mode === 'base' && overrideMarkerStatements.length > 0) {
         throw new ShopwareSetupTransformError(
-            'swDefineOverride() is only valid in override Shopware setup blocks.',
+            WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE,
             scriptOffset + getNodeRange(overrideMarkerStatements[0], scriptOffset).start,
         );
     }

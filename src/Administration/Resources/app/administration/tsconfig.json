@@ -41,5 +41,8 @@
     "./test/**/*.d.ts"
   ],
   "exclude": ["node_modules"],
-  "files": ["node_modules/jest-expect-message/types/index.d.ts"]
+  "files": [
+    "node_modules/jest-expect-message/types/index.d.ts",
+    "build/vue-setup-transform/shopware-setup-macros.d.ts"
+  ]
 }

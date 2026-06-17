@@ -214,7 +214,25 @@ swDefineOverride({ count });
 </script>`,
             errors: [
                 {
-                    message: 'swDefinePublic() is only valid in base Shopware setup blocks.',
+                    message:
+                        'swDefinePublic() is a Shopware setup compile-time macro for base components. '
+                        + 'It declares which setup bindings are public and may be replaced by overrides. '
+                        + 'Override components must use swDefineOverride() to declare replacement bindings instead.',
+                },
+            ],
+        },
+        {
+            filename: 'base-override.vue',
+            code: `<script setup sw-component="sw-my-component">
+const count = 1;
+swDefineOverride({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'swDefineOverride() is a Shopware setup compile-time macro for override components. '
+                        + 'It declares which base component bindings this override replaces. '
+                        + 'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
                 },
             ],
         },

@@ -386,7 +386,9 @@ describe('build/vue-setup-transform validation', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'base-override.vue')).toThrow(
-            'swDefineOverride() is only valid in override Shopware setup blocks.',
+            'swDefineOverride() is a Shopware setup compile-time macro for override components. '
+            + 'It declares which base component bindings this override replaces. '
+            + 'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
         );
     });
 

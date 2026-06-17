@@ -146,6 +146,33 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
     const count`);
     });
 
+    it('supports defineOptions() wrapped in a TypeScript as expression', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            defineOptions({
+                inheritAttrs: false,
+            }) as void;
+            
+            const count = 1;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-options-as.vue').code;
+
+        expect(result).toContain(`defineOptions({
+    inheritAttrs: false,
+});`);
+        expect(result).not.toContain('as void');
+        expect(result.indexOf('defineOptions({')).toBeLessThan(
+            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+        );
+        expect(result.match(/defineOptions/g)).toHaveLength(1);
+    });
+
     it('rejects duplicate base defineSlots() declarations', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">

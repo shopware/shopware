@@ -710,6 +710,31 @@ function isStatementCompilerMacro(statement, macroName) {
 }
 
 /**
+ * Returns a top-level Vue compiler macro call through transparent TypeScript wrappers.
+ *
+ * @param {Statement} statement
+ * @param {string} macroName
+ * @returns {CallExpression | null}
+ */
+function getStatementCompilerMacroCall(statement, macroName) {
+    if (statement.type !== 'ExpressionStatement') {
+        return null;
+    }
+
+    const call = unwrapTransparentMacroExpression(statement.expression);
+
+    if (
+        call?.type === 'CallExpression' &&
+        call.callee.type === 'Identifier' &&
+        call.callee.name === macroName
+    ) {
+        return call;
+    }
+
+    return null;
+}
+
+/**
  * Detects a compiler macro call expression.
  *
  * @param {BabelNode} node
@@ -912,13 +937,23 @@ function analyzeShopwareSetupScript(script, options) {
             return;
         }
 
-        if (isStatementCompilerMacro(statement, 'defineOptions')) {
-            defineOptionsStatements.push(statement);
+        const defineOptionsCall = getStatementCompilerMacroCall(statement, 'defineOptions');
+
+        if (defineOptionsCall) {
+            defineOptionsStatements.push({
+                statement,
+                call: defineOptionsCall,
+            });
             return;
         }
 
-        if (isStatementCompilerMacro(statement, 'defineExpose')) {
-            defineExposeStatements.push(statement);
+        const defineExposeCall = getStatementCompilerMacroCall(statement, 'defineExpose');
+
+        if (defineExposeCall) {
+            defineExposeStatements.push({
+                statement,
+                call: defineExposeCall,
+            });
             return;
         }
 
@@ -993,7 +1028,7 @@ function analyzeShopwareSetupScript(script, options) {
         );
     }
 
-    const topLevelDefineExposeCalls = new Set(defineExposeStatements.map((statement) => statement.expression));
+    const topLevelDefineExposeCalls = new Set(defineExposeStatements.map((entry) => entry.call));
 
     defineExposeCalls.forEach((call) => {
         if (topLevelDefineExposeCalls.has(call)) {
@@ -1009,14 +1044,14 @@ function analyzeShopwareSetupScript(script, options) {
     if (mode === 'override' && defineExposeStatements.length > 0) {
         throw new ShopwareSetupTransformError(
             'defineExpose() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(defineExposeStatements[0], scriptOffset).start,
+            scriptOffset + getNodeRange(defineExposeStatements[0].call, scriptOffset).start,
         );
     }
 
     if (defineExposeStatements.length > 1) {
         throw new ShopwareSetupTransformError(
             'Only one defineExpose() call is allowed in a base Shopware setup block.',
-            scriptOffset + getNodeRange(defineExposeStatements[1], scriptOffset).start,
+            scriptOffset + getNodeRange(defineExposeStatements[1].call, scriptOffset).start,
         );
     }
 
@@ -1038,7 +1073,7 @@ function analyzeShopwareSetupScript(script, options) {
         );
     }
 
-    const topLevelDefineOptionsCalls = new Set(defineOptionsStatements.map((statement) => statement.expression));
+    const topLevelDefineOptionsCalls = new Set(defineOptionsStatements.map((entry) => entry.call));
 
     defineOptionsCalls.forEach((call) => {
         if (topLevelDefineOptionsCalls.has(call)) {
@@ -1054,14 +1089,14 @@ function analyzeShopwareSetupScript(script, options) {
     if (mode === 'override' && defineOptionsStatements.length > 0) {
         throw new ShopwareSetupTransformError(
             'defineOptions() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(defineOptionsStatements[0], scriptOffset).start,
+            scriptOffset + getNodeRange(defineOptionsStatements[0].call, scriptOffset).start,
         );
     }
 
     if (defineOptionsStatements.length > 1) {
         throw new ShopwareSetupTransformError(
             'Only one defineOptions() call is allowed in a base Shopware setup block.',
-            scriptOffset + getNodeRange(defineOptionsStatements[1], scriptOffset).start,
+            scriptOffset + getNodeRange(defineOptionsStatements[1].call, scriptOffset).start,
         );
     }
 
@@ -1128,7 +1163,7 @@ function analyzeShopwareSetupScript(script, options) {
 
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
-        ...defineOptionsStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+        ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
     ];
@@ -1145,8 +1180,8 @@ function analyzeShopwareSetupScript(script, options) {
             ...getNodeRange(call, scriptOffset),
             kind: 'emits',
         })),
-        ...defineExposeStatements.map((statement) => ({
-            ...getNodeRange(statement.expression.callee, scriptOffset),
+        ...defineExposeStatements.map((entry) => ({
+            ...getNodeRange(entry.call.callee, scriptOffset),
             kind: 'expose',
         })),
         ...slotsMacroCalls.map((call) => ({
@@ -1157,11 +1192,11 @@ function analyzeShopwareSetupScript(script, options) {
     const propsMacroCall = propsMacroCalls[0];
     const emitsMacroCall = emitsMacroCalls[0];
     const slotsMacroCall = slotsMacroCalls[0];
-    const optionsMacroStatement = defineOptionsStatements[0];
+    const optionsMacroCall = defineOptionsStatements[0]?.call;
     const propsMacroRange = propsMacroCall ? getNodeRange(propsMacroCall, scriptOffset) : null;
     const emitsMacroRange = emitsMacroCall ? getNodeRange(emitsMacroCall, scriptOffset) : null;
     const slotsMacroRange = slotsMacroCall ? getNodeRange(slotsMacroCall, scriptOffset) : null;
-    const optionsMacroRange = optionsMacroStatement ? getNodeRange(optionsMacroStatement, scriptOffset) : null;
+    const optionsMacroRange = optionsMacroCall ? getNodeRange(optionsMacroCall, scriptOffset) : null;
     const propsMacro = propsMacroRange
         ? {
               code: script.slice(propsMacroRange.start, propsMacroRange.end),
@@ -1191,7 +1226,7 @@ function analyzeShopwareSetupScript(script, options) {
         : null;
     const optionsMacro = optionsMacroRange
         ? {
-              code: script.slice(optionsMacroRange.start, optionsMacroRange.end),
+              code: `${script.slice(optionsMacroRange.start, optionsMacroRange.end)};`,
               macroName: 'defineOptions',
               ranges: [
                   optionsMacroRange,

@@ -172,26 +172,45 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
     });
 
-    it('should have currency criteria with sort', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        [
+            'paymentMethods',
+            'distinguishableName',
+        ],
+        [
+            'shippingMethods',
+            'name',
+        ],
+        [
+            'countries',
+            'name',
+        ],
+        [
+            'currencies',
+            'name',
+        ],
+        [
+            'languages',
+            'name',
+        ],
+    ])('should load %s association with alphabetical sort', async (associationName, sortField) => {
+        await createWrapper();
 
-        const criteria = wrapper.vm.getLoadSalesChannelCriteria();
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations[associationName].sort[0]).toEqual({
+            field: sortField,
+            order: 'ASC',
+            naturalSorting: false,
+        });
+    });
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                associations: expect.objectContaining({
-                    currencies: expect.objectContaining({
-                        sort: expect.arrayContaining([
-                            {
-                                field: 'name',
-                                order: 'ASC',
-                                naturalSorting: false,
-                            },
-                        ]),
-                    }),
-                }),
-            }),
-        );
+    it('should load languages association with active language filter', async () => {
+        await createWrapper();
+
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations.languages.filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should provide agentic commerce export config accessor for child views', async () => {

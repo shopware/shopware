@@ -633,6 +633,7 @@
     "contractNumberPlaceholder": "Vertragsnummer eingeben ...",
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
+    "privacyNoticeTextModal": "Unsere Datenschutzhinweise finden Sie %privacyModalTagOpen%hier%privacyModalTagClose%.",
     "formSubmit": "Widerruf bestätigen",
     "success": "Wir haben Ihren Widerrufsantrag erhalten und werden ihn schnellstmöglich bearbeiten."
   },

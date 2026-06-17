@@ -31,6 +31,12 @@ function cloneDiscoveredFiles() {
 
 async function createWrapper(options = {}) {
     const { serviceResponse, translations = {} } = options;
+    const mergedTranslations = {
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]': 'A Markdown index for AI assistants.',
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]':
+            'Context and operating guidance for agent clients.',
+        ...translations,
+    };
     const salesChannel = Object.hasOwn(options, 'salesChannel')
         ? options.salesChannel
         : {
@@ -157,9 +163,8 @@ async function createWrapper(options = {}) {
                             id: 'sales-channel-id',
                         },
                     },
-                    $t: (key) => translations[key] ?? key,
-                    $te: (key) =>
-                        Object.hasOwn(translations, key) || key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
+                    $t: (key) => mergedTranslations[key] ?? key,
+                    $te: (key) => Object.hasOwn(mergedTranslations, key),
                 },
             },
             props: {
@@ -193,8 +198,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.text()).toContain('agents.md');
         expect(wrapper.text()).toContain('/llms.txt');
         expect(wrapper.text()).toContain('/agents.md');
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]');
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]');
+        expect(wrapper.text()).toContain('A Markdown index for AI assistants.');
+        expect(wrapper.text()).toContain('Context and operating guidance for agent clients.');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.description');
 
         const labels = wrapper.findAll('.sw-label');

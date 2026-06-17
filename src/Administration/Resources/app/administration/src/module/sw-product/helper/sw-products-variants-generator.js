@@ -23,6 +23,15 @@ export default class VariantsGenerator extends EventEmitter {
 
         // local data
         this.languageId = null;
+
+        // `product_option` mappings to insert after `saveVariants`, adding the
+        // new axis options to preserved variants. Array<{ productId, optionId }>
+        this.extendExistingVariantOptions = [];
+
+        // option ids granted via adoption; they never reach the createQueue,
+        // so saveConfiguratorSettings reads them from here. Reset per pass,
+        // not on flush (settings are saved after the variants).
+        this.adoptedOptionIds = new Set();
     }
 
     /**
@@ -40,7 +49,8 @@ export default class VariantsGenerator extends EventEmitter {
             return Promise.resolve();
         }
 
-        const newOptionIds = new Set();
+        // adopted options never appear in the createQueue but still need their settings saved
+        const newOptionIds = new Set(this.adoptedOptionIds);
         createQueue.forEach((variant) => {
             if (variant.options) {
                 variant.options.forEach((option) => {
@@ -112,12 +122,59 @@ export default class VariantsGenerator extends EventEmitter {
                 });
             })
             .then(() => {
+                // add the new axis options to preserved variants
+                return this.saveExistingVariantOptionExtensions();
+            })
+            .then(() => {
                 this.indexProducts(this.productIds);
             });
     }
 
+    /**
+     * Inserts the queued `product_option` mappings for preserved variants.
+     *
+     * @returns {Promise}
+     */
+    saveExistingVariantOptionExtensions() {
+        if (!this.extendExistingVariantOptions || this.extendExistingVariantOptions.length === 0) {
+            return Promise.resolve();
+        }
+
+        const payload = this.extendExistingVariantOptions.map((mapping) => ({
+            productId: mapping.productId,
+            optionId: mapping.optionId,
+        }));
+
+        // queue preserved variants for indexing (rebuilds option_ids)
+        payload.forEach((mapping) => {
+            if (this.productIds.indexOf(mapping.productId) < 0) {
+                this.productIds.push(mapping.productId);
+            }
+        });
+
+        this.extendExistingVariantOptions = [];
+
+        return this.syncService.sync(
+            [
+                {
+                    entity: 'product_option',
+                    action: 'upsert',
+                    payload,
+                },
+            ],
+            { 'indexing-behavior': 'disable-indexing' },
+            { 'single-operation': 1 },
+        );
+    }
+
     generateVariants(currencies, product, isAddOnly = false) {
         this.product = product;
+
+        // start every pass clean; the empty-selection path below never
+        // reaches filterVariations and its reset
+        this.extendExistingVariantOptions = [];
+        this.adoptedOptionIds = new Set();
+
         const configuratorSettings = this.product.configuratorSettings;
 
         // This check is done to set a default value for completely new generated variants
@@ -166,6 +223,10 @@ export default class VariantsGenerator extends EventEmitter {
     filterVariations(newVariations, variationOnServer, currencies, isAddOnly = false) {
         const configuratorSettings = this.product.configuratorSettings;
 
+        // reset any adoption state queued from a previous generation pass
+        this.extendExistingVariantOptions = [];
+        this.adoptedOptionIds = new Set();
+
         return new Promise((resolve) => {
             const createQueue = [];
 
@@ -180,15 +241,19 @@ export default class VariantsGenerator extends EventEmitter {
             const hashed = {};
             const numbers = {};
             const numberMap = {};
+            // hash -> sorted option ids, for the subset checks below
+            const optionsByHash = {};
 
             for (const [
                 key,
                 variant,
             ] of Object.entries(variationOnServer)) {
-                const hash = md5(JSON.stringify(variant.options.sort()));
+                const sortedOptions = [...variant.options].sort();
+                const hash = md5(JSON.stringify(sortedOptions));
                 hashed[hash] = key;
                 numberMap[hash] = variant.productNumber;
                 numbers[variant.productNumber] = true;
+                optionsByHash[hash] = sortedOptions;
             }
 
             let deleteQueue = [];
@@ -231,6 +296,67 @@ export default class VariantsGenerator extends EventEmitter {
                 }
             });
 
+            /*
+             * Preserve existing variants when a new property axis is added:
+             * a variant whose options are a strict subset of a new permutation
+             * is kept (instead of deleted), the missing options are queued as
+             * `product_option` inserts, and the matched permutation is skipped
+             * in the create queue. Each variant claims the first unclaimed
+             * superset; each permutation can be claimed once.
+             */
+            const adoptedNewHashes = new Set();
+            if (!isAddOnly) {
+                // hash all permutations once; re-hashing per variant would be
+                // O(existing x permutations)
+                const newVariationHashes = newVariationsSorted.map((variation) => md5(JSON.stringify(variation)));
+
+                Object.keys(deleteQueue).forEach((existingHash) => {
+                    const existingOptions = optionsByHash[existingHash];
+                    if (!existingOptions || existingOptions.length === 0) {
+                        return;
+                    }
+
+                    const matchIndex = newVariationHashes.findIndex((newHash, idx) => {
+                        if (adoptedNewHashes.has(newHash)) {
+                            return false;
+                        }
+                        if (hashed[newHash] !== undefined) {
+                            // already exists on the server, not a new permutation
+                            return false;
+                        }
+                        const newOptions = newVariationsSorted[idx];
+                        if (newOptions.length <= existingOptions.length) {
+                            return false;
+                        }
+                        // strict subset: every existing option must be in the permutation
+                        return existingOptions.every((optionId) => newOptions.includes(optionId));
+                    });
+
+                    if (matchIndex === -1) {
+                        return;
+                    }
+
+                    const matchHash = newVariationHashes[matchIndex];
+                    const existingVariantId = deleteQueue[existingHash];
+                    const matchedNewOptions = newVariationsSorted[matchIndex];
+
+                    const addedOptionIds = matchedNewOptions.filter((optionId) => !existingOptions.includes(optionId));
+
+                    addedOptionIds.forEach((optionId) => {
+                        this.extendExistingVariantOptions.push({
+                            productId: existingVariantId,
+                            optionId,
+                        });
+                        this.adoptedOptionIds.add(optionId);
+                    });
+
+                    adoptedNewHashes.add(matchHash);
+
+                    // keep the existing variant
+                    delete deleteQueue[existingHash];
+                });
+            }
+
             Object.keys(deleteQueue).forEach((hash) => {
                 delete numbers[numberMap[hash]];
             });
@@ -242,6 +368,11 @@ export default class VariantsGenerator extends EventEmitter {
 
                 // handled in above loop
                 if (exist !== undefined) {
+                    return;
+                }
+
+                // adopted by an existing variant, nothing to create
+                if (adoptedNewHashes.has(hash)) {
                     return;
                 }
 

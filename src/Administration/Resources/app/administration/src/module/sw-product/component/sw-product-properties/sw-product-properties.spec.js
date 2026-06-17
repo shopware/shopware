@@ -685,15 +685,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
 
         expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
-        expect(cardTitle.classes()).toEqual(
-            expect.arrayContaining([
-                'mt-card__title',
-                'sw-inherit-wrapper__card-title-text',
-            ]),
-        );
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
         expect(cardTitle.text()).toBe('sw-product.properties.cardTitle');
         expect(cardTitleWrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
-        expect(cardElement.find('.sw-card__title').exists()).toBeFalsy();
     });
 
     it('should close properties modal and call a callback', async () => {

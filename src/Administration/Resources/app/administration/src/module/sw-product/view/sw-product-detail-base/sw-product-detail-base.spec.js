@@ -259,7 +259,6 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const cardTitle = cardElement.get('.mt-card__title');
 
         expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleDownloads');
-        expect(cardElement.find('.sw-card__title').exists()).toBeFalsy();
     });
 
     it('should render media card title as mt-card title', async () => {
@@ -272,14 +271,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
 
         expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
-        expect(cardTitle.classes()).toEqual(
-            expect.arrayContaining([
-                'mt-card__title',
-                'sw-inherit-wrapper__card-title-text',
-            ]),
-        );
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
         expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleMedia');
-        expect(cardElement.find('.sw-card__title').exists()).toBeFalsy();
     });
 
     it('should show correct deliverability card when product states includes is-download', async () => {

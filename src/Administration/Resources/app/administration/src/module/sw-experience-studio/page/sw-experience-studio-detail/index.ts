@@ -1,4 +1,6 @@
 import type Repository from 'src/core/data/repository.data';
+import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 
 import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
@@ -8,18 +10,34 @@ import {
     findElementLocation,
     removeElementFromLayout,
     sanitizeContentElementLayoutForWrite,
+    updateElementPropertiesInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
+import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
 const { Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
+const { createId } = Shopware.Utils;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
 type LayoutMutationResult = false | {
     selectedElementId?: string | null;
+};
+
+type AddElementPayload = {
+    parentElementId: string | null;
+    slotName: string | null;
+    anchorTop: number;
+    anchorLeft: number;
+};
+
+type ElementPickerItem = {
+    name: string;
+    label: string;
+    icon: string | null;
 };
 
 /**
@@ -47,6 +65,10 @@ export default Shopware.Component.wrapComponentConfig({
         selectedElementId: string | null;
         previewSalesChannelId: string | null;
         historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
+        isElementPickerOpen: boolean;
+        pendingAddElementPayload: AddElementPayload | null;
+        pickerTop: number;
+        pickerLeft: number;
     } {
         return {
             layout: null,
@@ -56,6 +78,10 @@ export default Shopware.Component.wrapComponentConfig({
             selectedElementId: null,
             previewSalesChannelId: null,
             historyKeydownHandler: null,
+            isElementPickerOpen: false,
+            pendingAddElementPayload: null,
+            pickerTop: 0,
+            pickerLeft: 0,
         };
     },
 
@@ -88,12 +114,49 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioEditor');
         },
 
+        elementTypeStore() {
+            return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
+        },
+
         canUndo(): boolean {
             return this.editorStore.canUndo;
         },
 
         canRedo(): boolean {
             return this.editorStore.canRedo;
+        },
+
+        selectedElement(): ContentElementNode | null {
+            if (!this.layout || !this.selectedElementId) {
+                return null;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const location = findElementLocation(layoutElements, this.selectedElementId);
+
+            if (!location) {
+                return null;
+            }
+
+            return location.elements[location.index] ?? null;
+        },
+
+        selectedElementType(): ContentSystemElementTypeSpecification | null {
+            if (!this.selectedElement) {
+                return null;
+            }
+
+            return this.elementTypeStore.getByName(this.selectedElement.component);
+        },
+
+        availablePickerElements(): ElementPickerItem[] {
+            const availableTypes = this.getAvailableTypesForPayload(this.pendingAddElementPayload);
+
+            return availableTypes.map((typeSpecification) => ({
+                name: typeSpecification.name,
+                label: typeSpecification.label,
+                icon: typeSpecification.icon,
+            }));
         },
     },
 
@@ -104,6 +167,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
         void this.loadLayout();
         void this.loadDefaultPreviewSalesChannel();
+        void this.loadElementTypes();
     },
 
     mounted(): void {
@@ -162,6 +226,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        async loadElementTypes(): Promise<void> {
+            await this.elementTypeStore.loadTypes();
+        },
+
         onPreviewSalesChannelChange(salesChannelId: string | null): void {
             if (!salesChannelId) {
                 return;
@@ -174,8 +242,41 @@ export default Shopware.Component.wrapComponentConfig({
             this.selectedElementId = elementId;
         },
 
-        onAddElement(): void {
-            // Element insertion will be implemented in a follow-up step.
+        onAddElement(payload: AddElementPayload): void {
+            this.pendingAddElementPayload = payload;
+            this.pickerTop = payload.anchorTop - 8;
+            this.pickerLeft = payload.anchorLeft + 26;
+            this.isElementPickerOpen = true;
+        },
+
+        onCloseElementPicker(): void {
+            this.isElementPickerOpen = false;
+            this.pendingAddElementPayload = null;
+        },
+
+        onSelectElementType(component: string): void {
+            const payload = this.pendingAddElementPayload;
+
+            if (!payload) {
+                this.onCloseElementPicker();
+                return;
+            }
+
+            this.applyLayoutMutation((layout) => {
+                const newElement = this.createElementFromType(component);
+
+                if (payload.parentElementId === null) {
+                    return this.insertRootElement(layout, newElement);
+                }
+
+                if (!payload.slotName) {
+                    return false;
+                }
+
+                return this.insertSlotElement(layout, payload, component, newElement);
+            });
+
+            this.onCloseElementPicker();
         },
 
         applyLayoutMutation(
@@ -232,6 +333,154 @@ export default Shopware.Component.wrapComponentConfig({
 
                 return {};
             });
+        },
+
+        onElementSettingsChange(payload: {
+            elementId: string;
+            properties: Record<string, unknown>;
+        }): void {
+            this.applyLayoutMutation((layout) => {
+                return updateElementPropertiesInLayout(layout, payload.elementId, payload.properties) ? {} : false;
+            });
+        },
+
+        getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
+            const allTypes = this.elementTypeStore.allTypes as ContentSystemElementTypeSpecification[];
+
+            if (!payload) {
+                return [];
+            }
+
+            if (payload.parentElementId === null) {
+                return allTypes;
+            }
+
+            if (!payload.slotName || !this.layout) {
+                return [];
+            }
+
+            const parentLocation = findElementLocation(castContentElementNodes(this.layout.layout), payload.parentElementId);
+            const parentElement = parentLocation ? parentLocation.elements[parentLocation.index] : null;
+
+            if (!parentElement) {
+                return [];
+            }
+
+            const parentType = this.elementTypeStore.getByName(parentElement.component);
+            const slotDefinition = parentType?.slots.find((slot) => slot.name === payload.slotName);
+
+            if (!slotDefinition) {
+                return allTypes;
+            }
+
+            const existingElements = parentElement.slots?.[payload.slotName] ?? [];
+
+            if (slotDefinition.maxElements !== null && existingElements.length >= slotDefinition.maxElements) {
+                return [];
+            }
+
+            if (slotDefinition.allowList.length === 0) {
+                return allTypes;
+            }
+
+            return slotDefinition.allowList
+                .map((typeName) => this.elementTypeStore.getByName(typeName))
+                .filter((type): type is ContentSystemElementTypeSpecification => type !== null);
+        },
+
+        canInsertIntoSlot(
+            parentComponent: string,
+            slotName: string,
+            childComponent: string,
+            parentElement: ContentElementNode,
+        ): boolean {
+            const parentType = this.elementTypeStore.getByName(parentComponent);
+            const slotDefinition = parentType?.slots.find((slot) => slot.name === slotName);
+
+            if (!slotDefinition) {
+                return true;
+            }
+
+            const existingElements = parentElement.slots?.[slotName] ?? [];
+
+            if (slotDefinition.maxElements !== null && existingElements.length >= slotDefinition.maxElements) {
+                return false;
+            }
+
+            if (slotDefinition.allowList.length === 0) {
+                return true;
+            }
+
+            return slotDefinition.allowList.includes(childComponent);
+        },
+
+        createElementFromType(component: string): ContentElementNode {
+            const typeSpecification = this.elementTypeStore.getByName(component);
+            const properties: Record<string, unknown> = {};
+
+            if (typeSpecification) {
+                for (const [key, property] of Object.entries(typeSpecification.properties)) {
+                    if (property.default !== null && property.default !== undefined) {
+                        properties[key] = property.default;
+                    }
+                }
+            }
+
+            const slots = typeSpecification?.slots.reduce<Record<string, ContentElementNode[]>>((acc, slot) => {
+                acc[slot.name] = [];
+
+                return acc;
+            }, {});
+
+            return {
+                id: createId(),
+                component,
+                properties,
+                ...(slots && Object.keys(slots).length > 0 ? { slots } : {}),
+            };
+        },
+
+        insertRootElement(layout: ContentElementNode[], newElement: ContentElementNode): LayoutMutationResult {
+            layout.push(newElement);
+
+            return {
+                selectedElementId: newElement.id,
+            };
+        },
+
+        insertSlotElement(
+            layout: ContentElementNode[],
+            payload: AddElementPayload,
+            component: string,
+            newElement: ContentElementNode,
+        ): LayoutMutationResult {
+            const parentLocation = findElementLocation(layout, payload.parentElementId as string);
+
+            if (!parentLocation || !payload.slotName) {
+                return false;
+            }
+
+            const parentElement = parentLocation.elements[parentLocation.index];
+
+            if (!parentElement) {
+                return false;
+            }
+
+            if (!this.canInsertIntoSlot(parentElement.component, payload.slotName, component, parentElement)) {
+                this.createNotificationInfo({
+                    message: this.$t('sw-experience-studio.detail.sidebarTree.addElementNotAllowed'),
+                });
+
+                return false;
+            }
+
+            parentElement.slots = parentElement.slots ?? {};
+            parentElement.slots[payload.slotName] = parentElement.slots[payload.slotName] ?? [];
+            parentElement.slots[payload.slotName].push(newElement);
+
+            return {
+                selectedElementId: newElement.id,
+            };
         },
 
         onUndo(): void {

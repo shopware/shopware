@@ -30,6 +30,8 @@
         "title": "Struktur",
         "emptyState": "Dieses Layout enthält noch keine Elemente.",
         "addElement": "Element hinzufügen",
+        "addElementNoTypeAvailable": "Es ist kein registrierter Elementtyp zum Einfügen verfügbar.",
+        "addElementNotAllowed": "Dieses Element kann nicht in den ausgewählten Slot eingefügt werden.",
         "configureElement": "Element konfigurieren",
         "duplicateElement": "Element duplizieren",
         "deleteElement": "Element löschen"
@@ -40,7 +42,15 @@
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
-        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten."
+        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
+        "loading": "Element-Einstellungen werden geladen ...",
+        "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
+        "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
+        "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften."
+      },
+      "elementPicker": {
+        "title": "Element hinzufügen",
+        "noElements": "Für diese Position sind keine Elementtypen verfügbar."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert."
     }

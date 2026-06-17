@@ -10,6 +10,110 @@
             icon="regular-sliders-xs"
             :description="$t('sw-experience-studio.detail.elementSettings.emptyState')"
         />
+
+        <mt-empty-state
+            v-else-if="isLoadingTypes"
+            icon="regular-hourglass"
+            :description="$t('sw-experience-studio.detail.elementSettings.loading')"
+        />
+
+        <mt-empty-state
+            v-else-if="hasTypeLoadError"
+            icon="regular-exclamation-triangle"
+            :description="$t('sw-experience-studio.detail.elementSettings.typeLoadError')"
+        />
+
+        <mt-empty-state
+            v-else-if="!hasSelectedElementType"
+            icon="regular-puzzle-piece"
+            :description="$t('sw-experience-studio.detail.elementSettings.typeMissing')"
+        />
+
+        <mt-empty-state
+            v-else-if="editableProperties.length === 0"
+            icon="regular-sliders-horizontal"
+            :description="$t('sw-experience-studio.detail.elementSettings.noEditableProperties')"
+        />
+
+        <div
+            v-else
+            class="sw-experience-studio-element-settings__properties"
+        >
+            <div
+                v-for="entry in editableProperties"
+                :key="entry.key"
+                class="sw-experience-studio-element-settings__property"
+            >
+                <mt-switch
+                    v-if="getControlType(entry.property) === 'switch'"
+                    v-bind="getControlProps(entry.property)"
+                    :label="entry.property.title"
+                    :help-text="entry.property.description"
+                    :model-value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <mt-number-field
+                    v-else-if="getControlType(entry.property) === 'number'"
+                    v-bind="getControlProps(entry.property)"
+                    :label="entry.property.title"
+                    :help-text="entry.property.description"
+                    :model-value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <mt-select
+                    v-else-if="getControlType(entry.property) === 'select'"
+                    v-bind="getControlProps(entry.property)"
+                    :label="entry.property.title"
+                    :help-text="entry.property.description"
+                    :model-value="getPropertyValue(entry.key, entry.property)"
+                    :options="getSelectOptions(entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <sw-entity-single-select
+                    v-else-if="getControlType(entry.property) === 'entity' && getEntityName(entry.property)"
+                    v-bind="getControlProps(entry.property)"
+                    :entity="getEntityName(entry.property)"
+                    :label="entry.property.title"
+                    :help-text="entry.property.description"
+                    :value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <sw-media-field
+                    v-else-if="getControlType(entry.property) === 'media'"
+                    v-bind="getControlProps(entry.property)"
+                    :label="entry.property.title"
+                    :value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <mt-text-editor
+                    v-else-if="getControlType(entry.property) === 'richtext'"
+                    v-bind="getControlProps(entry.property)"
+                    :model-value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                />
+
+                <mt-text-field
+                    v-else
+                    v-bind="getControlProps(entry.property)"
+                    :label="entry.property.title"
+                    :help-text="entry.property.description"
+                    :model-value="getPropertyValue(entry.key, entry.property)"
+                    :disabled="!allowEdit || undefined"
+                    @update:model-value="onUpdateProperty(entry.key, $event)"
+                />
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -30,6 +30,8 @@
         "title": "Structure",
         "emptyState": "No elements in this layout yet.",
         "addElement": "Add element",
+        "addElementNoTypeAvailable": "No registered element type is available for insertion.",
+        "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
         "configureElement": "Configure element",
         "duplicateElement": "Duplicate element",
         "deleteElement": "Delete element"
@@ -40,7 +42,15 @@
       },
       "elementSettings": {
         "title": "Element settings",
-        "emptyState": "Select an element to edit its settings."
+        "emptyState": "Select an element to edit its settings.",
+        "loading": "Loading element settings...",
+        "typeLoadError": "Element settings could not be loaded.",
+        "typeMissing": "No registered element type was found for this component yet.",
+        "noEditableProperties": "This element does not provide editable primitive properties."
+      },
+      "elementPicker": {
+        "title": "Add element",
+        "noElements": "No element types are available for this position."
       },
       "messageSaved": "Content layout saved successfully."
     }

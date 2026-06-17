@@ -135,6 +135,35 @@ export function removeElementFromLayout(
     return true;
 }
 
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function updateElementPropertiesInLayout(
+    layout: ContentElementNode[],
+    elementId: string,
+    properties: Record<string, unknown>,
+): boolean {
+    const location = findElementLocation(layout, elementId);
+
+    if (location === null) {
+        return false;
+    }
+
+    const element = location.elements[location.index];
+
+    if (!element) {
+        return false;
+    }
+
+    element.properties = {
+        ...(element.properties ?? {}),
+        ...cloneDeep(properties),
+    };
+
+    return true;
+}
+
 function copyWritableContentElementFields(
     source: ContentElementNode,
     target: ContentElementNode,

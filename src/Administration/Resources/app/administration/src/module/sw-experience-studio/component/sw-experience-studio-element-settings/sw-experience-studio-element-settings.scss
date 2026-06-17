@@ -20,4 +20,9 @@
         overflow: auto;
         padding: 16px;
     }
+
+    &__properties {
+        display: grid;
+        gap: 12px;
+    }
 }

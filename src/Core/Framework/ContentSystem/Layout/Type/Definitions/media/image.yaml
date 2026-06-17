@@ -1,0 +1,61 @@
+meta:
+  label: "Image"
+  description: "Responsive image element with media source and loading behavior."
+  icon: "regular-image"
+  category: "media"
+  copilot:
+    summary: "Image media element."
+    hints:
+      - "Requires a media entity."
+      - "Supports lazy loading and fetch priority."
+
+properties:
+  mediaId:
+    type: string
+    required: true
+    title: "Media ID"
+    description: "Selected media ID used for entity loading."
+    adminUI:
+      component: "media-field"
+
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    title: "Media"
+    description: "Hydrated media entity resolved from mediaId."
+
+  height:
+    type: string
+    title: "Height"
+    description: "Image height attribute."
+    default: "auto"
+
+  maxImageWidth:
+    type: integer
+    title: "Max Image Width"
+    description: "Maximum image width used for default sizes."
+    default: 1360
+    adminUI:
+      component: "number"
+
+  loading:
+    type: string
+    title: "Loading"
+    description: "Image loading strategy."
+    default: "lazy"
+    enum:
+      - "lazy"
+      - "eager"
+    adminUI:
+      component: "select"
+
+  fetchpriority:
+    type: string
+    title: "Fetch Priority"
+    description: "Browser fetch priority hint."
+    default: "auto"
+    enum:
+      - "auto"
+      - "high"
+      - "low"
+    adminUI:
+      component: "select"

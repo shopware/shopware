@@ -53,10 +53,26 @@
                     class="sw-experience-studio-detail__element-settings"
                     :layout="layout"
                     :selected-element-id="selectedElementId"
+                    :selected-element="selectedElement"
+                    :selected-element-type="selectedElementType"
+                    :is-loading-types="elementTypeStore.isLoading"
+                    :type-load-error="elementTypeStore.loadError"
+                    :allow-edit="allowSave"
+                    @update-properties="onElementSettingsChange"
                 />
                 {% endblock %}
             </div>
             {% endblock %}
+
+            <sw-experience-studio-element-picker
+                :open="isElementPickerOpen"
+                :title="$t('sw-experience-studio.detail.elementPicker.title')"
+                :elements="availablePickerElements"
+                :top="pickerTop"
+                :left="pickerLeft"
+                @close="onCloseElementPicker"
+                @select="onSelectElementType"
+            />
 
             <sw-loader v-if="isLoading" />
         </div>

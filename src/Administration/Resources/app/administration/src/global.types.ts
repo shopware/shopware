@@ -247,6 +247,7 @@ declare global {
         cmsElementFavorites: cmsElementFavoritesService;
         cmsPageTypeService: CmsPageTypeService;
         cmsService: CmsService;
+        contentSystemElementTypeService: $TSFixMe;
         configService: ConfigApiService;
         contextStoreService: StoreContextService;
         customEntityDefinitionService: CustomEntityDefinitionService;

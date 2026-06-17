@@ -49,7 +49,9 @@ class SalesChannelFileCacheInvalidator implements EventSubscriberInterface
             $tags[] = self::buildCacheTag($id);
         }
 
-        $this->cacheInvalidator->invalidate(array_values(array_unique($tags)));
+        // Force immediate invalidation because Admin edits should update the public file response directly.
+        // This only purges row-specific tags for actually touched files, so it cannot fan out into a cache storm.
+        $this->cacheInvalidator->invalidate(array_values(array_unique($tags)), true);
     }
 
     private function getPrimaryKeyId(EntityWriteResult $writeResult): ?string

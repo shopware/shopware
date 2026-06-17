@@ -31,7 +31,7 @@ class SalesChannelFileCacheInvalidatorTest extends TestCase
             ->with([
                 SalesChannelFileCacheInvalidator::buildCacheTag($firstId),
                 SalesChannelFileCacheInvalidator::buildCacheTag($secondId),
-            ]);
+            ], true);
 
         $event = new EntityWrittenEvent('sales_channel_file', [
             new EntityWriteResult($firstId, [
@@ -52,7 +52,7 @@ class SalesChannelFileCacheInvalidatorTest extends TestCase
         $cacheInvalidator
             ->expects($this->once())
             ->method('invalidate')
-            ->with([SalesChannelFileCacheInvalidator::buildCacheTag($id)]);
+            ->with([SalesChannelFileCacheInvalidator::buildCacheTag($id)], true);
 
         $event = new EntityDeletedEvent('sales_channel_file', [
             new EntityWriteResult($id, [], 'sales_channel_file', EntityWriteResult::OPERATION_DELETE),

@@ -10,6 +10,8 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Type\ObjectType;
+use PHPUnit\Framework\MockObject\MockObject;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,9 +21,11 @@ use Shopware\Core\Framework\Log\Package;
  * behaves identically to a bare `->method('foo')` — the matcher is pure noise. The meaningful matchers
  * (`once()`, `never()`, `exactly()`, `atLeastOnce()`, …) actually assert a call count and are NOT flagged.
  *
- * Detection is structural — it keys off the `expects(<any()>)` shape rather than the receiver type — so it
- * fires inside test classes, in `src/**\/Test` support traits, and anywhere the idiom appears, without
- * relying on `$this` resolving to a TestCase subtype (which it does not inside a trait).
+ * Detection requires the `expects(<any()>)` shape AND that the object `expects()` is called on is a
+ * PHPUnit `MockObject`. The mock type is inferred from `createMock()` / the parameter declaration, so it
+ * still resolves inside `src/**\/Test` support traits (where `$this` is not a TestCase subtype) — unlike
+ * checking the `expects()` caller against `TestCase`. This keeps the rule from flagging unrelated fluent
+ * APIs that happen to expose `expects()` / `any()`.
  *
  * @implements Rule<MethodCall>
  *
@@ -62,6 +66,13 @@ class NoAnyInvocationMatcherRule implements Rule
             && \count($matcher->getArgs()) === 0;
 
         if (!$isAny) {
+            return [];
+        }
+
+        // Ensure this is PHPUnit's mock API, not an unrelated fluent method sharing the expects()/any()
+        // names. Keys off the mock's own type (MockObject&X from createMock), so it still resolves
+        // inside support traits where $this is not a TestCase subtype.
+        if (!(new ObjectType(MockObject::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
             return [];
         }
 

@@ -75,3 +75,32 @@ class Cases extends TestCase
         static::assertSame('x', $mock->doIt());
     }
 }
+
+/**
+ * A non-PHPUnit fluent API that coincidentally exposes expects()/any(). After narrowing the rule to
+ * PHPUnit MockObject receivers, this must NOT be flagged (guards the false-positive concern from review).
+ *
+ * @internal
+ */
+class NotAMock
+{
+    public function expects(object $matcher): self
+    {
+        return $this;
+    }
+
+    public function any(): object
+    {
+        return new \stdClass();
+    }
+
+    public function method(string $name): self
+    {
+        return $this;
+    }
+
+    public function notFlagged(): void
+    {
+        $this->expects($this->any())->method('doIt');
+    }
+}

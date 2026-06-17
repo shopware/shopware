@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper(propOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-promotion-discount-component', {
             sync: true,
@@ -143,6 +143,7 @@ async function createWrapper() {
                         new Criteria(1, 25),
                     ),
                 },
+                ...propOverrides,
             },
         },
     );
@@ -227,5 +228,67 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         expect(wrapper.vm.discount.promotionDiscountPrices).toHaveLength(1);
         expect(wrapper.vm.discount.promotionDiscountPrices[0].currencyId).toBe('currencyId');
         expect(wrapper.vm.discount.promotionDiscountPrices[0].price).toBe(9);
+    });
+
+    it('should not offer fixed item price for shipping costs discounts', async () => {
+        const wrapper = await createWrapper({
+            discount: {
+                isNew: () => false,
+                promotionId: 'promotionId',
+                scope: 'delivery',
+                type: 'absolute',
+                value: 100,
+                considerAdvancedRules: false,
+                maxValue: null,
+                sorterKey: 'PRICE_ASC',
+                applierKey: 'ALL',
+                usageKey: 'ALL',
+                apiAlias: null,
+                id: 'discountId',
+                discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
+                promotionDiscountPrices: new EntityCollection(
+                    '',
+                    'promotion_discount_prices',
+                    Shopware.Context.api,
+                    new Criteria(1, 25),
+                ),
+            },
+        });
+
+        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual([
+            'absolute',
+            'percentage',
+            'fixed',
+        ]);
+    });
+
+    it('should normalize fixed item price to fixed price for shipping costs discounts', async () => {
+        const wrapper = await createWrapper({
+            discount: {
+                isNew: () => false,
+                promotionId: 'promotionId',
+                scope: 'delivery',
+                type: 'fixed_unit',
+                value: 100,
+                considerAdvancedRules: false,
+                maxValue: null,
+                sorterKey: 'PRICE_ASC',
+                applierKey: 'ALL',
+                usageKey: 'ALL',
+                apiAlias: null,
+                id: 'discountId',
+                discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
+                promotionDiscountPrices: new EntityCollection(
+                    '',
+                    'promotion_discount_prices',
+                    Shopware.Context.api,
+                    new Criteria(1, 25),
+                ),
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.discount.type).toBe('fixed');
     });
 });

@@ -42,6 +42,13 @@ A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDe
 
 New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 
+### Country state field visibility in address forms
+
+Storefront address forms now respect the country `displayStateInRegistration` setting.
+When disabled, the country state field is hidden unless `forceStateInRegistration` is enabled, in which case the required state field is still shown.
+During the update, `displayStateInRegistration` is activated for every country that has at least one configured state/region.
+This keeps existing storefront address forms showing their state selector until the setting is disabled explicitly.
+
 ### Checkout gateway blocked method fallback
 
 Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
@@ -111,6 +118,39 @@ When `displayAsGroup` is disabled, matching variants are returned and rendered i
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
 Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
+### Rule Builder: new "Quantity per item" condition
+
+A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
+
+### Storefront snippets of self-managed apps are loaded
+
+Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
+Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
+The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
+Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+
+### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+#### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+#### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
+
 ### Stored mail template type data deprecated
 
 The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.
@@ -144,6 +184,16 @@ Implement `previewPatternByNumberRangeId()` for persisted number-range previews 
 
 The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
 Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+
+### Orders no longer break on missing rule conditions in price definitions
+
+If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound`/`InvalidConditionException`. Such conditions are substituted with a new internal `UnknownConditionRule` whose `match()` always returns `false`.
+
+The original rule payload is preserved verbatim on reads, order versioning and normal saves, so the order stays fully accessible and editable in the Administration and is restored automatically once the contributing plugin is reinstalled. Recalculation also succeeds, but because it recomputes the cart, a discount whose missing condition no longer matches any line item is removed (fail-closed) rather than preserved — so an order that is recalculated and saved may lose that discount line. When that happens, the recalculation result now contains a `promotion-discount-unknown-condition` warning (`PromotionDiscountUnknownConditionError`, shown as a notification in the Administration order detail page), so the discount is not removed silently.
+
+Note that `match()` returning `false` only yields a fail-closed result for a standalone condition or inside an `AndRule`. Inside an `OrRule`/`XorRule` the surrounding container can still match through its other branches, and inside a `NotRule` the result is inverted to always-match.
+
+Note for API consumers: writes to price-definition fields that reference an unregistered rule condition are now accepted instead of rejected, so order versioning and saves keep working. A mistyped condition name in an Admin API write is therefore no longer reported as a validation error — the condition is stored as-is and will simply never match.
 
 ### Elasticsearch: Dedicated `completion` field for admin-search autocomplete
 
@@ -190,6 +240,8 @@ When a customer with an unconfirmed double opt-in account tries to log in, Shopw
 
 The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `24` hours). Setting it to `0` disables the auto-resend entirely.
 
+Successful password recovery now also confirms an unconfirmed double opt-in customer account, because completing the recovery flow proves access to the account email address.
+
 ### Standardized CLI JSON output flag
 
 CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are deprecated and will be removed in Shopware 6.8.0.0.
@@ -221,6 +273,12 @@ A new read-only, translatable `descriptionTeaser` field is available on `product
 
 ## Administration
 
+### Cache-relevant extension configuration fields
+
+As a follow-up to [Reduced HTTP cache invalidation on system config changes](#reduced-http-cache-invalidation-on-system-config-changes), plugin and app `Resources/config/config.xml` files can now mark fields that affect cached storefront output with the `cache-relevant="true"` attribute on `<input-field>` or `<component>`.
+
+When a marked field is changed in the Administration system config renderer, the save request explicitly sends `silent=false`, so HTTP cache entries tagged with `system.config-{salesChannelId}` are invalidated. Unmarked fields keep the default system config write behavior.
+
 ### Storefront icon cache and speculation rules can be configured per sales channel
 
 The Storefront settings Administration page now allows the icon cache and speculation rules settings (`core.storefrontSettings.iconCache` and `core.storefrontSettings.speculationRules`) to be configured per sales channel.
@@ -248,6 +306,14 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 | `cartLineItemTotalPrice` | Item subtotal -> Item total (qty × price) | Positionszwischensumme -> Positionssumme (Menge × Preis) | One item's total, quantity multiplied by unit price |
 | `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
 | `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
+
+### Rule Builder quantity condition labels disambiguated
+
+| Internal name | EN old -> new | DE old -> new | What it checks |
+| --- | --- | --- | --- |
+| `cartLineItemWithQuantity` | Item quantity -> Item with quantity | Positionsanzahl -> Position mit Menge | A specific selected product's quantity |
+| `cartLineItemsInCartCount` | Quantity of distinct items -> Number of distinct items | Anzahl unterschiedlicher Positionen (unchanged) | Number of distinct line items (all types) |
+| `promotionsInCartCount` | Quantity of discounts -> Number of discounts | Anzahl der Rabatte (unchanged) | Number of discount line items |
 
 ### `sw-data-grid` column labels fall back to the default locale
 
@@ -391,25 +457,6 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
-### Number range value generator interface deprecated
-
-`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
-Custom number range value generator implementations and decorators should extend the abstract class instead.
-Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
-
-The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
-Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
-
-### Orders no longer break on missing rule conditions in price definitions
-
-If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound`/`InvalidConditionException`. Such conditions are substituted with a new internal `UnknownConditionRule` whose `match()` always returns `false`.
-
-The original rule payload is preserved verbatim on reads, order versioning and normal saves, so the order stays fully accessible and editable in the Administration and is restored automatically once the contributing plugin is reinstalled. Recalculation also succeeds, but because it recomputes the cart, a discount whose missing condition no longer matches any line item is removed (fail-closed) rather than preserved — so an order that is recalculated and saved may lose that discount line. When that happens, the recalculation result now contains a `promotion-discount-unknown-condition` warning (`PromotionDiscountUnknownConditionError`, shown as a notification in the Administration order detail page), so the discount is not removed silently.
-
-Note that `match()` returning `false` only yields a fail-closed result for a standalone condition or inside an `AndRule`. Inside an `OrRule`/`XorRule` the surrounding container can still match through its other branches, and inside a `NotRule` the result is inverted to always-match.
-
-Note for API consumers: writes to price-definition fields that reference an unregistered rule condition are now accepted instead of rejected, so order versioning and saves keep working. A mistyped condition name in an Admin API write is therefore no longer reported as a validation error — the condition is stored as-is and will simply never match.
-
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
@@ -503,6 +550,30 @@ Custom fields on category, landing page, sales channel, customer address, and or
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Reworked timeframe options in `sw-date-filter`
+
+The order date filter dropdown now offers a 15-entry list, in display order:
+
+1. Today
+2. Yesterday
+3. Current week
+4. Last 7 days
+5. Previous week
+6. Current month
+7. Last 30 days
+8. Previous month
+9. Current quarter
+10. Previous quarter
+11. Last 3 months
+12. Last 6 months
+13. Last 12 months
+14. Current year
+15. Previous year
+
+"Current ..." entries span the start of the period through today (e.g., current quarter = first day of the quarter through today). "Previous ..." entries cover the full prior period (e.g., previous quarter = the three months before this one). "Last N days/months" remain rolling windows ending today, with calendar-month math (and last-day-of-month clamping) for the months variants so May 31 - 3 months lands on Feb 29 (leap) or Feb 28 (non-leap) rather than rolling forward to March 3.
+
+The previous rolling `lastDay` (-1) and `lastYear` (-365) entries are no longer in the dropdown, but saved filter states keep working: the component now aliases `-1` to `yesterday` and `-365` to `last12Months` on both hydration and programmatic selection. The persisted `from`/`to` are preserved so existing filters continue to resolve the same data, while the dropdown label catches up to the new vocabulary. All boundaries continue to be normalized to the user's timezone.
 
 ### Admin menu flyout no longer overflows the viewport
 

@@ -242,10 +242,6 @@ export default {
             ];
         },
 
-        routerActiveClass() {
-            return this.subIsActive(this.entryPath, this.entry.id) ? 'router-link-active' : '';
-        },
-
         childRouteActive() {
             if (this.children.length === 0 || !this.submenuVisuallyOpen) {
                 return false;

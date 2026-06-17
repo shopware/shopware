@@ -14,8 +14,7 @@
             <router-link
                 class="sw-admin-menu__navigation-link"
                 :to="getLinkToProp"
-                :active-class="routerActiveClass"
-                :exact-active-class="routerActiveClass"
+                :class="{ 'router-link-active': subIsActive(entryPath, entry.id) }"
                 :aria-expanded="collapsibleOpen"
                 @click="toggleSubmenu"
                 @pointerdown="emitMenuInteractionForFlyoutDismiss($event)"
@@ -135,8 +134,7 @@
             v-if="entryPath"
             class="sw-admin-menu__navigation-link"
             :to="getLinkToProp"
-            :active-class="routerActiveClass"
-            :exact-active-class="routerActiveClass"
+            :class="{ 'router-link-active': subIsActive(entryPath, entry.id) }"
         >
             {% block sw_admin_menu_item_icon %}
             <mt-icon
@@ -269,8 +267,7 @@
             v-if="entryPath"
             class="sw-admin-menu__navigation-link"
             :to="getLinkToProp"
-            :active-class="routerActiveClass"
-            :exact-active-class="routerActiveClass"
+            :class="{ 'router-link-active': subIsActive(entryPath, entry.id) }"
         >
             <mt-icon
                 v-if="displayIcon"

@@ -147,7 +147,7 @@ runs:
               SYMFONY_ALLOW_ALL_IP: "1"
           run: symfony server:start
 
-        - uses: actions/setup-node@v4
+        - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
           with:
               node-version: 22
 
@@ -215,7 +215,7 @@ runs:
 
         - name: Configure AWS credentials
           if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
-          uses: aws-actions/configure-aws-credentials@v4
+          uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
           with:
             aws-region: eu-central-1
             role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
@@ -269,7 +269,7 @@ runs:
 
         - name: Create Pull Request
           if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
-          uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+          uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
           with:
               token: ${{ steps.create-pr-token.outputs.token }}
               add-paths: |

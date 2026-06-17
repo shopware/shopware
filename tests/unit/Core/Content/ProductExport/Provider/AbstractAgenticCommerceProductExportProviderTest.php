@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -23,6 +24,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextAddsProviderStruct(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -48,6 +50,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesOwnTrackingCodes(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -79,6 +82,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextWithNoConfiguration(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -106,6 +110,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextIncludesReferralCodeAndName(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -133,6 +138,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextMergesWithExistingContext(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -159,6 +165,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextWithNullSalesChannelConfiguration(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

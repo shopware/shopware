@@ -12,6 +12,7 @@ use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
 use Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -23,6 +24,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNothingForOtherProviders(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -40,6 +42,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenFileFormatIsNotJsonl(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -61,6 +64,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMissingRequiredUrlField(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -101,6 +105,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForBlankRequiredStringField(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -122,6 +127,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsJsonlValidationErrorForMalformedJsonl(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -141,6 +147,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNotAddErrorsForValidOpenAiFeed(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -177,6 +184,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorsForInvalidOptionalAndDerivedFieldFormats(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -234,6 +242,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidTargetCountryCode(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -255,6 +264,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenTargetCountriesAreEmpty(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -276,6 +286,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenAvailabilityDateIsMissingForPreOrder(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -296,6 +307,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenAvailabilityDateIsInvalidForPreOrder(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -320,6 +332,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAllowsValidAvailabilityDateForPreOrder(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -340,6 +353,7 @@ class OpenAiProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForDuplicateItemIds(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

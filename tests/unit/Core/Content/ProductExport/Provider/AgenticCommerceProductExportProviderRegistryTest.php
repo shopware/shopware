@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportPro
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,6 +22,7 @@ class AgenticCommerceProductExportProviderRegistryTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetByTechnicalNameReturnsMatchingProvider(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -41,6 +43,7 @@ class AgenticCommerceProductExportProviderRegistryTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetByTechnicalNameReturnsNullWhenProviderDoesNotExist(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

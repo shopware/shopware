@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -33,6 +34,7 @@ class GoogleProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetTechnicalNameReturnsGoogle(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -48,6 +50,7 @@ class GoogleProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -93,6 +96,7 @@ class GoogleProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -134,6 +138,7 @@ class GoogleProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -177,6 +182,7 @@ class GoogleProductExportProviderTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

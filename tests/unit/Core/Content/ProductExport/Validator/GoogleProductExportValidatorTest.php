@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,6 +22,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNothingForOtherProviders(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -38,6 +40,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenFileFormatIsNotXml(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -58,6 +61,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMalformedXml(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -76,6 +80,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForFeedWithoutItems(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -98,6 +103,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNotAddErrorsForValidGoogleFeed(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -117,6 +123,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMissingRequiredGoogleField(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -137,6 +144,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidLink(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -157,6 +165,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidAvailability(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -177,6 +186,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidCondition(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -197,6 +207,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidGender(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -217,6 +228,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidGender(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -234,6 +246,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidSizeSystem(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -254,6 +267,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidSizeSystem(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -271,6 +285,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidAgeGroup(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -291,6 +306,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidAgeGroup(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -308,6 +324,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -328,6 +345,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenIdentifiersAreMissingWithoutFlag(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -348,6 +366,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsIdentifierExistsNo(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -369,6 +388,7 @@ class GoogleProductExportValidatorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForDuplicateIds(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

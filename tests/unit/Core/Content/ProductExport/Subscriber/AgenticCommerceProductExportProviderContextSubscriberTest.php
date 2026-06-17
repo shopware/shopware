@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -28,6 +29,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetSubscribedEvents(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -41,6 +43,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextAddsProviderSpecificContext(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -74,6 +77,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWithoutProviderKey(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -102,6 +106,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenContextIsIncomplete(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -124,6 +129,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenProviderIsNotRegistered(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

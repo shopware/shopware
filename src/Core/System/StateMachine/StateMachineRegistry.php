@@ -195,7 +195,7 @@ class StateMachineRegistry implements ResetInterface
         // first on purpose: if it fails, the state update (and its entity-written events for indexers,
         // cache invalidation and webhooks) is never performed. Nested DAL transactions are handled via
         // DBAL savepoints.
-        RetryableTransaction::transactional($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
+        RetryableTransaction::retryable($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
             $repository->upsert($data, $context);
         });

@@ -294,7 +294,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.text()).toContain('@Ucp/files/agentic/llms.txt.twig');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.detail.roleBase');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.detail.roleExtension');
-        expect(wrapper.findAll('.sw-sales-channel-detail-agentic-file__override-marker')).toHaveLength(1);
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.enabledState.custom');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.detail.hideContentSources');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.detail.customNotesTitle');
 
@@ -415,12 +415,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
         expect(wrapper.vm.publicPreviewUrl).toBeNull();
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-link').exists()).toBe(false);
-        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-disabled').text()).toBe('/agents.md');
-        expect(wrapper.vm.publicPreviewDisabledTooltip).toEqual({
-            message: 'sw-sales-channel.detail.agenticFiles.detail.actionEnablePublicPathPreview',
-            disabled: false,
-            width: 240,
-        });
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-disabled').text()).toBe(
+            'sw-sales-channel.detail.agenticFiles.detail.actionEnablePublicPathPreview',
+        );
     });
 
     it('does not link the public path for non-storefront sales channels', async () => {
@@ -438,7 +435,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.vm.publicPreviewUrl).toBeNull();
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-link').exists()).toBe(false);
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-disabled').text()).toBe('/llms.txt');
-        expect(wrapper.vm.publicPreviewDisabledTooltip.disabled).toBe(true);
     });
 
     it('toggles the enabled state from the detail page', async () => {

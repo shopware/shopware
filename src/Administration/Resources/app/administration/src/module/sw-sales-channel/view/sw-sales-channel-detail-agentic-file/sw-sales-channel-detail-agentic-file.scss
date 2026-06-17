@@ -20,7 +20,7 @@
         align-items: center;
         align-self: flex-start;
         gap: var(--scale-size-6);
-        color: var(--color-shopware-brand-500);
+        color: var(--color-text-brand-default);
         font-size: var(--font-size-xs, 14px);
         line-height: var(--font-line-height-xs, 22px);
         text-decoration: none;
@@ -35,6 +35,12 @@
     &__templates {
         .mt-card__header {
             align-items: flex-start;
+        }
+
+        .sw-label.sw-label--info,
+        .sw-label.sw-label--neutral,
+        .sw-label.sw-label--success {
+            color: var(--color-text-primary-default);
         }
 
         .mt-card__titles {
@@ -104,8 +110,8 @@
     &__description {
         margin: 0;
         width: 100%;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs, 14px);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s, 16px);
         line-height: var(--font-line-height-xs, 22px);
     }
 
@@ -146,9 +152,10 @@
     }
 
     &__metadata-label {
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xxs, 12px);
-        line-height: var(--font-line-height-xxs, 18px);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs, 14px);
+        font-weight: var(--font-weight-bold);
+        line-height: var(--font-line-height-xs, 22px);
     }
 
     &__metadata-value {
@@ -188,8 +195,7 @@
     }
 
     &__public-path-disabled {
-        color: var(--color-text-secondary-default);
-        cursor: not-allowed;
+        color: var(--color-text-primary-default);
     }
 
     &__preview {
@@ -202,14 +208,14 @@
         background: var(--color-elevation-surface-sunken);
         color: var(--color-text-primary-default);
         font-family: var(--font-family-monospace);
-        font-size: var(--font-size-xxs, 12px);
+        font-size: var(--font-size-xs, 14px);
         line-height: var(--font-line-height-xs, 22px);
         white-space: pre-wrap;
     }
 
     &__empty-preview {
         margin: 0;
-        color: var(--color-text-secondary-default);
+        color: var(--color-text-primary-default);
         font-size: var(--font-size-xs, 14px);
         line-height: var(--font-line-height-xs, 22px);
     }
@@ -266,19 +272,6 @@
         line-height: 18px;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    &__override-marker {
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: calc(var(--scale-size-12) * -1);
-        width: var(--scale-size-6);
-        height: var(--scale-size-6);
-        border-radius: 50%;
-        background: var(--color-text-primary-default);
-        opacity: 0.55;
-        transform: translate(-50%, -50%);
     }
 
     &__override-modal-content {

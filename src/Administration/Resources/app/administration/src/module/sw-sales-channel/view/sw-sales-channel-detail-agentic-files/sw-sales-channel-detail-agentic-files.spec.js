@@ -30,7 +30,7 @@ function cloneDiscoveredFiles() {
 }
 
 async function createWrapper(options = {}) {
-    const { serviceResponse } = options;
+    const { serviceResponse, translations = {} } = options;
     const salesChannel = Object.hasOwn(options, 'salesChannel')
         ? options.salesChannel
         : {
@@ -157,7 +157,11 @@ async function createWrapper(options = {}) {
                             id: 'sales-channel-id',
                         },
                     },
-                    $te: (key) => key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
+                    $t: (key) => translations[key] ?? key,
+                    $te: (key) =>
+                        Object.hasOwn(translations, key) ||
+                        key.includes('["llms.txt"]') ||
+                        key.includes('["agents.md"]'),
                 },
             },
             props: {
@@ -195,22 +199,16 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.description');
 
-        const overrideMarkers = wrapper.findAll('.sw-sales-channel-detail-agentic-files__override-marker');
-        expect(overrideMarkers).toHaveLength(1);
-        expect(overrideMarkers.at(0).attributes('aria-hidden')).toBe('true');
-
-        const fileLink = wrapper.find('.sw-sales-channel-detail-agentic-files__file-link');
-        expect(fileLink.find('.sw-sales-channel-detail-agentic-files__file-text').element.nextElementSibling).toBe(
-            overrideMarkers.at(0).element,
-        );
-
         const labels = wrapper.findAll('.sw-label');
         expect(labels.at(0).attributes('data-appearance')).toBe('pill');
         expect(labels.at(0).attributes('data-variant')).toBe('success');
         expect(labels.at(0).text()).toBe('sw-sales-channel.detail.agenticFiles.enabledState.enabled');
         expect(labels.at(1).attributes('data-appearance')).toBe('pill');
-        expect(labels.at(1).attributes('data-variant')).toBe('neutral');
-        expect(labels.at(1).text()).toBe('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
+        expect(labels.at(1).attributes('data-variant')).toBe('info');
+        expect(labels.at(1).text()).toBe('sw-sales-channel.detail.agenticFiles.enabledState.custom');
+        expect(labels.at(2).attributes('data-appearance')).toBe('pill');
+        expect(labels.at(2).attributes('data-variant')).toBe('neutral');
+        expect(labels.at(2).text()).toBe('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
 
         expect(wrapper.findComponent(RouterLinkStub).props('to')).toEqual({
             name: 'sw.sales.channel.detail.agenticFile',
@@ -235,11 +233,20 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
             'sw-sales-channel.detail.agenticFiles.descriptions["agentic"][".well-known/unknown.json"]',
         );
         expect(wrapper.vm.getDescription(file)).toBe('');
-        expect(wrapper.vm.getDescriptionTooltip(file)).toEqual({
-            message: '',
-            disabled: true,
-            width: 360,
+    });
+
+    it('renders only the first description sentence in the table', async () => {
+        const { wrapper } = await createWrapper({
+            translations: {
+                'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]':
+                    'First sentence. Second sentence.',
+            },
         });
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-files__description-cell').text()).toBe('First sentence.');
+        expect(wrapper.text()).not.toContain('Second sentence.');
     });
 
     it('does not request files before a sales channel is available', async () => {

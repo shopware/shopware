@@ -21,9 +21,18 @@
         }
     }
 
+    .sw-data-grid__cell-spacer {
+        display: none;
+    }
+
     .sw-data-grid__cell--fileName .sw-data-grid__cell-content {
         padding-top: var(--scale-size-12);
         padding-bottom: var(--scale-size-12);
+    }
+
+    .sw-label.sw-label--neutral,
+    .sw-label.sw-label--success {
+        color: var(--color-text-primary-default);
     }
 
     &__title {
@@ -41,8 +50,8 @@
 
     &__description {
         margin: 0;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs, 14px);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s, 16px);
         line-height: var(--font-line-height-xs, 22px);
     }
 
@@ -77,19 +86,6 @@
         }
     }
 
-    &__override-marker {
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: calc(var(--scale-size-12) * -1);
-        width: var(--scale-size-6);
-        height: var(--scale-size-6);
-        border-radius: 50%;
-        background: var(--color-text-primary-default);
-        opacity: 0.55;
-        transform: translate(-50%, -50%);
-    }
-
     &__file-text {
         display: flex;
         flex-direction: column;
@@ -115,7 +111,7 @@
     &__public-path {
         display: block;
         overflow: hidden;
-        color: var(--color-text-secondary-default);
+        color: var(--color-text-primary-default);
         line-height: 18px;
         position: relative;
         text-overflow: ellipsis;

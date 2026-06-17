@@ -29,7 +29,6 @@
         >
             <template #column-fileName="{ item }">
                 <router-link
-                    v-tooltip="getOverrideTooltip(item)"
                     class="sw-sales-channel-detail-agentic-files__file-link"
                     :to="getDetailRoute(item)"
                 >
@@ -42,12 +41,6 @@
                             {{ getPublicPath(item) }}
                         </span>
                     </span>
-
-                    <span
-                        v-if="hasTemplateOverrides(item)"
-                        class="sw-sales-channel-detail-agentic-files__override-marker"
-                        aria-hidden="true"
-                    ></span>
                 </router-link>
             </template>
 
@@ -59,13 +52,19 @@
                 >
                     {{ getEnabledLabel(item) }}
                 </sw-label>
+
+                <sw-label
+                    v-if="hasTemplateOverrides(item)"
+                    appearance="pill"
+                    size="small"
+                    variant="info"
+                >
+                    {{ $t('sw-sales-channel.detail.agenticFiles.enabledState.custom') }}
+                </sw-label>
             </template>
 
             <template #column-description="{ item }">
-                <span
-                    v-tooltip="getDescriptionTooltip(item)"
-                    class="sw-sales-channel-detail-agentic-files__description-cell"
-                >
+                <span class="sw-sales-channel-detail-agentic-files__description-cell">
                     {{ getDescription(item) }}
                 </span>
             </template>

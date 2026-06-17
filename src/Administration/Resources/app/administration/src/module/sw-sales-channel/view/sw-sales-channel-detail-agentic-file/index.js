@@ -83,7 +83,7 @@ export default {
                     property: 'role',
                     label: this.$t('sw-sales-channel.detail.agenticFiles.detail.columnSourceRole'),
                     allowResize: true,
-                    width: '150px',
+                    width: '260px',
                 },
             ];
         },
@@ -159,13 +159,6 @@ export default {
             return null;
         },
 
-        publicPreviewDisabledTooltip() {
-            return {
-                message: this.$t('sw-sales-channel.detail.agenticFiles.detail.actionEnablePublicPathPreview'),
-                disabled: !this.file || this.isEnabled(this.file),
-                width: 240,
-            };
-        },
     },
 
     watch: {
@@ -479,14 +472,6 @@ export default {
             return this.isEnabled(file)
                 ? this.$t('sw-sales-channel.detail.agenticFiles.enabledState.enabled')
                 : this.$t('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
-        },
-
-        getTemplateOverrideTooltip(template) {
-            return {
-                message: this.$t('sw-sales-channel.detail.agenticFiles.overrideTooltip'),
-                disabled: !this.hasTemplateOverride(template),
-                width: 240,
-            };
         },
 
         getTemplateRoleVariant(template) {

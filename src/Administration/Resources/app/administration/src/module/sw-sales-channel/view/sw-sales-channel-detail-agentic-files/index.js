@@ -58,16 +58,19 @@ export default {
                     property: 'fileName',
                     label: this.$t('sw-sales-channel.detail.agenticFiles.columnFileName'),
                     primary: true,
+                    allowResize: true,
                     width: '200px',
                 },
                 {
                     property: 'enabled',
                     label: this.$t('sw-sales-channel.detail.agenticFiles.columnEnabled'),
-                    width: '130px',
+                    allowResize: true,
+                    width: '230px',
                 },
                 {
                     property: 'description',
                     label: this.$t('sw-sales-channel.detail.agenticFiles.columnDescription'),
+                    allowResize: true,
                 },
             ];
         },
@@ -217,18 +220,10 @@ export default {
 
         getDescription(file) {
             const snippetKey = this.getDescriptionSnippetKey(file);
+            const description = this.$te(snippetKey) ? this.$t(snippetKey) : '';
 
-            return this.$te(snippetKey) ? this.$t(snippetKey) : '';
-        },
-
-        getDescriptionTooltip(file) {
-            const description = this.getDescription(file);
-
-            return {
-                message: description,
-                disabled: description === '',
-                width: 360,
-            };
+            // The list shows only the first sentence; the full description belongs on the detail page.
+            return description.match(/^[^.!?]+[.!?]/)?.[0] ?? description;
         },
 
         getDescriptionSnippetKey(file) {
@@ -250,14 +245,6 @@ export default {
             return this.isEnabled(file)
                 ? this.$t('sw-sales-channel.detail.agenticFiles.enabledState.enabled')
                 : this.$t('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
-        },
-
-        getOverrideTooltip(file) {
-            return {
-                message: this.$t('sw-sales-channel.detail.agenticFiles.overrideTooltip'),
-                disabled: !this.hasTemplateOverrides(file),
-                width: 240,
-            };
         },
 
         onChangePage(data) {

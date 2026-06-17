@@ -284,10 +284,10 @@
                 "actionEdit": "Bearbeiten",
                 "actionEnable": "Aktivieren",
                 "actionDisable": "Deaktivieren",
-                "overrideTooltip": "Enthält individuelle Überschreibungen.",
                 "enabledState": {
                     "enabled": "Aktiviert",
-                    "disabled": "Deaktiviert"
+                    "disabled": "Deaktiviert",
+                    "custom": "Angepasst"
                 },
                 "detail": {
                     "backToList": "Zurück zu Agentic-Dateien",
@@ -305,7 +305,7 @@
                     "actionPreviewPublicPath": "Vorschau",
                     "actionEnablePublicPathPreview": "Aktiviere diese Datei zuerst, um den öffentlichen Pfad als Vorschau zu öffnen.",
                     "columnTemplate": "Template",
-                    "columnSourceRole": "Beitrag",
+                    "columnSourceRole": "Rolle",
                     "actionEditOverride": "Überschreibung bearbeiten",
                     "overrideModalTitle": "{source} bearbeiten",
                     "overrideModalDescription": "Passe den Inhalt an, den dieses Template für diesen Verkaufskanal beiträgt. Die Änderung wird als Anpassung gespeichert und kann jederzeit auf den Standardinhalt des Templates zurückgesetzt werden.",

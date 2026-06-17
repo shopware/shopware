@@ -126,10 +126,9 @@
 
                     <span
                         v-else
-                        v-tooltip="publicPreviewDisabledTooltip"
                         class="sw-sales-channel-detail-agentic-file__metadata-value sw-sales-channel-detail-agentic-file__public-path-disabled"
                     >
-                        {{ getPublicPath(file) }}
+                        {{ isEnabled(file) ? getPublicPath(file) : $t('sw-sales-channel.detail.agenticFiles.detail.actionEnablePublicPathPreview') }}
                     </span>
                 </div>
             </div>
@@ -192,7 +191,6 @@
             >
                 <template #column-templateName="{ item }">
                     <button
-                        v-tooltip="getTemplateOverrideTooltip(item)"
                         type="button"
                         class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-button"
                         @click="openTemplateOverrideModal(item)"
@@ -200,12 +198,6 @@
                         <span class="sw-sales-channel-detail-agentic-file__source-name">
                             {{ item.templateName }}
                         </span>
-
-                        <span
-                            v-if="hasTemplateOverride(item)"
-                            class="sw-sales-channel-detail-agentic-file__override-marker"
-                            aria-hidden="true"
-                        ></span>
                     </button>
                 </template>
 
@@ -216,6 +208,15 @@
                         :variant="getTemplateRoleVariant(item)"
                     >
                         {{ getTemplateRoleLabel(item) }}
+                    </sw-label>
+
+                    <sw-label
+                        v-if="hasTemplateOverride(item)"
+                        appearance="pill"
+                        size="small"
+                        variant="info"
+                    >
+                        {{ $t('sw-sales-channel.detail.agenticFiles.enabledState.custom') }}
                     </sw-label>
                 </template>
 

@@ -284,10 +284,10 @@
                 "actionEdit": "Edit",
                 "actionEnable": "Enable",
                 "actionDisable": "Disable",
-                "overrideTooltip": "Contains custom overrides.",
                 "enabledState": {
                     "enabled": "Enabled",
-                    "disabled": "Disabled"
+                    "disabled": "Disabled",
+                    "custom": "Customized"
                 },
                 "detail": {
                     "backToList": "Back to agentic files",
@@ -305,7 +305,7 @@
                     "actionPreviewPublicPath": "Preview",
                     "actionEnablePublicPathPreview": "Enable this file first to preview the public path.",
                     "columnTemplate": "Template",
-                    "columnSourceRole": "Contribution",
+                    "columnSourceRole": "Role",
                     "actionEditOverride": "Edit override",
                     "overrideModalTitle": "Edit {source}",
                     "overrideModalDescription": "Adjust the content contributed by this template for this Sales Channel. The change is stored as a customization and can be reset to the default template content at any time.",

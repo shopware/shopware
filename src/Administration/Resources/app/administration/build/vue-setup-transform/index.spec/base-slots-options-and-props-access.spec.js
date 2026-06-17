@@ -176,6 +176,27 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         );
     });
 
+    it('ignores nested defineSlots() like Vue compiler-sfc does', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            function render() {
+                return defineSlots<{ default(): unknown }>();
+            }
+
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-nested-slots.vue').code;
+
+        expect(result).toContain(`function render() {
+        return defineSlots<{ default(): unknown }>();
+    }`);
+        expect(result).not.toContain('const slots = defineSlots');
+        expect(result).not.toContain('(__shopwareSetupBindings.context.slots)');
+    });
+
     it('replaces base useSwProps() calls instead of injecting a helper', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">

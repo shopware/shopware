@@ -84,6 +84,26 @@ describe('build/vue-setup-transform validation', () => {
         expect(() => transformShopwareSetupSfc(source, 'macro.vue')).toThrow(expectedMessage);
     });
 
+    it('ignores nested unsupported Vue macros like compiler-sfc does', () => {
+        const source = stripIndent`
+            <script setup sw-component="sw-my-component">
+            function createModel() {
+                return defineModel();
+            }
+
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'nested-unsupported-macro.vue').code;
+
+        expect(result).toContain(`function createModel() {
+        return defineModel();
+    }`);
+        expect(result).not.toContain('Vue macro defineModel() is not supported');
+    });
+
     it('rejects defineProps() in override mode', () => {
         const source = stripIndent`
             <script setup sw-override="sw-my-component">

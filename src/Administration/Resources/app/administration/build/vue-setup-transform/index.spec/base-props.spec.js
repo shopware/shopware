@@ -167,4 +167,40 @@ describe('build/vue-setup-transform base props macros', () => {
             'Only one props declaration macro is allowed in a base Shopware setup block.',
         );
     });
+
+    it('ignores nested props macros like Vue compiler-sfc does', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            function readProps() {
+                return defineProps<{ initialCount?: number }>();
+            }
+
+            function readPropsWithDefaults() {
+                return withDefaults(defineProps<{ label?: string }>(), {
+                    label: 'fallback',
+                });
+            }
+
+            const count = 1;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-nested-props-macros.vue').code;
+
+        expect(result).toContain(`function readProps() {
+        return defineProps<{ initialCount?: number }>();
+    }`);
+        expect(result).toContain(`function readPropsWithDefaults() {
+        return withDefaults(defineProps<{ label?: string }>(), {
+            label: 'fallback',
+        });
+    }`);
+        expect(result).not.toContain('const props = defineProps');
+        expect(result).not.toContain('const props = withDefaults');
+        expect(result).not.toContain('(__shopwareSetupBindings.props)');
+    });
 });

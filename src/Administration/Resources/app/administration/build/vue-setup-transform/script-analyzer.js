@@ -227,18 +227,21 @@ function walk(node, visitor, ancestors = []) {
  * @param {number} scriptOffset
  * @param {Set<CallExpression>} topLevelPublicCalls
  * @param {Set<CallExpression>} topLevelOverrideCalls
+ * @param {Set<CallExpression>} topLevelUnsupportedMacroCalls
  * @returns {void}
  */
-function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls) {
+function assertNoUnsupportedSyntax(
+    ast,
+    scriptOffset,
+    topLevelPublicCalls,
+    topLevelOverrideCalls,
+    topLevelUnsupportedMacroCalls,
+) {
     walk(ast.program, (node, ancestors) => {
         // Reject unsupported Vue macros:
         //  Vue only treats these calls as compiler macros in supported top-level setup positions.
-        //  Shopware setup rejects every occurrence in v1 so nested calls cannot silently become missing runtime imports after lowering.
-        if (
-            node.type === 'CallExpression' &&
-            node.callee.type === 'Identifier' &&
-            UNSUPPORTED_VUE_MACROS.has(node.callee.name)
-        ) {
+        //  Nested calls are left untouched like compiler-sfc does.
+        if (topLevelUnsupportedMacroCalls.has(node)) {
             throw new ShopwareSetupTransformError(
                 `Vue macro ${node.callee.name}() is not supported inside Shopware setup blocks.`,
                 scriptOffset + getNodeRange(node, scriptOffset).start,
@@ -669,6 +672,75 @@ function isCompilerMacroCall(node, name) {
 }
 
 /**
+ * Adds a direct top-level setup macro call to one of the analyzer buckets.
+ *
+ * @param {CallExpression | null | undefined} call
+ * @param {object} buckets
+ * @param {CallExpression[]} buckets.definePropsCalls
+ * @param {CallExpression[]} buckets.defineEmitsCalls
+ * @param {CallExpression[]} buckets.defineSlotsCalls
+ * @param {CallExpression[]} buckets.withDefaultsCalls
+ * @param {Set<CallExpression>} buckets.topLevelUnsupportedMacroCalls
+ * @returns {void}
+ */
+function collectTopLevelSetupMacroCall(call, buckets) {
+    if (!call || call.type !== 'CallExpression' || call.callee.type !== 'Identifier') {
+        return;
+    }
+
+    if (call.callee.name === 'defineProps') {
+        buckets.definePropsCalls.push(call);
+        return;
+    }
+
+    if (call.callee.name === 'defineEmits') {
+        buckets.defineEmitsCalls.push(call);
+        return;
+    }
+
+    if (call.callee.name === 'defineSlots') {
+        buckets.defineSlotsCalls.push(call);
+        return;
+    }
+
+    if (call.callee.name === 'withDefaults') {
+        buckets.withDefaultsCalls.push(call);
+        return;
+    }
+
+    if (UNSUPPORTED_VUE_MACROS.has(call.callee.name)) {
+        buckets.topLevelUnsupportedMacroCalls.add(call);
+    }
+}
+
+/**
+ * Collects Vue compiler macro calls only from the direct top-level forms that compiler-sfc recognizes.
+ *
+ * @param {Statement} statement
+ * @param {object} buckets
+ * @param {CallExpression[]} buckets.definePropsCalls
+ * @param {CallExpression[]} buckets.defineEmitsCalls
+ * @param {CallExpression[]} buckets.defineSlotsCalls
+ * @param {CallExpression[]} buckets.withDefaultsCalls
+ * @param {Set<CallExpression>} buckets.topLevelUnsupportedMacroCalls
+ * @returns {void}
+ */
+function collectTopLevelSetupMacroCalls(statement, buckets) {
+    if (statement.type === 'ExpressionStatement') {
+        collectTopLevelSetupMacroCall(statement.expression, buckets);
+        return;
+    }
+
+    if (statement.type !== 'VariableDeclaration') {
+        return;
+    }
+
+    statement.declarations.forEach((declaration) => {
+        collectTopLevelSetupMacroCall(declaration.init, buckets);
+    });
+}
+
+/**
  * Checks whether `inner` is fully covered by `outer`.
  *
  * @param {SourceRange} outer
@@ -736,8 +808,17 @@ function analyzeShopwareSetupScript(script, options) {
     const useSwPropsCalls = [];
     const topLevelPublicCalls = new Set();
     const topLevelOverrideCalls = new Set();
+    const topLevelUnsupportedMacroCalls = new Set();
 
     ast.program.body.forEach((statement) => {
+        collectTopLevelSetupMacroCalls(statement, {
+            definePropsCalls,
+            defineEmitsCalls,
+            defineSlotsCalls,
+            withDefaultsCalls,
+            topLevelUnsupportedMacroCalls,
+        });
+
         if (statement.type === 'ImportDeclaration') {
             imports.push(statement);
             collectImportBindings(statement, importedBindings);
@@ -770,28 +851,12 @@ function analyzeShopwareSetupScript(script, options) {
     });
 
     walk(ast.program, (node) => {
-        if (isCompilerMacroCall(node, 'defineProps')) {
-            definePropsCalls.push(node);
-        }
-
-        if (isCompilerMacroCall(node, 'defineEmits')) {
-            defineEmitsCalls.push(node);
-        }
-
         if (isCompilerMacroCall(node, 'defineExpose')) {
             defineExposeCalls.push(node);
         }
 
-        if (isCompilerMacroCall(node, 'defineSlots')) {
-            defineSlotsCalls.push(node);
-        }
-
         if (isCompilerMacroCall(node, 'defineOptions')) {
             defineOptionsCalls.push(node);
-        }
-
-        if (isWithDefaultsCall(node)) {
-            withDefaultsCalls.push(node);
         }
 
         if (mode === 'base' && isCompilerMacroCall(node, 'useSwProps')) {
@@ -799,7 +864,13 @@ function analyzeShopwareSetupScript(script, options) {
         }
     });
 
-    assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls);
+    assertNoUnsupportedSyntax(
+        ast,
+        scriptOffset,
+        topLevelPublicCalls,
+        topLevelOverrideCalls,
+        topLevelUnsupportedMacroCalls,
+    );
 
     const withDefaultsRanges = withDefaultsCalls.map((call) => getNodeRange(call, scriptOffset));
     const standaloneDefinePropsCalls = definePropsCalls.filter((call) => {

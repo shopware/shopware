@@ -103,4 +103,29 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
             'Only one defineEmits() call is allowed in a base Shopware setup block.',
         );
     });
+
+    it('ignores nested defineEmits() like Vue compiler-sfc does', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            function save() {
+                const emit = defineEmits<{ save: [] }>();
+                emit('save');
+            }
+
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-nested-emits.vue').code;
+
+        expect(result).toContain(`function save() {
+        const emit = defineEmits<{ save: [] }>();
+        emit('save');
+    }`);
+        expect(result.indexOf('const emit = defineEmits')).toBeGreaterThan(
+            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+        );
+        expect(result).not.toContain('(__shopwareSetupBindings.context.emit)');
+    });
 });

@@ -54,14 +54,13 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $t: (v1, v2, v3) =>
-                    v1 || v2
-                        ? v1
-                        : JSON.stringify([
-                              v1,
-                              v2,
-                              v3,
-                          ]),
+                $t: (snippet, values) => {
+                    if (values?.date) {
+                        return `${snippet} ${values.date}`;
+                    }
+
+                    return snippet;
+                },
             },
             mixins: [
                 Shopware.Mixin.getByName('sw-extension-error'),
@@ -178,6 +177,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 },
             }),
         });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should display the extension information', async () => {
@@ -528,7 +531,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: false,
                 },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
+                expectedText: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt 06/08/2021',
             },
             {
                 testCaseName: 'should display when a rent is already expired',
@@ -537,7 +540,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: true,
                 },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
+                expectedText: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt 06/08/2021',
                 expectedIcon: 'solid-exclamation-circle',
             },
             {
@@ -547,7 +550,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: false,
                 },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
+                expectedText: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt 06/08/2021',
             },
             {
                 testCaseName: 'should display when a test phase is already expired',
@@ -556,10 +559,12 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: true,
                 },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
+                expectedText: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt 06/08/2021',
                 expectedIcon: 'solid-exclamation-circle',
             },
-        ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
+        ])('$testCaseName', async ({ storeLicense, expectedText, expectedIcon }) => {
+            jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '06/08/2021');
+
             const wrapper = await createWrapper({
                 id: 555,
                 name: 'Test extension',
@@ -580,7 +585,14 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             });
 
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
-            expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
+            expect(infoSubscriptionExpiry.text()).toBe(expectedText);
+            expect(Shopware.Utils.format.date).toHaveBeenCalledWith(storeLicense.expirationDate, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+            });
 
             const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 

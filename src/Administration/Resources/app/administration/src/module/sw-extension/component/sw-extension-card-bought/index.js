@@ -41,6 +41,10 @@ export default {
             return this.extension?.storeLicense?.paymentText ?? '';
         },
 
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
         detailLink() {
             return {
                 name: 'sw.extension.store.detail',
@@ -57,7 +61,13 @@ export default {
                 return null;
             }
 
-            const localDateString = new Date(expirationDate).toLocaleDateString();
+            const localDateString = this.dateFilter(expirationDate, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+            });
 
             // Show different text when it's a test phase instead of a rent
             if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {

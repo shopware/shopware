@@ -33,7 +33,14 @@ async function createWrapper(propsData = {}, provide = {}) {
                     template: '<div><slot></slot></div>',
                 },
                 'router-link': true,
-                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
+                'sw-time-ago': {
+                    name: 'sw-time-ago',
+                    props: [
+                        'date',
+                        'dateTimeFormat',
+                    ],
+                    template: '<div class="sw-time-ago"></div>',
+                },
             },
         },
         props: {
@@ -128,6 +135,27 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         expect(wrapper.vm.isInstalled).toBe(false);
+    });
+
+    it('should display the purchased date without time', async () => {
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                storeLicense: {
+                    creationDate: '2025-10-21T09:28:00+00:00',
+                },
+            },
+        });
+
+        const timeAgo = wrapper.getComponent('.sw-time-ago');
+
+        expect(timeAgo.props('dateTimeFormat')).toEqual({
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
     });
 
     it('should not show config menu item: not active and not activated once', async () => {

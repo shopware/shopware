@@ -138,45 +138,65 @@ function addPatternNames(pattern, scope) {
  * @param {BabelNode | null | undefined} pattern
  * @param {Set<string>} templateScope
  * @param {Set<string>} references
+ * @param {Set<string>} [patternScope]
  * @returns {void}
  */
-function collectPatternReferences(pattern, templateScope, references) {
+function collectPatternReferences(pattern, templateScope, references, patternScope = new Set()) {
     if (!pattern) {
         return;
     }
 
     if (pattern.type === 'Identifier') {
+        patternScope.add(pattern.name);
         return;
     }
 
     if (pattern.type === 'RestElement') {
-        collectPatternReferences(pattern.argument, templateScope, references);
+        collectPatternReferences(pattern.argument, templateScope, references, patternScope);
         return;
     }
 
     if (pattern.type === 'AssignmentPattern') {
-        collectPatternReferences(pattern.left, templateScope, references);
-        collectBabelReferences(pattern.right, [templateScope], references, pattern, 'right');
+        collectBabelReferences(
+            pattern.right,
+            [
+                patternScope,
+                templateScope,
+            ],
+            references,
+            pattern,
+            'right',
+        );
+        collectPatternReferences(pattern.left, templateScope, references, patternScope);
         return;
     }
 
     if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => collectPatternReferences(element, templateScope, references));
+        pattern.elements.forEach((element) => collectPatternReferences(element, templateScope, references, patternScope));
         return;
     }
 
     if (pattern.type === 'ObjectPattern') {
         pattern.properties.forEach((property) => {
             if (property.type === 'RestElement') {
-                collectPatternReferences(property.argument, templateScope, references);
+                collectPatternReferences(property.argument, templateScope, references, patternScope);
                 return;
             }
 
             if (property.computed) {
-                collectBabelReferences(property.key, [templateScope], references, property, 'key');
+                collectBabelReferences(
+                    property.key,
+                    [
+                        patternScope,
+                        templateScope,
+                    ],
+                    references,
+                    property,
+                    'key',
+                );
             }
 
-            collectPatternReferences(property.value, templateScope, references);
+            collectPatternReferences(property.value, templateScope, references, patternScope);
         });
     }
 }

@@ -56,6 +56,26 @@ describe('build/vue-setup-transform override template pattern references', () =>
         expect(result).toContain(`${privateAlias}: fallbackInfo`);
     });
 
+    it('does not expose setup state for slot defaults that reference earlier slot aliases', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default="{ info, label = info }">
+                <p>{{ label }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'setup info';
+            
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'slot-default-local-alias.override.vue').code;
+
+        expect(result).not.toContain('__swOverride_');
+        expect(result).toContain('return {};');
+    });
+
     it('detects override-local references in v-for alias default values', () => {
         const source = stripIndent`
             <template>
@@ -82,6 +102,48 @@ describe('build/vue-setup-transform override template pattern references', () =>
             expect(privateAlias).toBeDefined();
             expect(result).toContain(`${privateAlias}: ${name}`);
         });
+    });
+
+    it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p v-for="{ info, label = info } in rows">{{ label }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'setup info';
+            const rows = [];
+            
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'v-for-object-default-local-alias.override.vue').code;
+
+        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_info/);
+        expect(result).toMatch(/__swOverride_[a-f0-9]{5}_rows/);
+    });
+
+    it('does not expose setup state for v-for defaults that reference earlier array aliases', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p v-for="[info, label = info] in rows">{{ label }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'setup info';
+            const rows = [];
+            
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'v-for-array-default-local-alias.override.vue').code;
+
+        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_info/);
+        expect(result).toMatch(/__swOverride_[a-f0-9]{5}_rows/);
     });
 
     it('detects override-local references in v-for alias computed keys', () => {

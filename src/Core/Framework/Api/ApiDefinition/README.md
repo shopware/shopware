@@ -2,6 +2,10 @@
 
 This directory contains the necessary components and schema files for generating the OpenAPI specifications for the StoreAPI and the AdminAPI.
 
+## Related ADRs
+
+- [API version removal](../../../../../adr/2020-12-02-removing-api-version.md)
+
 ## Overview
 
 The core logic is built around `ApiDefinitionGeneratorInterface`. Generators implement this interface to produce an OpenAPI specification for a specific API format. The generation process typically combines two sources:

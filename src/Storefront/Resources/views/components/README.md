@@ -16,6 +16,8 @@ Guidelines to write uniform Twig UX components that follow our best practices an
 * 3rd party components bring their own namespace e.g. `<twig:Agency:Button>`.
 * (S)CSS and JavaScript are in the same directory as the component template.
 
+For the SCSS build decision and its constraints, see [Build-time SCSS compilation for Storefront components](../../../../../adr/2026-04-16-storefront-component-build-time-scss.md).
+
 ```
 views/components/Sw/
     Button.html.twig

@@ -15,6 +15,18 @@
 - Security (`09-security/`)
 - Commercial (`10-commercial/`)
 
+## Coding Guidelines
+
+Normative Administration rules live in:
+
+- [Administration architecture](../../../../../../coding-guidelines/administration/architecture.md)
+- [Administration testing](../../../../../../coding-guidelines/administration/testing.md)
+- [Administration feature flags and deprecations](../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md)
+
+## Related ADRs
+
+- [Co-locate Administration Technical Documentation with Source Code](../../../../../../adr/2025-10-14-colocate-administration-technical-docs.md)
+
 ## Expansion Guidelines
 
 - Keep audience: core & solution team engineers + contributors

@@ -101,6 +101,8 @@ When the script is loaded, Shopware will automatically initialize the component 
 
 Component scripts/styles are built with Vite from `Resources/views/components/` and then loaded via import map at runtime.
 
+For the SCSS build decision and its constraints, see [Build-time SCSS compilation for Storefront components](../../../../../../../adr/2026-04-16-storefront-component-build-time-scss.md).
+
 From project root:
 
 ```bash

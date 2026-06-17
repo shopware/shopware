@@ -8,7 +8,7 @@ When writing unit tests, the following is important:
 
 - **"100% coverage "** - This does not mean that simply a high code coverage should be generated, but that all use cases of each individual service is tested.
 - **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
-- **Mocking** - Don't be lazy but deal with mock objects to optimize for example database access. So you don't have to persist every storage case before but you can describe it as a Mock.
+- **Mocking** - Use mocks intentionally to keep unit tests fast and focused. Mock narrow application abstractions when needed, but do not mock Doctrine DBAL `Connection` directly; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests.
 - **Readable** - You are not the only one who maintains the code. Therefore, it is important that others can quickly and easily understand your unit tests and extend them with additional cases.
 - **Extensibility** - It is important that when more cases are added or certain cases are not tested that it is easy to extend your unit tests with another case without extending dozens of lines of code.
 - **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
@@ -48,9 +48,11 @@ More broadly speaking, it is hard to guarantee that the mock behaves in the same
 Use mocks only where you need to because:
 1. creating the objects is hard as you need tons of nested dependencies to create the object.
 or
-2. the class produces some side effects that you don't want in unit tests (e.g., DB writes).
+2. the class produces some side effects that you don't want in unit tests.
 
 For all other cases, use real implementations and rely as minimally as possible on the magic of phpunit's mocking framework.
+
+Do not mock Doctrine DBAL `Connection` in unit tests. Classes with direct SQL/DBAL work should usually be treated as database adapters and covered with integration tests. Unit-test the surrounding business logic against a narrow repository, gateway, or service abstraction instead.
 
 ## Focus on behavior, not implementation: Effective unit testing principles
 
@@ -81,7 +83,7 @@ By definition, both changes are a pure example of refactoring::
 But when the unit test mocked the `repository` or `connection` dependencies the unit tests will fail after the change, even though the external behaviour (that's what a test should really test) was not changed.
 
 Using mocks is ok in some cases, but not all.
-Probably the examples from above are ones that are totally valid (as the mocked classes rely on a DB), which can be commonly encountered in real life.
+Mocking a narrow repository-like abstraction can be valid when it keeps the unit test focused on behavior. Mocking low-level DBAL calls is an anti-pattern because it couples the test to SQL implementation details; cover that adapter with an integration test instead.
 Furthermore, the intention of this document is to keep you aware of the downsides that come with using mocks.
 
 ## Mocks might indicate your class is not well-designed
@@ -111,6 +113,12 @@ When you write tests first, most of the points described above should come out o
 Nobody who starts with a test would start with configuring a mock.
 
 While we provide insights on this, it is essential to validate the information. So we encourage you to explore the following references to gain a deeper understanding and form your own opinion.
+
+## Related ADRs
+
+- [Test structure](../../adr/2022-10-20-test-structure.md)
+- [Follow test pyramid](../../adr/2023-02-13-follow-test-pyramid.md)
+- [Mocking repositories](../../adr/2023-04-01-mocking-repositories.md)
 
 ## References
 

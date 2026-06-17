@@ -9,7 +9,7 @@ const apiUrl = process.env.GITHUB_API_URL || (serverUrl === 'https://github.com'
 const refName = process.env.GITHUB_REF_NAME || 'unknown ref';
 const eventName = process.env.GITHUB_EVENT_NAME || 'unknown event';
 const currentJobName = process.env.CURRENT_JOB_NAME || 'Nightly health report';
-const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL || '';
+const slackWorkflowUrl = process.env.SLACK_WORKFLOW_URL || '';
 
 const workflowOrder = [
     'nightly',
@@ -40,8 +40,8 @@ const report = buildReport(groupedJobs);
 console.log(report);
 writeStepSummary(report);
 
-if (!slackWebhookUrl) {
-    console.log('SLACK_WEBHOOK_URL is not configured, skipping Slack notification.');
+if (!slackWorkflowUrl) {
+    console.log('SLACK_WORKFLOW_URL is not configured, skipping Slack notification.');
 } else {
     await postToSlack(report);
 }
@@ -261,15 +261,15 @@ function writeStepSummary(report) {
 }
 
 async function postToSlack(report) {
-    const response = await fetch(slackWebhookUrl, {
+    const response = await fetch(slackWorkflowUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: report }),
+        body: JSON.stringify({ message: report }),
     });
 
     if (!response.ok) {
-        throw new Error(`Slack webhook request failed with ${response.status}: ${await response.text()}`);
+        throw new Error(`Slack workflow request failed with ${response.status}: ${await response.text()}`);
     }
 }

@@ -93,7 +93,7 @@ jobs:
     env:
       CURRENT_JOB_NAME: Nightly health report
       GITHUB_TOKEN: ${{ github.token }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NIGHTLY_WORKFLOW_URL }}
+      SLACK_WORKFLOW_URL: ${{ secrets.SLACK_ATS_WORKFLOW_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4

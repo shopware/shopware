@@ -54,6 +54,26 @@ describe('build/vue-setup-transform base props macros', () => {
 
         expect(result).toContain('const props = defineProps();');
         expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
+        expect(result).toContain('private: {\n            initialCount,\n        }');
+    });
+
+    it('returns destructured defineProps() bindings for template access', () => {
+        const source = stripIndent`
+            <template><p>{{ initialCount }}</p></template>
+            <script setup sw-component="sw-my-component">
+            const { initialCount = 0 } = defineProps();
+            const count = 1;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-destructured-props-template.vue').code;
+
+        expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
+        expect(result).toContain('private: {\n            initialCount,\n        }');
     });
 
     it('keeps bare defineProps() outside the callback when the generated props binding name is taken', () => {
@@ -144,8 +164,32 @@ describe('build/vue-setup-transform base props macros', () => {
     initialCount: 3,
 });`);
         expect(result).toContain('const { initialCount } = (__shopwareSetupBindings.props);');
+        expect(result).toContain('private: {\n            initialCount,\n        }');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
+    });
+
+    it('returns destructured withDefaults() bindings for template access', () => {
+        const source = stripIndent`
+            <template><p>{{ initialCount }}</p></template>
+            <script setup lang="ts" sw-component="sw-my-component">
+            const { initialCount } = withDefaults(defineProps<{
+                initialCount?: number;
+            }>(), {
+                initialCount: 3,
+            });
+            const count = 1;
+            
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-destructured-with-defaults-template.vue').code;
+
+        expect(result).toContain('const { initialCount } = (__shopwareSetupBindings.props);');
+        expect(result).toContain('private: {\n            initialCount,\n        }');
     });
 
     it('supports defineProps() wrapped in a TypeScript as expression', () => {

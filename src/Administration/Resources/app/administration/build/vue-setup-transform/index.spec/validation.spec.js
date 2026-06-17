@@ -264,18 +264,6 @@ describe('build/vue-setup-transform validation', () => {
         );
     });
 
-    it('rejects destructured runtime declarations instead of returning each binding like Vue', () => {
-        const source = stripIndent`
-            <script setup sw-component="sw-my-component">
-            const { count } = useThing();
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'destructure.vue')).toThrow(
-            'Shopware setup only supports top-level runtime declarations with identifier bindings in v1.',
-        );
-    });
-
     it('rejects bound mode attributes', () => {
         const source = stripIndent`
             <script setup :sw-component="componentName">

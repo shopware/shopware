@@ -90,6 +90,43 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain('<sw-block :data="$dataScope" :name="dynamicBlockName">');
     });
 
+    it('returns destructured runtime declarations as setup bindings', () => {
+        const source = stripIndent`
+            <template>
+            <p>{{ publicTitle }}{{ localLabel }}{{ firstItem }}{{ rest.enabled }}</p>
+            </template>
+            <script setup sw-component="sw-my-component">
+            const source = {
+                title: 'Title',
+                nested: {
+                    label: 'Label',
+                },
+                enabled: true,
+            };
+            const items = ['first'];
+            const fallbackLabel = 'Fallback';
+            
+            const {
+                title: publicTitle,
+                nested: {
+                    label: localLabel = fallbackLabel,
+                },
+                ...rest
+            } = source;
+            const [firstItem] = items;
+            
+            swDefinePublic({
+                publicTitle,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-destructured-runtime.vue').code;
+
+        expect(result).toContain('publicTitle,');
+        expect(result).toContain('private: {\n            source,\n            items,\n            fallbackLabel,\n            localLabel,\n            rest,\n            firstItem,\n        }');
+    });
+
     it('adds the generated data scope before object v-bind so the user can override it', () => {
         const source = stripIndent`
             <template>

@@ -334,24 +334,6 @@ function collectImportBindings(importNode, importedBindings) {
 }
 
 /**
- * Restricts v1 runtime state to declarations with simple identifier bindings.
- *
- * @param {BabelNode} idNode
- * @param {number} scriptOffset
- * @returns {void}
- */
-function assertIdentifierPattern(idNode, scriptOffset) {
-    if (idNode.type !== 'Identifier') {
-        // Vue supports object/array patterns and returns every extracted binding. Shopware setup is stricter in v1
-        // because public/private override metadata needs stable local binding names before lowering.
-        throw new ShopwareSetupTransformError(
-            'Shopware setup only supports top-level runtime declarations with identifier bindings in v1.',
-            scriptOffset + getNodeRange(idNode, scriptOffset).start,
-        );
-    }
-}
-
-/**
  * Adds a top-level runtime binding and rejects duplicates before lowering.
  *
  * @param {RuntimeBinding[]} runtimeBindings
@@ -376,6 +358,54 @@ function addRuntimeBinding(runtimeBindings, runtimeBindingNames, name, node, scr
         name,
         node,
     });
+}
+
+/**
+ * Collects runtime-visible setup bindings from one declaration pattern.
+ *
+ * @param {RuntimeBinding[]} runtimeBindings
+ * @param {Set<string>} runtimeBindingNames
+ * @param {BabelNode | null | undefined} pattern
+ * @param {number} scriptOffset
+ * @returns {void}
+ */
+function collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, pattern, scriptOffset) {
+    if (!pattern) {
+        return;
+    }
+
+    if (pattern.type === 'Identifier') {
+        addRuntimeBinding(runtimeBindings, runtimeBindingNames, pattern.name, pattern, scriptOffset);
+        return;
+    }
+
+    if (pattern.type === 'RestElement') {
+        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, pattern.argument, scriptOffset);
+        return;
+    }
+
+    if (pattern.type === 'AssignmentPattern') {
+        collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, pattern.left, scriptOffset);
+        return;
+    }
+
+    if (pattern.type === 'ArrayPattern') {
+        pattern.elements.forEach((element) => {
+            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, element, scriptOffset);
+        });
+        return;
+    }
+
+    if (pattern.type === 'ObjectPattern') {
+        pattern.properties.forEach((property) => {
+            if (property.type === 'RestElement') {
+                collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, property.argument, scriptOffset);
+                return;
+            }
+
+            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, property.value, scriptOffset);
+        });
+    }
 }
 
 /**
@@ -429,16 +459,18 @@ function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, 
 
         statement.declarations.forEach((declaration) => {
             if (isSetupInputDeclaration(declaration)) {
+                if (declaration.id.type !== 'Identifier') {
+                    collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
+                }
+
                 return;
             }
-
-            assertIdentifierPattern(declaration.id, scriptOffset);
 
             if (isRuntimeInputAlias(declaration, mode)) {
                 return;
             }
 
-            addRuntimeBinding(runtimeBindings, runtimeBindingNames, declaration.id.name, declaration.id, scriptOffset);
+            collectRuntimeBindingPattern(runtimeBindings, runtimeBindingNames, declaration.id, scriptOffset);
         });
         return;
     }

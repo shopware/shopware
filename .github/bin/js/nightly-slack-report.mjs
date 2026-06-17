@@ -1,36 +1,40 @@
-import { appendFileSync } from 'node:fs';
+import { appendFileSync } from "node:fs";
 
-const githubToken = requiredEnv('GITHUB_TOKEN');
-const repository = requiredEnv('GITHUB_REPOSITORY');
-const runId = requiredEnv('GITHUB_RUN_ID');
-const runAttempt = requiredEnv('GITHUB_RUN_ATTEMPT');
-const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
-const apiUrl = process.env.GITHUB_API_URL || (serverUrl === 'https://github.com' ? 'https://api.github.com' : `${serverUrl}/api/v3`);
-const refName = process.env.GITHUB_REF_NAME || 'unknown ref';
-const eventName = process.env.GITHUB_EVENT_NAME || 'unknown event';
-const currentJobName = process.env.CURRENT_JOB_NAME || 'Nightly health report';
-const slackWorkflowUrl = process.env.SLACK_WORKFLOW_URL || '';
+const githubToken = requiredEnv("GITHUB_TOKEN");
+const repository = requiredEnv("GITHUB_REPOSITORY");
+const runId = requiredEnv("GITHUB_RUN_ID");
+const runAttempt = requiredEnv("GITHUB_RUN_ATTEMPT");
+const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+const apiUrl =
+    process.env.GITHUB_API_URL ||
+    (serverUrl === "https://github.com"
+        ? "https://api.github.com"
+        : `${serverUrl}/api/v3`);
+const refName = process.env.GITHUB_REF_NAME || "unknown ref";
+const eventName = process.env.GITHUB_EVENT_NAME || "unknown event";
+const currentJobName = process.env.CURRENT_JOB_NAME || "Nightly health report";
+const slackWorkflowUrl = process.env.SLACK_WORKFLOW_URL || "";
 
 const workflowOrder = [
-    'nightly',
-    'admin',
-    'integration',
-    'visual-tests',
-    'php',
-    'storefront',
-    'downstream',
-    'prepare-release',
+    "nightly",
+    "admin",
+    "integration",
+    "visual-tests",
+    "php",
+    "storefront",
+    "downstream",
+    "prepare-release",
 ];
 
 const workflowNames = new Map([
-    ['nightly', 'Nightly'],
-    ['admin', 'Admin checks and tests'],
-    ['integration', 'Integration tests'],
-    ['visual-tests', 'Visual Tests'],
-    ['php', 'PHP checks'],
-    ['storefront', 'Storefront checks and tests'],
-    ['downstream', 'Downstream'],
-    ['prepare-release', 'Prepare release'],
+    ["nightly", "Nightly"],
+    ["admin", "Admin checks and tests"],
+    ["integration", "Integration tests"],
+    ["visual-tests", "Visual Tests"],
+    ["php", "PHP checks"],
+    ["storefront", "Storefront checks and tests"],
+    ["downstream", "Downstream"],
+    ["prepare-release", "Prepare release"],
 ]);
 
 const jobs = await fetchCompletedJobs();
@@ -41,7 +45,9 @@ console.log(report);
 writeStepSummary(report);
 
 if (!slackWorkflowUrl) {
-    console.log('SLACK_WORKFLOW_URL is not configured, skipping Slack notification.');
+    console.log(
+        "SLACK_WORKFLOW_URL is not configured, skipping Slack notification.",
+    );
 } else {
     await postToSlack(report);
 }
@@ -57,7 +63,7 @@ function requiredEnv(name) {
 }
 
 async function fetchCompletedJobs() {
-    const [owner, repo] = repository.split('/');
+    const [owner, repo] = repository.split("/");
 
     if (!owner || !repo) {
         throw new Error(`Invalid GITHUB_REPOSITORY value: ${repository}`);
@@ -67,20 +73,24 @@ async function fetchCompletedJobs() {
     const allJobs = [];
 
     for (let page = 1; ; page += 1) {
-        const url = new URL(`${apiUrl}/repos/${owner}/${repo}/actions/runs/${runId}/attempts/${runAttempt}/jobs`);
-        url.searchParams.set('per_page', String(perPage));
-        url.searchParams.set('page', String(page));
+        const url = new URL(
+            `${apiUrl}/repos/${owner}/${repo}/actions/runs/${runId}/attempts/${runAttempt}/jobs`,
+        );
+        url.searchParams.set("per_page", String(perPage));
+        url.searchParams.set("page", String(page));
 
         const response = await fetch(url, {
             headers: {
-                Accept: 'application/vnd.github+json',
+                Accept: "application/vnd.github+json",
                 Authorization: `Bearer ${githubToken}`,
-                'X-GitHub-Api-Version': '2022-11-28',
+                "X-GitHub-Api-Version": "2022-11-28",
             },
         });
 
         if (!response.ok) {
-            throw new Error(`GitHub API request failed with ${response.status}: ${await response.text()}`);
+            throw new Error(
+                `GitHub API request failed with ${response.status}: ${await response.text()}`,
+            );
         }
 
         const body = await response.json();
@@ -92,7 +102,9 @@ async function fetchCompletedJobs() {
         }
     }
 
-    return allJobs.filter((job) => job.status === 'completed' && job.name !== currentJobName);
+    return allJobs.filter(
+        (job) => job.status === "completed" && job.name !== currentJobName,
+    );
 }
 
 function groupJobs(jobs) {
@@ -112,17 +124,18 @@ function groupJobs(jobs) {
         .sort(([left], [right]) => compareWorkflowKeys(left, right))
         .map(([workflowKey, workflowJobs]) => ({
             workflowKey,
-            workflowName: workflowNames.get(workflowKey) || titleCase(workflowKey),
+            workflowName:
+                workflowNames.get(workflowKey) || titleCase(workflowKey),
             jobs: workflowJobs.sort(compareJobs),
         }));
 }
 
 function parseJobName(name) {
-    const separator = ' / ';
+    const separator = " / ";
     const separatorIndex = name.indexOf(separator);
 
     if (separatorIndex === -1) {
-        return { workflowKey: 'nightly', jobName: name };
+        return { workflowKey: "nightly", jobName: name };
     }
 
     return {
@@ -147,7 +160,8 @@ function normalizeOrderIndex(index) {
 }
 
 function compareJobs(left, right) {
-    const conclusionDiff = conclusionRank(left.conclusion) - conclusionRank(right.conclusion);
+    const conclusionDiff =
+        conclusionRank(left.conclusion) - conclusionRank(right.conclusion);
 
     if (conclusionDiff !== 0) {
         return conclusionDiff;
@@ -161,11 +175,11 @@ function conclusionRank(conclusion) {
         return 0;
     }
 
-    if (conclusion === 'success') {
+    if (conclusion === "success") {
         return 1;
     }
 
-    if (conclusion === 'skipped') {
+    if (conclusion === "skipped") {
         return 2;
     }
 
@@ -173,39 +187,45 @@ function conclusionRank(conclusion) {
 }
 
 function isFailureLike(conclusion) {
-    return conclusion && conclusion !== 'success' && conclusion !== 'skipped';
+    return conclusion && conclusion !== "success" && conclusion !== "skipped";
 }
 
 function buildReport(groups) {
     const allJobs = groups.flatMap((group) => group.jobs);
     const failedJobs = allJobs.filter((job) => isFailureLike(job.conclusion));
-    const successfulJobs = allJobs.filter((job) => job.conclusion === 'success');
-    const skippedJobs = allJobs.filter((job) => job.conclusion === 'skipped');
+    const successfulJobs = allJobs.filter(
+        (job) => job.conclusion === "success",
+    );
+    const skippedJobs = allJobs.filter((job) => job.conclusion === "skipped");
     const runUrl = `${serverUrl}/${repository}/actions/runs/${runId}/attempts/${runAttempt}`;
 
     const lines = [
-        '*Nightly health summary*',
-        `Run: ${escapeSlackText(repository)} #${runId} (${escapeSlackText(refName)}, ${escapeSlackText(eventName)}, attempt ${escapeSlackText(runAttempt)}) - ${runUrl}`,
-        `Result: ${failedJobs.length === 0 ? conclusionIcon('success') : conclusionIcon('failure')} (${conclusionIcon('success')} ${successfulJobs.length}, ${conclusionIcon('failure')} ${failedJobs.length}, ${conclusionIcon('skipped')} ${skippedJobs.length})`,
-        '',
+        "*Platform Nightly health summary*",
+        `Run: ${escapeSlackText(repository)} - ${runUrl}`,
+        `Result: failed ${failedJobs.length}, successful ${successfulJobs.length}, skipped ${skippedJobs.length}`,
+        "",
     ];
 
     for (const group of groups) {
-        const failedInGroup = group.jobs.filter((job) => isFailureLike(job.conclusion)).length;
-        lines.push(`*${escapeSlackText(group.workflowName)}* (${group.jobs.length} jobs, ${conclusionIcon('failure')} ${failedInGroup})`);
+        const failedInGroup = group.jobs.filter((job) =>
+            isFailureLike(job.conclusion),
+        ).length;
+        lines.push(
+            `*${escapeSlackText(group.workflowName)}* (${group.jobs.length} jobs, failed ${failedInGroup})`,
+        );
 
         for (const job of group.jobs) {
             lines.push(formatJobLine(job));
         }
 
-        lines.push('');
+        lines.push("");
     }
 
-    return lines.join('\n').trim();
+    return lines.join("\n").trim();
 }
 
 function formatJobLine(job) {
-    const conclusion = job.conclusion || 'unknown';
+    const conclusion = job.conclusion || "unknown";
     const displayName = escapeSlackText(job.displayName);
     const icon = conclusionIcon(conclusion);
 
@@ -217,35 +237,35 @@ function formatJobLine(job) {
 }
 
 function conclusionIcon(conclusion) {
-    if (conclusion === 'success') {
-        return ':white_check_mark:';
+    if (conclusion === "success") {
+        return ":white_check_mark:";
     }
 
-    if (conclusion === 'skipped') {
-        return ':heavy_minus_sign:';
+    if (conclusion === "skipped") {
+        return ":heavy_minus_sign:";
     }
 
     if (isFailureLike(conclusion)) {
-        return ':x:';
+        return ":x:";
     }
 
-    return ':grey_question:';
+    return ":grey_question:";
 }
 
 function escapeSlackText(value) {
     return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\|/g, '/');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\|/g, "/");
 }
 
 function titleCase(value) {
     return String(value)
-        .split('-')
+        .split("-")
         .filter(Boolean)
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ');
+        .join(" ");
 }
 
 function writeStepSummary(report) {
@@ -254,22 +274,24 @@ function writeStepSummary(report) {
     }
 
     const markdown = report
-        .replace(/^\*([^*]+)\*/gm, '## $1')
-        .replace(/<([^|>]+)\|([^>]+)>/g, '[$2]($1)');
+        .replace(/^\*([^*]+)\*/gm, "## $1")
+        .replace(/<([^|>]+)\|([^>]+)>/g, "[$2]($1)");
 
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`);
 }
 
 async function postToSlack(report) {
     const response = await fetch(slackWorkflowUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({ message: report }),
     });
 
     if (!response.ok) {
-        throw new Error(`Slack workflow request failed with ${response.status}: ${await response.text()}`);
+        throw new Error(
+            `Slack workflow request failed with ${response.status}: ${await response.text()}`,
+        );
     }
 }

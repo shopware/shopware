@@ -299,7 +299,7 @@ class RequestTransformer implements RequestTransformerInterface
 
         // direct hit
         if ($domain !== null) {
-            return $domain;
+            return DomainStruct::fromArray($domain);
         }
 
         // reduce shops to which base url is the beginning of the request
@@ -319,7 +319,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
         }
 
-        return $bestMatch;
+        return DomainStruct::fromArray($bestMatch);
     }
 
     /**

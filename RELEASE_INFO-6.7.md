@@ -2,6 +2,10 @@
 
 ## Storefront
 
+### Deprecated array return type of `AbstractDomainLoader::load()`
+
+The return type of `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated: with Shopware 6.8 it will return `array<string, \Shopware\Storefront\Framework\Routing\Struct\DomainStruct>` instead of an array of arrays. Decorators and consumers should prepare for `DomainStruct` objects (e.g. `$domain->url` instead of `$domain['url']`).
+
 ### Storefront cache hash no longer varies by language
 
 The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.

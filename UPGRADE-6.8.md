@@ -1294,6 +1294,12 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## `AbstractDomainLoader::load()` returns an array of `DomainStruct`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) now return `array<string, \Shopware\Storefront\Framework\Routing\Struct\DomainStruct>` instead of `array<string, array<string, string>>`.
+
+If you decorate `AbstractDomainLoader`, return `DomainStruct` instances from `load()`. If you consume the result, access the values as objects (e.g. `$domain->url`) instead of array keys (`$domain['url']`).
+
 ## Removal of inline microdata in favour of JSON-LD structured data
 
 All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.

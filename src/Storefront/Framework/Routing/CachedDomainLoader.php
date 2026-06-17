@@ -4,10 +4,12 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ */
 #[Package('framework')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
@@ -28,7 +30,7 @@ class CachedDomainLoader extends AbstractDomainLoader
     }
 
     /**
-     * @return array<string, DomainStruct>
+     * @return array<string, Domain>
      */
     public function load(): array
     {
@@ -36,7 +38,7 @@ class CachedDomainLoader extends AbstractDomainLoader
             $this->getDecorated()->load()
         ));
 
-        /** @var array<string, DomainStruct> $value */
+        /** @var array<string, Domain> $value */
         $value = CacheValueCompressor::uncompress($value);
 
         return $value;

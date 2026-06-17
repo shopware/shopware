@@ -117,7 +117,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     }
 
     /**
-     * @return array{active: int|null, is_closeout: int|null}
+     * @return array{active: string|null, is_closeout: string|null}
      */
     private function fetchParent(string $productId, Context $context): array
     {

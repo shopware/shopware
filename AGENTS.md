@@ -61,7 +61,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - Add or update `coding-guidelines/` when a rule is reusable, normative, and broader than one folder. Keep local README guidance for folder-specific working context.
 - Cross-link README guidance, coding guidelines, and ADRs where the link helps readers understand what to do and why. Prefer: README links to applicable concrete coding guidelines and ADRs; coding guidelines link to ADRs for decision background; ADRs link to follow-up docs only when needed to find the living rules.
 - Do not duplicate ADR or coding-guideline content in READMEs. Summarize the local implication and link to the source.
-- Reserve the root `AGENTS.md` for short repo-wide instructions that agents must see before working; move detailed or component-specific guidance into the relevant README or coding guideline.
+- Reserve the root `AGENTS.md` for short repo-wide instructions that agents must see before working and humans can use as concise code-level guidance; move detailed or component-specific guidance into the relevant README or coding guideline.
 - Folders whose README contains working guidance should have an `AGENTS.md` stub that points agents to the README. Do not duplicate README content in that stub.
 - Standalone overview/index READMEs do not need an `AGENTS.md` stub. This includes the main component READMEs under `src/*` and folders whose path contains `docs`.
 - Do not add README or AGENTS files just to index `coding-guidelines/`. Component READMEs should link directly to the concrete guideline files that apply.

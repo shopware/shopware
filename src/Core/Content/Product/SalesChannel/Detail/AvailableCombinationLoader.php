@@ -135,6 +135,9 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
             return ['active' => null, 'is_closeout' => null];
         }
 
-        return $parent;
+        return [
+            'active' => $parent['active'],
+            'is_closeout' => $parent['is_closeout'],
+        ];
     }
 }

@@ -10,8 +10,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -43,6 +46,7 @@ class ResetPasswordRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId($customerId);
         $customer->setEmail($email);
+        $customer->setDoubleOptInRegistration(false);
 
         $recovery = new CustomerRecoveryEntity();
         $recovery->setId($recoveryId);
@@ -118,5 +122,114 @@ class ResetPasswordRouteTest extends TestCase
             [RateLimiter::LOGIN_USER, $expectedEmailKey],
             [RateLimiter::LOGIN_CLIENT, $ip],
         ], $resetIfConfiguredCalls);
+    }
+
+    public function testConfirmsUnconfirmedDoubleOptInCustomerOnPasswordReset(): void
+    {
+        $now = new \DateTimeImmutable('2026-05-30 12:00:00');
+
+        $customer = $this->createCustomer();
+        $customer->setDoubleOptInRegistration(true);
+
+        $customerUpdate = $this->resetPasswordAndReturnCustomerUpdate($customer, new MockClock($now));
+
+        static::assertArrayHasKey('doubleOptInConfirmDate', $customerUpdate);
+        static::assertEquals($now, $customerUpdate['doubleOptInConfirmDate']);
+    }
+
+    public function testDoesNotConfirmCustomerWithoutDoubleOptInRegistrationOnPasswordReset(): void
+    {
+        $customer = $this->createCustomer();
+        $customer->setDoubleOptInRegistration(false);
+
+        $customerUpdate = $this->resetPasswordAndReturnCustomerUpdate($customer);
+
+        static::assertArrayNotHasKey('doubleOptInConfirmDate', $customerUpdate);
+    }
+
+    public function testDoesNotOverwriteExistingDoubleOptInConfirmationOnPasswordReset(): void
+    {
+        $customer = $this->createCustomer();
+        $customer->setDoubleOptInRegistration(true);
+        $customer->setDoubleOptInConfirmDate(new \DateTimeImmutable('2026-05-29 12:00:00'));
+
+        $customerUpdate = $this->resetPasswordAndReturnCustomerUpdate($customer);
+
+        static::assertArrayNotHasKey('doubleOptInConfirmDate', $customerUpdate);
+    }
+
+    private function createCustomer(): CustomerEntity
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setEmail('customer@example.com');
+
+        return $customer;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resetPasswordAndReturnCustomerUpdate(CustomerEntity $customer, ?MockClock $clock = null): array
+    {
+        $hash = 'valid-hash';
+        $recovery = new CustomerRecoveryEntity();
+        $recovery->setId(Uuid::randomHex());
+        $recovery->setHash($hash);
+        $recovery->setCustomer($customer);
+        $recovery->setCreatedAt(new \DateTimeImmutable());
+
+        $customerRecoveryRepository = $this->createMock(EntityRepository::class);
+        $customerRecoveryRepository->method('search')
+            ->willReturn(new EntitySearchResult(
+                'customer_recovery',
+                1,
+                new CustomerRecoveryCollection([$recovery]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
+        $customerRecoveryRepository->method('delete')
+            ->willReturn(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []));
+
+        $customerUpdate = null;
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(function (array $updates) use (&$customerUpdate): EntityWrittenContainerEvent {
+                $customerUpdate = $updates[0];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
+            });
+
+        $passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $passwordValidationFactory->method('update')->willReturn(new DataValidationDefinition());
+
+        $route = new ResetPasswordRoute(
+            $customerRepository,
+            $customerRecoveryRepository,
+            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            new RequestStack(),
+            $this->createMock(RateLimiter::class),
+            $passwordValidationFactory,
+            $clock ?? new MockClock()
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $route->resetPassword(
+            new RequestDataBag([
+                'hash' => $hash,
+                'newPassword' => 'newPass123!',
+                'newPasswordConfirm' => 'newPass123!',
+            ]),
+            $context,
+        );
+
+        static::assertIsArray($customerUpdate);
+
+        return $customerUpdate;
     }
 }

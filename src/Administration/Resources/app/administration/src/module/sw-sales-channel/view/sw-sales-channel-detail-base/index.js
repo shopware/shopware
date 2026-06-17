@@ -201,7 +201,7 @@ export default {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('distinguishableName', 'ASC'));
 
             return criteria;
         },
@@ -209,7 +209,6 @@ export default {
         countryCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
@@ -218,6 +217,7 @@ export default {
         languageCriteria() {
             const criteria = new Criteria();
 
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
             criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;

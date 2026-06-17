@@ -38,6 +38,7 @@
             "buttonShowDetails": "Details",
             "buttonBack": "Zurück",
             "titleDescription": "Informationen",
+            "messageAgenticCommerce": "Um Agentic-Commerce-Vertriebskanäle zu erstellen, installiere bitte die Agentic Commerce Erweiterung aus dem Shopware Store.",
             "messageNoProductStreams": "Um Produktvergleiche oder Agentic-Commerce-Vertriebskanäle zu erstellen, musst Du zunächst eine dynamische Produktgruppe erstellen."
         },
         "detail": {

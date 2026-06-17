@@ -38,6 +38,7 @@
             "buttonShowDetails": "Show details",
             "buttonBack": "Back",
             "titleDescription": "Information",
+            "messageAgenticCommerce": "In order to create agentic commerce sales channels, please install the Agentic Commerce extension from the Shopware Store.",
             "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
         },
         "detail": {

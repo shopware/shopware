@@ -82,6 +82,7 @@ class StoreApiMcpServerController
     #[Route(path: '/store-api/_mcp/tools/list', name: 'store-api.mcp.command.tools-list', defaults: ['command' => 'tools/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/tools/call', name: 'store-api.mcp.command.tools-call', defaults: ['command' => 'tools/call', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/resources/list', name: 'store-api.mcp.command.resources-list', defaults: ['command' => 'resources/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/resources/templates/list', name: 'store-api.mcp.command.resources-templates-list', defaults: ['command' => 'resources/templates/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/resources/read', name: 'store-api.mcp.command.resources-read', defaults: ['command' => 'resources/read', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/prompts/list', name: 'store-api.mcp.command.prompts-list', defaults: ['command' => 'prompts/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/prompts/get', name: 'store-api.mcp.command.prompts-get', defaults: ['command' => 'prompts/get', 'auth_required' => true], methods: [Request::METHOD_POST])]

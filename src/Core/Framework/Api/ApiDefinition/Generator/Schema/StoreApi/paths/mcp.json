@@ -395,6 +395,80 @@
                 "security": [{"ApiKey": []}]
             }
         },
+        "/_mcp/resources/templates/list": {
+            "post": {
+                "tags": ["MCP", "Experimental"],
+                "summary": "List available resource templates (Store API)",
+                "description": "Lists the resource templates (parameterized URIs such as `shopware://tool-result/{id}`) available in the current sales-channel context. Distinct from `resources/list`, which returns concrete resources. Typed convenience endpoint for the `resources/templates/list` JSON-RPC method. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpResourcesTemplatesList",
+                "parameters": [
+                    {"$ref": "#/components/parameters/McpSessionIdHeader"}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["jsonrpc"],
+                                "properties": {
+                                    "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                    "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
+                                    "params": {"$ref": "#/components/schemas/McpPaginatedRequestParams"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON-RPC response carrying the resources/templates/list result.",
+                        "headers": {"mcp-session-id": {"$ref": "#/components/headers/McpSessionId"}},
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["jsonrpc", "id", "result"],
+                                    "properties": {
+                                        "jsonrpc": {"$ref": "#/components/schemas/McpJsonRpcVersion"},
+                                        "id": {"$ref": "#/components/schemas/McpJsonRpcId"},
+                                        "result": {
+                                            "type": "object",
+                                            "required": ["resourceTemplates"],
+                                            "properties": {
+                                                "resourceTemplates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": ["uriTemplate", "name"],
+                                                        "properties": {
+                                                            "uriTemplate": {
+                                                                "type": "string",
+                                                                "description": "RFC 6570 URI template with at least one placeholder, e.g. `shopware://tool-result/{id}`."
+                                                            },
+                                                            "name": {"type": "string"},
+                                                            "description": {"type": "string"},
+                                                            "mimeType": {"type": "string"}
+                                                        },
+                                                        "additionalProperties": true
+                                                    }
+                                                },
+                                                "nextCursor": {"$ref": "#/components/schemas/McpNextCursor"}
+                                            },
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {"$ref": "#/components/responses/400"},
+                    "401": {"$ref": "#/components/responses/401"},
+                    "429": {"$ref": "#/components/responses/429"}
+                },
+                "security": [{"ApiKey": []}]
+            }
+        },
         "/_mcp/prompts/list": {
             "post": {
                 "tags": ["MCP", "Experimental"],

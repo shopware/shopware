@@ -187,6 +187,24 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>

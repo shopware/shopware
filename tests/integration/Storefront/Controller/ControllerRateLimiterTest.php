@@ -53,6 +53,7 @@ use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -66,6 +67,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Group('slow')]
 class ControllerRateLimiterTest extends TestCase
 {
+    use ClockSensitiveTrait;
     use CustomerTestTrait;
     use OrderFixture;
     use RateLimiterTestTrait;
@@ -117,8 +119,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testGenerateAccountRecoveryRateLimit(): void
     {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
         $passwordRecoveryMailRoute = $this->createMock(SendPasswordRecoveryMailRoute::class);
-        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException(time() + 10));
+        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 10));
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
@@ -221,8 +226,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testFormControllerRateLimit(): void
     {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
         $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
-        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException(time() + 5));
+        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             $contactFormRoute,
@@ -252,8 +260,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testNewsletterSubscribeFormControllerRateLimit(): void
     {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
         $newsletterRequestRoute = $this->createMock(AbstractNewsletterSubscribeRoute::class);
-        $newsletterRequestRoute->method('subscribe')->willThrowException(new RateLimitExceededException(time() + 5));
+        $newsletterRequestRoute->method('subscribe')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             static::getContainer()->get(ContactFormRoute::class),
@@ -282,8 +293,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testNewsletterUnsubscribeFormControllerRateLimit(): void
     {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
         $newsletterRequestRoute = $this->createMock(NewsletterUnsubscribeRoute::class);
-        $newsletterRequestRoute->method('unsubscribe')->willThrowException(new RateLimitExceededException(time() + 5));
+        $newsletterRequestRoute->method('unsubscribe')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             static::getContainer()->get(ContactFormRoute::class),
@@ -312,8 +326,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testRevocationRequestFormControllerRateLimit(): void
     {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
         $abstractRevocationRequestRoute = $this->createMock(AbstractRevocationRequestRoute::class);
-        $abstractRevocationRequestRoute->method('request')->willThrowException(new RateLimitExceededException(time() + 5));
+        $abstractRevocationRequestRoute->method('request')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             static::getContainer()->get(ContactFormRoute::class),

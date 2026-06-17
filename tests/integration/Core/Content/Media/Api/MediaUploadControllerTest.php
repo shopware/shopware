@@ -192,7 +192,12 @@ class MediaUploadControllerTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         static::assertSame('CONTENT__MEDIA_INVALID_FILE', $responseData['errors'][0]['code']);
-        static::assertSame('Provided file is invalid: SVG files with active content are not allowed..', $responseData['errors'][0]['detail']);
+        static::assertSame(
+            'Provided file is invalid: SVG files with active content are not allowed.'
+            . \PHP_EOL . 'Event handler attributes not allowed: onload'
+            . \PHP_EOL . 'Attributes not allowed: onload.',
+            $responseData['errors'][0]['detail']
+        );
         static::assertEmpty($media->getPath());
         static::assertNull($this->thrownMediaEvent);
     }

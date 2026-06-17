@@ -25,9 +25,12 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
+use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -60,10 +63,10 @@ class AppManager
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      * @param EntityRepository<AclRoleCollection> $aclRoleRepository
-     * @param iterable<PersisterInterface> $persisters
+     * @param iterable<AbstractLifecycleHandler> $lifecycleHandlers
      */
     public function __construct(
-        private readonly iterable $persisters,
+        private readonly iterable $lifecycleHandlers,
         private readonly EntityRepository $appRepository,
         private readonly PermissionLifecycleService $permissionLifecycle,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -147,18 +150,36 @@ class AppManager
         $this->scriptExecutor->execute(new AppUpdatedHook($event));
     }
 
-    public function delete(AppEntity $app, Context $context, bool $keepUserData = false): void
+    /**
+     * Removes the app and notifies its app server (app.deactivated and app.deleted webhooks).
+     */
+    public function uninstall(AppEntity $app, Context $context, bool $keepUserData = false): void
     {
         $canRemoveAppData = !$keepUserData || $this->customEntityLifecycleService->canRemoveAppData($app);
         if ($app->isActive()) {
             $this->deactivate($app, $context, $canRemoveAppData);
         }
 
-        $this->removeAppData($app, $context, $keepUserData, true);
-        $this->assetService->removeAssets($app->getName());
-
-        $event = new PostAppDeletedEvent($app->getName(), $app->getSourceType(), $context, $keepUserData);
+        // throw event before deleting app from db as it may be delivered via webhook to the deleted app
+        $event = new AppDeletedEvent($app->getId(), $context, $keepUserData);
         $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppDeletedHook($event));
+
+        $uninstallContext = new AppRemovalContext($app, $context, $keepUserData);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->uninstall($uninstallContext));
+
+        $this->removeApp($app, $context, $keepUserData);
+    }
+
+    /**
+     * Removes the app locally without notifying its app server.
+     */
+    public function delete(AppEntity $app, Context $context, bool $keepUserData = false): void
+    {
+        $deleteContext = new AppRemovalContext($app, $context, $keepUserData);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->delete($deleteContext));
+
+        $this->removeApp($app, $context, $keepUserData);
     }
 
     public function activate(AppEntity $app, Context $context): void
@@ -170,7 +191,8 @@ class AppManager
         $this->appRepository->update([['id' => $app->getId(), 'active' => true]], $context);
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
-        $this->runPersisters(static fn (PersisterInterface $persister) => $persister->activate($app, $context));
+        $activateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
 
         $this->activeAppsLoader->reset();
 
@@ -195,10 +217,21 @@ class AppManager
 
         $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
         $app->setActive(false);
-        $this->runPersisters(static fn (PersisterInterface $persister) => $persister->deactivate($app, $context));
+        $deactivateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
 
         // reset only after new state is in the DB
         $this->activeAppsLoader->reset();
+    }
+
+    private function removeApp(AppEntity $app, Context $context, bool $keepUserData): void
+    {
+        $this->removeAppAndAclRole($app, $context, $keepUserData, true);
+
+        $this->assetService->removeAssets($app->getName());
+
+        $event = new PostAppDeletedEvent($app->getName(), $app->getSourceType(), $context, $keepUserData);
+        $this->eventDispatcher->dispatch($event);
     }
 
     private function ensureIsCompatible(Manifest $manifest): void
@@ -276,16 +309,19 @@ class AppManager
             throw $e;
         }
 
-        $appLifecycleContext = new AppLifecycleContext(
+        $persistContext = new AppPersistContext(
             manifest: $manifest,
             app: $app,
             context: $context,
             appFilesystem: $this->sourceResolver->filesystemForManifest($manifest),
             defaultLocale: $defaultLocale,
-            isInstall: $install,
         );
 
-        $this->runPersisters(static fn (PersisterInterface $persister) => $persister->persist($appLifecycleContext));
+        if ($install) {
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->install($persistContext));
+        } else {
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->update($persistContext));
+        }
 
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
@@ -320,6 +356,11 @@ class AppManager
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppDeletedHook($event));
 
+        $this->removeAppAndAclRole($app, $context, $keepUserData, $softDelete);
+    }
+
+    private function removeAppAndAclRole(AppEntity $app, Context $context, bool $keepUserData, bool $softDelete): void
+    {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete, $keepUserData): void {
             if (!$keepUserData) {
                 $config = $this->getAppConfig($app);
@@ -525,12 +566,12 @@ class AppManager
     }
 
     /**
-     * @param callable(PersisterInterface): void $callback
+     * @param callable(AbstractLifecycleHandler): void $callback
      */
-    private function runPersisters(callable $callback): void
+    private function runHandlers(callable $callback): void
     {
-        foreach ($this->persisters as $persister) {
-            $callback($persister);
+        foreach ($this->lifecycleHandlers as $handler) {
+            $callback($handler);
         }
     }
 

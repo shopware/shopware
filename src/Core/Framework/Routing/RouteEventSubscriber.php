@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -27,19 +26,11 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        $events = [
+        return [
             KernelEvents::REQUEST => ['request', -10],
             KernelEvents::CONTROLLER => ['controller', -10],
             KernelEvents::RESPONSE => ['response', -10],
         ];
-
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
-        if (class_exists(StorefrontRenderEvent::class)) {
-            /** @phpstan-ignore phpat.restrictNamespacesInCore */
-            $events[StorefrontRenderEvent::class] = ['render', -10];
-        }
-
-        return $events;
     }
 
     public function request(RequestEvent $event): void
@@ -51,21 +42,6 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
 
         foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
             $this->dispatcher->dispatch($event, $scope . '.scope.request');
-        }
-    }
-
-    /**
-     * @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-     */
-    public function render(StorefrontRenderEvent $event): void
-    {
-        $request = $event->getRequest();
-        if ($request->attributes->has('_route')) {
-            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.render');
-        }
-
-        foreach ($request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []) as $scope) {
-            $this->dispatcher->dispatch($event, $scope . '.scope.render');
         }
     }
 

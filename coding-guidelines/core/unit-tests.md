@@ -7,8 +7,9 @@ Unit tests are an essential part of our software. The Shopware product grows and
 When writing unit tests, the following is important:
 
 - **"100% coverage "** - This does not mean that simply a high code coverage should be generated, but that all use cases of each individual service is tested.
+- **Source-file coverage** - New source files should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` when they are intentionally covered by integration tests. Add a separate `@see ShortIntegrationTestClassName` line in the class docblock and import that integration test class with a `use` statement.
 - **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
-- **Mocking** - Use mocks intentionally to keep unit tests fast and focused. Mock narrow application abstractions when needed, but do not mock Doctrine DBAL `Connection` directly; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests.
+- **Mocking and stubbing** - Use mocks and stubs intentionally to keep unit tests fast and focused. Simple stubs such as `createStub()` or concrete test doubles like `StaticEntityRepository` are fine when a dependency only needs to return data. Do not behavior-mock Doctrine DBAL `Connection` by asserting SQL calls or parameters; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests.
 - **Readable** - You are not the only one who maintains the code. Therefore, it is important that others can quickly and easily understand your unit tests and extend them with additional cases.
 - **Extensibility** - It is important that when more cases are added or certain cases are not tested that it is easy to extend your unit tests with another case without extending dozens of lines of code.
 - **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
@@ -52,7 +53,7 @@ or
 
 For all other cases, use real implementations and rely as minimally as possible on the magic of phpunit's mocking framework.
 
-Do not mock Doctrine DBAL `Connection` in unit tests. Classes with direct SQL/DBAL work should usually be treated as database adapters and covered with integration tests. Unit-test the surrounding business logic against a narrow repository, gateway, or service abstraction instead.
+Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Classes with direct SQL/DBAL work should usually be treated as database adapters and covered with integration tests. Unit-test the surrounding business logic against a narrow repository, gateway, service abstraction, or simple stub that returns the result object the class under test needs.
 
 ## Focus on behavior, not implementation: Effective unit testing principles
 
@@ -102,7 +103,7 @@ So, a heavy reliance on mocks when writing unit tests can indicate a potential i
 There are better options but that depends on the use cases. Here are a few alternatives:
 
 1. Use the real implementation (this means the real thing is easy to create and does not produce side effects)
-2. Use a hand-crafted dummy implementation of the real thing, that is easy to configure and behaves like a stub in that use case (this means that the real thing probably needs to be designed in a way to be easy to replace, examples of this in our test suite are the `StaticEntityRepository`  or `StaticSystemConfigService`)
+2. Use a hand-crafted dummy implementation of the real thing, that is easy to configure and behaves like a stub in that use case (this means that the real thing probably needs to be designed in a way to be easy to replace, examples of this in our test suite are the `StaticEntityRepository` or `StaticSystemConfigService`)
 3. Fallback to using phpunit's mocking framework (when the real thing is not designed to be replaced easily)
 
 The way you design your codebase directly impacts whether you can rely on option 1 or option 2 without resorting to heavy mocking.

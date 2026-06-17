@@ -100,7 +100,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - Keep legacy feature-flag behavior in dedicated tests that are easy to remove when the flag is removed.
 - In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the flag with the `#[DisabledFeatures]` attribute; do not use `Feature::fake()` just to activate the current major flag.
 - In integration tests, the suite may run multiple times with feature flags on and off. Do not use `#[DisabledFeatures]` there for simple legacy/current branching; skip tests explicitly with `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when the current feature-flag value is not the one the scenario expects.
-- Do not mock Doctrine DBAL `Connection` in unit tests. Isolate SQL/DBAL work in dedicated database adapters and cover those adapters with integration tests.
+- Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Stub DBAL-consuming collaborators when needed; isolate SQL/DBAL adapters and cover those adapters with integration tests.
 - If a class is intentionally covered only by integration tests, mark it with `@codeCoverageIgnore` on its own docblock line and add a separate `@see ShortIntegrationTestClassName` line. Import the integration test class with a `use` statement instead of writing a fully-qualified class name in the annotation.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.

@@ -100,7 +100,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $sfRequest = Request::create('/store-api/_mcp/initialize', 'POST', content: $body);
         $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
 
-        $response = $controller->handleCommand($sfRequest, 'initialize');
+        $response = $controller->handle($sfRequest, 'initialize');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         // The initialize result only appears when the injected method reaches the server.
@@ -122,7 +122,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
 
         // Should not throw while reconstructing the envelope; the SDK handles the batch as-is.
-        $response = $controller->handleCommand($sfRequest, 'tools/list');
+        $response = $controller->handle($sfRequest, 'tools/list');
 
         static::assertInstanceOf(Response::class, $response);
     }
@@ -133,7 +133,7 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp/tools/list'));
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handleCommand(new Request(), 'tools/list')->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request(), 'tools/list')->getStatusCode());
     }
 
     public function testRateLimitUsesSalesChannelContext(): void

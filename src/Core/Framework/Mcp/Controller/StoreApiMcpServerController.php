@@ -56,27 +56,19 @@ class StoreApiMcpServerController
     ) {
     }
 
-    #[Route(
-        path: '/store-api/_mcp',
-        name: 'store-api.mcp.endpoint',
-        defaults: ['auth_required' => true],
-        methods: [Request::METHOD_GET, Request::METHOD_POST, Request::METHOD_DELETE, Request::METHOD_OPTIONS],
-    )]
-    public function handle(Request $request): Response
-    {
-        return $this->dispatch($request, null);
-    }
-
     /**
-     * Typed convenience entry points. Each MCP method gets its own path
-     * (e.g. /store-api/_mcp/tools/call), so the OpenAPI schema can describe one
-     * request body and one response per command instead of a single endpoint
-     * with a method-keyed `oneOf`. The command is provided as a route default
-     * and injected as the JSON-RPC `method` before the request is handed to the
-     * same transport as the bare endpoint. Standard MCP clients (and batch
-     * requests, notifications, and any method without a dedicated path) keep
-     * using POST /store-api/_mcp.
+     * Single entry point for the Store API MCP endpoint.
+     *
+     * The bare `/store-api/_mcp` route is the standard JSON-RPC transport used by
+     * MCP clients; it is also the only one that supports batch requests and
+     * notifications. The per-method routes are typed convenience endpoints: each
+     * carries its MCP method name as the `command` route default, which is
+     * injected into the JSON-RPC body (see injectMethod). This lets the OpenAPI
+     * schema describe one request body and one response per method instead of a
+     * single endpoint with a method-keyed `oneOf`. On the bare route `$command`
+     * is null and the body is forwarded untouched.
      */
+    #[Route(path: '/store-api/_mcp', name: 'store-api.mcp.endpoint', defaults: ['auth_required' => true], methods: [Request::METHOD_GET, Request::METHOD_POST, Request::METHOD_DELETE, Request::METHOD_OPTIONS])]
     #[Route(path: '/store-api/_mcp/initialize', name: 'store-api.mcp.command.initialize', defaults: ['command' => 'initialize', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/ping', name: 'store-api.mcp.command.ping', defaults: ['command' => 'ping', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/tools/list', name: 'store-api.mcp.command.tools-list', defaults: ['command' => 'tools/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
@@ -86,12 +78,7 @@ class StoreApiMcpServerController
     #[Route(path: '/store-api/_mcp/resources/read', name: 'store-api.mcp.command.resources-read', defaults: ['command' => 'resources/read', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/prompts/list', name: 'store-api.mcp.command.prompts-list', defaults: ['command' => 'prompts/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
     #[Route(path: '/store-api/_mcp/prompts/get', name: 'store-api.mcp.command.prompts-get', defaults: ['command' => 'prompts/get', 'auth_required' => true], methods: [Request::METHOD_POST])]
-    public function handleCommand(Request $request, string $command): Response
-    {
-        return $this->dispatch($request, $command);
-    }
-
-    private function dispatch(Request $request, ?string $command): Response
+    public function handle(Request $request, ?string $command = null): Response
     {
         if (!Feature::isActive('MCP_SERVER')
             || $this->server === null

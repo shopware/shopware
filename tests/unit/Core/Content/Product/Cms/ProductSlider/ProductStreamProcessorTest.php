@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +42,7 @@ class ProductStreamProcessorTest extends TestCase
 
     protected FieldConfigCollection $config;
 
-    private ProductStreamBuilderInterface&MockObject $productStreamBuilder;
+    private AbstractProductStreamBuilder&MockObject $productStreamBuilder;
 
     /**
      * @var SalesChannelRepository<ProductCollection>&MockObject
@@ -55,8 +55,8 @@ class ProductStreamProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $this->productStreamBuilder->method('buildFilters')->willReturn([$this->getFilter()]);
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $this->configureProductStreamBuilder();
 
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -109,6 +109,28 @@ class ProductStreamProcessorTest extends TestCase
         static::assertEquals($groupingFilter, $filter);
     }
 
+    public function testCollectSkipsGroupingWhenStreamDisplaysVariantsDirectly(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $this->configureProductStreamBuilder(false);
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+
+        $this->config->add($config);
+
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $list = $collection->all();
+        $criteria = $list[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertCount(1, $criteria->getFilters());
+        static::assertCount(0, $criteria->getGroupFields());
+        static::assertTrue($criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED));
+    }
+
     public function testCollectEventCanModifyCriteria(): void
     {
         $slot = $this->getSlot();
@@ -144,10 +166,10 @@ class ProductStreamProcessorTest extends TestCase
 
         $exception = new EntityNotFoundException('product_stream', 'deleted-product-stream-id');
 
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
         $this->productStreamBuilder->expects($this->once())
-            ->method('buildFilters')
-            ->with('deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
             ->willThrowException($exception);
 
         $this->logger->expects($this->once())
@@ -276,9 +298,59 @@ class ProductStreamProcessorTest extends TestCase
         static::assertEmpty($slider->getProducts());
     }
 
+    public function testEnrichKeepsUngroupedVariantsWhenStreamDisplaysVariantsDirectly(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+        $data = new ElementDataCollection();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $this->config->add($config);
+
+        $criteria = new Criteria();
+        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+
+        $products = $this->getProducts();
+        $result = new EntitySearchResult(
+            'product',
+            $products->count(),
+            $products,
+            null,
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        $data->add('product-slider-entity-fallback_id', $result);
+
+        $this->productRepository->expects($this->never())
+            ->method('search');
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        static::assertSame($products, $slider->getProducts());
+    }
+
     private function getProcessor(): ProductStreamProcessor
     {
         return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher, $this->logger);
+    }
+
+    private function configureProductStreamBuilder(bool $displayAsGroup = true): void
+    {
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+
+        $filter = $this->getFilter();
+
+        $this->productStreamBuilder->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, mixed ...$_) use ($displayAsGroup, $filter): void {
+                $criteria->addFilter($filter);
+
+                if (!$displayAsGroup) {
+                    $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+                }
+            });
     }
 
     private function getFilter(): MultiFilter

@@ -142,6 +142,19 @@
                         :disabled="!acl.can('product_stream.editor')"
                     />
                     {% endblock %}
+
+                    {% block sw_product_basic_form_display_as_group_field %}
+                    <mt-switch
+                        v-if="productStream"
+                        v-model="productStream.displayAsGroup"
+                        v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                        class="sw-product-stream-detail__display-as-group"
+                        :label="$t('sw-product-stream.detail.labelDisplayAsGroup')"
+                        :help-text="$t('sw-product-stream.detail.helpTextDisplayAsGroup')"
+                        :disabled="!acl.can('product_stream.editor')"
+                        bordered
+                    />
+                    {% endblock %}
                 </mt-card>
                 {% endblock %}
 

@@ -159,6 +159,28 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
+
 ## Removed stored `mail_template_type.template_data`
 
 The deprecated `template_data` column on `mail_template_type` was removed.

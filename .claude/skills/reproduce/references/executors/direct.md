@@ -23,6 +23,13 @@ Use for a symptom that is faithful WITHOUT a browser. Two flavors:
    this ONLY for the INITIAL server HTML; if the symptom is injected by JS after load
    (offcanvas, ajax, zoom, lazy-load) it is NOT in the rendered HTML → use `playwright`.
 
+**Prefer the CHEAPEST faithful flavor.** A focused service/resolver assertion (flavor 1) is
+far cheaper to author AND run than a full render (flavor 2): if the symptom is observable on
+the resolved service/entity — e.g. a CMS element resolver returns a product whose `variation`
+/`options` is wrong, a calculation is off — assert THAT directly (mirror the matching
+`*Test.php` in the codebase) instead of rendering a whole page. Reach for the render only when
+the symptom lives solely in the Twig output and cannot be seen on the resolved data.
+
 ## What you author
 Generate `ReproTest.php` (set `script_path: "ReproTest.php"`):
 - namespace `Shopware\Tests\Integration\Repro`

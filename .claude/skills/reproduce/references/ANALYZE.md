@@ -74,6 +74,12 @@ having written `analysis.json`. Do the MINIMUM investigation (a few targeted sea
 a full code tour); do not exceed ~15 tool calls before writing the file(s). If still
 uncertain, keep the best-effort plan with a lower `confidence` rather than exploring.
 
+The `direct` executor — a storefront render test especially — is the most research-tempting
+and the easiest way to blow the budget. Do NOT tour the test suite for fixture patterns:
+copy the skeleton in `executors/direct.md`, fill in the entities + assertion, and write
+`ReproTest.php` within the budget. Hitting the turn cap fails the run and produces NO plan, so
+a rough-but-complete test you finish beats an exhaustively-researched one you never upload.
+
 ## Confidence (= reproduction fidelity, NOT fix existence)
 
 `confidence` (0..1) measures how FAITHFULLY the plan reproduces the reported symptom. HIGH

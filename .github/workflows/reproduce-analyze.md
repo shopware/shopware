@@ -44,7 +44,10 @@ concurrency:
 engine:
   id: claude
   model: claude-sonnet-4-6
-  max-turns: 40              # ceiling, not a quota (matches reproduce.yml); raise per ANALYZE.md economy
+  max-turns: 60              # ceiling, not a quota. Headroom for the richer storefront-ui
+                             # decision + authoring a `direct` render/service test (more to
+                             # write than an http request). Hitting the cap fails the agent
+                             # job and SKIPS safe_outputs (no plan artifact) — so give room.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real key is the Quality-Initiative
     # one. Map it into what the claude engine reads (same as triage / bugfixer).

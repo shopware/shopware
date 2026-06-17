@@ -1,6 +1,6 @@
-# Shopware Setup SFC Authoring
+# Native Setup Authoring
 
-Shopware setup SFC authoring uses native Vue `<script setup>` plus explicit Shopware mode attributes for the Composition API extension system. It is not plain native Vue `<script setup>` semantics, because the body is lowered into Shopware's base/override callback contracts before Vue compiles the SFC.
+Native setup is the Administration term for Vue's native `<script setup>` SFC syntax. Shopware setup SFC authoring uses native setup plus explicit Shopware mode attributes for the Composition API extension system. It is not plain native setup semantics, because the body is lowered into Shopware's base/override callback contracts before Vue compiles the SFC.
 
 ## Supported Modes
 
@@ -97,9 +97,9 @@ swDefineOverride(state);
 
 Override mode requires exactly one top-level `swDefineOverride({...})` call. Template-only overrides use `swDefineOverride({})`.
 
-## Not Native Setup Semantics
+## Not Plain Native Setup Semantics
 
-Shopware setup blocks differ from native Vue `<script setup>` in v1:
+Shopware setup blocks differ from plain native setup in v1:
 
 - Author code is lowered into Shopware base/override callback contracts.
 - Base public/private state is explicit Shopware extension state, not native setup return behavior.
@@ -127,7 +127,7 @@ The transform rejects these cases loudly:
 - Top-level `await`
 - Non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefineOverride()` usage in override mode
-- Unsupported top-level declaration shapes such as destructuring declarations, except declarations that read from `defineProps()` or `withDefaults(defineProps(...), ...)`
+- Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
 - Additional `<script>` blocks next to Shopware setup blocks
 
 Malformed or unclosed SFC sections are left to Vue's compiler parser. If `@vue/compiler-sfc` reports SFC parse errors, the Shopware setup preprocessor skips transformation so Vue can present the primary parse error first.

@@ -201,13 +201,13 @@ Multiple overrides are applied in registration order. Each receives a shallow co
 
 ---
 
-## Shopware Setup SFC Authoring
+## Native Setup Authoring
 
 Shopware setup SFCs provide syntax sugar around the same Composition API extension runtime. The transform runs before Vue compiles the SFC. Base components are lowered through `createScriptSetupExtendableComponent()`, which delegates to `createExtendableSetup(...)`; override files are lowered to import-time `overrideComponentSetup(...)` registration.
 
 ### Source authoring modes
 
-Base component mode uses `sw-component` on the native Vue setup block. In this example, `count` is part of the public override API because it is listed in `swDefinePublic({...})`. `internalValue` stays private state: the component template can still use it, and overrides can still read it through `previousState._private`, but it is not exposed as a top-level public override key.
+Base component mode uses `sw-component` on the native setup block (`<script setup>`). In this example, `count` is part of the public override API because it is listed in `swDefinePublic({...})`. `internalValue` stays private state: the component template can still use it, and overrides can still read it through `previousState._private`, but it is not exposed as a top-level public override key.
 
 ```vue
 <template>

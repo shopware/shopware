@@ -81,6 +81,61 @@ class StoreApiMcpServerControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
     }
 
+    public function testHandleCommandInjectsMethodFromPath(): void
+    {
+        // Body intentionally omits "method"; it must be derived from the path segment.
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/store-api/_mcp/initialize', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+
+        $sfRequest = Request::create('/store-api/_mcp/initialize', 'POST', content: $body);
+        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+
+        $response = $controller->handleCommand($sfRequest, 'initialize');
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        // The initialize result only appears when the injected method reaches the server.
+        static::assertStringContainsString('serverInfo', (string) $response->getContent());
+    }
+
+    public function testHandleCommandLeavesBatchRequestsUntouched(): void
+    {
+        // A JSON-RPC batch (array) must pass through without method injection.
+        $body = json_encode([
+            ['jsonrpc' => '2.0', 'method' => 'ping', 'id' => 1],
+            ['jsonrpc' => '2.0', 'method' => 'ping', 'id' => 2],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/store-api/_mcp/tools/list', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+
+        $sfRequest = Request::create('/store-api/_mcp/tools/list', 'POST', content: $body);
+        $sfRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createSalesChannelContext());
+
+        // Should not throw while reconstructing the envelope; the SDK handles the batch as-is.
+        $response = $controller->handleCommand($sfRequest, 'tools/list');
+
+        static::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testHandleCommandReturnsNotFoundWhenFeatureFlagIsInactive(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+
+        $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp/tools/list'));
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handleCommand(new Request(), 'tools/list')->getStatusCode());
+    }
+
     public function testRateLimitUsesSalesChannelContext(): void
     {
         $salesChannelContext = $this->createSalesChannelContext();

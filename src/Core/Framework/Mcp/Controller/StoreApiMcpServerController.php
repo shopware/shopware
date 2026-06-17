@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Server;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
@@ -63,6 +64,34 @@ class StoreApiMcpServerController
     )]
     public function handle(Request $request): Response
     {
+        return $this->dispatch($request, null);
+    }
+
+    /**
+     * Typed convenience entry points. Each MCP method gets its own path
+     * (e.g. /store-api/_mcp/tools/call), so the OpenAPI schema can describe one
+     * request body and one response per command instead of a single endpoint
+     * with a method-keyed `oneOf`. The command is provided as a route default
+     * and injected as the JSON-RPC `method` before the request is handed to the
+     * same transport as the bare endpoint. Standard MCP clients (and batch
+     * requests, notifications, and any method without a dedicated path) keep
+     * using POST /store-api/_mcp.
+     */
+    #[Route(path: '/store-api/_mcp/initialize', name: 'store-api.mcp.command.initialize', defaults: ['command' => 'initialize', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/ping', name: 'store-api.mcp.command.ping', defaults: ['command' => 'ping', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/tools/list', name: 'store-api.mcp.command.tools-list', defaults: ['command' => 'tools/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/tools/call', name: 'store-api.mcp.command.tools-call', defaults: ['command' => 'tools/call', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/resources/list', name: 'store-api.mcp.command.resources-list', defaults: ['command' => 'resources/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/resources/read', name: 'store-api.mcp.command.resources-read', defaults: ['command' => 'resources/read', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/prompts/list', name: 'store-api.mcp.command.prompts-list', defaults: ['command' => 'prompts/list', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    #[Route(path: '/store-api/_mcp/prompts/get', name: 'store-api.mcp.command.prompts-get', defaults: ['command' => 'prompts/get', 'auth_required' => true], methods: [Request::METHOD_POST])]
+    public function handleCommand(Request $request, string $command): Response
+    {
+        return $this->dispatch($request, $command);
+    }
+
+    private function dispatch(Request $request, ?string $command): Response
+    {
         if (!Feature::isActive('MCP_SERVER')
             || $this->server === null
             || $this->httpMessageFactory === null
@@ -78,11 +107,17 @@ class StoreApiMcpServerController
 
         $this->logger?->debug('Store API MCP request', [
             'method' => $request->getMethod(),
+            'command' => $command,
             'clientIp' => $request->getClientIp(),
         ]);
 
+        $psrRequest = $this->httpMessageFactory->createRequest($request);
+        if ($command !== null) {
+            $psrRequest = $this->injectMethod($psrRequest, $command);
+        }
+
         $transport = new StreamableHttpTransport(
-            $this->httpMessageFactory->createRequest($request),
+            $psrRequest,
             $this->responseFactory,
             $this->streamFactory,
             logger: $this->logger,
@@ -92,5 +127,29 @@ class StoreApiMcpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * Rewrites the request body so the path-derived command becomes the
+     * JSON-RPC `method`. Only a single JSON-RPC object is rewritten; batch
+     * arrays and malformed bodies pass through untouched and are handled by the
+     * SDK transport (batch callers should use the bare /store-api/_mcp endpoint).
+     */
+    private function injectMethod(ServerRequestInterface $psrRequest, string $command): ServerRequestInterface
+    {
+        $raw = (string) $psrRequest->getBody();
+        $decoded = $raw === '' ? [] : json_decode($raw, true);
+
+        if (!\is_array($decoded) || array_is_list($decoded)) {
+            return $psrRequest;
+        }
+
+        $decoded['jsonrpc'] ??= '2.0';
+        $decoded['method'] ??= $command;
+
+        \assert($this->streamFactory !== null);
+        $body = $this->streamFactory->createStream(json_encode($decoded, \JSON_THROW_ON_ERROR));
+
+        return $psrRequest->withBody($body);
     }
 }

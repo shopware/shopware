@@ -185,7 +185,7 @@ function buildReport(groups) {
 
     const lines = [
         '*Nightly health summary*',
-        `Run: <${runUrl}|${escapeSlackText(repository)} #${runId}> (${escapeSlackText(refName)}, ${escapeSlackText(eventName)}, attempt ${escapeSlackText(runAttempt)})`,
+        `Run: ${escapeSlackText(repository)} #${runId} (${escapeSlackText(refName)}, ${escapeSlackText(eventName)}, attempt ${escapeSlackText(runAttempt)}) - ${runUrl}`,
         `Result: ${failedJobs.length === 0 ? conclusionIcon('success') : conclusionIcon('failure')} (${conclusionIcon('success')} ${successfulJobs.length}, ${conclusionIcon('failure')} ${failedJobs.length}, ${conclusionIcon('skipped')} ${skippedJobs.length})`,
         '',
     ];
@@ -210,7 +210,7 @@ function formatJobLine(job) {
     const icon = conclusionIcon(conclusion);
 
     if (isFailureLike(conclusion)) {
-        return `- ${icon} <${job.html_url}|${displayName}>`;
+        return `- ${icon} ${displayName} ( ${job.html_url} )`;
     }
 
     return `- ${icon} ${displayName}`;

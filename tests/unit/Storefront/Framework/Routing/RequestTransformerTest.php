@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
-use Shopware\Storefront\Framework\Routing\Domain;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -98,7 +98,7 @@ class RequestTransformerTest extends TestCase
 
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
         $domainLoader->method('load')->willReturn([
-            $domainKey => Domain::fromArray([
+            $domainKey => DomainStruct::fromArray([
                 'url' => $domainKey,
                 'id' => $domainId,
                 'salesChannelId' => $salesChannelId,

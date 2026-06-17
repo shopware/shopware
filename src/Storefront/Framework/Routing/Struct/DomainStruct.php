@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Routing;
+namespace Shopware\Storefront\Framework\Routing\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-readonly class Domain
+readonly class DomainStruct
 {
     public function __construct(
         public string $url,

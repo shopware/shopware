@@ -104,7 +104,8 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         $salesChannelData = $builder->select(
             'sales_channel.id AS id',
             'sales_channel.maintenance AS maintenance',
-            'sales_channel.maintenance_ip_allowlist as maintenanceIpAllowlist'
+            // @deprecated tag:v6.8.0 - remove the COALESCE fallback to the deprecated `maintenance_ip_whitelist` column
+            'COALESCE(sales_channel.maintenance_ip_allowlist, sales_channel.maintenance_ip_whitelist) as maintenanceIpAllowlist'
         )
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')

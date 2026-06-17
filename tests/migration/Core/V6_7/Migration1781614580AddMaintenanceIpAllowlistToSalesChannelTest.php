@@ -33,11 +33,15 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
         $this->connection = static::getContainer()->get(Connection::class);
         $this->migration = new Migration1781614580AddMaintenanceIpAllowlistToSalesChannel();
 
-        $id = $this->connection->fetchOne('SELECT id FROM `sales_channel` LIMIT 1');
+        $id = $this->connection->fetchOne(<<<'SQL'
+            SELECT id FROM `sales_channel` LIMIT 1
+        SQL);
         static::assertIsString($id);
         $this->salesChannelId = $id;
         $this->originalAllowlist = $this->connection->fetchOne(
-            'SELECT maintenance_ip_allowlist FROM `sales_channel` WHERE id = :id',
+            <<<'SQL'
+                SELECT maintenance_ip_allowlist FROM `sales_channel` WHERE id = :id
+            SQL,
             ['id' => $this->salesChannelId]
         ) ?: null;
     }
@@ -47,7 +51,9 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
     {
         // restore the deprecated column if a destructive test dropped it
         if (!TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_whitelist')) {
-            $this->connection->executeStatement('ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL');
+            $this->connection->executeStatement(<<<'SQL'
+                ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL
+            SQL);
         }
 
         // make sure the new column and the triggers exist again for the remaining test suite
@@ -87,7 +93,9 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
         static::assertTrue(TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_allowlist'));
 
         $allowlist = $this->connection->fetchOne(
-            'SELECT maintenance_ip_allowlist FROM `sales_channel` WHERE id = :id',
+            <<<'SQL'
+                SELECT maintenance_ip_allowlist FROM `sales_channel` WHERE id = :id
+            SQL,
             ['id' => $this->salesChannelId]
         );
 
@@ -107,11 +115,17 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
 
     private function rollback(): void
     {
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_insert');
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_update');
+        $this->connection->executeStatement(<<<'SQL'
+            DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_insert
+        SQL);
+        $this->connection->executeStatement(<<<'SQL'
+            DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_update
+        SQL);
 
         if (TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_allowlist')) {
-            $this->connection->executeStatement('ALTER TABLE `sales_channel` DROP COLUMN `maintenance_ip_allowlist`');
+            $this->connection->executeStatement(<<<'SQL'
+                ALTER TABLE `sales_channel` DROP COLUMN `maintenance_ip_allowlist`
+            SQL);
         }
     }
 }

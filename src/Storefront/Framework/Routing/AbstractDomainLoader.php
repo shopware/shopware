@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 
 #[Package('framework')]
 abstract class AbstractDomainLoader
@@ -10,7 +11,7 @@ abstract class AbstractDomainLoader
     abstract public function getDecorated(): AbstractDomainLoader;
 
     /**
-     * @return array<string, Domain>
+     * @return array<string, DomainStruct>
      */
     abstract public function load(): array;
 }

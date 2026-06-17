@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 
 #[Package('framework')]
 class DomainLoader extends AbstractDomainLoader
@@ -24,7 +25,7 @@ class DomainLoader extends AbstractDomainLoader
     }
 
     /**
-     * @return array<string, Domain>
+     * @return array<string, DomainStruct>
      */
     public function load(): array
     {
@@ -41,7 +42,8 @@ class DomainLoader extends AbstractDomainLoader
             'LOWER(HEX(domain.language_id)) languageId',
             'LOWER(HEX(theme.id)) themeId',
             'sales_channel.maintenance maintenance',
-            'sales_channel.maintenance_ip_allowlist maintenanceIpAllowlist',
+            // @deprecated tag:v6.8.0 - remove the COALESCE fallback to the deprecated `maintenance_ip_whitelist` column
+            'COALESCE(sales_channel.maintenance_ip_allowlist, sales_channel.maintenance_ip_whitelist) maintenanceIpAllowlist',
             'snippet_set.iso as locale',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',
@@ -59,7 +61,7 @@ class DomainLoader extends AbstractDomainLoader
 
         $domains = [];
         foreach (FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative()) as $key => $row) {
-            $domains[(string) $key] = Domain::fromArray($row);
+            $domains[(string) $key] = DomainStruct::fromArray($row);
         }
 
         return $domains;

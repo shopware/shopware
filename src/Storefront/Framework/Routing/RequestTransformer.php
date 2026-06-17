@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -275,7 +276,7 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
-    private function findSalesChannel(Request $request): ?Domain
+    private function findSalesChannel(Request $request): ?DomainStruct
     {
         $domains = $this->domainLoader->load();
 

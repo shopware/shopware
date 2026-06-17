@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -719,6 +720,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -830,6 +832,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -936,6 +939,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $this->createMock(DoubleOptInService::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -1209,6 +1213,68 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    public function testUpdatesNewsletterSalesChannelIdsBeforeCustomerIsLoaded(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customerEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $createdCustomerId = null;
+        $newsletterSalesChannelIdsUpdated = false;
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) use (&$createdCustomerId) {
+                $createdCustomerId = $create[0]['id'];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+        $customerRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function () use (&$newsletterSalesChannelIdsUpdated, $result) {
+                static::assertTrue($newsletterSalesChannelIdsUpdated);
+
+                return $result;
+            });
+
+        $customerNewsletterSalesChannelsUpdater = $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
+        $customerNewsletterSalesChannelsUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$newsletterSalesChannelIdsUpdated): void {
+                static::assertNotNull($createdCustomerId);
+                static::assertSame([$createdCustomerId], $ids);
+                static::assertTrue($reverseUpdate);
+
+                $newsletterSalesChannelIdsUpdated = true;
+            });
+
+        $registerRoute = $this->createRegisterRoute(
+            customerRepository: $customerRepository,
+            customerNewsletterSalesChannelsUpdater: $customerNewsletterSalesChannelsUpdater
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData()),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1241,7 +1307,8 @@ class RegisterRouteTest extends TestCase
         ?StaticSystemConfigService $systemConfigService = null,
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null
+        ?DataValidationFactoryInterface $passwordValidationFactory = null,
+        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null
     ): RegisterRoute {
         $dataValidator ??= $this->createMock(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
@@ -1257,6 +1324,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
         $customerRepository ??= $this->createCustomerRepository();
+        $customerNewsletterSalesChannelsUpdater ??= $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
 
         $doubleOptInService = $this->createMock(DoubleOptInService::class);
         $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
@@ -1277,6 +1345,7 @@ class RegisterRouteTest extends TestCase
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
             $doubleOptInService,
+            $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
         );
     }

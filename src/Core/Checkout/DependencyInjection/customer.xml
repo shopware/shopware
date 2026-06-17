@@ -271,6 +271,7 @@
             <argument type="service" id="salutation.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 

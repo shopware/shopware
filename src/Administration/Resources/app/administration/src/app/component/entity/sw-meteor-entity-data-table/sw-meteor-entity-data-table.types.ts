@@ -75,6 +75,12 @@ export type SwMeteorEntityDataTableSortDirection = 'ASC' | 'DESC';
 
 export type SwMeteorEntityDataTableLayout = 'default' | 'full';
 
+export type SwMeteorEntityDataTableContextButton = {
+    key: string;
+    label: string;
+    type?: 'default' | 'active' | 'critical';
+};
+
 export type SwMeteorEntityDataTableState = {
     page: number;
     limit: number;

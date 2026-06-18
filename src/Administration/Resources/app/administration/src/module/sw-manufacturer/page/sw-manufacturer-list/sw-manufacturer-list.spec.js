@@ -42,6 +42,8 @@ async function createWrapper(privileges = [], repositorySearchResult = []) {
                         'searchable',
                         'reloadable',
                         'selectable',
+                        'allowEdit',
+                        'allowDelete',
                     ],
                     emits: [
                         'load-success',
@@ -157,6 +159,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
                 reloadable: true,
                 searchable: false,
                 selectable: false,
+                allowEdit: undefined,
+                allowDelete: undefined,
             }),
         );
         expect(meteorTable.props('columns')).toEqual([
@@ -217,6 +221,16 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const meteorTable = getMeteorTable(wrapper);
 
         expect(meteorTable.props('selectable')).toBe(true);
+        expect(meteorTable.props('allowDelete')).toBe(true);
+    });
+
+    it('should allow row editing when the user can edit manufacturers', async () => {
+        const wrapper = await createWrapper([
+            'product_manufacturer.editor',
+        ]);
+        const meteorTable = getMeteorTable(wrapper);
+
+        expect(meteorTable.props('allowEdit')).toBe(true);
     });
 
     it('should update total and loading state after the table loads', async () => {

@@ -14,12 +14,19 @@
             :is-loading="loading"
             :layout="layout"
             :allow-row-selection="selectable"
+            :allow-bulk-delete="selectable && allowDelete"
             :selected-rows="selectedIds"
             :disable-search="!searchable"
             :enable-reload="reloadable"
-            :disable-edit="true"
-            :disable-delete="true"
-            :disable-settings-table="true"
+            :disable-edit="!allowEdit"
+            :disable-delete="!allowDelete"
+            :disable-settings-table="hideTableSettings"
+            :column-changes="tableColumnChanges"
+            :show-outlines="showOutlines"
+            :show-stripes="showStripes"
+            :enable-outline-framing="enableOutlineFraming"
+            :enable-row-numbering="enableRowNumbering"
+            :additional-context-buttons="additionalContextButtons"
             @sort-change="setSort"
             @pagination-current-page-change="setPage"
             @pagination-limit-change="setLimit"
@@ -28,6 +35,13 @@
             @multiple-selection-change="onMultipleSelectionChange"
             @reload="reload"
             @open-details="openDetail"
+            @bulk-delete="openBulkDeleteModal"
+            @item-delete="openDeleteModal"
+            @context-select="onContextSelect"
+            @change-show-outlines="setShowOutlines"
+            @change-show-stripes="setShowStripes"
+            @change-outline-framing="setEnableOutlineFraming"
+            @change-enable-row-numbering="setEnableRowNumbering"
         >
             <template
                 v-if="$slots.toolbar"
@@ -43,6 +57,102 @@
                 <slot name="empty-state" />
             </template>
         </mt-data-table>
+
+        <sw-modal
+            v-if="itemToDelete"
+            class="sw-meteor-entity-data-table__delete-modal"
+            variant="small"
+            :title="$t('global.default.warning')"
+            @modal-close="closeDeleteModal"
+        >
+            <p class="sw-meteor-entity-data-table__confirm-delete-text">
+                <slot
+                    name="delete-confirm-text"
+                    :item="itemToDelete"
+                >
+                    {{ $t('global.entity-components.deleteMessage') }}
+                </slot>
+            </p>
+
+            <template #modal-footer>
+                <slot
+                    name="delete-modal-footer"
+                    :item="itemToDelete"
+                    :delete-item="deleteRecord"
+                    :is-loading="deleting"
+                >
+                    <mt-button
+                        class="sw-meteor-entity-data-table__delete-cancel"
+                        size="small"
+                        variant="secondary"
+                        @click="closeDeleteModal"
+                    >
+                        {{ $t('global.default.cancel') }}
+                    </mt-button>
+
+                    <mt-button
+                        class="sw-meteor-entity-data-table__delete-confirm"
+                        variant="critical"
+                        size="small"
+                        :is-loading="deleting"
+                        @click="deleteRecord"
+                    >
+                        {{ $t('global.default.delete') }}
+                    </mt-button>
+                </slot>
+            </template>
+        </sw-modal>
+
+        <sw-modal
+            v-if="showBulkDeleteModal"
+            class="sw-meteor-entity-data-table__bulk-delete-modal"
+            variant="small"
+            :title="$t('global.default.warning')"
+            @modal-close="closeBulkDeleteModal"
+        >
+            <p class="sw-meteor-entity-data-table__confirm-bulk-delete-text">
+                <slot
+                    name="bulk-delete-confirm-text"
+                    :selection-count="selectedIds.length"
+                >
+                    {{
+                        $t(
+                            'global.entity-components.deleteMessage',
+                            { count: selectedIds.length },
+                            selectedIds.length,
+                        )
+                    }}
+                </slot>
+            </p>
+
+            <template #modal-footer>
+                <slot
+                    name="bulk-delete-modal-footer"
+                    :delete-items="deleteSelectedRecords"
+                    :is-loading="bulkDeleting"
+                    :selection-count="selectedIds.length"
+                >
+                    <mt-button
+                        class="sw-meteor-entity-data-table__bulk-delete-cancel"
+                        size="small"
+                        variant="secondary"
+                        @click="closeBulkDeleteModal"
+                    >
+                        {{ $t('global.default.cancel') }}
+                    </mt-button>
+
+                    <mt-button
+                        class="sw-meteor-entity-data-table__bulk-delete-confirm"
+                        variant="critical"
+                        size="small"
+                        :is-loading="bulkDeleting"
+                        @click="deleteSelectedRecords"
+                    >
+                        {{ $t('global.default.delete') }}
+                    </mt-button>
+                </slot>
+            </template>
+        </sw-modal>
     </div>
 </template>
 
@@ -51,7 +161,7 @@
  * @sw-package framework
  */
 
-import { computed, defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue';
 import type { ComputedRef, PropType, Ref, SetupContext } from 'vue';
 import type { Router } from 'vue-router';
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
@@ -63,6 +173,7 @@ import type Repository from 'src/core/data/repository.data';
 import type {
     SwMeteorEntityDataTableColumn,
     SwMeteorEntityDataTableColumnRenderer,
+    SwMeteorEntityDataTableContextButton,
     SwMeteorEntityDataTableLayout,
     SwMeteorEntityDataTableSortDirection,
     SwMeteorEntityDataTableState,
@@ -92,6 +203,15 @@ type SwMeteorEntityDataTableResolvedColumn = {
     rendererOptions?: unknown;
 };
 
+type SwMeteorEntityDataTableColumnChange = {
+    property?: string;
+    position?: number;
+    width?: number;
+    visible?: boolean;
+};
+
+type SwMeteorEntityDataTableColumnChanges = Record<string, SwMeteorEntityDataTableColumnChange>;
+
 type SwMeteorEntityDataTableProps = {
     repository: Repository<SwMeteorEntityDataTableEntityName>;
     columns: SwMeteorEntityDataTableColumn[];
@@ -107,6 +227,10 @@ type SwMeteorEntityDataTableProps = {
     reloadable?: boolean;
     selectable?: boolean;
     detailRoute?: string | null;
+    allowEdit?: boolean;
+    allowDelete?: boolean;
+    hideTableSettings?: boolean;
+    additionalContextButtons?: SwMeteorEntityDataTableContextButton[];
 };
 
 type SelectionChangePayload = {
@@ -117,6 +241,11 @@ type SelectionChangePayload = {
 type MultipleSelectionChangePayload = {
     selections: string[];
     value: boolean;
+};
+
+type ContextSelectPayload = {
+    key: string;
+    data: SwMeteorEntityDataTableRecord;
 };
 
 type SwMeteorEntityDataTableRouter = Pick<Router, 'push'>;
@@ -142,6 +271,26 @@ type SwMeteorEntityDataTablePrivateApi = {
     onSelectionChange: (payload: SelectionChangePayload) => void;
     onMultipleSelectionChange: (payload: MultipleSelectionChangePayload) => void;
     openDetail: (record: SwMeteorEntityDataTableRecord) => void;
+    openBulkDeleteModal: () => void;
+    closeBulkDeleteModal: () => void;
+    deleteSelectedRecords: () => Promise<void>;
+    openDeleteModal: (record: SwMeteorEntityDataTableRecord) => void;
+    closeDeleteModal: () => void;
+    deleteRecord: () => Promise<void>;
+    onContextSelect: (payload: ContextSelectPayload) => void;
+    itemToDelete: Ref<SwMeteorEntityDataTableRecord | null>;
+    deleting: Ref<boolean>;
+    showBulkDeleteModal: Ref<boolean>;
+    bulkDeleting: Ref<boolean>;
+    tableColumnChanges: SwMeteorEntityDataTableColumnChanges;
+    showOutlines: Ref<boolean>;
+    showStripes: Ref<boolean>;
+    enableOutlineFraming: Ref<boolean>;
+    enableRowNumbering: Ref<boolean>;
+    setShowOutlines: (value: boolean) => void;
+    setShowStripes: (value: boolean) => void;
+    setEnableOutlineFraming: (value: boolean) => void;
+    setEnableRowNumbering: (value: boolean) => void;
 };
 
 declare global {
@@ -245,6 +394,32 @@ export default defineComponent({
             required: false,
             default: null,
         },
+
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideTableSettings: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        additionalContextButtons: {
+            type: Array as PropType<SwMeteorEntityDataTableContextButton[]>,
+            required: false,
+            default() {
+                return [];
+            },
+        },
     },
 
     emits: [
@@ -253,6 +428,11 @@ export default defineComponent({
         'load-success',
         'load-error',
         'open-detail',
+        'delete-finish',
+        'delete-failed',
+        'bulk-delete-finish',
+        'bulk-delete-failed',
+        'context-select',
     ],
 
     setup(rawProps, context: SetupContext) {
@@ -275,7 +455,16 @@ export default defineComponent({
                 const records: Ref<SwMeteorEntityDataTableRecords> = ref([]);
                 const total = ref(0);
                 const loading = ref(false);
+                const itemToDelete: Ref<SwMeteorEntityDataTableRecord | null> = ref(null);
+                const deleting = ref(false);
+                const showBulkDeleteModal = ref(false);
+                const bulkDeleting = ref(false);
                 const selectedIds = ref<string[]>([]);
+                const tableColumnChanges: SwMeteorEntityDataTableColumnChanges = reactive({});
+                const showOutlines = ref(true);
+                const showStripes = ref(true);
+                const enableOutlineFraming = ref(false);
+                const enableRowNumbering = ref(false);
                 const state = ref<SwMeteorEntityDataTableState>({
                     page: setupProps.initialPage ?? 1,
                     limit: setupProps.initialLimit ?? 25,
@@ -484,6 +673,137 @@ export default defineComponent({
                     });
                 }
 
+                function openDeleteModal(record: SwMeteorEntityDataTableRecord): void {
+                    if (!setupProps.allowDelete) {
+                        return;
+                    }
+
+                    itemToDelete.value = record;
+                }
+
+                function openBulkDeleteModal(): void {
+                    if (!setupProps.selectable || !setupProps.allowDelete || selectedIds.value.length <= 0) {
+                        return;
+                    }
+
+                    showBulkDeleteModal.value = true;
+                }
+
+                function closeBulkDeleteModal(): void {
+                    if (bulkDeleting.value) {
+                        return;
+                    }
+
+                    showBulkDeleteModal.value = false;
+                }
+
+                async function deleteSelectedRecords(): Promise<void> {
+                    const ids = [
+                        ...selectedIds.value,
+                    ];
+
+                    if (!setupProps.selectable || !setupProps.allowDelete || ids.length <= 0) {
+                        return;
+                    }
+
+                    bulkDeleting.value = true;
+
+                    try {
+                        const deleteContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
+
+                        await setupProps.repository.syncDeleted(ids, deleteContext);
+                    } catch (error) {
+                        setupContext.emit('bulk-delete-failed', {
+                            ids,
+                            error,
+                        });
+                        bulkDeleting.value = false;
+
+                        return;
+                    }
+
+                    bulkDeleting.value = false;
+                    showBulkDeleteModal.value = false;
+                    setSelectedIds([]);
+
+                    setupContext.emit('bulk-delete-finish', {
+                        ids,
+                    });
+
+                    await load();
+                }
+
+                function closeDeleteModal(): void {
+                    if (deleting.value) {
+                        return;
+                    }
+
+                    itemToDelete.value = null;
+                }
+
+                async function deleteRecord(): Promise<void> {
+                    const record = itemToDelete.value;
+
+                    if (!record) {
+                        return;
+                    }
+
+                    deleting.value = true;
+
+                    try {
+                        const deleteContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
+
+                        await setupProps.repository.delete(record.id, deleteContext);
+                    } catch (error) {
+                        setupContext.emit('delete-failed', {
+                            id: record.id,
+                            record,
+                            error,
+                        });
+                        deleting.value = false;
+
+                        return;
+                    }
+
+                    deleting.value = false;
+                    itemToDelete.value = null;
+
+                    if (selectedIds.value.includes(record.id)) {
+                        setSelectedIds(selectedIds.value.filter((id) => id !== record.id));
+                    }
+
+                    setupContext.emit('delete-finish', {
+                        id: record.id,
+                        record,
+                    });
+
+                    await load();
+                }
+
+                function onContextSelect(payload: ContextSelectPayload): void {
+                    setupContext.emit('context-select', {
+                        key: payload.key,
+                        id: payload.data.id,
+                        record: payload.data,
+                    });
+                }
+
+                function setShowOutlines(value: boolean): void {
+                    showOutlines.value = value;
+                }
+
+                function setShowStripes(value: boolean): void {
+                    showStripes.value = value;
+                }
+
+                function setEnableOutlineFraming(value: boolean): void {
+                    enableOutlineFraming.value = value;
+                }
+
+                function setEnableRowNumbering(value: boolean): void {
+                    enableRowNumbering.value = value;
+                }
+
                 watch(
                     () => setupProps.criteria,
                     () => {
@@ -523,6 +843,26 @@ export default defineComponent({
                         onSelectionChange,
                         onMultipleSelectionChange,
                         openDetail,
+                        openBulkDeleteModal,
+                        closeBulkDeleteModal,
+                        deleteSelectedRecords,
+                        openDeleteModal,
+                        closeDeleteModal,
+                        deleteRecord,
+                        onContextSelect,
+                        itemToDelete,
+                        deleting,
+                        showBulkDeleteModal,
+                        bulkDeleting,
+                        tableColumnChanges,
+                        showOutlines,
+                        showStripes,
+                        enableOutlineFraming,
+                        enableRowNumbering,
+                        setShowOutlines,
+                        setShowStripes,
+                        setEnableOutlineFraming,
+                        setEnableRowNumbering,
                     },
                 };
             },
@@ -578,6 +918,8 @@ function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): S
     &__table.mt-data-table__layout-full {
         min-height: 0;
         margin: 0;
+        // The internal table provides the top edge and is shifted by Meteor's half-pixel layout.
+        border-top: 0;
 
         > .mt-card__content {
             flex: 1 1 auto;

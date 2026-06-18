@@ -39,6 +39,8 @@ type TestRecord = {
 };
 
 type TestSearchMock = jest.Mock<Promise<EntityCollection<keyof EntitySchema.Entities>>, [CriteriaType, ApiContext]>;
+type TestDeleteMock = jest.Mock<Promise<unknown>, [string, ApiContext]>;
+type TestSyncDeletedMock = jest.Mock<Promise<void>, [string[], ApiContext]>;
 
 type TestProps = {
     repository: TestRepository;
@@ -55,6 +57,14 @@ type TestProps = {
     reloadable?: boolean;
     selectable?: boolean;
     detailRoute?: string;
+    allowEdit?: boolean;
+    allowDelete?: boolean;
+    hideTableSettings?: boolean;
+    additionalContextButtons?: Array<{
+        key: string;
+        label: string;
+        type?: 'default' | 'active' | 'critical';
+    }>;
 };
 
 type SlotRenderers = Record<string, string | (() => ReturnType<typeof h>)>;
@@ -97,6 +107,13 @@ const MtDataTableStub = {
         'multiple-selection-change',
         'reload',
         'open-details',
+        'bulk-delete',
+        'item-delete',
+        'context-select',
+        'change-show-outlines',
+        'change-show-stripes',
+        'change-outline-framing',
+        'change-enable-row-numbering',
     ],
     props: [
         'dataSource',
@@ -111,12 +128,19 @@ const MtDataTableStub = {
         'isLoading',
         'layout',
         'allowRowSelection',
+        'allowBulkDelete',
         'selectedRows',
         'disableSearch',
         'enableReload',
         'disableEdit',
         'disableDelete',
         'disableSettingsTable',
+        'columnChanges',
+        'showOutlines',
+        'showStripes',
+        'enableOutlineFraming',
+        'enableRowNumbering',
+        'additionalContextButtons',
     ],
     setup(rawProps: Record<string, unknown>, setupContext: SetupContext) {
         const props = rawProps as MtDataTableStubProps;
@@ -233,6 +257,73 @@ const MtDataTableStub = {
                     },
                     'Details',
                 ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__bulk-delete',
+                        type: 'button',
+                        onClick: () => emit('bulk-delete'),
+                    },
+                    'Bulk delete',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__delete',
+                        type: 'button',
+                        onClick: () => emit('item-delete', getCurrentRecords()[0]),
+                    },
+                    'Delete',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__context-select',
+                        type: 'button',
+                        onClick: () =>
+                            emit('context-select', {
+                                key: 'set-price',
+                                data: getCurrentRecords()[0],
+                            }),
+                    },
+                    'Context select',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__show-outlines',
+                        type: 'button',
+                        onClick: () => emit('change-show-outlines', false),
+                    },
+                    'Show outlines',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__show-stripes',
+                        type: 'button',
+                        onClick: () => emit('change-show-stripes', false),
+                    },
+                    'Show stripes',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__outline-framing',
+                        type: 'button',
+                        onClick: () => emit('change-outline-framing', true),
+                    },
+                    'Outline framing',
+                ),
+                h(
+                    'button',
+                    {
+                        class: 'mt-data-table-stub__row-numbering',
+                        type: 'button',
+                        onClick: () => emit('change-enable-row-numbering', true),
+                    },
+                    'Row numbering',
+                ),
             ]);
     },
 };
@@ -246,21 +337,42 @@ function createSearchResult(
 
 function createRepositoryMock(searchResult = createSearchResult()): TestRepository {
     const search: TestSearchMock = jest.fn<ReturnType<TestSearchMock>, Parameters<TestSearchMock>>();
+    const deleteMock: TestDeleteMock = jest.fn<ReturnType<TestDeleteMock>, Parameters<TestDeleteMock>>();
+    const syncDeletedMock: TestSyncDeletedMock = jest.fn<ReturnType<TestSyncDeletedMock>, Parameters<TestSyncDeletedMock>>();
     search.mockResolvedValue(searchResult);
+    deleteMock.mockResolvedValue({});
+    syncDeletedMock.mockResolvedValue();
 
     return {
         search,
+        delete: deleteMock,
+        syncDeleted: syncDeletedMock,
     } as unknown as TestRepository;
 }
 
 function createRepositoryMockWithSearch(search: TestSearchMock): TestRepository {
+    const deleteMock: TestDeleteMock = jest.fn<ReturnType<TestDeleteMock>, Parameters<TestDeleteMock>>();
+    const syncDeletedMock: TestSyncDeletedMock = jest.fn<ReturnType<TestSyncDeletedMock>, Parameters<TestSyncDeletedMock>>();
+    deleteMock.mockResolvedValue({});
+    syncDeletedMock.mockResolvedValue();
+
     return {
         search,
+        delete: deleteMock,
+        syncDeleted: syncDeletedMock,
     } as unknown as TestRepository;
 }
 
 function getSearchMock(repository: TestRepository): TestSearchMock {
     return (repository as unknown as { search: TestSearchMock }).search;
+}
+
+function getDeleteMock(repository: TestRepository): TestDeleteMock {
+    return (repository as unknown as { delete: TestDeleteMock }).delete;
+}
+
+function getSyncDeletedMock(repository: TestRepository): TestSyncDeletedMock {
+    return (repository as unknown as { syncDeleted: TestSyncDeletedMock }).syncDeleted;
 }
 
 function createWrapper(
@@ -285,6 +397,38 @@ function createWrapper(
                 : {},
             stubs: {
                 'mt-data-table': MtDataTableStub,
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                            <slot></slot>
+                            <slot name="modal-footer"></slot>
+                            <button
+                                class="sw-modal__close"
+                                type="button"
+                                @click="$emit('modal-close')"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    `,
+                    emits: ['modal-close'],
+                },
+                'mt-button': {
+                    props: [
+                        'isLoading',
+                    ],
+                    template: `
+                        <button
+                            class="mt-button"
+                            type="button"
+                            :data-loading="isLoading"
+                            @click="$emit('click')"
+                        >
+                            <slot></slot>
+                        </button>
+                    `,
+                    emits: ['click'],
+                },
             },
         },
     });
@@ -355,6 +499,10 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 'reloadable',
                 'selectable',
                 'detailRoute',
+                'allowEdit',
+                'allowDelete',
+                'hideTableSettings',
+                'additionalContextButtons',
             ]),
         );
         expect(Object.keys(componentOptions.props)).not.toEqual(
@@ -363,14 +511,11 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 'total',
                 'isLoading',
                 'disableDataFetching',
-                'allowEdit',
                 'allowView',
-                'allowDelete',
                 'allowBulkDelete',
                 'allowBulkEdit',
                 'showActions',
                 'showSettings',
-                'additionalContextButtons',
                 'columnChanges',
             ]),
         );
@@ -380,10 +525,15 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             'load-success',
             'load-error',
             'open-detail',
+            'delete-finish',
+            'delete-failed',
+            'bulk-delete-finish',
+            'bulk-delete-failed',
+            'context-select',
         ]);
     });
 
-    it('renders mt-data-table and disables unsupported table behavior', () => {
+    it('renders mt-data-table and enables table settings by default', () => {
         const wrapper = createWrapper();
         const table = getTable(wrapper);
 
@@ -403,12 +553,91 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 searchValue: '',
                 layout: 'default',
                 allowRowSelection: false,
+                allowBulkDelete: false,
                 selectedRows: [],
                 disableSearch: false,
                 enableReload: false,
                 disableEdit: true,
                 disableDelete: true,
-                disableSettingsTable: true,
+                disableSettingsTable: false,
+                columnChanges: {},
+                showOutlines: true,
+                showStripes: true,
+                enableOutlineFraming: false,
+                enableRowNumbering: false,
+                additionalContextButtons: [],
+            }),
+        );
+    });
+
+    it('allows table settings to be hidden', () => {
+        const wrapper = createWrapper({
+            props: {
+                hideTableSettings: true,
+            },
+        });
+
+        expect(getTable(wrapper).props('disableSettingsTable')).toBe(true);
+    });
+
+    it('forwards opt-in row action props to mt-data-table', () => {
+        const additionalContextButtons = [
+            {
+                key: 'set-price',
+                label: 'Set price',
+                type: 'active' as const,
+            },
+        ];
+        const wrapper = createWrapper({
+            props: {
+                allowEdit: true,
+                allowDelete: true,
+                additionalContextButtons,
+            },
+        });
+
+        expect(getTable(wrapper).props()).toEqual(
+            expect.objectContaining({
+                disableEdit: false,
+                disableDelete: false,
+                disableSettingsTable: false,
+                additionalContextButtons,
+            }),
+        );
+    });
+
+    it('updates in-session table setting props from mt-data-table events', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.find('.mt-data-table-stub__show-outlines').trigger('click');
+        await wrapper.find('.mt-data-table-stub__show-stripes').trigger('click');
+        await wrapper.find('.mt-data-table-stub__outline-framing').trigger('click');
+        await wrapper.find('.mt-data-table-stub__row-numbering').trigger('click');
+        await nextTick();
+
+        expect(getTable(wrapper).props()).toEqual(
+            expect.objectContaining({
+                showOutlines: false,
+                showStripes: false,
+                enableOutlineFraming: true,
+                enableRowNumbering: true,
+            }),
+        );
+    });
+
+    it('allows Meteor bulk delete only when row selection and deletion are enabled', () => {
+        const wrapper = createWrapper({
+            props: {
+                selectable: true,
+                allowDelete: true,
+            },
+        });
+
+        expect(getTable(wrapper).props()).toEqual(
+            expect.objectContaining({
+                allowRowSelection: true,
+                allowBulkDelete: true,
+                disableDelete: false,
             }),
         );
     });
@@ -1063,6 +1292,108 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         ]);
     });
 
+    it('opens a bulk delete confirmation modal and deletes selected rows', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                selectable: true,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
+        await wrapper.find('.mt-data-table-stub__bulk-delete').trigger('click');
+        await nextTick();
+
+        expect(wrapper.find('.sw-meteor-entity-data-table__bulk-delete-modal').exists()).toBe(true);
+
+        await wrapper.find('.sw-meteor-entity-data-table__bulk-delete-confirm').trigger('click');
+        await flushPromises();
+
+        expect(getSyncDeletedMock(repository)).toHaveBeenCalledWith(
+            [
+                'record-1',
+                'record-2',
+            ],
+            Shopware.Context.api,
+        );
+        expect(getDeleteMock(repository)).not.toHaveBeenCalled();
+        expect(getTable(wrapper).props('selectedRows')).toEqual([]);
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-meteor-entity-data-table__bulk-delete-modal').exists()).toBe(false);
+        expect(wrapper.emitted('bulk-delete-finish')).toEqual([
+            [
+                {
+                    ids: [
+                        'record-1',
+                        'record-2',
+                    ],
+                },
+            ],
+        ]);
+    });
+
+    it('emits bulk-delete-failed and keeps the modal open when bulk deletion fails', async () => {
+        const repository = createRepositoryMock();
+        const error = new Error('Bulk delete failed');
+        getSyncDeletedMock(repository).mockRejectedValueOnce(error);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                selectable: true,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__select-row').trigger('click');
+        await wrapper.find('.mt-data-table-stub__bulk-delete').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__bulk-delete-confirm').trigger('click');
+        await flushPromises();
+
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(getTable(wrapper).props('selectedRows')).toEqual(['record-1']);
+        expect(wrapper.find('.sw-meteor-entity-data-table__bulk-delete-modal').exists()).toBe(true);
+        expect(wrapper.emitted('bulk-delete-failed')).toEqual([
+            [
+                {
+                    ids: ['record-1'],
+                    error,
+                },
+            ],
+        ]);
+    });
+
+    it('does not open the bulk delete modal without selected rows or delete permission', async () => {
+        const wrapper = createWrapper({
+            props: {
+                selectable: true,
+                allowDelete: true,
+            },
+        });
+        const wrapperWithoutDeletePermission = createWrapper({
+            props: {
+                selectable: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__bulk-delete').trigger('click');
+        await wrapperWithoutDeletePermission.find('.mt-data-table-stub__select-row').trigger('click');
+        await wrapperWithoutDeletePermission.find('.mt-data-table-stub__bulk-delete').trigger('click');
+        await nextTick();
+
+        expect(wrapper.find('.sw-meteor-entity-data-table__bulk-delete-modal').exists()).toBe(false);
+        expect(wrapperWithoutDeletePermission.find('.sw-meteor-entity-data-table__bulk-delete-modal').exists()).toBe(false);
+    });
+
     it('emits open-detail without routing when detailRoute is not configured', async () => {
         const router = {
             push: jest.fn(),
@@ -1108,6 +1439,107 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.emitted('open-detail')).toEqual([
             [
                 {
+                    id: 'record-1',
+                    record: records[0],
+                },
+            ],
+        ]);
+    });
+
+    it('opens a delete confirmation modal and deletes the selected row', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__delete').trigger('click');
+        await nextTick();
+
+        expect(wrapper.find('.sw-meteor-entity-data-table__delete-modal').exists()).toBe(true);
+
+        await wrapper.find('.sw-meteor-entity-data-table__delete-confirm').trigger('click');
+        await flushPromises();
+
+        expect(getDeleteMock(repository)).toHaveBeenCalledWith('record-1', Shopware.Context.api);
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-meteor-entity-data-table__delete-modal').exists()).toBe(false);
+        expect(wrapper.emitted('delete-finish')).toEqual([
+            [
+                {
+                    id: 'record-1',
+                    record: records[0],
+                },
+            ],
+        ]);
+    });
+
+    it('emits delete-failed and keeps the modal open when deletion fails', async () => {
+        const repository = createRepositoryMock();
+        const error = new Error('Delete failed');
+        getDeleteMock(repository).mockRejectedValueOnce(error);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__delete').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__delete-confirm').trigger('click');
+        await flushPromises();
+
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-meteor-entity-data-table__delete-modal').exists()).toBe(true);
+        expect(wrapper.emitted('delete-failed')).toEqual([
+            [
+                {
+                    id: 'record-1',
+                    record: records[0],
+                    error,
+                },
+            ],
+        ]);
+    });
+
+    it('does not open the delete modal when row deletion is disabled', async () => {
+        const wrapper = createWrapper();
+
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__delete').trigger('click');
+        await nextTick();
+
+        expect(wrapper.find('.sw-meteor-entity-data-table__delete-modal').exists()).toBe(false);
+    });
+
+    it('normalizes context-select events from mt-data-table', async () => {
+        const wrapper = createWrapper({
+            props: {
+                additionalContextButtons: [
+                    {
+                        key: 'set-price',
+                        label: 'Set price',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__context-select').trigger('click');
+
+        expect(wrapper.emitted('context-select')).toEqual([
+            [
+                {
+                    key: 'set-price',
                     id: 'record-1',
                     record: records[0],
                 },

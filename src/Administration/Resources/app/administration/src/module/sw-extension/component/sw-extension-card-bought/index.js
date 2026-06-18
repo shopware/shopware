@@ -2,6 +2,14 @@ import template from './sw-extension-card-bought.html.twig';
 import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
+const DATE_ONLY_FORMAT = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: undefined,
+    minute: undefined,
+};
+
 /**
  * @sw-package checkout
  * @private
@@ -38,11 +46,42 @@ export default {
         },
 
         priceInfo() {
-            return this.extension?.storeLicense?.paymentText ?? '';
+            const license = this.extension?.storeLicense;
+
+            if (!license) {
+                return '';
+            }
+
+            const firstDateOfFullCharging = license.discountInformation?.firstDateOfFullCharging ?? null;
+
+            if (!firstDateOfFullCharging) {
+                return license.paymentText ?? '';
+            }
+
+            const date = this.dateFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
+            const price = this.currencyFilter(license.netPrice);
+            const discountedPrice = license.discountInformation.discountedPrice;
+
+            if (discountedPrice === 0) {
+                return this.$t('sw-extension-store.component.sw-extension-card-bought.trialMonthActiveUntil', {
+                    date,
+                    price,
+                });
+            }
+
+            return this.$t('sw-extension-store.component.sw-extension-card-bought.discountPriceActiveUntil', {
+                date,
+                discountedPrice: this.currencyFilter(discountedPrice),
+                price,
+            });
         },
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
 
         detailLink() {
@@ -61,13 +100,7 @@ export default {
                 return null;
             }
 
-            const localDateString = this.dateFilter(expirationDate, {
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric',
-                hour: undefined,
-                minute: undefined,
-            });
+            const localDateString = this.dateFilter(expirationDate, DATE_ONLY_FORMAT);
 
             // Show different text when it's a test phase instead of a rent
             if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {

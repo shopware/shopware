@@ -275,7 +275,9 @@
         "rentWillExpireAt": "Miete endet am {date}",
         "rentExpiredAt": "Miete endete am {date}",
         "testPhaseWillExpireAt": "Testphase endet am {date}",
-        "testPhaseExpiredAt": "Testphase endete am {date}"
+        "testPhaseExpiredAt": "Testphase endete am {date}",
+        "trialMonthActiveUntil": "Testmonat aktiv bis {date}, danach {price}/Monat",
+        "discountPriceActiveUntil": "{discountedPrice}/Monat bis {date}, danach {price}/Monat"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deaktiviere \"{extensionName}\"",

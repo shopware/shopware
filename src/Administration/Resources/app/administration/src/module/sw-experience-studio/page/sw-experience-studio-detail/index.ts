@@ -18,6 +18,7 @@ import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
 const { Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const { createId } = Shopware.Utils;
 
@@ -38,6 +39,12 @@ type ElementPickerItem = {
     name: string;
     label: string;
     icon: string | null;
+};
+
+type LayoutPreviewContext = {
+    entityType: 'product' | 'category' | 'landing_page';
+    entityId: string;
+    salesChannelId: string | null;
 };
 
 /**
@@ -64,6 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
         currentViewport: Viewport;
         selectedElementId: string | null;
         previewSalesChannelId: string | null;
+        previewEntityId: string | null;
         historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
         isElementPickerOpen: boolean;
         pendingAddElementPayload: AddElementPayload | null;
@@ -77,6 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
             currentViewport: 'desktop',
             selectedElementId: null,
             previewSalesChannelId: null,
+            previewEntityId: null,
             historyKeydownHandler: null,
             isElementPickerOpen: false,
             pendingAddElementPayload: null,
@@ -100,6 +109,24 @@ export default Shopware.Component.wrapComponentConfig({
 
         layoutId(): string {
             return this.$route.params.id as string;
+        },
+
+        layoutLoadCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAssociation('productContentLayouts');
+            criteria.addAssociation('categoryContentLayouts');
+            criteria.addAssociation('landingPageContentLayouts');
+
+            return criteria;
+        },
+
+        resolvedPreviewContext(): LayoutPreviewContext | null {
+            return this.resolvePreviewContext(this.layout);
+        },
+
+        previewEntityType(): LayoutPreviewContext['entityType'] | null {
+            return this.resolvedPreviewContext?.entityType ?? null;
         },
 
         allowSave(): boolean {
@@ -195,9 +222,14 @@ export default Shopware.Component.wrapComponentConfig({
                 this.layout.version = '1.0.0';
                 this.layout.layout = [];
             } else {
-                this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api);
+                this.layout = await this.layoutRepository.get(
+                    this.layoutId,
+                    Shopware.Context.api,
+                    this.layoutLoadCriteria,
+                );
             }
 
+            this.applyPreviewContextDefaults();
             this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
         },
@@ -215,6 +247,14 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            const contextSalesChannelId = this.resolvedPreviewContext?.salesChannelId ?? null;
+
+            if (contextSalesChannelId) {
+                this.previewSalesChannelId = contextSalesChannelId;
+
+                return;
+            }
+
             const salesChannels = await this.salesChannelRepository.search(
                 this.defaultSalesChannelCriteria,
                 Shopware.Context.api,
@@ -224,6 +264,76 @@ export default Shopware.Component.wrapComponentConfig({
             if (firstSalesChannel) {
                 this.previewSalesChannelId = firstSalesChannel.id;
             }
+        },
+
+        applyPreviewContextDefaults(): void {
+            const resolvedPreviewContext = this.resolvedPreviewContext;
+
+            if (!this.previewEntityId && resolvedPreviewContext?.entityId) {
+                this.previewEntityId = resolvedPreviewContext.entityId;
+            }
+
+            if (!this.previewSalesChannelId && resolvedPreviewContext?.salesChannelId) {
+                this.previewSalesChannelId = resolvedPreviewContext.salesChannelId;
+            }
+        },
+
+        getFirstAssociationEntry(
+            association: unknown,
+        ): Record<string, unknown> | null {
+            if (!association) {
+                return null;
+            }
+
+            const firstMethod = (association as { first?: () => unknown }).first;
+
+            if (typeof firstMethod === 'function') {
+                return (firstMethod.call(association) as Record<string, unknown> | null) ?? null;
+            }
+
+            if (Array.isArray(association)) {
+                return (association[0] as Record<string, unknown> | undefined) ?? null;
+            }
+
+            return null;
+        },
+
+        resolvePreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
+            if (!layout) {
+                return null;
+            }
+
+            const productAssignment = this.getFirstAssociationEntry(layout.productContentLayouts);
+
+            if (productAssignment?.productId) {
+                return {
+                    entityType: 'product',
+                    entityId: productAssignment.productId as string,
+                    salesChannelId: (productAssignment.salesChannelId as string | null) ?? null,
+                };
+            }
+
+            const categoryAssignment = this.getFirstAssociationEntry(layout.categoryContentLayouts);
+
+            if (categoryAssignment?.categoryId) {
+                return {
+                    entityType: 'category',
+                    entityId: categoryAssignment.categoryId as string,
+                    salesChannelId: (categoryAssignment.salesChannelId as string | null) ?? null,
+                };
+            }
+
+            const landingPageAssignment = this.getFirstAssociationEntry(layout.landingPageContentLayouts);
+
+            if (landingPageAssignment?.landingPageId) {
+                return {
+                    entityType: 'landing_page',
+                    entityId: landingPageAssignment.landingPageId as string,
+                    salesChannelId: (landingPageAssignment.salesChannelId as string | null) ?? null,
+                };
+            }
+
+            return null;
         },
 
         async loadElementTypes(): Promise<void> {
@@ -236,6 +346,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.previewSalesChannelId = salesChannelId;
+        },
+
+        onPreviewEntityIdChange(entityId: string | null): void {
+            this.previewEntityId = entityId;
         },
 
         onSelectElement(elementId: string | null): void {
@@ -345,7 +459,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
-            const allTypes = this.elementTypeStore.allTypes as ContentSystemElementTypeSpecification[];
+            const allTypes = this.elementTypeStore.allTypes;
 
             if (!payload) {
                 return [];
@@ -558,7 +672,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api);
+            this.layout = await this.layoutRepository.get(
+                layout.id,
+                Shopware.Context.api,
+                this.layoutLoadCriteria,
+            );
+            this.applyPreviewContextDefaults();
 
             this.createNotificationSuccess({
                 message: this.$t('sw-experience-studio.detail.messageSaved'),

@@ -1,0 +1,103 @@
+{% sw_extends '@Storefront/storefront/page/content/page.html.twig' %}
+
+{% block base_body_script %}
+    {{ parent() }}
+
+    <script>
+        (function () {
+            const ELEMENT_ID_ATTRIBUTE = 'data-element-id';
+            const HOVER_CLASS = 'sw-experience-studio-preview-hovered';
+            const interactiveSelector = 'a, button, [role="button"], input[type="submit"], input[type="button"]';
+            let hoveredElement = null;
+
+            function isInteractiveTarget(target) {
+                return target instanceof Element && target.closest(interactiveSelector) !== null;
+            }
+
+            function getComponentRoot(target) {
+                if (!(target instanceof Element)) {
+                    return null;
+                }
+
+                return target.closest('[' + ELEMENT_ID_ATTRIBUTE + ']');
+            }
+
+            function setHoveredElement(element) {
+                if (hoveredElement === element) {
+                    return;
+                }
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.remove(HOVER_CLASS);
+                }
+
+                hoveredElement = element;
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.add(HOVER_CLASS);
+                }
+            }
+
+            function notifySelection(elementId) {
+                if (!window.parent || window.parent === window) {
+                    return;
+                }
+
+                window.parent.postMessage({
+                    source: 'sw-experience-studio-preview',
+                    type: 'select-element',
+                    elementId: elementId,
+                }, '*');
+            }
+
+            const inspectStyle = document.createElement('style');
+            inspectStyle.textContent = ''
+                + 'html, body, a, button, [role="button"], input[type="submit"], input[type="button"] { cursor: crosshair !important; }'
+                + '.sw-experience-studio-preview-hovered { outline: 2px solid #0870ff !important; outline-offset: 2px !important; }';
+            document.head.appendChild(inspectStyle);
+
+            document.addEventListener('mousemove', function (event) {
+                setHoveredElement(getComponentRoot(event.target));
+            }, true);
+
+            document.addEventListener('mouseleave', function () {
+                setHoveredElement(null);
+            }, true);
+
+            document.addEventListener('click', function (event) {
+                const componentRoot = getComponentRoot(event.target);
+
+                if (componentRoot instanceof Element) {
+                    notifySelection(componentRoot.getAttribute(ELEMENT_ID_ATTRIBUTE));
+                }
+
+                if (!isInteractiveTarget(event.target)) {
+                    if (!(componentRoot instanceof Element)) {
+                        return;
+                    }
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('submit', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                if (!isInteractiveTarget(event.target)) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+        })();
+    </script>
+{% endblock %}

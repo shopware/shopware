@@ -22,6 +22,8 @@
         "viewportMobile": "Mobile",
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
+        "previewEntity": "Entity",
+        "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
         "save": "Save layout"
@@ -38,7 +40,12 @@
       },
       "preview": {
         "title": "Preview",
-        "placeholder": "Storefront preview will be shown here."
+        "placeholder": "Storefront preview will be shown here.",
+        "missingSalesChannel": "Select a sales channel to load the preview.",
+        "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
+        "noElements": "The preview loaded, but no root elements were returned.",
+        "emptySlot": "No elements in this slot.",
+        "errorLoad": "Preview could not be loaded."
       },
       "elementSettings": {
         "title": "Element settings",

@@ -248,6 +248,7 @@ declare global {
         cmsPageTypeService: CmsPageTypeService;
         cmsService: CmsService;
         contentSystemElementTypeService: $TSFixMe;
+        contentSystemPreviewService: $TSFixMe;
         configService: ConfigApiService;
         contextStoreService: StoreContextService;
         customEntityDefinitionService: CustomEntityDefinitionService;

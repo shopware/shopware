@@ -22,6 +22,8 @@
         "viewportMobile": "Mobil",
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
+        "previewEntity": "Entität",
+        "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
         "save": "Layout speichern"
@@ -38,7 +40,12 @@
       },
       "preview": {
         "title": "Vorschau",
-        "placeholder": "Die Storefront-Vorschau wird hier angezeigt."
+        "placeholder": "Die Storefront-Vorschau wird hier angezeigt.",
+        "missingSalesChannel": "Wähle einen Verkaufskanal aus, um die Vorschau zu laden.",
+        "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
+        "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
+        "emptySlot": "Dieser Slot enthält keine Elemente.",
+        "errorLoad": "Die Vorschau konnte nicht geladen werden."
       },
       "elementSettings": {
         "title": "Element-Einstellungen",

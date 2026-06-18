@@ -14,11 +14,14 @@
                 :current-viewport="currentViewport"
                 :allow-save="allowSave"
                 :preview-sales-channel-id="previewSalesChannelId"
+                :preview-entity-type="previewEntityType"
+                :preview-entity-id="previewEntityId"
                 :can-undo="canUndo"
                 :can-redo="canRedo"
                 @back="onClickBack"
                 @viewport-change="onViewportChange"
                 @preview-sales-channel-change="onPreviewSalesChannelChange"
+                @preview-entity-id-change="onPreviewEntityIdChange"
                 @save="onSave"
                 @undo="onUndo"
                 @redo="onRedo"
@@ -45,6 +48,9 @@
                     :layout="layout"
                     :viewport="currentViewport"
                     :sales-channel-id="previewSalesChannelId"
+                    :entity-type="previewEntityType"
+                    :entity-id="previewEntityId"
+                    @select-element="onSelectElement"
                 />
                 {% endblock %}
 

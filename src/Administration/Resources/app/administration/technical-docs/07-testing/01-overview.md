@@ -143,7 +143,7 @@ beforeAll(() => {
 
 ## Configuration
 
-- **Jest Config:** `jest.config.js`
+- **Jest Config:** `jest.config.ts`
 - **Test Setup:** `test/_setup/prepare_environment.js`
 - **Test Pattern:** `src/**/*.spec.{js,ts}`
 

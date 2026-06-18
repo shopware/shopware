@@ -756,8 +756,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
 
         return $connection;

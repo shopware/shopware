@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -35,6 +36,7 @@ class ThemeRuntimeConfigService
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeMergedConfigBuilder $mergedConfigBuilder,
         private readonly ThemeRuntimeConfigStorage $storage,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -140,7 +142,7 @@ class ThemeRuntimeConfigService
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
             'importMap' => $importMap,
-            'updatedAt' => new \DateTime(),
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($runtimeConfig);
@@ -153,7 +155,7 @@ class ThemeRuntimeConfigService
                 'themeId' => $copyId,
                 'technicalName' => null,
                 'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($copyId, $context),
-                'updatedAt' => new \DateTime(),
+                'updatedAt' => $this->clock->now(),
             ]);
 
             $this->storage->save($copyConfig);
@@ -214,7 +216,7 @@ class ThemeRuntimeConfigService
         $mergedConfig = $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context);
         $updatedRuntimeConfig = $runtimeConfig->with([
             'resolvedConfig' => $mergedConfig,
-            'updatedAt' => new \DateTime(),
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($updatedRuntimeConfig);

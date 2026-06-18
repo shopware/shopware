@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
@@ -43,7 +44,7 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $this->dataValidator = $this->createMock(DataValidator::class);
         $this->jwtConfiguration = JWTConfigurationFactory::createJWTConfiguration();
 
-        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->jwtConfiguration, $this->dataValidator);
+        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->jwtConfiguration, $this->dataValidator, new NativeClock());
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -37,7 +38,8 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly EntityRepository $aclRoleRepository,
-        private readonly EntityRepository $integrationRepository
+        private readonly EntityRepository $integrationRepository,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -45,7 +47,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $context = Context::createCLIContext();
-        $timeExpired = (new \DateTimeImmutable())->modify(\sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $timeExpired = $this->clock->now()->modify(\sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter('deletedAt', [

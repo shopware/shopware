@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
@@ -308,8 +307,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerNotLoggedInException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -402,8 +400,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }

@@ -129,6 +129,14 @@ export default Component.wrapComponentConfig({
 
             return !this.country.checkPostalCodePattern;
         },
+
+        isDisplayStateInRegistrationActive(): boolean {
+            return !!this.country.forceStateInRegistration || !!this.country.displayStateInRegistration;
+        },
+
+        isDisplayStateInRegistrationDisabled(): boolean {
+            return !!this.country.forceStateInRegistration || !this.acl.can('country.editor');
+        },
     },
 
     watch: {

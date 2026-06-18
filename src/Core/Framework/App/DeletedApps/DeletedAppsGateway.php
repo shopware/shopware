@@ -4,11 +4,14 @@ namespace Shopware\Core\Framework\App\DeletedApps;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\App\DeletedApps\DeletedAppsGatewayTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore only integration tested
+ * @codeCoverageIgnore
+ *
+ * @see DeletedAppsGatewayTest
  */
 #[Package('framework')]
 readonly class DeletedAppsGateway

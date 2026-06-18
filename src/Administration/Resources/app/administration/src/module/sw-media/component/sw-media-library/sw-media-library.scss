@@ -63,9 +63,12 @@ $sw-media-library-color-background: var(--color-elevation-surface-default);
         padding: 10px;
     }
 
-    .sw-media-library__load-more-button {
-        margin: 16px auto;
+    .sw-media-library__load-buttons {
         grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin: 16px auto;
     }
 
     &__empty-state {

@@ -30,7 +30,7 @@ class GenerateDocumentActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->documentGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $this->documentGenerator = $this->createMock(DocumentGenerator::class);
 
         $this->action = new GenerateDocumentAction(
             $this->documentGenerator,

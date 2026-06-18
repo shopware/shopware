@@ -13,7 +13,6 @@ process.env.TZ = process.env.TZ || 'UTC';
 
 // Check if ADMIN_PATH/test/_helper_/component-imports.js exists
 if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
-    // eslint-disable-next-line max-len
     throw new Error('Missing required /test/_helper_/componentWrapper/component-imports.js file to run tests. Run `npm run unit-setup` before executing tests, or use `composer run admin:unit`.');
 }
 
@@ -76,10 +75,12 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
+        '!src/**/*.spec/**',
         '!**/*.d.ts',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.js',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.ts',
         '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+        '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/**',
 
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
@@ -165,10 +166,16 @@ module.exports = {
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
         '<rootDir>/src/**/*.spec.ts',
+        '<rootDir>/src/**/*.spec/*.spec.js',
+        '<rootDir>/src/**/*.spec/*.spec.ts',
         '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/test/_helper_/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

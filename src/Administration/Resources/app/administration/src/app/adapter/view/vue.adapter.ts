@@ -19,6 +19,7 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
+import MtAvatar from '@shopware-ag/meteor-component-library/dist/esm/MtAvatar';
 import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
 import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
 import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
@@ -361,6 +362,7 @@ export default class VueAdapter extends ViewAdapter {
          * Initialize all meteor components
          */
         const meteorComponents = {
+            MtAvatar,
             MtBanner,
             MtLoader,
             MtProgressBar,

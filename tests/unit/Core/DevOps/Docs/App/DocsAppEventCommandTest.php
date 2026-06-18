@@ -112,7 +112,7 @@ class DocsAppEventCommandTest extends TestCase
     public function testRenderThrowsIfTemplateMissing(): void
     {
         $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
+        $this->twig->method('setLoader');
 
         $result = $this->command->render();
         static::assertIsString($result);
@@ -123,7 +123,7 @@ class DocsAppEventCommandTest extends TestCase
         $exception = new \RuntimeException('Twig error');
 
         $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
+        $this->twig->method('setLoader');
         $this->twig->method('render')->willThrowException($exception);
 
         $this->expectExceptionObject($exception);

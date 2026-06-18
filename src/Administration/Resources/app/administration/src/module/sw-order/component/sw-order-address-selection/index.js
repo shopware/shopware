@@ -231,6 +231,8 @@ export default {
 
             return this.customerRepository.save(this.customer).then(() => {
                 this.currentAddress = null;
+
+                this.onAddressChange(address.id);
             });
         },
 

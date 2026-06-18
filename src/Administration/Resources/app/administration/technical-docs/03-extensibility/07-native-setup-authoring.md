@@ -62,19 +62,19 @@ Supported:
 
 ```text
 swDefinePublic({ count });
-swDefinePublic({ count: localCount });
-swDefinePublic({ 'count': localCount });
 ```
 
 Rejected:
 
 ```ts
+swDefinePublic({ count: localCount });
+swDefinePublic({ 'count': localCount });
 swDefinePublic({ [dynamicKey]: count });
 swDefinePublic({ ...state });
 swDefinePublic(state);
 ```
 
-Computed public keys are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.
+Only shorthand bindings are supported, so a public key always equals its local binding name. Renaming, string keys, and computed keys are rejected: the transform, lint, and type layers need a stable compile-time key, and a renamed key could silently shadow another binding.
 
 `swDefineOverride({...})` is the override payload marker in override mode.
 
@@ -83,17 +83,19 @@ Supported:
 ```text
 swDefineOverride({});
 swDefineOverride({ count });
-swDefineOverride({ count: localCount });
-swDefineOverride({ 'count': localCount });
 ```
 
 Rejected:
 
 ```ts
+swDefineOverride({ count: localCount });
+swDefineOverride({ 'count': localCount });
 swDefineOverride({ [dynamicKey]: count });
 swDefineOverride({ ...state });
 swDefineOverride(state);
 ```
+
+Like `swDefinePublic()`, only shorthand bindings are supported.
 
 Override mode requires exactly one top-level `swDefineOverride({...})` call. Template-only overrides use `swDefineOverride({})`.
 
@@ -125,8 +127,8 @@ The transform rejects these cases loudly:
 - `defineSlots()` in override mode, or more than one `defineSlots()` call
 - `defineOptions()` in override mode, outside the top level, or more than one `defineOptions()` call
 - Top-level `await`
-- Non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefinePublic()` usage
-- Missing, non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefineOverride()` usage in override mode
+- Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
+- Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
 - Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
 - Additional `<script>` blocks next to Shopware setup blocks
 

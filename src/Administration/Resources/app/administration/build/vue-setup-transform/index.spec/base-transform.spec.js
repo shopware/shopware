@@ -20,7 +20,7 @@ describe('build/vue-setup-transform base transforms', () => {
             swDefinePublic({
                 count,
                 doubled,
-                'foo': foo2
+                foo2
             });
             </script>
         `;
@@ -34,7 +34,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 count,
                 doubled,
                 internalThing,
-                'foo': foo2,
+                foo2,
             } = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
                 const useSwContext = () => __shopwareSetupBindings.context;
             
@@ -48,7 +48,7 @@ describe('build/vue-setup-transform base transforms', () => {
                     public: {
                         count,
                         doubled,
-                        'foo': foo2,
+                        foo2,
                     },
                     private: {
                         internalThing,

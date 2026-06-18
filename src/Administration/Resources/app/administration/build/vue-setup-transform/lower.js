@@ -7,9 +7,6 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
 /**
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
  * @typedef {import('./script-analyzer').ShopwareSetupScriptAnalysis} ShopwareSetupScriptAnalysis
- * @typedef {import('./script-analyzer').PublicEntry} PublicEntry
- * @typedef {import('./script-analyzer').OverrideEntry} OverrideEntry
- * @typedef {PublicEntry['key']} PublicKey
  */
 
 /**
@@ -29,27 +26,13 @@ function indent(code, spaces = 4) {
 }
 
 /**
- * Escapes component names and public keys embedded in generated single-quoted strings.
+ * Escapes component names embedded in generated single-quoted strings.
  *
  * @param {string} value
  * @returns {string}
  */
 function escapeSingleQuoted(value) {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-}
-
-/**
- * Formats public API keys, preserving identifier shorthand where it is readable.
- *
- * @param {PublicKey} key
- * @returns {string}
- */
-function formatPropertyKey(key) {
-    if (key.type === 'identifier') {
-        return key.value;
-    }
-
-    return `'${escapeSingleQuoted(key.value)}'`;
 }
 
 /**
@@ -170,66 +153,16 @@ function getTakenNames(analysis) {
 }
 
 /**
- * Indexes public entries by local binding and rejects duplicate local exposure.
- *
- * @param {PublicEntry[] | OverrideEntry[]} publicEntries
- * @param {'swDefinePublic' | 'swDefineOverride'} macroName
- * @returns {Map<string, PublicEntry>}
- */
-function createEntryByLocalNameMap(publicEntries, macroName) {
-    const publicEntryByLocalName = new Map();
-
-    publicEntries.forEach((entry) => {
-        if (publicEntryByLocalName.has(entry.localName)) {
-            throw new ShopwareSetupTransformError(
-                `Local binding "${entry.localName}" cannot be listed multiple times in ${macroName}().`,
-                0,
-            );
-        }
-
-        publicEntryByLocalName.set(entry.localName, entry);
-    });
-
-    return publicEntryByLocalName;
-}
-
-/**
- * Emits the destructured bridge result entry for public aliases such as `{ 'foo': foo2 }`.
- *
- * @param {string} bindingName
- * @param {PublicEntry | undefined} publicEntry
- * @returns {string}
- */
-function formatDestructureEntry(bindingName, publicEntry) {
-    if (!publicEntry) {
-        return bindingName;
-    }
-
-    if (publicEntry.key.type === 'identifier' && publicEntry.key.value === bindingName) {
-        return bindingName;
-    }
-
-    return `${formatPropertyKey(publicEntry.key)}: ${bindingName}`;
-}
-
-/**
  * Builds the base callback return object split into public and private state.
  *
  * @param {ShopwareSetupScriptAnalysis} analysis
  * @returns {string}
  */
 function buildBaseReturn(analysis) {
-    const publicLocalNames = new Set(analysis.publicEntries.map((entry) => entry.localName));
+    const publicLocalNames = new Set(analysis.publicEntries);
     const privateProperties = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
         .map((binding) => binding.name);
-    const publicProperties = analysis.publicEntries.map((entry) => {
-        if (entry.key.type === 'identifier' && entry.key.value === entry.localName) {
-            return entry.localName;
-        }
-
-        return `${formatPropertyKey(entry.key)}: ${entry.localName}`;
-    });
 
     if (analysis.runtimeBindings.length === 0) {
         throw new ShopwareSetupTransformError(
@@ -240,7 +173,7 @@ function buildBaseReturn(analysis) {
 
     return [
         'return {',
-        `    public: ${formatObjectProperties(publicProperties, 8)},`,
+        `    public: ${formatObjectProperties(analysis.publicEntries, 8)},`,
         `    private: ${formatObjectProperties(privateProperties, 8)},`,
         '};',
     ].join('\n');
@@ -253,15 +186,6 @@ function buildBaseReturn(analysis) {
  * @returns {string}
  */
 function buildOverrideReturn(analysis) {
-    createEntryByLocalNameMap(analysis.overrideEntries, 'swDefineOverride');
-
-    const overrideProperties = analysis.overrideEntries.map((entry) => {
-        if (entry.key.type === 'identifier' && entry.key.value === entry.localName) {
-            return entry.localName;
-        }
-
-        return `${formatPropertyKey(entry.key)}: ${entry.localName}`;
-    });
     const privateProperties = Array.from(analysis.overridePrivateAliases.entries()).map(
         ([
             localName,
@@ -271,7 +195,7 @@ function buildOverrideReturn(analysis) {
         },
     );
     const properties = [
-        ...overrideProperties,
+        ...analysis.overrideEntries,
         ...privateProperties,
     ];
 
@@ -299,10 +223,7 @@ function buildBaseScript(block, analysis) {
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
     const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
-    const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
-    const destructureEntries = analysis.runtimeBindings.map((binding) => {
-        return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
-    });
+    const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
     const callbackBody = buildCallbackBody(analysis, setupBindingsName);
     const body = [
         `const useSwContext = () => ${setupBindingsName}.context;`,

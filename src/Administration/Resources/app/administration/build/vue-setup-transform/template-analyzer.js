@@ -16,7 +16,6 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @typedef {import('@babel/types').PatternLike} PatternLike
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
  * @typedef {import('./script-analyzer').ShopwareSetupScriptAnalysis} ShopwareSetupScriptAnalysis
- * @typedef {import('./script-analyzer').PublicEntry} OverrideEntry
  *
  * @typedef {object} TemplateEdit
  * @property {number} start
@@ -804,34 +803,6 @@ function findOpeningTagNameEnd(template, elementStart) {
 }
 
 /**
- * Formats one slot-scope destructuring entry.
- *
- * @param {OverrideEntry['key']} key
- * @param {string} localName
- * @returns {SlotMapping}
- */
-function createPublicSlotMapping(key, localName) {
-    if (key.type === 'identifier' && key.value === localName) {
-        return {
-            sourceKey: key.value,
-            source: key.value,
-        };
-    }
-
-    if (key.type === 'identifier') {
-        return {
-            sourceKey: key.value,
-            source: `${key.value}: ${localName}`,
-        };
-    }
-
-    return {
-        sourceKey: key.value,
-        source: `'${key.value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}': ${localName}`,
-    };
-}
-
-/**
  * Formats one private slot-scope destructuring entry.
  *
  * @param {string} privateAlias
@@ -1003,12 +974,7 @@ function analyzeOverrideTemplate(block, analysis) {
     const ast = parseTemplate(block.template.content);
     const edits = [];
     const privateAliases = new Map();
-    const overrideEntryByLocalName = new Map(
-        analysis.overrideEntries.map((entry) => [
-            entry.localName,
-            entry,
-        ]),
-    );
+    const overrideLocalNames = new Set(analysis.overrideEntries);
 
     /**
      * @param {TemplateChildNode} node
@@ -1028,10 +994,13 @@ function analyzeOverrideTemplate(block, analysis) {
                     return;
                 }
 
-                const overrideEntry = overrideEntryByLocalName.get(binding.name);
-
-                if (overrideEntry) {
-                    mappings.push(createPublicSlotMapping(overrideEntry.key, binding.name));
+                // Public override bindings keep their own name in the slot scope; only private
+                // ones need a deterministic alias.
+                if (overrideLocalNames.has(binding.name)) {
+                    mappings.push({
+                        sourceKey: binding.name,
+                        source: binding.name,
+                    });
                     return;
                 }
 

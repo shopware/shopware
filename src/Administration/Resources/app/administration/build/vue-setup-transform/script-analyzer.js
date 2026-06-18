@@ -13,7 +13,6 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @typedef {import('@babel/types').ExpressionStatement} ExpressionStatement
  * @typedef {import('@babel/types').CallExpression} CallExpression
  * @typedef {import('@babel/types').ObjectExpression} ObjectExpression
- * @typedef {import('@babel/types').ObjectProperty} ObjectProperty
  * @typedef {import('@babel/types').VariableDeclarator} VariableDeclarator
  *
  * @typedef {object} SourceRange
@@ -27,12 +26,6 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {string} name
  * @property {BabelNode} node
  *
- * @typedef {object} PublicEntry
- * @property {{ type: 'identifier' | 'string', value: string }} key
- * @property {string} localName
- *
- * @typedef {PublicEntry} OverrideEntry
- *
  * @typedef {object} ShopwareSetupScriptAnalysis
  * @property {string} source
  * @property {ImportBlock[]} imports
@@ -41,8 +34,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {RuntimeBinding[]} runtimeBindings
  * @property {Set<string>} runtimeBindingNames
  * @property {Set<string>} importedBindings
- * @property {PublicEntry[]} publicEntries
- * @property {OverrideEntry[]} overrideEntries
+ * @property {string[]} publicEntries
+ * @property {string[]} overrideEntries
  * @property {{ code: string, macroName: 'defineProps' | 'withDefaults', ranges: SourceRange[] } | null} propsMacro
  * @property {{ code: string, macroName: 'defineEmits', ranges: SourceRange[] } | null} emitsMacro
  * @property {{ code: string, macroName: 'defineSlots', ranges: SourceRange[] } | null} slotsMacro
@@ -510,42 +503,6 @@ function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, 
 }
 
 /**
- * Resolves the stable public API key from `swDefinePublic({ key: local })`.
- *
- * @param {ObjectProperty} property
- * @param {number} scriptOffset
- * @param {'swDefinePublic' | 'swDefineOverride'} macroName
- * @returns {PublicEntry['key']}
- */
-function getStaticMacroKey(property, scriptOffset, macroName) {
-    if (property.computed) {
-        throw new ShopwareSetupTransformError(
-            `Computed keys in ${macroName}() are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.`,
-            scriptOffset + getNodeRange(property, scriptOffset).start,
-        );
-    }
-
-    if (property.key.type === 'Identifier') {
-        return {
-            type: 'identifier',
-            value: property.key.name,
-        };
-    }
-
-    if (property.key.type === 'StringLiteral') {
-        return {
-            type: 'string',
-            value: property.key.value,
-        };
-    }
-
-    throw new ShopwareSetupTransformError(
-        `${macroName}() only supports identifier keys and string-literal keys.`,
-        scriptOffset + getNodeRange(property.key, scriptOffset).start,
-    );
-}
-
-/**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
  *
  * @param {CallExpression} callNode
@@ -565,13 +522,13 @@ function assertSingleArgument(callNode, scriptOffset, macroName) {
 }
 
 /**
- * Extracts public entries from the top-level `swDefinePublic()` marker.
+ * Extracts the exposed local binding names from the top-level `swDefinePublic()` marker.
  *
  * @param {ExpressionStatement & { expression: CallExpression }} statement
  * @param {number} scriptOffset
  * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @param {'public' | 'override'} entryType
- * @returns {PublicEntry[]}
+ * @returns {string[]}
  */
 function extractStaticObjectMarker(statement, scriptOffset, macroName, entryType) {
     const callNode = statement.expression;
@@ -593,28 +550,27 @@ function extractStaticObjectMarker(statement, scriptOffset, macroName, entryType
             );
         }
 
-        const key = getStaticMacroKey(property, scriptOffset, macroName);
-
-        if (seenKeys.has(key.value)) {
+        // Only shorthand bindings are allowed so the public key always equals the local binding
+        // name. Renaming or string/computed keys would let a public key shadow another binding.
+        if (property.computed || !property.shorthand || property.key.type !== 'Identifier') {
             throw new ShopwareSetupTransformError(
-                `Duplicate ${entryType} Shopware setup binding key "${key.value}".`,
+                `${macroName}() only supports shorthand bindings such as { a, b }. Renaming and string or computed keys (for example { a: b } or { 'a': b }) are not supported.`,
                 scriptOffset + getNodeRange(property, scriptOffset).start,
             );
         }
 
-        seenKeys.add(key.value);
+        const localName = property.key.name;
 
-        if (property.value.type !== 'Identifier') {
+        if (seenKeys.has(localName)) {
             throw new ShopwareSetupTransformError(
-                `${macroName}() values must be local identifiers.`,
-                scriptOffset + getNodeRange(property.value, scriptOffset).start,
+                `Duplicate ${entryType} Shopware setup binding key "${localName}".`,
+                scriptOffset + getNodeRange(property, scriptOffset).start,
             );
         }
 
-        return {
-            key,
-            localName: property.value.name,
-        };
+        seenKeys.add(localName);
+
+        return localName;
     });
 }
 
@@ -666,27 +622,27 @@ function assertReservedMacroNames(bindings, mode, scriptOffset) {
 }
 
 /**
- * Ensures public entries refer to local runtime bindings, not imports or missing names.
+ * Ensures exposed names refer to local runtime bindings, not imports or missing names.
  *
- * @param {PublicEntry[]} publicEntries
+ * @param {string[]} localNames
  * @param {Set<string>} runtimeBindingNames
  * @param {Set<string>} importedBindings
  * @param {number} scriptOffset
  * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @returns {void}
  */
-function assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, macroName) {
-    publicEntries.forEach((entry) => {
-        if (importedBindings.has(entry.localName)) {
+function assertStaticObjectEntries(localNames, runtimeBindingNames, importedBindings, scriptOffset, macroName) {
+    localNames.forEach((localName) => {
+        if (importedBindings.has(localName)) {
             throw new ShopwareSetupTransformError(
-                `Imported binding "${entry.localName}" cannot be exposed with ${macroName}().`,
+                `Imported binding "${localName}" cannot be exposed with ${macroName}().`,
                 scriptOffset,
             );
         }
 
-        if (!runtimeBindingNames.has(entry.localName)) {
+        if (!runtimeBindingNames.has(localName)) {
             throw new ShopwareSetupTransformError(
-                `${macroName}() references unknown local binding "${entry.localName}".`,
+                `${macroName}() references unknown local binding "${localName}".`,
                 scriptOffset,
             );
         }

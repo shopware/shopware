@@ -322,7 +322,15 @@ describe('build/vue-setup-transform validation', () => {
     it.each([
         [
             'swDefinePublic({ [dynamicKey]: count });',
-            'Computed keys in swDefinePublic() are intentionally unsupported',
+            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            'swDefinePublic({ public: count });',
+            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            "swDefinePublic({ 'public': count });",
+            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
         ],
         [
             'swDefinePublic({ ...publicState });',
@@ -350,7 +358,15 @@ describe('build/vue-setup-transform validation', () => {
     it.each([
         [
             'swDefineOverride({ [dynamicKey]: count });',
-            'Computed keys in swDefineOverride() are intentionally unsupported',
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            'swDefineOverride({ override: count });',
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            "swDefineOverride({ 'override': count });",
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
         ],
         [
             'swDefineOverride({ ...overrideState });',
@@ -414,7 +430,7 @@ describe('build/vue-setup-transform validation', () => {
             const count = 1;
             
             swDefineOverride({
-                imported: computed,
+                computed,
                 missing,
             });
             </script>

@@ -122,8 +122,8 @@ describe('build/vue-setup-transform override transforms', () => {
             
             swDefineOverride({
                 body,
-                headline: localHeadline,
-                'footer-text': localFooter,
+                localHeadline,
+                localFooter,
             });
             </script>
         `;
@@ -131,7 +131,7 @@ describe('build/vue-setup-transform override transforms', () => {
         const result = transformOrFail(source, 'explicit-payload.override.vue').code;
 
         expect(result).toContain(
-            "return {\n                body,\n                headline: localHeadline,\n                'footer-text': localFooter,\n            };",
+            'return {\n                body,\n                localHeadline,\n                localFooter,\n            };',
         );
         expect(result).not.toContain('__swOverride_');
         expect(result).not.toContain('localInfo,');

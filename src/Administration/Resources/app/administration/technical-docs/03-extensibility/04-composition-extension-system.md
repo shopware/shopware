@@ -254,22 +254,20 @@ Shopware setup SFCs use transform-injected helper functions instead of broad run
 | Base     | `useSwProps()`, `useSwContext()`                         |
 | Override | `useSwPreviousState()`, `useSwProps()`, `useSwContext()` |
 
-`swDefinePublic({...})` is the only public marker in base mode. It accepts stable object-literal keys only:
+`swDefinePublic({...})` is the only public marker in base mode. It accepts shorthand bindings only, so a public key always equals its local binding name:
 
 ```text
 swDefinePublic({ count });
-swDefinePublic({ count: localCount });
-swDefinePublic({ 'count': localCount });
 ```
 
-`swDefineOverride({...})` is required in override mode and accepts the same static object-literal forms:
+`swDefineOverride({...})` is required in override mode and accepts the same shorthand-only form:
 
 ```text
 swDefineOverride({});
 swDefineOverride({ count });
-swDefineOverride({ count: localCount });
-swDefineOverride({ 'count': localCount });
 ```
+
+Renaming, string keys, and computed keys (for example `{ count: localCount }` or `{ 'count': localCount }`) are rejected in both markers.
 
 ---
 

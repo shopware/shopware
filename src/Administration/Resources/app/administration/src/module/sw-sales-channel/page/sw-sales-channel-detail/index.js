@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-detail.html.twig';
+import './sw-sales-channel-detail.scss';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;

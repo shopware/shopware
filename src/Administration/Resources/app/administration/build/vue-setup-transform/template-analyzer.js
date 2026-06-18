@@ -30,6 +30,7 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
 const EXPRESSION_PLUGINS = [
     'typescript',
 ];
+const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
 /**
  * Keeps override-private namespace names stable for builds, tests, and debugging.
@@ -501,6 +502,78 @@ function collectSlotScopeReferences(slotDirective, templateScope) {
     }
 
     return references;
+}
+
+/**
+ * Checks whether a slot binding pattern declares or reads the machine-owned override-private state key.
+ *
+ * @param {BabelNode | null | undefined} pattern
+ * @returns {boolean}
+ */
+function hasReservedOverrideSlotBinding(pattern) {
+    if (!pattern) {
+        return false;
+    }
+
+    if (pattern.type === 'Identifier') {
+        return pattern.name === RESERVED_OVERRIDE_STATE_NAME;
+    }
+
+    if (pattern.type === 'RestElement') {
+        return hasReservedOverrideSlotBinding(pattern.argument);
+    }
+
+    if (pattern.type === 'AssignmentPattern') {
+        return hasReservedOverrideSlotBinding(pattern.left);
+    }
+
+    if (pattern.type === 'ArrayPattern') {
+        return pattern.elements.some(hasReservedOverrideSlotBinding);
+    }
+
+    if (pattern.type === 'ObjectPattern') {
+        return pattern.properties.some((property) => {
+            if (property.type === 'RestElement') {
+                return hasReservedOverrideSlotBinding(property.argument);
+            }
+
+            if (getObjectPatternSourceKey(property) === RESERVED_OVERRIDE_STATE_NAME) {
+                return true;
+            }
+
+            return hasReservedOverrideSlotBinding(property.value);
+        });
+    }
+
+    return false;
+}
+
+/**
+ * Rejects user-authored slot bindings that would collide with the generated override-private state channel.
+ *
+ * @param {DirectiveNode | undefined} slotDirective
+ * @returns {void}
+ */
+function assertNoReservedOverrideSlotScope(slotDirective) {
+    if (!slotDirective?.exp?.content) {
+        return;
+    }
+
+    try {
+        const { pattern } = parseBindingPattern(slotDirective.exp.content);
+
+        if (!hasReservedOverrideSlotBinding(pattern)) {
+            return;
+        }
+    } catch {
+        // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
+        return;
+    }
+
+    throw new ShopwareSetupTransformError(
+        '"__swOverride" is reserved for Shopware override-private state and must not be used as a slot-scope binding.',
+        0,
+    );
 }
 
 /**
@@ -990,6 +1063,8 @@ function analyzeOverrideTemplate(block, analysis) {
     function visit(node) {
         if (isSwBlockExtends(node)) {
             const slotDirective = getDefaultSlotDirective(node);
+            assertNoReservedOverrideSlotScope(slotDirective);
+
             const slotScope = collectSlotScopeNames(slotDirective);
             const references = collectTemplateReferences(node.children, slotScope);
             const publicMappings = [];

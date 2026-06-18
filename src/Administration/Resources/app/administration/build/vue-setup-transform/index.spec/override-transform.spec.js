@@ -431,4 +431,31 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).not.toContain('__swOverride');
         expect(result).toContain('return {};');
     });
+
+    it.each([
+        '#default="{ __swOverride }"',
+        '#default="{ __swOverride: overrideState }"',
+        '#default="{ nested: { __swOverride } }"',
+        '#default="{ ...__swOverride }"',
+    ])('rejects user-authored %s slot bindings that would block private namespace injection', (slotScope) => {
+        const source = stripIndent`
+            <template>
+            <sw-block
+                extends="sw_example_component_body"
+                ${slotScope}
+            >
+                <small>{{ info }}</small>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'local';
+            
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'reserved-slot-scope.override.vue')).toThrow(
+            '"__swOverride" is reserved for Shopware override-private state and must not be used as a slot-scope binding.',
+        );
+    });
 });

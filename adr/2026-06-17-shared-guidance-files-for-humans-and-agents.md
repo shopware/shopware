@@ -10,6 +10,7 @@ status: accepted
 
 Shopware now has several consumers for repository guidance: human contributors, Codex, Claude, Gemini, and other agent tools.
 Keeping separate guidance for each audience caused duplication, drift, and larger context loads than necessary.
+Review feedback on the first version showed the same risk inside this repository: the root `AGENTS.md` grew too large, some human-relevant rules were placed only in agent files, and some rules needed more precise ownership by component or test type.
 
 We need one documentation model that:
 
@@ -17,32 +18,38 @@ We need one documentation model that:
 - avoids duplicating the same rules across README, AGENTS, CLAUDE, and GEMINI files,
 - separates reusable coding rules from folder-specific working context,
 - records durable decisions without turning living guidance into historical essays,
+- keeps the root agent context small by routing readers to the relevant subtree guidance,
 - keeps local setup, tool preferences, Docker setup, and approval rules out of tracked project documentation.
 
 ## Decision
 
 1. Folder-specific durable guidance lives in the folder's `README.md`.
    The README is the source of truth and should be understandable for humans and explicit enough for agents.
-2. `AGENTS.md` files in subtrees are short routing files that point agents to the README.
+2. The root `AGENTS.md` stays concise and routes conditionally to subtree guidance:
+   PHP/server code uses `src/Core/AGENTS.md`, Administration code uses `src/Administration/AGENTS.md`, Storefront code uses `src/Storefront/AGENTS.md`, and tests use `tests/AGENTS.md`.
+3. Subtree `AGENTS.md` files are allowed when they route to more specific guidance or hold concise rules for that whole subtree.
+   They must stay readable for humans and agents, and they must not conflict with `coding-guidelines/`.
+4. Human-relevant component rules belong in README or `coding-guidelines/`.
+   For example, Administration ACL guidance belongs in the Administration README/coding guideline rather than only in an agent file.
+5. `AGENTS.md` stubs inside subtrees should point agents to the README when the README is the source of truth.
    They should not duplicate README content.
-3. `CLAUDE.md` and `GEMINI.md` files mirror that routing by importing the local `AGENTS.md` with `@AGENTS.md`.
-4. Standalone overview or documentation READMEs do not need agent routing stubs.
-   This includes the main component READMEs under `src/*` and folders whose path contains `docs`.
-5. Reusable normative rules belong in `coding-guidelines/`.
+6. `CLAUDE.md` and `GEMINI.md` files mirror that routing by importing the local `AGENTS.md` with `@AGENTS.md`.
+7. Standalone overview or documentation READMEs do not need agent routing stubs unless the companion `AGENTS.md` routes domain-specific guidance.
+   Folders whose path contains `docs` usually do not need stubs.
+8. Reusable normative rules belong in `coding-guidelines/`.
    Component READMEs should link to the concrete guideline files that apply instead of duplicating those rules.
-6. ADRs capture durable decisions, trade-offs, and consequences.
-   README guidance, coding guidelines, and ADRs should cross-link where the link helps readers understand both what to do and why.
-7. The root `AGENTS.md` is reserved for concise repo-wide guidance that agents should not miss.
-   Detailed or component-specific guidance should move to the relevant README or coding guideline.
-8. Local-only agent mechanics stay in untracked override files such as `AGENTS.override.md`.
+9. ADRs capture durable decisions, trade-offs, and consequences.
+   README guidance, coding guidelines, and recent/current ADRs should cross-link where the link changes what the reader should do.
+10. Local-only agent mechanics stay in untracked override files such as `AGENTS.override.md`.
    This includes Docker worktree setup, approval rules, personal tool preferences, and other machine-local instructions.
 
 ## Consequences
 
 - Humans and agents share the same durable guidance instead of following parallel documents.
-- Context windows stay smaller because agent entry files route to the source instead of repeating it.
+- Context windows stay smaller because the root agent entry file routes to the relevant subtree instead of repeating PHP, Administration, Storefront, and PHPUnit guidance.
 - Contributors can update working guidance in the same place they already expect to find component documentation.
 - Coding guidelines stay reusable and normative, while READMEs stay focused on local working context.
+- Review feedback can move misplaced rules to the right owner without changing the overall model: human-facing component rules go to READMEs or coding guidelines; subtree-wide routing can stay in AGENTS files.
 - ADRs keep the rationale available without making the active guidance files stale or verbose.
 - The repository contains more tiny routing files, but they are intentionally boring and tool-compatible.
 

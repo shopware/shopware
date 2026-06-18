@@ -59,6 +59,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - For the rationale behind this guidance model, see `adr/2026-06-17-shared-guidance-files-for-humans-and-agents.md`.
 - Add an ADR for durable architectural or product-technical decisions with meaningful trade-offs, consequences, or future compatibility impact. Follow `coding-guidelines/core/adr.md` and keep ADRs focused on the decision and why it was made.
 - Add or update `coding-guidelines/` when a rule is reusable, normative, and broader than one folder. Keep local README guidance for folder-specific working context.
+- When adding or changing guidance in an `AGENTS.md`, cross-check the applicable `coding-guidelines/` files and update the source of truth instead of creating conflicting rules.
 - Cross-link README guidance, coding guidelines, and recent/current ADRs sparingly. Prefer links that change what the reader should do; avoid old ADR background links.
 - Do not duplicate ADR or coding-guideline content in READMEs. Summarize the local implication and link to the source.
 - Reserve the root `AGENTS.md` for short repo-wide instructions that agents must see before working and humans can use as concise code-level guidance; move detailed or component-specific guidance into the relevant README or coding guideline.

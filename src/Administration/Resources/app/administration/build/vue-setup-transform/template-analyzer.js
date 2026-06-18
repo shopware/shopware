@@ -32,18 +32,23 @@ const EXPRESSION_PLUGINS = [
 ];
 
 /**
- * Keeps override-private state names stable for builds and tests.
+ * Keeps override-private namespace names stable for builds, tests, and debugging.
  *
  * @param {string} filename
  * @param {string} componentName
- * @param {string} localName
  * @returns {string}
  */
-function createOverridePrivateAlias(filename, componentName, localName) {
+function createOverridePrivateNamespace(filename, componentName) {
     const normalizedFilename = path.normalize(filename).split(path.sep).join('/');
     const hash = crypto.createHash('sha1').update(`${normalizedFilename}:${componentName}`).digest('hex').slice(0, 5);
+    const readableFilename = path
+        .basename(normalizedFilename)
+        .replace(/\.[^.]+$/u, '')
+        .replace(/[^A-Za-z0-9_$]/gu, '_')
+        .replace(/_+/gu, '_')
+        .replace(/^([^A-Za-z_$])/u, '_$1');
 
-    return `__swOverride_${hash}_${localName}`;
+    return `${readableFilename}_${hash}`;
 }
 
 /**
@@ -803,16 +808,16 @@ function findOpeningTagNameEnd(template, elementStart) {
 }
 
 /**
- * Formats one private slot-scope destructuring entry.
+ * Formats the private slot-scope destructuring entry for one override file namespace.
  *
- * @param {string} privateAlias
- * @param {string} localName
+ * @param {string} namespace
+ * @param {string[]} localNames
  * @returns {SlotMapping}
  */
-function createPrivateSlotMapping(privateAlias, localName) {
+function createPrivateSlotMapping(namespace, localNames) {
     return {
-        sourceKey: privateAlias,
-        source: `${privateAlias}: ${localName}`,
+        sourceKey: '__swOverride',
+        source: `__swOverride: { ${namespace}: { ${localNames.join(', ')} } }`,
     };
 }
 
@@ -957,24 +962,26 @@ function createSlotMergeEdit(block, node, slotDirective, mappings) {
 }
 
 /**
- * Creates the template edits and private return aliases required by override SFCs.
+ * Creates the template edits and private return bindings required by override SFCs.
  *
  * @param {ShopwareSetupBlock} block
  * @param {ShopwareSetupScriptAnalysis} analysis
- * @returns {{ edits: TemplateEdit[], privateAliases: Map<string, string> }}
+ * @returns {{ edits: TemplateEdit[], privateBindings: Set<string>, privateNamespace: string | null }}
  */
 function analyzeOverrideTemplate(block, analysis) {
     if (!block.template) {
         return {
             edits: [],
-            privateAliases: new Map(),
+            privateBindings: new Set(),
+            privateNamespace: null,
         };
     }
 
     const ast = parseTemplate(block.template.content);
     const edits = [];
-    const privateAliases = new Map();
+    const privateBindings = new Set();
     const overrideLocalNames = new Set(analysis.overrideEntries);
+    const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
 
     /**
      * @param {TemplateChildNode} node
@@ -985,7 +992,8 @@ function analyzeOverrideTemplate(block, analysis) {
             const slotDirective = getDefaultSlotDirective(node);
             const slotScope = collectSlotScopeNames(slotDirective);
             const references = collectTemplateReferences(node.children, slotScope);
-            const mappings = [];
+            const publicMappings = [];
+            const privateLocalNames = [];
 
             collectSlotScopeReferences(slotDirective, new Set()).forEach((name) => references.add(name));
 
@@ -995,19 +1003,23 @@ function analyzeOverrideTemplate(block, analysis) {
                 }
 
                 // Public override bindings keep their own name in the slot scope; only private
-                // ones need a deterministic alias.
+                // ones need the deterministic override namespace.
                 if (overrideLocalNames.has(binding.name)) {
-                    mappings.push({
+                    publicMappings.push({
                         sourceKey: binding.name,
                         source: binding.name,
                     });
                     return;
                 }
 
-                const privateAlias = createOverridePrivateAlias(block.filename, block.componentName, binding.name);
-                privateAliases.set(binding.name, privateAlias);
-                mappings.push(createPrivateSlotMapping(privateAlias, binding.name));
+                privateBindings.add(binding.name);
+                privateLocalNames.push(binding.name);
             });
+
+            const mappings = [
+                ...(privateLocalNames.length > 0 ? [createPrivateSlotMapping(privateNamespace, privateLocalNames)] : []),
+                ...publicMappings,
+            ];
 
             if (mappings.length > 0) {
                 edits.push(createSlotMergeEdit(block, node, slotDirective, mappings));
@@ -1023,7 +1035,8 @@ function analyzeOverrideTemplate(block, analysis) {
 
     return {
         edits,
-        privateAliases,
+        privateBindings,
+        privateNamespace,
     };
 }
 
@@ -1031,13 +1044,14 @@ function analyzeOverrideTemplate(block, analysis) {
  * Creates template edits required by base SFCs.
  *
  * @param {ShopwareSetupBlock} block
- * @returns {{ edits: TemplateEdit[], privateAliases: Map<string, string> }}
+ * @returns {{ edits: TemplateEdit[], privateBindings: Set<string>, privateNamespace: string | null }}
  */
 function analyzeBaseTemplate(block) {
     if (!block.template) {
         return {
             edits: [],
-            privateAliases: new Map(),
+            privateBindings: new Set(),
+            privateNamespace: null,
         };
     }
 
@@ -1068,12 +1082,13 @@ function analyzeBaseTemplate(block) {
 
     return {
         edits,
-        privateAliases: new Map(),
+        privateBindings: new Set(),
+        privateNamespace: null,
     };
 }
 
 module.exports = {
     analyzeBaseTemplate,
     analyzeOverrideTemplate,
-    createOverridePrivateAlias,
+    createOverridePrivateNamespace,
 };

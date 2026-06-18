@@ -186,28 +186,30 @@ function buildBaseReturn(analysis) {
  * @returns {string}
  */
 function buildOverrideReturn(analysis) {
-    const privateProperties = Array.from(analysis.overridePrivateAliases.entries()).map(
-        ([
-            localName,
-            privateAlias,
-        ]) => {
-            return `${privateAlias}: ${localName}`;
-        },
-    );
-    const properties = [
-        ...analysis.overrideEntries,
-        ...privateProperties,
-    ];
+    const privateBindings = Array.from(analysis.overridePrivateBindings);
 
-    if (properties.length === 0) {
+    if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
         return 'return {};';
     }
 
-    return [
+    const lines = [
         'return {',
-        ...properties.map((property) => `    ${property},`),
-        '};',
-    ].join('\n');
+        ...analysis.overrideEntries.map((property) => `    ${property},`),
+    ];
+
+    if (privateBindings.length > 0) {
+        lines.push(
+            '    __swOverride: {',
+            `        ${analysis.overridePrivateNamespace}: {`,
+            ...privateBindings.map((localName) => `            ${localName},`),
+            '        },',
+            '    },',
+        );
+    }
+
+    lines.push('};');
+
+    return lines.join('\n');
 }
 
 /**
@@ -223,7 +225,10 @@ function buildBaseScript(block, analysis) {
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
     const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
-    const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
+    const destructureEntries = [
+        ...analysis.runtimeBindings.map((binding) => binding.name),
+        '__swOverride',
+    ];
     const callbackBody = buildCallbackBody(analysis, setupBindingsName);
     const body = [
         `const useSwContext = () => ${setupBindingsName}.context;`,

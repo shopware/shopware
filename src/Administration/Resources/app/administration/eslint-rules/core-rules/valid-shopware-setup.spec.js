@@ -201,7 +201,7 @@ swDefinePublic({ [dynamicKey]: count });
             errors: [
                 {
                     message:
-                        'Computed keys in swDefinePublic() are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.',
+                        'swDefinePublic() only supports shorthand bindings such as { a, b }. Renaming and string or computed keys (for example { a: b } or { \'a\': b }) are not supported.',
                 },
             ],
         },
@@ -239,28 +239,26 @@ swDefineOverride({ count });
         {
             filename: 'reserved-override-private-variable.vue',
             code: `<script setup sw-override="sw-my-component">
-const __swOverride_ab123_info = 'local';
+const __swOverride = {};
 swDefineOverride({});
 </script>`,
             errors: [
                 {
-                    message:
-                        '"__swOverride_ab123_info" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.',
+                    message: '"__swOverride" is reserved for Shopware override-private state and must not be declared or imported.',
                 },
             ],
         },
         {
             filename: 'reserved-override-private-import.vue',
             code: `<script setup sw-component="sw-my-component">
-import { __swOverride_ab123_info } from './state';
+import { __swOverride } from './state';
 
 const count = 1;
 swDefinePublic({ count });
 </script>`,
             errors: [
                 {
-                    message:
-                        '"__swOverride_ab123_info" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.',
+                    message: '"__swOverride" is reserved for Shopware override-private state and must not be declared or imported.',
                 },
             ],
         },

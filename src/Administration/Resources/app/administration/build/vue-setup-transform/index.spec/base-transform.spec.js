@@ -35,6 +35,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 doubled,
                 internalThing,
                 foo2,
+                __swOverride,
             } = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
                 const useSwContext = () => __shopwareSetupBindings.context;
             

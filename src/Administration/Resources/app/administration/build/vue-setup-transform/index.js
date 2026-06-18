@@ -66,7 +66,8 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
     let replacement;
     let templateAnalysis = {
         edits: [],
-        privateAliases: new Map(),
+        privateBindings: new Set(),
+        privateNamespace: null,
     };
 
     try {
@@ -81,7 +82,8 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
 
         if (block.mode === 'override') {
             templateAnalysis = analyzeOverrideTemplate(block, analysis);
-            analysis.overridePrivateAliases = templateAnalysis.privateAliases;
+            analysis.overridePrivateBindings = templateAnalysis.privateBindings;
+            analysis.overridePrivateNamespace = templateAnalysis.privateNamespace;
         }
 
         replacement = lowerShopwareSetupBlock(block, analysis);

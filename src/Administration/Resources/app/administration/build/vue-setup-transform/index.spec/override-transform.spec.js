@@ -5,6 +5,11 @@
 import { stripIndent, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override transforms', () => {
+    function getPrivateNamespace(result) {
+        return result.match(/__swOverride: \{\n\s+([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1]
+            ?? result.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1];
+    }
+
     it('transforms override Shopware setup blocks into hidden override components', () => {
         const source = stripIndent`
             <script setup sw-override="sw-my-component">
@@ -133,11 +138,11 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).toContain(
             'return {\n                body,\n                localHeadline,\n                localFooter,\n            };',
         );
-        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('__swOverride');
         expect(result).not.toContain('localInfo,');
     });
 
-    it('returns template-used override-local state through deterministic private aliases', () => {
+    it('returns template-used override-local state through a deterministic private namespace', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -160,18 +165,19 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
+        expect(privateNamespace).toBeDefined();
         expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ ${privateAlias}: info, body }">`,
+            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { ${privateNamespace}: { info } }, body }">`,
         );
-        expect(result).toContain(`return {\n                body,\n                ${privateAlias}: info,\n            };`);
-        expect(result).not.toContain('__swOverride_00000_unused');
+        expect(result).toContain(
+            `return {\n                body,\n                __swOverride: {\n                    ${privateNamespace}: {\n                        info,\n                    },\n                },\n            };`,
+        );
         expect(result).not.toContain('unused,');
     });
 
-    it('merges private aliases into existing object default slot scopes', () => {
+    it('merges private namespaces into existing object default slot scopes', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body" #default="{ body, ...previousState }">
@@ -190,13 +196,13 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const result = transformOrFail(source, 'object-slot.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
-        expect(result).toContain(`#default="{ body, ${privateAlias}: info, ...previousState }"`);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ body, __swOverride: { ${privateNamespace}: { info } }, ...previousState }"`);
     });
 
-    it('merges private aliases into existing identifier default slot scopes', () => {
+    it('merges private namespaces into existing identifier default slot scopes', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body" #default="previousState">
@@ -211,13 +217,13 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const result = transformOrFail(source, 'identifier-slot.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
-        expect(result).toContain(`#default="{ ${privateAlias}: info, ...previousState }"`);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } }, ...previousState }"`);
     });
 
-    it('adds private aliases to a default slot without an existing expression', () => {
+    it('adds private namespaces to a default slot without an existing expression', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body" #default>
@@ -232,10 +238,10 @@ describe('build/vue-setup-transform override transforms', () => {
         `;
 
         const result = transformOrFail(source, 'empty-slot.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
-        expect(result).toContain(`#default="{ ${privateAlias}: info }"`);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { info } } }"`);
     });
 
     it('detects override-local template references in Vue expression positions', () => {
@@ -277,13 +283,13 @@ describe('build/vue-setup-transform override transforms', () => {
             'infoLabel',
             'items',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
 
-        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_item(?![A-Za-z0-9_$])/);
+        expect(result).not.toMatch(/\bitem,/);
     });
 
     it('ignores template identifiers that are not override-local setup references', () => {
@@ -314,7 +320,7 @@ describe('build/vue-setup-transform override transforms', () => {
 
         const result = transformOrFail(source, 'ignored-template-references.override.vue').code;
 
-        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('__swOverride');
         expect(result).toContain('return {};');
     });
 
@@ -344,10 +350,10 @@ describe('build/vue-setup-transform override transforms', () => {
             'source',
             'dynamicKey',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
     });
 
@@ -385,10 +391,10 @@ describe('build/vue-setup-transform override transforms', () => {
             'rows',
             'items',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
 
         [
@@ -398,7 +404,7 @@ describe('build/vue-setup-transform override transforms', () => {
             'localLabel',
             'index',
         ].forEach((name) => {
-            expect(result).not.toMatch(new RegExp(`__swOverride_[a-f0-9]{5}_${name}(?![A-Za-z0-9_$])`));
+            expect(result).not.toContain(`                            ${name},`);
         });
     });
 
@@ -422,7 +428,7 @@ describe('build/vue-setup-transform override transforms', () => {
         const result = transformOrFail(source, 'shadowed-slot-scope.override.vue').code;
 
         expect(result).toContain('#default="{ info }"');
-        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('__swOverride');
         expect(result).toContain('return {};');
     });
 });

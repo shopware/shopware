@@ -72,8 +72,12 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
 };
 
 const scriptSetupDataScopeKey = '__shopwareSetupDataScope' as const;
+const scriptSetupOverrideStateKey = '__swOverride' as const;
+
+type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
 
 type ScriptSetupExtendableState<TState extends object> = ToRefs<Reactive<TState>> & {
+    readonly [scriptSetupOverrideStateKey]: Ref<Reactive<ScriptSetupOverrideState>>;
     readonly [scriptSetupDataScopeKey]: ShallowUnwrapRef<ToRefs<Reactive<TState>>>;
 };
 
@@ -229,6 +233,7 @@ export function createExtendableSetup<
     const originalSetupResult: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
         ...originalSetupResultPublic,
         ...originalSetupResultPrivate,
+        [scriptSetupOverrideStateKey]: reactive({}) as ScriptSetupOverrideState,
     };
 
     // Check if any prop value was returned from the original setup
@@ -306,8 +311,9 @@ export function createExtendableSetup<
 
             const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
             const publicStateKeys = Object.keys(originalSetupResultPublic);
+            const privateStateKeys = Object.keys(wrappedState).filter((key) => key !== scriptSetupOverrideStateKey);
 
-            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<PreviousStateResultForExtensions>(
+            const previousStateResultForExtensions = privateStateKeys.reduce<PreviousStateResultForExtensions>(
                 (acc, key) => {
                     if (publicStateKeys.includes(key)) {
                         (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
@@ -316,7 +322,7 @@ export function createExtendableSetup<
                 },
                 { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
             );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>((acc, key) => {
+            previousStateResultForExtensions._private = privateStateKeys.reduce<TPrivateSetupResult>((acc, key) => {
                 if (!publicStateKeys.includes(key)) {
                     (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                 }
@@ -336,6 +342,14 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
+                if (key === scriptSetupOverrideStateKey) {
+                    Object.assign(
+                        reactiveWrappedState[scriptSetupOverrideStateKey],
+                        overrideResult[scriptSetupOverrideStateKey] as ScriptSetupOverrideState,
+                    );
+                    return;
+                }
+
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
                     console.error(

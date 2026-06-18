@@ -18,10 +18,18 @@ function isDestructurePatternValid(code) {
         throw new Error('No #default slot scope found in transform result.');
     }
 
+    const privateNamespace = code.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1];
     const createSlotScope = new Function(`return (${slotExpression}) => undefined;`);
+    const slotPayload = privateNamespace
+        ? {
+              __swOverride: {
+                  [privateNamespace]: {},
+              },
+          }
+        : {};
 
     try {
-        createSlotScope()({});
+        createSlotScope()(slotPayload);
 
         return true;
     } catch {
@@ -30,6 +38,11 @@ function isDestructurePatternValid(code) {
 }
 
 describe('build/vue-setup-transform override template pattern references', () => {
+    function getPrivateNamespace(result) {
+        return result.match(/__swOverride: \{\n\s+([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1]
+            ?? result.match(/__swOverride: \{ ([A-Za-z_$][A-Za-z0-9_$]*_[a-f0-9]{5}): \{/)?.[1];
+    }
+
     it('does not let child component slot scopes shadow same-element directive references', () => {
         const source = stripIndent`
             <template>
@@ -53,10 +66,10 @@ describe('build/vue-setup-transform override template pattern references', () =>
             'title',
             'track',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
     });
 
@@ -75,13 +88,13 @@ describe('build/vue-setup-transform override template pattern references', () =>
         `;
 
         const result = transformOrFail(source, 'slot-default-reference.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_fallbackInfo/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
-        expect(result).toContain(`${privateAlias}: fallbackInfo`);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`__swOverride: { ${privateNamespace}: { fallbackInfo } }`);
         // The injected binding must precede the default that reads it so the generated slot-scope
         // destructure does not throw a temporal-dead-zone error at runtime.
-        expect(result).toContain(`#default="{ ${privateAlias}: fallbackInfo, info = fallbackInfo }"`);
+        expect(result).toContain(`#default="{ __swOverride: { ${privateNamespace}: { fallbackInfo } }, info = fallbackInfo }"`);
         expect(isDestructurePatternValid(result)).toBe(true);
     });
 
@@ -100,10 +113,12 @@ describe('build/vue-setup-transform override template pattern references', () =>
         `;
 
         const result = transformOrFail(source, 'slot-default-rest.override.vue').code;
-        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_fallbackInfo/)?.[0];
+        const privateNamespace = getPrivateNamespace(result);
 
-        expect(privateAlias).toBeDefined();
-        expect(result).toContain(`#default="{ ${privateAlias}: fallbackInfo, info = fallbackInfo, ...rest }"`);
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(
+            `#default="{ __swOverride: { ${privateNamespace}: { fallbackInfo } }, info = fallbackInfo, ...rest }"`,
+        );
         expect(isDestructurePatternValid(result)).toBe(true);
     });
 
@@ -123,7 +138,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'slot-default-public.override.vue').code;
 
-        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('__swOverride');
         expect(result).toContain('#default="{ fallbackInfo, info = fallbackInfo }"');
         expect(isDestructurePatternValid(result)).toBe(true);
     });
@@ -144,7 +159,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'slot-default-local-alias.override.vue').code;
 
-        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('__swOverride');
         expect(result).toContain('return {};');
     });
 
@@ -169,10 +184,10 @@ describe('build/vue-setup-transform override template pattern references', () =>
             'rows',
             'fallbackLabel',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
     });
 
@@ -193,8 +208,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-object-default-local-alias.override.vue').code;
 
-        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_info/);
-        expect(result).toMatch(/__swOverride_[a-f0-9]{5}_rows/);
+        expect(result).not.toMatch(/\n\s+info,/);
+        expect(result).toMatch(/\n\s+rows,/);
     });
 
     it('does not expose setup state for v-for defaults that reference earlier array aliases', () => {
@@ -214,8 +229,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-array-default-local-alias.override.vue').code;
 
-        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_info/);
-        expect(result).toMatch(/__swOverride_[a-f0-9]{5}_rows/);
+        expect(result).not.toMatch(/\n\s+info,/);
+        expect(result).toMatch(/\n\s+rows,/);
     });
 
     it('detects override-local references in v-for alias computed keys', () => {
@@ -239,10 +254,10 @@ describe('build/vue-setup-transform override template pattern references', () =>
             'rows',
             'dynamicKey',
         ].forEach((name) => {
-            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+            const privateNamespace = getPrivateNamespace(result);
 
-            expect(privateAlias).toBeDefined();
-            expect(result).toContain(`${privateAlias}: ${name}`);
+            expect(privateNamespace).toBeDefined();
+            expect(result).toContain(`${name},`);
         });
     });
 });

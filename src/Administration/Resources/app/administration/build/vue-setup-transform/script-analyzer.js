@@ -40,7 +40,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {{ code: string, macroName: 'defineEmits', ranges: SourceRange[] } | null} emitsMacro
  * @property {{ code: string, macroName: 'defineSlots', ranges: SourceRange[] } | null} slotsMacro
  * @property {{ code: string, macroName: 'defineOptions', ranges: SourceRange[] } | null} optionsMacro
- * @property {Map<string, string>} overridePrivateAliases
+ * @property {Set<string>} overridePrivateBindings
+ * @property {string | null} overridePrivateNamespace
  */
 
 const UNSUPPORTED_VUE_MACROS = new Set([
@@ -84,7 +85,7 @@ const WRONG_MODE_SW_DEFINE_OVERRIDE_MESSAGE = [
     'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
 ].join(' ');
 
-const RESERVED_OVERRIDE_PRIVATE_PREFIX = '__swOverride_';
+const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
 /**
  * Converts Babel source ranges into the transform's compact range shape.
@@ -561,6 +562,13 @@ function extractStaticObjectMarker(statement, scriptOffset, macroName, entryType
 
         const localName = property.key.name;
 
+        if (localName === RESERVED_OVERRIDE_STATE_NAME) {
+            throw new ShopwareSetupTransformError(
+                `"${localName}" is reserved for Shopware override-private state and cannot be exposed with ${macroName}().`,
+                scriptOffset + getNodeRange(property, scriptOffset).start,
+            );
+        }
+
         if (seenKeys.has(localName)) {
             throw new ShopwareSetupTransformError(
                 `Duplicate ${entryType} Shopware setup binding key "${localName}".`,
@@ -612,9 +620,9 @@ function assertReservedMacroNames(bindings, mode, scriptOffset) {
             );
         }
 
-        if (binding.name.startsWith(RESERVED_OVERRIDE_PRIVATE_PREFIX)) {
+        if (binding.name === RESERVED_OVERRIDE_STATE_NAME) {
             throw new ShopwareSetupTransformError(
-                `"${binding.name}" uses the reserved Shopware override-private prefix "__swOverride_" and must not be declared or imported.`,
+                `"${binding.name}" is reserved for Shopware override-private state and must not be declared or imported.`,
                 scriptOffset + getNodeRange(binding.node, scriptOffset).start,
             );
         }
@@ -1204,7 +1212,8 @@ function analyzeShopwareSetupScript(script, options) {
         emitsMacro,
         slotsMacro,
         optionsMacro,
-        overridePrivateAliases: new Map(),
+        overridePrivateBindings: new Set(),
+        overridePrivateNamespace: null,
     };
 }
 

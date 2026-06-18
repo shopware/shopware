@@ -894,18 +894,25 @@ function mergeObjectSlotExpression(expression, mappings) {
     const existingSources = pattern.properties.map((property) =>
         expression.slice(property.start - offset, property.end - offset),
     );
+    // Generated bindings are inserted before the first property that can read them (a default
+    // value such as `{ x = fallback }`) and before any rest element. This lets existing defaults
+    // reference an injected binding without a temporal-dead-zone while keeping the rest element
+    // last, as object patterns require.
     const restIndex = pattern.properties.findIndex((property) => property.type === 'RestElement');
-    const mergedSources =
-        restIndex === -1
-            ? [
-                  ...existingSources,
-                  ...newSources,
-              ]
-            : [
-                  ...existingSources.slice(0, restIndex),
-                  ...newSources,
-                  ...existingSources.slice(restIndex),
-              ];
+    const firstDefaultIndex = pattern.properties.findIndex(
+        (property) => property.type === 'ObjectProperty' && property.value?.type === 'AssignmentPattern',
+    );
+    const insertionIndex = [
+        restIndex,
+        firstDefaultIndex,
+    ]
+        .filter((index) => index !== -1)
+        .reduce((min, index) => Math.min(min, index), existingSources.length);
+    const mergedSources = [
+        ...existingSources.slice(0, insertionIndex),
+        ...newSources,
+        ...existingSources.slice(insertionIndex),
+    ];
 
     return `{ ${mergedSources.join(', ')} }`;
 }

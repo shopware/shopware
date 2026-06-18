@@ -4,6 +4,31 @@
 
 import { stripIndent, transformOrFail } from './helpers';
 
+/**
+ * Evaluates the generated slot-scope destructure and returns whether it is valid, so tests can
+ * catch syntax/runtime errors a plain string assertion would miss.
+ *
+ * @param {string} code
+ * @returns {boolean}
+ */
+function isDestructurePatternValid(code) {
+    const slotExpression = code.match(/#default="([^"]*)"/)?.[1];
+
+    if (!slotExpression) {
+        throw new Error('No #default slot scope found in transform result.');
+    }
+
+    const createSlotScope = new Function(`return (${slotExpression}) => undefined;`);
+
+    try {
+        createSlotScope()({});
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 describe('build/vue-setup-transform override template pattern references', () => {
     it('does not let child component slot scopes shadow same-element directive references', () => {
         const source = stripIndent`
@@ -54,6 +79,53 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         expect(privateAlias).toBeDefined();
         expect(result).toContain(`${privateAlias}: fallbackInfo`);
+        // The injected binding must precede the default that reads it so the generated slot-scope
+        // destructure does not throw a temporal-dead-zone error at runtime.
+        expect(result).toContain(`#default="{ ${privateAlias}: fallbackInfo, info = fallbackInfo }"`);
+        expect(isDestructurePatternValid(result)).toBe(true);
+    });
+
+    it('keeps a rest element last when injecting before a referenced default', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default="{ info = fallbackInfo, ...rest }">
+                <p>{{ info }} {{ rest }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const fallbackInfo = 'fallback';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'slot-default-rest.override.vue').code;
+        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_fallbackInfo/)?.[0];
+
+        expect(privateAlias).toBeDefined();
+        expect(result).toContain(`#default="{ ${privateAlias}: fallbackInfo, info = fallbackInfo, ...rest }"`);
+        expect(isDestructurePatternValid(result)).toBe(true);
+    });
+
+    it('injects public override bindings before a referenced slot-scope default', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body" #default="{ info = fallbackInfo }">
+                <p>{{ info }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const fallbackInfo = 'fallback';
+
+            swDefineOverride({ fallbackInfo });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'slot-default-public.override.vue').code;
+
+        expect(result).not.toContain('__swOverride_');
+        expect(result).toContain('#default="{ fallbackInfo, info = fallbackInfo }"');
+        expect(isDestructurePatternValid(result)).toBe(true);
     });
 
     it('does not expose setup state for slot defaults that reference earlier slot aliases', () => {

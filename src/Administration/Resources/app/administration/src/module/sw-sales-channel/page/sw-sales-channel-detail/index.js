@@ -266,6 +266,7 @@ export default {
                 .addSorting(Criteria.sort('name', 'ASC'))
                 .addFilter(Criteria.equals('active', true));
             criteria.addAssociation('analytics');
+            criteria.addAssociation('salesChannelFiles');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');

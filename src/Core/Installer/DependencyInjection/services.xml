@@ -264,6 +264,7 @@
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
             <argument type="service" id="Shopware\Core\Installer\Database\MigrationCollectionFactory"/>
             <argument type="string">%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 

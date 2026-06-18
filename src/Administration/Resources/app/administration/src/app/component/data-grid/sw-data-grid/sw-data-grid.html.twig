@@ -17,12 +17,6 @@
             {% block sw_data_grid_bulk_selected_count %}
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $t('global.sw-data-grid.labelSelectionCount') }}</span>
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-count">{{ selectionCount }}</span>
-            <span
-                v-if="reachMaximumSelectionExceed"
-                class="sw-data-grid__bulk-selected sw-data-grid__bulk-max-selection"
-            >
-                {{ $t('global.sw-data-grid.maximumSelectionExceed') }}
-            </span>
             {% endblock %}
 
             {% block sw_data_grid_bulk_selected_actions %}
@@ -79,6 +73,11 @@
                             {% block sw_data_grid_select_all_checkbox %}
                             <mt-checkbox
                                 v-if="records && records.length > 0"
+                                v-tooltip="{
+                                    message: $t('global.sw-data-grid.maximumSelectionExceed'),
+                                    disabled: !reachMaximumSelectionExceed,
+                                    showOnDisabledElements: true
+                                }"
                                 :aria-label="$t(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
@@ -282,6 +281,11 @@
                                 {% block sw_data_grid_select_item_checkbox %}
 
                                 <mt-checkbox
+                                    v-tooltip="{
+                                        message: $t('global.sw-data-grid.maximumSelectionExceed'),
+                                        disabled: !(reachMaximumSelectionExceed && !isSelected(item[itemIdentifierProperty])),
+                                        showOnDisabledElements: true
+                                    }"
                                     :aria-label="$t('global.sw-data-grid.labelSelected')"
                                     :disabled="!isRecordSelectable(item)"
                                     :model-value="isSelected(item[itemIdentifierProperty])"

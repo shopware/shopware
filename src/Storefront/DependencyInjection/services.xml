@@ -216,7 +216,7 @@
 
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
             <argument type="service" id="http_kernel"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

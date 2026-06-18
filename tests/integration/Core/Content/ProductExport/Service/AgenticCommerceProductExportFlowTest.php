@@ -318,6 +318,74 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertArrayNotHasKey('color_custom', $exportedProduct['variant_dict']);
     }
 
+    public function testAgenticCommerceSalesChannelGeneratesGoogleFeedFromExplicitProductExport(): void
+    {
+        $product = $this->createExportableProduct();
+        $productStreamId = $this->createProductStreamForProduct($product['id']);
+
+        $agenticSalesChannel = $this->createSalesChannel([
+            'id' => Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+            'name' => 'Agentic Commerce Feed',
+            'countries' => [
+                ['id' => $this->getDefaultCountryId()],
+            ],
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://agentic-commerce.localhost',
+                ],
+            ],
+        ]);
+
+        $salesChannelId = $agenticSalesChannel['id'];
+
+        $productExport = $this->createGoogleProductExport($salesChannelId, $productStreamId);
+
+        static::assertSame(ProductExportEntity::FILE_FORMAT_XML, $productExport->getFileFormat());
+        static::assertSame('google', $productExport->getProvider());
+
+        $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
+
+        static::assertNotNull($result);
+        static::assertFalse($result->hasErrors());
+
+        $content = $result->getContent();
+
+        $previous = libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($content);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        static::assertNotFalse($xml, 'Generated Google feed must be valid XML.');
+
+        $items = $xml->xpath('//item');
+        static::assertIsArray($items);
+        static::assertCount(1, $items);
+
+        $item = $items[0];
+        $googleChildren = $item->children('http://base.google.com/ns/1.0');
+
+        static::assertSame($product['productNumber'], (string) $googleChildren->id);
+        static::assertSame('OpenAI Feed Product', (string) $item->title);
+        static::assertSame('Feed description', (string) $item->description);
+        static::assertSame('in_stock', (string) $googleChildren->availability);
+        static::assertSame('new', (string) $googleChildren->condition);
+        static::assertSame('10.99 EUR', (string) $googleChildren->price);
+        static::assertSame('ACME', (string) $googleChildren->brand);
+        static::assertSame('1234567890123', (string) $googleChildren->gtin);
+        static::assertSame('MPN-123', (string) $googleChildren->mpn);
+
+        $link = (string) $item->link;
+        static::assertStringStartsWith('http://agentic-commerce.localhost', $link);
+        $query = parse_url($link, \PHP_URL_QUERY);
+        parse_str(\is_string($query) ? $query : '', $queryParameters);
+        static::assertSame($salesChannelId, $queryParameters[SalesChannelTrackingListener::QUERY_PARAM] ?? null);
+    }
+
     /**
      * @return array{id: string, productNumber: string}
      */
@@ -609,6 +677,79 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertIsString($template);
 
         return $template;
+    }
+
+    private function getGoogleHeaderTemplate(): string
+    {
+        $template = file_get_contents(__DIR__ . '/../../../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/google/header.xml.twig');
+
+        static::assertIsString($template);
+
+        return $template;
+    }
+
+    private function getGoogleBodyTemplate(): string
+    {
+        $template = file_get_contents(__DIR__ . '/../../../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/google/body.xml.twig');
+
+        static::assertIsString($template);
+
+        return $template;
+    }
+
+    private function getGoogleFooterTemplate(): string
+    {
+        $template = file_get_contents(__DIR__ . '/../../../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/google/footer.xml.twig');
+
+        static::assertIsString($template);
+
+        return $template;
+    }
+
+    private function createGoogleProductExport(string $salesChannelId, string $productStreamId, bool $includeVariants = false): ProductExportEntity
+    {
+        $salesChannel = $this->loadSalesChannel($salesChannelId);
+        $domain = $salesChannel->getDomains()?->first();
+
+        static::assertNotNull($domain);
+
+        $productExportId = Uuid::randomHex();
+
+        $this->productExportRepository->create([
+            [
+                'id' => $productExportId,
+                'productStreamId' => $productStreamId,
+                'storefrontSalesChannelId' => $this->getDefaultStorefrontSalesChannelId(),
+                'salesChannelId' => $salesChannelId,
+                'salesChannelDomainId' => $domain->getId(),
+                'currencyId' => Defaults::CURRENCY,
+                'fileName' => 'google-products-' . substr($salesChannelId, 0, 8) . '.xml',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
+                'provider' => 'google',
+                'includeVariants' => $includeVariants,
+                'generateByCronjob' => false,
+                'interval' => 86400,
+                'headerTemplate' => $this->getGoogleHeaderTemplate(),
+                'bodyTemplate' => $this->getGoogleBodyTemplate(),
+                'footerTemplate' => $this->getGoogleFooterTemplate(),
+            ],
+        ], $this->context);
+
+        $criteria = new Criteria();
+        $criteria->setIds([$productExportId]);
+        $criteria->addAssociations([
+            'salesChannel',
+            'storefrontSalesChannel',
+            'salesChannelDomain.language.locale',
+        ]);
+
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->first();
+
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        return $productExport;
     }
 
     private function loadSalesChannel(string $salesChannelId): SalesChannelEntity

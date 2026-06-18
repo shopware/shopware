@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -55,6 +56,8 @@ class AppSecretRotationServiceTest extends TestCase
 
     private ManifestFactory&MockObject $manifestFactory;
 
+    private MockClock $clock;
+
     protected function setUp(): void
     {
         $this->registrationService = $this->createMock(AppRegistrationService::class);
@@ -64,6 +67,7 @@ class AppSecretRotationServiceTest extends TestCase
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->clock = new MockClock('2025-06-13 12:00:00');
 
         $this->service = new AppSecretRotationService(
             $this->registrationService,
@@ -72,7 +76,8 @@ class AppSecretRotationServiceTest extends TestCase
             $this->sourceResolver,
             $this->messageBus,
             $this->logger,
-            $this->manifestFactory
+            $this->manifestFactory,
+            $this->clock
         );
     }
 
@@ -193,8 +198,8 @@ class AppSecretRotationServiceTest extends TestCase
             ->method('update')
             ->with(static::callback(function (array $data) use ($integrationId) {
                 return $data[0]['id'] === $integrationId
-                    && isset($data[0]['deletedAt'])
-                    && $data[0]['deletedAt'] instanceof \DateTimeImmutable;
+                    && $data[0]['deletedAt'] instanceof \DateTimeImmutable
+                    && $data[0]['deletedAt']->format(\DateTimeInterface::ATOM) === $this->clock->now()->format(\DateTimeInterface::ATOM);
             }), static::isInstanceOf(Context::class));
 
         $this->logger->expects($this->exactly(2))

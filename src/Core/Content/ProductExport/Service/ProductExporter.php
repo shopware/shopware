@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use Monolog\Level;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -31,7 +32,8 @@ class ProductExporter implements ProductExporterInterface
         private readonly EntityRepository $productExportRepository,
         private readonly ProductExportGeneratorInterface $productExportGenerator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ProductExportFileHandlerInterface $productExportFileHandler
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -112,7 +114,7 @@ class ProductExporter implements ProductExporterInterface
             [
                 [
                     'id' => $productExport->getId(),
-                    'generatedAt' => new \DateTime(),
+                    'generatedAt' => $this->clock->now(),
                 ],
             ],
             $context->getContext()

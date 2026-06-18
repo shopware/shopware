@@ -13,6 +13,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher, new NativeClock());
     }
 
     public function testUpdateBasicInformation(): void

@@ -16,6 +16,12 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -31,23 +37,97 @@ class CustomFieldRuleTest extends TestCase
     {
         $ruleConstraints = CustomFieldRule::getConstraints([]);
 
-        static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
-        static::assertArrayHasKey('renderedField', $ruleConstraints, 'Rule Constraint renderedField is not defined');
-        static::assertArrayHasKey('renderedFieldValue', $ruleConstraints, 'Rule Constraint renderedFieldValue is not defined');
-        static::assertArrayHasKey('selectedField', $ruleConstraints, 'Rule Constraint selectedField is not defined');
-        static::assertArrayHasKey('selectedFieldSet', $ruleConstraints, 'Rule Constraint selectedFieldSet is not defined');
+        static::assertArrayHasKey('renderedFieldValue', $ruleConstraints);
+        static::assertEquals([new NotBlank()], $ruleConstraints['renderedField']);
+        static::assertEquals([new NotBlank()], $ruleConstraints['selectedField']);
+        static::assertEquals([new NotBlank()], $ruleConstraints['selectedFieldSet']);
+        static::assertEquals(
+            [
+                new NotBlank(),
+                new Choice(
+                    choices: [
+                        Rule::OPERATOR_BETWEEN,
+                        Rule::OPERATOR_NEQ,
+                        Rule::OPERATOR_GTE,
+                        Rule::OPERATOR_LTE,
+                        Rule::OPERATOR_EQ,
+                        Rule::OPERATOR_GT,
+                        Rule::OPERATOR_LT,
+                    ]
+                ),
+            ],
+            $ruleConstraints['operator']
+        );
     }
 
     public function testGetConstraintsWithRenderedField(): void
     {
         $ruleConstraints = CustomFieldRule::getConstraints(['type' => 'string']);
 
-        static::assertArrayHasKey('renderedFieldValue', $ruleConstraints, 'Rule Constraint renderedFieldValue is not defined');
+        static::assertArrayHasKey('renderedFieldValue', $ruleConstraints);
+    }
+
+    /**
+     * @param array<string, string> $renderedField
+     * @param list<Constraint> $expected
+     */
+    #[DataProvider('constraintsProvider')]
+    public function testGetConstraintsRenderedFieldValue(array $renderedField, array $expected): void
+    {
+        $constraints = CustomFieldRule::getConstraints($renderedField);
+
+        static::assertEquals($expected, $constraints['renderedFieldValue']);
+    }
+
+    /**
+     * @return iterable<string, array{renderedField: array<string, string>, expected: list<Constraint>}>
+     */
+    public static function constraintsProvider(): iterable
+    {
+        $dateConstraints = [
+            new NotBlank(),
+            new AtLeastOneOf([
+                new Type('string'),
+                new Collection(
+                    fields: [
+                        'from' => [new NotBlank(), new Type('string')],
+                        'to' => [new NotBlank(), new Type('string')],
+                    ],
+                    allowExtraFields: false,
+                    allowMissingFields: false
+                ),
+            ]),
+        ];
+
+        yield 'default' => [
+            'renderedField' => ['type' => CustomFieldTypes::TEXT],
+            'expected' => [new NotBlank()],
+        ];
+
+        yield 'no field type' => [
+            'renderedField' => [],
+            'expected' => [new NotBlank()],
+        ];
+
+        yield 'bool field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::BOOL],
+            'expected' => [],
+        ];
+
+        yield 'date field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::DATE],
+            'expected' => $dateConstraints,
+        ];
+
+        yield 'datetime field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::DATETIME],
+            'expected' => $dateConstraints,
+        ];
     }
 
     /**
      * @param array<string, string|float|bool|list<string>|null> $customFields
-     * @param string|float|bool|list<string>|null $renderedFieldValue
+     * @param string|float|bool|list<string>|array{from?: string, to?: string}|null $renderedFieldValue
      * @param array{componentName: string}|array{} $config
      */
     #[DataProvider('customFieldRuleMatchDataProvider')]
@@ -65,11 +145,14 @@ class CustomFieldRuleTest extends TestCase
             'config' => $config,
         ];
 
-        static::assertSame($isMatching, CustomFieldRule::match($renderedField, $renderedFieldValue, $operator, $customFields));
+        static::assertSame(
+            $isMatching,
+            CustomFieldRule::match($renderedField, $renderedFieldValue, $operator, $customFields)
+        );
     }
 
     /**
-     * @return \Generator<string, array{array<string, string|float|bool|list<string>|null>, string|float|bool|list<string>|null, string, string, bool, 5?: array{componentName: string}}>
+     * @return \Generator<string, array{array<string, string|float|bool|list<string>|null>, string|float|bool|list<string>|array{from?: string, to?: string}|null, string, string, bool, 5?: array{componentName: string}}>
      */
     public static function customFieldRuleMatchDataProvider(): \Generator
     {
@@ -161,6 +244,107 @@ class CustomFieldRuleTest extends TestCase
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
 
         static::assertNull($value);
+    }
+
+    /**
+     * @param array<string, string>|float|bool|int|string|null $expectedFieldValue
+     * @param array<string, string>|float|bool|int|string|null $renderedFieldValue
+     * @param array<string, string> $renderedField
+     */
+    #[DataProvider('getExpectedValueDataProvider')]
+    public function testGetExpectedValue(
+        array|float|bool|int|string|null $expectedFieldValue,
+        array|float|bool|int|string|null $renderedFieldValue,
+        array $renderedField,
+    ): void {
+        static::assertEquals(
+            $expectedFieldValue,
+            CustomFieldRule::getExpectedValue($renderedFieldValue, $renderedField)
+        );
+    }
+
+    /**
+     * @return iterable<string, array{expectedFieldValue: array<string, string>|float|bool|int|string|null, renderedFieldValue: array<string, string>|float|bool|int|string|null, renderedField: array<string, string>}>
+     */
+    public static function getExpectedValueDataProvider(): iterable
+    {
+        yield 'text type passes string through' => [
+            'expectedFieldValue' => 'my_text',
+            'renderedFieldValue' => 'my_text',
+            'renderedField' => ['type' => CustomFieldTypes::TEXT],
+        ];
+
+        yield 'float type passes number through' => [
+            'expectedFieldValue' => 12.5,
+            'renderedFieldValue' => 12.5,
+            'renderedField' => ['type' => CustomFieldTypes::FLOAT],
+        ];
+
+        yield 'bool type parses string "true" to true' => [
+            'expectedFieldValue' => true,
+            'renderedFieldValue' => 'true',
+            'renderedField' => ['type' => CustomFieldTypes::BOOL],
+        ];
+
+        yield 'bool type parses string "false" to false' => [
+            'expectedFieldValue' => false,
+            'renderedFieldValue' => 'false',
+            'renderedField' => ['type' => CustomFieldTypes::BOOL],
+        ];
+
+        yield 'bool type parses string "1" to true' => [
+            'expectedFieldValue' => true,
+            'renderedFieldValue' => '1',
+            'renderedField' => ['type' => CustomFieldTypes::BOOL],
+        ];
+
+        yield 'bool type parses arbitrary string to false' => [
+            'expectedFieldValue' => false,
+            'renderedFieldValue' => 'something',
+            'renderedField' => ['type' => CustomFieldTypes::BOOL],
+        ];
+
+        yield 'switch type returns false on null' => [
+            'expectedFieldValue' => false,
+            'renderedFieldValue' => null,
+            'renderedField' => ['type' => CustomFieldTypes::SWITCH],
+        ];
+
+        yield 'checkbox type returns true on bool true' => [
+            'expectedFieldValue' => true,
+            'renderedFieldValue' => true,
+            'renderedField' => ['type' => CustomFieldTypes::CHECKBOX],
+        ];
+
+        yield 'date type returns null when value is null' => [
+            'expectedFieldValue' => null,
+            'renderedFieldValue' => null,
+            'renderedField' => ['type' => CustomFieldTypes::DATE],
+        ];
+
+        yield 'date type formats scalar string to DATE_ATOM' => [
+            'expectedFieldValue' => '2025-02-25T00:00:00+00:00',
+            'renderedFieldValue' => '2025-02-25T00:00:00+00:00',
+            'renderedField' => ['type' => CustomFieldTypes::DATE],
+        ];
+
+        yield 'datetime type formats Z-suffixed string to DATE_ATOM' => [
+            'expectedFieldValue' => '2025-02-25T11:00:00+00:00',
+            'renderedFieldValue' => '2025-02-25T11:00:00.000Z',
+            'renderedField' => ['type' => CustomFieldTypes::DATETIME],
+        ];
+
+        yield 'datetime type formats from/to array to DATE_ATOM' => [
+            'expectedFieldValue' => [
+                'from' => '2025-02-25T10:00:00+00:00',
+                'to' => '2025-02-25T12:00:00+00:00',
+            ],
+            'renderedFieldValue' => [
+                'from' => '2025-02-25T10:00:00.000Z',
+                'to' => '2025-02-25T12:00:00.000Z',
+            ],
+            'renderedField' => ['type' => CustomFieldTypes::DATETIME],
+        ];
     }
 
     /**
@@ -525,7 +709,7 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
+     * @return \Generator<string, array{array<string, string>, string|array{from?: string, to?: string}|null, string, string, bool}>
      */
     private static function datetimeTypeDataProvider(): \Generator
     {
@@ -648,10 +832,98 @@ class CustomFieldRuleTest extends TestCase
             Rule::OPERATOR_LT,
             true,
         ];
+
+        yield 'does match datetime inside between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does match datetime on lower bound of between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T10:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does match datetime on upper bound of between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T12:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does not match datetime before between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T09:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match datetime after between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T13:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing from on datetime' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            ['to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing to on datetime' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            ['from' => '2025-02-25T10:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with scalar string value on datetime' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            '2025-02-25T11:00:00.000Z',
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing actual datetime value' => [
+            [],
+            ['from' => '2025-02-25T10:00:00.000Z', 'to' => '2025-02-25T12:00:00.000Z'],
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with null rendered value on datetime' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            null,
+            'datetime',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match equals with null rendered value on datetime' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-25T11:00:00+00:00'],
+            null,
+            'datetime',
+            Rule::OPERATOR_EQ,
+            false,
+        ];
     }
 
     /**
-     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
+     * @return \Generator<string, array{array<string, string>, string|array{from?: string, to?: string}|null, string, string, bool}>
      */
     private static function dateTypeDataProvider(): \Generator
     {
@@ -773,6 +1045,94 @@ class CustomFieldRuleTest extends TestCase
             'date',
             Rule::OPERATOR_LT,
             true,
+        ];
+
+        yield 'does match date inside between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does match date on lower bound of between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-01T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does match date on upper bound of between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-28T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            true,
+        ];
+
+        yield 'does not match date before between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-01-31T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match date after between range' => [
+            [self::CUSTOM_FIELD_NAME => '2025-03-01T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing from on date' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            ['to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing to on date' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            ['from' => '2025-02-01T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with scalar string value on date' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            '2025-02-15T00:00:00',
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with missing actual date value' => [
+            [],
+            ['from' => '2025-02-01T00:00:00', 'to' => '2025-02-28T00:00:00'],
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match between with null rendered value on date' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            null,
+            'date',
+            Rule::OPERATOR_BETWEEN,
+            false,
+        ];
+
+        yield 'does not match equals with null rendered value on date' => [
+            [self::CUSTOM_FIELD_NAME => '2025-02-15T00:00:00+00:00'],
+            null,
+            'date',
+            Rule::OPERATOR_EQ,
+            false,
         ];
     }
 }

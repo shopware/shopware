@@ -19,10 +19,16 @@ interface Field {
         placeholder: string;
     };
 }
+
 interface Config {
     operatorSet: null;
     fields: Field[];
 }
+
+type BetweenValue = {
+    from: string | null;
+    to: string | null;
+};
 
 /* Mixin uses many untyped dependencies */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
@@ -127,29 +133,6 @@ export default Mixin.register(
                 });
 
                 return values;
-            },
-
-            currentError() {
-                let error: unknown = null;
-
-                Object.values(this.config.fields).forEach((config) => {
-                    if (error) {
-                        return;
-                    }
-
-                    const errorProperty = Shopware.Store.get('error').getApiError(
-                        // @ts-expect-error
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        this.condition,
-                        `value.${config.name}`,
-                    ) as unknown;
-
-                    if (errorProperty) {
-                        error = errorProperty;
-                    }
-                });
-
-                return error;
             },
 
             boolOptions() {
@@ -257,6 +240,23 @@ export default Mixin.register(
                 }
 
                 return this.visibleValue;
+            },
+
+            isBetweenDateField(field: Field): boolean {
+                // @ts-expect-error - operator is available in base component
+                if (this.operator !== 'between') {
+                    return false;
+                }
+
+                return [
+                    'date',
+                    'datetime',
+                ].includes(field.type);
+            },
+
+            updateBetweenDateValue(fieldName: string, value: BetweenValue) {
+                // @ts-expect-error - value exists in main component
+                this.values[fieldName] = value;
             },
 
             handleUnitChange(event: { unit: unknown; value: number }) {

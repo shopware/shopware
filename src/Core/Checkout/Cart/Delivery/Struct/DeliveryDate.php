@@ -7,6 +7,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\DatePoint;
 
 #[Package('checkout')]
 class DeliveryDate extends Struct
@@ -28,26 +30,31 @@ class DeliveryDate extends Struct
 
     public static function createFromDeliveryTime(DeliveryTime $deliveryTime): self
     {
+        return self::createFromDeliveryTimeAt($deliveryTime, Clock::get()->now());
+    }
+
+    public static function createFromDeliveryTimeAt(DeliveryTime $deliveryTime, \DateTimeInterface $base): self
+    {
         return match ($deliveryTime->getUnit()) {
             DeliveryTimeEntity::DELIVERY_TIME_HOUR => new self(
-                self::create('PT' . $deliveryTime->getMin() . 'H'),
-                self::create('PT' . $deliveryTime->getMax() . 'H')
+                self::create('PT' . $deliveryTime->getMin() . 'H', $base),
+                self::create('PT' . $deliveryTime->getMax() . 'H', $base)
             ),
             DeliveryTimeEntity::DELIVERY_TIME_DAY => new self(
-                self::create('P' . $deliveryTime->getMin() . 'D'),
-                self::create('P' . $deliveryTime->getMax() . 'D')
+                self::create('P' . $deliveryTime->getMin() . 'D', $base),
+                self::create('P' . $deliveryTime->getMax() . 'D', $base)
             ),
             DeliveryTimeEntity::DELIVERY_TIME_WEEK => new self(
-                self::create('P' . $deliveryTime->getMin() . 'W'),
-                self::create('P' . $deliveryTime->getMax() . 'W')
+                self::create('P' . $deliveryTime->getMin() . 'W', $base),
+                self::create('P' . $deliveryTime->getMax() . 'W', $base)
             ),
             DeliveryTimeEntity::DELIVERY_TIME_MONTH => new self(
-                self::create('P' . $deliveryTime->getMin() . 'M'),
-                self::create('P' . $deliveryTime->getMax() . 'M')
+                self::create('P' . $deliveryTime->getMin() . 'M', $base),
+                self::create('P' . $deliveryTime->getMax() . 'M', $base)
             ),
             DeliveryTimeEntity::DELIVERY_TIME_YEAR => new self(
-                self::create('P' . $deliveryTime->getMin() . 'Y'),
-                self::create('P' . $deliveryTime->getMax() . 'Y')
+                self::create('P' . $deliveryTime->getMin() . 'Y', $base),
+                self::create('P' . $deliveryTime->getMax() . 'Y', $base)
             ),
             default => throw CartException::deliveryDateNotSupportedUnit($deliveryTime->getUnit()),
         };
@@ -76,8 +83,8 @@ class DeliveryDate extends Struct
         return 'cart_delivery_date';
     }
 
-    private static function create(string $interval): \DateTime
+    private static function create(string $interval, \DateTimeInterface $base): \DateTimeImmutable
     {
-        return (new \DateTime())->add(new \DateInterval($interval));
+        return DatePoint::createFromInterface($base)->add(new \DateInterval($interval));
     }
 }

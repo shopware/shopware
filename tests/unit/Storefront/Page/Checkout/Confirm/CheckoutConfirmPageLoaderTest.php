@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
@@ -98,13 +98,13 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             new ErrorCollection()
         );
 
-        $checkoutGatewayRoute = $this->createMock(CheckoutGatewayRoute::class);
-        $checkoutGatewayRoute
-            ->method('load')
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn(new StorefrontCartGatewayResult(new Cart('test'), $response));
 
-        $page = $this->createLoader(checkoutGatewayRoute: $checkoutGatewayRoute)->load(
+        $page = $this->createLoader(cartService: $cartService)->load(
             new Request(),
             $this->getContextWithDummyCustomer()
         );
@@ -147,8 +147,8 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
-            ->method('get')
-            ->willReturn($cart);
+            ->method('getWithCheckoutGateway')
+            ->willReturn($this->createCartGatewayResult($cart));
 
         $page = $this->createLoader(cartService: $cartService, validator: $validator)->load(new Request(), $this->getContextWithDummyCustomer());
 
@@ -193,8 +193,8 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
-            ->method('get')
-            ->willReturn($cart);
+            ->method('getWithCheckoutGateway')
+            ->willReturn($this->createCartGatewayResult($cart));
 
         $context = $this->getContextWithDummyCustomer();
 
@@ -294,8 +294,9 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
             ->expects($this->once())
-            ->method('get')
-            ->with(null, static::isInstanceOf(SalesChannelContext::class), false, true);
+            ->method('getWithCheckoutGateway')
+            ->with(static::isInstanceOf(Request::class), 'token', static::isInstanceOf(SalesChannelContext::class), false, true)
+            ->willReturn($this->createCartGatewayResult());
 
         $checkoutConfirmPageLoader = $this->createLoader(
             cartService: $cartService,
@@ -312,8 +313,8 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
-            ->method('get')
-            ->willReturn($cart);
+            ->method('getWithCheckoutGateway')
+            ->willReturn($this->createCartGatewayResult($cart));
 
         $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
         $addressValidation->method('create')->willReturn(new DataValidationDefinition('address.create'));
@@ -351,19 +352,39 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     private function createLoader(
         ?EventDispatcherInterface $eventDispatcher = null,
         ?StorefrontCartFacade $cartService = null,
-        ?CheckoutGatewayRoute $checkoutGatewayRoute = null,
         ?GenericPageLoader $pageLoader = null,
         ?DataValidationFactoryInterface $addressValidationFactory = null,
         ?DataValidator $validator = null,
     ): CheckoutConfirmPageLoader {
         return new CheckoutConfirmPageLoader(
             $eventDispatcher ?? $this->createMock(EventDispatcherInterface::class),
-            $cartService ?? $this->createMock(StorefrontCartFacade::class),
-            $checkoutGatewayRoute ?? $this->createMock(CheckoutGatewayRoute::class),
+            $cartService ?? $this->createCartService(),
             $pageLoader ?? $this->createMock(GenericPageLoader::class),
             $addressValidationFactory ?? $this->createMock(DataValidationFactoryInterface::class),
             $validator ?? $this->createMock(DataValidator::class),
             $this->createMock(AbstractTranslator::class),
+        );
+    }
+
+    private function createCartService(): StorefrontCartFacade
+    {
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
+            ->willReturn($this->createCartGatewayResult());
+
+        return $cartService;
+    }
+
+    private function createCartGatewayResult(?Cart $cart = null): StorefrontCartGatewayResult
+    {
+        return new StorefrontCartGatewayResult(
+            $cart ?? new Cart('test'),
+            new CheckoutGatewayRouteResponse(
+                new PaymentMethodCollection(),
+                new ShippingMethodCollection(),
+                new ErrorCollection()
+            )
         );
     }
 
@@ -381,6 +402,9 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $context
             ->method('getCustomer')
             ->willReturn($customer);
+        $context
+            ->method('getToken')
+            ->willReturn('token');
 
         return $context;
     }

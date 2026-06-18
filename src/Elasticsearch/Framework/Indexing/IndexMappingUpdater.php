@@ -58,9 +58,10 @@ class IndexMappingUpdater
                 $mapperConflicted = str_contains($errorMessage, 'conflicts with existing mapper:\n\tCannot update parameter');
                 $mapperCannotBeChanged = str_contains($errorMessage, 'cannot be changed from type');
                 $cannotMergeNonObject = str_contains($errorMessage, 'can\'t merge a non object mapping');
+                $cannotChangeObjectNesting = str_contains($errorMessage, 'cannot change object mapping from');
 
                 // If one of these errors occur, we need to reindex the entity
-                if ($mapperConflicted || $mapperCannotBeChanged || $cannotMergeNonObject) {
+                if ($mapperConflicted || $mapperCannotBeChanged || $cannotMergeNonObject || $cannotChangeObjectNesting) {
                     $entitiesToReindex[] = $definition->getEntityDefinition()->getEntityName();
 
                     $exception = ElasticsearchProductException::cannotChangeFieldType($exception);

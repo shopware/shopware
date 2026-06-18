@@ -94,7 +94,7 @@
         </span>
         <router-link
             v-else-if="extension.configurable"
-            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+            :to="configLink"
         >
             {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
         </router-link>

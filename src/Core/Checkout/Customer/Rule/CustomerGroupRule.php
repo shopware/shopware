@@ -37,7 +37,13 @@ class CustomerGroupRule extends Rule
             return false;
         }
 
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getCustomerGroupId()], $this->customerGroupIds, $this->operator);
+        $groupId = $scope->getSalesChannelContext()->getCustomer() === null
+            ? $scope->getCustomer()?->getGroupId()
+            : null;
+
+        $groupId ??= $scope->getSalesChannelContext()->getCustomerGroupId();
+
+        return RuleComparison::uuids([$groupId], $this->customerGroupIds, $this->operator);
     }
 
     public function getConstraints(): array

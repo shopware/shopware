@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,6 +32,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         LoggerInterface $logger,
         private readonly Connection $connection,
         private readonly MessageBusInterface $messageBus,
+        private readonly ClockInterface $clock,
         private readonly int $staleMinSeconds = 300,
         private readonly float $staleIntervalFactor = 2.0
     ) {
@@ -46,7 +48,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $now = new \DateTimeImmutable('now');
+            $now = $this->clock->now();
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {

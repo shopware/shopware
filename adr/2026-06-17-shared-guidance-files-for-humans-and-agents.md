@@ -25,8 +25,8 @@ We need one documentation model that:
 
 1. Folder-specific durable guidance lives in the folder's `README.md`.
    The README is the source of truth and should be understandable for humans and explicit enough for agents.
-2. The root `AGENTS.md` stays concise and routes conditionally to subtree guidance:
-   PHP/server code uses `src/Core/AGENTS.md`, Administration code uses `src/Administration/AGENTS.md`, Storefront code uses `src/Storefront/AGENTS.md`, and tests use `tests/AGENTS.md`.
+2. The root `AGENTS.md` stays concise and routes conditionally to process and subtree guidance:
+   repository process work uses `delivery-process/README.md`, PHP/server code uses `src/Core/AGENTS.md`, Administration code uses `src/Administration/AGENTS.md`, Storefront code uses `src/Storefront/AGENTS.md`, and tests use `tests/AGENTS.md`.
 3. Subtree `AGENTS.md` files are allowed when they route to more specific guidance or hold concise rules for that whole subtree.
    They must stay readable for humans and agents, and they must not conflict with `coding-guidelines/`.
 4. Human-relevant component rules belong in README or `coding-guidelines/`.
@@ -47,6 +47,7 @@ We need one documentation model that:
 
 - Humans and agents share the same durable guidance instead of following parallel documents.
 - Context windows stay smaller because the root agent entry file routes to the relevant subtree instead of repeating PHP, Administration, Storefront, and PHPUnit guidance.
+- Process guidance lives with the rest of the delivery-process documentation instead of expanding the root agent context.
 - Contributors can update working guidance in the same place they already expect to find component documentation.
 - Coding guidelines stay reusable and normative, while READMEs stay focused on local working context.
 - Review feedback can move misplaced rules to the right owner without changing the overall model: human-facing component rules go to READMEs or coding guidelines; subtree-wide routing can stay in AGENTS files.
@@ -63,5 +64,6 @@ We need one documentation model that:
 ## References
 
 - [Repository guidance](../AGENTS.md)
+- [Delivery process guidance](../delivery-process/README.md)
 - [ADR coding guideline](../coding-guidelines/core/adr.md)
 - [Co-located Administration technical documentation ADR](2025-10-14-colocate-administration-technical-docs.md)

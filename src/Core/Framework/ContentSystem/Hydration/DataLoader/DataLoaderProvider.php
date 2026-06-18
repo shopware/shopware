@@ -24,6 +24,14 @@ class DataLoaderProvider
     }
 
     /**
+     * @return list<string> the registered source identifiers, keyed by getRequirementType()
+     */
+    public function getSources(): array
+    {
+        return array_keys($this->locator->getProvidedServices());
+    }
+
+    /**
      * @throws ContentSystemException
      *
      * @return AbstractContentDataLoader<Struct>

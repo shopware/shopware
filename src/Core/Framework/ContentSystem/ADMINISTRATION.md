@@ -90,7 +90,7 @@ A custom element type registered by a plugin or app ([EXTENSION.md → Custom El
 
 `GET /api/_info/content-system-data-loader-types.json`
 
-The data sources a `data_requirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each mapped to the type(s) it produces. Backed by `Schema/ContentSystemDataLoaderTypeSchemaGenerator::getSchema()`, populated at build time by `ContentSystemDataLoaderTypeCompilerPass`.
+The data sources a `data_requirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each mapped to the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderTypeSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderTypeResolver` from each loader's `producibleTypes()`.
 
 Response:
 
@@ -99,18 +99,23 @@ Response:
   "sources": {
     "<source>": {
       "types": [
-        { "className": "<FQCN>", "genericParameters": ["<FQCN>"] }
+        {
+          "producedType": "<FQCN>",
+          "configTemplate": { "entity": "product" },
+          "requiredConfigKeys": ["property"],
+          "genericParameters": ["<FQCN>"]
+        }
       ]
     }
   }
 }
 ```
 
-`<source>` is the `data_requirements` source value (`entity`, `product_listing`, …); each entry lists the produced data type's class name and its generic parameters.
+`<source>` is the `data_requirements` source value (`entity`, `product_listing`, …); each entry pairs the produced type (the sales-channel class where one exists) with the config seed needed to produce it — `configTemplate` carries the inferable keys, `requiredConfigKeys` lists the keys the caller must still supply.
 
 Full field-level schema: [content-system-data-loader-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-data-loader-types.json).
 
-A custom data loader ([EXTENSION.md → Custom Data Loaders](EXTENSION.md#custom-data-loaders)) appears here. Wildcard loaders expand at runtime via `ContentSystemDataLoaderTypesResolvedEvent`.
+A custom data loader ([EXTENSION.md → Custom Data Loaders](EXTENSION.md#custom-data-loaders)) appears here. Wildcard loaders (`entity`, `entity_collection`) enumerate the live definition registry inside `producibleTypes()`.
 
 ### Entity types
 

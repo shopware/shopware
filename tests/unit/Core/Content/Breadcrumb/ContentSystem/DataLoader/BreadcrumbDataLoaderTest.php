@@ -42,13 +42,16 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame('breadcrumb', BreadcrumbDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = BreadcrumbDataLoader::getProvidedData();
+        $capabilities = $this->loader->producibleTypes();
 
-        static::assertSame(BreadcrumbCollection::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(BreadcrumbCollection::class, $capabilities[0]->producedType);
+        static::assertSame([], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns breadcrumb collection as data and marks result as cache-aware with no tags')]

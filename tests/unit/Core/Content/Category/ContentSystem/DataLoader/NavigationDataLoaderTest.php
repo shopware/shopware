@@ -43,13 +43,16 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame('navigation', NavigationDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = NavigationDataLoader::getProvidedData();
+        $capabilities = $this->dataLoader->producibleTypes();
 
-        static::assertSame(Tree::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(Tree::class, $capabilities[0]->producedType);
+        static::assertSame([], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads navigation tree with explicit rootId from config')]

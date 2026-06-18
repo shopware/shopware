@@ -40,13 +40,16 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame('currency', CurrencyDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = CurrencyDataLoader::getProvidedData();
+        $capabilities = $this->dataLoader->producibleTypes();
 
-        static::assertSame(CurrencyCollection::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(CurrencyCollection::class, $capabilities[0]->producedType);
+        static::assertSame([], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads currencies with default config and returns cachedExternally result')]

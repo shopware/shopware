@@ -7,12 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
  * @internal
@@ -21,13 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
     /**
-     * @param list<array{className: string, genericParameters: list<string>}> $expectedTypes
+     * @param list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}> $expectedTypes
      */
     #[DataProvider('buildsSchemaEntryProvider')]
     #[TestDox('builds schema entry for $_dataName')]
-    public function testGetSchemaBuildSourceEntry(string $source, ContentSystemDataLoaderTypeDescriptor $descriptor, array $expectedTypes): void
+    public function testGetSchemaBuildsSourceEntry(string $source, LoaderTypeCapability $capability, array $expectedTypes): void
     {
-        $map = new ContentSystemDataLoaderTypeMap([$source => [$descriptor]]);
+        $map = new ContentSystemDataLoaderTypeMap([$source => [$capability]]);
 
         $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
@@ -40,20 +40,25 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, ContentSystemDataLoaderTypeDescriptor, list<array{className: string, genericParameters: list<string>}>}>
+     * @return iterable<string, array{string, LoaderTypeCapability, list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}>}>
      */
     public static function buildsSchemaEntryProvider(): iterable
     {
-        yield 'simple type without generic parameters' => [
+        yield 'a fixed-type loader with empty template and no required keys' => [
             'navigation',
-            new ContentSystemDataLoaderTypeDescriptor(Tree::class),
-            [['className' => Tree::class, 'genericParameters' => []]],
+            new LoaderTypeCapability(Tree::class),
+            [['producedType' => Tree::class, 'configTemplate' => [], 'requiredConfigKeys' => [], 'genericParameters' => []]],
         ];
 
-        yield 'type with generic parameters' => [
-            'product_review',
-            new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class]),
-            [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]],
+        yield 'a wildcard collection loader with config template, required keys and generics' => [
+            'entity_collection',
+            new LoaderTypeCapability(SalesChannelProductCollection::class, ['entity' => 'product'], ['property'], [SalesChannelProductEntity::class]),
+            [[
+                'producedType' => SalesChannelProductCollection::class,
+                'configTemplate' => ['entity' => 'product'],
+                'requiredConfigKeys' => ['property'],
+                'genericParameters' => [SalesChannelProductEntity::class],
+            ]],
         ];
     }
 }

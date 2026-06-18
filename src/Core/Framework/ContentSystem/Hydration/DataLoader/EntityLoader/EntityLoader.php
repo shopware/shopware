@@ -3,14 +3,17 @@
 namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader;
 
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -18,7 +21,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 
 use function Symfony\Component\String\u;
@@ -50,21 +52,46 @@ class EntityLoader extends AbstractContentDataLoader
         return self::SOURCE;
     }
 
-    #[AsEventListener(event: ContentSystemDataLoaderTypesResolvedEvent::class . '.' . self::SOURCE)]
-    public function onTypesResolved(ContentSystemDataLoaderTypesResolvedEvent $event): void
+    public function producibleTypes(): array
     {
-        $types = [];
-        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
-            $entityClass = $definition->getEntityClass();
+        $salesChannelDefinitions = $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
 
-            if ($entityClass === ArrayEntity::class) {
+        $capabilities = [];
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
+            if ($definition instanceof MappingEntityDefinition) {
                 continue;
             }
 
-            $types[] = new ContentSystemDataLoaderTypeDescriptor($entityClass);
+            if ($definition->getEntityClass() === ArrayEntity::class) {
+                continue;
+            }
+
+            $entityName = $definition->getEntityName();
+            $producedType = isset($salesChannelDefinitions[$entityName])
+                ? $salesChannelDefinitions[$entityName]->getEntityClass()
+                : $definition->getEntityClass();
+
+            $capabilities[] = new LoaderTypeCapability($producedType, ['entity' => $entityName], ['property']);
         }
 
-        $event->types = $types;
+        return $capabilities;
+    }
+
+    public function resolveProducedType(AbstractContentDataLoaderConfig $config): string
+    {
+        if (!$config instanceof EntityLoaderConfig) {
+            throw ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, $config::class);
+        }
+
+        if ($this->salesChannelDefinitionRegistry->has($config->entity)) {
+            return $this->salesChannelDefinitionRegistry->getByEntityName($config->entity)->getEntityClass();
+        }
+
+        try {
+            return $this->definitionRegistry->getByEntityName($config->entity)->getEntityClass();
+        } catch (DefinitionNotFoundException) {
+            throw ContentSystemException::unknownLoaderEntity($config->entity);
+        }
     }
 
     public function load(
@@ -76,6 +103,10 @@ class EntityLoader extends AbstractContentDataLoader
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        if (!$this->definitionRegistry->has($config->entity)) {
             return ContentDataLoaderResult::notFound();
         }
 

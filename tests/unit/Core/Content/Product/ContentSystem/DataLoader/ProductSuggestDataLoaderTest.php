@@ -42,13 +42,16 @@ class ProductSuggestDataLoaderTest extends TestCase
         static::assertSame('product_suggest', ProductSuggestDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = ProductSuggestDataLoader::getProvidedData();
+        $capabilities = $this->loader->producibleTypes();
 
-        static::assertSame(ProductListingResult::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(ProductListingResult::class, $capabilities[0]->producedType);
+        static::assertSame([], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns suggest listing result as data and marks result as cache-aware with no tags')]

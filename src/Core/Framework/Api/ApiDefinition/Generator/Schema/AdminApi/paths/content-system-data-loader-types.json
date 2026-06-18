@@ -33,18 +33,30 @@
                                                         "type": "array",
                                                         "items": {
                                                             "type": "object",
-                                                            "required": ["className", "genericParameters"],
+                                                            "required": ["producedType", "configTemplate", "requiredConfigKeys", "genericParameters"],
                                                             "properties": {
-                                                                "className": {
+                                                                "producedType": {
                                                                     "type": "string",
-                                                                    "description": "Fully qualified class name."
+                                                                    "description": "Fully qualified class name of the produced type (sales-channel class where applicable)."
+                                                                },
+                                                                "configTemplate": {
+                                                                    "type": "object",
+                                                                    "description": "Inferable config to produce this type, e.g. {\"entity\": \"product\"}.",
+                                                                    "additionalProperties": true
+                                                                },
+                                                                "requiredConfigKeys": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "description": "Config keys the caller must still supply, e.g. [\"property\"]."
                                                                 },
                                                                 "genericParameters": {
                                                                     "type": "array",
                                                                     "items": {
                                                                         "type": "string"
                                                                     },
-                                                                    "description": "Generic type parameters."
+                                                                    "description": "Generic type parameters, for schema display only."
                                                                 }
                                                             }
                                                         }

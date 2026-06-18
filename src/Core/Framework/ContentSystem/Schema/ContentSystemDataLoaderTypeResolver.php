@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Schema;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * Resolves the source-to-capability map from the registered data loaders.
+ *
  * @internal
  *
  * @final
@@ -15,34 +15,24 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoaderTypeResolver
 {
-    /**
-     * @param array<string, list<array{className: class-string<Struct>, genericParameters: list<class-string<Struct>>}>> $compiledSourceToTypes
-     */
+    private ?ContentSystemDataLoaderTypeMap $map = null;
+
     public function __construct(
-        private readonly array $compiledSourceToTypes,
-        private readonly EventDispatcherInterface $dispatcher,
+        private readonly DataLoaderProvider $dataLoaderProvider,
     ) {
     }
 
     public function resolve(): ContentSystemDataLoaderTypeMap
     {
-        $sourceToTypes = [];
-
-        foreach ($this->compiledSourceToTypes as $source => $entries) {
-            $types = [];
-            foreach ($entries as $entry) {
-                $types[] = new ContentSystemDataLoaderTypeDescriptor(
-                    $entry['className'],
-                    $entry['genericParameters'],
-                );
-            }
-
-            $event = new ContentSystemDataLoaderTypesResolvedEvent($source, $types);
-            $this->dispatcher->dispatch($event, ContentSystemDataLoaderTypesResolvedEvent::class . '.' . $source);
-
-            $sourceToTypes[$source] = $event->types;
+        if ($this->map !== null) {
+            return $this->map;
         }
 
-        return new ContentSystemDataLoaderTypeMap($sourceToTypes);
+        $sourceToCapabilities = [];
+        foreach ($this->dataLoaderProvider->getSources() as $source) {
+            $sourceToCapabilities[$source] = $this->dataLoaderProvider->get($source)->producibleTypes();
+        }
+
+        return $this->map = new ContentSystemDataLoaderTypeMap($sourceToCapabilities);
     }
 }

@@ -36,18 +36,43 @@ abstract class AbstractContentDataLoader
     abstract public static function getRequirementType(): string;
 
     /**
-     * Declares what data type this loader directly provides.
+     * The types this loader can produce, each with the config seed needed to produce it.
      *
-     * Default implementation:
+     * Default: one capability derived from the `@extends AbstractContentDataLoader<T>` PHPDoc,
+     * carrying the produced class and its generic parameters, with empty template and no required keys.
+     * Wildcard loaders (entity, entity_collection) override this to enumerate the live definition registry.
+     *
+     * @return list<LoaderTypeCapability>
+     */
+    public function producibleTypes(): array
+    {
+        return [static::extendsDescriptor()];
+    }
+
+    /**
+     * The concrete type a specific config produces.
+     *
+     * Default: the single `@extends` produced class, ignoring config.
+     * Wildcard loaders override this to map the config to a registered entity class.
+     */
+    public function resolveProducedType(AbstractContentDataLoaderConfig $config): string
+    {
+        return static::extendsDescriptor()->producedType;
+    }
+
+    /**
+     * Resolves the single type capability declared via the `@extends AbstractContentDataLoader<T>` PHPDoc.
+     *
      * 1. phpstan/phpdoc-parser extracts the `@extends` tag and provides the type AST
      * 2. symfony/type-info's TypeContext resolves short class names to FQCNs
      *
-     * Override for special cases (e.g., wildcard entity loaders).
+     * Dry-run by ContentSystemDataLoaderTypeCompilerPass at container build time so a missing or
+     * unresolvable `@extends` annotation fails the build.
      *
-     * Called by ContentSystemDataLoaderTypeCompilerPass at container build time.
-     * Missing `@extends` annotation fails the build.
+     * Must stay public static: the compiler pass invokes it as `$class::extendsDescriptor()` on a bare
+     * class-string with no loader instance, and both `producibleTypes()` and `resolveProducedType()` reuse it.
      */
-    public static function getProvidedData(): ContentSystemDataLoaderTypeDescriptor
+    public static function extendsDescriptor(): LoaderTypeCapability
     {
         $reflection = new \ReflectionClass(static::class);
         $docComment = $reflection->getDocComment();
@@ -96,7 +121,7 @@ abstract class AbstractContentDataLoader
                 $genericParameters[] = $resolved;
             }
 
-            return new ContentSystemDataLoaderTypeDescriptor($className, $genericParameters);
+            return new LoaderTypeCapability($className, [], [], $genericParameters);
         }
 
         if ($dataTypeNode instanceof IdentifierTypeNode) {
@@ -106,7 +131,7 @@ abstract class AbstractContentDataLoader
                 throw ContentSystemException::unresolvableTypeClass($className, static::class);
             }
 
-            return new ContentSystemDataLoaderTypeDescriptor($className);
+            return new LoaderTypeCapability($className);
         }
 
         throw ContentSystemException::unsupportedTypeNode($dataTypeNode::class);

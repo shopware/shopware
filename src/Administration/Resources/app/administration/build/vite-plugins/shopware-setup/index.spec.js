@@ -29,6 +29,12 @@ const count = 1;
 
         expect(result).toHaveProperty('code');
         expect(result.code).toContain("Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component'");
+        expect(result.map).toEqual({
+            version: 3,
+            sources: [],
+            names: [],
+            mappings: '',
+        });
     });
 
     it('delegates sw-override blocks in .override.vue files', async () => {
@@ -36,6 +42,8 @@ const count = 1;
         const plugin = ShopwareSetupPlugin(pluginOptions);
         const source = `<script setup sw-override="sw-my-component">
 const count = 1;
+
+swDefineOverride({});
 </script>`;
 
         const result = await plugin.transform(source, '/example/component.override.vue');

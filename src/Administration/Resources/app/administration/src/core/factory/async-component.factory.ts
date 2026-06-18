@@ -61,6 +61,7 @@ export interface ComponentConfig extends ComponentOptions {
     functional?: boolean;
     extends?: ComponentConfig | string;
     _isOverride?: boolean;
+    _renderedBySfcTemplate?: boolean;
     component?: Promise<ComponentConfig | boolean>;
     loading?: ComponentConfig;
     delay?: number;
@@ -523,7 +524,7 @@ function register(componentName: string, componentConfiguration: unknown): unkno
              * The complete rendered template including all overrides will be added later.
              */
             delete config.template;
-        } else if (!config.functional && typeof config.render !== 'function') {
+        } else if (!config.functional && typeof config.render !== 'function' && !config._renderedBySfcTemplate) {
             warn(
                 'ComponentFactory',
                 `The component "${config.name}" needs a template to be functional.`,
@@ -785,8 +786,9 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     /**
      * if config has a render function it will ignore template
      */
-    if (typeof config?.render === 'function') {
+    if (typeof config?.render === 'function' || config?._renderedBySfcTemplate) {
         delete config.template;
+        delete config._renderedBySfcTemplate;
         return config;
     }
 

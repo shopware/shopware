@@ -84,7 +84,7 @@ class AdminSearchControllerTest extends TestCase
                 [ProductDefinition::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')
+        $this->definitionInstanceRegistry->method('has')
             ->willReturnOnConsecutiveCalls(true, false);
 
         $validationError = [ProductDefinition::class . ':' . AclRoleDefinition::PRIVILEGE_READ];
@@ -117,7 +117,7 @@ class AdminSearchControllerTest extends TestCase
                 [ProductEntity::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')
+        $this->definitionInstanceRegistry->method('has')
             ->willReturnOnConsecutiveCalls(true, true);
 
         $productEntity = new ProductEntity();

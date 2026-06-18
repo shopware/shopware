@@ -148,16 +148,38 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
-## Customer default address detail routes return only the configured default address
+## Reference-based Admin API detail routes use one-to-one associations
 
-The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
-Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
+Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
 </details>
 
 # Core
 
 <details>
+
+## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
 
 ## Removed stored `mail_template_type.template_data`
 
@@ -208,6 +230,45 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Product stream builder API changes
+
+The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
+Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
+
+The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
+Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
+
+### Before
+
+```php
+public function __construct(
+    private readonly ProductStreamBuilderInterface $productStreamBuilder,
+) {
+}
+
+$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
+$criteria->addFilter(...$filters);
+```
+
+### After
+
+```php
+public function __construct(
+    private readonly AbstractProductStreamBuilder $productStreamBuilder,
+) {
+}
+
+$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
+```
+
+## Product streams can disable variant grouping
+
+Product streams no longer always imply grouped variant results.
+When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
+
+The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
+If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 

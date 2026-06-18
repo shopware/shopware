@@ -257,8 +257,7 @@ class ServiceSourceResolverTest extends TestCase
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -305,8 +304,7 @@ class ServiceSourceResolverTest extends TestCase
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -361,8 +359,7 @@ class ServiceSourceResolverTest extends TestCase
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())
@@ -420,8 +417,7 @@ class ServiceSourceResolverTest extends TestCase
         string $zipUrl,
         array $chunks
     ): void {
-        $temporaryDirectoryFactory->expects($this->any())
-            ->method('path')
+        $temporaryDirectoryFactory->method('path')
             ->willReturn('/tmp/test');
 
         $filesystem->expects($this->once())

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
+ *
+ * @no-indexer-required: 'sales_channel.indexer' only re-indexes many-to-many associations; the maintenance IP allowlist column is not part of its output.
  */
 #[Package('discovery')]
 class Migration1781614580AddMaintenanceIpAllowlistToSalesChannel extends MigrationStep

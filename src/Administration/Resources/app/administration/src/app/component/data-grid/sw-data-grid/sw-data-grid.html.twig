@@ -82,8 +82,8 @@
                                 :aria-label="$t(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
-                                :checked="allSelectedChecked"
-                                @update:checked="selectAll"
+                                :model-value="allSelectedChecked"
+                                @update:model-value="selectAll"
                             />
                             {% endblock %}
                         </div>
@@ -284,8 +284,8 @@
                                 <mt-checkbox
                                     :aria-label="$t('global.sw-data-grid.labelSelected')"
                                     :disabled="!isRecordSelectable(item)"
-                                    :checked="isSelected(item[itemIdentifierProperty])"
-                                    @update:checked="selectItem($event, item)"
+                                    :model-value="isSelected(item[itemIdentifierProperty])"
+                                    @update:model-value="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>

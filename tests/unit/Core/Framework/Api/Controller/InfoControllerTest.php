@@ -60,7 +60,7 @@ class InfoControllerTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
-        $this->shopIdProvider->expects($this->any())->method('getShopId')->willReturn($shopId);
+        $this->shopIdProvider->method('getShopId')->willReturn($shopId);
     }
 
     public function testConfig(): void

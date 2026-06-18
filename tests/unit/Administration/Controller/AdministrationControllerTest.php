@@ -111,8 +111,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexPerformsOnSearchOfCurrency(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $controller = $this->createAdministrationController();
 
@@ -170,8 +170,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexSetsCacheHeaders(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $controller = $this->createAdministrationController();
 
@@ -217,8 +217,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexOmitsStaleWhileRevalidateWhenFrwIsActive(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $frwService = $this->createMock(FirstRunWizardService::class);
         $frwService->method('frwShouldRun')->willReturn(true);
@@ -466,7 +466,7 @@ class AdministrationControllerTest extends TestCase
         $excludedTerms = $this->getExcludedTerms($sourceLanguage);
         $searchConfigId = Uuid::randomHex();
 
-        $this->connection->expects($this->any())->method('fetchOne')
+        $this->connection->method('fetchOne')
             ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
 
         if ($sourceLanguage === null) {

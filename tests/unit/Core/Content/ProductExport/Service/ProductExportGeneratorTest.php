@@ -17,7 +17,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -50,7 +50,7 @@ use Twig\Environment;
 #[CoversClass(ProductExportGenerator::class)]
 class ProductExportGeneratorTest extends TestCase
 {
-    private MockObject&ProductStreamBuilderInterface $productStreamBuilder;
+    private MockObject&AbstractProductStreamBuilder $productStreamBuilder;
 
     /**
      * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
@@ -91,7 +91,7 @@ class ProductExportGeneratorTest extends TestCase
         $productDefinition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $productDefinition);
 
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->productExportRender = $this->createMock(ProductExportRendererInterface::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -192,7 +192,9 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}{{ product.categories.count }}')->willReturn(['product.categories.count']);
@@ -266,7 +268,9 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
@@ -337,7 +341,9 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->never())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
@@ -616,7 +622,9 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with($bodyTemplate)->willReturn([]);

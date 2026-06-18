@@ -3,56 +3,65 @@
     <mt-card
         :title="$t('sw-users-permissions.roles.detail.basicInformation')"
         position-identifier="sw-users-permissions-role-view-general"
+        :is-loading="isLoading"
     >
+        <template v-if="role">
         {% block sw_users_permissions_role_role_view_general_mcp_hint %}
-        <mt-banner
-            v-if="feature.isActive('MCP_SERVER') && shouldShowMcpHint"
-            variant="info"
-            class="sw-users-permissions-role-view-general__mcp-hint"
-        >
-            {{ $t('sw-users-permissions.roles.mcpHint.text', { count: mcpIntegrations.length }) }}
-            <a
-                href="#"
-                class="sw-users-permissions-role-view-general__mcp-hint-link"
-                @click.prevent="onOpenMcpModal"
-            >{{ $t('sw-users-permissions.roles.mcpHint.linkText') }}</a>
-        </mt-banner>
+            <mt-banner
+                v-if="feature.isActive('MCP_SERVER') && shouldShowMcpHint"
+                variant="info"
+                class="sw-users-permissions-role-view-general__mcp-hint"
+            >
+                <span>{{ $t('sw-users-permissions.roles.mcpHint.text', { count: mcpIntegrations.length }) }}</span>
+
+                <mt-link
+                    as="a"
+                    class="sw-users-permissions-role-view-general__mcp-hint-link"
+                    @click.prevent="onOpenMcpModal"
+                >
+                    {{ $t('sw-users-permissions.roles.mcpHint.linkText') }}
+                </mt-link>
+            </mt-banner>
         {% endblock %}
 
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
-
-        <mt-text-field
-            v-model="role.name"
-            name="sw-field--role-name"
-            :error="roleNameError"
-            :disabled="isReadOnly"
-            :label="$t('sw-users-permissions.roles.detail.labelName')"
-            required
-        />
+            <mt-text-field
+                v-model="role.name"
+                name="sw-field--role-name"
+                :error="roleNameError"
+                :disabled="isReadOnly"
+                :label="$t('sw-users-permissions.roles.detail.labelName')"
+                required
+            />
         {% endblock %}
 
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_description %}
-        <mt-textarea
-            v-model="role.description"
-            name="sw-field--role-description"
-            :error="roleDescriptionError"
-            :disabled="isReadOnly"
-            :label="$t('sw-users-permissions.roles.detail.labelDescription')"
-        />
+            <mt-textarea
+                v-model="role.description"
+                name="sw-field--role-description"
+                :error="roleDescriptionError"
+                :disabled="isReadOnly"
+                :label="$t('sw-users-permissions.roles.detail.labelDescription')"
+            />
         {% endblock %}
+        </template>
     </mt-card>
     {% endblock %}
 
     {% block sw_users_permissions_role_role_view_general_card_view_permissions %}
     <sw-users-permissions-permissions-grid
+        v-if="role || isLoading"
         :role="role"
+        :is-loading="isLoading"
         :disabled="isReadOnly"
     />
     {% endblock %}
 
     {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
     <sw-users-permissions-additional-permissions
+        v-if="role || isLoading"
         :role="role"
+        :is-loading="isLoading"
         :disabled="isReadOnly"
     />
     {% endblock %}

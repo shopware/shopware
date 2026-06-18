@@ -1,7 +1,6 @@
 {% block sw_settings_list %}
 {% block sw_settings_language_index %}
 <sw-page class="sw-settings-language-list">
-
     {% block sw_settings_language_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -15,32 +14,29 @@
 
     {% block sw_settings_language_list_smart_bar_header %}
     <template #smart-bar-header>
-
         {% block sw_settings_language_list_smart_bar_header_title %}
         <h2>
-
             {% block sw_settings_language_list_smart_bar_header_title_text %}
-            {{ $t('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $t('sw-settings-language.list.textHeadline') }}
+            />
+
+            <span>{{ $t('sw-settings-language.list.textHeadline') }}</span>
             {% endblock %}
 
             {# @deprecated tag:v6.8.0 - Block will be removed. #}
             {% block sw_settings_language_list_smart_bar_header_amount %}
-
             {% endblock %}
-
         </h2>
         {% endblock %}
-
     </template>
     {% endblock %}
 
     {% block sw_settings_language_list_smart_bar_actions %}
     <template #smart-bar-actions>
-
         {% block sw_settings_language_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip.bottom="{
@@ -66,32 +62,21 @@
 
         <sw-card-view>
             <div class="sw-settings-language-list__snippet-link-wrapper">
-                <router-link
+                <mt-link
                     class="sw-settings-language-list__snippet-link"
                     :to="{ name: 'sw.settings.snippet.index' }"
+                    type="internal"
                 >
                     {{ $t('sw-settings-language.list.manageSnippets') }}
-                    <mt-icon
-                        name="long-arrow-right"
-                        size="12"
-                    />
-                </router-link>
+                </mt-link>
             </div>
 
             <mt-card
+                class="sw-settings-language-list__card"
                 position-identifier="sw-settings-language-list"
+                :title="cardTitle"
+                :subtitle="$t('sw-settings-language.list.cardSubtitle')"
             >
-                <template #title>
-                    <div class="sw-settings-language-list__card-title-wrapper">
-                        <div class="sw-settings-language-list__card-title">
-                            {{ $t('sw-settings-language.list.cardTitle') }} ({{ total }})
-                        </div>
-                        <div class="sw-settings-language-list__card-subtitle">
-                            {{ $t('sw-settings-language.list.cardSubtitle') }}
-                        </div>
-                    </div>
-                </template>
-
                 <template #grid>
                     <sw-entity-listing
                         key="language-listing"
@@ -112,32 +97,31 @@
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
                     >
-
                         {% block sw_settings_language_list_content_list_content %}
                         {% block sw_settings_language_list_content_list_columns %}
                         {% block sw_settings_language_list_content_list_column_name %}
                         <template #column-name="{ item, column, compact, isInlineEdit }">
-
                             <mt-text-field
                                 v-if="isInlineEdit"
                                 v-model="item.name"
                                 :size="compact ? 'small' : 'default'"
                             />
-                            <router-link
+
+                            <mt-link
                                 v-else
-                                :title="$t('sw-settings-language.list.contextMenuEdit')"
                                 :to="{ name: 'sw.settings.language.detail', params: { id: item.id } }"
                             >
                                 {{ item.name }}
-                                <sw-label
-                                    v-if="isDefault(item.id)"
-                                    variant="neutral"
-                                    size="small"
-                                    class="sw-settings-language-list__default-label"
-                                >
-                                    {{ $t('sw-settings-language.list.defaultLabel') }}
-                                </sw-label>
-                            </router-link>
+                            </mt-link>
+
+                            <mt-badge
+                                v-if="isDefault(item.id) && !isInlineEdit"
+                                variant="neutral"
+                                size="s"
+                                class="sw-settings-language-list__default-label"
+                            >
+                                {{ $t('sw-settings-language.list.defaultLabel') }}
+                            </mt-badge>
                         </template>
                         {% endblock %}
 
@@ -152,13 +136,14 @@
                                 <mt-icon
                                     v-if="item.active"
                                     name="regular-checkmark-xs"
-                                    size="16px"
+                                    size="12px"
                                     class="is--active"
                                 />
+
                                 <mt-icon
                                     v-else
                                     name="regular-times-s"
-                                    size="16px"
+                                    size="12px"
                                     class="is--inactive"
                                 />
                             </template>
@@ -169,6 +154,7 @@
                             {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
                         </template>
                         {% endblock %}
+
                         {# @deprecated tag:v6.8.0 - Block will be removed. #}
                         {% block sw_settings_language_list_content_list_column_id %}
                         <template #column-id="{ item, column, compact, isInlineEdit }">
@@ -178,7 +164,6 @@
                                 size="16px"
                                 class="is--active"
                             />
-                            <div v-else></div>
                         </template>
                         {% endblock %}
 
@@ -223,18 +208,15 @@
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
         <sw-sidebar :propagate-width="true">
-
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
                 icon="regular-filter"
                 :title="$t('sw-settings-language.list.titleSidebarFilter')"
             >
                 <sw-collapse expand-on-loading>
-
                     {% block sw_settings_language_list_grid_sidebar_filter_header %}
                     <template #header="{ expanded }">
                         <div class="sw-settings-language-list__collapse-header">
-
                             {% block sw_settings_language_list_grid_sidebar_filter_header_title %}
                             <h4 class="sw-settings-language-list__collapse-title">
                                 {{ $t('sw-settings-language.list.titleSidebarQuickFilter') }}
@@ -246,8 +228,8 @@
                             <mt-icon
                                 v-if="expanded"
                                 class="sw-media-collapse__button"
-                                name="regular-chevron-down-xxs"
-                                size="12px"
+                                name="regular-chevron-down-xs"
+                                size="10px"
                             />
                             {% endblock %}
 
@@ -255,21 +237,18 @@
                             <mt-icon
                                 v-else
                                 class="sw-media-collapse__button"
-                                name="regular-chevron-right-xxs"
-                                size="12px"
+                                name="regular-chevron-right-xs"
+                                size="10px"
                             />
                             {% endblock %}
                             {% endblock %}
-
                         </div>
                     </template>
                     {% endblock %}
 
                     {% block sw_settings_language_list_grid_sidebar_filter_content %}
                     <template #content>
-
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-
                         <mt-switch
                             v-model="filterRootLanguages"
                             class="sw-settings-language-list__filterField"
@@ -278,25 +257,20 @@
                         {% endblock %}
 
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-
                         <mt-switch
                             v-model="filterInheritedLanguages"
                             class="sw-settings-language-list__filterField"
                             :label="$t('sw-settings-language.list.textFilterInheritedLanguages')"
                         />
                         {% endblock %}
-
                     </template>
                     {% endblock %}
-
                 </sw-collapse>
             </sw-sidebar-item>
             {% endblock %}
-
         </sw-sidebar>
     </template>
     {% endblock %}
-
 </sw-page>
-    {% endblock %}
+{% endblock %}
 {% endblock %}

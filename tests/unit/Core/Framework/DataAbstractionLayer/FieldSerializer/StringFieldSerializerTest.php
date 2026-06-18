@@ -45,19 +45,24 @@ class StringFieldSerializerTest extends TestCase
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private RecursiveValidator $validator;
+
     protected function setUp(): void
     {
         $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $validator = new RecursiveValidator(
+        $this->validator = new RecursiveValidator(
             new ExecutionContextFactory($this->createMock(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );
 
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+
         $this->serializer = new StringFieldSerializer(
-            $validator,
+            $this->validator,
             $this->definitionInstanceRegistry,
-            new HtmlSanitizer(null, false)
+            $sanitizer
         );
     }
 
@@ -235,6 +240,10 @@ class StringFieldSerializerTest extends TestCase
     #[DataProvider('stringValueProvider')]
     public function testStringValuesAreEncoded(string $input, string $expected, array $flags): void
     {
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($expected);
+        $this->serializer = new StringFieldSerializer($this->validator, $this->definitionInstanceRegistry, $sanitizer);
+
         $field = $this->createField($flags);
 
         // Create case

@@ -239,12 +239,14 @@
             "agenticCommerce": {
                 "tabIntegration": "Integration",
                 "openAiSettingsTitle": "OpenAI settings",
+                "googleSettingsTitle": "Google settings",
                 "buttonResetTemplate": "Reset to default",
                 "resetTemplateSuccess": "Template has been reset to default. Please save to keep the changes.",
                 "errorLoadingTemplate": "Could not load default template.",
                 "templates": {
                     "template-label": {
-                        "open-ai": "OpenAI (JSONL)"
+                        "open-ai": "OpenAI (JSONL)",
+                        "google": "Google Shopping (XML)"
                     }
                 },
                 "integration": {
@@ -258,6 +260,14 @@
                                 "description": "This Sales Channel generates a JSONL product feed so your products can appear in ChatGPT search results. To do this, you have to apply as a merchant and share the feed URL with OpenAI. Everything else is explained in the step by step guide below."
                             },
                             "stepByStep": "<li>Apply as a merchant at <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Copy the export URL (below) and share it with OpenAI according to the <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Product feeds docs</a></li><li>Make sure the export URL is publicly accessible</li>"
+                        },
+                        "google": {
+                            "cardTitle": "Google Merchant Center connection",
+                            "introduction": {
+                                "title": "How to: Setup and connection",
+                                "description": "This Sales Channel generates a Google Merchant Center-compatible XML product feed so your products can appear in Google Shopping and AI shopping surfaces. In Merchant Center, add the export URL below as a scheduled file fetch under Settings &rsaquo; Data sources."
+                            },
+                            "stepByStep": "<li>Create a Merchant Center account at <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> and verify your online store URL</li><li>In Merchant Center, open <em>Settings &rsaquo; Data sources</em> and click <em>Add product source</em></li><li>Choose <em>File</em>, then <em>Add a scheduled fetch from a URL</em>, and paste the export URL (below) as the file URL</li><li>Make sure the export URL is publicly reachable (no authentication required)</li><li>Review the <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google product data specification</a> and adjust attributes if needed</li>"
                         }
                     }
                 }

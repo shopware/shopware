@@ -55,6 +55,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
         </service>
 
@@ -202,6 +203,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.sales_channel_context.expire_days%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 

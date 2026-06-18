@@ -155,6 +155,19 @@ export default {
             );
         },
 
+        configLink() {
+            if (!this.extension.configurable) {
+                return null;
+            }
+
+            return {
+                name: 'sw.extension.config',
+                params: {
+                    namespace: this.extension.name,
+                },
+            };
+        },
+
         link() {
             if (this.openLink) {
                 return this.openLink;
@@ -169,7 +182,7 @@ export default {
                 };
             }
 
-            return null;
+            return this.configLink;
         },
 
         consentAffirmationModalActionLabel() {

@@ -26,6 +26,7 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
 
         <!--Controller-->
@@ -70,6 +71,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository"/>
             <argument>%shopware.messenger.stats.enabled%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware">

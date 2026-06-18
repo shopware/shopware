@@ -45,11 +45,9 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
 
         $entityDefinitions = [
@@ -76,15 +74,13 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
     public function testThrowsEntityDoesNotHaveCreatedAndUpdatedAtFields(): void
     {
-        static::expectException(UsageDataException::class);
-        static::expectExceptionMessage('Entity "test_mapping_entity" is not allowed to be used for usage data');
+        $this->expectExceptionObject(UsageDataException::entityNotAllowed('test_mapping_entity'));
         $this->iteratorFactory->create(TestMappingEntityDefinition::ENTITY_NAME, Operation::CREATE, new \DateTimeImmutable(), null);
     }
 
     public function testCreateThrowsExceptionIfEntityDoesNotExist(): void
     {
-        static::expectException(UsageDataException::class);
-        static::expectExceptionMessage('Entity "no_entity" is not allowed to be used for usage data');
+        $this->expectExceptionObject(UsageDataException::entityNotAllowed('no_entity'));
         $this->iteratorFactory->create('no_entity', Operation::CREATE, new \DateTimeImmutable(), null);
     }
 
@@ -102,8 +98,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
     public function testCreateAddsLastRunConditionIfGiven(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->any())
-            ->method('createQueryBuilder')
+        $connection->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
         $expressionBuilder = new ExpressionBuilder($connection);

@@ -227,8 +227,7 @@ class MailSenderTest extends TestCase
         $mail = new Email();
         $mail->text('foobar');
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Mail body is too long. Maximum allowed length is 5');
+        $this->expectExceptionObject(MailException::mailBodyTooLong(5));
 
         $mailSender->send($mail);
     }

@@ -9,6 +9,12 @@ import { createPinia, setActivePinia } from 'pinia';
 const deleteFn = jest.fn(() => Promise.resolve());
 const assignFn = jest.fn(() => Promise.resolve());
 
+const entityTagSelectStub = {
+    name: 'sw-entity-tag-select',
+    props: ['entityCollection'],
+    template: '<div></div>',
+};
+
 const orderMock = {
     id: '123',
     orderNumber: 10000,
@@ -153,7 +159,7 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-order-state-select-v2': true,
-                'sw-entity-tag-select': true,
+                'sw-entity-tag-select': entityTagSelectStub,
                 'router-link': {
                     template: '<div><slot></slot></div>',
                 },
@@ -192,7 +198,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it("should not mutate the original of the order's tags when removing tag", async () => {
-        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent(entityTagSelectStub);
 
         expect(tagsStub.exists()).toBeTruthy();
 
@@ -207,7 +213,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it("should not mutate the original of the order's tags when adding tag", async () => {
-        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent(entityTagSelectStub);
 
         expect(tagsStub.exists()).toBeTruthy();
 
@@ -219,6 +225,30 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(assignFn).toHaveBeenCalledTimes(1);
         expect(orderMock.tags).toHaveLength(2);
         expect(wrapper.vm.$data.tagCollection).toHaveLength(3);
+    });
+
+    it('should update the tag select when order tags change', async () => {
+        const tagsStub = wrapper.findComponent(entityTagSelectStub);
+
+        expect(tagsStub.props('entityCollection')).toHaveLength(2);
+
+        await wrapper.setProps({
+            order: {
+                ...orderMock,
+                tags: [
+                    {
+                        id: '333',
+                        name: '3',
+                    },
+                ],
+            },
+        });
+
+        const updatedTagsStub = wrapper.findComponent(entityTagSelectStub);
+        const entityCollection = updatedTagsStub.props('entityCollection');
+
+        expect(entityCollection).toHaveLength(1);
+        expect(entityCollection[0].id).toBe('333');
     });
 
     it('should call createComponent on order id change', async () => {

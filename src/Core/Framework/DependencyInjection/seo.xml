@@ -38,6 +38,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="seo_url.repository"/>
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry" lazy="true">

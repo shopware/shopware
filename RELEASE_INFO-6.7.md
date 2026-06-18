@@ -99,6 +99,13 @@ The Admin API plain JSON encoder now keeps extension association fields inside t
 For example, including an extension association such as `toOne` on an entity returns `extensions.toOne` instead of promoting `toOne` to the top-level response.
 Nested extension entities also respect their own include definitions, so API clients can filter extension payload fields consistently.
 
+### Customer email uniqueness is enforced on writes
+
+Admin API and Sync API customer writes now enforce the same non-guest customer email uniqueness rules as the Administration customer form and Store API registration flows.
+When `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` is disabled, a non-guest customer email must be unique globally.
+When the setting is enabled, duplicate non-guest emails are only accepted for customers bound to different sales channels.
+Extensions can use `Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker` with `CustomerEmailUniqueCheck` to apply the same configuration-aware uniqueness rules.
+
 ### Number range previews can target a concrete number range
 
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.

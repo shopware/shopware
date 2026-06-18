@@ -190,8 +190,7 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItLogsExceptionWithNonDBALServerExceptionIsThrown(): void
     {
         $iteratorFactory = $this->createMock(IterateEntitiesQueryBuilder::class);
-        $iteratorFactory->expects($this->any())
-            ->method('create')
+        $iteratorFactory->method('create')
             ->willThrowException(new \Exception('An exception occurred while executing...'));
 
         $consentService = $this->createMock(ConsentService::class);

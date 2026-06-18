@@ -355,8 +355,8 @@
 
     {% block sw_sales_channel_detail_base_options_domains %}
     <sw-sales-channel-detail-domains
-        ref="salesChannelDomains"
         v-if="salesChannel && isDomainAware"
+        ref="salesChannelDomains"
         :sales-channel="salesChannel"
         :disable-edit="!acl.can('sales_channel.editor') || undefined"
         :is-loading="isLoading"

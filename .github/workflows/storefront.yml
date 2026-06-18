@@ -24,7 +24,7 @@ jobs:
           install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -54,7 +54,7 @@ jobs:
           install-admin: true
 
       - name: Cache ESLint
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             src/Storefront/Resources/app/administration/.eslintcache
@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Install ludtwig
         env:
@@ -170,14 +170,14 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
           node-version: 22
       - name: Install npm
         run: npm install -g npm@11.8.0
       - name: Cache npm packages
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps retries off the network.

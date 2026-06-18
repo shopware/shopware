@@ -1,9 +1,6 @@
 import template from './sw-condition-line-item-purchase-price.html.twig';
 import './sw-condition-line-item-purchase-price.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @sw-package fundamentals@after-sales
  * @deprecated tag:v6.8.0 - Will be removed. Use sw-condition-generic instead.
@@ -40,16 +37,6 @@ export default {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.isNet',
-            'value.amount',
-        ]),
-
-        currentError() {
-            return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;
         },
     },
 

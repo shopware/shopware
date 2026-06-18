@@ -63,6 +63,15 @@ await locator.waitFor({ state: 'visible', timeout })
 - Do NOT wait via `waitForLoadState('networkidle')` (the admin SPA long-polls and never
   settles) or `waitForURL()` on a pattern already true before the action — wait for a
   concrete post-action element.
+- **Anchor the precondition on an element you KNOW renders once the target state is reached —
+  ideally the assertion's OWN target (or its container/landmark) — NOT a guessed auxiliary
+  control.** Page chrome like a smart-bar "Back"/"Save" button, a breadcrumb, or a tab label
+  drifts across versions and yields a FALSE `PRECONDITION_NOT_FOUND` when the page actually
+  loaded fine. Live miss on #31: the CMS-detail editor and the target Settings button rendered,
+  but the precondition waited for a "Back" button that this version shows as an X/close icon →
+  inconclusive despite a perfectly loaded editor. Rule: if your assertion inspects element X,
+  gate the precondition on X (or its container) — X absent then legitimately means cross-version
+  drift; X present means proceed straight to the real assertion.
 
 **(2) Symptom** — exactly ONE `await expect(...)` of the HEALTHY behaviour, with a generous
 timeout. This is the ONLY failure that may mean `reproduced`.

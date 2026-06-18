@@ -5,18 +5,17 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertEqualsOnClosureRule;
-use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertEqualsOnClosureStaticCallRule;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @extends RuleTestCase<NoAssertEqualsOnClosureStaticCallRule>
+ * @extends RuleTestCase<NoAssertEqualsOnClosureRule>
  */
 #[Package('framework')]
-class NoAssertEqualsOnClosureStaticCallRuleTest extends RuleTestCase
+class NoAssertEqualsOnClosureRuleTest extends RuleTestCase
 {
-    public function testOnlyGenuineClosuresAreReported(): void
+    public function testStaticCallsOnlyReportGenuineClosures(): void
     {
         $this->analyse([__DIR__ . '/data/NoAssertEqualsOnClosureRule/StaticCalls.php'], [
             // Only the genuine closure comparison is flagged; the `never`-typed
@@ -25,8 +24,17 @@ class NoAssertEqualsOnClosureStaticCallRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testInstanceCallsAreCoveredAndGatedOnTestCaseReceiver(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoAssertEqualsOnClosureRule/MethodCalls.php'], [
+            // The instance call on a TestCase receiver is flagged; the same comparison
+            // through a non-TestCase receiver is left alone.
+            [NoAssertEqualsOnClosureRule::ERROR_MESSAGE, 21],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
-        return new NoAssertEqualsOnClosureStaticCallRule();
+        return new NoAssertEqualsOnClosureRule();
     }
 }

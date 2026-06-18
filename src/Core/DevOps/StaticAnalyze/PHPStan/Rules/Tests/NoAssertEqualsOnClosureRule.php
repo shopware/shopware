@@ -3,8 +3,9 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
-use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\CallLike;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
@@ -16,7 +17,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements Rule<MethodCall>
+ * Flags `assertEquals()` comparisons where an operand is a Closure, for both call shapes:
+ * `static::assertEquals(...)` (StaticCall) and `$test->assertEquals(...)` (MethodCall). Registering on
+ * their common parent CallLike lets one rule cover both — PHPStan dispatches a node to rules registered
+ * for its class or any ancestor.
+ *
+ * @implements Rule<CallLike>
  *
  * @internal
  */
@@ -27,16 +33,20 @@ class NoAssertEqualsOnClosureRule implements Rule
 
     public function getNodeType(): string
     {
-        return MethodCall::class;
+        return CallLike::class;
     }
 
     /**
-     * @param MethodCall $node
+     * @param CallLike $node
      *
      * @return list<RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!$node instanceof MethodCall && !$node instanceof StaticCall) {
+            return [];
+        }
+
         if (!$scope->getClassReflection() || !TestRuleHelper::isTestClass($scope->getClassReflection())) {
             return [];
         }
@@ -45,23 +55,16 @@ class NoAssertEqualsOnClosureRule implements Rule
             return [];
         }
 
-        if (!(new ObjectType(TestCase::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
+        // For an instance call only fire when the receiver is a TestCase; a static call (static::/self::/
+        // Class::) carries no receiver and is already scoped by the enclosing-test-class check above.
+        if ($node instanceof MethodCall
+            && !(new ObjectType(TestCase::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
             return [];
         }
 
-        return self::checkArgs($node->getArgs(), $scope);
-    }
-
-    /**
-     * @param array<Arg> $args
-     *
-     * @return list<RuleError>
-     */
-    public static function checkArgs(array $args, Scope $scope): array
-    {
         $closureType = new ObjectType(\Closure::class);
 
-        foreach (\array_slice($args, 0, 2) as $arg) {
+        foreach (\array_slice($node->getArgs(), 0, 2) as $arg) {
             $argType = $scope->getType($arg->value);
 
             // `never` is the bottom type and therefore a subtype of every type,

@@ -494,8 +494,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity "" is not version aware');
+        $this->expectExceptionObject(DataAbstractionLayerException::entityNotVersionAware(''));
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -532,8 +531,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity "" is not version aware');
+        $this->expectExceptionObject(DataAbstractionLayerException::entityNotVersionAware(''));
 
         $repo->merge('test', Context::createDefaultContext());
     }

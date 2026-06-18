@@ -625,10 +625,26 @@
                 },
                 "cache_compression": {
                     "type": "boolean",
+                    "default": null,
+                    "description": "Controls the cache compression before the storage",
+                    "deprecationMessage": "The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead."
+                },
+                "compress": {
+                    "type": "boolean",
                     "default": true,
                     "description": "Controls the cache compression before the storage"
                 },
                 "cache_compression_method": {
+                    "type": "string",
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
+                    "default": null,
+                    "description": "Controls the cache compression method",
+                    "deprecationMessage": "The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead."
+                },
+                "compression_method": {
                     "type": "string",
                     "enum": [
                         "gzip",

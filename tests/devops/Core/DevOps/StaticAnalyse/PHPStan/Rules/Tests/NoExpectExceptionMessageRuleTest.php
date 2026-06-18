@@ -17,11 +17,13 @@ class NoExpectExceptionMessageRuleTest extends RuleTestCase
 {
     public function testRule(): void
     {
+        $message = 'expectExceptionMessage() is soft-deprecated in PHPUnit 13.2 and scheduled for removal in 15.0. Use expectExceptionObject(new YourException(...)) so the exception class, code and message are asserted from a single source of truth.';
+
         $this->analyse([__DIR__ . '/../data/NoExpectExceptionMessage/shopware-unit-test.php'], [
-            [
-                'expectExceptionMessage() is soft-deprecated in PHPUnit 13.2 and scheduled for removal in 15.0. Use expectExceptionObject(new YourException(...)) so the exception class, code and message are asserted from a single source of truth.',
-                15,
-            ],
+            [$message, 15],
+            [$message, 24],
+            [$message, 33],
+            [$message, 42],
         ]);
     }
 

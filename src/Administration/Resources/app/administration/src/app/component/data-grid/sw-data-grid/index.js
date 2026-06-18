@@ -2,6 +2,7 @@ import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
 const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -34,6 +35,10 @@ export default {
         'acl',
         'repositoryFactory',
         'feature',
+    ],
+
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
     ],
 
     emits: [
@@ -571,6 +576,10 @@ export default {
                 `sw-data-grid__cell--${index}`,
                 `sw-data-grid__cell--align-${column.align}`,
             ];
+        },
+
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
         },
 
         getRowClasses(item, itemIndex) {

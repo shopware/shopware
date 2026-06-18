@@ -82,8 +82,8 @@
                                 :aria-label="$t(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
-                                :checked="allSelectedChecked"
-                                @update:checked="selectAll"
+                                :model-value="allSelectedChecked"
+                                @update:model-value="selectAll"
                             />
                             {% endblock %}
                         </div>
@@ -117,20 +117,20 @@
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </mt-icon>
 
                                 <mt-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </mt-icon>
                                 {% endblock %}
 
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
-                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </template>
                                 {% endblock %}
                             </slot>
@@ -284,8 +284,8 @@
                                 <mt-checkbox
                                     :aria-label="$t('global.sw-data-grid.labelSelected')"
                                     :disabled="!isRecordSelectable(item)"
-                                    :checked="isSelected(item[itemIdentifierProperty])"
-                                    @update:checked="selectItem($event, item)"
+                                    :model-value="isSelected(item[itemIdentifierProperty])"
+                                    @update:model-value="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>

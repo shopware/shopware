@@ -78,7 +78,7 @@ class SnippetServiceTest extends TestCase
 
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $eventDispatcher->addListener(ExtensionDispatcher::pre(StorefrontSnippetsExtension::NAME), $listener);
+        $eventDispatcher->addListener(StorefrontSnippetsExtension::onPre(), $listener);
 
         $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
 
@@ -88,7 +88,7 @@ class SnippetServiceTest extends TestCase
             'bar' => 'bar_default2',
         ], $snippets);
 
-        $eventDispatcher->removeListener(ExtensionDispatcher::pre(StorefrontSnippetsExtension::NAME), $listener);
+        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPre(), $listener);
 
         $snippetRepository->delete([
             ['setId' => $snippetSetId],
@@ -120,7 +120,7 @@ class SnippetServiceTest extends TestCase
         };
 
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(ExtensionDispatcher::post(StorefrontSnippetsExtension::NAME), $listener);
+        $eventDispatcher->addListener(StorefrontSnippetsExtension::onPost(), $listener);
 
         $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
 
@@ -130,7 +130,7 @@ class SnippetServiceTest extends TestCase
             'baz.bar' => 'baz_bar_default2',
         ], $snippets);
 
-        $eventDispatcher->removeListener(ExtensionDispatcher::post(StorefrontSnippetsExtension::NAME), $listener);
+        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPost(), $listener);
     }
 
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void

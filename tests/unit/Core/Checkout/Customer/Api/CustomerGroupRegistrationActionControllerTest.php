@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionControlle
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -72,7 +73,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      * @param CustomerEntity[] $customers
      */
     #[DataProvider('groupRegistrationActionDataProvider')]
-    public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
+    public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?\Exception $expectedException): void
     {
         $context = Context::createDefaultContext();
 
@@ -82,8 +83,8 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             $this->setCustomerGroupSearchReturn($context, $customerCollection);
         }
 
-        if ($errorMessage !== null && $expectedResCode === null) {
-            static::expectExceptionMessage($errorMessage);
+        if ($expectedException !== null && $expectedResCode === null) {
+            $this->expectExceptionObject($expectedException);
         }
 
         $res = $this->controllerMock->accept($request, $context);
@@ -94,7 +95,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      * @param CustomerEntity[] $customers
      */
     #[DataProvider('groupRegistrationActionDataProvider')]
-    public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
+    public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?\Exception $expectedException): void
     {
         $context = Context::createDefaultContext();
 
@@ -104,8 +105,8 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             $this->setCustomerGroupSearchReturn($context, $customerCollection);
         }
 
-        if ($errorMessage !== null && $expectedResCode === null) {
-            static::expectExceptionMessage($errorMessage);
+        if ($expectedException !== null && $expectedResCode === null) {
+            $this->expectExceptionObject($expectedException);
         }
 
         $res = $this->controllerMock->decline($request, $context);
@@ -113,22 +114,22 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{int|null, array<CustomerEntity>|null, Request, string|null}>
+     * @return iterable<string, array{int|null, array<CustomerEntity>|null, Request, \Exception|null}>
      */
     public static function groupRegistrationActionDataProvider(): iterable
     {
         $invalidCustomer = Uuid::randomHex();
-        yield 'without user' => [null, null, self::createRequest([$invalidCustomer]), \sprintf('These customers "%s" are not found', $invalidCustomer)];
+        yield 'without user' => [null, null, self::createRequest([$invalidCustomer]), CustomerException::customersNotFound([$invalidCustomer])];
 
         $missingCustomer = self::createCustomer();
         $missingCustomerId = $missingCustomer->getId();
-        yield 'without customer' => [null, null, self::createRequest([$missingCustomerId]), \sprintf('These customers "%s" are not found', $missingCustomerId)];
+        yield 'without customer' => [null, null, self::createRequest([$missingCustomerId]), CustomerException::customersNotFound([$missingCustomerId])];
 
-        yield 'without customerId' => [null, null, self::createRequest([]), 'Parameter "customerIds" is missing.'];
+        yield 'without customerId' => [null, null, self::createRequest([]), CustomerException::customerIdsParameterIsMissing()];
 
         $customerWithoutRequest = self::createCustomer(false);
         $customerWithoutRequestId = $customerWithoutRequest->getId();
-        yield 'without request group' => [null, [$customerWithoutRequest], self::createRequest([$customerWithoutRequestId]), \sprintf('Group request for customer "%s" is not found', $customerWithoutRequestId)];
+        yield 'without request group' => [null, [$customerWithoutRequest], self::createRequest([$customerWithoutRequestId]), CustomerException::groupRequestNotFound($customerWithoutRequestId)];
 
         $acceptCustomer = self::createCustomer();
         $acceptCustomerId = $acceptCustomer->getId();

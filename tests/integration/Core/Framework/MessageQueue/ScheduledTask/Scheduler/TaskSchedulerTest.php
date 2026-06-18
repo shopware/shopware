@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -51,7 +52,8 @@ class TaskSchedulerTest extends TestCase
             $this->messageBus,
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         $this->connection = static::getContainer()->get(Connection::class);

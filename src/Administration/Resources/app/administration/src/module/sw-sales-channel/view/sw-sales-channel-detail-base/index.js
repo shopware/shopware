@@ -26,6 +26,7 @@ export default {
         repositoryFactory: 'repositoryFactory',
         knownIpsService: 'knownIpsService',
         acl: 'acl',
+        /** @deprecated tag:v6.8.0 - Will be removed */
         swSalesChannelDetailGetAgenticCommerceExportConfig: {
             from: 'swSalesChannelDetailGetAgenticCommerceExportConfig',
             default: () => [],
@@ -146,6 +147,7 @@ export default {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
@@ -158,16 +160,24 @@ export default {
             return this.templateName === 'google-product-search-de';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         resolvedAgenticCommerceExportConfig() {
+            let entries = [];
+
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
-                return this.agenticCommerceExportConfig;
+                entries = this.agenticCommerceExportConfig;
+            } else if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
+                entries = this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
             }
 
-            if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
-                return this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
+            if (entries.length === 0) {
+                return [];
             }
 
-            return [];
+            const activeProvider = this.productExport?.provider || entries[0]?.provider;
+            const filtered = entries.filter((entry) => entry.provider === activeProvider);
+
+            return filtered.length > 0 ? filtered : [entries[0]];
         },
 
         isHeadlessSalesChannel() {
@@ -191,7 +201,7 @@ export default {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('distinguishableName', 'ASC'));
 
             return criteria;
         },
@@ -199,7 +209,6 @@ export default {
         countryCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
@@ -208,6 +217,7 @@ export default {
         languageCriteria() {
             const criteria = new Criteria();
 
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
             criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
@@ -906,6 +916,7 @@ export default {
             return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportElementBind(element) {
             const bind = objectHelper.deepCopyObject(element);
 
@@ -926,6 +937,7 @@ export default {
             return bind;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportCardTitle(configEntry) {
             if (configEntry?.titleSnippet) {
                 return this.$t(configEntry.titleSnippet);
@@ -934,14 +946,15 @@ export default {
             return configEntry?.provider ?? '';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportCardPositionIdentifier(configEntry) {
             if (configEntry?.positionIdentifier) {
                 return configEntry.positionIdentifier;
             }
-
-            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai';
+            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
 

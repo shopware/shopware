@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -26,16 +27,13 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  * Rows are updated in place rather than deleted and recreated, because a `webhook_delivery`
  * row's id is its delivery order and recreating would give it a new one.
  *
- * Behaviour is exercised end-to-end by
- * `tests/integration/Core/Framework/Webhook/Command/WebhookDrainToAsyncCommandTest.php`,
- * which produces real outbox rows via `WebhookManager` and runs the command against them.
- * A unit-level rewrite would just restate the mock setup.
- *
  * @internal
  *
  * @deprecated tag:v6.8.0 - Removed together with the `WEBHOOKS_REWORK` flag in 6.8.
  *
  * @codeCoverageIgnore
+ *
+ * @see WebhookDrainToAsyncCommandTest
  */
 #[AsCommand(
     name: 'webhook:drain-to-async',

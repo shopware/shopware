@@ -158,20 +158,25 @@ export default {
         },
 
         listenToClickOutside(event) {
-            let path = event.path;
-            if (typeof path === 'undefined') {
-                path = this.computePath(event);
-            }
+            const target = event.target;
+            const clickIsInsideSelect = target instanceof Node && this.$el.contains(target);
 
-            if (
-                !path.find((element) => {
-                    return element === this.$el;
-                })
-            ) {
+            // Borderline clicks can target the body even while the pointer is still over the select.
+            // Non-layout environments like jsdom do not implement the hit-test fallback.
+            const clickedElementStackContainsSelect =
+                typeof document.elementsFromPoint === 'function' &&
+                document
+                    .elementsFromPoint(event.clientX, event.clientY)
+                    .some((element) => element === this.$el || this.$el.contains(element));
+
+            if (!clickIsInsideSelect && !clickedElementStackContainsSelect) {
                 this.collapse();
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use `Element.contains()` instead.
+         */
         computePath(event) {
             const path = [];
             let target = event.target;

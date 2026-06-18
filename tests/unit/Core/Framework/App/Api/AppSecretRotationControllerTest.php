@@ -86,8 +86,7 @@ class AppSecretRotationControllerTest extends TestCase
 
         $controller = new AppSecretRotationController($appRepository, $rotationService);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Secret rotation requires an Admin API source with integration authentication.');
+        $this->expectExceptionObject(AppException::invalidArgument('Secret rotation requires an Admin API source with integration authentication.'));
 
         $controller->rotate($context);
     }
@@ -108,8 +107,7 @@ class AppSecretRotationControllerTest extends TestCase
 
         $controller = new AppSecretRotationController($appRepository, $rotationService);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Secret rotation requires authentication via an app integration.');
+        $this->expectExceptionObject(AppException::invalidArgument('Secret rotation requires authentication via an app integration.'));
 
         $controller->rotate($context);
     }

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -131,7 +132,7 @@ class ScriptRuleTest extends TestCase
         ]));
         $twigFactory = new DebuggableScriptEnvironmentFactory();
         $container->set(ScriptEnvironmentFactory::class, $twigFactory);
-        $container->set(ScriptTraces::class, new ScriptTraces());
+        $container->set(ScriptTraces::class, new ScriptTraces(new NativeClock()));
 
         $rule->configureDependencies($container);
         $rule->assign([
@@ -321,7 +322,7 @@ class ScriptRuleTest extends TestCase
         static::assertInstanceOf(Rule::class, $payload);
         static::assertTrue($payload->match($scope));
 
-        $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
+        $this->appLifecycle->uninstall('test', ['id' => $this->appId], $this->context);
 
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $rule);

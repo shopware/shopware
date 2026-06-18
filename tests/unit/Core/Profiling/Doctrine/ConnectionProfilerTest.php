@@ -218,19 +218,15 @@ class ConnectionProfilerTest extends TestCase
         $config = new Configuration();
         $config->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = $this->createMock(Query::class);
+            $query = static::createStub(Query::class);
             $query->method('getSql')
                 ->willReturn($queryData['sql'] ?? '');
             $query->method('getTypes')

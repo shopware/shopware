@@ -182,6 +182,8 @@ class DefinitionValidatorTest extends TestCase
         yield 'customer shipping address' => ['customer.defaultShippingAddress'];
         yield 'customer address billing customer' => ['customer_address.defaultBillingAddressCustomer'];
         yield 'customer address shipping customer' => ['customer_address.defaultShippingAddressCustomer'];
+        yield 'order billing address' => ['order.billingAddress'];
+        yield 'order address billing order' => ['order_address.billingAddressOrder'];
     }
 
     /**

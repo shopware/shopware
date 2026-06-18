@@ -72,7 +72,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         const indexesSelectLabel = wrapper.find('.sw-settings-cache__indexers-select .sw-field__label label');
         const indexSelectPlaceholder = wrapper.find(
-            '.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder .sw-label__caption',
+            '.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder',
         );
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');

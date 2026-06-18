@@ -52,36 +52,21 @@ export default {
                 return '';
             }
 
+            const paymentText = license.paymentText ?? '';
             const firstDateOfFullCharging = license.discountInformation?.firstDateOfFullCharging ?? null;
 
-            if (!firstDateOfFullCharging) {
-                return license.paymentText ?? '';
+            if (!firstDateOfFullCharging || !paymentText) {
+                return paymentText;
             }
 
-            const date = this.dateFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
-            const price = this.currencyFilter(license.netPrice);
-            const discountedPrice = license.discountInformation.discountedPrice;
+            const formattedDate = this.dateFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
+            const apiDate = firstDateOfFullCharging.split('T')[0];
 
-            if (discountedPrice === 0) {
-                return this.$t('sw-extension-store.component.sw-extension-card-bought.trialMonthActiveUntil', {
-                    date,
-                    price,
-                });
-            }
-
-            return this.$t('sw-extension-store.component.sw-extension-card-bought.discountPriceActiveUntil', {
-                date,
-                discountedPrice: this.currencyFilter(discountedPrice),
-                price,
-            });
+            return paymentText.replace(apiDate, formattedDate);
         },
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
-        },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
         },
 
         detailLink() {

@@ -33,14 +33,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                     template: '<div><slot></slot></div>',
                 },
                 'router-link': true,
-                'sw-time-ago': {
-                    name: 'sw-time-ago',
-                    props: [
-                        'date',
-                        'dateTimeFormat',
-                    ],
-                    template: '<div class="sw-time-ago"></div>',
-                },
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
         },
         props: {
@@ -77,6 +70,10 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 },
             }),
         });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should show the correct image (icon)', async () => {
@@ -138,6 +135,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should display the purchased date without time', async () => {
+        const formatDateSpy = jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => 'formatted date');
+
         const wrapper = await createWrapper({
             extension: {
                 installedAt: null,
@@ -147,9 +146,10 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             },
         });
 
-        const timeAgo = wrapper.getComponent('.sw-time-ago');
+        await flushPromises();
 
-        expect(timeAgo.props('dateTimeFormat')).toEqual({
+        expect(wrapper.get('.sw-extension-card-base__meta-info').text()).toContain('formatted date');
+        expect(formatDateSpy).toHaveBeenCalledWith(expect.any(String), {
             month: '2-digit',
             day: '2-digit',
             year: 'numeric',

@@ -275,9 +275,7 @@
         "rentWillExpireAt": "Rent expires on {date}",
         "rentExpiredAt": "Rent has expired on {date}",
         "testPhaseWillExpireAt": "Test phase expires on {date}",
-        "testPhaseExpiredAt": "Test phase has expired on {date}",
-        "trialMonthActiveUntil": "Trial month active until {date}, then {price}/month",
-        "discountPriceActiveUntil": "{discountedPrice}/month until {date}, then {price}/month"
+        "testPhaseExpiredAt": "Test phase has expired on {date}"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",

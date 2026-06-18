@@ -20,36 +20,55 @@ const httpClient = {
     delete: jest.fn(),
 };
 
-const snippetTranslations = {
-    'sw-extension-store.component.sw-extension-card-bought.trialMonthActiveUntil':
-        'Trial month active until {date}, then {price}/month',
-    'sw-extension-store.component.sw-extension-card-bought.discountPriceActiveUntil':
-        '{discountedPrice}/month until {date}, then {price}/month',
-};
-
-function translateSnippet(snippet, values = {}) {
-    const translatedSnippet = snippetTranslations[snippet];
-
-    if (translatedSnippet) {
-        return Object.entries(values).reduce(
-            (
-                translation,
-                [
-                    key,
-                    value,
-                ],
-            ) => {
-                return translation.replace(`{${key}}`, value);
-            },
-            translatedSnippet,
-        );
-    }
-
+const translateSnippet = jest.fn((snippet, values = {}) => {
     if (values?.date) {
         return `${snippet} ${values.date}`;
     }
 
     return snippet;
+});
+
+const defaultExtension = {
+    id: 555,
+    name: 'Test extension',
+    label: 'Test extension label',
+    languages: [],
+    rating: null,
+    numberOfRatings: 0,
+    installedAt: null,
+    storeLicense: {
+        variant: 'rent',
+        paymentText: 'Current subscription billing text',
+        discountInformation: null,
+    },
+    storeExtension: null,
+    permissions: {},
+    images: [],
+    icon: null,
+    iconRaw: null,
+    active: false,
+    source: 'store',
+    type: 'app',
+};
+
+function createExtension(overrides = {}) {
+    let storeLicense = { ...defaultExtension.storeLicense };
+
+    if (overrides.storeLicense !== undefined) {
+        storeLicense =
+            overrides.storeLicense === null
+                ? null
+                : {
+                      ...defaultExtension.storeLicense,
+                      ...overrides.storeLicense,
+                  };
+    }
+
+    return {
+        ...defaultExtension,
+        ...overrides,
+        storeLicense,
+    };
 }
 
 Shopware.Application.getContainer('init').httpClient = httpClient;
@@ -181,6 +200,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         Shopware.Context.app.systemCurrencyISOCode = null;
+        translateSnippet.mockClear();
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -551,40 +571,24 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display trial month price information with a formatted full charging date', async () => {
         jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '11/20/2025');
-        Shopware.Context.app.systemCurrencyISOCode = 'EUR';
-        const formattedPrice = Shopware.Filter.getByName('currency')(23.75);
 
-        const wrapper = await createWrapper({
-            id: 555,
-            name: 'Test extension',
-            label: 'Test extension label',
-            languages: [],
-            rating: null,
-            numberOfRatings: 0,
-            installedAt: null,
-            storeLicense: {
-                variant: 'rent',
-                paymentText: 'Trial month active until 2025-11-20, then €23.75/month',
-                netPrice: 23.75,
-                discountInformation: {
-                    discountedPrice: 0,
-                    firstDateOfFullCharging: '2025-11-20T00:00:00+00:00',
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Trial month active until 2025-11-20, then €23.75/month',
+                    discountInformation: {
+                        discountedPrice: 0,
+                        firstDateOfFullCharging: '2025-11-20T00:00:00+00:00',
+                    },
                 },
-            },
-            storeExtension: null,
-            permissions: {},
-            images: [],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            source: 'store',
-            type: 'app',
-        });
+            }),
+        );
 
         await flushPromises();
 
         expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
-            `Trial month active until 11/20/2025, then ${formattedPrice}/month`,
+            'Trial month active until 11/20/2025, then €23.75/month',
         );
         expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2025-11-20T00:00:00+00:00', {
             month: '2-digit',
@@ -597,41 +601,24 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display discounted price information with a formatted full charging date', async () => {
         jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '02/13/2021');
-        Shopware.Context.app.systemCurrencyISOCode = 'EUR';
-        const formattedPrice = Shopware.Filter.getByName('currency')(35);
-        const formattedDiscountedPrice = Shopware.Filter.getByName('currency')(30);
 
-        const wrapper = await createWrapper({
-            id: 555,
-            name: 'Test extension',
-            label: 'Test extension label',
-            languages: [],
-            rating: null,
-            numberOfRatings: 0,
-            installedAt: null,
-            storeLicense: {
-                variant: 'rent',
-                paymentText: '€30/month until 2021-02-13, then €35/month',
-                netPrice: 35,
-                discountInformation: {
-                    discountedPrice: 30,
-                    firstDateOfFullCharging: '2021-02-13T00:00:00+00:00',
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: '€30/month until 2021-02-13, then €35/month',
+                    discountInformation: {
+                        discountedPrice: 30,
+                        firstDateOfFullCharging: '2021-02-13T00:00:00+00:00',
+                    },
                 },
-            },
-            storeExtension: null,
-            permissions: {},
-            images: [],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            source: 'store',
-            type: 'app',
-        });
+            }),
+        );
 
         await flushPromises();
 
         expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
-            `${formattedDiscountedPrice}/month until 02/13/2021, then ${formattedPrice}/month`,
+            '€30/month until 02/13/2021, then €35/month',
         );
         expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2021-02-13T00:00:00+00:00', {
             month: '2-digit',
@@ -643,29 +630,15 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should keep the store payment text when no full charging date is available', async () => {
-        const wrapper = await createWrapper({
-            id: 555,
-            name: 'Test extension',
-            label: 'Test extension label',
-            languages: [],
-            rating: null,
-            numberOfRatings: 0,
-            installedAt: null,
-            storeLicense: {
-                variant: 'rent',
-                paymentText: 'Current subscription billing text',
-                netPrice: 35,
-                discountInformation: null,
-            },
-            storeExtension: null,
-            permissions: {},
-            images: [],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            source: 'store',
-            type: 'app',
-        });
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Current subscription billing text',
+                    discountInformation: null,
+                },
+            }),
+        );
 
         await flushPromises();
 
@@ -681,7 +654,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: false,
                 },
-                expectedText: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt 06/08/2021',
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
             },
             {
                 testCaseName: 'should display when a rent is already expired',
@@ -690,7 +663,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: true,
                 },
-                expectedText: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt 06/08/2021',
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
                 expectedIcon: 'solid-exclamation-circle',
             },
             {
@@ -700,7 +673,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: false,
                 },
-                expectedText: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt 06/08/2021',
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
             },
             {
                 testCaseName: 'should display when a test phase is already expired',
@@ -709,33 +682,19 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     expirationDate: '2021-06-08T00:00:00+02:00',
                     expired: true,
                 },
-                expectedText: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt 06/08/2021',
+                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
                 expectedIcon: 'solid-exclamation-circle',
             },
-        ])('$testCaseName', async ({ storeLicense, expectedText, expectedIcon }) => {
+        ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
             jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '06/08/2021');
 
-            const wrapper = await createWrapper({
-                id: 555,
-                name: 'Test extension',
-                label: 'Test extension label',
-                languages: [],
-                rating: null,
-                numberOfRatings: 0,
-                installedAt: null,
-                storeLicense: storeLicense,
-                storeExtension: null,
-                permissions: {},
-                images: [],
-                icon: null,
-                iconRaw: null,
-                active: false,
-                source: 'store',
-                type: 'app',
-            });
+            const wrapper = await createWrapper(createExtension({ storeLicense }));
 
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
-            expect(infoSubscriptionExpiry.text()).toBe(expectedText);
+            expect(infoSubscriptionExpiry.text()).toBe(`${expectedTextSnippet} 06/08/2021`);
+            expect(translateSnippet).toHaveBeenCalledWith(expectedTextSnippet, {
+                date: '06/08/2021',
+            });
             expect(Shopware.Utils.format.date).toHaveBeenCalledWith(storeLicense.expirationDate, {
                 month: '2-digit',
                 day: '2-digit',

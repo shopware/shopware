@@ -91,11 +91,14 @@
                 :reloadable="true"
                 :selectable="acl.can('product_manufacturer.deleter')"
                 :allow-edit="acl.can('product_manufacturer.editor') || undefined"
+                :allow-inline-edit="acl.can('product_manufacturer.editor') || undefined"
                 :allow-delete="acl.can('product_manufacturer.deleter') || undefined"
                 @load-success="onMeteorTableLoadSuccess"
                 @load-error="onMeteorTableLoadError"
                 @state-change="onMeteorTableStateChange"
-            />
+            >
+                {% block sw_manufacturer_list_grid_columns_name_preview %}{% endblock %}
+            </sw-meteor-entity-data-table>
             {% endblock %}
 
         </div>

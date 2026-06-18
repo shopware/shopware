@@ -6,6 +6,8 @@
 
 export type SwMeteorEntityDataTableColumnRenderer = 'text' | 'number' | 'price' | 'badge';
 
+export type SwMeteorEntityDataTableInlineEdit = 'string' | 'number' | 'boolean';
+
 /**
  * Mirrors MtColorBadgeVariant from @shopware-ag/meteor-component-library so consumers get the
  * same badge variants the mt-data-table badge renderer accepts.
@@ -18,6 +20,7 @@ type SwMeteorEntityDataTableBaseColumn = {
     sortable?: boolean;
     width?: number;
     visible?: boolean;
+    inlineEdit?: SwMeteorEntityDataTableInlineEdit;
 
     /**
      * DAL field or fields used for sorting. Defaults to `property`.

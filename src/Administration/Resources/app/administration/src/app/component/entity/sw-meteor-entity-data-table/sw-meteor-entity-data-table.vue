@@ -44,17 +44,134 @@
             @change-enable-row-numbering="setEnableRowNumbering"
         >
             <template
-                v-if="$slots.toolbar"
-                #toolbar
+                v-for="column in inlineEditableColumns"
+                :key="column.property"
+                #[`column-${column.property}`]="scope"
             >
-                <slot name="toolbar" />
+                <div
+                    class="sw-meteor-entity-data-table__inline-edit-cell"
+                    :class="{ 'is--inline-editing': isInlineEditing(getSlotRecord(scope)) }"
+                    @dblclick="startInlineEdit(getSlotRecord(scope))"
+                >
+                    <template v-if="isInlineEditing(getSlotRecord(scope))">
+                        <sw-data-grid-inline-edit
+                            class="sw-meteor-entity-data-table__inline-edit-field"
+                            :value="getRecordValue(getSlotRecord(scope), column.property)"
+                            :column="column"
+                            compact
+                            @update:value="updateRecordValue(getSlotRecord(scope), column.property, $event)"
+                        />
+
+                        <div
+                            v-if="isLastInlineEditableColumn(column)"
+                            class="sw-meteor-entity-data-table__inline-edit-actions"
+                        >
+                            <mt-button
+                                class="sw-meteor-entity-data-table__inline-edit-cancel"
+                                size="x-small"
+                                square
+                                variant="secondary"
+                                :title="$t('global.default.cancel')"
+                                :aria-label="$t('global.default.cancel')"
+                                @click="cancelInlineEdit"
+                            >
+                                <mt-icon
+                                    name="regular-times-xs"
+                                    size="10px"
+                                />
+                            </mt-button>
+
+                            <mt-button
+                                class="sw-meteor-entity-data-table__inline-edit-save"
+                                size="x-small"
+                                square
+                                variant="primary"
+                                :is-loading="savingInlineEdit"
+                                :title="$t('global.default.save')"
+                                :aria-label="$t('global.default.save')"
+                                @click="saveInlineEdit(getSlotRecord(scope))"
+                            >
+                                <mt-icon
+                                    name="regular-checkmark-xxs"
+                                    size="10px"
+                                />
+                            </mt-button>
+                        </div>
+                    </template>
+
+                    <slot
+                        v-else-if="$slots[`column-${column.property}`]"
+                        :name="`column-${column.property}`"
+                        v-bind="normalizeInlineEditSlotScope(scope, column)"
+                    />
+
+                    <template v-else>
+                        <div
+                            v-if="column.renderer === 'text'"
+                            class="sw-meteor-entity-data-table__text-renderer-cell"
+                        >
+                            <div
+                                v-if="column.previewImage"
+                                class="sw-meteor-entity-data-table__preview-image-renderer"
+                            >
+                                <img
+                                    class="sw-meteor-entity-data-table__preview-image-renderer-item"
+                                    :src="renderRecordValue(getSlotRecord(scope), column.previewImage)"
+                                    :alt="renderRecordValue(getSlotRecord(scope), column.property)"
+                                />
+                            </div>
+
+                            <a
+                                v-if="column.clickable"
+                                class="sw-meteor-entity-data-table__text-renderer"
+                                href="#"
+                                @click.prevent="openDetailFromSlotScope(scope)"
+                            >
+                                {{ renderRecordValue(getSlotRecord(scope), column.property) }}
+                            </a>
+
+                            <p
+                                v-else
+                                class="sw-meteor-entity-data-table__text-renderer"
+                            >
+                                {{ renderRecordValue(getSlotRecord(scope), column.property) }}
+                            </p>
+                        </div>
+
+                        <a
+                            v-else-if="column.renderer === 'number' && column.clickable"
+                            class="sw-meteor-entity-data-table__number-renderer"
+                            href="#"
+                            @click.prevent="openDetailFromSlotScope(scope)"
+                        >
+                            {{ renderNumberRecordValue(getSlotRecord(scope), column.property) }}
+                        </a>
+
+                        <p
+                            v-else-if="column.renderer === 'number'"
+                            class="sw-meteor-entity-data-table__number-renderer"
+                        >
+                            {{ renderNumberRecordValue(getSlotRecord(scope), column.property) }}
+                        </p>
+
+                        <span
+                            v-else
+                            class="sw-meteor-entity-data-table__text-renderer"
+                        >
+                            {{ renderRecordValue(getSlotRecord(scope), column.property) }}
+                        </span>
+                    </template>
+                </div>
             </template>
 
             <template
-                v-if="$slots['empty-state']"
-                #empty-state
+                v-for="name in forwardedSlotNames"
+                #[name]="scope"
             >
-                <slot name="empty-state" />
+                <slot
+                    :name="name"
+                    v-bind="normalizeForwardedSlotScope(scope)"
+                />
             </template>
         </mt-data-table>
 
@@ -170,10 +287,12 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
+import { get as objectGet, set as objectSet } from 'src/core/service/utils/object.utils';
 import type {
     SwMeteorEntityDataTableColumn,
     SwMeteorEntityDataTableColumnRenderer,
     SwMeteorEntityDataTableContextButton,
+    SwMeteorEntityDataTableInlineEdit,
     SwMeteorEntityDataTableLayout,
     SwMeteorEntityDataTableSortDirection,
     SwMeteorEntityDataTableState,
@@ -201,6 +320,7 @@ type SwMeteorEntityDataTableResolvedColumn = {
     clickable?: boolean;
     previewImage?: string;
     rendererOptions?: unknown;
+    inlineEdit?: SwMeteorEntityDataTableInlineEdit;
 };
 
 type SwMeteorEntityDataTableColumnChange = {
@@ -228,6 +348,7 @@ type SwMeteorEntityDataTableProps = {
     selectable?: boolean;
     detailRoute?: string | null;
     allowEdit?: boolean;
+    allowInlineEdit?: boolean;
     allowDelete?: boolean;
     hideTableSettings?: boolean;
     additionalContextButtons?: SwMeteorEntityDataTableContextButton[];
@@ -247,6 +368,8 @@ type ContextSelectPayload = {
     key: string;
     data: SwMeteorEntityDataTableRecord;
 };
+
+type ForwardedSlotScope = Record<string, unknown> | undefined;
 
 type SwMeteorEntityDataTableRouter = Pick<Router, 'push'>;
 
@@ -278,6 +401,25 @@ type SwMeteorEntityDataTablePrivateApi = {
     closeDeleteModal: () => void;
     deleteRecord: () => Promise<void>;
     onContextSelect: (payload: ContextSelectPayload) => void;
+    inlineEditableColumns: ComputedRef<SwMeteorEntityDataTableResolvedColumn[]>;
+    forwardedSlotNames: ComputedRef<string[]>;
+    currentInlineEditId: Ref<string | null>;
+    savingInlineEdit: Ref<boolean>;
+    getSlotRecord: (scope: ForwardedSlotScope) => SwMeteorEntityDataTableRecord | null;
+    getRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => unknown;
+    updateRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string, value: unknown) => void;
+    renderRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => string;
+    renderNumberRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => string;
+    isInlineEditing: (record: SwMeteorEntityDataTableRecord | null) => boolean;
+    startInlineEdit: (record: SwMeteorEntityDataTableRecord | null) => void;
+    saveInlineEdit: (record: SwMeteorEntityDataTableRecord | null) => Promise<void>;
+    cancelInlineEdit: () => Promise<void>;
+    isLastInlineEditableColumn: (column: SwMeteorEntityDataTableResolvedColumn) => boolean;
+    normalizeInlineEditSlotScope: (
+        scope: ForwardedSlotScope,
+        column: SwMeteorEntityDataTableResolvedColumn,
+    ) => Record<string, unknown>;
+    openDetailFromSlotScope: (scope: ForwardedSlotScope) => void;
     itemToDelete: Ref<SwMeteorEntityDataTableRecord | null>;
     deleting: Ref<boolean>;
     showBulkDeleteModal: Ref<boolean>;
@@ -291,6 +433,7 @@ type SwMeteorEntityDataTablePrivateApi = {
     setShowStripes: (value: boolean) => void;
     setEnableOutlineFraming: (value: boolean) => void;
     setEnableRowNumbering: (value: boolean) => void;
+    normalizeForwardedSlotScope: (scope: ForwardedSlotScope) => Record<string, unknown>;
 };
 
 declare global {
@@ -401,6 +544,12 @@ export default defineComponent({
             default: false,
         },
 
+        allowInlineEdit: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         allowDelete: {
             type: Boolean,
             required: false,
@@ -433,6 +582,8 @@ export default defineComponent({
         'bulk-delete-finish',
         'bulk-delete-failed',
         'context-select',
+        'inline-edit-save',
+        'inline-edit-cancel',
     ],
 
     setup(rawProps, context: SetupContext) {
@@ -460,6 +611,8 @@ export default defineComponent({
                 const showBulkDeleteModal = ref(false);
                 const bulkDeleting = ref(false);
                 const selectedIds = ref<string[]>([]);
+                const currentInlineEditId = ref<string | null>(null);
+                const savingInlineEdit = ref(false);
                 const tableColumnChanges: SwMeteorEntityDataTableColumnChanges = reactive({});
                 const showOutlines = ref(true);
                 const showStripes = ref(true);
@@ -479,6 +632,15 @@ export default defineComponent({
                 const resolvedColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
                     // Column order follows declaration order; explicit positions are not part of the API.
                     return setupProps.columns.map((column, index) => resolveMeteorColumn(column, index * 100));
+                });
+                const inlineEditableColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
+                    return resolvedColumns.value.filter(isInlineEditableColumn);
+                });
+                const inlineEditableColumnSlotNames = computed<Set<string>>(() => {
+                    return new Set(inlineEditableColumns.value.map((column) => `column-${column.property}`));
+                });
+                const forwardedSlotNames = computed<string[]>(() => {
+                    return Object.keys(setupContext.slots).filter((name) => !inlineEditableColumnSlotNames.value.has(name));
                 });
 
                 function cloneState(): SwMeteorEntityDataTableState {
@@ -544,6 +706,7 @@ export default defineComponent({
 
                         records.value = result;
                         total.value = resolveTotal(result);
+                        currentInlineEditId.value = null;
 
                         setupContext.emit('load-success', {
                             records: result,
@@ -671,6 +834,135 @@ export default defineComponent({
                         id: record.id,
                         record,
                     });
+                }
+
+                function getSlotRecord(scope: ForwardedSlotScope): SwMeteorEntityDataTableRecord | null {
+                    const normalizedScope = normalizeForwardedSlotScope(scope);
+                    const candidate = normalizedScope.item ?? normalizedScope.data;
+
+                    if (!isTableRecord(candidate)) {
+                        return null;
+                    }
+
+                    return candidate;
+                }
+
+                function getRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): unknown {
+                    if (!record) {
+                        return '';
+                    }
+
+                    return objectGet(record, property, '');
+                }
+
+                function updateRecordValue(
+                    record: SwMeteorEntityDataTableRecord | null,
+                    property: string,
+                    value: unknown,
+                ): void {
+                    if (!record) {
+                        return;
+                    }
+
+                    objectSet(record as Record<string, unknown>, property, value);
+                }
+
+                function renderRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): string {
+                    const value = getRecordValue(record, property);
+
+                    if (value === null || value === undefined) {
+                        return '';
+                    }
+
+                    return String(value);
+                }
+
+                function renderNumberRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): string {
+                    return String(Number(getRecordValue(record, property)));
+                }
+
+                function isInlineEditing(record: SwMeteorEntityDataTableRecord | null): boolean {
+                    return currentInlineEditId.value !== null && currentInlineEditId.value === record?.id;
+                }
+
+                function startInlineEdit(record: SwMeteorEntityDataTableRecord | null): void {
+                    if (!setupProps.allowInlineEdit || !record || inlineEditableColumns.value.length <= 0) {
+                        return;
+                    }
+
+                    if (currentInlineEditId.value !== null && currentInlineEditId.value !== record.id) {
+                        return;
+                    }
+
+                    currentInlineEditId.value = record.id;
+                }
+
+                function saveInlineEdit(record: SwMeteorEntityDataTableRecord | null): Promise<void> {
+                    if (!record || !isInlineEditing(record)) {
+                        return Promise.resolve();
+                    }
+
+                    const saveContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
+                    const savePromise = setupProps.repository
+                        .save(record as Entity<SwMeteorEntityDataTableEntityName>, saveContext)
+                        .then(() => load());
+
+                    savingInlineEdit.value = true;
+                    setupContext.emit('inline-edit-save', savePromise, record);
+
+                    void savePromise
+                        .then(() => {
+                            currentInlineEditId.value = null;
+                        })
+                        .catch(() => {
+                            // Keep inline edit active so the user can correct and retry the failed save.
+                        })
+                        .finally(() => {
+                            savingInlineEdit.value = false;
+                        });
+
+                    return savePromise.catch(() => {
+                        return undefined;
+                    });
+                }
+
+                function cancelInlineEdit(): Promise<void> {
+                    if (currentInlineEditId.value === null) {
+                        return Promise.resolve();
+                    }
+
+                    const reloadPromise = load();
+
+                    currentInlineEditId.value = null;
+                    setupContext.emit('inline-edit-cancel', reloadPromise);
+
+                    return reloadPromise;
+                }
+
+                function isLastInlineEditableColumn(column: SwMeteorEntityDataTableResolvedColumn): boolean {
+                    return inlineEditableColumns.value[inlineEditableColumns.value.length - 1]?.property === column.property;
+                }
+
+                function normalizeInlineEditSlotScope(
+                    scope: ForwardedSlotScope,
+                    column: SwMeteorEntityDataTableResolvedColumn,
+                ): Record<string, unknown> {
+                    const normalizedScope = normalizeForwardedSlotScope(scope);
+
+                    return {
+                        ...normalizedScope,
+                        isInlineEdit: isInlineEditing(getSlotRecord(scope)) && isInlineEditableColumn(column),
+                    };
+                }
+
+                function openDetailFromSlotScope(scope: ForwardedSlotScope): void {
+                    const record = getSlotRecord(scope);
+
+                    if (!record) {
+                        return;
+                    }
+
+                    openDetail(record);
                 }
 
                 function openDeleteModal(record: SwMeteorEntityDataTableRecord): void {
@@ -804,6 +1096,22 @@ export default defineComponent({
                     enableRowNumbering.value = value;
                 }
 
+                function normalizeForwardedSlotScope(scope: ForwardedSlotScope): Record<string, unknown> {
+                    const normalizedScope = {
+                        ...(scope ?? {}),
+                    };
+
+                    if (!('item' in normalizedScope) && 'data' in normalizedScope) {
+                        normalizedScope.item = normalizedScope.data;
+                    }
+
+                    if (!('column' in normalizedScope) && 'columnDefinition' in normalizedScope) {
+                        normalizedScope.column = normalizedScope.columnDefinition;
+                    }
+
+                    return normalizedScope;
+                }
+
                 watch(
                     () => setupProps.criteria,
                     () => {
@@ -850,6 +1158,22 @@ export default defineComponent({
                         closeDeleteModal,
                         deleteRecord,
                         onContextSelect,
+                        inlineEditableColumns,
+                        forwardedSlotNames,
+                        currentInlineEditId,
+                        savingInlineEdit,
+                        getSlotRecord,
+                        getRecordValue,
+                        updateRecordValue,
+                        renderRecordValue,
+                        renderNumberRecordValue,
+                        isInlineEditing,
+                        startInlineEdit,
+                        saveInlineEdit,
+                        cancelInlineEdit,
+                        isLastInlineEditableColumn,
+                        normalizeInlineEditSlotScope,
+                        openDetailFromSlotScope,
                         itemToDelete,
                         deleting,
                         showBulkDeleteModal,
@@ -863,6 +1187,7 @@ export default defineComponent({
                         setShowStripes,
                         setEnableOutlineFraming,
                         setEnableRowNumbering,
+                        normalizeForwardedSlotScope,
                     },
                 };
             },
@@ -872,6 +1197,19 @@ export default defineComponent({
 
 function toArray<TValue>(value: TValue | TValue[]): TValue[] {
     return Array.isArray(value) ? value : [value];
+}
+
+function isInlineEditableColumn(column: SwMeteorEntityDataTableResolvedColumn): boolean {
+    return column.inlineEdit !== undefined;
+}
+
+function isTableRecord(value: unknown): value is SwMeteorEntityDataTableRecord {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'id' in value &&
+        typeof (value as { id: unknown }).id === 'string'
+    );
 }
 
 function resolveMeteorColumn(
@@ -929,6 +1267,69 @@ function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): S
         > .mt-card__footer {
             flex: 0 0 auto;
         }
+    }
+
+    &__inline-edit-cell,
+    &__text-renderer-cell {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+    }
+
+    &__inline-edit-cell.is--inline-editing {
+        gap: 8px;
+    }
+
+    &__inline-edit-field {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &__inline-edit-actions {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 4px;
+    }
+
+    &__preview-image-renderer {
+        position: relative;
+        flex: 0 0 auto;
+        width: 34px;
+        height: var(--scale-size-24);
+        margin-right: 15px;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-xs);
+    }
+
+    &__preview-image-renderer-item {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        max-width: calc(100% - 5px);
+        max-height: calc(100% - 5px);
+        transform: translate(-50%, -50%);
+    }
+
+    &__text-renderer,
+    &__number-renderer {
+        min-width: 0;
+        margin: 0;
+    }
+
+    a.sw-meteor-entity-data-table__text-renderer {
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-text-brand-default);
+            text-decoration: underline;
+        }
+    }
+
+    &__number-renderer {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
     }
 }
 </style>

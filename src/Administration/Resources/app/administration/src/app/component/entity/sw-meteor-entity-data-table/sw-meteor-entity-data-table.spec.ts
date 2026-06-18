@@ -41,6 +41,7 @@ type TestRecord = {
 type TestSearchMock = jest.Mock<Promise<EntityCollection<keyof EntitySchema.Entities>>, [CriteriaType, ApiContext]>;
 type TestDeleteMock = jest.Mock<Promise<unknown>, [string, ApiContext]>;
 type TestSyncDeletedMock = jest.Mock<Promise<void>, [string[], ApiContext]>;
+type TestSaveMock = jest.Mock<Promise<void>, [TestRecord, ApiContext]>;
 
 type TestProps = {
     repository: TestRepository;
@@ -58,6 +59,7 @@ type TestProps = {
     selectable?: boolean;
     detailRoute?: string;
     allowEdit?: boolean;
+    allowInlineEdit?: boolean;
     allowDelete?: boolean;
     hideTableSettings?: boolean;
     additionalContextButtons?: Array<{
@@ -67,7 +69,8 @@ type TestProps = {
     }>;
 };
 
-type SlotRenderers = Record<string, string | (() => ReturnType<typeof h>)>;
+type SlotRenderer = string | ((slotProps: Record<string, unknown>) => ReturnType<typeof h>);
+type SlotRenderers = Record<string, SlotRenderer>;
 
 type MtDataTableStubProps = {
     columns?: TestColumn[];
@@ -82,6 +85,14 @@ const columns: TestColumn[] = [
     {
         label: 'Name',
         property: 'name',
+    },
+];
+
+const inlineEditColumns: TestColumn[] = [
+    {
+        label: 'Name',
+        property: 'name',
+        inlineEdit: 'string',
     },
 ];
 
@@ -148,11 +159,24 @@ const MtDataTableStub = {
         const getCurrentRecords = () => {
             return props.dataSource && props.dataSource.length > 0 ? props.dataSource : records;
         };
+        const getNameColumn = () => {
+            return props.columns?.find((column) => column.property === 'name') ?? columns[0];
+        };
 
         return () =>
             h('div', { class: 'mt-data-table-stub' }, [
                 slots.toolbar ? h('div', { class: 'mt-data-table-stub__toolbar' }, slots.toolbar()) : null,
                 slots['empty-state'] ? h('div', { class: 'mt-data-table-stub__empty-state' }, slots['empty-state']()) : null,
+                slots['column-name']
+                    ? h(
+                          'div',
+                          { class: 'mt-data-table-stub__column-name' },
+                          slots['column-name']({
+                              data: getCurrentRecords()[0],
+                              columnDefinition: getNameColumn(),
+                          }),
+                      )
+                    : null,
                 h(
                     'button',
                     {
@@ -339,27 +363,33 @@ function createRepositoryMock(searchResult = createSearchResult()): TestReposito
     const search: TestSearchMock = jest.fn<ReturnType<TestSearchMock>, Parameters<TestSearchMock>>();
     const deleteMock: TestDeleteMock = jest.fn<ReturnType<TestDeleteMock>, Parameters<TestDeleteMock>>();
     const syncDeletedMock: TestSyncDeletedMock = jest.fn<ReturnType<TestSyncDeletedMock>, Parameters<TestSyncDeletedMock>>();
+    const saveMock: TestSaveMock = jest.fn<ReturnType<TestSaveMock>, Parameters<TestSaveMock>>();
     search.mockResolvedValue(searchResult);
     deleteMock.mockResolvedValue({});
     syncDeletedMock.mockResolvedValue();
+    saveMock.mockResolvedValue();
 
     return {
         search,
         delete: deleteMock,
         syncDeleted: syncDeletedMock,
+        save: saveMock,
     } as unknown as TestRepository;
 }
 
 function createRepositoryMockWithSearch(search: TestSearchMock): TestRepository {
     const deleteMock: TestDeleteMock = jest.fn<ReturnType<TestDeleteMock>, Parameters<TestDeleteMock>>();
     const syncDeletedMock: TestSyncDeletedMock = jest.fn<ReturnType<TestSyncDeletedMock>, Parameters<TestSyncDeletedMock>>();
+    const saveMock: TestSaveMock = jest.fn<ReturnType<TestSaveMock>, Parameters<TestSaveMock>>();
     deleteMock.mockResolvedValue({});
     syncDeletedMock.mockResolvedValue();
+    saveMock.mockResolvedValue();
 
     return {
         search,
         delete: deleteMock,
         syncDeleted: syncDeletedMock,
+        save: saveMock,
     } as unknown as TestRepository;
 }
 
@@ -373,6 +403,10 @@ function getDeleteMock(repository: TestRepository): TestDeleteMock {
 
 function getSyncDeletedMock(repository: TestRepository): TestSyncDeletedMock {
     return (repository as unknown as { syncDeleted: TestSyncDeletedMock }).syncDeleted;
+}
+
+function getSaveMock(repository: TestRepository): TestSaveMock {
+    return (repository as unknown as { save: TestSaveMock }).save;
 }
 
 function createWrapper(
@@ -428,6 +462,22 @@ function createWrapper(
                         </button>
                     `,
                     emits: ['click'],
+                },
+                'mt-icon': true,
+                'sw-data-grid-inline-edit': {
+                    props: [
+                        'value',
+                        'column',
+                        'compact',
+                    ],
+                    template: `
+                        <input
+                            class="sw-data-grid-inline-edit-stub"
+                            :value="value"
+                            @input="$emit('update:value', $event.target.value)"
+                        />
+                    `,
+                    emits: ['update:value'],
                 },
             },
         },
@@ -500,6 +550,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 'selectable',
                 'detailRoute',
                 'allowEdit',
+                'allowInlineEdit',
                 'allowDelete',
                 'hideTableSettings',
                 'additionalContextButtons',
@@ -530,6 +581,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             'bulk-delete-finish',
             'bulk-delete-failed',
             'context-select',
+            'inline-edit-save',
+            'inline-edit-cancel',
         ]);
     });
 
@@ -663,6 +716,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                     {
                         label: 'Name',
                         property: 'name',
+                        inlineEdit: 'string',
                     },
                     {
                         label: 'Customer name',
@@ -688,6 +742,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 label: 'Name',
                 property: 'name',
                 renderer: 'text',
+                inlineEdit: 'string',
                 position: 0,
             },
             {
@@ -735,6 +790,174 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(badgeColumn).toBeDefined();
         expect(badgeColumnWithoutOptions).toBeDefined();
         expect(priceColumnWithoutOptions).toBeDefined();
+    });
+
+    it('does not enter inline edit mode when inline editing is disabled', async () => {
+        const wrapper = createWrapper({
+            props: {
+                columns: inlineEditColumns,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await nextTick();
+
+        expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(false);
+    });
+
+    it('enters inline edit mode for editable columns on double click', async () => {
+        const wrapper = createWrapper({
+            props: {
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await nextTick();
+
+        expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').exists()).toBe(true);
+        expect(wrapper.find('.sw-meteor-entity-data-table__inline-edit-cancel').exists()).toBe(true);
+    });
+
+    it('saves inline edited records and reloads the table', async () => {
+        const editableRecords = [
+            {
+                id: 'record-1',
+                name: 'First record',
+            },
+        ];
+        const repository = createRepositoryMock(createSearchResult(editableRecords));
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await wrapper.find('.sw-data-grid-inline-edit-stub').setValue('Updated record');
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').trigger('click');
+
+        const saveMock = getSaveMock(repository);
+        const emittedSave = wrapper.emitted('inline-edit-save');
+
+        expect(saveMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'record-1',
+                name: 'Updated record',
+            }),
+            Shopware.Context.api,
+        );
+        expect(emittedSave?.[0][0]).toBeInstanceOf(Promise);
+        expect(emittedSave?.[0][1]).toEqual(
+            expect.objectContaining({
+                id: 'record-1',
+                name: 'Updated record',
+            }),
+        );
+
+        await flushPromises();
+
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(2);
+        expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(false);
+    });
+
+    it('keeps inline edit mode active when saving fails', async () => {
+        const editableRecords = [
+            {
+                id: 'record-1',
+                name: 'First record',
+            },
+        ];
+        const repository = createRepositoryMock(createSearchResult(editableRecords));
+        const saveError = new Error('Could not save');
+
+        getSaveMock(repository).mockRejectedValueOnce(saveError);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await wrapper.find('.sw-data-grid-inline-edit-stub').setValue('Updated record');
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').trigger('click');
+
+        const emittedSave = wrapper.emitted('inline-edit-save');
+
+        await expect(emittedSave?.[0][0]).rejects.toThrow('Could not save');
+        await flushPromises();
+
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(true);
+    });
+
+    it('cancels inline edits by reloading the table without saving', async () => {
+        const editableRecords = [
+            {
+                id: 'record-1',
+                name: 'First record',
+            },
+        ];
+        const repository = createRepositoryMock(createSearchResult(editableRecords));
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await wrapper.find('.sw-data-grid-inline-edit-stub').setValue('Updated record');
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cancel').trigger('click');
+
+        const emittedCancel = wrapper.emitted('inline-edit-cancel');
+
+        expect(getSaveMock(repository)).not.toHaveBeenCalled();
+        expect(emittedCancel?.[0][0]).toBeInstanceOf(Promise);
+
+        await flushPromises();
+
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(2);
+        expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(false);
+    });
+
+    it('renders custom slots for editable columns while the row is not being edited', async () => {
+        let forwardedSlotScope: Record<string, unknown> | undefined;
+        const wrapper = createWrapper({
+            props: {
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+            slots: {
+                'column-name': (slotProps: Record<string, unknown>) => {
+                    forwardedSlotScope = slotProps;
+
+                    return h('span', { class: 'inline-column-name-slot' }, (slotProps.item as TestRecord).name);
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.inline-column-name-slot').text()).toBe('First record');
+        expect(forwardedSlotScope?.data).toEqual(records[0]);
+        expect(forwardedSlotScope?.item).toEqual(records[0]);
+        expect(forwardedSlotScope?.columnDefinition).toEqual(expect.objectContaining(inlineEditColumns[0]));
+        expect(forwardedSlotScope?.column).toEqual(expect.objectContaining(inlineEditColumns[0]));
+        expect(forwardedSlotScope?.isInlineEdit).toBe(false);
     });
 
     it('loads records on mount with the default context and emits load-success', async () => {
@@ -1562,6 +1785,25 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(wrapperWithSlots.find('.toolbar-slot').text()).toBe('Toolbar');
         expect(wrapperWithSlots.find('.empty-state-slot').text()).toBe('Empty');
+    });
+
+    it('forwards custom table column slots with Meteor scope and compatibility aliases', () => {
+        let forwardedSlotScope: Record<string, unknown> | undefined;
+        const wrapper = createWrapper({
+            slots: {
+                'column-name': (slotProps: Record<string, unknown>) => {
+                    forwardedSlotScope = slotProps;
+
+                    return h('span', { class: 'column-name-slot' }, (slotProps.item as TestRecord).name);
+                },
+            },
+        });
+
+        expect(wrapper.find('.column-name-slot').text()).toBe('First record');
+        expect(forwardedSlotScope?.data).toEqual(records[0]);
+        expect(forwardedSlotScope?.item).toEqual(records[0]);
+        expect(forwardedSlotScope?.columnDefinition).toEqual(expect.objectContaining(columns[0]));
+        expect(forwardedSlotScope?.column).toEqual(expect.objectContaining(columns[0]));
     });
 
     it('exposes the new public setup API without legacy placeholders', () => {

@@ -66,12 +66,16 @@ export default {
                     clickable: true,
                     previewImage: 'previewMediaUrl',
                     sortField: 'name',
+                    sortable: true,
+                    inlineEdit: 'string',
                 },
                 {
                     property: 'link',
                     label: this.$t('sw-manufacturer.list.columnLink'),
                     renderer: 'text',
                     sortField: 'link',
+                    sortable: true,
+                    inlineEdit: 'string',
                 },
             ];
         },

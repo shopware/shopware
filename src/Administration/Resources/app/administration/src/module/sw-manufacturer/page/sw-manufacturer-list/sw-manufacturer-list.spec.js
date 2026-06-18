@@ -2,18 +2,106 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
+
+import SwMeteorEntityDataTable from 'src/app/component/entity/sw-meteor-entity-data-table/sw-meteor-entity-data-table';
 
 let setSearchTermMock;
 let reloadMock;
 let repositorySearchMock;
 
-async function createWrapper(privileges = [], repositorySearchResult = []) {
+const sortableMtDataTableStub = {
+    name: 'mt-data-table',
+    props: {
+        columns: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+    },
+    emits: [
+        'sort-change',
+    ],
+    computed: {
+        sortableColumns() {
+            return this.columns.filter((column) => column.sortable);
+        },
+    },
+    template: `
+        <div class="mt-data-table-sort-stub">
+            <button
+                v-for="column in sortableColumns"
+                :key="column.property"
+                class="mt-data-table-sort-stub__sort"
+                type="button"
+                :data-sort-property="column.property"
+                @click="$emit('sort-change', column.property, 'DESC')"
+            >
+                {{ column.property }}
+            </button>
+        </div>
+    `,
+};
+
+async function createWrapper(
+    privileges = [],
+    repositorySearchResult = [],
+    component = 'sw-manufacturer-list',
+    options = {},
+) {
     setSearchTermMock = jest.fn(() => Promise.resolve());
     reloadMock = jest.fn(() => Promise.resolve());
     repositorySearchMock = jest.fn(() => Promise.resolve(repositorySearchResult));
 
-    return mount(await wrapTestComponent('sw-manufacturer-list', { sync: true }), {
+    const componentConfig = typeof component === 'string' ? await wrapTestComponent(component, { sync: true }) : component;
+    const meteorTableComponent = options.meteorTableComponent ?? {
+        name: 'sw-meteor-entity-data-table',
+        props: [
+            'repository',
+            'columns',
+            'criteria',
+            'initialPage',
+            'initialLimit',
+            'initialSearchTerm',
+            'initialSort',
+            'layout',
+            'detailRoute',
+            'searchable',
+            'reloadable',
+            'selectable',
+            'allowEdit',
+            'allowInlineEdit',
+            'allowDelete',
+        ],
+        emits: [
+            'load-success',
+            'load-error',
+            'state-change',
+        ],
+        methods: {
+            setSearchTerm(term) {
+                return setSearchTermMock(term);
+            },
+            reload() {
+                return reloadMock();
+            },
+        },
+        template: `
+            <div class="sw-manufacturer-list__grid">
+                <slot
+                    name="column-name"
+                    v-bind="{
+                        data: { id: 'manufacturer-1', name: 'ACME' },
+                        columnDefinition: { property: 'name' },
+                        item: { id: 'manufacturer-1', name: 'ACME' },
+                        column: { property: 'name' }
+                    }"
+                ></slot>
+            </div>
+        `,
+    };
+
+    return mount(componentConfig, {
         global: {
             stubs: {
                 'sw-page': {
@@ -27,39 +115,8 @@ async function createWrapper(privileges = [], repositorySearchResult = []) {
                         </div>
                     `,
                 },
-                'sw-meteor-entity-data-table': {
-                    name: 'sw-meteor-entity-data-table',
-                    props: [
-                        'repository',
-                        'columns',
-                        'criteria',
-                        'initialPage',
-                        'initialLimit',
-                        'initialSearchTerm',
-                        'initialSort',
-                        'layout',
-                        'detailRoute',
-                        'searchable',
-                        'reloadable',
-                        'selectable',
-                        'allowEdit',
-                        'allowDelete',
-                    ],
-                    emits: [
-                        'load-success',
-                        'load-error',
-                        'state-change',
-                    ],
-                    methods: {
-                        setSearchTerm(term) {
-                            return setSearchTermMock(term);
-                        },
-                        reload() {
-                            return reloadMock();
-                        },
-                    },
-                    template: '<div class="sw-manufacturer-list__grid"></div>',
-                },
+                'sw-meteor-entity-data-table': meteorTableComponent,
+                ...options.additionalStubs,
                 'mt-button': {
                     template: '<button v-bind="$attrs"><slot></slot></button>',
                 },
@@ -123,6 +180,18 @@ async function createWrapper(privileges = [], repositorySearchResult = []) {
     });
 }
 
+async function createWrapperWithRealMeteorTable(repositorySearchResult = []) {
+    return createWrapper([], repositorySearchResult, 'sw-manufacturer-list', {
+        meteorTableComponent: SwMeteorEntityDataTable,
+        additionalStubs: {
+            'mt-data-table': sortableMtDataTableStub,
+            'sw-modal': true,
+            'sw-data-grid-inline-edit': true,
+            'mt-icon': true,
+        },
+    });
+}
+
 function getMeteorTable(wrapper) {
     return wrapper.getComponent({ name: 'sw-meteor-entity-data-table' });
 }
@@ -160,6 +229,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
                 searchable: false,
                 selectable: false,
                 allowEdit: undefined,
+                allowInlineEdit: undefined,
                 allowDelete: undefined,
             }),
         );
@@ -171,16 +241,73 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
                 clickable: true,
                 previewImage: 'previewMediaUrl',
                 sortField: 'name',
+                sortable: true,
+                inlineEdit: 'string',
             },
             {
                 property: 'link',
                 label: 'sw-manufacturer.list.columnLink',
                 renderer: 'text',
                 sortField: 'link',
+                sortable: true,
+                inlineEdit: 'string',
             },
         ]);
         expect(meteorTable.attributes('allow-inline-edit')).toBeUndefined();
         expect(meteorTable.attributes('allow-delete')).toBeUndefined();
+    });
+
+    it('should allow sorting manufacturer columns through the table UI', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+                link: 'https://example.com',
+            },
+        ]);
+
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        expect(wrapper.findAll('.mt-data-table-sort-stub__sort')).toHaveLength(2);
+
+        await wrapper.get('[data-sort-property="link"]').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.sortBy).toBe('link');
+        expect(wrapper.vm.sortDirection).toBe('DESC');
+        expect(repositorySearchMock).toHaveBeenCalledTimes(1);
+        expect(repositorySearchMock.mock.calls[0][0].parse()).toEqual(
+            expect.objectContaining({
+                sort: [
+                    {
+                        field: 'link',
+                        order: 'DESC',
+                        naturalSorting: false,
+                    },
+                ],
+            }),
+        );
+    });
+
+    it('should keep the manufacturer name column slot extension point', async () => {
+        await wrapTestComponent('sw-manufacturer-list', { sync: true });
+
+        Shopware.Component.extend('sw-manufacturer-list-column-slot-extension', 'sw-manufacturer-list', {
+            template: `
+                {% block sw_manufacturer_list_grid_columns_name_preview %}
+                <template #column-name="{ item, column }">
+                    <span class="manufacturer-column-slot">{{ item.name }}:{{ column.property }}</span>
+                </template>
+                {% endblock %}
+            `,
+        });
+        const component = await Shopware.Component.build('sw-manufacturer-list-column-slot-extension');
+
+        component.name += '__wrapped';
+        const wrapper = await createWrapper([], [], component);
+
+        expect(wrapper.find('.manufacturer-column-slot').text()).toBe('ACME:name');
     });
 
     it('should include the manufacturer media association in the base criteria', async () => {
@@ -231,6 +358,14 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const meteorTable = getMeteorTable(wrapper);
 
         expect(meteorTable.props('allowEdit')).toBe(true);
+        expect(meteorTable.props('allowInlineEdit')).toBe(true);
+    });
+
+    it('should not allow inline editing when the user cannot edit manufacturers', async () => {
+        const wrapper = await createWrapper();
+        const meteorTable = getMeteorTable(wrapper);
+
+        expect(meteorTable.props('allowInlineEdit')).toBeUndefined();
     });
 
     it('should update total and loading state after the table loads', async () => {

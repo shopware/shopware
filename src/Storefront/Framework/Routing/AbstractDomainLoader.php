@@ -13,7 +13,7 @@ abstract class AbstractDomainLoader
     abstract public function getDecorated(): AbstractDomainLoader;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return array<string, \Shopware\Storefront\Framework\Routing\Struct\DomainStruct>
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return a \Shopware\Storefront\Framework\Routing\Struct\DomainCollection of \Shopware\Storefront\Framework\Routing\Struct\DomainStruct, keyed by domain URL
      *
      * @return array<string, Domain>
      */

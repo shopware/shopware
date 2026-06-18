@@ -1333,11 +1333,11 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
-## `AbstractDomainLoader::load()` returns an array of `DomainStruct`
+## `AbstractDomainLoader::load()` returns a `DomainCollection`
 
-`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) now return `array<string, \Shopware\Storefront\Framework\Routing\Struct\DomainStruct>` instead of `array<string, array<string, string>>`.
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) now return a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
 
-If you decorate `AbstractDomainLoader`, return `DomainStruct` instances from `load()`. If you consume the result, access the values as objects (e.g. `$domain->url`) instead of array keys (`$domain['url']`).
+If you decorate `AbstractDomainLoader`, return a `DomainCollection` from `load()`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

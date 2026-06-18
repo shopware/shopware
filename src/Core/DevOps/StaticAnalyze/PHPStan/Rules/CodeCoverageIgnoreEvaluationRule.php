@@ -146,9 +146,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             return false;
         }
 
-        return $this->reflectionProvider->getClass($className)
-            ->getNativeReflection()
-            ->isSubclassOf(\Throwable::class);
+        return $this->reflectionProvider->getClass($className)->is(\Throwable::class);
     }
 
     private function className(Class_ $node): string

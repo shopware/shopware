@@ -61,6 +61,7 @@ trait DocumentTrait
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
+            'guest' => true,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,

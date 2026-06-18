@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -31,6 +33,12 @@ class AccountServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->accountService = static::getContainer()->get(AccountService::class);
+    }
+
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->delete('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
     }
 
     public function testLoginById(): void
@@ -118,7 +126,7 @@ class AccountServiceTest extends TestCase
         ]);
 
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer1, '2022-10-21 10:00:00');
-        $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
+        $this->cloneCustomerWithDuplicateEmail($idCustomer1, $idCustomer2, '2022-10-22 10:00:00');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
         static::assertSame($idCustomer2, $customer->getId());
@@ -126,6 +134,9 @@ class AccountServiceTest extends TestCase
 
     public function testGetCustomerByLoginWhenCustomersInDifferentSalesChannelsHaveSameEmail(): void
     {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+
         $email = 'johndoe@example.com';
 
         $context1 = $this->createSalesChannelContext([
@@ -263,11 +274,11 @@ class AccountServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'createdAt' => $createdAt,
-            'number' => '1337',
+            'number' => $customerId,
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
+            'customerNumber' => $customerId,
             'email' => $email,
             'password' => $legacyEncoder ? null : $password,
             'legacyEncoder' => $legacyEncoder,
@@ -298,5 +309,45 @@ class AccountServiceTest extends TestCase
             ->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function cloneCustomerWithDuplicateEmail(string $sourceCustomerId, string $customerId, string $createdAt): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        /** @var list<array{Field: string, Extra: string}> $columns */
+        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `customer`');
+
+        $insertColumns = [];
+        $selectExpressions = [];
+
+        foreach ($columns as $column) {
+            if (str_contains($column['Extra'], 'auto_increment')) {
+                continue;
+            }
+
+            $field = $column['Field'];
+            $insertColumns[] = '`' . $field . '`';
+            $selectExpressions[] = match ($field) {
+                'id' => ':customerId',
+                'customer_number' => ':customerNumber',
+                'created_at' => ':createdAt',
+                'updated_at' => 'NULL',
+                default => '`' . $field . '`',
+            };
+        }
+
+        // This test covers login behavior with legacy duplicate customer rows that normal writes now reject.
+        $connection->executeStatement(
+            'INSERT INTO `customer` (' . implode(', ', $insertColumns) . ')
+             SELECT ' . implode(', ', $selectExpressions) . '
+             FROM `customer`
+             WHERE `id` = :sourceCustomerId',
+            [
+                'customerId' => Uuid::fromHexToBytes($customerId),
+                'customerNumber' => $customerId,
+                'createdAt' => $createdAt,
+                'sourceCustomerId' => Uuid::fromHexToBytes($sourceCustomerId),
+            ],
+        );
     }
 }

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
@@ -17,14 +16,9 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(JsonlRowParser::class)]
 class JsonlRowParserTest extends TestCase
 {
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseReturnsDecodedRowsWithLineNumbers(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $parser = new JsonlRowParser();
 
         $rows = $parser->parse("{\"id\":\"first\"}\n{\"id\":\"second\",\"nested\":{\"foo\":\"bar\"}}\n");
@@ -38,14 +32,9 @@ class JsonlRowParserTest extends TestCase
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseSkipsEmptyLines(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $parser = new JsonlRowParser();
 
         $rows = $parser->parse("\n  \n{\"id\":\"first\"}\n\n\t\n{\"id\":\"second\"}\n");
@@ -59,14 +48,9 @@ class JsonlRowParserTest extends TestCase
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseThrowsExceptionForMalformedJsonlLine(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $parser = new JsonlRowParser();
 
         try {
@@ -78,14 +62,9 @@ class JsonlRowParserTest extends TestCase
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseThrowsExceptionWhenJsonlLineDoesNotDecodeToObject(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $parser = new JsonlRowParser();
 
         try {

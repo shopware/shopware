@@ -9,7 +9,6 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,14 +30,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(OpenAiProductExportProvider::class)]
 class OpenAiProductExportProviderTest extends TestCase
 {
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetTechnicalNameReturnsOpenAi(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $provider = new OpenAiProductExportProvider(
             $this->createSalesChannelRepository(),
             $this->createMock(SystemConfigService::class)
@@ -47,14 +41,9 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('open-ai', $provider->getTechnicalName());
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $repository = $this->createSalesChannelRepository();
         $salesChannel = $this->createSalesChannel(['DE', null, 'FR']);
         $productExport = $this->createProductExport($salesChannel->getId());
@@ -92,14 +81,9 @@ class OpenAiProductExportProviderTest extends TestCase
         ], $providerContext->get('variantMapping'));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -134,14 +118,9 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame(['US'], $renderContext['provider']->get('targetCountries'));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -178,14 +157,9 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('Merchant', $renderContext['provider']->get('sellerName'));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenRepositoryReturnsNoSalesChannel(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
@@ -219,14 +193,9 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertNull($renderContext['provider']->get('targetCountries'));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $salesChannel = $this->createSalesChannel(['DE']);
         $salesChannelId = $salesChannel->getId();
         $productExport = $this->createProductExport($salesChannelId);

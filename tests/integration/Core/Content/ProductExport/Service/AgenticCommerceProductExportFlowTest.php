@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -53,20 +52,16 @@ class AgenticCommerceProductExportFlowTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->productExportRepository = static::getContainer()->get('product_export.repository');
         $this->productExportGenerator = static::getContainer()->get(ProductExportGenerator::class);
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->context = Context::createDefaultContext();
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAgenticCommerceSalesChannelGeneratesOpenAiFeedFromExplicitProductExport(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 
@@ -175,19 +170,14 @@ class AgenticCommerceProductExportFlowTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed
-     *
      * @param array<string, string> $config
      */
     #[DataProvider('provideTrackingCodeCombinations')]
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProductUrlContainsConfiguredTrackingCodes(
         array $config,
         ?string $expectedAffiliate,
         ?string $expectedCampaign,
     ): void {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 
@@ -249,14 +239,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAgenticCommerceSalesChannelGeneratesMappedVariantFieldsForOpenAiFeed(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $variant = $this->createExportableVariantProduct();
         $productStreamId = $this->createProductStreamForProduct($variant['id']);
 
@@ -337,14 +321,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertArrayNotHasKey('color_custom', $exportedProduct['variant_dict']);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAgenticCommerceSalesChannelGeneratesGoogleFeedFromExplicitProductExport(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 

@@ -10,7 +10,6 @@ use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductE
 use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry;
 use Shopware\Core\Content\ProductExport\Subscriber\AgenticCommerceProductExportProviderContextSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,28 +25,18 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(AgenticCommerceProductExportProviderContextSubscriber::class)]
 class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
 {
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetSubscribedEvents(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         static::assertSame(
             [ProductExportRenderBodyContextEvent::class => 'extendBodyContext'],
             AgenticCommerceProductExportProviderContextSubscriber::getSubscribedEvents()
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextAddsProviderSpecificContext(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
@@ -74,14 +63,9 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertSame($salesChannelContext, $event->getContext()['context']);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWithoutProviderKey(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
@@ -103,14 +87,9 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertArrayNotHasKey('provider', $event->getContext());
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenContextIsIncomplete(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
@@ -126,14 +105,9 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertSame(['productExport' => $event->getContext()['productExport']], $event->getContext());
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - will be removed
-     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenProviderIsNotRegistered(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
             new AgenticCommerceProductExportProviderRegistry([])
         );

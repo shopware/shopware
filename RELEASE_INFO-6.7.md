@@ -1,5 +1,18 @@
 # 6.7.12.0 (upcoming)
 
+## Features
+
+### Agentic files for sales channels
+
+Sales channels can now publish opt-in agentic files such as `/llms.txt` and `/agents.md`.
+Merchants can manage these files in the sales channel details, enable them per sales channel, preview the generated content, and add custom notes without replacing the default content provided by Shopware or extensions.
+
+Core ships the initial `agentic` file family.
+The files are rendered from Twig templates, so Shopware, plugins, apps, and themes can contribute or extend content through normal Shopware Twig inheritance.
+Extensions can add additional templates under `Resources/views/files/agentic/**.twig`, including nested paths such as `.well-known/*`.
+
+The Admin API exposes documented action routes for listing, reading details, and previewing sales-channel files under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
+
 ## Storefront
 
 ### Storefront cache hash no longer varies by language
@@ -110,12 +123,25 @@ The Administration role editor also adds these privileges to newly generated rol
 
 ## Core
 
+### Dynamic product groups can keep matching variants ungrouped
+
+Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
+When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
+
+The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
+Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
+
+### Rule Builder: new "Quantity per item" condition
+
+A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
+
 ### Storefront snippets of self-managed apps are loaded
 
 Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
 Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
 The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
 Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+
 ### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 
 The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
@@ -162,6 +188,14 @@ Switch between them in `config/packages/shopware.yaml`:
 
 Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
 `ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
+
+### Core Twig `config()` helper
+
+The Twig `config()` helper is now provided by the core Twig environment so non-storefront templates can read sales-channel-aware system configuration.
+Twig templates can continue using `config('my.config.key')` unchanged.
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` are deprecated.
+PHP code should use `SystemConfigService` directly instead.
 
 ### Number range value generator interface deprecated
 
@@ -294,9 +328,21 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 | `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
 | `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
 
+### Rule Builder quantity condition labels disambiguated
+
+| Internal name | EN old -> new | DE old -> new | What it checks |
+| --- | --- | --- | --- |
+| `cartLineItemWithQuantity` | Item quantity -> Item with quantity | Positionsanzahl -> Position mit Menge | A specific selected product's quantity |
+| `cartLineItemsInCartCount` | Quantity of distinct items -> Number of distinct items | Anzahl unterschiedlicher Positionen (unchanged) | Number of distinct line items (all types) |
+| `promotionsInCartCount` | Quantity of discounts -> Number of discounts | Anzahl der Rabatte (unchanged) | Number of discount line items |
+
 ### `sw-data-grid` column labels fall back to the default locale
 
 Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
+
+### Rule builder shows per-field errors on conditions
+
+Invalid condition inputs are now highlighted individually with a list of the affected fields below the row. All reversed date ranges are reported in one save instead of one at a time.
 
 ### Reworked timeframe options in `sw-date-filter`
 
@@ -529,6 +575,30 @@ Custom fields on category, landing page, sales channel, customer address, and or
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Reworked timeframe options in `sw-date-filter`
+
+The order date filter dropdown now offers a 15-entry list, in display order:
+
+1. Today
+2. Yesterday
+3. Current week
+4. Last 7 days
+5. Previous week
+6. Current month
+7. Last 30 days
+8. Previous month
+9. Current quarter
+10. Previous quarter
+11. Last 3 months
+12. Last 6 months
+13. Last 12 months
+14. Current year
+15. Previous year
+
+"Current ..." entries span the start of the period through today (e.g., current quarter = first day of the quarter through today). "Previous ..." entries cover the full prior period (e.g., previous quarter = the three months before this one). "Last N days/months" remain rolling windows ending today, with calendar-month math (and last-day-of-month clamping) for the months variants so May 31 - 3 months lands on Feb 29 (leap) or Feb 28 (non-leap) rather than rolling forward to March 3.
+
+The previous rolling `lastDay` (-1) and `lastYear` (-365) entries are no longer in the dropdown, but saved filter states keep working: the component now aliases `-1` to `yesterday` and `-365` to `last12Months` on both hydration and programmatic selection. The persisted `from`/`to` are preserved so existing filters continue to resolve the same data, while the dropdown label catches up to the new vocabulary. All boundaries continue to be normalized to the user's timezone.
 
 ### Admin menu flyout no longer overflows the viewport
 

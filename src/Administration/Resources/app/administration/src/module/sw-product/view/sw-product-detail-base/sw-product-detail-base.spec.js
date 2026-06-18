@@ -42,7 +42,20 @@ async function createWrapper() {
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,
                 'mt-card': {
-                    template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
+                    props: ['title'],
+                    template: `
+                        <div>
+                            <div
+                                v-if="title && !$slots.title"
+                                class="mt-card__title"
+                            >
+                                {{ title }}
+                            </div>
+                            <slot></slot>
+                            <slot name="title"></slot>
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
                 },
                 'sw-context-menu-item': true,
                 'sw-media-modal-v2': true,
@@ -207,7 +220,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
 
@@ -224,10 +237,42 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
         expect(cardElement).toBeTruthy();
+    });
+
+    it('should render downloads card title as mt-card title', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
+            states: [
+                'is-download',
+            ],
+        };
+
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-detail-base__downloads');
+        const cardTitle = cardElement.get('.mt-card__title');
+
+        expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleDownloads');
+    });
+
+    it('should render media card title as mt-card title', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-detail-base__media');
+        const cardTitleWrapper = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
+
+        expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
+        expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleMedia');
     });
 
     it('should show correct deliverability card when product states includes is-download', async () => {

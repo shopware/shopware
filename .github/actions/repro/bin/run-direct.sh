@@ -36,18 +36,25 @@ fi
 # Keep the FULL output as a leg artifact (the workflow uploads phpunit-output.txt) — a
 # trimmed excerpt once cut off the exception MESSAGE and made a failure undiagnosable.
 cp "$REPORT" phpunit-output.txt || true
-TAIL=$(tail -c 1500 "$REPORT" | tr -d '\r' | tr -s ' ')
-# The most diagnostic part of a PHPUnit error/failure is the HEAD of the first error block
-# ("1) Test::method" + the exception message), not the tail (which is just the trace).
-ERRHEAD=$(grep -m1 -A4 -E '^[0-9]+\) ' "$REPORT" | tr -d '\r' | tr -s ' \n' '  ' | head -c 700)
+TAIL=$(tail -c 1500 "$REPORT" | tr -d '\r' | tr -s ' ' || true)
+# The first PHPUnit failure/error block — the "N) Class::method" line + its message, up to the
+# blank line before the stack trace ("N) " prefix stripped). EMPTY for a passing (OK) report.
+# Uses awk (not grep) + `|| true` so a no-match NEVER aborts the script under set -e/pipefail:
+# a passing leg MUST map to not_reproduced, not crash with exit 1 and no output (a real bug).
+BLOCK=$(awk '/^[0-9]+\)[[:space:]]/{f=1} f&&NF==0{exit} f{print}' "$REPORT" 2>/dev/null \
+  | sed '1s/^[0-9]*)[[:space:]]*//' | head -c 1200 || true)
+ERRHEAD=$(printf '%s' "$BLOCK" | tr '\n' ' ' | tr -s ' ' | head -c 700 || true)
 
 # Map the PHPUnit summary. OK => healthy; FAILURES => symptom; ERRORS/fatal/no-tests =>
 # the test couldn't run (likely a cross-version API mismatch) => inconclusive.
+# DETAIL = the human-facing failure message, surfaced (comment + run summary) ONLY for a
+# reproduced leg — a passing leg has no message; an errored leg's reason lives in blocked_reason.
+DETAIL=""
 if grep -qE '^OK( |\()' "$REPORT"; then
   STATUS="not_reproduced"; MATCHED="true"; REASON_TEXT=""; REPORTER="PHPUnit OK (healthy)"
 elif grep -q 'FAILURES!' "$REPORT"; then
-  STATUS="reproduced"; MATCHED="false"; REASON_TEXT=""
-  REPORTER=$(grep -m1 -E '^[0-9]+\)' "$REPORT" | head -c 300); [ -n "$REPORTER" ] || REPORTER="assertion failed (symptom present)"
+  STATUS="reproduced"; MATCHED="false"; REASON_TEXT=""; DETAIL="$BLOCK"
+  REPORTER=$(printf '%s' "$BLOCK" | head -1); [ -n "$REPORTER" ] || REPORTER="assertion failed (symptom present)"
 elif grep -qE 'ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught' "$REPORT"; then
   # An ERROR is normally a bootstrap/compile problem => inconclusive. BUT when the plan
   # declares the symptom as an exception pattern (assertion.symptom_pattern) and the error
@@ -57,7 +64,8 @@ elif grep -qE 'ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught' "$REPOR
   SYMPTOM=$(jq -r '.assertion.symptom_pattern // empty' "$ANALYSIS")
   if [ -n "$SYMPTOM" ] && grep -qE "$SYMPTOM" "$REPORT"; then
     STATUS="reproduced"; MATCHED="false"; REASON_TEXT=""
-    REPORTER="symptom exception matched '${SYMPTOM}': $(grep -m1 -E "$SYMPTOM" "$REPORT" | tr -s ' ' | head -c 260)"
+    DETAIL="${BLOCK:-symptom exception matched '${SYMPTOM}': $(grep -m1 -E "$SYMPTOM" "$REPORT" | tr -s ' ' | head -c 400 || true)}"
+    REPORTER="symptom exception matched '${SYMPTOM}'"
   else
     STATUS="inconclusive"; MATCHED="null"
     REASON_TEXT="PHPUnit could not run the test (errored before/outside the symptom assertion): ${ERRHEAD:-$TAIL} — full output in the leg artifact's phpunit-output.txt"
@@ -73,14 +81,21 @@ jq -n \
   --argjson issue "$(jq -r '.issue' "$ANALYSIS")" \
   --arg target "$TARGET" --arg version "$VERSION" --arg status "$STATUS" \
   --argjson matched "$MATCHED" --arg script "$SCRIPT" --arg reporter "$REPORTER" \
-  --arg reason_text "$REASON_TEXT" '{
+  --arg detail "$DETAIL" --arg reason_text "$REASON_TEXT" '{
     schema_version: "1", issue: $issue, target: $target, version: $version, executor: "direct",
     status: $status,
     assertion: { expect: "test passes (healthy)", actual: $reporter, matched: $matched },
     duration_s: 0,
     evidence: { script: $script, script_lang: "php", reporter_output: $reporter,
+      failure_detail: $detail,
       http: [], artifacts: [{ kind: "phpunit-test", name: "ReproTest.php" }], truncated: false },
     blocked_reason: (if $reason_text == "" then null else $reason_text end)
   }' > "$OUT"
+
+# Surface the PHPUnit failure block on THIS leg job's own run summary — only when there is a
+# real message (a reproduced leg). A passing or inconclusive leg adds nothing here.
+if [ -n "$DETAIL" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  { echo "### Reproduce ${TARGET}: \`${STATUS}\` — PHPUnit"; echo; echo '```'; printf '%s\n' "$DETAIL"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+fi
 
 echo "status=$STATUS  ($REPORTER)"

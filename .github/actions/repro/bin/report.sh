@@ -55,6 +55,11 @@ leg_section () { # <leg name>
   if [ -n "$br" ] && [ "$br" != "null" ]; then echo "### ${t} — \`${st}\`"; echo; echo "> ⚠️ ${br}"
   else ex=$(jq -r .assertion.expect "$f"); ac=$(jq -r .assertion.actual "$f"); echo "### ${t} — \`${st}\` (expected ${ex}, got ${ac})"; fi
   echo "Reporter: \`$(jq -r .evidence.reporter_output "$f")\`"
+  # PHPUnit failure/error message (direct executor sets evidence.failure_detail for reproduced
+  # legs only) — a fenced block so a multi-line message renders intact. Empty for passing legs
+  # and other executors → nothing extra shown. (Redaction runs over the whole comment below.)
+  fd=$(jq -r '.evidence.failure_detail // ""' "$f")
+  if [ -n "$fd" ] && [ "$fd" != "null" ]; then echo; echo '```'; printf '%s\n' "$fd"; echo '```'; fi
   # NB: must be an if (not a bare `[ ] &&`) — as the function's last command a false guard
   # would make leg_section return 1 and set -e would abort the whole render (http legs).
   if [ "$(jq -r .executor "$f")" = playwright ]; then

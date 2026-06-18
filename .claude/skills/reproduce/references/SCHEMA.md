@@ -202,6 +202,7 @@ One object per Reproduce leg.
         "script": "import { test, expect } from '@playwright/test';\n…",
         "script_lang": "ts | php | sh",
         "reporter_output": "✘ checkout › cart returns 400\n  Expected 400, received 200",
+        "failure_detail": "",
         "http": [{ "method": "POST", "path": "/store-api/checkout/cart", "status": 200 }],
         "artifacts": [
             { "kind": "trace | video | screenshot | html_report | har", "name": "trace.zip", "run_artifact": "repro-reported" }
@@ -222,6 +223,10 @@ Rules:
 - `evidence.reporter_output` is the trimmed console reporter (Playwright `list`, PHPUnit,
   or the curl exchange). `evidence.http` carries the request/response (HAR) for
   `http` and `playwright` legs.
+- `evidence.failure_detail` (`direct` executor) is the PHPUnit failure/error block — the
+  `Class::method` line + its message — set ONLY for a `reproduced` leg, and rendered as a
+  fenced code block in the comment + run summary. Empty for a passing leg (no message to
+  show; an errored leg's reason is in `blocked_reason`) and for `http`/`playwright`.
 - `evidence.artifacts` are run-artifact references only and may expire. `screenshot`,
   `video`, and `trace` are emitted only by the `playwright` executor — never force a
   browser screenshot on a `direct` or `http` leg.

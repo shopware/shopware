@@ -63,4 +63,23 @@ check "trusted+blocked -> fall back"            false "$(decisive true  blocked)
 check "untrusted+reproduced -> fall back"       false "$(decisive false reproduced)"
 check "untrusted+not_reproduced -> fall back"   false "$(decisive false not_reproduced)"
 
+# --- direct executor PHPUnit mapping (run-direct.sh via PHPUNIT_REPORT): a PASSING test must
+# map to not_reproduced and NOT crash (regression: an unguarded grep aborted the script on a
+# passing report), and a FAILING test must surface its message in evidence.failure_detail. ---
+BIN="$(cd "$(dirname "$0")/../../../../.github/actions/repro/bin" 2>/dev/null && pwd || true)"
+if [ -n "$BIN" ] && [ -f "$BIN/run-direct.sh" ]; then
+  echo "direct executor (run-direct.sh):"
+  TD=$(mktemp -d)
+  echo '{"issue":1,"version":"v","script_path":"none","assertion":{}}' > "$TD/an.json"
+  printf 'OK (1 test, 1 assertion)\n' > "$TD/ok.txt"
+  ( cd "$TD" && ANALYSIS=an.json OUT=ok.json TARGET=trunk PHPUNIT_REPORT=ok.txt bash "$BIN/run-direct.sh" >/dev/null 2>&1 ) || true
+  check "passing test -> not_reproduced (no crash)" not_reproduced "$(jq -r '.status // "CRASH"' "$TD/ok.json" 2>/dev/null || echo CRASH)"
+  check "passing test -> no failure_detail"         ""             "$(jq -r '.evidence.failure_detail' "$TD/ok.json" 2>/dev/null)"
+  printf '1) Some\\Test::method\nsymptom: boom happened\n\n/p:1\n\nFAILURES!\nTests: 1, Failures: 1.\n' > "$TD/f.txt"
+  ( cd "$TD" && ANALYSIS=an.json OUT=f.json TARGET=trunk PHPUNIT_REPORT=f.txt bash "$BIN/run-direct.sh" >/dev/null 2>&1 ) || true
+  check "failing test -> reproduced"                reproduced "$(jq -r '.status // "CRASH"' "$TD/f.json" 2>/dev/null || echo CRASH)"
+  check "failing test -> message in failure_detail" yes "$(jq -r 'if (.evidence.failure_detail // "") | test("symptom: boom happened") then "yes" else "no" end' "$TD/f.json" 2>/dev/null)"
+  rm -rf "$TD"
+fi
+
 [ "$fail" = 0 ] && echo "PASS" || { echo "FAILURES"; exit 1; }

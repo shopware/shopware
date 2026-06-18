@@ -391,8 +391,8 @@ class RecalculationServiceTest extends TestCase
             }
         }
 
-        $this->resetPayloadProtection($cart);
-        $this->resetPayloadProtection($convertedCart);
+        $this->removeProtectedPayloadValues($cart);
+        $this->removeProtectedPayloadValues($convertedCart);
 
         static::assertEquals($cart, $convertedCart);
     }
@@ -1496,19 +1496,22 @@ class RecalculationServiceTest extends TestCase
         return $countryId;
     }
 
-    private function resetPayloadProtection(Cart $cart): void
+    private function removeProtectedPayloadValues(Cart $cart): void
     {
-        // remove delivery information from line items
+        $payload = new \ReflectionProperty(LineItem::class, 'payload');
         $payloadProtection = new \ReflectionProperty(LineItem::class, 'payloadProtection');
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            $payload->setValue($lineItem, $lineItem->getPayload());
             $payloadProtection->setValue($lineItem, []);
         }
 
         foreach ($cart->getDeliveries() as $delivery) {
             foreach ($delivery->getPositions() as $position) {
+                $payload->setValue($position->getLineItem(), $position->getLineItem()->getPayload());
                 $payloadProtection->setValue($position->getLineItem(), []);
                 foreach ($position->getLineItem()->getChildren() as $lineItem) {
+                    $payload->setValue($lineItem, $lineItem->getPayload());
                     $payloadProtection->setValue($lineItem, []);
                 }
             }

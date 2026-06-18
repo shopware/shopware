@@ -27,7 +27,7 @@
     "lint": "eslint src test build.ts --cache",
     "lint:all": "npm run lint:types && npm run lint && npm run lint:scss && npm run format",
     "lint:debugging": "eslint",
-    "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",
+    "lint:deprecations": "FILES=$(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}'); [ -z \"$FILES\" ] || eslint --rule '\"sw-deprecation-rules/private-feature-declarations\": \"error\"' $FILES",
     "lint:fix": "npm run lint -- --fix",
     "lint:junit": "eslint --format junit src test > eslint.junit.xml",
     "lint:scss": "stylelint **/*.scss --cache",

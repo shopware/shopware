@@ -63,9 +63,9 @@ describe('components/rule/sw-condition-base-line-item', () => {
         setConfig({
             cartLineItemProductStates: {
                 operatorSet: {
-                    isMatchAny: true
-                }
-            }
+                    isMatchAny: true,
+                },
+            },
         });
 
         const wrapper = await createWrapper(conditionFixture, { ...defaultProvides, conditionScopes });
@@ -81,9 +81,9 @@ describe('components/rule/sw-condition-base-line-item', () => {
         setConfig({
             cartLineItemProductStates: {
                 operatorSet: {
-                    isMatchAny
-                }
-            }
+                    isMatchAny,
+                },
+            },
         });
 
         const wrapper = await createWrapper();
@@ -100,9 +100,9 @@ describe('components/rule/sw-condition-base-line-item', () => {
                         name: 'isPromoted',
                         type: 'bool',
                         config: {
-                            isMatchAny: true
-                        }
-                    }
+                            isMatchAny: true,
+                        },
+                    },
                 },
             },
         });

@@ -64,7 +64,7 @@ class LineItemPurchasePriceRule extends Rule
         $constraints['amount'] = RuleConstraints::float();
         $constraints['type'] = RuleConstraints::choice([
             CartPrice::TAX_STATE_GROSS,
-            CartPrice::TAX_STATE_NET
+            CartPrice::TAX_STATE_NET,
         ]);
 
         return $constraints;

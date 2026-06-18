@@ -37,7 +37,7 @@ type BetweenValue = {
 const LIST_VALUED_FIELD_TYPES = [
     'multi-entity-id-select',
     'multi-select',
-    'tagged'
+    'tagged',
 ];
 
 /* Mixin uses many untyped dependencies */

@@ -79,11 +79,11 @@ class LineItemPurchasePriceRuleTest extends TestCase
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
 
-            static::assertSame('/0/value/type', $exceptions[1]['source']['pointer']);
-            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
+            static::assertSame('/0/value/amount', $exceptions[1]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
 
-            static::assertSame('/0/value/amount', $exceptions[2]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[2]['code']);
+            static::assertSame('/0/value/type', $exceptions[2]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[2]['code']);
         }
     }
 

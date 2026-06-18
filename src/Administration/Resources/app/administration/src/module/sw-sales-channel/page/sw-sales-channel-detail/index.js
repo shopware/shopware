@@ -609,7 +609,7 @@ export default {
                 return true;
             }
 
-            Shopware.Store.get('error').resetApiErrors();
+            this.clearRequiredSalesChannelFieldErrors();
             missingFields.forEach((fieldName) => this.addRequiredSalesChannelFieldError(fieldName));
 
             this.createNotificationError({
@@ -649,6 +649,12 @@ export default {
             });
         },
 
+        clearRequiredSalesChannelFieldErrors() {
+            this.getRequiredSalesChannelFields().forEach((fieldName) => {
+                this.clearRequiredSalesChannelFieldError(fieldName);
+            });
+        },
+
         clearResolvedRequiredSalesChannelFieldErrors() {
             if (!this.salesChannel?.id) {
                 return;
@@ -659,14 +665,18 @@ export default {
                     return;
                 }
 
-                const error = this.getRequiredSalesChannelFieldError(fieldName);
-
-                if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
-                    return;
-                }
-
-                Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
+                this.clearRequiredSalesChannelFieldError(fieldName);
             });
+        },
+
+        clearRequiredSalesChannelFieldError(fieldName) {
+            const error = this.getRequiredSalesChannelFieldError(fieldName);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
         },
 
         getRequiredSalesChannelFieldError(fieldName) {

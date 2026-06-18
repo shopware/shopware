@@ -428,6 +428,34 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
+    it('should keep backend validation errors when product comparison local validation fails', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const resetApiErrorsSpy = jest.spyOn(errorStore, 'resetApiErrors');
+
+        errorStore.addApiError({
+            expression: 'product_export.product-export-id.fileName',
+            error: new Shopware.Classes.ShopwareError({
+                code: 'PRODUCT_EXPORT_FILE_NAME_REQUIRED',
+                detail: 'File name is required',
+            }),
+        });
+
+        wrapper.vm.salesChannel.name = '';
+
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(resetApiErrorsSpy).not.toHaveBeenCalled();
+        expect(errorStore.api.product_export['product-export-id'].fileName).toBeDefined();
+        expect(errorStore.api.sales_channel['1a2b3c4d'].name).toBeDefined();
+    });
+
     it('should clear required field errors when missing values are filled', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -62,7 +62,10 @@ class AssertEqualsCanonicalizingListArgumentRule implements Rule
                 continue;
             }
 
-            if ($this->isList($args[$position]->value, $scope)) {
+            // Accept only when PHPStan can prove a list (yes(), never maybe()), so a loose array key-type
+            // annotation can never turn a keyed array into a false negative. Covers list literals and
+            // list-producing calls (array_values()/array_keys()/range(), two-arg array_column()) too.
+            if ($scope->getType($args[$position]->value)->isList()->yes()) {
                 continue;
             }
 
@@ -72,12 +75,5 @@ class AssertEqualsCanonicalizingListArgumentRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function isList(Node\Expr $value, Scope $scope): bool
-    {
-        // Accept only when PHPStan can prove a list (yes(), never maybe()), so a loose array key-type annotation
-        // can never turn a keyed array into a false negative. Covers list literals and list-producing calls too.
-        return $scope->getType($value)->isList()->yes();
     }
 }

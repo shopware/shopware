@@ -35,7 +35,7 @@ The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now inclu
 
 ### Use Bootstrap variable for headings spacing
 
-The hard-coded headline `margin-bottom` from H1-H6 were removed. The bootstrap variable `$headings-margin-bottom` can now be used to set the bottom spacing of headlines.
+The hard-coded CSS `margin-bottom` was removed from HTML headlines H1-H6. The bootstrap variable `$headings-margin-bottom` can now be used to set the bottom spacing of headlines.
 
 ### Storefront XHR login failures now keep HTTP 403
 

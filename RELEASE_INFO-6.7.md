@@ -128,6 +128,14 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
+### Purchase prices removed from new Store API order line item payloads
+
+New orders no longer store product `purchasePrices` in the order line item payload exposed by Store API order responses.
+Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
+The purchase price remains available internally for cart rule evaluation, but headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
+At PHP level, protected line item payload values are now omitted from `LineItem::getPayload()` and `LineItem::jsonSerialize()`; internal code that needs protected values should read the concrete key with `LineItem::getPayloadValue()`.
+Already placed orders are not rewritten by this change, so historical order payloads may still contain the field.
+
 ## Core
 
 ### Dynamic product groups can keep matching variants ungrouped

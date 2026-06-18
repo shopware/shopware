@@ -133,6 +133,8 @@
       "placeholderName": "Enter title...",
       "labelDescription": "Description",
       "placeholderDescription": "Enter description...",
+      "labelDisplayAsGroup": "Keep matching variants grouped",
+      "helpTextDisplayAsGroup": "When enabled, matching variants are grouped according to the product presentation setting. Disable to show them individually.",
       "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",

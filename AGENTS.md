@@ -59,7 +59,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - For the rationale behind this guidance model, see `adr/2026-06-17-shared-guidance-files-for-humans-and-agents.md`.
 - Add an ADR for durable architectural or product-technical decisions with meaningful trade-offs, consequences, or future compatibility impact. Follow `coding-guidelines/core/adr.md` and keep ADRs focused on the decision and why it was made.
 - Add or update `coding-guidelines/` when a rule is reusable, normative, and broader than one folder. Keep local README guidance for folder-specific working context.
-- Cross-link README guidance, coding guidelines, and ADRs where the link helps readers understand what to do and why. Prefer: README links to applicable concrete coding guidelines and ADRs; coding guidelines link to ADRs for decision background; ADRs link to follow-up docs only when needed to find the living rules.
+- Cross-link README guidance, coding guidelines, and recent/current ADRs sparingly. Prefer links that change what the reader should do; avoid old ADR background links.
 - Do not duplicate ADR or coding-guideline content in READMEs. Summarize the local implication and link to the source.
 - Reserve the root `AGENTS.md` for short repo-wide instructions that agents must see before working and humans can use as concise code-level guidance; move detailed or component-specific guidance into the relevant README or coding guideline.
 - Folders whose README contains working guidance should have an `AGENTS.md` stub that points agents to the README. Do not duplicate README content in that stub.
@@ -77,7 +77,6 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - Services must not perform direct infrastructure work or depend on framework objects. Depend on narrow abstractions instead, such as repositories, filesystem interfaces, HTTP clients, or gateways.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
-- Mark services `@private` by default when third-party code may call them but must not extend, decorate, or rely on their internals. Use explicit public extension points for supported customization.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.
 - Use a real `final class` for simple value objects/structs that do not need extension, decoration, or mocking; use `@final` for supported services where tests or framework mechanics may still need to subclass/mock them.
 - Do not add `@final` to classes already marked `@internal`; the internal marker is enough for implementation details.
@@ -96,7 +95,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - For unit tests around file access, choose the lightest setup that still reads naturally: simple single-file reads/writes can use Symfony `Filesystem` injected into the class and mocked in the test; when the scenario needs several consecutive filesystem calls, realistic paths, or directory structure, prefer committed `_fixtures` over building temp files at runtime or over-mocking the filesystem.
 - Keep test helpers smaller than the code they replace. Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test method per distinct exception or behavior over broad data providers when each case has its own meaning.
-- In PHPUnit tests, prefer `expectExceptionObject()` over `expectExceptionMessage()` / `expectExceptionMessageMatches()` because message expectations are deprecated in future PHPUnit versions. Build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
+- Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
 - Keep legacy feature-flag behavior in dedicated tests that are easy to remove when the flag is removed.
 - In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the flag with the `#[DisabledFeatures]` attribute; do not use `Feature::fake()` just to activate the current major flag.
 - In integration tests, the suite may run multiple times with feature flags on and off. Do not use `#[DisabledFeatures]` there for simple legacy/current branching; skip tests explicitly with `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when the current feature-flag value is not the one the scenario expects.

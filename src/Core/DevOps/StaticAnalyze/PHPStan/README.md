@@ -2,10 +2,6 @@
 
 Shopware specific extension for phpstan. This extension provides additional rules and improves type detection for phpstan in shopware projects.
 
-## Related ADRs
-
-- [Remove static analysis with Psalm](../../../../../adr/2022-05-12-remove-static-analysis-with-psalm.md)
-
 ## Installation
 
 Require the extension via composer:

@@ -7,15 +7,15 @@ These rules apply to code under `src/Administration/Resources/app/administration
 - Follow existing Administration code style and component patterns in the area you touch.
 - Do not introduce breaking changes to public Administration APIs or extension points without prior discussion.
 - Use the repository-root composer wrappers for Administration linting, formatting, tests, and builds.
-- Keep the dependency direction `module -> app -> core`. Core code must not import from app or modules.
+- Keep `core` free of Vue-related code. Modules may import shared non-Vue functionality from `core`.
 - Keep module code independent. Do not import directly from another module; communicate through registered services, repositories, routes, stores, or shared app/core code.
 - Keep the boot order `init-pre/ -> init/ -> init-post/` when changing startup code.
 
 ## Extension-aware access
 
-- Access factories, services, stores, and components through the global `Shopware` APIs, for example `Shopware.Component`, `Shopware.Service()`, and `Shopware.Store`.
-- Do not import factory internals directly when an extension-aware global API exists.
-- Register global components through the component factory. Local component imports bypass the extension system.
+- Prefer extension-aware access through the global `Shopware` APIs where they are available, for example `Shopware.Component`, `Shopware.Service()`, and `Shopware.Store`. Component code may still use injected services, and boot code may need direct access before all globals are available.
+- Do not import factory internals directly when an extension-aware global API is available in that context.
+- Register Options API components with Twig blocks through the component factory. Vue SFC components that use the new extension system and native blocks may be registered natively.
 - Preserve extension points exposed through the global `Shopware` object when changing repositories, services, components, and stores.
 
 ## Modules and UI

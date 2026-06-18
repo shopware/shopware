@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
@@ -23,13 +26,18 @@ final class AppFixture
     {
     }
 
-    public static function createAppEntity(string $name = 'testApp', ?string $id = null): AppEntity
+    public static function createAppEntity(string $name = 'testApp', ?string $id = null, bool $active = true, bool $allowDisable = true): AppEntity
     {
         $app = new AppEntity();
         $app->setId($id ?? Uuid::randomHex());
         $app->setName($name);
         $app->setPath($name);
-        $app->setActive(true);
+        $app->setActive($active);
+        $app->setAllowDisable($allowDisable);
+        $app->setVersion('1.0.0');
+        $app->setIntegrationId('integration-id');
+        $app->setAclRoleId('acl-role-id');
+        $app->setSourceType('static');
 
         return $app;
     }
@@ -45,13 +53,33 @@ final class AppFixture
         return $repository;
     }
 
+    /**
+     * @return StaticEntityRepository<LanguageCollection>
+     */
+    public static function createLanguageRepository(string $locale = 'en-GB'): StaticEntityRepository
+    {
+        $localeEntity = new LocaleEntity();
+        $localeEntity->assign(['code' => $locale]);
+
+        $languageEntity = new LanguageEntity();
+        $languageEntity->assign([
+            'id' => 'language-id',
+            'translationCode' => $localeEntity,
+        ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $repository */
+        $repository = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
+
+        return $repository;
+    }
+
     public static function createInstallContext(
         AppEntity $app,
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, true);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
     public static function createUpdateContext(
@@ -59,24 +87,22 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, false);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
-    private static function createContext(
+    private static function createPersistContext(
         AppEntity $app,
         Manifest $manifest,
         Filesystem $fs,
-        string $defaultLocale,
-        bool $isInstall
-    ): AppLifecycleContext {
-        return new AppLifecycleContext(
+        string $defaultLocale
+    ): AppPersistContext {
+        return new AppPersistContext(
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
             appFilesystem: $fs,
             defaultLocale: $defaultLocale,
-            isInstall: $isInstall,
         );
     }
 }

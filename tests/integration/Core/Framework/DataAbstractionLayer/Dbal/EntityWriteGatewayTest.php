@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -34,7 +35,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
+use Shopware\Core\Test\Stub\Doctrine\FailingDeleteConnection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -406,38 +407,40 @@ class EntityWriteGatewayTest extends TestCase
         static::getContainer()->get('event_dispatcher')->removeListener(EntityDeleteEvent::class, $eventSpy2);
     }
 
-    public function testEntityDeleteEventErrorCallbacksCalled(): void
+    /**
+     * A failing delete fires both the general EntityWriteEvent and the specific EntityDeleteEvent;
+     * assert each one's error callbacks are invoked (and success callbacks are not).
+     */
+    #[DataProvider('errorCallbackEventProvider')]
+    #[TestDox('error callbacks are invoked when a gateway operation fails')]
+    public function testErrorCallbacksAreInvokedOnEvent(string $eventClass): void
     {
         $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
-        $connection = static::getContainer()->get(Connection::class);
+        $realConnection = static::getContainer()->get(Connection::class);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([
-                array_merge(
-                    $connection->getParams(),
-                    [
-                        'url' => $_SERVER['DATABASE_URL'],
-                        'dbname' => $connection->getDatabase(),
-                    ]
-                ),
-                $connection->getDriver(),
-                $connection->getConfiguration(),
-            ])
-            ->onlyMethods(['delete'])
-            ->getMock();
-
-        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
+        $connection = new FailingDeleteConnection(
+            array_merge(
+                $realConnection->getParams(),
+                [
+                    'url' => $_SERVER['DATABASE_URL'],
+                    'dbname' => $realConnection->getDatabase() ?? '',
+                ]
+            ),
+            $realConnection->getDriver(),
+            $realConnection->getConfiguration(),
+        );
 
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();
 
-        $spy = $this->eventListenerCalledSpy(static function (EntityDeleteEvent $event) use ($successSpy, $errorSpy): void {
+        // a Closure satisfies both EntityDeleteEvent::addSuccess(\Closure) and EntityWriteEvent::addSuccess(callable)
+        $spy = $this->eventListenerCalledSpy(static function (EntityDeleteEvent|EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
             $event->addSuccess($successSpy(...));
             $event->addError($errorSpy(...));
         });
 
-        static::getContainer()->get('event_dispatcher')->addListener(EntityDeleteEvent::class, $spy);
+        static::getContainer()->get('event_dispatcher')->addListener($eventClass, $spy);
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -471,7 +474,17 @@ class EntityWriteGatewayTest extends TestCase
         static::assertTrue($errorSpy->called);
         static::assertFalse($successSpy->called);
 
-        static::getContainer()->get('event_dispatcher')->removeListener(EntityDeleteEvent::class, $spy);
+        static::getContainer()->get('event_dispatcher')->removeListener($eventClass, $spy);
+    }
+
+    /**
+     * @return \Generator<string, array{class-string}>
+     */
+    public static function errorCallbackEventProvider(): \Generator
+    {
+        yield 'delete event' => [EntityDeleteEvent::class];
+
+        yield 'write event' => [EntityWriteEvent::class];
     }
 
     /**
@@ -564,74 +577,6 @@ class EntityWriteGatewayTest extends TestCase
 
         static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy1);
         static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $eventSpy2);
-    }
-
-    public function testEntityWriteEventErrorCallbacksCalled(): void
-    {
-        $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
-
-        $connection = static::getContainer()->get(Connection::class);
-
-        $connection = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([
-                array_merge(
-                    $connection->getParams(),
-                    [
-                        'url' => $_SERVER['DATABASE_URL'],
-                        'dbname' => $connection->getDatabase(),
-                    ]
-                ),
-                $connection->getDriver(),
-                $connection->getConfiguration(),
-            ])
-            ->onlyMethods(['delete'])
-            ->getMock();
-
-        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
-
-        $successSpy = $this->callbackSpy();
-        $errorSpy = $this->callbackSpy();
-
-        $spy = $this->eventListenerCalledSpy(static function (EntityWriteEvent $event) use ($successSpy, $errorSpy): void {
-            $event->addSuccess($successSpy);
-            $event->addError($errorSpy);
-        });
-
-        static::getContainer()->get('event_dispatcher')->addListener(EntityWriteEvent::class, $spy);
-
-        $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
-
-        $gateway = new EntityWriteGateway(
-            1,
-            $connection,
-            static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(ExceptionHandlerRegistry::class),
-            $definitionRegistry
-        );
-
-        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
-
-        $command = new DeleteCommand(
-            $definitionRegistry->getByEntityName('product'),
-            $delete[0],
-            new EntityExistence('product', $delete[0], true, true, true, [])
-        );
-
-        $exceptionThrown = null;
-
-        try {
-            $gateway->execute([$command], $writeContext);
-        } catch (Exception $exception) {
-            $exceptionThrown = $exception;
-        }
-
-        static::assertInstanceOf(Exception::class, $exceptionThrown);
-        static::assertSame('test', $exceptionThrown->getMessage());
-
-        static::assertTrue($errorSpy->called);
-        static::assertFalse($successSpy->called);
-
-        static::getContainer()->get('event_dispatcher')->removeListener(EntityWriteEvent::class, $spy);
     }
 
     /**

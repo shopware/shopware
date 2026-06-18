@@ -290,6 +290,11 @@ export default class FormValidation {
             return field.checked;
         }
 
+        if (fieldType && fieldType === 'radio') {
+            const radios = field.form.querySelectorAll(`[type="radio"][name="${field.name}"]`);
+            return [...radios].some(radioField => radioField.checked);
+        }
+
         return !!value && value.length && value.length > 0;
     }
 

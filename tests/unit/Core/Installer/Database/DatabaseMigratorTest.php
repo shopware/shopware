@@ -12,6 +12,7 @@ use Shopware\Core\Installer\Database\DatabaseMigrator;
 use Shopware\Core\Installer\Database\MigrationCollectionFactory;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -49,7 +50,8 @@ class DatabaseMigratorTest extends TestCase
         $this->databaseMigrator = new DatabaseMigrator(
             $this->setupAdapter,
             $migrationCollectorFactory,
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
     }
 

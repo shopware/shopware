@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -88,6 +90,27 @@ class ApiControllerDetailTest extends TestCase
         }
     }
 
+    public function testGetBillingAddressViaOrder(): void
+    {
+        $ids = $this->createOrder();
+
+        $this->getBrowser()->jsonRequest('GET', '/api/order/' . $ids->get('order') . '/billing-address');
+        $response = $this->getBrowser()->getResponse();
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+            $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertArrayHasKey('data', $decoded);
+            static::assertCount(1, $decoded['data']);
+            static::assertSame($ids->get('billing-address'), $decoded['data'][0]['id']);
+        } else {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $content);
+        }
+    }
+
     private function createCustomer(): IdsCollection
     {
         $ids = new IdsCollection();
@@ -132,6 +155,41 @@ class ApiControllerDetailTest extends TestCase
         ];
 
         static::getContainer()->get('customer.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        return $ids;
+    }
+
+    private function createOrder(): IdsCollection
+    {
+        $ids = new IdsCollection();
+
+        $data = (new OrderBuilder($ids, 'order'))
+            ->add('orderDateTime', (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->add('billingAddressId', $ids->get('billing-address'))
+            ->addAddress('billing-address', [
+                'id' => $ids->get('billing-address'),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Ebbinghoff 10',
+                'zipcode' => '48624',
+                'city' => 'Schöppingen',
+                'countryId' => $this->getValidCountryId(),
+            ])
+            ->addAddress('shipping-address', [
+                'id' => $ids->get('shipping-address'),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Peter',
+                'lastName' => 'Pan',
+                'street' => 'Musterstraße 10',
+                'zipcode' => '12345',
+                'city' => 'Musterstadt',
+                'countryId' => $this->getValidCountryId(),
+            ])
+            ->build();
+
+        static::getContainer()->get('order.repository')
             ->create([$data], Context::createDefaultContext());
 
         return $ids;

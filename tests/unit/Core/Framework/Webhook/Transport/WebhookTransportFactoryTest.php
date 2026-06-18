@@ -49,12 +49,49 @@ class WebhookTransportFactoryTest extends TestCase
         static::assertInstanceOf(WebhookTransport::class, $transport);
     }
 
+    /**
+     * Regression: deferred deps must not be resolved during construction.
+     */
+    public function testConstructorDoesNotResolveDeferredDependencies(): void
+    {
+        $calls = new class {
+            public int $async = 0;
+
+            public int $receiver = 0;
+        };
+
+        $factory = new WebhookTransportFactory(
+            $this->createMock(WebhookOutboxStore::class),
+            function () use ($calls): TransportInterface {
+                ++$calls->async;
+
+                return $this->createMock(TransportInterface::class);
+            },
+            function () use ($calls): MySQLWebhookReceiver {
+                ++$calls->receiver;
+
+                return $this->createMock(MySQLWebhookReceiver::class);
+            },
+        );
+
+        static::assertSame(0, $calls->async, 'Async transport must not be resolved at construction time.');
+        static::assertSame(0, $calls->receiver, 'Receiver must not be resolved at construction time.');
+
+        $factory->createTransport('shopware-webhook://default', [], $this->createMock(SerializerInterface::class));
+
+        static::assertSame(1, $calls->async, 'Async transport should be resolved exactly once when createTransport() is called.');
+        static::assertSame(1, $calls->receiver, 'Receiver should be resolved exactly once when createTransport() is called.');
+    }
+
     private function createFactory(): WebhookTransportFactory
     {
+        $asyncTransport = $this->createMock(TransportInterface::class);
+        $receiver = $this->createMock(MySQLWebhookReceiver::class);
+
         return new WebhookTransportFactory(
             $this->createMock(WebhookOutboxStore::class),
-            $this->createMock(TransportInterface::class),
-            $this->createMock(MySQLWebhookReceiver::class),
+            fn (): TransportInterface => $asyncTransport,
+            fn (): MySQLWebhookReceiver => $receiver,
         );
     }
 }

@@ -42,6 +42,10 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
+            $this->createMock(LoggerInterface::class),
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
     }
 
@@ -110,6 +114,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -130,6 +137,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $result = $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -152,6 +162,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -182,15 +195,6 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
         static::assertEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
-    }
-
-    public function testInternalUrlWithMissingServicesReturnsError(): void
-    {
-        $result = $this->executor->execute('my-tool', null, '/api/script/my-tool', []);
-
-        $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('requires kernel', $data['error']);
     }
 
     public function testInternalUrlWithNoActiveRequestReturnsError(): void
@@ -363,7 +367,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
-            null,
+            $this->createMock(LoggerInterface::class),
             $kernel,
             $requestStack,
             $router,

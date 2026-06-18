@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\C
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -37,6 +36,21 @@ class CheapestPriceTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    /**
+     * Built once for the whole class by the first run of setUp(), inside the class transaction opened
+     * by startTransactionBefore(). The first-test-indexes pattern was replaced by guarded setUp so the
+     * suite no longer depends on test execution order. buildIndex() stays callable for the in-test
+     * rebuild (see testCalculatorBackwardsCompatibility).
+     */
+    private static IdsCollection $indexedIds;
+
+    protected function setUp(): void
+    {
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex(new IdsCollection());
+        }
+    }
+
     #[BeforeClass]
     public static function startTransactionBefore(): void
     {
@@ -55,6 +69,375 @@ class CheapestPriceTest extends TestCase
             ->get(Connection::class);
 
         $connection->rollBack();
+    }
+
+    public function testCalculator(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $cases = $this->calculationProvider($ids);
+
+            $default = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+
+            $contexts = [
+                Defaults::CURRENCY => $default,
+                $ids->get('currency') => $currency,
+            ];
+            foreach ($cases as $message => $case) {
+                $context = $contexts[$case['currencyId']];
+
+                $context->setRuleIds($case['rules']);
+
+                $assertions = $case['assertions'];
+
+                $keys = array_keys($assertions);
+
+                $criteria = new Criteria($ids->getList($keys));
+
+                $products = static::getContainer()->get('sales_channel.product.repository')
+                    ->search($criteria, $context);
+
+                foreach ($assertions as $key => $assertion) {
+                    $id = $ids->get($key);
+
+                    $product = $products->get($id);
+
+                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
+                    static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
+
+                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
+                    static::assertSame($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
+
+                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
+                    static::assertCount(\count($assertion['prices']), $product->getCalculatedPrices(), $error);
+                    foreach ($assertion['prices'] as $index => $expected) {
+                        $price = $product->getCalculatedPrices()->get($index);
+
+                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
+                        static::assertInstanceOf(CalculatedPrice::class, $price, $error);
+                        static::assertSame($expected, $price->getUnitPrice(), $error);
+                    }
+
+                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
+                    static::assertSame($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
+                }
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testCalculatorBackwardsCompatibility(): void
+    {
+        $ids = self::$indexedIds;
+
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
+
+        $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
+        static::assertIsString($prices);
+        foreach ($ids->all() as $key => $id) {
+            $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
+        }
+        foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
+            StatementHelper::executeStatement($cheapestPriceQuery, [
+                'price' => $serializedPrice,
+                'id' => $ids->getBytes($productName),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]);
+        }
+
+        try {
+            $cases = $this->calculationProvider($ids);
+
+            $default = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+
+            $contexts = [
+                Defaults::CURRENCY => $default,
+                $ids->get('currency') => $currency,
+            ];
+            foreach ($cases as $message => $case) {
+                $context = $contexts[$case['currencyId']];
+
+                $context->setRuleIds($case['rules']);
+
+                $assertions = $case['assertions'];
+
+                $keys = array_keys($assertions);
+
+                $criteria = new Criteria($ids->getList($keys));
+
+                $products = static::getContainer()->get('sales_channel.product.repository')
+                    ->search($criteria, $context);
+
+                foreach ($assertions as $key => $assertion) {
+                    $id = $ids->get($key);
+
+                    $product = $products->get($id);
+
+                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
+                    static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
+
+                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
+                    static::assertSame($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
+
+                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
+                    static::assertCount(\count($assertion['prices']), $product->getCalculatedPrices(), $error);
+                    foreach ($assertion['prices'] as $index => $expected) {
+                        $price = $product->getCalculatedPrices()->get($index);
+
+                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
+                        static::assertInstanceOf(CalculatedPrice::class, $price, $error);
+                        static::assertSame($expected, $price->getUnitPrice(), $error);
+                    }
+
+                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
+                    static::assertSame($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
+                }
+            }
+        } finally {
+            // Manually handle state changes
+            static::stopTransactionAfter();
+            static::startTransactionBefore();
+            $this->buildIndex($ids);
+        }
+    }
+
+    public function testFilterPercentage(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $cases = $this->providerFilterPercentage();
+
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            foreach ($cases as $message => $case) {
+                $criteria = new Criteria(array_values($ids->all()));
+
+                $criteria->addFilter(
+                    new RangeFilter('product.cheapestPrice.percentage', [
+                        RangeFilter::GTE => (float) $case['from'],
+                        RangeFilter::LTE => (float) $case['to'],
+                    ])
+                );
+
+                $context->setRuleIds([]);
+                if (isset($case['rules'])) {
+                    $context->setRuleIds($ids->getList($case['rules']));
+                }
+
+                $result = static::getContainer()->get('sales_channel.product.repository')
+                    ->searchIds($criteria, $context);
+
+                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
+
+                foreach ($case['expected'] as $key) {
+                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
+                }
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testFilterPrice(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $cases = $this->providerFilterPrice();
+
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            foreach ($cases as $message => $case) {
+                $criteria = new Criteria(array_values($ids->all()));
+
+                $criteria->addFilter(
+                    new RangeFilter('product.cheapestPrice', [
+                        RangeFilter::GTE => (float) $case['from'],
+                        RangeFilter::LTE => (float) $case['to'],
+                    ])
+                );
+
+                $context->setRuleIds([]);
+                if (isset($case['rules'])) {
+                    $context->setRuleIds($ids->getList($case['rules']));
+                }
+
+                $result = static::getContainer()->get('sales_channel.product.repository')
+                    ->searchIds($criteria, $context);
+
+                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
+
+                foreach ($case['expected'] as $key) {
+                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
+                }
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testSorting(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            $cases = $this->providerSorting();
+            foreach ($cases as $message => $case) {
+                $context->setRuleIds($ids->getList($case['rules']));
+
+                $this->assertSorting($message, $ids, $context, $case, FieldSorting::ASCENDING);
+
+                $this->assertSorting($message, $ids, $context, $case, FieldSorting::DESCENDING);
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testAggregation(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            $criteria = new Criteria(array_values($ids->all()));
+            $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
+
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            $cases = $this->providerAggregation();
+            foreach ($cases as $message => $case) {
+                $context->setRuleIds($ids->getList($case['rules']));
+
+                $result = static::getContainer()->get('sales_channel.product.repository')
+                    ->aggregate($criteria, $context);
+
+                $aggregation = $result->get('price');
+
+                static::assertInstanceOf(StatsResult::class, $aggregation);
+                static::assertSame($case['min'], $aggregation->getMin(), \sprintf('Case `%s` failed', $message));
+                static::assertSame($case['max'], $aggregation->getMax(), \sprintf('Case `%s` failed', $message));
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
+     */
+    public function providerSorting(): iterable
+    {
+        yield 'Test sorting without rules' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.14.1', 'v.14.2', 'v.13.1', 'v.13.2'],
+            'rules' => [],
+        ];
+
+        yield 'Test sorting with rule a' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'rules' => ['rule-a'],
+        ];
+
+        yield 'Test sorting with rule b' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'rules' => ['rule-b'],
+        ];
+
+        yield 'Test sorting with rule a+b' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'rules' => ['rule-a', 'rule-b'],
+        ];
+
+        yield 'Test sorting with rule b+a' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.2', 'v.12.1', 'v.13.1'],
+            'rules' => ['rule-b', 'rule-a'],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{from: int, rules?: list<string>, to: int, expected: list<string>}>
+     */
+    public function providerFilterPercentage(): iterable
+    {
+        yield 'Test ~91% ratio without rule' => ['from' => 90, 'to' => 91, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test ~80% ratio with rule-a' => ['rules' => ['rule-a'], 'from' => 80, 'to' => 81, 'expected' => ['p.5', 'v.6.1']];
+        yield 'Test ~70% ratio with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule b only' => ['rules' => ['rule-b'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => []];
+    }
+
+    /**
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
+     */
+    public function providerFilterPrice(): iterable
+    {
+        yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter without rule' => ['from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter without rule' => ['from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 110€ filter without rule' => ['from' => 110, 'to' => 111, 'expected' => ['p.5']];
+        yield 'Test 120€ filter without rule' => ['from' => 120, 'to' => 121, 'expected' => ['v.6.1', 'v.6.2']];
+        yield 'Test 130€ filter without rule' => ['from' => 130, 'to' => 131, 'expected' => ['v.7.1', 'v.7.2']];
+        yield 'Test 140€ filter without rule' => ['from' => 140, 'to' => 141, 'expected' => ['v.8.1', 'v.8.2']];
+        yield 'Test 150€ filter/10 without rule' => ['from' => 150, 'to' => 151, 'expected' => ['v.9.1', 'v.10.2']];
+        yield 'Test 170€ filter without rule' => ['from' => 170, 'to' => 171, 'expected' => ['v.11.1', 'v.11.2']];
+        yield 'Test 180€ filter without rule' => ['from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.12.2', 'v.14.1', 'v.14.2']];
+        yield 'Test 190€ filter without rule' => ['from' => 190, 'to' => 191, 'expected' => ['v.13.1', 'v.13.2']];
+        yield 'Test 70€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 130€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
+        yield 'Test 140€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
+        yield 'Test 150€ filter/10 with rule-a' => ['rules' => ['rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
+        yield 'Test 170€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
+        yield 'Test 160€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
+        yield 'Test 210€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1', 'v.13.2']];
+        yield 'Test 220€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
+        yield 'Test 70€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 130€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
+        yield 'Test 140€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
+        yield 'Test 150€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
+        yield 'Test 170€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
+        yield 'Test 160€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
+        yield 'Test 200€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 200, 'to' => 201, 'expected' => ['v.13.2']];
+        yield 'Test 210€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1']];
+        yield 'Test 220€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
+        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.14.1', 'v.14.2']];
+        yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
     /*
@@ -85,10 +468,9 @@ class CheapestPriceTest extends TestCase
     v.13.2    190  | 210 | 200 | 210 | 200
      */
 
-    public function testIndexing(?IdsCollection $ids = null): IdsCollection
+    private function buildIndex(IdsCollection $ids): IdsCollection
     {
         try {
-            $ids ??= new IdsCollection();
             $currency = [
                 'id' => $ids->get('currency'),
                 'factor' => 2.0,
@@ -352,369 +734,6 @@ class CheapestPriceTest extends TestCase
 
             throw $e;
         }
-    }
-
-    #[Depends('testIndexing')]
-    public function testCalculator(IdsCollection $ids): void
-    {
-        try {
-            $cases = $this->calculationProvider($ids);
-
-            $default = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
-
-            $contexts = [
-                Defaults::CURRENCY => $default,
-                $ids->get('currency') => $currency,
-            ];
-            foreach ($cases as $message => $case) {
-                $context = $contexts[$case['currencyId']];
-
-                $context->setRuleIds($case['rules']);
-
-                $assertions = $case['assertions'];
-
-                $keys = array_keys($assertions);
-
-                $criteria = new Criteria($ids->getList($keys));
-
-                $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
-
-                foreach ($assertions as $key => $assertion) {
-                    $id = $ids->get($key);
-
-                    $product = $products->get($id);
-
-                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
-                    static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
-
-                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
-                    static::assertSame($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
-
-                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
-                    static::assertCount(\count($assertion['prices']), $product->getCalculatedPrices(), $error);
-                    foreach ($assertion['prices'] as $index => $expected) {
-                        $price = $product->getCalculatedPrices()->get($index);
-
-                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
-                        static::assertInstanceOf(CalculatedPrice::class, $price, $error);
-                        static::assertSame($expected, $price->getUnitPrice(), $error);
-                    }
-
-                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
-                    static::assertSame($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
-                }
-            }
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testCalculatorBackwardsCompatibility(IdsCollection $ids): void
-    {
-        $connection = KernelLifecycleManager::getKernel()
-            ->getContainer()
-            ->get(Connection::class);
-
-        $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
-
-        $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
-        static::assertIsString($prices);
-        foreach ($ids->all() as $key => $id) {
-            $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
-        }
-        foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
-            StatementHelper::executeStatement($cheapestPriceQuery, [
-                'price' => $serializedPrice,
-                'id' => $ids->getBytes($productName),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]);
-        }
-
-        try {
-            $cases = $this->calculationProvider($ids);
-
-            $default = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            $currency = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
-
-            $contexts = [
-                Defaults::CURRENCY => $default,
-                $ids->get('currency') => $currency,
-            ];
-            foreach ($cases as $message => $case) {
-                $context = $contexts[$case['currencyId']];
-
-                $context->setRuleIds($case['rules']);
-
-                $assertions = $case['assertions'];
-
-                $keys = array_keys($assertions);
-
-                $criteria = new Criteria($ids->getList($keys));
-
-                $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
-
-                foreach ($assertions as $key => $assertion) {
-                    $id = $ids->get($key);
-
-                    $product = $products->get($id);
-
-                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
-                    static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
-
-                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
-                    static::assertSame($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
-
-                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
-                    static::assertCount(\count($assertion['prices']), $product->getCalculatedPrices(), $error);
-                    foreach ($assertion['prices'] as $index => $expected) {
-                        $price = $product->getCalculatedPrices()->get($index);
-
-                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
-                        static::assertInstanceOf(CalculatedPrice::class, $price, $error);
-                        static::assertSame($expected, $price->getUnitPrice(), $error);
-                    }
-
-                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
-                    static::assertSame($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
-                }
-            }
-        } finally {
-            // Manually handle state changes
-            static::stopTransactionAfter();
-            static::startTransactionBefore();
-            $this->testIndexing($ids);
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterPercentage(IdsCollection $ids): void
-    {
-        try {
-            $cases = $this->providerFilterPercentage();
-
-            $context = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            foreach ($cases as $message => $case) {
-                $criteria = new Criteria(array_values($ids->all()));
-
-                $criteria->addFilter(
-                    new RangeFilter('product.cheapestPrice.percentage', [
-                        RangeFilter::GTE => (float) $case['from'],
-                        RangeFilter::LTE => (float) $case['to'],
-                    ])
-                );
-
-                $context->setRuleIds([]);
-                if (isset($case['rules'])) {
-                    $context->setRuleIds($ids->getList($case['rules']));
-                }
-
-                $result = static::getContainer()->get('sales_channel.product.repository')
-                    ->searchIds($criteria, $context);
-
-                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
-
-                foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
-                }
-            }
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterPrice(IdsCollection $ids): void
-    {
-        try {
-            $cases = $this->providerFilterPrice();
-
-            $context = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            foreach ($cases as $message => $case) {
-                $criteria = new Criteria(array_values($ids->all()));
-
-                $criteria->addFilter(
-                    new RangeFilter('product.cheapestPrice', [
-                        RangeFilter::GTE => (float) $case['from'],
-                        RangeFilter::LTE => (float) $case['to'],
-                    ])
-                );
-
-                $context->setRuleIds([]);
-                if (isset($case['rules'])) {
-                    $context->setRuleIds($ids->getList($case['rules']));
-                }
-
-                $result = static::getContainer()->get('sales_channel.product.repository')
-                    ->searchIds($criteria, $context);
-
-                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
-
-                foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
-                }
-            }
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testSorting(IdsCollection $ids): void
-    {
-        try {
-            $context = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            $cases = $this->providerSorting();
-            foreach ($cases as $message => $case) {
-                $context->setRuleIds($ids->getList($case['rules']));
-
-                $this->assertSorting($message, $ids, $context, $case, FieldSorting::ASCENDING);
-
-                $this->assertSorting($message, $ids, $context, $case, FieldSorting::DESCENDING);
-            }
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testAggregation(IdsCollection $ids): void
-    {
-        try {
-            $criteria = new Criteria(array_values($ids->all()));
-            $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
-
-            $context = static::getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-            $cases = $this->providerAggregation();
-            foreach ($cases as $message => $case) {
-                $context->setRuleIds($ids->getList($case['rules']));
-
-                $result = static::getContainer()->get('sales_channel.product.repository')
-                    ->aggregate($criteria, $context);
-
-                $aggregation = $result->get('price');
-
-                static::assertInstanceOf(StatsResult::class, $aggregation);
-                static::assertSame($case['min'], $aggregation->getMin(), \sprintf('Case `%s` failed', $message));
-                static::assertSame($case['max'], $aggregation->getMax(), \sprintf('Case `%s` failed', $message));
-            }
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
-     */
-    public function providerSorting(): iterable
-    {
-        yield 'Test sorting without rules' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.14.1', 'v.14.2', 'v.13.1', 'v.13.2'],
-            'rules' => [],
-        ];
-
-        yield 'Test sorting with rule a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
-            'rules' => ['rule-a'],
-        ];
-
-        yield 'Test sorting with rule b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
-            'rules' => ['rule-b'],
-        ];
-
-        yield 'Test sorting with rule a+b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
-            'rules' => ['rule-a', 'rule-b'],
-        ];
-
-        yield 'Test sorting with rule b+a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.2', 'v.12.1', 'v.13.1'],
-            'rules' => ['rule-b', 'rule-a'],
-        ];
-    }
-
-    /**
-     * @return iterable<string, array{from: int, rules?: list<string>, to: int, expected: list<string>}>
-     */
-    public function providerFilterPercentage(): iterable
-    {
-        yield 'Test ~91% ratio without rule' => ['from' => 90, 'to' => 91, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test ~80% ratio with rule-a' => ['rules' => ['rule-a'], 'from' => 80, 'to' => 81, 'expected' => ['p.5', 'v.6.1']];
-        yield 'Test ~70% ratio with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test ~70% ratio with rule b only' => ['rules' => ['rule-b'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test ~70% ratio with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => []];
-    }
-
-    /**
-     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
-     */
-    public function providerFilterPrice(): iterable
-    {
-        yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
-        yield 'Test 90€ filter without rule' => ['from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter without rule' => ['from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
-        yield 'Test 110€ filter without rule' => ['from' => 110, 'to' => 111, 'expected' => ['p.5']];
-        yield 'Test 120€ filter without rule' => ['from' => 120, 'to' => 121, 'expected' => ['v.6.1', 'v.6.2']];
-        yield 'Test 130€ filter without rule' => ['from' => 130, 'to' => 131, 'expected' => ['v.7.1', 'v.7.2']];
-        yield 'Test 140€ filter without rule' => ['from' => 140, 'to' => 141, 'expected' => ['v.8.1', 'v.8.2']];
-        yield 'Test 150€ filter/10 without rule' => ['from' => 150, 'to' => 151, 'expected' => ['v.9.1', 'v.10.2']];
-        yield 'Test 170€ filter without rule' => ['from' => 170, 'to' => 171, 'expected' => ['v.11.1', 'v.11.2']];
-        yield 'Test 180€ filter without rule' => ['from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.12.2', 'v.14.1', 'v.14.2']];
-        yield 'Test 190€ filter without rule' => ['from' => 190, 'to' => 191, 'expected' => ['v.13.1', 'v.13.2']];
-        yield 'Test 70€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test 79€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
-        yield 'Test 90€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
-        yield 'Test 130€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
-        yield 'Test 140€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
-        yield 'Test 150€ filter/10 with rule-a' => ['rules' => ['rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
-        yield 'Test 170€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
-        yield 'Test 160€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
-        yield 'Test 210€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1', 'v.13.2']];
-        yield 'Test 220€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
-        yield 'Test 70€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test 79€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
-        yield 'Test 90€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
-        yield 'Test 130€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
-        yield 'Test 140€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
-        yield 'Test 150€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
-        yield 'Test 170€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
-        yield 'Test 160€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
-        yield 'Test 200€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 200, 'to' => 201, 'expected' => ['v.13.2']];
-        yield 'Test 210€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1']];
-        yield 'Test 220€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
-        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.14.1', 'v.14.2']];
-        yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
     /**

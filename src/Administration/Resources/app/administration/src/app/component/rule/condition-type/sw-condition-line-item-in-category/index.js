@@ -1,8 +1,7 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 import './sw-condition-line-item-in-category.scss';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -48,15 +47,6 @@ export default {
                     categoryIds,
                 };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.categoryIds',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
         },
     },
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -42,7 +43,7 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string, SalesChannelContext|string> $context
+     * @param array<string, mixed> $context
      *
      * @return string|bool|array<string, mixed>|float|int|null
      */
@@ -89,12 +90,11 @@ class ConfigExtension extends AbstractExtension
      */
     private function getSalesChannelId(array $context): ?string
     {
-        if (isset($context['context'])) {
-            $salesChannelContext = $context['context'];
-            if ($salesChannelContext instanceof SalesChannelContext) {
-                return $salesChannelContext->getSalesChannelId();
-            }
+        $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
+        if ($salesChannelContext instanceof SalesChannelContext) {
+            return $salesChannelContext->getSalesChannelId();
         }
+
         if (isset($context['salesChannel'])) {
             $salesChannel = $context['salesChannel'];
             if ($salesChannel instanceof SalesChannelEntity) {
@@ -110,7 +110,9 @@ class ConfigExtension extends AbstractExtension
      */
     private function getThemeId(array $context): ?string
     {
-        return $context['themeId'] ?? null;
+        $themeId = $context['themeId'] ?? null;
+
+        return \is_string($themeId) ? $themeId : null;
     }
 
     /**
@@ -118,16 +120,11 @@ class ConfigExtension extends AbstractExtension
      */
     private function getContext(array $context): SalesChannelContext
     {
-        if (!isset($context['context'])) {
+        $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
+        if (!$salesChannelContext instanceof SalesChannelContext) {
             throw StorefrontFrameworkException::salesChannelContextObjectNotFound();
         }
 
-        $context = $context['context'];
-
-        if (!$context instanceof SalesChannelContext) {
-            throw StorefrontFrameworkException::salesChannelContextObjectNotFound();
-        }
-
-        return $context;
+        return $salesChannelContext;
     }
 }

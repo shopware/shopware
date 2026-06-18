@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\Thumbnail\Processor\GdImageThumbnailProcessor;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
@@ -81,6 +82,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor()
         );
     }
 
@@ -409,6 +411,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 
@@ -428,6 +431,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 
@@ -447,6 +451,7 @@ class ThumbnailServiceTest extends TestCase
             $this->indexer,
             $this->thumbnailSizeCalculator,
             $this->connection,
+            new GdImageThumbnailProcessor(),
             true,
         );
 

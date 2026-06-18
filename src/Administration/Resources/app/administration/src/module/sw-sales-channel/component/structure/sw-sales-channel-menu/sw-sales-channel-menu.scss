@@ -34,6 +34,11 @@
             line-height: var(--font-line-height-xs);
             text-decoration: none;
         }
+
+        .sw-admin-menu__headline_text a:hover {
+            text-decoration: underline;
+            color: var(--color-text-primary-default);
+        }
     }
 
     &__whitespacing {

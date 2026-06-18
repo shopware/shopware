@@ -37,4 +37,15 @@ class Cases extends TestCase
         // arg #2 is a keyed array literal
         static::assertEqualsCanonicalizing([$a], ['x' => 'x']);
     }
+
+    public function testTypeProvenListVariablesAreAllowed(): void
+    {
+        $a = 'a';
+        $b = 'b';
+
+        // bare variables, but PHPStan infers list<string> for both -> isList()->yes()
+        $left = [$a, $b];
+        $right = [$b, $a];
+        static::assertEqualsCanonicalizing($left, $right);
+    }
 }

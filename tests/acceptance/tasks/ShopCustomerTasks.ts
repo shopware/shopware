@@ -4,7 +4,7 @@ import { mergeTests } from '@playwright/test';
  * Account Orders
  */
 import { DownloadDigitalProductFromOrderAndExpectContentToBe } from './ShopCustomer/Account/DownloadDigitalProductFromOrder';
-
+import { SubcribeToNewsletter } from './ShopCustomer/Account/SubcribeToNewsletter';
 /**
  * Cart
  */
@@ -32,4 +32,5 @@ export const test = mergeTests(
     ValidateLighthouseScore,
     CheckVisibilityInHome,
     AcceptTechnicalRequiredCookies,
+    SubcribeToNewsletter
 );

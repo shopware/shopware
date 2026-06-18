@@ -280,6 +280,40 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.find('.sw-customer-address-form')).toBeTruthy();
     });
 
+    it('should select a newly created address after saving it', async () => {
+        wrapper = await createWrapper({
+            type: 'shipping',
+        });
+
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'newCustomerAddressId',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            street: 'Example Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            countryId: 'countryId',
+        });
+
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(wrapper.emitted('change-address')).toEqual([
+            [
+                {
+                    orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                    customerAddressId: 'newCustomerAddressId',
+                    type: 'shipping',
+                    edited: false,
+                },
+            ],
+        ]);
+    });
+
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 

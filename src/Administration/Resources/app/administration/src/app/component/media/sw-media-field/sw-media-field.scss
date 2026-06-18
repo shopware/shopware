@@ -147,6 +147,16 @@ $sw-media-field-color-unlink: $color-crimson-500;
     }
 }
 
+.mt-modal:has(.sw-popover__wrapper.sw-media-field__expanded-content) {
+    overflow: visible;
+
+    .mt-modal__header,
+    .mt-modal__content,
+    .mt-modal__footer {
+        overflow-x: hidden;
+    }
+}
+
 .sw-popover__wrapper.sw-media-field__expanded-content.--placement-bottom-outside {
     transform: translate(calc(-100% + 45px), calc(-100% - 50px));
 

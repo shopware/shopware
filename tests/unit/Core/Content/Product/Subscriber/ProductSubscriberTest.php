@@ -767,8 +767,7 @@ class ProductSubscriberTest extends TestCase
             ->method('getPayload')
             ->willReturn($payload);
 
-        $command->expects($this->any())
-            ->method('hasField')
+        $command->method('hasField')
             ->willReturnCallback(static function ($field) use ($hasFieldReturns) {
                 return $hasFieldReturns[$field] ?? false;
             });

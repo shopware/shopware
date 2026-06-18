@@ -32,9 +32,14 @@ test('Shop customer should be able to see the product image in the Storefront.',
     await ShopCustomer.attemptsTo(Login());
 
     await test.step('Logged-In shop customer should be able to see the cover image on the product listing page.', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
+    await ShopCustomer.expects(async () => {
+        await TestDataService.clearCaches();
+        await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
         await ShopCustomer.expects(StorefrontHome.productImages.getByAltText(media.alt)).toBeVisible();
+    }).toPass({
+        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
     });
+});
 
     await test.step('Logged-In shop customer should be able to see an image on the product detail page.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

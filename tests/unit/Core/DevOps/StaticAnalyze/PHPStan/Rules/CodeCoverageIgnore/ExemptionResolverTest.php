@@ -6,13 +6,11 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
-use PHPStan\Analyser\Scope;
 use PHPStan\Testing\PHPStanTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
-use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
 
 /**
  * @internal
@@ -20,50 +18,68 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourcePa
 #[CoversClass(ExemptionResolver::class)]
 class ExemptionResolverTest extends PHPStanTestCase
 {
+    /**
+     * @param array<string, string> $useMap
+     */
     #[TestDox('isExempted: $_dataName')]
     #[DataProvider('caseProvider')]
-    public function testIsExempted(string $docComment, bool $expected): void
+    public function testIsExempted(string $docComment, array $useMap, bool $expected): void
     {
-        $reflectionProvider = self::createReflectionProvider();
-        $resolver = new ExemptionResolver($reflectionProvider, new SourceParser());
+        $resolver = new ExemptionResolver(self::createReflectionProvider());
 
         $node = $this->makeClassWithDoc($docComment);
-        $scope = $this->makeScope(__DIR__ . '/_fixtures/UseMapFixture.php');
 
-        static::assertSame($expected, $resolver->isExempted($node, $scope));
+        static::assertSame($expected, $resolver->isExempted($node, $useMap));
     }
 
     /**
-     * @return \Generator<string, array{0: string, 1: bool}>
+     * @return \Generator<string, array{0: string, 1: array<string, string>, 2: bool}>
      */
     public static function caseProvider(): \Generator
     {
-        yield 'no docblock' => ['', false];
+        yield 'no docblock' => ['', [], false];
 
-        yield 'docblock without @see' => ['/** @internal */', false];
+        yield 'docblock without @see' => ['/** @internal */', [], false];
 
         yield 'FQCN to existing integration test exempts' => [
             '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest */',
+            [],
             true,
         ];
 
         yield 'FQCN to non-existent integration test does not exempt' => [
             '/** @see \\Shopware\\Tests\\Integration\\Definitely\\Not\\A\\RealTest */',
+            [],
             false,
         ];
 
         yield 'FQCN to unit test (not integration) does not exempt' => [
             '/** @see \\Shopware\\Tests\\Unit\\Core\\Framework\\SomeUnitTest */',
+            [],
             false,
         ];
 
         yield '::method suffix on the reference is stripped' => [
             '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest::testFoo */',
+            [],
             true,
+        ];
+
+        yield 'short-form @see resolved through the use map exempts' => [
+            '/** @see RelatedWebhooksTest */',
+            ['RelatedWebhooksTest' => 'Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest'],
+            true,
+        ];
+
+        yield 'short-form @see not in the use map does not exempt' => [
+            '/** @see RelatedWebhooksTest */',
+            [],
+            false,
         ];
 
         yield 'multiple @see; one valid is enough' => [
             "/**\n * @see SomeBogus\n * @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest\n */",
+            [],
             true,
         ];
     }
@@ -84,13 +100,5 @@ class ExemptionResolverTest extends PHPStanTestCase
         static::assertInstanceOf(Class_::class, $node);
 
         return $node;
-    }
-
-    private function makeScope(string $file): Scope
-    {
-        $scope = static::createStub(Scope::class);
-        $scope->method('getFile')->willReturn($file);
-
-        return $scope;
     }
 }

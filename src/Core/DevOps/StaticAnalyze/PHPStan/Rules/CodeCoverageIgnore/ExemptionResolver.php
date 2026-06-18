@@ -3,7 +3,6 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
 
 use PhpParser\Node;
-use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * Decides whether a docblock's @see references exempt the annotated symbol
  * from the coverage-ignore rule. A reference exempts when it resolves to an
  * existing class whose FQCN contains \Tests\Integration\. Short-form names
- * are resolved through the file's use statements; fully qualified or
- * relative refs are taken as-is.
+ * are resolved through the file's use map; fully qualified or relative refs
+ * are taken as-is.
  *
  * @internal
  */
@@ -21,11 +20,13 @@ final class ExemptionResolver
 {
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
-        private readonly SourceParser $sources,
     ) {
     }
 
-    public function isExempted(Node $node, Scope $scope): bool
+    /**
+     * @param array<string, string> $useMap alias => FQCN, see UseMap
+     */
+    public function isExempted(Node $node, array $useMap): bool
     {
         $doc = $node->getDocComment();
         if ($doc === null) {
@@ -35,8 +36,6 @@ final class ExemptionResolver
         if (!preg_match_all('/@see\s+(\S+)/', $doc->getText(), $matches)) {
             return false;
         }
-
-        $useMap = null;
 
         foreach ($matches[1] as $reference) {
             $rawClass = explode('::', $reference)[0];
@@ -51,7 +50,6 @@ final class ExemptionResolver
             // use statements. Qualified refs (with `\` or relative path) are
             // taken as-is, matching common phpdoc conventions in this codebase.
             if (!str_starts_with($rawClass, '\\') && !str_contains($candidate, '\\')) {
-                $useMap ??= $this->sources->useMap($scope->getFile());
                 $resolved = $useMap[$candidate] ?? $candidate;
             }
 

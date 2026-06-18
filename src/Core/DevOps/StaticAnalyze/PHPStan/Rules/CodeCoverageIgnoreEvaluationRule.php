@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Namespace_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
@@ -11,7 +12,7 @@ use PHPStan\Rules\Rule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\Errors;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\LogicDetector;
-use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\UseMap;
 use Shopware\Core\Framework\Log\Package;
 
 // Trait scanning was intentionally removed: a trait's methods are the trait's
@@ -19,9 +20,13 @@ use Shopware\Core\Framework\Log\Package;
 // burdened with re-testing logic it merely composes.
 
 /**
+ * Registered on Namespace_ rather than Class_ so the file's `use` statements are
+ * available in the same pass: short-form @see references are resolved against the
+ * use map (see UseMap) without re-reading the source from disk.
+ *
  * @internal
  *
- * @implements Rule<Class_>
+ * @implements Rule<Namespace_>
  */
 #[Package('framework')]
 class CodeCoverageIgnoreEvaluationRule implements Rule
@@ -31,18 +36,39 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
     ) {
-        $this->exemptions = new ExemptionResolver($reflectionProvider, new SourceParser());
+        $this->exemptions = new ExemptionResolver($reflectionProvider);
     }
 
     public function getNodeType(): string
     {
-        return Class_::class;
+        return Namespace_::class;
     }
 
     /**
-     * @param Class_ $node
+     * @param Namespace_ $node
+     *
+     * @return list<IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
+    {
+        $useMap = UseMap::fromStmts($node->stmts);
+
+        $errors = [];
+        foreach ($node->stmts as $stmt) {
+            if ($stmt instanceof Class_) {
+                $errors = [...$errors, ...$this->evaluateClass($stmt, $useMap)];
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, string> $useMap
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function evaluateClass(Class_ $node, array $useMap): array
     {
         $classHasIgnore = $this->docHasCodeCoverageIgnore($node);
         $className = $this->className($node);
@@ -55,9 +81,9 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             return [Errors::exception($className, $node->getStartLine())];
         }
 
-        $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $scope);
+        $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $useMap);
 
-        return $this->checkMethods($node, $scope, $className, $classHasIgnore, $classExempted);
+        return $this->checkMethods($node, $useMap, $className, $classHasIgnore, $classExempted);
     }
 
     private function anyMethodHasIgnore(Class_ $node): bool
@@ -72,11 +98,13 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
     }
 
     /**
+     * @param array<string, string> $useMap
+     *
      * @return list<IdentifierRuleError>
      */
     private function checkMethods(
         Class_ $node,
-        Scope $scope,
+        array $useMap,
         string $className,
         bool $classHasIgnore,
         bool $classExempted,
@@ -96,7 +124,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            if ($this->exemptions->isExempted($method, $scope)) {
+            if ($this->exemptions->isExempted($method, $useMap)) {
                 continue;
             }
 

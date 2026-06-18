@@ -63,10 +63,16 @@
 
                                     {# Check footer navigation #}
                                     {% if footer.navigation and footer.navigation.tree %}
-                                        {% for footerItem in footer.navigation.tree %}
-                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
-                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == contactCmsPageId and root.category.seoUrl %}
+                                                {% set contactUrl = root.category.seoUrl %}
                                             {% endif %}
+
+                                            {% for footerItem in root.children %}
+                                                {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set contactUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endfor %}
                                     {% endif %}
 
@@ -83,11 +89,25 @@
                                     {% if revocationRequestCmsPageId and showRevocationButton %}
                                         {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
 
-                                        {# Check for seoUrl and use it if present #}
-                                        {% for serviceMenuItem in footer.serviceMenu %}
-                                            {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == revocationRequestCmsPageId and root.category.seoUrl %}
+                                                {% set revocationRequestUrl = root.category.seoUrl %}
                                             {% endif %}
+
+                                            {% for footerItem in root.children %}
+                                                {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set revocationRequestUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endfor %}
 
                                         {# Check footer navigation #}
@@ -285,10 +305,16 @@
 
                         {# Check footer navigation #}
                         {% if footer.navigation and footer.navigation.tree %}
-                            {% for footerItem in footer.navigation.tree %}
-                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
-                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                            {% for root in footer.navigation.tree %}
+                                {% if root.category.cmsPageId == shippingCmsPageId and root.category.seoUrl %}
+                                    {% set shippingUrl = root.category.seoUrl %}
                                 {% endif %}
+
+                                {% for footerItem in root.children %}
+                                    {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                        {% set shippingUrl = footerItem.category.seoUrl %}
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                         {% endif %}
 

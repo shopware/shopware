@@ -1,5 +1,18 @@
 # 6.7.12.0 (upcoming)
 
+## Features
+
+### Agentic files for sales channels
+
+Sales channels can now publish opt-in agentic files such as `/llms.txt` and `/agents.md`.
+Merchants can manage these files in the sales channel details, enable them per sales channel, preview the generated content, and add custom notes without replacing the default content provided by Shopware or extensions.
+
+Core ships the initial `agentic` file family.
+The files are rendered from Twig templates, so Shopware, plugins, apps, and themes can contribute or extend content through normal Shopware Twig inheritance.
+Extensions can add additional templates under `Resources/views/files/agentic/**.twig`, including nested paths such as `.well-known/*`.
+
+The Admin API exposes documented action routes for listing, reading details, and previewing sales-channel files under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
+
 ## Storefront
 
 ### Storefront cache hash no longer varies by language
@@ -182,6 +195,14 @@ Switch between them in `config/packages/shopware.yaml`:
 
 Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
 `ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
+
+### Core Twig `config()` helper
+
+The Twig `config()` helper is now provided by the core Twig environment so non-storefront templates can read sales-channel-aware system configuration.
+Twig templates can continue using `config('my.config.key')` unchanged.
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` are deprecated.
+PHP code should use `SystemConfigService` directly instead.
 
 ### Number range value generator interface deprecated
 

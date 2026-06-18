@@ -1,6 +1,6 @@
 Read the repository root `AGENTS.md` first.
 
-## Unit Test Structure
+## PHPUnit Test Structure
 
 - Write test methods as clear executable examples of the behavior under test: scenario-specific setup, action, and assertions should be easy to follow in the test body.
 - Prefer explicit scenario setup over hidden mutation in fixture factories. Helper methods should create entities, files, or value objects; the test body should perform meaningful scenario wiring when that wiring helps explain the behavior under test.
@@ -19,7 +19,7 @@ Read the repository root `AGENTS.md` first.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
 
-## Data Providers
+### Data Providers
 
 - Use named `yield` cases in unit-test data providers instead of returning arrays, even for small providers. This keeps cases readable and avoids materializing large arrays as providers grow.
 - Do not use `yield from` with an inline array for providers. Prefer one explicit `yield 'human readable case description' => [...]` per scenario.

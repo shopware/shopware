@@ -36,6 +36,8 @@ src/
 - [Administration testing](../../../../../coding-guidelines/administration/testing.md)
 - [Administration feature flags and deprecations](../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md)
 
+Admin UI changes that read or persist DAL entities or associations must update matching ACL privilege mappings and migrations for existing roles when needed.
+
 ### Related ADRs
 
 - [Co-locate Administration Technical Documentation with Source Code](../../../../../adr/2025-10-14-colocate-administration-technical-docs.md)

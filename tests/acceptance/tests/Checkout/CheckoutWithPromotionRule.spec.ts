@@ -5,6 +5,7 @@ test('Promotion with rule applied to newsletter recipient should be able to crea
     async ({
         IdProvider,
         ShopAdmin,
+        AdminApiContext,
         DefaultSalesChannel,
         TestDataService,
         ShopCustomer,
@@ -49,7 +50,7 @@ test('Promotion with rule applied to newsletter recipient should be able to crea
         const product = await TestDataService.createBasicProduct({ price: productPrices, purchasePrices: productPrices });
 
         // subscribe newsletter recipient with same email as customer and subscribe to newsletter
-        const recipientConfig = { email: DefaultSalesChannel.customer.email };
+        const recipientConfig = { hash: IdProvider.getIdPair().uuid, email: DefaultSalesChannel.customer.email };
         await ShopCustomer.attemptsTo(SubcribeToNewsletter(recipientConfig));
 
         // login as customer

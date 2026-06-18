@@ -116,11 +116,23 @@ runs:
         eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s",
           $u["host"]??"127.0.0.1", $u["port"]??3306, $u["user"]??"root", $u["pass"]??"", ltrim($u["path"]??"/","/"));')"
         # Emit BOTH the access key AND its sales-channel id (hex). The seed must make the
-        # product visible in EXACTLY this SC — seed.sh + run-http.sh used to resolve the SC
-        # independently (search first-active, unsorted) and could pick a DIFFERENT active SC,
-        # yielding CONTENT__PRODUCT_NOT_FOUND on store-api when an install has >1 active SC.
+        # product visible in EXACTLY the SC the BROWSER resolves: playwright hits the storefront
+        # at APP_URL, which selects its sales channel by request DOMAIN. "Earliest active SC" is
+        # NOT guaranteed to be that one — a default install has BOTH a Storefront and an
+        # API/Headless channel, and product VISIBILITY is per-channel (unlike nav categories,
+        # which are shared). Seeding visibility for the wrong (Headless) SC => the product 404s on
+        # the storefront (PRECONDITION_NOT_FOUND). So pick, in order: the SC whose domain matches
+        # APP_URL, else the Storefront-type channel, else earliest-active (http/direct-only installs).
         ROW=$(mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" -N -e \
-          "SELECT LOWER(HEX(id)), access_key FROM sales_channel WHERE active=1 ORDER BY created_at LIMIT 1;")
+          "SELECT LOWER(HEX(sc.id)), sc.access_key
+             FROM sales_channel sc
+             LEFT JOIN sales_channel_domain d
+               ON d.sales_channel_id = sc.id AND d.url LIKE 'http://localhost:8000%'
+            WHERE sc.active = 1
+            ORDER BY (d.id IS NOT NULL) DESC,
+                     (sc.type_id = UNHEX('8a243080f92e4c719546314b577cf82b')) DESC,
+                     sc.created_at ASC
+            LIMIT 1;")
         SC_ID=$(printf '%s' "$ROW" | cut -f1)
         KEY=$(printf '%s' "$ROW" | cut -f2)
         echo "::add-mask::$KEY"

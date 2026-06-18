@@ -51,6 +51,7 @@
     "safari >= 7"
   ],
   "dependencies": {
+    "@jridgewell/sourcemap-codec": "1.5.5",
     "@shopware-ag/dive": "2.3.4",
     "@shopware-ag/meteor-admin-sdk": "6.9.0",
     "@shopware-ag/meteor-component-library": "5.1.0",
@@ -88,6 +89,7 @@
     "inter-ui": "3.19.3",
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
+    "magic-string": "0.30.19",
     "md5-es": "1.8.2",
     "mime-types": "2.1.35",
     "mitt": "3.0.1",

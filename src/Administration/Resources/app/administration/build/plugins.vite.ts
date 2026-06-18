@@ -265,7 +265,7 @@ const main = async () => {
                 } else {
                     console.log(colors.green(`# Building plugin "${extension.name}"`));
                     // For plugins
-                    await build(getBaseConfig(extension));
+                    await build(getBaseConfig(extension, true));
                 }
             } catch (error) {
                 hasFailedBuilds = true;

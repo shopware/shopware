@@ -14,13 +14,6 @@ type Options = {
     administrationRoot: string;
 };
 
-const emptySourceMap = {
-    version: 3,
-    sources: [],
-    names: [],
-    mappings: '',
-};
-
 /**
  * Keep the CommonJS transform out of Vite's config bundle.
  *
@@ -67,7 +60,7 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
 
             return {
                 code: result.code,
-                map: result.map ?? emptySourceMap,
+                map: result.map,
             };
         },
     };

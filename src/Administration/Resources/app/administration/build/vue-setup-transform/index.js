@@ -7,13 +7,14 @@ const { analyzeShopwareSetupScript } = require('./script-analyzer');
 const { analyzeBaseTemplate, analyzeOverrideTemplate } = require('./template-analyzer');
 const { lowerShopwareSetupBlock } = require('./lower');
 const { ShopwareSetupTransformError } = require('./utils/transform-error');
+const { applySourceEdits } = require('./source-edits/apply-source-edits');
 
 /**
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
  *
  * @typedef {object} ShopwareSetupTransformResult
  * @property {string} code
- * @property {null} map
+ * @property {import('magic-string').SourceMap} map
  * @property {'base' | 'override'} mode
  * @property {string} filename
  */
@@ -31,21 +32,6 @@ function withBlockOffset(error, block) {
     }
 
     return new ShopwareSetupTransformError(error.message, block.start);
-}
-
-/**
- * Applies non-overlapping source edits from the end of the file to the beginning.
- *
- * @param {string} source
- * @param {{ start: number, end: number, replacement: string }[]} edits
- * @returns {string}
- */
-function applySourceEdits(source, edits) {
-    return [...edits]
-        .sort((a, b) => b.start - a.start)
-        .reduce((code, edit) => {
-            return `${code.slice(0, edit.start)}${edit.replacement}${code.slice(edit.end)}`;
-        }, source);
 }
 
 /**
@@ -91,18 +77,18 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
         throw withBlockOffset(error, block);
     }
 
-    const code = applySourceEdits(source, [
+    const transformed = applySourceEdits(source, filename, [
         ...templateAnalysis.edits,
         {
             start: block.start,
             end: block.end,
-            replacement,
+            replacement: replacement.chunks,
         },
     ]);
 
     return {
-        code,
-        map: null,
+        code: transformed.code,
+        map: transformed.map,
         mode: block.mode,
         filename,
     };

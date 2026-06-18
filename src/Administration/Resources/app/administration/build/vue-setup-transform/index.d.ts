@@ -10,7 +10,16 @@ export type ShopwareSetupTransformMode = 'base' | 'override';
 
 export type ShopwareSetupTransformResult = {
     code: string;
-    map: null;
+    map: {
+        version: number;
+        file?: string;
+        sources: string[];
+        sourcesContent?: string[];
+        names: string[];
+        mappings: string;
+        toString(): string;
+        toUrl(): string;
+    };
     mode: ShopwareSetupTransformMode;
     filename: string;
 };

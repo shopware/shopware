@@ -3,6 +3,13 @@
  */
 
 const { ShopwareSetupTransformError } = require('./utils/transform-error');
+const {
+    fromSource,
+    generated,
+    indent,
+} = require('./source-edits/chunks');
+const { render } = require('./source-edits/render-chunks');
+const { transformRanges } = require('./source-edits/transform-ranges');
 
 /**
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
@@ -10,20 +17,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  */
 
 /**
- * Indents generated callback bodies while preserving intentionally blank spacer lines.
- *
- * @param {string} code
- * @param {number} [spaces]
- * @returns {string}
+ * @typedef {import('./source-edits/chunks').SourceChunk} SourceChunk
  */
-function indent(code, spaces = 4) {
-    const indentation = ' '.repeat(spaces);
-
-    return code
-        .split('\n')
-        .map((line) => (line.length > 0 ? `${indentation}${line}` : line))
-        .join('\n');
-}
 
 /**
  * Escapes component names embedded in generated single-quoted strings.
@@ -75,55 +70,17 @@ function makeUniqueName(baseName, takenNames) {
 }
 
 /**
- * Removes macro/import ranges and replaces selected expressions in the code that moves into the runtime callback.
- *
- * @param {string} source
- * @param {{ start: number, end: number }[]} removals
- * @param {({ start: number, end: number } & { replacement: string })[]} [replacements]
- * @returns {string}
- */
-function transformRanges(source, removals, replacements = []) {
-    const sortedRanges = [
-        ...removals.map((range) => ({
-            ...range,
-            replacement: '',
-        })),
-        ...replacements,
-    ].sort((a, b) => {
-        if (a.start === b.start) {
-            return b.end - a.end;
-        }
-
-        return a.start - b.start;
-    });
-    let cursor = 0;
-    let output = '';
-
-    sortedRanges.forEach((range) => {
-        if (range.start < cursor) {
-            return;
-        }
-
-        output += source.slice(cursor, range.start);
-        output += range.replacement;
-        cursor = range.end;
-    });
-
-    output += source.slice(cursor);
-
-    return output.trim();
-}
-
-/**
  * Applies analyzer-provided source ranges to produce the callback body.
  *
+ * @param {ShopwareSetupBlock} block
  * @param {ShopwareSetupScriptAnalysis} analysis
  * @param {string | null} setupBindingsName
- * @returns {string}
+ * @returns {SourceChunk[]}
  */
-function buildCallbackBody(analysis, setupBindingsName) {
+function buildCallbackBodyChunks(block, analysis, setupBindingsName) {
     return transformRanges(
-        analysis.source,
+        block,
+        analysis,
         analysis.bodyRemovals,
         setupBindingsName
             ? analysis.setupInputReplacements.map((range) => ({
@@ -229,50 +186,60 @@ function buildBaseScript(block, analysis) {
         ...analysis.runtimeBindings.map((binding) => binding.name),
         '__swOverride',
     ];
-    const callbackBody = buildCallbackBody(analysis, setupBindingsName);
+    const callbackBody = buildCallbackBodyChunks(block, analysis, setupBindingsName);
     const body = [
-        `const useSwContext = () => ${setupBindingsName}.context;`,
-        '',
-        callbackBody,
-        '',
-        buildBaseReturn(analysis),
-    ].join('\n');
+        generated(`const useSwContext = () => ${setupBindingsName}.context;\n\n`),
+        ...callbackBody,
+        generated(`\n\n${buildBaseReturn(analysis)}`),
+    ];
+    const chunks = [
+        generated(`<script${block.passthroughAttributesSource}>\n`),
+    ];
 
-    return [
-        `<script${block.passthroughAttributesSource}>`,
-        ...analysis.imports.map((importBlock) => importBlock.code),
-        ...(analysis.imports.length > 0 ? [''] : []),
-        ...(analysis.propsMacro
-            ? [
-                  `const ${propsName} = ${analysis.propsMacro.code};`,
-                  '',
-              ]
-            : []),
-        ...(analysis.emitsMacro
-            ? [
-                  `const ${emitName} = ${analysis.emitsMacro.code};`,
-                  '',
-              ]
-            : []),
-        ...(analysis.slotsMacro
-            ? [
-                  `const ${slotsName} = ${analysis.slotsMacro.code};`,
-                  '',
-              ]
-            : []),
-        ...(analysis.optionsMacro
-            ? [
-                  analysis.optionsMacro.code,
-                  '',
-              ]
-            : []),
-        'const {',
-        ...destructureEntries.map((entry) => `    ${entry},`),
-        `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', ${propsName ? `${propsName}, ` : ''}(${setupBindingsName}) => {`,
+    analysis.imports.forEach((importBlock) => {
+        chunks.push(fromSource(block, importBlock.start, importBlock.end));
+        chunks.push(generated('\n'));
+    });
+
+    if (analysis.imports.length > 0) {
+        chunks.push(generated('\n'));
+    }
+
+    if (analysis.propsMacro) {
+        chunks.push(generated(`const ${propsName} = `));
+        chunks.push(fromSource(block, analysis.propsMacro.ranges[0].start, analysis.propsMacro.ranges[0].end));
+        chunks.push(generated(';\n\n'));
+    }
+
+    if (analysis.emitsMacro) {
+        chunks.push(generated(`const ${emitName} = `));
+        chunks.push(fromSource(block, analysis.emitsMacro.ranges[0].start, analysis.emitsMacro.ranges[0].end));
+        chunks.push(generated(';\n\n'));
+    }
+
+    if (analysis.slotsMacro) {
+        chunks.push(generated(`const ${slotsName} = `));
+        chunks.push(fromSource(block, analysis.slotsMacro.ranges[0].start, analysis.slotsMacro.ranges[0].end));
+        chunks.push(generated(';\n\n'));
+    }
+
+    if (analysis.optionsMacro) {
+        chunks.push(fromSource(block, analysis.optionsMacro.ranges[0].start, analysis.optionsMacro.ranges[0].end));
+        chunks.push(generated(';\n\n'));
+    }
+
+    chunks.push(
+        generated([
+            'const {',
+            ...destructureEntries.map((entry) => `    ${entry},`),
+            `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', ${propsName ? `${propsName}, ` : ''}(${setupBindingsName}) => {`,
+        ].join('\n')),
+        generated('\n'),
         indent(body),
-        '});',
-        '</script>',
-    ].join('\n');
+        generated('\n});\n</script>'),
+    );
+
+    return chunks;
 }
 
 /**
@@ -293,36 +260,45 @@ function buildOverrideScript(block, analysis) {
         'sw-component',
         'sw-override',
     ]);
-    const callbackBody = buildCallbackBody(analysis, null);
+    const callbackBody = buildCallbackBodyChunks(block, analysis, null);
     const body = [
-        `const useSwPreviousState = () => ${previousStateName};`,
-        `const useSwProps = () => ${propsName};`,
-        `const useSwContext = () => ${contextName};`,
-        '',
-        callbackBody,
-        '',
-        buildOverrideReturn(analysis),
-    ].join('\n');
+        generated(`const useSwPreviousState = () => ${previousStateName};\n`),
+        generated(`const useSwProps = () => ${propsName};\n`),
+        generated(`const useSwContext = () => ${contextName};\n\n`),
+        ...callbackBody,
+        generated(`\n\n${buildOverrideReturn(analysis)}`),
+    ];
+    const chunks = [
+        generated(`<script${passthroughAttributesSource}>\n`),
+    ];
 
-    return [
-        `<script${passthroughAttributesSource}>`,
-        ...analysis.imports.map((importBlock) => importBlock.code),
-        ...(analysis.imports.length > 0 ? [''] : []),
-        'export default {',
-        '    setup() {',
-        `        Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
+    analysis.imports.forEach((importBlock) => {
+        chunks.push(fromSource(block, importBlock.start, importBlock.end));
+        chunks.push(generated('\n'));
+    });
+
+    if (analysis.imports.length > 0) {
+        chunks.push(generated('\n'));
+    }
+
+    chunks.push(
+        generated([
+            'export default {',
+            '    setup() {',
+            `        Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
+        ].join('\n')),
+        generated('\n'),
         indent(body, 12),
-        '        });',
-        ...(block.template
-            ? []
-            : [
-                  '',
-                  '        return () => null;',
-              ]),
-        '    },',
-        '};',
-        '</script>',
-    ].join('\n');
+        generated('\n        });'),
+    );
+
+    if (!block.template) {
+        chunks.push(generated('\n\n        return () => null;'));
+    }
+
+    chunks.push(generated('\n    },\n};\n</script>'));
+
+    return chunks;
 }
 
 /**
@@ -333,11 +309,12 @@ function buildOverrideScript(block, analysis) {
  * @returns {string}
  */
 function lowerShopwareSetupBlock(block, analysis) {
-    if (block.mode === 'base') {
-        return buildBaseScript(block, analysis);
-    }
+    const chunks = block.mode === 'base' ? buildBaseScript(block, analysis) : buildOverrideScript(block, analysis);
 
-    return buildOverrideScript(block, analysis);
+    return {
+        chunks,
+        code: render(chunks, analysis.source, block.contentStart),
+    };
 }
 
 module.exports = {

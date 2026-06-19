@@ -356,7 +356,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).resolves.toBe(true);
         await flushPromises();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
@@ -376,7 +376,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+    it('should reject saveOnLanguageChange without reloading entity data when saving fails', async () => {
         mockSave.mockRejectedValueOnce(new Error('Save failed'));
 
         const wrapper = await createWrapper();
@@ -384,12 +384,32 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
         await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should reject saveOnLanguageChange without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should handle errors in onSave without reloading entity data', async () => {

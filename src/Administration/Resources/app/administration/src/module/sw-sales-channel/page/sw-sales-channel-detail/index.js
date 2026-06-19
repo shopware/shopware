@@ -586,10 +586,16 @@ export default {
 
         async saveOnLanguageChange() {
             if (!this.validateRequiredSalesChannelFields()) {
-                return;
+                return Promise.reject();
             }
 
-            await this.saveSalesChannel();
+            const saveSuccessful = await this.saveSalesChannel();
+
+            if (!saveSuccessful) {
+                return Promise.reject();
+            }
+
+            return true;
         },
 
         onChangeLanguage() {

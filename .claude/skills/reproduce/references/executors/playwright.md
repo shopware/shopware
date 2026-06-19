@@ -95,6 +95,17 @@ timeout. This is the ONLY failure that may mean `reproduced`.
   it (`test.use({ viewport: { width: 1280, height: 500 } })`) — at the default 720p the
   content may simply fit and the spec passes on the BUGGY version (a silent false negative
   we hit live: a 17-entry dropdown fit the default viewport).
+- **VERIFY the reported TRIGGER is actually in effect before judging — an unestablished
+  trigger is `PRECONDITION_NOT_FOUND` (inconclusive), NEVER a silent `not_reproduced`.** If the
+  symptom needs seeded content to manifest (a wide image that overflows, N rows present, a
+  specific element rendered), MEASURE that the condition holds first — never assume the fixture
+  took. Live miss on #31: the seeded CMS text block + its 3000px `<img>` never rendered in the
+  admin editor (the canvas was empty), so nothing overflowed, the Settings tab stayed put, and
+  the spec returned `not_reproducible` — a false negative that hid that the reported steps
+  ("add a wide image") were never exercised. Gate on the trigger, e.g.
+  `const overflow = await canvas.evaluate(n => n.scrollWidth > n.clientWidth); if (!overflow) throw new Error('PRECONDITION_NOT_FOUND: wide image did not overflow the editor — trigger not established');`
+  BEFORE the symptom `expect`. A verdict is trustworthy only if the reported condition was
+  provably present.
 - **For "cannot scroll / cannot reach" symptoms, scroll like a USER** — hover the element's
   container, then `page.mouse.wheel(0, N)`, then assert `toBeInViewport()`. **NEVER**
   `scrollIntoViewIfNeeded()` for these: it uses CDP and can scroll `overflow:hidden`

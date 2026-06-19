@@ -173,8 +173,11 @@ export default {
 
             const trimmed = String(value).trim();
 
-            // a plain number is interpreted as pixels so the resulting CSS stays valid
-            return /^\d+(\.\d+)?$/.test(trimmed) ? `${trimmed}px` : trimmed;
+            return this.isUnitlessNumber(trimmed) ? `${trimmed}px` : trimmed;
+        },
+
+        isUnitlessNumber(value) {
+            return /^\d+(\.\d+)?$/.test(value);
         },
 
         onChangeDisplayMode() {

@@ -162,6 +162,71 @@ describe('build/vue-setup-transform override template pattern references', () =>
         );
     });
 
+    it.each([
+        '<sw-block-parent v-if="true" />',
+        '<sw-block-parent v-else-if="true" />',
+        '<sw-block-parent v-else />',
+        '<template v-if="true"><sw-block-parent /></template>',
+    ])('rejects conditional sw-block-parent declarations: %s', (parentSource) => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                ${parentSource}
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'conditional-parent.override.vue')).toThrow(
+            'Conditional <sw-block-parent> declarations are not supported. Parent block rendering must be statically present.',
+        );
+    });
+
+    it.each([
+        '<sw-block-parent v-for="item in [1, 2]" :key="item" />',
+        '<template v-for="item in [1, 2]" :key="item"><sw-block-parent /></template>',
+    ])('rejects repeated sw-block-parent declarations: %s', (parentSource) => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                ${parentSource}
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'repeated-parent.override.vue')).toThrow(
+            'Repeated <sw-block-parent> declarations are not supported. Parent block rendering must not use v-for.',
+        );
+    });
+
+    it('allows static sw-block-parent declarations', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <sw-block-parent />
+                <p>{{ info }}</p>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'static-parent.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
+
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain('<sw-block-parent />');
+        expect(result).toContain(`__swOverride: { ${privateNamespace}: { info } }`);
+    });
+
     it('detects override-local references in slot-scope default values', () => {
         const source = stripIndent`
             <template>

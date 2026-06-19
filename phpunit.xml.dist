@@ -172,6 +172,7 @@
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>
             <directory>tests/integration/Core/Framework/Translation</directory>
+            <directory>tests/integration/Core/Framework/Update</directory>
             <directory>tests/integration/Core/Framework/Util</directory>
             <directory>tests/integration/Core/Framework/Webhook</directory>
         </testsuite>

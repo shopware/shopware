@@ -132,7 +132,6 @@ The transform rejects these cases loudly:
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
-- Nested `<sw-block extends>` declarations inside another `<sw-block extends>` declaration
 - Shopware setup bindings in directive expressions on the `<sw-block extends>` element itself, for example `v-if="localState"`; use bindings inside the block content instead
 - Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
 - Additional `<script>` blocks next to Shopware setup blocks

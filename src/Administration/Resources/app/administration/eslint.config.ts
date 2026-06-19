@@ -121,6 +121,7 @@ const baseRules = {
     ],
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
+    'sw-core-rules/valid-shopware-setup': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
@@ -197,6 +198,8 @@ export default [
             'scripts/**/*',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
+            'build/vue-setup-transform/**/*.d.ts',
+            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
@@ -300,9 +303,19 @@ export default [
         languageOptions: {
             parser: vueParser,
             parserOptions: {
-                parser: tseslint.parser,
+                parser: {
+                    ts: tseslint.parser,
+                    tsx: tseslint.parser,
+                },
                 extraFileExtensions: ['.vue'],
                 sourceType: 'module',
+            },
+            globals: {
+                swDefinePublic: 'readonly',
+                swDefineOverride: 'readonly',
+                useSwPreviousState: 'readonly',
+                useSwProps: 'readonly',
+                useSwContext: 'readonly',
             },
         },
         rules: {
@@ -664,6 +677,18 @@ export default [
         },
     },
 
+    {
+        files: ['build/vue-setup-transform/**/*.ts'],
+        rules: {
+            '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
     {
         ...prettier,
         files: [

@@ -7,14 +7,33 @@
         "esModuleInterop": true,
         "baseUrl": "./",
         "paths": {
-            "vue$": ["./node_modules/vue/dist/vue.esm.js"],
-            "src/*": ["./src/*"],
-            "module/*": ["./src/module/*"],
-            "scss/*": ["./src/app/assets/scss/*"],
-            "assets/*": ["./static/*"],
-            "Shopware": ["./src/core/shopware"],
+            "vue$": [
+                "./node_modules/vue/dist/vue.esm.js"
+            ],
+            "src/*": [
+                "./src/*"
+            ],
+            "module/*": [
+                "./src/module/*"
+            ],
+            "scss/*": [
+                "./src/app/assets/scss/*"
+            ],
+            "assets/*": [
+                "./static/*"
+            ],
+            "Shopware": [
+                "./src/core/shopware"
+            ],
         }
     },
-    "include": ["src/**/*", "types/**/*"],
-    "exclude": ["node_modules", "test/**/*", "**/fixtures/*.js"]
+    "include": [
+        "./src/Administration/Resources/app/administration/**/*",
+        "types/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "test/**/*",
+        "**/fixtures/*.js"
+    ]
 }

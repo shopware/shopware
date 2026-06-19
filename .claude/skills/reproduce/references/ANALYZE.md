@@ -46,6 +46,19 @@ fixtures — the report is public.
    file's authoring contract for the script that executor needs (http → `request`/`requests`
    in analysis.json, no separate file; playwright → `repro.spec.ts`; direct →
    `ReproTest.php`; set `script_path` accordingly).
+   - **Faithfulness OVERRIDES cheapness — reproduce the bug AS REPORTED.** The `scenario` must
+     follow the issue's "How to reproduce" steps when it gives them (do NOT substitute a
+     convenient shortcut), and the assertion must check the REPORTED result, at the layer where
+     that result actually manifests. A cheaper layer is valid ONLY if it reproduces the SAME
+     symptom via the SAME trigger. In particular, do NOT reduce a CLIENT-SIDE reported symptom
+     (a full page/HTML injected into a fragment, a layout cut-off, a JS error, an element
+     hidden/misplaced) to a server/service assertion of a related condition — that condition is
+     often EXPECTED behaviour, not the bug. Live miss on #33: the reported crash (a guest
+     wishlist injecting a full HTML page into its content area after a second-tab login + a
+     remove click) was reduced to a `direct` test asserting "guestPagelet returns 404 for a
+     logged-in user" — it followed NONE of the steps and checked an arguably-correct server
+     response, not the reported client-side injection. Reproduce such bugs in the browser,
+     following the steps, asserting the reported DOM result.
    - **`storefront-ui` is NOT automatically playwright — split it by symptom FIRST.** If the
      symptom is in the **server-rendered HTML** (snippet/translation text, Twig logic, a
      server-rendered CMS block, price/markup in the listing — anything present in the page's

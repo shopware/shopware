@@ -6,8 +6,11 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -31,6 +34,7 @@ class SalesChannelFileRenderer
         private readonly SalesChannelFileTemplateOverrideLoader $templateOverrideLoader,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly EntityRepository $salesChannelRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -120,10 +124,25 @@ class SalesChannelFileRenderer
      */
     private function buildParameters(SalesChannelFile $file, SalesChannelContext $context): array
     {
+        $salesChannel = $this->loadSalesChannel($context);
+
+        return $this->extensions->publish(
+            name: SalesChannelFileRenderParametersExtension::NAME,
+            extension: new SalesChannelFileRenderParametersExtension($file, $context, $salesChannel),
+            function: $this->buildDefaultParameters(...),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDefaultParameters(SalesChannelFile $file, SalesChannelContext $context, SalesChannelEntity $salesChannel): array
+    {
         return [
             'context' => $context,
-            'salesChannel' => $this->loadSalesChannel($context),
+            'salesChannel' => $salesChannel,
             'salesChannelFile' => $file,
+            'salesChannelFileContext' => $this->buildSalesChannelFileContext($salesChannel, $context),
         ];
     }
 
@@ -133,8 +152,10 @@ class SalesChannelFileRenderer
         $criteria->setTitle('sales-channel-file-renderer::sales-channel');
         $criteria->addAssociation('languages.translationCode');
         $criteria->addAssociation('currencies');
+        $criteria->addAssociation('domains');
         $criteria->getAssociation('languages')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->getAssociation('currencies')->addSorting(new FieldSorting('isoCode', FieldSorting::ASCENDING));
+        $criteria->getAssociation('domains')->addSorting(new FieldSorting('url', FieldSorting::ASCENDING));
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->first();
 
@@ -143,5 +164,47 @@ class SalesChannelFileRenderer
         }
 
         return $salesChannel;
+    }
+
+    /**
+     * @return array{baseUrl: string|null, publisher: string|null}
+     */
+    private function buildSalesChannelFileContext(SalesChannelEntity $salesChannel, SalesChannelContext $context): array
+    {
+        $baseUrl = $this->resolveBaseUrl($salesChannel, $context);
+        $publisher = $baseUrl === null ? null : $this->extractPublisher($baseUrl);
+
+        return [
+            'baseUrl' => $baseUrl,
+            'publisher' => $publisher,
+        ];
+    }
+
+    private function resolveBaseUrl(SalesChannelEntity $salesChannel, SalesChannelContext $context): ?string
+    {
+        $domains = $salesChannel->getDomains();
+        if ($domains === null || $domains->count() === 0) {
+            return null;
+        }
+
+        $domainId = $context->getDomainId();
+        if ($domainId !== null) {
+            $domain = $domains->get($domainId);
+
+            if ($domain instanceof SalesChannelDomainEntity) {
+                return rtrim($domain->getUrl(), '/');
+            }
+        }
+
+        $domain = $domains->first();
+
+        return $domain instanceof SalesChannelDomainEntity ? rtrim($domain->getUrl(), '/') : null;
+    }
+
+    private function extractPublisher(string $baseUrl): ?string
+    {
+        $host = parse_url($baseUrl, \PHP_URL_HOST);
+
+        return \is_string($host) && $host !== '' ? strtolower($host) : null;
     }
 }

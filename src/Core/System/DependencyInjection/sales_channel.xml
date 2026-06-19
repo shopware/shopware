@@ -83,6 +83,12 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileStoreApiMcpSubscriber">
+            <argument type="service" id="router"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader" public="true">

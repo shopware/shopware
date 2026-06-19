@@ -50,6 +50,36 @@ class SalesChannelFilePublicRequestTest extends TestCase
         static::assertStringContainsString('Custom public guidance', $content);
     }
 
+    public function testEnabledAiCatalogDoesNotExposeAdminMcpServer(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+        static::assertNotEmpty($salesChannelId);
+
+        $this->getSalesChannelFileRepository()->upsert([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'fileFamily' => 'agentic',
+                'fileName' => '.well-known/ai-catalog.json',
+                'enabled' => true,
+                'templateOverrides' => [],
+            ],
+        ], Context::createDefaultContext());
+
+        $response = $this->request('GET', '.well-known/ai-catalog.json', []);
+        $content = $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), \is_string($content) ? $content : '');
+        static::assertSame('application/json; charset=utf-8', $response->headers->get('content-type'));
+        static::assertIsString($content);
+
+        $catalog = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($catalog);
+        static::assertSame('1.0', $catalog['specVersion']);
+        static::assertSame([], $catalog['entries']);
+        static::assertStringNotContainsString('/api/_mcp', $content);
+    }
+
     /**
      * @return EntityRepository<SalesChannelFileCollection>
      */

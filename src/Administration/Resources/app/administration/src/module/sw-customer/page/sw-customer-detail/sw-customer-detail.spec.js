@@ -246,6 +246,24 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         expect(wrapperWithMissingCustomer.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.customer.index' });
     });
 
+    it('should show a notification when the customer cannot be loaded', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapperWithLoadingError = await createWrapper([], false, Promise.reject(new Error('Could not load customer')));
+
+        await flushPromises();
+
+        expect(wrapperWithLoadingError.vm.customer).toBeNull();
+        expect(wrapperWithLoadingError.vm.isLoading).toBe(false);
+        expect(notificationSpy).toHaveBeenCalledWith({
+            variant: 'error',
+            title: 'global.default.error',
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
+        expect(wrapperWithLoadingError.vm.$router.push).not.toHaveBeenCalled();
+
+        notificationSpy.mockRestore();
+    });
+
     it('should set the initial limit on the addresses association criteria', async () => {
         await flushPromises();
 

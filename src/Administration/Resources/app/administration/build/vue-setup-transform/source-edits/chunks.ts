@@ -13,6 +13,11 @@ type SourceBlock = {
     contentStart: number,
 };
 
+type SourceRange = {
+    start: number,
+    end: number,
+};
+
 /**
  * Creates generated code that has no honest source position.
  */
@@ -26,11 +31,11 @@ function generated(code: string): GeneratedChunk {
 /**
  * Reuses a range from the original SFC so sourcemaps keep pointing to author code.
  */
-function fromSource(block: SourceBlock, start: number, end: number): OriginalChunk {
+function fromSource(block: SourceBlock, range: SourceRange): OriginalChunk {
     return {
         type: 'original',
-        start: block.contentStart + start,
-        end: block.contentStart + end,
+        start: block.contentStart + range.start,
+        end: block.contentStart + range.end,
     };
 }
 

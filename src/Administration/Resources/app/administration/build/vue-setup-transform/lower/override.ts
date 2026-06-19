@@ -79,7 +79,7 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
     ];
 
     analysis.imports.forEach((importBlock) => {
-        chunks.push(fromSource(block, importBlock.start, importBlock.end));
+        chunks.push(fromSource(block, importBlock));
         chunks.push(generated('\n'));
     });
 

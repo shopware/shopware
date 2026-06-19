@@ -71,7 +71,7 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     ];
 
     analysis.imports.forEach((importBlock) => {
-        chunks.push(fromSource(block, importBlock.start, importBlock.end));
+        chunks.push(fromSource(block, importBlock));
         chunks.push(generated('\n'));
     });
 
@@ -81,24 +81,24 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
 
     if (analysis.propsMacro) {
         chunks.push(generated(`const ${propsName} = `));
-        chunks.push(fromSource(block, analysis.propsMacro.ranges[0].start, analysis.propsMacro.ranges[0].end));
+        chunks.push(fromSource(block, analysis.propsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }
 
     if (analysis.emitsMacro) {
         chunks.push(generated(`const ${emitName} = `));
-        chunks.push(fromSource(block, analysis.emitsMacro.ranges[0].start, analysis.emitsMacro.ranges[0].end));
+        chunks.push(fromSource(block, analysis.emitsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }
 
     if (analysis.slotsMacro) {
         chunks.push(generated(`const ${slotsName} = `));
-        chunks.push(fromSource(block, analysis.slotsMacro.ranges[0].start, analysis.slotsMacro.ranges[0].end));
+        chunks.push(fromSource(block, analysis.slotsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }
 
     if (analysis.optionsMacro) {
-        chunks.push(fromSource(block, analysis.optionsMacro.ranges[0].start, analysis.optionsMacro.ranges[0].end));
+        chunks.push(fromSource(block, analysis.optionsMacro.ranges[0]));
         chunks.push(generated(';\n\n'));
     }
 

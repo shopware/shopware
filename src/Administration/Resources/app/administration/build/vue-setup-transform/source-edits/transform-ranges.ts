@@ -58,7 +58,7 @@ function transformRanges(
         }
 
         if (cursor < range.start) {
-            chunks.push(fromSource(block, cursor, range.start));
+            chunks.push(fromSource(block, { start: cursor, end: range.start }));
         }
 
         if (range.replacement.length > 0) {
@@ -69,7 +69,7 @@ function transformRanges(
     });
 
     if (cursor < analysis.source.length) {
-        chunks.push(fromSource(block, cursor, analysis.source.length));
+        chunks.push(fromSource(block, { start: cursor, end: analysis.source.length }));
     }
 
     return [trim(chunks)];

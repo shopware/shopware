@@ -170,6 +170,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: var(--border-radius-s);
     }
 
     .sw-admin-menu__headline-context-menu {
@@ -343,6 +344,11 @@
             .sw-admin-menu__header-logo-expand-button {
                 display: flex;
             }
+        }
+
+        .sw-admin-menu__headline-action {
+            width: var(--scale-size-36);
+            height: var(--scale-size-36);
         }
 
         .sw-admin-menu__headline-context-menu {

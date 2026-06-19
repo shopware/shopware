@@ -30,7 +30,7 @@
                 >
                     <mt-icon
                         name="solid-ellipsis-h-s"
-                        size="10px"
+                        :size="isSidebarExpanded ? '10px' : '16px'"
                     />
                 </button>
             </mt-dropdown-menu-trigger>
@@ -94,7 +94,7 @@
                     >
                         <mt-icon
                             class="sw-sales-channel-menu-domain-link__icon"
-                            name="regular-eye-s"
+                            name="regular-eye"
                             size="16px"
                         />
                     </button>

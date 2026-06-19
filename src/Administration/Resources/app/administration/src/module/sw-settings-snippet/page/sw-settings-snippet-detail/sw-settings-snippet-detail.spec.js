@@ -318,7 +318,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         // _hasFileValue is set at load time to reliably track this even after the value changes.
 
         it('returns "inherited" when _pendingDelete is set (pending restore via onResetSnippet)', () => {
-            const snippet = { id: 'some-id', value: null, resetTo: 'file val', origin: '', _hasFileValue: true, _pendingDelete: true };
+            const snippet = {
+                id: 'some-id',
+                value: null,
+                resetTo: 'file val',
+                origin: '',
+                _hasFileValue: true,
+                _pendingDelete: true,
+            };
             expect(wrapper.vm.getSnippetState(snippet)).toBe('inherited');
         });
 
@@ -379,7 +386,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
         it('clears value and saves it for undo when resetting a DB-overridden snippet', () => {
             // PHP sets origin='' for all DB records; resetTo holds the file value
-            const snippet = { id: 'some-id', value: 'my override', resetTo: 'original', origin: '', _overriding: false, _savedValue: null, _pendingDelete: false };
+            const snippet = {
+                id: 'some-id',
+                value: 'my override',
+                resetTo: 'original',
+                origin: '',
+                _overriding: false,
+                _savedValue: null,
+                _pendingDelete: false,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onResetSnippet(snippet);
             expect(snippet.value).toBeNull();
@@ -388,7 +403,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
 
         it('restores file value and exits overriding mode when resetting a file snippet in edit mode', () => {
-            const snippet = { id: null, value: 'typed text', resetTo: null, origin: 'file val', _overriding: true, _savedValue: null };
+            const snippet = {
+                id: null,
+                value: 'typed text',
+                resetTo: null,
+                origin: 'file val',
+                _overriding: true,
+                _savedValue: null,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onResetSnippet(snippet);
             expect(snippet.value).toBe('file val');
@@ -397,7 +419,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
         it('recalculates isSaveable immediately — pending restore is saveable', () => {
             wrapper.vm.isSaveable = false;
-            const snippet = { id: 'some-id', value: 'my override', resetTo: 'original', origin: 'original', _overriding: false, _savedValue: null, _pendingDelete: false };
+            const snippet = {
+                id: 'some-id',
+                value: 'my override',
+                resetTo: 'original',
+                origin: 'original',
+                _overriding: false,
+                _savedValue: null,
+                _pendingDelete: false,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onResetSnippet(snippet);
             // After reset: _pendingDelete=true → saveable
@@ -406,7 +436,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
         it('recalculates isSaveable immediately — overriding snippet restored to file value stays saveable', () => {
             wrapper.vm.isSaveable = false;
-            const snippet = { id: null, value: 'typed text', resetTo: null, origin: 'file val', _overriding: true, _savedValue: null };
+            const snippet = {
+                id: null,
+                value: 'typed text',
+                resetTo: null,
+                origin: 'file val',
+                _overriding: true,
+                _savedValue: null,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onResetSnippet(snippet);
             // After reset: value='file val', id=null → non-null value → counted as saveable
@@ -423,14 +460,30 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
 
         it('sets _overriding to true for a file-only snippet', () => {
-            const snippet = { id: null, value: null, resetTo: 'file val', origin: 'file val', _overriding: false, _savedValue: null, _pendingDelete: false };
+            const snippet = {
+                id: null,
+                value: null,
+                resetTo: 'file val',
+                origin: 'file val',
+                _overriding: false,
+                _savedValue: null,
+                _pendingDelete: false,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onRemoveInheritance(snippet);
             expect(snippet._overriding).toBe(true);
         });
 
         it('restores the saved value when undoing a pending restore', () => {
-            const snippet = { id: 'some-id', value: null, resetTo: 'original', origin: 'original', _overriding: false, _savedValue: 'my override', _pendingDelete: true };
+            const snippet = {
+                id: 'some-id',
+                value: null,
+                resetTo: 'original',
+                origin: 'original',
+                _overriding: false,
+                _savedValue: 'my override',
+                _pendingDelete: true,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onRemoveInheritance(snippet);
             expect(snippet.value).toBe('my override');
@@ -440,7 +493,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
         it('recalculates isSaveable immediately after removing inheritance', () => {
             wrapper.vm.isSaveable = false;
-            const snippet = { id: 'some-id', value: null, resetTo: 'original', origin: 'original', _overriding: false, _savedValue: 'my override', _pendingDelete: true };
+            const snippet = {
+                id: 'some-id',
+                value: null,
+                resetTo: 'original',
+                origin: 'original',
+                _overriding: false,
+                _savedValue: 'my override',
+                _pendingDelete: true,
+            };
             wrapper.vm.snippets = [snippet];
             wrapper.vm.onRemoveInheritance(snippet);
             // After undo: value='my override', id set → non-null value → saveable
@@ -518,70 +579,67 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const deleteMock = jest.fn(() => Promise.resolve());
 
         async function createWrapperWithDelete() {
-            return mount(
-                await wrapTestComponent('sw-settings-snippet-detail', { sync: true }),
-                {
-                    global: {
-                        mocks: {
-                            $route: {
-                                meta: { $module: { color: 'blue', icon: 'icon' } },
-                                query: { page: 1, limit: 25, ids: [] },
-                                params: { key: 'account.addressCreateBtn' },
-                            },
-                        },
-                        provide: {
-                            repositoryFactory: {
-                                create: () => ({
-                                    search: () => Promise.resolve(getSnippetSets()),
-                                    create: () => Promise.resolve(),
-                                    save: saveMock,
-                                    delete: deleteMock,
-                                }),
-                            },
-                            acl: { can: () => true },
-                            userService: {},
-                            snippetSetService: {
-                                getAuthors: () => Promise.resolve(),
-                                getCustomList: () => Promise.resolve(getSnippets()),
-                            },
-                            snippetService: {
-                                save: () => Promise.resolve(),
-                                delete: () => Promise.resolve(),
-                                getFilter: () => Promise.resolve(),
-                            },
-                            validationService: {},
-                        },
-                        stubs: {
-                            'sw-page': await wrapTestComponent('sw-page'),
-                            'sw-card-view': await wrapTestComponent('sw-card-view'),
-                            'sw-text-field': await wrapTestComponent('sw-text-field'),
-                            'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                            'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                            'sw-block-field': await wrapTestComponent('sw-block-field'),
-                            'sw-base-field': await wrapTestComponent('sw-base-field'),
-                            'sw-field-error': await wrapTestComponent('sw-field-error'),
-                            'sw-button-process': await wrapTestComponent('sw-button-process'),
-                            'sw-skeleton': true,
-                            'sw-search-bar': true,
-                            'router-link': true,
-                            'sw-app-actions': true,
-                            'sw-loader': true,
-                            'sw-error-summary': true,
-                            'sw-app-topbar-button': true,
-                            'sw-app-topbar-sidebar': true,
-                            'sw-notification-center': true,
-                            'sw-help-center-v2': true,
-                            'sw-context-menu-item': true,
-                            'sw-context-button': true,
-                            'sw-extension-component-section': true,
-                            'sw-ai-copilot-badge': true,
-                            'sw-field-copyable': true,
-                            'sw-inheritance-switch': true,
-                            'sw-help-text': true,
+            return mount(await wrapTestComponent('sw-settings-snippet-detail', { sync: true }), {
+                global: {
+                    mocks: {
+                        $route: {
+                            meta: { $module: { color: 'blue', icon: 'icon' } },
+                            query: { page: 1, limit: 25, ids: [] },
+                            params: { key: 'account.addressCreateBtn' },
                         },
                     },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve(getSnippetSets()),
+                                create: () => Promise.resolve(),
+                                save: saveMock,
+                                delete: deleteMock,
+                            }),
+                        },
+                        acl: { can: () => true },
+                        userService: {},
+                        snippetSetService: {
+                            getAuthors: () => Promise.resolve(),
+                            getCustomList: () => Promise.resolve(getSnippets()),
+                        },
+                        snippetService: {
+                            save: () => Promise.resolve(),
+                            delete: () => Promise.resolve(),
+                            getFilter: () => Promise.resolve(),
+                        },
+                        validationService: {},
+                    },
+                    stubs: {
+                        'sw-page': await wrapTestComponent('sw-page'),
+                        'sw-card-view': await wrapTestComponent('sw-card-view'),
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': await wrapTestComponent('sw-field-error'),
+                        'sw-button-process': await wrapTestComponent('sw-button-process'),
+                        'sw-skeleton': true,
+                        'sw-search-bar': true,
+                        'router-link': true,
+                        'sw-app-actions': true,
+                        'sw-loader': true,
+                        'sw-error-summary': true,
+                        'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
+                        'sw-notification-center': true,
+                        'sw-help-center-v2': true,
+                        'sw-context-menu-item': true,
+                        'sw-context-button': true,
+                        'sw-extension-component-section': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-help-text': true,
+                    },
                 },
-            );
+            });
         }
 
         beforeEach(() => {
@@ -594,8 +652,24 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             const wrapper = await createWrapperWithDelete();
             await flushPromises();
             wrapper.vm.snippets = [
-                { id: 'some-id', value: null, origin: 'file val', _pendingDelete: true, author: 'user/admin', translationKey: 'account.addressCreateBtn', setId: 'a' },
-                { id: null, value: null, origin: null, _pendingDelete: false, author: 'user/admin', translationKey: 'account.addressCreateBtn', setId: 'b' },
+                {
+                    id: 'some-id',
+                    value: null,
+                    origin: 'file val',
+                    _pendingDelete: true,
+                    author: 'user/admin',
+                    translationKey: 'account.addressCreateBtn',
+                    setId: 'a',
+                },
+                {
+                    id: null,
+                    value: null,
+                    origin: null,
+                    _pendingDelete: false,
+                    author: 'user/admin',
+                    translationKey: 'account.addressCreateBtn',
+                    setId: 'b',
+                },
             ];
             wrapper.vm.isSaveable = true;
             wrapper.vm.onSave();
@@ -607,7 +681,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             const wrapper = await createWrapperWithDelete();
             await flushPromises();
             wrapper.vm.snippets = [
-                { id: 'some-id', value: null, origin: '', _pendingDelete: true, author: 'user/admin', translationKey: 'account.addressCreateBtn', setId: 'a' },
+                {
+                    id: 'some-id',
+                    value: null,
+                    origin: '',
+                    _pendingDelete: true,
+                    author: 'user/admin',
+                    translationKey: 'account.addressCreateBtn',
+                    setId: 'a',
+                },
             ];
             wrapper.vm.isSaveable = true;
             wrapper.vm.onSave();
@@ -618,7 +700,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             const wrapper = await createWrapperWithDelete();
             await flushPromises();
             wrapper.vm.snippets = [
-                { id: null, value: null, origin: null, author: 'user/admin', translationKey: 'account.addressCreateBtn', setId: 'a' },
+                {
+                    id: null,
+                    value: null,
+                    origin: null,
+                    author: 'user/admin',
+                    translationKey: 'account.addressCreateBtn',
+                    setId: 'a',
+                },
             ];
             wrapper.vm.isSaveable = true;
             wrapper.vm.onSave();

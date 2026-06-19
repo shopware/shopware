@@ -84,7 +84,7 @@
                             :placeholder="$t('sw-settings-snippet.detail.labelNamePlaceholder')"
                             :disabled="!(isCreate || isAddedSnippet)"
                             :error="invalidKeyError"
-                            @update:model-value="onChange"
+                            @update:model-value="onChange(null, $event)"
                         />
                         {% endblock %}
                     </div>

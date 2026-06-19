@@ -105,7 +105,10 @@ export default {
 
         snippetStates() {
             return Object.fromEntries(
-                this.snippets.map(s => [s.setId, this.getSnippetState(s)])
+                this.snippets.map((s) => [
+                    s.setId,
+                    this.getSnippetState(s),
+                ]),
             );
         },
     },
@@ -391,7 +394,9 @@ export default {
                 return snippet.value !== null ? 'overridden' : 'inherited';
             }
 
-            if (!snippet._hasFileValue && !snippet.value) {
+            const hasFileValue = snippet._hasFileValue ?? !!snippet.origin;
+
+            if (!hasFileValue && !snippet.value) {
                 return 'empty';
             }
 
@@ -399,7 +404,7 @@ export default {
                 return 'overriding';
             }
 
-            if (!snippet._hasFileValue) {
+            if (!hasFileValue) {
                 return 'custom';
             }
 

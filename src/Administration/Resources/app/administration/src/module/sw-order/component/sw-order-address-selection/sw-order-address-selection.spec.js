@@ -297,7 +297,44 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.find('.sw-select-result__add-new-address').exists()).toBe(false);
         expect(wrapper.findAll('.sw-select-result')).toHaveLength(1);
     });
-    
+
+    it('should not create or save customer addresses when the customer was deleted', async () => {
+        wrapper = await createWrapper({}, null);
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+
+        expect(wrapper.vm.currentAddress).toBeNull();
+
+        wrapper.vm.currentAddress = {
+            id: 'newCustomerAddressId',
+        };
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await expect(wrapper.vm.onSaveAddress()).resolves.toBeUndefined();
+
+        expect(wrapper.emitted('change-address')).toBeUndefined();
+    });
+
+    it('should resolve customer loading when the order customer has no customer id', async () => {
+        const orderCustomer = Shopware.Store.get('swOrderDetail').order.orderCustomer;
+        const previousCustomerId = orderCustomer.customerId;
+
+        orderCustomer.customerId = null;
+
+        try {
+            wrapper = await createWrapper();
+
+            await flushPromises();
+
+            await expect(wrapper.vm.getCustomer()).resolves.toBeNull();
+
+            expect(wrapper.vm.customer).toBeNull();
+        } finally {
+            orderCustomer.customerId = previousCustomerId;
+        }
+    });
+
     it('should select a newly created address after saving it', async () => {
         wrapper = await createWrapper({
             type: 'shipping',

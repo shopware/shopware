@@ -441,7 +441,6 @@ const missingTests = [
     'src/module/sw-property/page/sw-property-create/index.js',
     'src/module/sw-review/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js',
-    'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/index.js',
     'src/module/sw-sales-channel/default-search-configuration.js',
     'src/module/sw-sales-channel/index.js',
     'src/module/sw-sales-channel/agentic-product-export-templates/index.js',

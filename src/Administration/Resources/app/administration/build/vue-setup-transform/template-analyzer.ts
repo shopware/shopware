@@ -1052,11 +1052,22 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
     const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
     const runtimeBindingNames = new Set<string>(analysis.runtimeBindings.map((binding) => binding.name));
 
-    function visit(node: TemplateChildNode, hasAncestorSwBlockExtends = false): void {
+    function visit(
+        node: TemplateChildNode,
+        hasAncestorSwBlockExtends = false,
+        hasAncestorForDirective = false,
+    ): void {
         if (isSwBlockExtends(node)) {
             if (hasAncestorSwBlockExtends) {
                 throw new ShopwareSetupTransformError(
                     'Nested <sw-block extends> declarations are not supported. An override block must not contain another override block.',
+                    template.contentStart + node.loc.start.offset,
+                );
+            }
+
+            if (hasAncestorForDirective || getForDirective(node)) {
+                throw new ShopwareSetupTransformError(
+                    'Repeated <sw-block extends> declarations are not supported. Override block declarations must not use v-for.',
                     template.contentStart + node.loc.start.offset,
                 );
             }
@@ -1124,7 +1135,13 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         }
 
         if (node.type === NodeTypes.ELEMENT) {
-            node.children.forEach((child) => visit(child, hasAncestorSwBlockExtends || isSwBlockExtends(node)));
+            node.children.forEach((child) =>
+                visit(
+                    child,
+                    hasAncestorSwBlockExtends || isSwBlockExtends(node),
+                    hasAncestorForDirective || Boolean(getForDirective(node)),
+                ),
+            );
         }
     }
 

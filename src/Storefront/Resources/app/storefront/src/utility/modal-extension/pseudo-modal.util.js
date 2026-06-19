@@ -102,6 +102,7 @@ export default class PseudoModalUtil {
             }
 
             existingModalInstance.hide();
+            window.focusHandler._removeFocusTrapGuard();
         } catch (err) {
             console.warn(`[PseudoModalUtil] Unable to hide existing pseudo modal before opening pseudo modal: ${err.message}`);
         }
@@ -117,6 +118,9 @@ export default class PseudoModalUtil {
         this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
         this._modal.addEventListener('shown.bs.modal', cb);
 
+        // Keep the Bootstrap focus-trap working when the modal is the last element before `</body>`.
+        this._modal.addEventListener('hidden.bs.modal', () => window.focusHandler._removeFocusTrapGuard());
+
         /**
          * Fix bootstrap modal accessibility errors.
          *
@@ -130,6 +134,8 @@ export default class PseudoModalUtil {
         });
 
         this._modalInstance.show();
+
+        window.focusHandler._addFocusTrapGuard(this._modalWrapper);
     }
 
     /**

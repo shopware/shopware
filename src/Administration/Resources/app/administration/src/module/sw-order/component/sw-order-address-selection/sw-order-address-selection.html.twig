@@ -12,7 +12,7 @@
             :customer="customer || orderCustomer"
         >
             <sw-customer-address-form-options
-                v-if="hasCustomer"
+                v-if="customer?.id"
                 :address="currentAddress"
                 :customer="customer"
                 :custom-field-sets="customerAddressCustomFieldSets"
@@ -63,7 +63,7 @@
     >
         <template #before-item-list>
             <ul
-                v-if="hasCustomer"
+                v-if="customer?.id"
                 class="sw-select-result__item-list"
             >
                 <li

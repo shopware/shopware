@@ -42,7 +42,7 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertSame('product_search', ProductSearchDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares ProductListingResult as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->loader->producibleTypes();

@@ -40,7 +40,7 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame('currency', CurrencyDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares CurrencyCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->dataLoader->producibleTypes();

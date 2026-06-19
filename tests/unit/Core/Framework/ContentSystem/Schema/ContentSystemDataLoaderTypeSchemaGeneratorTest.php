@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
@@ -21,13 +23,14 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSche
 class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
     /**
+     * @param list<LoaderTypeCapability> $capabilities
      * @param list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}> $expectedTypes
      */
     #[DataProvider('buildsSchemaEntryProvider')]
     #[TestDox('builds schema entry for $_dataName')]
-    public function testGetSchemaBuildsSourceEntry(string $source, LoaderTypeCapability $capability, array $expectedTypes): void
+    public function testGetSchemaBuildsSourceEntry(string $source, array $capabilities, array $expectedTypes): void
     {
-        $map = new ContentSystemDataLoaderTypeMap([$source => [$capability]]);
+        $map = new ContentSystemDataLoaderTypeMap([$source => $capabilities]);
 
         $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
@@ -40,25 +43,47 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, LoaderTypeCapability, list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}>}>
+     * @return iterable<string, array{string, list<LoaderTypeCapability>, list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}>}>
      */
     public static function buildsSchemaEntryProvider(): iterable
     {
         yield 'a fixed-type loader with empty template and no required keys' => [
             'navigation',
-            new LoaderTypeCapability(Tree::class),
+            [new LoaderTypeCapability(Tree::class)],
             [['producedType' => Tree::class, 'configTemplate' => [], 'requiredConfigKeys' => [], 'genericParameters' => []]],
         ];
 
         yield 'a wildcard collection loader with config template, required keys and generics' => [
             'entity_collection',
-            new LoaderTypeCapability(SalesChannelProductCollection::class, ['entity' => 'product'], ['property'], [SalesChannelProductEntity::class]),
+            [new LoaderTypeCapability(SalesChannelProductCollection::class, ['entity' => 'product'], ['property'], [SalesChannelProductEntity::class])],
             [[
                 'producedType' => SalesChannelProductCollection::class,
                 'configTemplate' => ['entity' => 'product'],
                 'requiredConfigKeys' => ['property'],
                 'genericParameters' => [SalesChannelProductEntity::class],
             ]],
+        ];
+
+        yield 'a source declaring multiple capabilities emits an entry per capability' => [
+            'entity_collection',
+            [
+                new LoaderTypeCapability(SalesChannelProductCollection::class, ['entity' => 'product'], ['property'], [SalesChannelProductEntity::class]),
+                new LoaderTypeCapability(MediaCollection::class, ['entity' => 'media'], ['property'], [MediaEntity::class]),
+            ],
+            [
+                [
+                    'producedType' => SalesChannelProductCollection::class,
+                    'configTemplate' => ['entity' => 'product'],
+                    'requiredConfigKeys' => ['property'],
+                    'genericParameters' => [SalesChannelProductEntity::class],
+                ],
+                [
+                    'producedType' => MediaCollection::class,
+                    'configTemplate' => ['entity' => 'media'],
+                    'requiredConfigKeys' => ['property'],
+                    'genericParameters' => [MediaEntity::class],
+                ],
+            ],
         ];
     }
 }

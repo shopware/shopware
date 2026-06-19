@@ -46,7 +46,7 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame('product_review', ProductReviewDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type with generic parameters derived from its @extends annotation')]
+    #[TestDox('declares an EntitySearchResult of ProductReviewCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->loader->producibleTypes();

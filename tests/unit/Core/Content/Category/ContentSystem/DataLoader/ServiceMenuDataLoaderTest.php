@@ -44,7 +44,7 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame('service_menu', ServiceMenuDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares CategoryCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->dataLoader->producibleTypes();

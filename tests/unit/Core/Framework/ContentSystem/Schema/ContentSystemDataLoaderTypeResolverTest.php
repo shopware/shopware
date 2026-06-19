@@ -57,7 +57,7 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame($resolver->resolve(), $resolver->resolve());
     }
 
-    #[TestDox('a fresh resolver re-reads producibleTypes() so late-registered types appear without a container rebuild')]
+    #[TestDox('re-reads producibleTypes() on each fresh resolver instance so late-registered types appear without a container rebuild')]
     public function testFreshResolverReflectsLateRegisteredTypes(): void
     {
         $capabilities = [new LoaderTypeCapability(Tree::class)];

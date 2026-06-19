@@ -159,7 +159,17 @@ class EntityLoaderTest extends TestCase
         $loader->resolveProducedType(new EntityLoaderConfig('ghost', 'ghostId', []));
     }
 
-    #[TestDox('declares exactly the config keys EntityLoaderConfigSerializer::decode() requires (drift guard)')]
+    #[TestDox('throws when resolving produced type for a config that is not an EntityLoaderConfig')]
+    public function testResolveProducedTypeThrowsForWrongConfigType(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, StubLoaderConfig::class),
+        );
+
+        $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
+    }
+
+    #[TestDox('declares exactly the config keys the serializer requires to decode a config (drift guard)')]
     public function testProducibleTypesConfigKeysMatchSerializerRequiredKeys(): void
     {
         $loader = new EntityLoader(

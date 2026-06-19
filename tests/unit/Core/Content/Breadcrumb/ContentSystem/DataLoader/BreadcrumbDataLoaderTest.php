@@ -42,7 +42,7 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame('breadcrumb', BreadcrumbDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares BreadcrumbCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->loader->producibleTypes();

@@ -41,7 +41,7 @@ class PaymentMethodDataLoaderTest extends TestCase
         static::assertSame('payment_method', PaymentMethodDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares PaymentMethodCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->dataLoader->producibleTypes();

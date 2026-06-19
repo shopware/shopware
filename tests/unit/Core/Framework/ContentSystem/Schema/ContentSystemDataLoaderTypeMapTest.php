@@ -22,8 +22,8 @@ class ContentSystemDataLoaderTypeMapTest extends TestCase
     /**
      * @param list<string> $expected
      */
-    #[DataProvider('subtypeScanProvider')]
-    #[TestDox('getSourcesFor resolves $_dataName')]
+    #[DataProvider('scansSubtypesProvider')]
+    #[TestDox('resolves source identifiers for $_dataName')]
     public function testGetSourcesForIsSubtypeAware(string $className, array $expected): void
     {
         static::assertSame($expected, $this->map()->getSourcesFor($className));
@@ -32,7 +32,7 @@ class ContentSystemDataLoaderTypeMapTest extends TestCase
     /**
      * @return iterable<string, array{string, list<string>}>
      */
-    public static function subtypeScanProvider(): iterable
+    public static function scansSubtypesProvider(): iterable
     {
         yield 'a base property via a sales-channel subclass producer' => [ProductEntity::class, ['entity']];
         yield 'a sales-channel property via an equal sales-channel producer' => [SalesChannelProductEntity::class, ['entity']];

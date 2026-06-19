@@ -43,7 +43,7 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame('navigation', NavigationDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares Tree as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->dataLoader->producibleTypes();

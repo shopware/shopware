@@ -43,7 +43,7 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame('cross_selling', CrossSellingDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares CrossSellingElementCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->loader->producibleTypes();

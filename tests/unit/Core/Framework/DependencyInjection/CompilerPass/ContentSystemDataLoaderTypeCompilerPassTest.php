@@ -33,10 +33,10 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         $container->setDefinition(NavigationDataLoader::class, $this->taggedLoader(NavigationDataLoader::class));
         $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
 
+        static::expectNotToPerformAssertions();
+
         $pass = new ContentSystemDataLoaderTypeCompilerPass();
         $pass->process($container);
-
-        static::expectNotToPerformAssertions();
     }
 
     #[TestDox('skips tagged service when its class is null')]
@@ -47,10 +47,10 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         $definition->addTag('content_system.data_loader');
         $container->setDefinition('app.null_class_loader', $definition);
 
+        static::expectNotToPerformAssertions();
+
         $pass = new ContentSystemDataLoaderTypeCompilerPass();
         $pass->process($container);
-
-        static::expectNotToPerformAssertions();
     }
 
     #[TestDox('throws when tagged service does not extend AbstractContentDataLoader')]

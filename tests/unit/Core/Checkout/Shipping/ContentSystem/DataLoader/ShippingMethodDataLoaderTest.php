@@ -40,7 +40,7 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame('shipping_method', ShippingMethodDataLoader::getRequirementType());
     }
 
-    #[TestDox('declares a single producible type derived from its @extends annotation')]
+    #[TestDox('declares ShippingMethodCollection as its single producible type')]
     public function testProducibleTypesDeclaresExtendsType(): void
     {
         $capabilities = $this->dataLoader->producibleTypes();

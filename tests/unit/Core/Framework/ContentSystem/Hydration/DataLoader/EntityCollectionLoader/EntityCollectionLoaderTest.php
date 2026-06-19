@@ -143,7 +143,17 @@ class EntityCollectionLoaderTest extends TestCase
         $loader->resolveProducedType(new EntityLoaderConfig('ghost', 'ghostIds', []));
     }
 
-    #[TestDox('empty-ids path returns the same sales-channel collection class declared by producibleTypes')]
+    #[TestDox('throws when resolving produced type for a config that is not an EntityLoaderConfig')]
+    public function testResolveProducedTypeThrowsForWrongConfigType(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, StubLoaderConfig::class),
+        );
+
+        $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
+    }
+
+    #[TestDox('returns the declared sales-channel collection class when no IDs are provided')]
     public function testEmptyCollectionPathReturnsDeclaredProducedType(): void
     {
         $loader = new EntityCollectionLoader(

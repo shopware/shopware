@@ -299,6 +299,20 @@ This reduced loading is **enabled for fresh installations** and **disabled for e
 
 A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
+### Agentic Commerce product export and tracking classes deprecated
+
+The following classes related to Agentic Commerce product exports, providers, and sales channel tracking are deprecated and will be removed in Shopware 6.8.0:
+
+- `Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry`
+- `Shopware\Core\Content\ProductExport\Provider\GoogleProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Validator\JsonlRowParser`
+- `Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator`
+- `Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator`
+
+This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
+
 ## Administration
 
 ### Cache-relevant extension configuration fields
@@ -398,6 +412,43 @@ Administration dropdowns now identify outside clicks correctly when the browser 
 
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### Agentic Commerce Administration components deprecated
+
+The following Administration component, methods, and computed properties are deprecated and will be removed in Shopware 6.8:
+
+**`sw-agentic-commerce-tracking-config`** — entire component deprecated.
+
+**`sw-sales-channel-modal-grid`:**
+- computed `salesChannelRepository`
+- method `isAgenticCommerceSalesChannelType()`
+- method `showAgenticCommerceType()`
+
+**`sw-sales-channel-detail`:**
+- provide `swSalesChannelDetailGetAgenticCommerceExportConfig`
+- data `agenticCommerceExportConfig`
+- computed `isAgenticCommerce`
+- computed `defaultAgenticCommerceExportConfig`
+- method `validateAgenticCommerceExportConfig()`
+- method `loadAgenticCommerceExportConfig()`
+- method `saveAgenticCommerceExportConfig()`
+
+**`sw-sales-channel-create-base`:**
+- method `prefillAgenticCommerceDefaults()`
+
+**`sw-sales-channel-detail-base`:**
+- inject `swSalesChannelDetailGetAgenticCommerceExportConfig`
+- computed `isAgenticCommerce`
+- computed `resolvedAgenticCommerceExportConfig`
+- method `getAgenticCommerceExportElementBind()`
+- method `getAgenticCommerceExportCardTitle()`
+- method `getAgenticCommerceExportCardPositionIdentifier()`
+- method `onAgenticCommerceExportFieldUpdate()`
+
+**`sw-sales-channel-detail-product-comparison`:**
+- computed `isAgenticCommerce`
+
+This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework
@@ -451,6 +502,24 @@ All operations respect the authenticated user's ACL permissions and integrate wi
 To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and uses the Streamable HTTP transport. Plugins register additional MCP capabilities by tagging services with `mcp.tool`, `mcp.prompt`, or `mcp.resource`. Apps can declare them in their app manifest.
 
 A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
+
+### [Experimental] Store API MCP server
+
+A new MCP endpoint at `/store-api/_mcp` accepts standard Store API credentials
+(`sw-access-key` + `sw-context-token`) and runs a separate capability registry from
+the Admin API endpoint.
+
+Plugins register Store API capabilities via service tags:
+`shopware.store_api_mcp.tool`, `shopware.store_api_mcp.prompt`, `shopware.store_api_mcp.resource`.
+
+Browser-based MCP clients are supported: the `mcp-session-id` and `mcp-protocol-version`
+headers are allowed and exposed through CORS on API responses.
+
+Both `McpContextProvider` and `StoreApiMcpContextProvider` implement `McpContextProviderInterface`.
+Type-hint against the interface in tools that need to work across both API scopes.
+
+Note: endpoint discovery and storefront session authentication are not included. Those
+are provided by the UCP SDK.
 
 ## API
 

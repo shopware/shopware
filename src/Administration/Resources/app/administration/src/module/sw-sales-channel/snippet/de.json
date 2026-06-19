@@ -38,6 +38,7 @@
             "buttonShowDetails": "Details",
             "buttonBack": "Zurück",
             "titleDescription": "Informationen",
+            "messageAgenticCommerce": "Um Agentic-Commerce-Vertriebskanäle zu erstellen, installiere bitte die Agentic Commerce Erweiterung aus dem Shopware Store.",
             "messageNoProductStreams": "Um Produktvergleiche oder Agentic-Commerce-Vertriebskanäle zu erstellen, musst Du zunächst eine dynamische Produktgruppe erstellen."
         },
         "detail": {
@@ -239,6 +240,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce wird zur Erweiterung",
+                    "message": "Die integrierte Agentic-Commerce-Funktion wird in Shopware 6.8 entfernt. Dein Verkaufskanal läuft vorerst weiter. Installiere die \"Agentic Commerce\" Erweiterung, damit es zu keiner Unterbrechung kommt.",
+                    "installPlugin": "Erweiterung installieren"
+                },
                 "openAiSettingsTitle": "OpenAI-Einstellungen",
                 "googleSettingsTitle": "Google-Einstellungen",
                 "buttonResetTemplate": "Auf Standard zurücksetzen",

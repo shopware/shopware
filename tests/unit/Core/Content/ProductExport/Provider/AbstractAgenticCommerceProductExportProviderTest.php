@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[CoversClass(AbstractAgenticCommerceProductExportProvider::class)]
 class AbstractAgenticCommerceProductExportProviderTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextAddsProviderStruct(): void
     {
         $provider = $this->createProvider();
@@ -39,6 +41,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertInstanceOf(ArrayStruct::class, $result['provider']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesOwnTrackingCodes(): void
     {
         $provider = $this->createProvider(['extra' => 'value']);
@@ -65,6 +68,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertSame('value', $provider->get('extra'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextWithNoConfiguration(): void
     {
         $provider = $this->createProvider();
@@ -87,6 +91,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertNull($providerStruct->get('campaignCode'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextIncludesReferralCodeAndName(): void
     {
         $provider = $this->createProvider();
@@ -109,6 +114,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertSame('agentic-channel-id', $providerStruct->get(SalesChannelTrackingListener::QUERY_PARAM));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextMergesWithExistingContext(): void
     {
         $provider = $this->createProvider();
@@ -130,6 +136,7 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertArrayHasKey('provider', $result);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextWithNullSalesChannelConfiguration(): void
     {
         $provider = $this->createProvider();

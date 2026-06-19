@@ -1049,7 +1049,6 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
     const privateBindings = new Set<string>();
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
     const privateNamespace = createOverridePrivateNamespace(block.filename, block.componentName);
-    const runtimeBindingNames = new Set<string>(analysis.runtimeBindings.map((binding) => binding.name));
 
         function visit(node: TemplateChildNode): void {
         if (isSwBlockExtends(node)) {
@@ -1060,29 +1059,6 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             const references = collectTemplateReferences(node.children, slotScope);
             const publicMappings: SlotMapping[] = [];
             const privateLocalNames: string[] = [];
-
-            node.props.forEach((prop) => {
-                if (prop.type !== NodeTypes.DIRECTIVE) {
-                    return;
-                }
-
-                const directive = prop as DirectiveNode;
-
-                if (isDefaultSlotDirective(directive)) {
-                    return;
-                }
-
-                collectDirectiveReferences(directive, new Set()).forEach((name) => {
-                    if (!runtimeBindingNames.has(name)) {
-                        return;
-                    }
-
-                    throw new ShopwareSetupTransformError(
-                        'Shopware setup bindings cannot be used on the <sw-block extends> element itself. Move the condition outside the override block or use the binding inside the block content.',
-                        0,
-                    );
-                });
-            });
 
             collectSlotScopeReferences(slotDirective, new Set()).forEach((name) => references.add(name));
 

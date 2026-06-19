@@ -62,26 +62,6 @@ describe('build/vue-setup-transform override template pattern references', () =>
         });
     });
 
-    it('rejects setup binding references on the sw-block extends element itself', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body" v-if="visible">
-                <p>{{ label }}</p>
-            </sw-block>
-            </template>
-            <script setup sw-override="sw-example-component">
-            const visible = true;
-            const label = 'Label';
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        expect(() => transformOrFail(source, 'block-directive-reference.override.vue')).toThrow(
-            'Shopware setup bindings cannot be used on the <sw-block extends> element itself. Move the condition outside the override block or use the binding inside the block content.',
-        );
-    });
-
     it('detects override-local references in slot-scope default values', () => {
         const source = stripIndent`
             <template>

@@ -132,6 +132,14 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(result).toBe(false);
         });
 
+        it('should return false when override only has a template', () => {
+            const result = shouldActivateShim({
+                template: '<div>override</div>',
+            });
+
+            expect(result).toBe(false);
+        });
+
         it('should return false for an empty mixins array', () => {
             const result = shouldActivateShim({
                 mixins: [],

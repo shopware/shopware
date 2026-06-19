@@ -27,6 +27,7 @@ import {
     onDeactivated,
     onErrorCaptured,
 } from 'vue';
+import { hasConvertibleOptionsApiOverrideContent } from 'src/core/factory/component-override.utils';
 import type { Ref, ComputedRef, WatchOptions } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
@@ -102,20 +103,6 @@ const LIFECYCLE_HOOK_MAP = {
 
 const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP) as LifecycleHookName[];
 
-/**
- * Options API property keys that indicate an override is using Options API patterns.
- * `extends` is included so checkUnsupportedFeatures() can emit its warning.
- */
-const OPTION_KEYS = [
-    'data',
-    'methods',
-    'computed',
-    'watch',
-    'mixins',
-    'inject',
-    'extends',
-] as const;
-
 interface MergedConfig extends Omit<ComponentConfig, 'data' | 'computed' | 'methods' | 'watch' | 'inject'> {
     data?: () => Record<string, unknown>;
     computed?: Record<string, ComputedDefinition>;
@@ -135,14 +122,7 @@ interface MergedConfig extends Omit<ComponentConfig, 'data' | 'computed' | 'meth
  * @returns true if shim should activate, false otherwise
  */
 export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
-    const extended = overrideConfig as ExtendedComponentConfig;
-    const hasOptionKeys = OPTION_KEYS.some((key) => {
-        const val: unknown = extended[key];
-        return Array.isArray(val) ? val.length > 0 : !!val;
-    });
-    const hasLifecycleHooks = LIFECYCLE_HOOKS.some((hook) => !!extended[hook]);
-
-    return hasOptionKeys || hasLifecycleHooks;
+    return hasConvertibleOptionsApiOverrideContent(overrideConfig);
 }
 
 /**

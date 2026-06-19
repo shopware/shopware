@@ -8,6 +8,7 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
 import { isNativeShopwareComponentName } from 'src/core/factory/native-component.registry';
+import { hasConvertibleOptionsApiOverrideContent } from 'src/core/factory/component-override.utils';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -105,6 +106,33 @@ function rejectNativeShopwareComponentName(componentName: string, componentConfi
     );
 
     return false;
+}
+
+function isComponentConfigWithTemplateString(componentConfiguration: unknown): componentConfiguration is ComponentConfig {
+    return (
+        componentConfiguration !== null &&
+        typeof componentConfiguration === 'object' &&
+        typeof (componentConfiguration as ComponentConfig).template === 'string'
+    );
+}
+
+function shouldWarnNativeTemplateOverride(
+    componentConfiguration: unknown,
+    isNativeComponentOverride: boolean,
+): componentConfiguration is ComponentConfig {
+    return (
+        isNativeComponentOverride &&
+        isComponentConfigWithTemplateString(componentConfiguration) &&
+        !hasConvertibleOptionsApiOverrideContent(componentConfiguration)
+    );
+}
+
+function warnNativeTemplateOverride(componentName: string, componentConfiguration: ComponentConfig): void {
+    warn(
+        'ComponentFactory',
+        `The component "${componentName}" is a native Shopware component. Template overrides registered through Shopware.Component.override() are ignored for native components. Use the native component's documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`,
+        componentConfiguration,
+    );
 }
 
 /**
@@ -634,6 +662,20 @@ function override(
 ): false | (() => Promise<ComponentConfig>) {
     let config: ComponentConfig;
     const isNativeComponentOverride = isNativeShopwareComponentName(componentName);
+    let didWarnNativeTemplateOverride = false;
+
+    const warnNativeTemplateOverrideOnce = (resolvedConfig: ComponentConfig): void => {
+        if (didWarnNativeTemplateOverride) {
+            return;
+        }
+
+        didWarnNativeTemplateOverride = true;
+        warnNativeTemplateOverride(componentName, resolvedConfig);
+    };
+
+    if (shouldWarnNativeTemplateOverride(componentConfiguration, isNativeComponentOverride)) {
+        warnNativeTemplateOverrideOnce(componentConfiguration);
+    }
 
     /**
      * For sync object configs the block index is populated here, before any
@@ -671,6 +713,10 @@ function override(
         if (config?.default) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             config = config.default;
+        }
+
+        if (shouldWarnNativeTemplateOverride(config, isNativeComponentOverride)) {
+            warnNativeTemplateOverrideOnce(config);
         }
 
         config.name = componentName;

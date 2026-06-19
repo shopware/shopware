@@ -39,10 +39,10 @@ When `sw-product-detail` migrates its template from `{% block sw_product_detail_
 When migrating a component template, a core developer only replaces `{% block foo %}...{% endblock %}` with `<sw-block name="foo" :data="$dataScope">...</sw-block>`. Nothing else. The adapter detects the legacy override automatically.
 
 **2. Zero touch for plugin developers**
-Existing `Shopware.Component.override()` calls with Twig block templates continue to work. A `console.warn` tells the developer what to migrate and to which native syntax.
+Existing `Shopware.Component.override()` calls with Twig block templates continue to work when the migrated component exposes matching `<sw-block>` bridge points. A `console.warn` tells the developer what to migrate and to which native syntax. Pure native Vue SFCs without matching `<sw-block>` bridge points are not covered by this adapter; use the component's documented Vue slots or `Shopware.Component.overrideComponentSetup()` instead.
 
 **3. Factory-independent**
-The adapter hooks into `<sw-block>` itself, not the component factory. This means it works whether the parent component is registered through `Shopware.Component.register()` or is a pure Vue SFC — the `<sw-block>` tag is always present in the template and always mounts.
+The adapter hooks into `<sw-block>` itself, not the component factory. This means it works whether the parent component is registered through `Shopware.Component.register()` or is a pure Vue SFC, as long as the `<sw-block>` tag is present in the template and mounts.
 
 **4. Minimal overhead at render time**
 The block index is fully built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` resolves entries from the prebuilt index instead of reparsing Twig templates. The setup phase (which can also run post-boot, e.g. when a `v-if` condition turns true) iterates over the registered extend instances for that block name — in practice a very small set, bounded by the number of active plugin overrides for a single block.

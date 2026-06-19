@@ -331,6 +331,12 @@ When a plugin overrides a Composition API component using old-style Options API 
 | `render()` | `console.error` — component will not work correctly | A custom render function completely replaces the compiled template. The shim cannot reconcile a custom render function with the existing Composition API template, so the component will break. |
 | Dot-notation `watch` paths (e.g. `'a.b.c'`) | `console.warn` — watcher is skipped | Resolving nested reactive paths requires deep traversal of the Composition API state graph, which adds significant complexity for a pattern that is rarely used in plugins or core code. |
 
+#### Native Shopware Components and Template Overrides
+
+Native Shopware components are Vue SFCs and may not be rendered through the legacy component template pipeline. A pure template override such as `Shopware.Component.override('sw-meteor-entity-data-table', { template: '...' })` is ignored for those components and logs a component factory warning. If a migrated component exposes matching `<sw-block>` bridge points, use the Twig native block adapter. Otherwise, use documented Vue slots for markup changes and `Shopware.Component.overrideComponentSetup()` for setup-state behavior.
+
+For `sw-meteor-entity-data-table`, use `#column-<property>` for cell rendering, `#toolbar` and other forwarded `mt-data-table` slots for table markup, and `#delete-confirm-text`, `#delete-modal-footer`, `#bulk-delete-confirm-text`, and `#bulk-delete-modal-footer` for delete modal content. Use `overrideComponentSetup()` for public setup state such as records, state, loading, and table settings.
+
 **Lifecycle hooks applied late** (overrides registered after `setup()` has already returned):
 - `beforeCreate`, `created`, `beforeMount`, `mounted` — called immediately
 - `beforeUnmount`, `unmounted`, and other future hooks — cannot be registered; a warning is logged

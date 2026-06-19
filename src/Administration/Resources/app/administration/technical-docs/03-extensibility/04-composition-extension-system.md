@@ -226,6 +226,8 @@ The shim is **automatically activated** by `createExtendableSetup` when it proce
 
 A deprecation warning is logged to the console every time the shim activates, directing developers to migrate to `overrideComponentSetup`.
 
+Template-only overrides do not activate the shim. For native Shopware components that are registered outside the legacy component/template pipeline, a pure `Shopware.Component.override('component-name', { template: '...' })` call is ignored and logs a component factory warning. If a migrated component exposes matching `<sw-block>` bridge points, use the Twig native block adapter. Otherwise, use the component's documented Vue slots for markup changes and `Shopware.Component.overrideComponentSetup()` for setup-state behavior.
+
 ### Conversion pipeline
 
 `convertOptionsApiOverrideToCompositionApi(componentName, optionsConfig)` returns a Composition API override function. The conversion follows this sequence inside the returned function:

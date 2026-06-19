@@ -4,9 +4,13 @@
 
 const path = require('path');
 
+/**
+ * Registers custom Administration ESLint rules for the local flat-config setup.
+ *
+ * @type {{ rules: Record<string, import('eslint').Rule.RuleModule> }}
+ */
 module.exports = {
     rules: {
-        /* eslint-disable global-require,import/no-dynamic-require */
         'require-position-identifier': require(path.resolve(__dirname, 'require-position-identifier.js')),
         'require-package-annotation': require(path.resolve(__dirname, 'require-package-annotation.js')),
         'require-explicit-emits': require(path.resolve(__dirname, 'require-explicit-emits.js')),
@@ -16,6 +20,6 @@ module.exports = {
         'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
         'enforce-async-component-registers': require(path.resolve(__dirname, 'enforce-async-component-registers.js')),
         'no-tc-translation': require(path.resolve(__dirname, 'no-tc-translation.js')),
-        /* eslint-enable global-require,import/no-dynamic-require */
+        'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
     },
 };

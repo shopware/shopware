@@ -145,7 +145,7 @@ const config: Config = {
         ],
         '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': '@vue/vue3-jest',
+        '^.+\\.vue$': '<rootDir>/test/transformer/shopwareSetupVueTransformer.js',
     },
 
     transformIgnorePatterns: [
@@ -166,7 +166,7 @@ const config: Config = {
         '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
         '^lodash-es/(.*)$': 'lodash/$1',
-        vue$: 'vue/dist/vue.cjs.js',
+        '^vue$': 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi

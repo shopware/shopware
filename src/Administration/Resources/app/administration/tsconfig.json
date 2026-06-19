@@ -27,11 +27,17 @@
     "skipLibCheck": true,
     "noErrorTruncation": false,
   },
+  "vueCompilerOptions": {
+    "plugins": [
+      "./build/vue-setup-transform/volar-language-plugin.js"
+    ]
+  },
   "include": [
     "build.ts",
     "./src/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
+    "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
     "./test/**/*.d.ts",
@@ -39,5 +45,8 @@
     "./twigVuePlugin/**/*.ts"
   ],
   "exclude": ["node_modules"],
-  "files": ["node_modules/jest-expect-message/types/index.d.ts"]
+  "files": [
+    "node_modules/jest-expect-message/types/index.d.ts",
+    "build/vue-setup-transform/shopware-setup-macros.d.ts"
+  ]
 }

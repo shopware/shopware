@@ -240,6 +240,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce wird zur Erweiterung",
+                    "message": "Die integrierte Agentic-Commerce-Funktion wird in Shopware 6.8 entfernt. Dein Verkaufskanal läuft vorerst weiter. Installiere die \"Agentic Commerce\" Erweiterung, damit es zu keiner Unterbrechung kommt.",
+                    "installPlugin": "Erweiterung installieren"
+                },
                 "openAiSettingsTitle": "OpenAI-Einstellungen",
                 "googleSettingsTitle": "Google-Einstellungen",
                 "buttonResetTemplate": "Auf Standard zurücksetzen",

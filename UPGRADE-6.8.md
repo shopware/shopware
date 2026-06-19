@@ -82,6 +82,12 @@ Affected commands:
 | `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
 | `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
 
+## Agentic Commerce sales channel features removed
+
+The Agentic Commerce sales channel features — including product export providers, sales channel tracking, and related classes — have been removed from Shopware's core and are no longer available out of the box.
+
+> Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
+
 </details>
 
 # API

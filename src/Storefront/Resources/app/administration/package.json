@@ -7,7 +7,7 @@
     "admin_path": "../../../../Administration/Resources/app/administration"
   },
   "scripts": {
-    "lint": "$npm_package_config_admin_path/node_modules/.bin/eslint --config $npm_package_config_admin_path/eslint.config.ts src --cache",
+    "lint": "$npm_package_config_admin_path/node_modules/.bin/eslint src --cache",
     "lint:fix": "npm run lint -- --fix"
   }
 }

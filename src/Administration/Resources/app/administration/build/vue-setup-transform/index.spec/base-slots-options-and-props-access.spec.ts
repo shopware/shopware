@@ -176,6 +176,31 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
     const count`);
     });
 
+    it('keeps static local option values available for hoisted defineOptions()', () => {
+        const source = stripIndent`
+            <script setup sw-component="sw-my-component">
+            const inheritAttrs = false;
+            defineOptions({
+                inheritAttrs,
+            });
+
+            const count = 1;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-options-local-value.vue').code;
+
+        expect(result.indexOf('const inheritAttrs = false;')).toBeLessThan(
+            result.indexOf('defineOptions({'),
+        );
+        expect(result).toContain('private: {\n                inheritAttrs,\n            }');
+        expectVueCompilerScriptToCompile(result, 'base-options-local-value.vue');
+    });
+
     it('supports defineOptions() wrapped in a TypeScript as expression', () => {
         const source = stripIndent`
             <script setup lang="ts" sw-component="sw-my-component">

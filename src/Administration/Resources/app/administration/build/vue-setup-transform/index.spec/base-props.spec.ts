@@ -170,6 +170,32 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
 
+    it('keeps static local defaults available for hoisted withDefaults()', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const defaultLabel = 'fallback';
+            const props = withDefaults(defineProps<{
+                label?: string;
+            }>(), {
+                label: defaultLabel,
+            });
+            const count = props.label.length;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-props-local-default.vue').code;
+
+        expect(result.indexOf("const defaultLabel = 'fallback';")).toBeLessThan(
+            result.indexOf('const props = withDefaults(defineProps<{'),
+        );
+        expect(result).toContain('private: {\n                defaultLabel,\n            }');
+        expectVueCompilerScriptToCompile(result, 'base-props-local-default.vue');
+    });
+
     it('replaces withDefaults() destructuring inside the extendable setup callback', () => {
         const source = stripIndent`
             <script setup lang="ts" sw-component="sw-my-component">

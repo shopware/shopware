@@ -4,8 +4,10 @@
 
 import type {
     CallExpression,
+    Expression,
     ImportDeclaration,
     Statement,
+    VariableDeclaration,
 } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
@@ -47,6 +49,7 @@ import {
 
 type ImportBlock = SourceRange & { code: string };
 type TypeDeclarationBlock = SourceRange & { code: string };
+type HoistedRuntimeDeclarationBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
     mode: ShopwareSetupMode,
     lang: string | null,
@@ -62,6 +65,8 @@ type ShopwareSetupScriptAnalysis = {
     source: string,
     imports: ImportBlock[],
     typeDeclarations: TypeDeclarationBlock[],
+    hoistedRuntimeDeclarations: HoistedRuntimeDeclarationBlock[],
+    hoistedRuntimeBindingNames: string[],
     bodyRemovals: SourceRange[],
     setupInputReplacements: SetupInputReplacement[],
     runtimeBindings: RuntimeBinding[],
@@ -110,11 +115,76 @@ function getTypeDeclarationRangesAndCode(
 }
 
 /**
+ * Captures static runtime declarations that Vue compiler macros may reference after hoisting.
+ */
+function getHoistedRuntimeDeclarationRangesAndCode(
+    script: string,
+    declarations: VariableDeclaration[],
+    scriptOffset: number,
+): HoistedRuntimeDeclarationBlock[] {
+    return declarations.map((declaration) => {
+        const range = getNodeRange(declaration, scriptOffset);
+
+        return {
+            ...range,
+            code: script.slice(range.start, range.end),
+        };
+    });
+}
+
+/**
  * Type aliases and interfaces have no runtime output, but base setup macros are hoisted
  * to the generated script root and may need these names for type resolution.
  */
 function isHoistableTypeDeclaration(statement: Statement): boolean {
     return statement.type === 'TSInterfaceDeclaration' || statement.type === 'TSTypeAliasDeclaration';
+}
+
+/**
+ * Mirrors the small set of local constants Vue can safely hoist for compiler macro arguments.
+ */
+function isStaticPrimitiveExpression(expression: Expression | null | undefined): boolean {
+    if (!expression) {
+        return false;
+    }
+
+    if (
+        expression.type === 'StringLiteral' ||
+        expression.type === 'NumericLiteral' ||
+        expression.type === 'BooleanLiteral' ||
+        expression.type === 'NullLiteral' ||
+        expression.type === 'BigIntLiteral'
+    ) {
+        return true;
+    }
+
+    return expression.type === 'TemplateLiteral' && expression.expressions.length === 0;
+}
+
+/**
+ * Static const declarations can be shared from module scope without changing per-instance behavior.
+ */
+function isHoistableRuntimeDeclaration(statement: Statement): statement is VariableDeclaration {
+    return (
+        statement.type === 'VariableDeclaration' &&
+        statement.kind === 'const' &&
+        statement.declarations.length > 0 &&
+        statement.declarations.every((declaration) => (
+            declaration.id.type === 'Identifier' &&
+            isStaticPrimitiveExpression(declaration.init)
+        ))
+    );
+}
+
+/**
+ * Returns local names declared by runtime declarations moved to the script root.
+ */
+function getHoistedRuntimeBindingNames(declarations: VariableDeclaration[]): string[] {
+    return declarations.flatMap((declaration) =>
+        declaration.declarations.flatMap((declarator) => (
+            declarator.id.type === 'Identifier' ? [declarator.id.name] : []
+        )),
+    );
 }
 
 /**
@@ -177,6 +247,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const ast = parseScript(script, lang, scriptOffset);
     const imports: ImportDeclaration[] = [];
     const typeDeclarations: Statement[] = [];
+    const hoistedRuntimeDeclarations: VariableDeclaration[] = [];
     const importedBindings = new Set<string>();
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
@@ -212,6 +283,10 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         if (isHoistableTypeDeclaration(statement)) {
             typeDeclarations.push(statement);
             return;
+        }
+
+        if (isHoistableRuntimeDeclaration(statement)) {
+            hoistedRuntimeDeclarations.push(statement);
         }
 
         if (isStatementCompilerMacro(statement, 'swDefinePublic')) {
@@ -331,6 +406,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
+        ...hoistedRuntimeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
         ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
@@ -339,6 +415,8 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         source: script,
         imports: getImportRangesAndCode(script, imports, scriptOffset),
         typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
+        hoistedRuntimeDeclarations: getHoistedRuntimeDeclarationRangesAndCode(script, hoistedRuntimeDeclarations, scriptOffset),
+        hoistedRuntimeBindingNames: getHoistedRuntimeBindingNames(hoistedRuntimeDeclarations),
         bodyRemovals,
         setupInputReplacements,
         runtimeBindings,

@@ -5,7 +5,7 @@
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const EMPTY_PREVIEW_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
@@ -87,6 +87,14 @@ export default {
 
             return manufacturerCriteria;
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     methods: {
@@ -94,32 +102,68 @@ export default {
             this.getList();
         },
 
-        onSearch(term) {
+        async onSearch(term) {
             this.term = term ?? '';
             this.page = 1;
             this.isLoading = true;
+            this.entitySearchable = true;
 
-            if (!this.$refs.manufacturerTable) {
-                return Promise.resolve();
+            if (this.$refs.manufacturerTable) {
+                return this.$refs.manufacturerTable.setSearchTerm(this.term);
             }
 
-            return this.$refs.manufacturerTable.setSearchTerm(this.term);
+            await this.$nextTick();
+
+            if (!this.$refs.manufacturerTable) {
+                this.isLoading = false;
+            }
         },
 
-        getList() {
-            if (!this.$refs.manufacturerTable) {
-                return Promise.resolve();
+        async getList() {
+            this.isLoading = true;
+            this.entitySearchable = true;
+
+            if (this.$refs.manufacturerTable) {
+                return this.$refs.manufacturerTable.reload();
             }
 
-            this.isLoading = true;
+            await this.$nextTick();
 
-            return this.$refs.manufacturerTable.reload();
+            if (!this.$refs.manufacturerTable) {
+                this.isLoading = false;
+            }
+        },
+
+        async resolveManufacturerCriteria({ criteria }) {
+            let resolvedCriteria = criteria;
+
+            if (this.adminEsEnable) {
+                resolvedCriteria.setTerm(this.term);
+            } else {
+                resolvedCriteria = await this.addQueryScores(this.term, resolvedCriteria);
+            }
+
+            if (!this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return null;
+            }
+
+            if (this.freshSearchTerm) {
+                resolvedCriteria.resetSorting();
+            }
+
+            return resolvedCriteria;
         },
 
         onMeteorTableLoadSuccess({ total }) {
             this.total = total;
             this.isLoading = false;
-            this.entitySearchable = true;
+
+            if (this.entitySearchable !== false) {
+                this.entitySearchable = true;
+            }
         },
 
         onMeteorTableLoadError() {

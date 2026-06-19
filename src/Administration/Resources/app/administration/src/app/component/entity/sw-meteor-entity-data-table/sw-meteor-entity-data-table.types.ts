@@ -4,6 +4,9 @@
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 
+import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+import type CriteriaType from 'src/core/data/criteria.data';
+
 export type SwMeteorEntityDataTableColumnRenderer = 'text' | 'number' | 'price' | 'badge';
 
 export type SwMeteorEntityDataTableInlineEdit = 'string' | 'number' | 'boolean';
@@ -93,3 +96,15 @@ export type SwMeteorEntityDataTableState = {
         direction: SwMeteorEntityDataTableSortDirection;
     };
 };
+
+export type SwMeteorEntityDataTableCriteriaResolverPayload = {
+    criteria: CriteriaType;
+    state: SwMeteorEntityDataTableState;
+    context: ApiContext;
+};
+
+export type SwMeteorEntityDataTableCriteriaResolverResult = CriteriaType | null;
+
+export type SwMeteorEntityDataTableCriteriaResolver = (
+    payload: SwMeteorEntityDataTableCriteriaResolverPayload,
+) => SwMeteorEntityDataTableCriteriaResolverResult | Promise<SwMeteorEntityDataTableCriteriaResolverResult>;

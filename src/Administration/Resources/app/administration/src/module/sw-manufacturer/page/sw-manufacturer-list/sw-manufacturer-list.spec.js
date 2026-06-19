@@ -10,6 +10,8 @@ let setSearchTermMock;
 let reloadMock;
 let repositorySearchMock;
 
+const { Criteria } = Shopware.Data;
+
 const sortableMtDataTableStub = {
     name: 'mt-data-table',
     props: {
@@ -60,6 +62,7 @@ async function createWrapper(
             'repository',
             'columns',
             'criteria',
+            'criteriaResolver',
             'initialPage',
             'initialLimit',
             'initialSearchTerm',
@@ -196,6 +199,14 @@ function getMeteorTable(wrapper) {
     return wrapper.getComponent({ name: 'sw-meteor-entity-data-table' });
 }
 
+function getLastRepositorySearchCriteria() {
+    const lastCall = repositorySearchMock.mock.calls[repositorySearchMock.mock.calls.length - 1];
+
+    expect(lastCall).toBeDefined();
+
+    return lastCall[0];
+}
+
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should have an enabled create button', async () => {
         const wrapper = await createWrapper(['product_manufacturer.creator']);
@@ -224,6 +235,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
                     property: 'name',
                     direction: 'ASC',
                 },
+                criteriaResolver: expect.any(Function),
                 layout: 'full',
                 reloadable: true,
                 searchable: false,
@@ -403,6 +415,153 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.page).toBe(1);
         expect(wrapper.vm.isLoading).toBe(true);
         expect(setSearchTermMock).toHaveBeenCalledWith('ACME');
+    });
+
+    it('should add query scores to manufacturer searches without Admin OpenSearch', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+            },
+        ]);
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+            return criteria;
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return { name: 500 };
+        });
+
+        await wrapper.vm.onSearch('ACME');
+        await flushPromises();
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledWith('product_manufacturer');
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledWith(
+            { name: 500 },
+            'ACME',
+            expect.any(Criteria),
+        );
+    });
+
+    it('should not request search ranking fields without a valid search term', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+            },
+        ]);
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+            return criteria;
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return { name: 500 };
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).not.toHaveBeenCalled();
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).not.toHaveBeenCalled();
+        expect(repositorySearchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not search manufacturers when no searchable fields are configured', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+            },
+        ]);
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+            return criteria;
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
+        await wrapper.vm.onSearch('ACME');
+        await flushPromises();
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).not.toHaveBeenCalled();
+        expect(repositorySearchMock).not.toHaveBeenCalled();
+        expect(wrapper.vm.entitySearchable).toBe(false);
+        expect(wrapper.vm.total).toBe(0);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.sw-manufacturer-list__grid').exists()).toBe(false);
+    });
+
+    it('should reset active sorting for fresh ranked manufacturer searches', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+            },
+        ]);
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+            return criteria;
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return { name: 500 };
+        });
+
+        await wrapper.vm.onSearch('ACME');
+        await flushPromises();
+
+        expect(getLastRepositorySearchCriteria().parse().sort).toBeUndefined();
+    });
+
+    it('should use the criteria term without ranked queries when Admin OpenSearch is enabled', async () => {
+        const previousAdminEsEnable = Shopware.Context.app.adminEsEnable;
+
+        try {
+            global.activeFeatureFlags = [
+                'ENABLE_OPENSEARCH_FOR_ADMIN_API',
+            ];
+            Shopware.Context.app.adminEsEnable = true;
+
+            const wrapper = await createWrapperWithRealMeteorTable([
+                {
+                    id: 'manufacturer-1',
+                    name: 'ACME',
+                },
+            ]);
+            await flushPromises();
+            repositorySearchMock.mockClear();
+
+            wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+                return criteria;
+            });
+            wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+                return { name: 500 };
+            });
+
+            await wrapper.vm.onSearch('ACME');
+            await flushPromises();
+
+            expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).not.toHaveBeenCalled();
+            expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).not.toHaveBeenCalled();
+            expect(getLastRepositorySearchCriteria().parse()).toEqual(
+                expect.objectContaining({
+                    term: 'ACME',
+                }),
+            );
+        } finally {
+            Shopware.Context.app.adminEsEnable = previousAdminEsEnable;
+            global.activeFeatureFlags = [];
+        }
     });
 
     it('should reload the meteor table from the compatibility getList method', async () => {

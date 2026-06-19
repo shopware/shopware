@@ -292,6 +292,7 @@ import type {
     SwMeteorEntityDataTableColumn,
     SwMeteorEntityDataTableColumnRenderer,
     SwMeteorEntityDataTableContextButton,
+    SwMeteorEntityDataTableCriteriaResolver,
     SwMeteorEntityDataTableInlineEdit,
     SwMeteorEntityDataTableLayout,
     SwMeteorEntityDataTableSortDirection,
@@ -336,6 +337,7 @@ type SwMeteorEntityDataTableProps = {
     repository: Repository<SwMeteorEntityDataTableEntityName>;
     columns: SwMeteorEntityDataTableColumn[];
     criteria?: CriteriaType | null;
+    criteriaResolver?: SwMeteorEntityDataTableCriteriaResolver | null;
     context?: ApiContext | null;
     initialPage?: number;
     initialLimit?: number;
@@ -461,6 +463,12 @@ export default defineComponent({
 
         criteria: {
             type: Object as PropType<SwMeteorEntityDataTableProps['criteria']>,
+            required: false,
+            default: null,
+        },
+
+        criteriaResolver: {
+            type: Function as unknown as PropType<SwMeteorEntityDataTableProps['criteriaResolver']>,
             required: false,
             default: null,
         },
@@ -698,7 +706,35 @@ export default defineComponent({
 
                     try {
                         const searchContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-                        const result = await setupProps.repository.search(buildCriteria(), searchContext);
+                        let criteria: CriteriaType | null = buildCriteria();
+
+                        if (setupProps.criteriaResolver) {
+                            criteria = await setupProps.criteriaResolver({
+                                criteria,
+                                state: cloneState(),
+                                context: searchContext as ApiContext,
+                            });
+                        }
+
+                        if (loadToken !== latestLoadToken) {
+                            return;
+                        }
+
+                        if (criteria === null) {
+                            records.value = [];
+                            total.value = 0;
+                            currentInlineEditId.value = null;
+
+                            setupContext.emit('load-success', {
+                                records: records.value,
+                                total: total.value,
+                                state: cloneState(),
+                            });
+
+                            return;
+                        }
+
+                        const result = await setupProps.repository.search(criteria, searchContext);
 
                         if (loadToken !== latestLoadToken) {
                             return;

@@ -16,6 +16,8 @@ import type Repository from 'src/core/data/repository.data';
 import SwMeteorEntityDataTable from './sw-meteor-entity-data-table.vue';
 import type {
     SwMeteorEntityDataTableColumn,
+    SwMeteorEntityDataTableCriteriaResolver,
+    SwMeteorEntityDataTableCriteriaResolverPayload,
     SwMeteorEntityDataTableLayout,
     SwMeteorEntityDataTableState,
 } from './sw-meteor-entity-data-table.types';
@@ -47,6 +49,7 @@ type TestProps = {
     repository: TestRepository;
     columns: TestColumn[];
     criteria?: CriteriaType | null;
+    criteriaResolver?: SwMeteorEntityDataTableCriteriaResolver | null;
     context?: ApiContext | null;
     initialPage?: number;
     initialLimit?: number;
@@ -1071,6 +1074,100 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         );
         expect(usedCriteriaPayload.sort).toBeUndefined();
         expect(getSearchMock(repository)).toHaveBeenCalledWith(usedCriteria, context);
+    });
+
+    it('resolves the prepared criteria before searching', async () => {
+        const repository = createRepositoryMock();
+        const context = {
+            ...Shopware.Context.api,
+            inheritance: true,
+        } as ApiContext;
+        const resolvedCriteria = new Criteria(3, 5);
+        resolvedCriteria.addFilter(Criteria.equals('active', true));
+        let resolverPayload: SwMeteorEntityDataTableCriteriaResolverPayload | undefined;
+        const criteriaResolver: SwMeteorEntityDataTableCriteriaResolver = jest.fn((payload) => {
+            resolverPayload = payload;
+            return resolvedCriteria;
+        });
+
+        createWrapper({
+            props: {
+                repository,
+                context,
+                criteriaResolver,
+                initialPage: 2,
+                initialLimit: 10,
+                initialSearchTerm: 'shirt',
+                initialSort: {
+                    property: 'name',
+                    direction: 'DESC',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(criteriaResolver).toHaveBeenCalledTimes(1);
+        expect(resolverPayload).toBeDefined();
+
+        const payload = resolverPayload as SwMeteorEntityDataTableCriteriaResolverPayload;
+
+        expect(payload.criteria.parse()).toEqual(
+            expect.objectContaining({
+                page: 2,
+                limit: 10,
+                term: 'shirt',
+                sort: [
+                    {
+                        field: 'name',
+                        order: 'DESC',
+                        naturalSorting: false,
+                    },
+                ],
+            }),
+        );
+        expect(payload.state).toEqual({
+            page: 2,
+            limit: 10,
+            searchTerm: 'shirt',
+            sort: {
+                property: 'name',
+                direction: 'DESC',
+            },
+        });
+        expect(payload.context).toEqual(context);
+        expect(getSearchMock(repository)).toHaveBeenCalledWith(resolvedCriteria, context);
+    });
+
+    it('emits an empty successful load when the criteria resolver returns null', async () => {
+        const repository = createRepositoryMock();
+        const criteriaResolver: SwMeteorEntityDataTableCriteriaResolver = jest.fn(() => null);
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                criteriaResolver,
+            },
+        });
+
+        await flushPromises();
+
+        expect(criteriaResolver).toHaveBeenCalledTimes(1);
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(getTable(wrapper).props('dataSource')).toEqual([]);
+        expect(getTable(wrapper).props('paginationTotalItems')).toBe(0);
+        expect(wrapper.emitted('load-success')).toEqual([
+            [
+                {
+                    records: [],
+                    total: 0,
+                    state: {
+                        page: 1,
+                        limit: 25,
+                        searchTerm: '',
+                    },
+                },
+            ],
+        ]);
     });
 
     it('applies initial sorting by property', async () => {

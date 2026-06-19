@@ -410,8 +410,7 @@ class SalesChannelFileRendererTest extends TestCase
         ?LanguageCollection $languages = null,
         ?CurrencyCollection $currencies = null,
         ?SalesChannelDomainCollection $domains = null,
-    ): SalesChannelEntity
-    {
+    ): SalesChannelEntity {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
         $salesChannel->setName($name);

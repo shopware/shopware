@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\Update\Services;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class Filesystem
 {

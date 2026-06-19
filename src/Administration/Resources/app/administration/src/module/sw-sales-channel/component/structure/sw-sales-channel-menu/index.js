@@ -185,5 +185,22 @@ export default {
         openStorefrontLink(storeFrontLink) {
             window.open(storeFrontLink, '_blank');
         },
+
+        getEntryLabel(entry) {
+            if (entry.label instanceof Object) {
+                return entry.label.translated ? entry.label.label : this.$tc(entry.label.label);
+            }
+
+            return this.$tc(entry.label);
+        },
+
+        getEntryTooltipConfig(entry) {
+            const shouldShowTooltip = !this.isSidebarExpanded && entry.children.length === 0;
+
+            return {
+                message: shouldShowTooltip ? this.getEntryLabel(entry) : '',
+                disabled: !shouldShowTooltip,
+            };
+        },
     },
 };

@@ -3,6 +3,7 @@
  */
 
 import { transformShopwareSetupSfc } from '../index';
+import { parse, compileScript } from '@vue/compiler-sfc';
 
 type TransformResult = NonNullable<ReturnType<typeof transformShopwareSetupSfc>>;
 
@@ -37,6 +38,17 @@ function stripIndent(strings: TemplateStringsArray, ...values: string[]): string
     return lines.map((line: string) => line.slice(minIndentation)).join('\n');
 }
 
-export { stripIndent, transformOrFail, transformShopwareSetupSfc };
+function expectVueCompilerScriptToCompile(code: string, filename: string): void {
+    const descriptor = parse(code, { filename }).descriptor;
+
+    expect(() => compileScript(descriptor, { id: filename })).not.toThrow();
+}
+
+export {
+    expectVueCompilerScriptToCompile,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+};
 
 export {};

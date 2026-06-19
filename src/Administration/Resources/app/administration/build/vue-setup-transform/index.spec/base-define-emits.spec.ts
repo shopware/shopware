@@ -2,7 +2,12 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform base defineEmits macro', () => {
     it('keeps defineEmits() outside the extendable setup callback and replaces it with context.emit', () => {
@@ -32,6 +37,31 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).toContain("emit('save', '123');");
         expect(result).toContain('private: {\n                save,\n            }');
         expect(result.match(/defineEmits/g)).toHaveLength(1);
+    });
+
+    it('keeps local emit type declarations available for hoisted defineEmits()', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            type Emits = {
+                save: [id: string];
+            };
+
+            const emit = defineEmits<Emits>();
+            const count = 1;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-emits-local-type.vue').code;
+
+        expect(result.indexOf('type Emits')).toBeLessThan(result.indexOf('const emit = defineEmits<Emits>()'));
+        expect(result.indexOf('type Emits')).toBeLessThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
+        );
+        expectVueCompilerScriptToCompile(result, 'base-emits-local-type.vue');
     });
 
     it('keeps bare defineEmits() outside the callback when the generated emit binding name is taken', () => {
@@ -148,4 +178,3 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).not.toContain('(__shopwareContext.emit)');
     });
 });
-

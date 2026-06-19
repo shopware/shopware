@@ -46,6 +46,7 @@ import {
 } from './script-analyzer/setup-inputs';
 
 type ImportBlock = SourceRange & { code: string };
+type TypeDeclarationBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
     mode: ShopwareSetupMode,
     lang: string | null,
@@ -60,6 +61,7 @@ type StatementWithCall = {
 type ShopwareSetupScriptAnalysis = {
     source: string,
     imports: ImportBlock[],
+    typeDeclarations: TypeDeclarationBlock[],
     bodyRemovals: SourceRange[],
     setupInputReplacements: SetupInputReplacement[],
     runtimeBindings: RuntimeBinding[],
@@ -87,6 +89,32 @@ function getImportRangesAndCode(script: string, imports: ImportDeclaration[], sc
             code: script.slice(range.start, range.end),
         };
     });
+}
+
+/**
+ * Captures type-only declarations that hoisted Vue macros may reference.
+ */
+function getTypeDeclarationRangesAndCode(
+    script: string,
+    typeDeclarations: Statement[],
+    scriptOffset: number,
+): TypeDeclarationBlock[] {
+    return typeDeclarations.map((declaration) => {
+        const range = getNodeRange(declaration, scriptOffset);
+
+        return {
+            ...range,
+            code: script.slice(range.start, range.end),
+        };
+    });
+}
+
+/**
+ * Type aliases and interfaces have no runtime output, but base setup macros are hoisted
+ * to the generated script root and may need these names for type resolution.
+ */
+function isHoistableTypeDeclaration(statement: Statement): boolean {
+    return statement.type === 'TSInterfaceDeclaration' || statement.type === 'TSTypeAliasDeclaration';
 }
 
 /**
@@ -148,6 +176,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const scriptOffset = options.scriptOffset;
     const ast = parseScript(script, lang, scriptOffset);
     const imports: ImportDeclaration[] = [];
+    const typeDeclarations: Statement[] = [];
     const importedBindings = new Set<string>();
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
@@ -177,6 +206,11 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         if (statement.type === 'ImportDeclaration') {
             imports.push(statement);
             collectImportBindings(statement, importedBindings);
+            return;
+        }
+
+        if (isHoistableTypeDeclaration(statement)) {
+            typeDeclarations.push(statement);
             return;
         }
 
@@ -296,6 +330,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
 
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
+        ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
         ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
@@ -303,6 +338,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     return {
         source: script,
         imports: getImportRangesAndCode(script, imports, scriptOffset),
+        typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
         bodyRemovals,
         setupInputReplacements,
         runtimeBindings,

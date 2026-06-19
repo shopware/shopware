@@ -87,6 +87,15 @@ function buildOverrideScript(block: ShopwareSetupBlock, analysis: ShopwareSetupS
         chunks.push(generated('\n'));
     }
 
+    analysis.typeDeclarations.forEach((typeDeclaration) => {
+        chunks.push(fromSource(block, typeDeclaration));
+        chunks.push(generated('\n'));
+    });
+
+    if (analysis.typeDeclarations.length > 0) {
+        chunks.push(generated('\n'));
+    }
+
     chunks.push(
         generated([
             'export default {',

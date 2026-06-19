@@ -95,6 +95,27 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
     });
 
+    it('keeps local type declarations available for override callback code', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-override="sw-my-component">
+            type Props = {
+                label?: string;
+            };
+
+            const props = useSwProps<Props>();
+            const label = props.label ?? 'fallback';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'typed.override.vue').code;
+
+        expect(result.indexOf('type Props')).toBeLessThan(result.indexOf('export default'));
+        expect(result).toContain('const props = useSwProps<Props>();');
+        expect(result.match(/type Props/g)).toHaveLength(1);
+    });
+
     it('keeps imports out of returned override state', () => {
         const source = stripIndent`
             <script setup sw-override="sw-my-component">

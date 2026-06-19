@@ -2,7 +2,12 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform base slots, options, and props access', () => {
     it('keeps base defineSlots() outside the extendable setup callback and replaces it with context.slots', () => {
@@ -33,6 +38,31 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         expect(result).toContain('return slots.default?.({ count: 1 });');
         expect(result).toContain('private: {\n                renderDefaultSlot,\n            }');
         expect(result.match(/defineSlots/g)).toHaveLength(1);
+    });
+
+    it('keeps local slot type declarations available for hoisted defineSlots()', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            type Slots = {
+                default(props: { count: number }): unknown;
+            };
+
+            const slots = defineSlots<Slots>();
+            const count = slots.default ? 1 : 0;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-slots-local-type.vue').code;
+
+        expect(result.indexOf('type Slots')).toBeLessThan(result.indexOf('const slots = defineSlots<Slots>()'));
+        expect(result.indexOf('type Slots')).toBeLessThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
+        );
+        expectVueCompilerScriptToCompile(result, 'base-slots-local-type.vue');
     });
 
     it('replaces defineSlots() destructuring inside the extendable setup callback', () => {

@@ -2,7 +2,12 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform base props macros', () => {
     it('keeps base defineProps() outside the extendable setup callback and passes props into the bridge', () => {
@@ -36,6 +41,31 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result.indexOf('const props = defineProps')).toBeLessThan(
             result.indexOf('Shopware.Component.createExtendableSetup('),
         );
+    });
+
+    it('keeps local prop type declarations available for hoisted defineProps()', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            interface Props {
+                initialCount?: number;
+            }
+
+            const props = defineProps<Props>();
+            const count = props.initialCount ?? 0;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-props-local-type.vue').code;
+
+        expect(result.indexOf('interface Props')).toBeLessThan(result.indexOf('const props = defineProps<Props>()'));
+        expect(result.indexOf('interface Props')).toBeLessThan(
+            result.indexOf('Shopware.Component.createExtendableSetup('),
+        );
+        expectVueCompilerScriptToCompile(result, 'base-props-local-type.vue');
     });
 
     it('replaces defineProps() destructuring inside the extendable setup callback', () => {

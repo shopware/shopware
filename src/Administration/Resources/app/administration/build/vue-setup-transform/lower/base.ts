@@ -79,6 +79,15 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
         chunks.push(generated('\n'));
     }
 
+    analysis.typeDeclarations.forEach((typeDeclaration) => {
+        chunks.push(fromSource(block, typeDeclaration));
+        chunks.push(generated('\n'));
+    });
+
+    if (analysis.typeDeclarations.length > 0) {
+        chunks.push(generated('\n'));
+    }
+
     if (analysis.propsMacro) {
         chunks.push(generated(`const ${propsName} = `));
         chunks.push(fromSource(block, analysis.propsMacro.ranges[0]));

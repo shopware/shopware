@@ -53,11 +53,8 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
     const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
-    const hoistedRuntimeNames = new Set(analysis.hoistedRuntimeBindingNames);
     const destructureEntries = [
-        ...analysis.runtimeBindings
-            .map((binding) => binding.name)
-            .filter((name) => !hoistedRuntimeNames.has(name)),
+        ...analysis.runtimeBindings.map((binding) => binding.name),
         '__swOverride',
     ];
     const callbackBody = buildCallbackBodyChunks(block, analysis, {
@@ -88,15 +85,6 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: ShopwareSetupScrip
     });
 
     if (analysis.typeDeclarations.length > 0) {
-        chunks.push(generated('\n'));
-    }
-
-    analysis.hoistedRuntimeDeclarations.forEach((declaration) => {
-        chunks.push(fromSource(block, declaration));
-        chunks.push(generated('\n'));
-    });
-
-    if (analysis.hoistedRuntimeDeclarations.length > 0) {
         chunks.push(generated('\n'));
     }
 

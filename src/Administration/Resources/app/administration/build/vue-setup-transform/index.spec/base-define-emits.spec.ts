@@ -64,6 +64,24 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expectVueCompilerScriptToCompile(result, 'base-emits-local-type.vue');
     });
 
+    it('rejects local setup bindings in hoisted defineEmits() arguments', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const events = ['save'];
+            const emit = defineEmits(events);
+            const count = 1;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-emits-local-runtime-value.vue')).toThrow(
+            'defineEmits() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
+        );
+    });
+
     it('keeps bare defineEmits() outside the callback when the generated emit binding name is taken', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">

@@ -176,7 +176,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
     const count`);
     });
 
-    it('keeps static local option values available for hoisted defineOptions()', () => {
+    it('rejects local setup bindings in hoisted defineOptions() arguments', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">
             const inheritAttrs = false;
@@ -192,13 +192,9 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-options-local-value.vue').code;
-
-        expect(result.indexOf('const inheritAttrs = false;')).toBeLessThan(
-            result.indexOf('defineOptions({'),
+        expect(() => transformShopwareSetupSfc(source, 'base-options-local-value.vue')).toThrow(
+            'defineOptions() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
         );
-        expect(result).toContain('private: {\n                inheritAttrs,\n            }');
-        expectVueCompilerScriptToCompile(result, 'base-options-local-value.vue');
     });
 
     it('supports defineOptions() wrapped in a TypeScript as expression', () => {

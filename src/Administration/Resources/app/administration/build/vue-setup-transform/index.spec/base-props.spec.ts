@@ -68,6 +68,51 @@ describe('build/vue-setup-transform base props macros', () => {
         expectVueCompilerScriptToCompile(result, 'base-props-local-type.vue');
     });
 
+    it('rejects local setup bindings in hoisted defineProps() arguments', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const defaultCount = 1;
+            const props = defineProps({
+                initialCount: {
+                    default: defaultCount,
+                },
+            });
+            const count = props.initialCount;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-props-local-runtime-value.vue')).toThrow(
+            'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
+        );
+    });
+
+    it('allows macro-local function parameters to shadow setup bindings', () => {
+        const source = stripIndent`
+            <script setup lang="ts" sw-component="sw-my-component">
+            const defaultCount = 1;
+            const props = defineProps({
+                initialCount: {
+                    validator: (defaultCount: number) => defaultCount > 0,
+                },
+            });
+            const count = props.initialCount ?? defaultCount;
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-props-shadowed-runtime-value.vue').code;
+
+        expect(result).toContain('validator: (defaultCount: number) => defaultCount > 0');
+        expect(result).toContain('const count = props.initialCount ?? defaultCount;');
+    });
+
     it('replaces defineProps() destructuring inside the extendable setup callback', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">
@@ -170,7 +215,7 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
 
-    it('keeps static local defaults available for hoisted withDefaults()', () => {
+    it('rejects local setup bindings in hoisted withDefaults() arguments', () => {
         const source = stripIndent`
             <script setup lang="ts" sw-component="sw-my-component">
             const defaultLabel = 'fallback';
@@ -187,13 +232,9 @@ describe('build/vue-setup-transform base props macros', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-props-local-default.vue').code;
-
-        expect(result.indexOf("const defaultLabel = 'fallback';")).toBeLessThan(
-            result.indexOf('const props = withDefaults(defineProps<{'),
+        expect(() => transformShopwareSetupSfc(source, 'base-props-local-default.vue')).toThrow(
+            'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings.',
         );
-        expect(result).toContain('private: {\n                defaultLabel,\n            }');
-        expectVueCompilerScriptToCompile(result, 'base-props-local-default.vue');
     });
 
     it('replaces withDefaults() destructuring inside the extendable setup callback', () => {

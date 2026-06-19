@@ -129,6 +129,16 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-options-with-imported-value.vue',
+            code: `<script setup sw-component="sw-my-component">
+import { inheritAttrs } from './options';
+
+defineOptions({ inheritAttrs });
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'override.vue',
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
@@ -226,7 +236,7 @@ swDefinePublic({ count });
             errors: [
                 {
                     message:
-                        'withDefaults() defaults must not reference local setup bindings in Shopware setup blocks. Use inline literals, imported constants, or destructured defineProps() defaults instead.',
+                        'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
                 },
             ],
         },
@@ -243,7 +253,58 @@ swDefinePublic({ count });
             errors: [
                 {
                     message:
-                        'withDefaults() defaults must not reference local setup bindings in Shopware setup blocks. Use inline literals, imported constants, or destructured defineProps() defaults instead.',
+                        'withDefaults() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
+                },
+            ],
+        },
+        {
+            filename: 'base-define-props-local-binding.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const defaultCount = 1;
+const props = defineProps({
+    initialCount: {
+        default: defaultCount,
+    },
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'defineProps() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
+                },
+            ],
+        },
+        {
+            filename: 'base-define-emits-local-binding.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const events = ['save'];
+const emit = defineEmits(events);
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'defineEmits() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
+                },
+            ],
+        },
+        {
+            filename: 'base-define-options-local-binding.vue',
+            code: `<script setup sw-component="sw-my-component">
+const inheritAttrs = false;
+defineOptions({
+    inheritAttrs,
+});
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'defineOptions() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.',
                 },
             ],
         },

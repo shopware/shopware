@@ -109,11 +109,11 @@ Shopware setup blocks differ from plain native setup in v1:
 - Base public/private state is explicit Shopware extension state, not native setup return behavior.
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
 - Base components may use one props declaration macro, either `defineProps(...)` or `withDefaults(defineProps(...), ...)`; the declaration is hoisted once and original calls are replaced with the props object passed into the extendable setup runtime.
-- `withDefaults(...)` defaults should use inline values or imports. Local setup bindings in the defaults object are lint-rejected; use destructured `defineProps()` defaults for local constants instead.
 - Base components may use one `defineEmits(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context emitter.
 - Base components may use one top-level `defineExpose(...)` call; it is replaced with the setup context expose function inside the extendable setup callback.
 - Base components may use one `defineSlots(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context slots object.
 - Base components may use one top-level `defineOptions(...)` call; it is kept at the generated script setup root and removed from the extendable setup callback.
+- Runtime arguments passed to hoisted macros such as `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, and `defineOptions(...)` must use inline values, imports, or type-only declarations. They must not reference local setup bindings, because those bindings live inside the generated Shopware setup callback. For local prop defaults, prefer destructured `defineProps()` defaults.
 - Other Vue macros are not supported in Shopware setup blocks.
 - Top-level `await` is not supported.
 
@@ -125,7 +125,7 @@ The transform rejects these cases loudly:
 - Bound `sw-component` or `sw-override` attributes
 - Vue macros except supported base props, emits, expose, slots, and options declarations: `defineModel()`
 - Props declaration macros in override mode, or more than one props declaration macro
-- Local setup bindings referenced in the defaults object passed to `withDefaults(...)`
+- Local setup bindings referenced in hoisted macro arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, or `defineOptions(...)`
 - Override-only helpers such as `useSwPreviousState()` and `useSwProps()` in base mode
 - `defineEmits()` in override mode, or more than one `defineEmits()` call
 - `defineExpose()` in override mode, outside the top level, or more than one `defineExpose()` call

@@ -4,10 +4,10 @@
 
 import type {
     CallExpression,
-    Expression,
+    Identifier,
     ImportDeclaration,
+    Node as BabelNode,
     Statement,
-    VariableDeclaration,
 } from '@babel/types';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
@@ -49,7 +49,6 @@ import {
 
 type ImportBlock = SourceRange & { code: string };
 type TypeDeclarationBlock = SourceRange & { code: string };
-type HoistedRuntimeDeclarationBlock = SourceRange & { code: string };
 type AnalyzerOptions = {
     mode: ShopwareSetupMode,
     lang: string | null,
@@ -65,8 +64,6 @@ type ShopwareSetupScriptAnalysis = {
     source: string,
     imports: ImportBlock[],
     typeDeclarations: TypeDeclarationBlock[],
-    hoistedRuntimeDeclarations: HoistedRuntimeDeclarationBlock[],
-    hoistedRuntimeBindingNames: string[],
     bodyRemovals: SourceRange[],
     setupInputReplacements: SetupInputReplacement[],
     runtimeBindings: RuntimeBinding[],
@@ -115,24 +112,6 @@ function getTypeDeclarationRangesAndCode(
 }
 
 /**
- * Captures static runtime declarations that Vue compiler macros may reference after hoisting.
- */
-function getHoistedRuntimeDeclarationRangesAndCode(
-    script: string,
-    declarations: VariableDeclaration[],
-    scriptOffset: number,
-): HoistedRuntimeDeclarationBlock[] {
-    return declarations.map((declaration) => {
-        const range = getNodeRange(declaration, scriptOffset);
-
-        return {
-            ...range,
-            code: script.slice(range.start, range.end),
-        };
-    });
-}
-
-/**
  * Type aliases and interfaces have no runtime output, but base setup macros are hoisted
  * to the generated script root and may need these names for type resolution.
  */
@@ -141,50 +120,193 @@ function isHoistableTypeDeclaration(statement: Statement): boolean {
 }
 
 /**
- * Mirrors the small set of local constants Vue can safely hoist for compiler macro arguments.
+ * Adds all identifiers declared by a binding pattern to a set.
  */
-function isStaticPrimitiveExpression(expression: Expression | null | undefined): boolean {
-    if (!expression) {
-        return false;
+function collectBindingPatternNames(pattern: BabelNode | null | undefined, names: Set<string>): void {
+    if (!pattern) {
+        return;
     }
 
-    if (
-        expression.type === 'StringLiteral' ||
-        expression.type === 'NumericLiteral' ||
-        expression.type === 'BooleanLiteral' ||
-        expression.type === 'NullLiteral' ||
-        expression.type === 'BigIntLiteral'
-    ) {
+    if (pattern.type === 'Identifier') {
+        names.add(pattern.name);
+        return;
+    }
+
+    if (pattern.type === 'RestElement') {
+        collectBindingPatternNames(pattern.argument, names);
+        return;
+    }
+
+    if (pattern.type === 'AssignmentPattern') {
+        collectBindingPatternNames(pattern.left, names);
+        return;
+    }
+
+    if (pattern.type === 'ArrayPattern') {
+        pattern.elements.forEach((element) => collectBindingPatternNames(element, names));
+        return;
+    }
+
+    if (pattern.type === 'ObjectPattern') {
+        pattern.properties.forEach((property) => {
+            if (property.type === 'RestElement') {
+                collectBindingPatternNames(property.argument, names);
+                return;
+            }
+
+            collectBindingPatternNames(property.value, names);
+        });
+    }
+}
+
+/**
+ * Checks whether an identifier reads a runtime value instead of declaring or naming one.
+ */
+function isRuntimeIdentifierReference(node: Identifier, parent: BabelNode | null): boolean {
+    if (!parent) {
         return true;
     }
 
-    return expression.type === 'TemplateLiteral' && expression.expressions.length === 0;
+    if (parent.type === 'MemberExpression' || parent.type === 'OptionalMemberExpression') {
+        return parent.property !== node || Boolean(parent.computed);
+    }
+
+    if (parent.type === 'ObjectProperty') {
+        return parent.value === node || Boolean(parent.computed);
+    }
+
+    if (parent.type === 'ObjectMethod') {
+        return parent.key !== node || Boolean(parent.computed);
+    }
+
+    if (
+        parent.type === 'VariableDeclarator' ||
+        parent.type === 'FunctionDeclaration' ||
+        parent.type === 'FunctionExpression' ||
+        parent.type === 'ClassDeclaration' ||
+        parent.type === 'ClassExpression'
+    ) {
+        return parent.id !== node;
+    }
+
+    return true;
+}
+
+function isBabelNodeLike(value: unknown): value is BabelNode {
+    return Boolean(value && typeof value === 'object' && 'type' in value && typeof value.type === 'string');
+}
+
+function shouldSkipReferenceChild(key: string): boolean {
+    return [
+        'loc',
+        'range',
+        'start',
+        'end',
+        'leadingComments',
+        'trailingComments',
+        'innerComments',
+        'typeAnnotation',
+        'typeParameters',
+        'typeArguments',
+        'returnType',
+    ].includes(key);
 }
 
 /**
- * Static const declarations can be shared from module scope without changing per-instance behavior.
+ * Finds the first local setup binding read inside a macro argument that is moved to the generated script root.
  */
-function isHoistableRuntimeDeclaration(statement: Statement): statement is VariableDeclaration {
-    return (
-        statement.type === 'VariableDeclaration' &&
-        statement.kind === 'const' &&
-        statement.declarations.length > 0 &&
-        statement.declarations.every((declaration) => (
-            declaration.id.type === 'Identifier' &&
-            isStaticPrimitiveExpression(declaration.init)
-        ))
-    );
+function findLocalSetupReference(
+    node: BabelNode | null | undefined,
+    localBindings: Set<string>,
+    shadowedBindings = new Set<string>(),
+    parent: BabelNode | null = null,
+): Identifier | null {
+    if (!node) {
+        return null;
+    }
+
+    if (
+        node.type === 'Identifier' &&
+        localBindings.has(node.name) &&
+        !shadowedBindings.has(node.name) &&
+        isRuntimeIdentifierReference(node, parent)
+    ) {
+        return node;
+    }
+
+    const childShadowedBindings = new Set(shadowedBindings);
+
+    if (
+        node.type === 'FunctionDeclaration' ||
+        node.type === 'FunctionExpression' ||
+        node.type === 'ArrowFunctionExpression' ||
+        node.type === 'ObjectMethod' ||
+        node.type === 'ClassMethod' ||
+        node.type === 'ClassPrivateMethod'
+    ) {
+        node.params.forEach((param) => collectBindingPatternNames(param, childShadowedBindings));
+    }
+
+    for (const [key, value] of Object.entries(node as unknown as Record<string, unknown>)) {
+        if (shouldSkipReferenceChild(key)) {
+            continue;
+        }
+
+        if (Array.isArray(value)) {
+            for (const child of value) {
+                if (!isBabelNodeLike(child)) {
+                    continue;
+                }
+
+                const reference = findLocalSetupReference(child, localBindings, childShadowedBindings, node);
+
+                if (reference) {
+                    return reference;
+                }
+            }
+
+            continue;
+        }
+
+        if (isBabelNodeLike(value)) {
+            const reference = findLocalSetupReference(value, localBindings, childShadowedBindings, node);
+
+            if (reference) {
+                return reference;
+            }
+        }
+    }
+
+    return null;
 }
 
 /**
- * Returns local names declared by runtime declarations moved to the script root.
+ * Hoisted Vue macros run outside the generated Shopware setup callback.
+ * Their runtime arguments must therefore stay independent from setup-local values.
  */
-function getHoistedRuntimeBindingNames(declarations: VariableDeclaration[]): string[] {
-    return declarations.flatMap((declaration) =>
-        declaration.declarations.flatMap((declarator) => (
-            declarator.id.type === 'Identifier' ? [declarator.id.name] : []
-        )),
-    );
+function assertHoistedMacroArgumentsDoNotUseLocalSetup({
+    scriptOffset,
+    runtimeBindingNames,
+    macroCalls,
+}: {
+    scriptOffset: number,
+    runtimeBindingNames: Set<string>,
+    macroCalls: { name: string, call: CallExpression }[],
+}): void {
+    macroCalls.forEach(({ name, call }) => {
+        call.arguments.forEach((argument) => {
+            const reference = findLocalSetupReference(argument, runtimeBindingNames);
+
+            if (!reference) {
+                return;
+            }
+
+            throw new ShopwareSetupTransformError(
+                `${name}() arguments are hoisted outside the Shopware setup callback and must not reference local setup bindings. Use inline literals or imported constants instead.`,
+                scriptOffset + getNodeRange(reference, scriptOffset).start,
+            );
+        });
+    });
 }
 
 /**
@@ -247,7 +369,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const ast = parseScript(script, lang, scriptOffset);
     const imports: ImportDeclaration[] = [];
     const typeDeclarations: Statement[] = [];
-    const hoistedRuntimeDeclarations: VariableDeclaration[] = [];
     const importedBindings = new Set<string>();
     const runtimeBindings: RuntimeBinding[] = [];
     const runtimeBindingNames = new Set<string>();
@@ -283,10 +404,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         if (isHoistableTypeDeclaration(statement)) {
             typeDeclarations.push(statement);
             return;
-        }
-
-        if (isHoistableRuntimeDeclaration(statement)) {
-            hoistedRuntimeDeclarations.push(statement);
         }
 
         if (isStatementCompilerMacro(statement, 'swDefinePublic')) {
@@ -342,6 +459,29 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         topLevelOverrideCalls,
         topLevelUnsupportedMacroCalls,
     );
+
+    assertHoistedMacroArgumentsDoNotUseLocalSetup({
+        scriptOffset,
+        runtimeBindingNames,
+        macroCalls: [
+            ...definePropsCalls.map((call) => ({
+                name: 'defineProps',
+                call,
+            })),
+            ...withDefaultsCalls.map((call) => ({
+                name: 'withDefaults',
+                call,
+            })),
+            ...defineEmitsCalls.map((call) => ({
+                name: 'defineEmits',
+                call,
+            })),
+            ...defineOptionsStatements.map(({ call }) => ({
+                name: 'defineOptions',
+                call,
+            })),
+        ],
+    });
 
     const {
         setupInputReplacements,
@@ -406,7 +546,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
         ...typeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
-        ...hoistedRuntimeDeclarations.map((declaration) => getNodeRange(declaration, scriptOffset)),
         ...defineOptionsStatements.map((entry) => getNodeRange(entry.statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
@@ -415,8 +554,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         source: script,
         imports: getImportRangesAndCode(script, imports, scriptOffset),
         typeDeclarations: getTypeDeclarationRangesAndCode(script, typeDeclarations, scriptOffset),
-        hoistedRuntimeDeclarations: getHoistedRuntimeDeclarationRangesAndCode(script, hoistedRuntimeDeclarations, scriptOffset),
-        hoistedRuntimeBindingNames: getHoistedRuntimeBindingNames(hoistedRuntimeDeclarations),
         bodyRemovals,
         setupInputReplacements,
         runtimeBindings,

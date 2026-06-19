@@ -4,7 +4,18 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = [], editMode = false) {
+const defaultCustomer = {
+    id: 'test',
+    accountType: 'private',
+    company: 'Shopware AG',
+    requestedGroup: {
+        translated: {
+            name: 'Test',
+        },
+    },
+};
+
+async function createWrapper(privileges = [], editMode = false, customerResponse = defaultCustomer) {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
             sync: true,
@@ -54,22 +65,15 @@ async function createWrapper(privileges = [], editMode = false) {
                             limit: 25,
                         },
                     },
+                    $router: {
+                        push: jest.fn(),
+                    },
                 },
                 provide: {
                     repositoryFactory: {
                         create: () => {
                             return {
-                                get: () =>
-                                    Promise.resolve({
-                                        id: 'test',
-                                        accountType: 'private',
-                                        company: 'Shopware AG',
-                                        requestedGroup: {
-                                            translated: {
-                                                name: 'Test',
-                                            },
-                                        },
-                                    }),
+                                get: () => Promise.resolve(customerResponse),
 
                                 searchIds: () =>
                                     Promise.resolve({
@@ -220,6 +224,44 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer.salutationId).toBe('1');
+    });
+
+    it('should redirect to the customer listing when the customer does not exist', async () => {
+        let resolveCustomer = () => {};
+        const customerPromise = new Promise((resolve) => {
+            resolveCustomer = resolve;
+        });
+        const wrapperWithMissingCustomer = await createWrapper([], false, customerPromise);
+        wrapperWithMissingCustomer.vm.createNotificationError = jest.fn();
+
+        resolveCustomer(null);
+
+        await flushPromises();
+
+        expect(wrapperWithMissingCustomer.vm.customer).toBeNull();
+        expect(wrapperWithMissingCustomer.vm.isLoading).toBe(false);
+        expect(wrapperWithMissingCustomer.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-customer.detail.messageCustomerNotFound',
+        });
+        expect(wrapperWithMissingCustomer.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.customer.index' });
+    });
+
+    it('should show a notification when the customer cannot be loaded', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapperWithLoadingError = await createWrapper([], false, Promise.reject(new Error('Could not load customer')));
+
+        await flushPromises();
+
+        expect(wrapperWithLoadingError.vm.customer).toBeNull();
+        expect(wrapperWithLoadingError.vm.isLoading).toBe(false);
+        expect(notificationSpy).toHaveBeenCalledWith({
+            variant: 'error',
+            title: 'global.default.error',
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
+        expect(wrapperWithLoadingError.vm.$router.push).not.toHaveBeenCalled();
+
+        notificationSpy.mockRestore();
     });
 
     it('should set the initial limit on the addresses association criteria', async () => {

@@ -3,9 +3,11 @@
  */
 
 import type { Plugin } from 'vite';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
+import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
 type ShopwareSetupTransformModule = {
     transformShopwareSetupSfc: typeof transformShopwareSetupSfcRuntime;
@@ -67,6 +69,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // Component name -> the base file claiming it. Only bases: overrides reuse the base name by design.
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
+    const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
     // Lazy so a bad `administrationRoot` surfaces on a real `.vue` file; an eager rejection would go
     // unhandled in builds that never reach one. Rejections are cached too - the failure is a config
     // error, so one error beats one per file.
@@ -78,7 +81,14 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         return transformPromise;
     }
 
-    async function transformCode(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
+    async function transformFile(fileName: string): Promise<ShopwareSetupTransformResult | null> {
+        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
+        const code = await fs.readFile(fileName, 'utf8');
+
+        return transformShopwareSetupSfc(code, fileName);
+    }
+
+    async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
         return transformShopwareSetupSfc(code, fileName);
@@ -121,14 +131,71 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         name: 'shopware-vite-plugin-shopware-setup',
         enforce: 'pre',
 
-        async transform(code, id) {
-            const fileName = withoutQuery(id);
-
-            if (!fileName.endsWith('.vue') || isDependencyFile(fileName)) {
+        async resolveId(source, importer) {
+            if (source.includes('?') || !source.endsWith('.vue')) {
                 return null;
             }
 
-            const result = await transformCode(code, fileName);
+            const resolved = await this.resolve(source, importer, { skipSelf: true });
+
+            if (!resolved) {
+                return null;
+            }
+
+            const fileName = withoutQuery(resolved.id);
+
+            if (!fileName.endsWith('.vue') || virtualSourcemap.isVirtualFileName(fileName) || isDependencyFile(fileName)) {
+                return null;
+            }
+
+            const result = await transformFile(fileName);
+
+            if (!result) {
+                return null;
+            }
+
+            const virtualFileName = virtualSourcemap.toVirtualFileName(fileName);
+            virtualSourcemap.rememberOriginalFile(virtualFileName, fileName);
+
+            return virtualFileName;
+        },
+
+        async load(id) {
+            if (id.includes('?')) {
+                return null;
+            }
+
+            const fileName = withoutQuery(id);
+
+            if (!virtualSourcemap.isVirtualFileName(fileName)) {
+                return null;
+            }
+
+            const originalFileName = virtualSourcemap.getOriginalFileName(fileName);
+            const result = await transformFile(originalFileName);
+
+            if (!result) {
+                return null;
+            }
+
+            assertUniqueBaseComponent(result, originalFileName);
+
+            virtualSourcemap.rememberSetupMap(fileName, result.map);
+
+            return {
+                code: result.code,
+                map: result.map,
+            };
+        },
+
+        async transform(code, id) {
+            const fileName = withoutQuery(id);
+
+            if (!fileName.endsWith('.vue') || virtualSourcemap.isVirtualFileName(fileName) || isDependencyFile(fileName)) {
+                return null;
+            }
+
+            const result = await transformSource(code, fileName);
 
             if (!result) {
                 return null;
@@ -148,6 +215,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
             }
+        },
+
+        generateBundle(outputOptions, bundle) {
+            virtualSourcemap.remapBundle(outputOptions, bundle);
         },
     };
 }

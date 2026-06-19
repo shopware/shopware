@@ -76,7 +76,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         throw withBlockOffset(error, block);
     }
 
-    const transformed = applySourceEdits(source, edits);
+    const transformed = applySourceEdits(source, filename, edits);
 
     return {
         code: transformed.code,

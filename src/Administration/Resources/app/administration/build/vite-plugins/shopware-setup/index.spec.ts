@@ -3,6 +3,12 @@
  */
 
 import path from 'node:path';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import type { SourceMap } from 'rollup';
 import shopwareSetupPlugin from './index';
 
 /**
@@ -11,11 +17,15 @@ import shopwareSetupPlugin from './index';
  * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
+type LoadedModule = { code: string; map: SourceMap };
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
-    transform(code: string, id: string): Promise<{ code: string; map: unknown } | null>;
+    resolveId(source: string, importer: string): Promise<string | null>;
+    load(id: string): Promise<LoadedModule | null>;
+    transform(code: string, id: string): Promise<LoadedModule | null>;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
+    generateBundle: unknown;
 };
 
 const pluginOptions = {
@@ -25,8 +35,55 @@ const pluginOptions = {
 function createPlugin(options: { administrationRoot: string } = pluginOptions): CallableSetupPlugin {
     return shopwareSetupPlugin(options) as unknown as CallableSetupPlugin;
 }
+const execFileAsync = promisify(execFile);
+
+function positionForIndex(source: string, index: number) {
+    const beforeIndex = source.slice(0, index);
+    const lines = beforeIndex.split('\n');
+
+    return {
+        line: lines.length,
+        column: lines[lines.length - 1].length,
+    };
+}
+
+async function createVueFile(source: string, fileName = 'component.vue') {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-plugin-'));
+    const vueFile = path.join(root, fileName);
+
+    await fs.writeFile(vueFile, source);
+
+    return vueFile;
+}
+
+async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
+    const context = {
+        resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+    };
+    const resolvedId = await plugin.resolveId.call(
+        context,
+        `./${path.basename(vueFile)}`,
+        path.join(path.dirname(vueFile), 'entry.js'),
+    );
+    const loaded = await plugin.load(resolvedId);
+
+    return {
+        loaded,
+        resolvedId,
+    };
+}
 
 describe('build/vite-plugins/shopware-setup', () => {
+    it('returns a pre-load Vite plugin', () => {
+        const plugin = createPlugin();
+
+        expect(plugin.name).toBe('shopware-vite-plugin-shopware-setup');
+        expect(plugin.enforce).toBe('pre');
+        expect(plugin).toHaveProperty('resolveId');
+        expect(plugin).toHaveProperty('load');
+        expect(plugin).toHaveProperty('generateBundle');
+    });
+
     it('returns a pre-transform Vite plugin', () => {
         const plugin = createPlugin();
 
@@ -41,27 +98,46 @@ describe('build/vite-plugins/shopware-setup', () => {
 const count = 1;
 swDefinePublic({ count });
 </script>`;
+        const vueFile = await createVueFile(source, 'sw-my-component.vue');
 
-        const result = await plugin.transform(source, '/example/sw-my-component.vue');
+        const { loaded, resolvedId } = await resolveAndLoadVueFile(plugin, vueFile);
 
-        expect(result).toHaveProperty('code');
-        expect(result?.code).toContain('Shopware.Component.attachOverrides(');
-        expect(result?.code).toContain("name: 'sw-my-component'");
-        expect(result?.map).toBeNull();
+        expect(resolvedId).toBe(`${vueFile}.shopware-setup.vue`);
+        expect(loaded).toHaveProperty('code');
+        expect(loaded.code).toContain('Shopware.Component.attachOverrides(');
+        expect(loaded.code).toContain("name: 'sw-my-component'");
+        expect(loaded.map.sources).toContain(vueFile);
+        expect(loaded.map.sources).not.toContain('sw-my-component.vue');
+        expect(loaded.map.sourcesContent).toContain(source);
+        expect(loaded.map.mappings).not.toBe('');
     });
 
-    it('delegates override blocks in .override.vue files', async () => {
+    it('delegates .override.vue files to the shared override transform', async () => {
         const plugin = createPlugin();
         const source = `<script setup>
 const count = 1;
 
 swDefineOverride({});
 </script>`;
+        const vueFile = await createVueFile(source, 'sw-my-component.override.vue');
 
-        const result = await plugin.transform(source, '/example/sw-my-component.override.vue');
+        const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
+
+        expect(loaded).toHaveProperty('code');
+        expect(loaded.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
+    });
+
+    it('supports direct transform calls for toolchains that do not use Vite resolve/load', async () => {
+        const plugin = createPlugin();
+        const source = `<script setup>
+const count = 1;
+</script>`;
+
+        const result = await plugin.transform(source, '/example/component.vue');
 
         expect(result).toHaveProperty('code');
-        expect(result?.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
+        expect(result.code).toContain('Shopware.Component.attachOverrides(');
+        expect(result.map.sources).toContain('/example/component.vue');
     });
 
     it('rejects two base components that resolve to the same name', async () => {
@@ -92,6 +168,8 @@ swDefinePublic({ count });
         await expect(
             plugin.transform(
                 `<script setup>
+const count = 1;
+
 swDefineOverride({});
 </script>`,
                 '/override/sw-my-component.override.vue',
@@ -143,18 +221,53 @@ swDefinePublic({ count });
         );
     });
 
+    it('keeps setup source positions when the transformed SFC map is composed by plugin-vue', async () => {
+        expect.hasAssertions();
+
+        const fixtureDirectory = path.join(__dirname, 'fixtures/sourcemap-composition');
+        const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
+        const sourceDirectory = path.join(root, 'src');
+
+        await fs.cp(fixtureDirectory, root, { recursive: true });
+
+        const componentSource = await fs.readFile(path.join(sourceDirectory, 'NestedComponent.vue'), 'utf8');
+        const { stdout } = await execFileAsync(process.execPath, [path.join(root, 'probe.js')], {
+            cwd: process.cwd(),
+            env: {
+                ...process.env,
+                SHOPWARE_ADMIN_ROOT: process.cwd(),
+            },
+        });
+        const { generatedIndex, mappedPosition } = JSON.parse(stdout);
+        const originalIndex = componentSource.indexOf("computed(() => 'Hello from source')");
+        const originalPosition = positionForIndex(componentSource, originalIndex);
+
+        expect(generatedIndex).toBeGreaterThanOrEqual(0);
+        expect(originalIndex).toBeGreaterThanOrEqual(0);
+        expect(mappedPosition.source).toContain('src/NestedComponent.vue');
+        expect(mappedPosition.source).not.toContain('.shopware-setup.vue');
+        expect(mappedPosition.line).toBe(originalPosition.line);
+        expect(mappedPosition.column).toBe(originalPosition.column);
+    }, 30000);
+
     it('rejects Vue files without a script setup block', async () => {
         const plugin = createPlugin();
+        const vueFile = await createVueFile('<script>const count = 1;</script>');
+        const context = {
+            resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+        };
 
-        await expect(plugin.transform('<script>const count = 1;</script>', '/example/sw-component.vue')).rejects.toThrow(
-            'A Shopware setup component needs a <script setup> block.',
-        );
+        // resolveId runs the transform to decide whether the file is a Shopware setup SFC, so the
+        // rejection surfaces here rather than at load time.
+        await expect(
+            plugin.resolveId.call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), 'entry.js')),
+        ).rejects.toThrow('A Shopware setup component needs a <script setup> block.');
     });
 
     it('ignores files without Shopware setup blocks', async () => {
         const plugin = createPlugin();
 
-        await expect(plugin.transform('const count = 1;', '/example/component.ts')).resolves.toBeNull();
+        await expect(plugin.resolveId('./component.ts', '/example/entry.ts')).resolves.toBeNull();
     });
 
     it.each([

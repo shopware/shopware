@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
-use Shopware\Core\System\Locale\Util\LocaleHelper;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -113,7 +112,7 @@ class TranslationLoader extends AbstractTranslationLoader
         if (
             $locale !== '*'
             && !\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)
-            && !LocaleHelper::isLocale($locale)
+            && !preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale)
         ) {
             return '';
         }

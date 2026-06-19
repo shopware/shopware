@@ -87,6 +87,18 @@ function assertNoUnsupportedSyntax(
             );
         }
 
+        if (
+            mode === 'base' &&
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'useSwPreviousState'
+        ) {
+            throw new ShopwareSetupTransformError(
+                'useSwPreviousState() is only supported in override Shopware setup blocks.',
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
         // Reject top level await:
         //  Vue rewrites top-level await into async setup() with context preservation.
         //  Shopware setup keeps the current synchronous base/override callback contract, so top-level await cannot be supported at the moment.

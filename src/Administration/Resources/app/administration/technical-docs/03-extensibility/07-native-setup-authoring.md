@@ -124,6 +124,7 @@ The transform rejects these cases loudly:
 - Bound `sw-component` or `sw-override` attributes
 - Vue macros except supported base props, emits, expose, slots, and options declarations: `defineModel()`
 - Props declaration macros in override mode, or more than one props declaration macro
+- Override-only helpers such as `useSwPreviousState()` and `useSwProps()` in base mode
 - `defineEmits()` in override mode, or more than one `defineEmits()` call
 - `defineExpose()` in override mode, outside the top level, or more than one `defineExpose()` call
 - `defineSlots()` in override mode, or more than one `defineSlots()` call

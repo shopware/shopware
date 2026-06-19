@@ -452,6 +452,24 @@ To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP end
 
 A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
 
+### [Experimental] Store API MCP server
+
+A new MCP endpoint at `/store-api/_mcp` accepts standard Store API credentials
+(`sw-access-key` + `sw-context-token`) and runs a separate capability registry from
+the Admin API endpoint.
+
+Plugins register Store API capabilities via service tags:
+`shopware.store_api_mcp.tool`, `shopware.store_api_mcp.prompt`, `shopware.store_api_mcp.resource`.
+
+Browser-based MCP clients are supported: the `mcp-session-id` and `mcp-protocol-version`
+headers are allowed and exposed through CORS on API responses.
+
+Both `McpContextProvider` and `StoreApiMcpContextProvider` implement `McpContextProviderInterface`.
+Type-hint against the interface in tools that need to work across both API scopes.
+
+Note: endpoint discovery and storefront session authentication are not included. Those
+are provided by the UCP SDK.
+
 ## API
 
 ### New foreign key resolvers for the Sync API

@@ -143,7 +143,8 @@ beforeAll(() => {
 
 ## Configuration
 
-- **Jest Config:** `jest.config.ts` (for backward compatibility: `jest.config.js`)
+- **Jest Config:** `jest.config.js` loads `jest.config.ts`
+- **Compatibility Entrypoints:** Jest keeps `.js` entrypoints for Node 20 compatibility
 - **Test Setup:** `test/_setup/prepare_environment.js`
 - **Test Pattern:** `src/**/*.spec.{js,ts}`
 

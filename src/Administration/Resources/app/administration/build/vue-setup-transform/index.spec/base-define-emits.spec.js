@@ -28,9 +28,9 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         expect(result).toContain(`const emit = defineEmits<{
     save: [id: string];
 }>();`);
-        expect(result).toContain('const emit = (__shopwareSetupBindings.context.emit);');
+        expect(result).toContain('const emit = (__shopwareContext.emit);');
         expect(result).toContain("emit('save', '123');");
-        expect(result).toContain('private: {\n            save,\n        }');
+        expect(result).toContain('private: {\n                save,\n            }');
         expect(result.match(/defineEmits/g)).toHaveLength(1);
     });
 
@@ -54,9 +54,9 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         const result = transformOrFail(source, 'base-bare-emits-collision.vue').code;
 
         expect(result).toContain("const emit2 = defineEmits(['save']);");
-        expect(result).toContain('(__shopwareSetupBindings.context.emit);');
+        expect(result).toContain('(__shopwareContext.emit);');
         expect(result).toContain("return 'local binding';");
-        expect(result).toContain('private: {\n            emit,\n        }');
+        expect(result).toContain('private: {\n                emit,\n            }');
     });
 
     it('supports runtime array and object declarations', () => {
@@ -79,13 +79,13 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
 
         expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain("const emit = defineEmits(['save']);");
         expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain(
-            'const emit = (__shopwareSetupBindings.context.emit);',
+            'const emit = (__shopwareContext.emit);',
         );
         expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(`const emit = defineEmits({
     save: (id) => Boolean(id),
 });`);
         expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(
-            'const emit = (__shopwareSetupBindings.context.emit);',
+            'const emit = (__shopwareContext.emit);',
         );
     });
 
@@ -104,7 +104,7 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         const result = transformOrFail(source, 'base-emits-as.vue').code;
 
         expect(result).toContain('const emit = defineEmits<{ save: [] }>();');
-        expect(result).toContain("const emit = (__shopwareSetupBindings.context.emit) as ((event: 'save') => void);");
+        expect(result).toContain("const emit = (__shopwareContext.emit) as ((event: 'save') => void);");
         expect(result.match(/defineEmits/g)).toHaveLength(1);
     });
 
@@ -139,12 +139,12 @@ describe('build/vue-setup-transform base defineEmits macro', () => {
         const result = transformOrFail(source, 'base-nested-emits.vue').code;
 
         expect(result).toContain(`function save() {
-        const emit = defineEmits<{ save: [] }>();
-        emit('save');
-    }`);
+            const emit = defineEmits<{ save: [] }>();
+            emit('save');
+        }`);
         expect(result.indexOf('const emit = defineEmits')).toBeGreaterThan(
-            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+            result.indexOf('Shopware.Component.createExtendableSetup('),
         );
-        expect(result).not.toContain('(__shopwareSetupBindings.context.emit)');
+        expect(result).not.toContain('(__shopwareContext.emit)');
     });
 });

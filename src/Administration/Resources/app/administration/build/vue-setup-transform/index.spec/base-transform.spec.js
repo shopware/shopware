@@ -36,26 +36,32 @@ describe('build/vue-setup-transform base transforms', () => {
                 internalThing,
                 foo2,
                 __swOverride,
-            } = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
-                const useSwContext = () => __shopwareSetupBindings.context;
+            } = Shopware.Component.createExtendableSetup(
+                {
+                    name: 'sw-my-component',
+                    props: {},
+                },
+                (__shopwareProps, __shopwareContext) => {
+                    const useSwContext = () => __shopwareContext;
             
-                const props = (__shopwareSetupBindings.props);
-                const count = ref(props.initialCount ?? 0);
-                const doubled = computed(() => count.value * 2);
-                const internalThing = ref('secret');
-                const foo2 = ref('bar');
+                    const props = (__shopwareProps);
+                    const count = ref(props.initialCount ?? 0);
+                    const doubled = computed(() => count.value * 2);
+                    const internalThing = ref('secret');
+                    const foo2 = ref('bar');
             
-                return {
-                    public: {
-                        count,
-                        doubled,
-                        foo2,
-                    },
-                    private: {
-                        internalThing,
-                    },
-                };
-            });
+                    return {
+                        public: {
+                            count,
+                            doubled,
+                            foo2,
+                        },
+                        private: {
+                            internalThing,
+                        },
+                    };
+                },
+            );
             </script>
         `;
 
@@ -125,7 +131,7 @@ describe('build/vue-setup-transform base transforms', () => {
         const result = transformOrFail(source, 'base-destructured-runtime.vue').code;
 
         expect(result).toContain('publicTitle,');
-        expect(result).toContain('private: {\n            source,\n            items,\n            fallbackLabel,\n            localLabel,\n            rest,\n            firstItem,\n        }');
+        expect(result).toContain('private: {\n                source,\n                items,\n                fallbackLabel,\n                localLabel,\n                rest,\n                firstItem,\n            }');
     });
 
     it('adds the generated data scope before object v-bind so the user can override it', () => {

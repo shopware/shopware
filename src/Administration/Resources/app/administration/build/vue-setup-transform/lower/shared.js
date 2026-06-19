@@ -64,22 +64,22 @@ function makeUniqueName(baseName, takenNames) {
  *
  * @param {ShopwareSetupBlock} block
  * @param {ShopwareSetupScriptAnalysis} analysis
- * @param {string | null} setupBindingsName
+ * @param {{ props: string, context: string } | null} setupInputNames
  * @returns {SourceChunk[]}
  */
-function buildCallbackBodyChunks(block, analysis, setupBindingsName) {
+function buildCallbackBodyChunks(block, analysis, setupInputNames) {
     return transformRanges(
         block,
         analysis,
         analysis.bodyRemovals,
-        setupBindingsName
+        setupInputNames
             ? analysis.setupInputReplacements.map((range) => ({
                   ...range,
                   replacement: {
-                      props: `(${setupBindingsName}.props)`,
-                      emits: `(${setupBindingsName}.context.emit)`,
-                      expose: `(${setupBindingsName}.context.expose)`,
-                      slots: `(${setupBindingsName}.context.slots)`,
+                      props: `(${setupInputNames.props})`,
+                      emits: `(${setupInputNames.context}.emit)`,
+                      expose: `(${setupInputNames.context}.expose)`,
+                      slots: `(${setupInputNames.context}.slots)`,
                   }[range.kind],
               }))
             : [],

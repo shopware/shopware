@@ -39,7 +39,7 @@ The two modes are mutually exclusive. Mode attributes must be static quoted stri
 
 ## Runtime Lowering
 
-The preprocessor runs before Vue compiles the SFC. Base components are lowered through `createScriptSetupExtendableComponent()`, which is a thin bridge to `createExtendableSetup(...)`. Overrides are lowered to import-time `overrideComponentSetup(...)` registration so imported override SFC files register without needing to be mounted.
+The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`. Overrides are lowered to import-time `overrideComponentSetup(...)` registration so imported override SFC files register without needing to be mounted.
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 

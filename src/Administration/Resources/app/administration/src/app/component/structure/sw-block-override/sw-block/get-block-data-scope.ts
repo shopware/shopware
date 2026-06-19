@@ -1,8 +1,9 @@
 import { getCurrentInstance } from 'vue';
 import type { ComponentInternalInstance } from 'vue';
+import { scriptSetupDataScopeKey } from 'src/app/adapter/composition-extension-system';
 
 type ComponentInstanceWithScriptSetupDataScope = ComponentInternalInstance & {
-    __shopwareSetupDataScope?: Record<string, unknown>;
+    [scriptSetupDataScopeKey]?: Record<string, unknown>;
 };
 
 /**
@@ -12,5 +13,5 @@ type ComponentInstanceWithScriptSetupDataScope = ComponentInternalInstance & {
 export default function getBlockDataScope() {
     const instance = getCurrentInstance() as ComponentInstanceWithScriptSetupDataScope | null;
 
-    return instance?.__shopwareSetupDataScope ?? instance?.proxy ?? null;
+    return instance?.[scriptSetupDataScopeKey] ?? instance?.proxy ?? null;
 }

@@ -37,7 +37,8 @@ describe('build/vue-setup-transform validation', () => {
 
         const result = transformOrFail(source, 'script-attribute.vue').code;
 
-        expect(result).toContain("Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component'");
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'sw-my-component'");
     });
 
     it('preserves script setup attributes that do not belong to the Shopware transform', () => {
@@ -99,8 +100,8 @@ describe('build/vue-setup-transform validation', () => {
         const result = transformOrFail(source, 'nested-unsupported-macro.vue').code;
 
         expect(result).toContain(`function createModel() {
-        return defineModel();
-    }`);
+            return defineModel();
+        }`);
         expect(result).not.toContain('Vue macro defineModel() is not supported');
     });
 
@@ -470,16 +471,17 @@ describe('build/vue-setup-transform validation', () => {
 
         const result = transformOrFail(source, 'scanner.vue').code;
 
-        expect(result).toContain("Shopware.Component.createScriptSetupExtendableComponent()('real-component'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-comment'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-style'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-line-comment'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-block-comment'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-single-string'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-string'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template-literal'");
-        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template-expression'");
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'real-component'");
+        expect(result).not.toContain("name: 'from-comment'");
+        expect(result).not.toContain("name: 'from-template'");
+        expect(result).not.toContain("name: 'from-style'");
+        expect(result).not.toContain("name: 'from-line-comment'");
+        expect(result).not.toContain("name: 'from-block-comment'");
+        expect(result).not.toContain("name: 'from-single-string'");
+        expect(result).not.toContain("name: 'from-string'");
+        expect(result).not.toContain("name: 'from-template-literal'");
+        expect(result).not.toContain("name: 'from-template-expression'");
     });
 
     it('skips transformation when Vue reports SFC parse errors', () => {

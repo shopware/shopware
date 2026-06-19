@@ -57,7 +57,8 @@ function buildBaseReturn(analysis) {
  */
 function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
-    const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
+    const setupPropsName = makeUniqueName('__shopwareProps', takenNames);
+    const setupContextName = makeUniqueName('__shopwareContext', takenNames);
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
     const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
@@ -65,9 +66,12 @@ function buildBaseScript(block, analysis) {
         ...analysis.runtimeBindings.map((binding) => binding.name),
         '__swOverride',
     ];
-    const callbackBody = buildCallbackBodyChunks(block, analysis, setupBindingsName);
+    const callbackBody = buildCallbackBodyChunks(block, analysis, {
+        props: setupPropsName,
+        context: setupContextName,
+    });
     const body = [
-        generated(`const useSwContext = () => ${setupBindingsName}.context;\n\n`),
+        generated(`const useSwContext = () => ${setupContextName};\n\n`),
         ...callbackBody,
         generated(`\n\n${buildBaseReturn(analysis)}`),
     ];
@@ -111,11 +115,16 @@ function buildBaseScript(block, analysis) {
         generated([
             'const {',
             ...destructureEntries.map((entry) => `    ${entry},`),
-            `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', ${propsName ? `${propsName}, ` : ''}(${setupBindingsName}) => {`,
+            '} = Shopware.Component.createExtendableSetup(',
+            '    {',
+            `        name: '${escapeSingleQuoted(block.componentName)}',`,
+            `        props: ${propsName ?? '{}'},`,
+            '    },',
+            `    (${setupPropsName}, ${setupContextName}) => {`,
         ].join('\n')),
         generated('\n'),
-        indent(body),
-        generated('\n});\n</script>'),
+        indent(body, 8),
+        generated('\n    },\n);\n</script>'),
     );
 
     return chunks;

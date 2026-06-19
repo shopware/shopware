@@ -27,14 +27,14 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result).toContain(`const props = defineProps<{
     initialCount?: number;
 }>();`);
-        expect(result).toContain(
-            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
-        );
-        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'sw-my-component'");
+        expect(result).toContain('props: props,');
+        expect(result).toContain('const props = (__shopwareProps);');
         expect(result).toContain('const count = ref(props.initialCount ?? 0);');
         expect(result).not.toContain('const useSwProps =');
         expect(result.indexOf('const props = defineProps')).toBeLessThan(
-            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+            result.indexOf('Shopware.Component.createExtendableSetup('),
         );
     });
 
@@ -53,8 +53,8 @@ describe('build/vue-setup-transform base props macros', () => {
         const result = transformOrFail(source, 'base-destructured-props.vue').code;
 
         expect(result).toContain('const props = defineProps();');
-        expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
-        expect(result).toContain('private: {\n            initialCount,\n        }');
+        expect(result).toContain('const { initialCount = 0 } = (__shopwareProps);');
+        expect(result).toContain('private: {\n                initialCount,\n            }');
     });
 
     it('returns destructured defineProps() bindings for template access', () => {
@@ -72,8 +72,8 @@ describe('build/vue-setup-transform base props macros', () => {
 
         const result = transformOrFail(source, 'base-destructured-props-template.vue').code;
 
-        expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
-        expect(result).toContain('private: {\n            initialCount,\n        }');
+        expect(result).toContain('const { initialCount = 0 } = (__shopwareProps);');
+        expect(result).toContain('private: {\n                initialCount,\n            }');
     });
 
     it('keeps bare defineProps() outside the callback when the generated props binding name is taken', () => {
@@ -96,12 +96,12 @@ describe('build/vue-setup-transform base props macros', () => {
         const result = transformOrFail(source, 'base-bare-props-collision.vue').code;
 
         expect(result).toContain('const props2 = defineProps();');
-        expect(result).toContain(
-            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props2, (__shopwareSetupBindings) => {",
-        );
-        expect(result).toContain('(__shopwareSetupBindings.props);');
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'sw-my-component'");
+        expect(result).toContain('props: props2,');
+        expect(result).toContain('(__shopwareProps);');
         expect(result).toContain("return 'local binding';");
-        expect(result).toContain('private: {\n            props,\n        }');
+        expect(result).toContain('private: {\n                props,\n            }');
     });
 
     it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {
@@ -131,10 +131,10 @@ describe('build/vue-setup-transform base props macros', () => {
     initialCount: 3,
     labels: () => ['main'],
 });`);
-        expect(result).toContain(
-            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
-        );
-        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'sw-my-component'");
+        expect(result).toContain('props: props,');
+        expect(result).toContain('const props = (__shopwareProps);');
         expect(result).toContain('const count = props.initialCount;');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
@@ -163,8 +163,8 @@ describe('build/vue-setup-transform base props macros', () => {
 }>(), {
     initialCount: 3,
 });`);
-        expect(result).toContain('const { initialCount } = (__shopwareSetupBindings.props);');
-        expect(result).toContain('private: {\n            initialCount,\n        }');
+        expect(result).toContain('const { initialCount } = (__shopwareProps);');
+        expect(result).toContain('private: {\n                initialCount,\n            }');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
@@ -188,8 +188,8 @@ describe('build/vue-setup-transform base props macros', () => {
 
         const result = transformOrFail(source, 'base-destructured-with-defaults-template.vue').code;
 
-        expect(result).toContain('const { initialCount } = (__shopwareSetupBindings.props);');
-        expect(result).toContain('private: {\n            initialCount,\n        }');
+        expect(result).toContain('const { initialCount } = (__shopwareProps);');
+        expect(result).toContain('private: {\n                initialCount,\n            }');
     });
 
     it('supports defineProps() wrapped in a TypeScript as expression', () => {
@@ -207,11 +207,11 @@ describe('build/vue-setup-transform base props macros', () => {
         const result = transformOrFail(source, 'base-props-as.vue').code;
 
         expect(result).toContain('const props = defineProps<{ initialCount?: number }>();');
+        expect(result).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result).toContain("name: 'sw-my-component'");
+        expect(result).toContain('props: props,');
         expect(result).toContain(
-            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
-        );
-        expect(result).toContain(
-            'const props = (__shopwareSetupBindings.props) as { initialCount?: number };',
+            'const props = (__shopwareProps) as { initialCount?: number };',
         );
         expect(result.match(/defineProps/g)).toHaveLength(1);
     });
@@ -240,7 +240,7 @@ describe('build/vue-setup-transform base props macros', () => {
     initialCount: 3,
 });`);
         expect(result).toContain(
-            'const props = (__shopwareSetupBindings.props) satisfies { initialCount: number };',
+            'const props = (__shopwareProps) satisfies { initialCount: number };',
         );
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
@@ -290,15 +290,15 @@ describe('build/vue-setup-transform base props macros', () => {
         const result = transformOrFail(source, 'base-nested-props-macros.vue').code;
 
         expect(result).toContain(`function readProps() {
-        return defineProps<{ initialCount?: number }>();
-    }`);
+            return defineProps<{ initialCount?: number }>();
+        }`);
         expect(result).toContain(`function readPropsWithDefaults() {
-        return withDefaults(defineProps<{ label?: string }>(), {
-            label: 'fallback',
-        });
-    }`);
+            return withDefaults(defineProps<{ label?: string }>(), {
+                label: 'fallback',
+            });
+        }`);
         expect(result).not.toContain('const props = defineProps');
         expect(result).not.toContain('const props = withDefaults');
-        expect(result).not.toContain('(__shopwareSetupBindings.props)');
+        expect(result).not.toContain('(__shopwareProps)');
     });
 });

@@ -45,7 +45,6 @@ import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
 import {
     createExtendableSetup,
-    createScriptSetupExtendableComponent,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
@@ -144,7 +143,6 @@ class ShopwareClass implements CustomShopwareProperties {
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
-        createScriptSetupExtendableComponent: createScriptSetupExtendableComponent,
         overrideComponentSetup: overrideComponentSetup,
 
         /**

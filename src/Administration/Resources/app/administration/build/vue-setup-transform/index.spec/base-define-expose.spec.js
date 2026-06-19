@@ -26,11 +26,11 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-expose.vue').code;
 
-        expect(result).toContain('(__shopwareSetupBindings.context.expose)({');
+        expect(result).toContain('(__shopwareContext.expose)({');
         expect(result).toContain('focus,');
         expect(result).not.toContain('defineExpose');
-        expect(result.indexOf('function focus()')).toBeLessThan(result.indexOf('(__shopwareSetupBindings.context.expose)'));
-        expect(result).toContain('private: {\n            focus,\n        }');
+        expect(result.indexOf('function focus()')).toBeLessThan(result.indexOf('(__shopwareContext.expose)'));
+        expect(result).toContain('private: {\n                focus,\n            }');
     });
 
     it('supports bare defineExpose() calls', () => {
@@ -48,7 +48,7 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-bare-expose.vue').code;
 
-        expect(result).toContain('(__shopwareSetupBindings.context.expose)();');
+        expect(result).toContain('(__shopwareContext.expose)();');
         expect(result).not.toContain('defineExpose');
     });
 
@@ -73,9 +73,9 @@ describe('build/vue-setup-transform base defineExpose macro', () => {
 
         const result = transformOrFail(source, 'base-expose-as.vue').code;
 
-        expect(result).toContain(`(__shopwareSetupBindings.context.expose)({
-        focus,
-    }) as void;`);
+        expect(result).toContain(`(__shopwareContext.expose)({
+            focus,
+        }) as void;`);
         expect(result).not.toContain('defineExpose');
     });
 

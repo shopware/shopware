@@ -203,7 +203,7 @@ Multiple overrides are applied in registration order. Each receives a shallow co
 
 ## Native Setup Authoring
 
-Shopware setup SFCs provide syntax sugar around the same Composition API extension runtime. The transform runs before Vue compiles the SFC. Base components are lowered through `createScriptSetupExtendableComponent()`, which delegates to `createExtendableSetup(...)`; override files are lowered to import-time `overrideComponentSetup(...)` registration.
+Shopware setup SFCs provide syntax sugar around the same Composition API extension runtime. The transform runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`; override files are lowered to import-time `overrideComponentSetup(...)` registration.
 
 ### Source authoring modes
 

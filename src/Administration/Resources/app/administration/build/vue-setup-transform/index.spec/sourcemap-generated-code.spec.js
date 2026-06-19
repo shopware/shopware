@@ -36,9 +36,9 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'setup-input-replacements.vue');
 
-        expectGeneratedTokenUnmapped(result, '(__shopwareSetupBindings.props)');
-        expectGeneratedTokenUnmapped(result, '(__shopwareSetupBindings.context.emit)');
-        expectGeneratedTokenUnmapped(result, '(__shopwareSetupBindings.context.slots)');
+        expectGeneratedTokenUnmapped(result, '(__shopwareProps)');
+        expectGeneratedTokenUnmapped(result, '(__shopwareContext.emit)');
+        expectGeneratedTokenUnmapped(result, '(__shopwareContext.slots)');
     });
 
     it('does not map injected data scope attributes to user-authored template source', () => {
@@ -159,7 +159,7 @@ swDefineOverride({
         const result = transformOrFail(source, 'combined-edits.vue');
 
         expectGeneratedTokenUnmapped(result, ':data="$dataScope"');
-        expectGeneratedTokenUnmapped(result, '(__shopwareSetupBindings.props)');
-        expectGeneratedTokenUnmapped(result, '(__shopwareSetupBindings.context.emit)');
+        expectGeneratedTokenUnmapped(result, '(__shopwareProps)');
+        expectGeneratedTokenUnmapped(result, '(__shopwareContext.emit)');
     });
 });

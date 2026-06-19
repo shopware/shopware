@@ -44,7 +44,8 @@ const count = 1;
         const result = await plugin.transform(source, '/example/component.vue');
 
         expect(result).toHaveProperty('code');
-        expect(result.code).toContain("Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component'");
+        expect(result.code).toContain('Shopware.Component.createExtendableSetup(');
+        expect(result.code).toContain("name: 'sw-my-component'");
         expect(result.map.sources).toContain('/example/component.vue');
         expect(result.map.sources).not.toContain('component.vue');
         expect(result.map.sourcesContent).toContain(source);

@@ -7,6 +7,7 @@ import {
     isRef,
     proxyRefs,
     reactive,
+    toRef,
     toRefs,
     watch,
 } from 'vue';
@@ -71,12 +72,13 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
     setupContext: SetupContext;
 };
 
-const scriptSetupDataScopeKey = '__shopwareSetupDataScope' as const;
+/** @private */
+export const scriptSetupDataScopeKey = Symbol('shopwareSetupDataScope');
 const scriptSetupOverrideStateKey = '__swOverride' as const;
 
 type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
 
-type ScriptSetupExtendableState<TState extends object> = ToRefs<Reactive<TState>> & {
+type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
     readonly [scriptSetupOverrideStateKey]: Ref<Reactive<ScriptSetupOverrideState>>;
     readonly [scriptSetupDataScopeKey]: ShallowUnwrapRef<ToRefs<Reactive<TState>>>;
 };
@@ -204,7 +206,7 @@ export function createExtendableSetup<
         public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
         private?: TPrivateSetupResult;
     },
-): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     // Call the original setup function
     const originalSetupResultRaw = originalSetup(options.props, componentContext);
@@ -233,8 +235,13 @@ export function createExtendableSetup<
     const originalSetupResult: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
         ...originalSetupResultPublic,
         ...originalSetupResultPrivate,
-        [scriptSetupOverrideStateKey]: reactive({}) as ScriptSetupOverrideState,
     };
+    const scriptSetupOverrideState = reactive({}) as ScriptSetupOverrideState;
+
+    Object.defineProperty(originalSetupResult, scriptSetupOverrideStateKey, {
+        value: scriptSetupOverrideState,
+        enumerable: false,
+    });
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
@@ -421,69 +428,30 @@ export function createExtendableSetup<
     // Watch for changes in the overrides array and reapply overrides when changed
     watch(overrides, applyOverrides, { deep: true, immediate: true });
 
-    return toRefs(reactiveWrappedState);
-}
+    const state = toRefs(reactiveWrappedState) as ExtendableSetupState<
+        Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
+    >;
 
-/**
- * The Shopware setup SFC transform emits this bridge from inside native `<script setup>`.
- * It keeps generated SFC code thin while still routing every base component through
- * the same createExtendableSetup runtime path as hand-written Composition API code.
- */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function createScriptSetupExtendableComponent<
-    TProps extends Record<string, unknown> = Record<string, unknown>,
-    TContext = SetupContext,
->() {
-    return function <
-        TComponentName extends keyof ComponentPublicApiMapping,
-        TSetupResult extends ComponentPublicApiMapping[TComponentName] = ComponentPublicApiMapping[TComponentName],
-        TPrivateSetupResult extends object = object,
-    >(
-        name: TComponentName,
-        propsOrSetup:
-            | TProps
-            | ((bindings: { props: TProps; context: TContext }) => {
-                  public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
-                  private?: TPrivateSetupResult;
-              }),
-        maybeSetup?: (bindings: { props: TProps; context: TContext }) => {
-            public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
-            private?: TPrivateSetupResult;
-        },
-    ): ScriptSetupExtendableState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
-        const instance = getCurrentInstance();
-        const setup = (maybeSetup ?? propsOrSetup) as (bindings: { props: TProps; context: TContext }) => {
-            public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
-            private?: TPrivateSetupResult;
-        };
-        const props = (maybeSetup ? propsOrSetup : (instance?.props ?? {})) as TProps;
-        const context = getComponentContext() as TContext;
+    Object.defineProperty(state, scriptSetupOverrideStateKey, {
+        value: toRef(reactiveWrappedState, scriptSetupOverrideStateKey),
+        enumerable: false,
+    });
 
-        const state = createExtendableSetup(
-            {
-                name,
-                props,
-                context,
-            },
-            () => setup({ props, context }),
-        ) as ScriptSetupExtendableState<
-            Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
-        >;
+    Object.defineProperty(state, scriptSetupDataScopeKey, {
+        value: proxyRefs(state),
+        enumerable: false,
+    });
 
-        Object.defineProperty(state, scriptSetupDataScopeKey, {
-            value: proxyRefs(state),
-            enumerable: false,
+    const instance = getCurrentInstance();
+
+    if (instance) {
+        Object.defineProperty(instance, scriptSetupDataScopeKey, {
+            value: state[scriptSetupDataScopeKey],
+            configurable: true,
         });
+    }
 
-        if (instance) {
-            Object.defineProperty(instance, scriptSetupDataScopeKey, {
-                value: state[scriptSetupDataScopeKey],
-                configurable: true,
-            });
-        }
-
-        return state;
-    };
+    return state;
 }
 
 /**

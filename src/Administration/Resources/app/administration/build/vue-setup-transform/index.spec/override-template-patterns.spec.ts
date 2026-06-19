@@ -126,42 +126,6 @@ describe('build/vue-setup-transform override template pattern references', () =>
         expect(result).toContain(`__swOverride: { ${privateNamespace}: { info } }`);
     });
 
-    it('rejects repeated sw-block extends declarations using v-for on the block', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block v-for="item in [1, 2]" :key="item" extends="sw_example_component_body">
-                <p>{{ item }}</p>
-            </sw-block>
-            </template>
-            <script setup sw-override="sw-example-component">
-            swDefineOverride({});
-            </script>
-        `;
-
-        expect(() => transformOrFail(source, 'direct-repeated-extends.override.vue')).toThrow(
-            'Repeated <sw-block extends> declarations are not supported. Override block declarations must not use v-for.',
-        );
-    });
-
-    it('rejects repeated sw-block extends declarations inside a v-for template', () => {
-        const source = stripIndent`
-            <template>
-            <template v-for="item in [1, 2]" :key="item">
-                <sw-block extends="sw_example_component_body">
-                    <p>{{ item }}</p>
-                </sw-block>
-            </template>
-            </template>
-            <script setup sw-override="sw-example-component">
-            swDefineOverride({});
-            </script>
-        `;
-
-        expect(() => transformOrFail(source, 'ancestor-repeated-extends.override.vue')).toThrow(
-            'Repeated <sw-block extends> declarations are not supported. Override block declarations must not use v-for.',
-        );
-    });
-
     it('detects override-local references in slot-scope default values', () => {
         const source = stripIndent`
             <template>

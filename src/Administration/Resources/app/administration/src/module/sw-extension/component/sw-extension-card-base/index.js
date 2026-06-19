@@ -39,6 +39,7 @@ export default {
 
     data() {
         return {
+            DATE_ONLY_FORMAT,
             isLoading: false,
             showUninstallModal: false,
             showRemovalModal: false,
@@ -58,10 +59,6 @@ export default {
          */
         dateFilter() {
             return Shopware.Filter.getByName('date');
-        },
-
-        dateOnlyFormat() {
-            return DATE_ONLY_FORMAT;
         },
 
         defaultThemeAsset() {

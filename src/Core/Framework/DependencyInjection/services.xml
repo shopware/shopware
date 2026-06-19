@@ -405,6 +405,11 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service class="Twig\Extra\Intl\IntlExtension" id="twig.extension.intl">
             <tag name="twig.extension"/>
         </service>
@@ -484,6 +489,7 @@ frame-ancestors 'none';
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
+            <argument>%kernel.bundles_metadata%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">

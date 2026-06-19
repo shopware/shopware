@@ -583,5 +583,27 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
                 `v-if="$swLegacyBlockElse('test-block:1', ${options(2, false, 'nativeExtension')})"`,
             );
         });
+
+        it('does not continue a condition chain across non-whitespace text between blocks', () => {
+            const transformedTemplate = transformLegacyBlockConditionals(`
+                <div>
+                    <sw-block name="test-block">
+                        <div v-if="showPrimary" class="primary-branch">primary</div>
+                    </sw-block>
+
+                    text between blocks
+
+                    <sw-block extends="test-block">
+                        <sw-block-parent />
+                        <div v-else-if="showSecondary" class="secondary-branch">secondary</div>
+                    </sw-block>
+                </div>
+            `);
+
+            expect(transformedTemplate).toContain(
+                `<div v-else-if="showSecondary" class="secondary-branch">secondary</div>`,
+            );
+            expect(transformedTemplate).not.toContain('$swLegacyBlockElseIf');
+        });
     });
 });

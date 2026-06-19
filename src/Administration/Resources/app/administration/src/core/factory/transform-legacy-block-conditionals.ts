@@ -79,6 +79,7 @@ type BlockConditionInfo = {
     blockName: string;
     renderOrderSegment: LegacyConditionRenderOrderSegment;
     conditionalChains: BlockConditionChainInfo[];
+    detachedFromPrevious: boolean;
 };
 
 type RewriteInfo = {
@@ -195,15 +196,17 @@ export default function transformNativeLegacyBlockConditionals(template: string,
 
     const blocks = parsedTemplate.content.querySelectorAll('sw-block[name], sw-block[extends]');
 
-    const entries = Array.from(blocks).map((block) => {
+    const entries = Array.from(blocks).map((block, index, allBlocks) => {
         const renderOrderSegment: LegacyConditionRenderOrderSegment = block.hasAttribute('extends')
             ? 'nativeExtension'
             : 'defaultSlot';
+        const previousBlock = allBlocks[index - 1];
 
         return {
             blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
             innerTemplate: block.innerHTML,
             renderOrderSegment,
+            detachedFromPrevious: previousBlock ? !hasOnlyIgnorableNodesBetweenElements(previousBlock, block) : false,
         };
     });
 
@@ -218,6 +221,7 @@ export default function transformNativeLegacyBlockConditionals(template: string,
             blockName: entry.blockName,
             renderOrderSegment: entry.renderOrderSegment,
             conditionalChains: conditionalChains,
+            detachedFromPrevious: entry.detachedFromPrevious,
         });
     });
 
@@ -247,6 +251,24 @@ function isChainBreakingTextNode(node: ChildNode): boolean {
 
 function hasOnlyIgnorableNodesAfter(nodes: ChildNode[], currentIndex: number): boolean {
     return nodes.slice(currentIndex + 1).every((node) => !isElementNode(node) && !isChainBreakingTextNode(node));
+}
+
+function hasOnlyIgnorableNodesBetweenElements(previous: Element, current: Element): boolean {
+    if (previous.parentNode !== current.parentNode) {
+        return true;
+    }
+
+    let node = previous.nextSibling;
+
+    while (node && node !== current) {
+        if (isElementNode(node) || isChainBreakingTextNode(node)) {
+            return false;
+        }
+
+        node = node.nextSibling;
+    }
+
+    return node === current;
 }
 
 function collectBlockConditionalChains(blockName: string, children: ChildNode[]): BlockConditionChainInfo[] {
@@ -363,6 +385,12 @@ function fillChainIndices(
 
     // Iterate over blocks in order and assign chain keys, ensuring that continuation chains receive the same key as their leading chain.
     blockConditionInfos.forEach((blockInfo) => {
+        if (blockInfo.detachedFromPrevious && blockInfo.conditionalChains.length > 0) {
+            lastChain = null;
+            startingChain = null;
+            blockInfo.conditionalChains[0].detachedFromPrevious = !blockInfo.conditionalChains[0].starting;
+        }
+
         blockInfo.conditionalChains.forEach((chain) => {
             const localChainKey = createLegacyConditionChainKey(blockInfo.blockName, chain.index);
 
@@ -612,6 +640,7 @@ export function transformLegacyTwigBlockSequenceConditionals(
             blockName: entry.blockName,
             renderOrderSegment: 'shimExtension',
             conditionalChains,
+            detachedFromPrevious: false,
         });
     });
     // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive the same key as their leading chain.

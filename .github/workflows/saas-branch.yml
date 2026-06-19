@@ -48,7 +48,7 @@ jobs:
       CURRENT_MAJOR_ALIAS: "6.6.x-dev"
     steps:
       - name: Checkout platform
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - uses: octo-sts/action@v1.1.1
         id: sts-shopware-private
         with:

@@ -41,6 +41,7 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
     public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
+    public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
 
@@ -335,6 +336,16 @@ class ContentSystemException extends HttpException
             self::UNKNOWN_ENTITY_TYPE,
             'No content layout specification source can handle entity type "{{ entityType }}"',
             ['entityType' => $entityType]
+        );
+    }
+
+    public static function unknownLoaderEntity(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_LOADER_ENTITY,
+            'The entity loader cannot resolve a produced type for unknown entity "{{ entityName }}".',
+            ['entityName' => $entityName]
         );
     }
 

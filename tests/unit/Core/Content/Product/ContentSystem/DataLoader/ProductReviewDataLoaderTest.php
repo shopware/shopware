@@ -46,13 +46,16 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame('product_review', ProductReviewDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares an EntitySearchResult of ProductReviewCollection as its single producible type')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = ProductReviewDataLoader::getProvidedData();
+        $capabilities = $this->loader->producibleTypes();
 
-        static::assertSame(EntitySearchResult::class, $descriptor->className);
-        static::assertSame([ProductReviewCollection::class], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(EntitySearchResult::class, $capabilities[0]->producedType);
+        static::assertSame([ProductReviewCollection::class], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('returns review search result as data and marks result as cache-aware with no tags')]

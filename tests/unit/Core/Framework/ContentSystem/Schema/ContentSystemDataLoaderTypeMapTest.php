@@ -6,9 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 
 /**
@@ -20,37 +22,52 @@ class ContentSystemDataLoaderTypeMapTest extends TestCase
     /**
      * @param list<string> $expected
      */
-    #[DataProvider('returnsSourcesForClassProvider')]
-    #[TestDox('returns matching source identifiers for $_dataName')]
-    public function testGetSourcesForClass(string $className, array $expected): void
+    #[DataProvider('scansSubtypesProvider')]
+    #[TestDox('resolves source identifiers for $_dataName')]
+    public function testGetSourcesForIsSubtypeAware(string $className, array $expected): void
     {
-        $map = new ContentSystemDataLoaderTypeMap([
-            'entity' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
-            'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
-        ]);
-
-        static::assertSame($expected, $map->getSourcesFor($className));
+        static::assertSame($expected, $this->map()->getSourcesFor($className));
     }
 
     /**
      * @return iterable<string, array{string, list<string>}>
      */
-    public static function returnsSourcesForClassProvider(): iterable
+    public static function scansSubtypesProvider(): iterable
     {
-        yield 'product entity' => [ProductEntity::class, ['entity']];
-        yield 'tree' => [Tree::class, ['navigation']];
-        yield 'unknown class' => ['NonExistent', []];
+        yield 'a base property via a sales-channel subclass producer' => [ProductEntity::class, ['entity']];
+        yield 'a sales-channel property via an equal sales-channel producer' => [SalesChannelProductEntity::class, ['entity']];
+        yield 'a base property via an equal base producer (no sales-channel variant)' => [MediaEntity::class, ['media']];
+        yield 'no source for an unrelated type' => [CategoryEntity::class, []];
     }
 
-    #[TestDox('returns all source identifiers when class appears in multiple sources')]
-    public function testGetSourcesForClassWithMultipleSources(): void
+    #[TestDox('capabilityFor returns the matching capability for a producible class')]
+    public function testCapabilityForReturnsMatch(): void
     {
-        $map = new ContentSystemDataLoaderTypeMap([
-            'listing' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
-            'search' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
-            'suggest' => [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)],
-        ]);
+        $capability = $this->map()->capabilityFor('entity', ProductEntity::class);
 
-        static::assertSame(['listing', 'search', 'suggest'], $map->getSourcesFor(ProductEntity::class));
+        static::assertInstanceOf(LoaderTypeCapability::class, $capability);
+        static::assertSame(SalesChannelProductEntity::class, $capability->producedType);
+        static::assertSame(['entity' => 'product'], $capability->configTemplate);
+        static::assertSame(['property'], $capability->requiredConfigKeys);
+    }
+
+    #[TestDox('capabilityFor returns null when the source cannot produce the class')]
+    public function testCapabilityForReturnsNullWhenSourceCannotProduce(): void
+    {
+        static::assertNull($this->map()->capabilityFor('entity', MediaEntity::class));
+    }
+
+    #[TestDox('capabilityFor returns null for an unknown source')]
+    public function testCapabilityForReturnsNullForUnknownSource(): void
+    {
+        static::assertNull($this->map()->capabilityFor('unknown', ProductEntity::class));
+    }
+
+    private function map(): ContentSystemDataLoaderTypeMap
+    {
+        return new ContentSystemDataLoaderTypeMap([
+            'entity' => [new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'], ['property'])],
+            'media' => [new LoaderTypeCapability(MediaEntity::class)],
+        ]);
     }
 }

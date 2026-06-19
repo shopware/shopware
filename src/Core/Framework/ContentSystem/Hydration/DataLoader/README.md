@@ -4,10 +4,10 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Key Classes
 
-- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, and `getProvidedData()`
+- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, `producibleTypes()`, and `resolveProducedType()`
 - `ContentDataLoaderResult` - Result with data and cache info: `notFound()`, `cached()`, `cachedExternally()`, `uncacheable()`
-- `ContentSystemDataLoaderTypeDescriptor` - DTO describing a loader's provided data type (`className` + `genericParameters`)
-- `DataLoaderProvider` - Service locator dispatcher (throws if source not found)
+- `LoaderTypeCapability` - VO describing one type a loader can produce: `producedType`, `configTemplate`, `requiredConfigKeys`, `genericParameters`
+- `DataLoaderProvider` - Service locator dispatcher: `get($source)` throws if the source is not registered; `getSources()` lists every registered source identifier (used by the type resolver)
 
 ## Built-in Loaders
 
@@ -26,11 +26,11 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 ## Extension Point
 
 1. Extend `AbstractContentDataLoader`, implement `getRequirementType()` returning your source identifier
-2. Annotate with `@extends AbstractContentDataLoader<YourStruct>` — required for compile-time type introspection (see Schema/)
+2. Annotate with `@extends AbstractContentDataLoader<YourStruct>` — the default `producibleTypes()`/`resolveProducedType()` derive the produced type from it; a missing or unresolvable annotation fails the build (see Schema/)
 3. Create config class extending `AbstractContentDataLoaderConfig` with matching serializer
 4. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
 5. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions
 
-Override `getProvidedData()` only for special cases (e.g., wildcard entity loaders). The default implementation extracts the type from `@extends`.
+Fixed-type loaders need no override: the base `producibleTypes()` returns one `LoaderTypeCapability` derived from `@extends`, and `resolveProducedType()` returns that type ignoring config.
 
-Wildcard loaders that serve multiple concrete types (e.g., generic entity loaders) listen to `ContentSystemDataLoaderTypesResolvedEvent` via `#[AsEventListener]`. The resolver dispatches per source with event name `ContentSystemDataLoaderTypesResolvedEvent::class . '.' . $source`. Listeners set `$event->types` to replace, extend, or filter the compile-time types.
+Wildcard loaders that serve multiple concrete types (e.g., the generic `entity`/`entity_collection` loaders) override both `producibleTypes()` and `resolveProducedType()` to enumerate the live definition registry — one capability per registered entity, each carrying the `configTemplate` (`['entity' => <name>]`) and `requiredConfigKeys` (`['property']`) needed to produce it. Enumeration skips definitions that have no addressable type: `MappingEntityDefinition`s, plus the `entity` loader skips an `ArrayEntity` entity class and the `entity_collection` loader skips a bare `EntityCollection` collection class. `resolveProducedType()` throws `ContentSystemException::unknownLoaderEntity` when the configured entity name is not registered.

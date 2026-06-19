@@ -40,13 +40,16 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame('shipping_method', ShippingMethodDataLoader::getRequirementType());
     }
 
-    #[TestDox('resolves provided data type from annotation')]
-    public function testGetProvidedDataResolvesExpectedType(): void
+    #[TestDox('declares ShippingMethodCollection as its single producible type')]
+    public function testProducibleTypesDeclaresExtendsType(): void
     {
-        $descriptor = ShippingMethodDataLoader::getProvidedData();
+        $capabilities = $this->dataLoader->producibleTypes();
 
-        static::assertSame(ShippingMethodCollection::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        static::assertCount(1, $capabilities);
+        static::assertSame(ShippingMethodCollection::class, $capabilities[0]->producedType);
+        static::assertSame([], $capabilities[0]->genericParameters);
+        static::assertSame([], $capabilities[0]->configTemplate);
+        static::assertSame([], $capabilities[0]->requiredConfigKeys);
     }
 
     #[TestDox('loads shipping methods and returns cachedExternally result with empty cache tags')]

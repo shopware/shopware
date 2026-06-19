@@ -5,16 +5,23 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -24,6 +31,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,47 +40,137 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityCollectionLoader::class)]
 class EntityCollectionLoaderTest extends TestCase
 {
-    #[TestDox('populates event types with all registered entity collection classes')]
-    public function testOnTypesResolvedPopulatesAllCollections(): void
+    #[TestDox('declares the sales-channel collection class and entity generic for an entity with a sales-channel definition')]
+    public function testProducibleTypesDeclaresSalesChannelCollectionForEntityWithVariant(): void
     {
-        $productDef = static::createStub(EntityDefinition::class);
-        $productDef->method('getCollectionClass')->willReturn(ProductCollection::class);
-
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-        $registry->method('getDefinitions')->willReturn([$productDef]);
-
         $loader = new EntityCollectionLoader(
-            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
-            $registry,
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity_collection', []);
-        $loader->onTypesResolved($event);
+        $capabilities = $loader->producibleTypes();
 
-        static::assertCount(1, $event->types);
-        static::assertSame(ProductCollection::class, $event->types[0]->className);
+        static::assertCount(1, $capabilities);
+        static::assertSame(SalesChannelProductCollection::class, $capabilities[0]->producedType);
+        static::assertSame([SalesChannelProductEntity::class], $capabilities[0]->genericParameters);
+        static::assertSame(['entity' => 'product'], $capabilities[0]->configTemplate);
+        static::assertSame(['property'], $capabilities[0]->requiredConfigKeys);
     }
 
-    #[TestDox('excludes bare EntityCollection from resolved event types')]
-    public function testOnTypesResolvedExcludesBareEntityCollection(): void
+    #[TestDox('declares the base collection class for an entity without a sales-channel definition')]
+    public function testProducibleTypesDeclaresBaseCollectionForEntityWithoutVariant(): void
     {
-        $def = static::createStub(EntityDefinition::class);
-        $def->method('getCollectionClass')->willReturn(EntityCollection::class);
-
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-        $registry->method('getDefinitions')->willReturn([$def]);
-
         $loader = new EntityCollectionLoader(
-            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
-            $registry,
+            $this->createSalesChannelDefinitionRegistry(),
+            $this->createDefinitionRegistry(new MediaDefinition()),
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity_collection', []);
-        $loader->onTypesResolved($event);
+        $capabilities = $loader->producibleTypes();
 
-        static::assertSame([], $event->types);
+        static::assertCount(1, $capabilities);
+        static::assertSame(MediaCollection::class, $capabilities[0]->producedType);
+        static::assertSame([MediaEntity::class], $capabilities[0]->genericParameters);
+    }
+
+    #[TestDox('skips bare EntityCollection definitions but keeps enumerating the rest')]
+    public function testProducibleTypesSkipsBareEntityCollectionAndContinues(): void
+    {
+        // Bare-collection definition first, valid definition second: a continue→break regression would
+        // drop the valid type and leave an empty result.
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([
+            'bare' => $this->definitionStub(EntityCollection::class, MediaEntity::class, 'bare'),
+            'media' => $this->definitionStub(MediaCollection::class, MediaEntity::class, 'media'),
+        ]);
+
+        $scRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scRegistry->method('getSalesChannelDefinitions')->willReturn([]);
+
+        $loader = new EntityCollectionLoader($scRegistry, $registry, static::createStub(EntityCacheTagResolver::class));
+        $capabilities = $loader->producibleTypes();
+
+        static::assertCount(1, $capabilities);
+        static::assertSame(MediaCollection::class, $capabilities[0]->producedType);
+    }
+
+    #[TestDox('skips mapping definitions but keeps enumerating the rest')]
+    public function testProducibleTypesSkipsMappingDefinitionsAndContinues(): void
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([
+            'product_category' => static::createStub(MappingEntityDefinition::class),
+            'media' => $this->definitionStub(MediaCollection::class, MediaEntity::class, 'media'),
+        ]);
+
+        $scRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scRegistry->method('getSalesChannelDefinitions')->willReturn([]);
+
+        $loader = new EntityCollectionLoader($scRegistry, $registry, static::createStub(EntityCacheTagResolver::class));
+        $capabilities = $loader->producibleTypes();
+
+        static::assertCount(1, $capabilities);
+        static::assertSame(MediaCollection::class, $capabilities[0]->producedType);
+    }
+
+    #[TestDox('resolves the sales-channel collection class for a config naming an entity with a variant')]
+    public function testResolveProducedTypeReturnsSalesChannelCollection(): void
+    {
+        $loader = new EntityCollectionLoader(
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        static::assertSame(
+            SalesChannelProductCollection::class,
+            $loader->resolveProducedType(new EntityLoaderConfig('product', 'productIds', [])),
+        );
+    }
+
+    #[TestDox('throws when resolving a config that names an unknown entity')]
+    public function testResolveProducedTypeThrowsForUnknownEntity(): void
+    {
+        $loader = new EntityCollectionLoader(
+            $this->createSalesChannelDefinitionRegistry(),
+            $this->createDefinitionRegistry(),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::unknownLoaderEntity('ghost'));
+
+        $loader->resolveProducedType(new EntityLoaderConfig('ghost', 'ghostIds', []));
+    }
+
+    #[TestDox('throws when resolving produced type for a config that is not an EntityLoaderConfig')]
+    public function testResolveProducedTypeThrowsForWrongConfigType(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, StubLoaderConfig::class),
+        );
+
+        $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
+    }
+
+    #[TestDox('returns the declared sales-channel collection class when no IDs are provided')]
+    public function testEmptyCollectionPathReturnsDeclaredProducedType(): void
+    {
+        $loader = new EntityCollectionLoader(
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->build(),
+            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertInstanceOf(SalesChannelProductCollection::class, $result->data);
+        static::assertSame($loader->producibleTypes()[0]->producedType, $result->data::class);
     }
 
     #[TestDox('returns cached collection with resolved tags for all loaded entities')]
@@ -150,6 +248,7 @@ class EntityCollectionLoaderTest extends TestCase
             ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
 
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
         $defRegistry->method('getRepository')->willReturn($plainRepo);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
@@ -272,6 +371,29 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('returns notFound instead of throwing when the configured entity is not registered')]
+    public function testLoadReturnsNotFoundForUnregisteredEntity(): void
+    {
+        // has() defaults to false on the stub registry, so the loader must short-circuit to notFound
+        // rather than letting getByEntityName()/getRepository() throw (loaders must never throw).
+        $loader = new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $result = $loader->load(
+            ContentElementBuilder::create('product-grid')->withProperty('ghostIds', ['id-1'])->build(),
+            new DataRequirement('ghosts', 'entity_collection', new EntityLoaderConfig('ghost', 'ghostIds', [])),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
     #[TestDox('returns null data when property value is not an array')]
     public function testLoadReturnsNullDataWhenPropertyIsNotArray(): void
     {
@@ -299,6 +421,7 @@ class EntityCollectionLoaderTest extends TestCase
         $definition->method('getCollectionClass')->willReturn($collectionClass);
 
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         return new EntityCollectionLoader(
@@ -325,6 +448,7 @@ class EntityCollectionLoaderTest extends TestCase
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -344,6 +468,7 @@ class EntityCollectionLoaderTest extends TestCase
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
         return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
@@ -353,9 +478,44 @@ class EntityCollectionLoaderTest extends TestCase
     {
         $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
 
         return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+    }
+
+    private function createDefinitionRegistry(EntityDefinition ...$definitions): DefinitionInstanceRegistry
+    {
+        $registry = new DefinitionInstanceRegistry(new Container(), [], []);
+        foreach ($definitions as $definition) {
+            $registry->register($definition);
+        }
+
+        return $registry;
+    }
+
+    private function createSalesChannelDefinitionRegistry(EntityDefinition ...$definitions): SalesChannelDefinitionInstanceRegistry
+    {
+        $registry = new SalesChannelDefinitionInstanceRegistry('sales_channel_definition.', new Container(), [], []);
+        foreach ($definitions as $definition) {
+            $registry->register($definition);
+        }
+
+        return $registry;
+    }
+
+    /**
+     * @param class-string $collectionClass
+     * @param class-string<Entity> $entityClass
+     */
+    private function definitionStub(string $collectionClass, string $entityClass, string $entityName): EntityDefinition
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getCollectionClass')->willReturn($collectionClass);
+        $definition->method('getEntityClass')->willReturn($entityClass);
+        $definition->method('getEntityName')->willReturn($entityName);
+
+        return $definition;
     }
 
     private function createEntityWithId(string $id): Entity

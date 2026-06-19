@@ -6,14 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -21,105 +19,65 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
-    #[TestDox('preserves all descriptor fields when no subscriber is registered')]
-    public function testPreservesDescriptorFieldsWithNoRegisteredSubscriber(): void
+    #[TestDox('assembles the map from each registered loader producibleTypes() keyed by source')]
+    public function testAssemblesMapFromProducibleTypes(): void
     {
-        $resolver = new ContentSystemDataLoaderTypeResolver(
-            ['product_review' => [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]]],
-            new EventDispatcher(),
-        );
+        $navigation = static::createStub(AbstractContentDataLoader::class);
+        $navigation->method('producibleTypes')->willReturn([new LoaderTypeCapability(Tree::class)]);
+
+        $entity = static::createStub(AbstractContentDataLoader::class);
+        $entity->method('producibleTypes')->willReturn([
+            new LoaderTypeCapability(SalesChannelProductEntity::class, ['entity' => 'product'], ['property']),
+        ]);
+
+        $resolver = new ContentSystemDataLoaderTypeResolver(new DataLoaderProvider(new ServiceLocator([
+            'navigation' => static fn (): AbstractContentDataLoader => $navigation,
+            'entity' => static fn (): AbstractContentDataLoader => $entity,
+        ])));
 
         $map = $resolver->resolve();
 
-        static::assertCount(1, $map->sourceToTypes['product_review']);
-        static::assertSame(EntitySearchResult::class, $map->sourceToTypes['product_review'][0]->className);
-        static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
+        static::assertSame([Tree::class], array_map(
+            static fn (LoaderTypeCapability $capability): string => $capability->producedType,
+            $map->sourceToCapabilities['navigation'],
+        ));
+        static::assertSame(['entity' => 'product'], $map->sourceToCapabilities['entity'][0]->configTemplate);
     }
 
-    #[TestDox('uses subscriber-provided types instead of compiled entries')]
-    public function testSubscriberReplacesCompiledEntries(): void
+    #[TestDox('memoizes the assembled map so producibleTypes() is read only once per runtime')]
+    public function testMemoizesAssembledMap(): void
     {
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(
-            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
-            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
-                $event->types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
-            },
-        );
+        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader->expects($this->once())->method('producibleTypes')->willReturn([new LoaderTypeCapability(Tree::class)]);
 
-        $resolver = new ContentSystemDataLoaderTypeResolver(
-            ['entity' => [['className' => Entity::class, 'genericParameters' => []]]],
-            $dispatcher,
-        );
+        $resolver = new ContentSystemDataLoaderTypeResolver(new DataLoaderProvider(new ServiceLocator([
+            'navigation' => static fn (): AbstractContentDataLoader => $loader,
+        ])));
 
-        $map = $resolver->resolve();
-
-        static::assertCount(1, $map->sourceToTypes['entity']);
-        static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
+        static::assertSame($resolver->resolve(), $resolver->resolve());
     }
 
-    #[TestDox('keeps compiled entries when no subscriber modifies types')]
-    public function testKeepsCompiledEntriesWhenSubscriberIsNoOp(): void
+    #[TestDox('re-reads producibleTypes() on each fresh resolver instance so late-registered types appear without a container rebuild')]
+    public function testFreshResolverReflectsLateRegisteredTypes(): void
     {
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(
-            ContentSystemDataLoaderTypesResolvedEvent::class . '.navigation',
-            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
-                // no-op: subscriber receives event but does not modify types
-            },
-        );
+        $capabilities = [new LoaderTypeCapability(Tree::class)];
 
-        $resolver = new ContentSystemDataLoaderTypeResolver(
-            ['navigation' => [['className' => Tree::class, 'genericParameters' => []]]],
-            $dispatcher,
-        );
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('producibleTypes')->willReturnCallback(static function () use (&$capabilities): array {
+            return $capabilities;
+        });
 
-        $map = $resolver->resolve();
+        $provider = new DataLoaderProvider(new ServiceLocator([
+            'navigation' => static fn (): AbstractContentDataLoader => $loader,
+        ]));
 
-        static::assertCount(1, $map->sourceToTypes['navigation']);
-        static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
-    }
+        $first = (new ContentSystemDataLoaderTypeResolver($provider))->resolve();
+        static::assertCount(1, $first->sourceToCapabilities['navigation']);
 
-    #[TestDox('resolves multiple sources with mixed subscriber presence')]
-    public function testResolvesMultipleSourcesWithMixedSubscriberPresence(): void
-    {
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(
-            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
-            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
-                $event->types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
-            },
-        );
+        // Simulate an entity registered into the live registry between kernel runtimes.
+        $capabilities[] = new LoaderTypeCapability(SalesChannelProductEntity::class);
 
-        $resolver = new ContentSystemDataLoaderTypeResolver([
-            'entity' => [['className' => Entity::class, 'genericParameters' => []]],
-            'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
-        ], $dispatcher);
-
-        $map = $resolver->resolve();
-
-        static::assertCount(2, $map->sourceToTypes);
-        static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
-        static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
-    }
-
-    #[TestDox('accepts empty type list when subscriber removes all types')]
-    public function testAcceptsEmptyTypeListWhenSubscriberRemovesAllTypes(): void
-    {
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(
-            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
-            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
-                $event->types = [];
-            },
-        );
-
-        $resolver = new ContentSystemDataLoaderTypeResolver([
-            'entity' => [['className' => Entity::class, 'genericParameters' => []]],
-        ], $dispatcher);
-
-        $map = $resolver->resolve();
-
-        static::assertSame([], $map->sourceToTypes['entity']);
+        $second = (new ContentSystemDataLoaderTypeResolver($provider))->resolve();
+        static::assertCount(2, $second->sourceToCapabilities['navigation']);
     }
 }

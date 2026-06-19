@@ -18,19 +18,21 @@ class ContentSystemDataLoaderTypeSchemaGenerator
     }
 
     /**
-     * @return array{sources: array<string, array{types: list<array{className: string, genericParameters: list<string>}>}>}
+     * @return array{sources: array<string, array{types: list<array{producedType: string, configTemplate: array<string, mixed>, requiredConfigKeys: list<string>, genericParameters: list<string>}>}>}
      */
     public function getSchema(): array
     {
         $map = $this->resolver->resolve();
 
         $sources = [];
-        foreach ($map->sourceToTypes as $source => $descriptors) {
+        foreach ($map->sourceToCapabilities as $source => $capabilities) {
             $types = [];
-            foreach ($descriptors as $descriptor) {
+            foreach ($capabilities as $capability) {
                 $types[] = [
-                    'className' => $descriptor->className,
-                    'genericParameters' => $descriptor->genericParameters,
+                    'producedType' => $capability->producedType,
+                    'configTemplate' => $capability->configTemplate,
+                    'requiredConfigKeys' => $capability->requiredConfigKeys,
+                    'genericParameters' => $capability->genericParameters,
                 ];
             }
 

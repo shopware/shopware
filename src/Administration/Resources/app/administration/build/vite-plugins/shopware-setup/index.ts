@@ -3,8 +3,10 @@
  */
 
 import type { Plugin } from 'vite';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
+import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
 type ShopwareSetupTransformModule = {
     transformShopwareSetupSfc: typeof transformShopwareSetupSfcRuntime;
@@ -54,8 +56,16 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
     // name. Overrides intentionally reuse the base name, so only base components are tracked. This is
     // the per-compilation cross-file uniqueness check the transform's componentName seam enables.
     const baseComponentFiles = new Map<string, string>();
+    const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
 
-    async function transformCode(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
+    async function transformFile(fileName: string): Promise<ShopwareSetupTransformResult | null> {
+        const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
+        const code = await fs.readFile(fileName, 'utf8');
+
+        return transformShopwareSetupSfc(code, fileName);
+    }
+
+    async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
 
         return transformShopwareSetupSfc(code, fileName);
@@ -83,14 +93,71 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
         name: 'shopware-vite-plugin-shopware-setup',
         enforce: 'pre',
 
-        async transform(code, id) {
-            const fileName = withoutQuery(id);
-
-            if (!fileName.endsWith('.vue')) {
+        async resolveId(source, importer) {
+            if (source.includes('?') || !source.endsWith('.vue')) {
                 return null;
             }
 
-            const result = await transformCode(code, fileName);
+            const resolved = await this.resolve(source, importer, { skipSelf: true });
+
+            if (!resolved) {
+                return null;
+            }
+
+            const fileName = withoutQuery(resolved.id);
+
+            if (!fileName.endsWith('.vue') || virtualSourcemap.isVirtualFileName(fileName)) {
+                return null;
+            }
+
+            const result = await transformFile(fileName);
+
+            if (!result) {
+                return null;
+            }
+
+            const virtualFileName = virtualSourcemap.toVirtualFileName(fileName);
+            virtualSourcemap.rememberOriginalFile(virtualFileName, fileName);
+
+            return virtualFileName;
+        },
+
+        async load(id) {
+            if (id.includes('?')) {
+                return null;
+            }
+
+            const fileName = withoutQuery(id);
+
+            if (!virtualSourcemap.isVirtualFileName(fileName)) {
+                return null;
+            }
+
+            const originalFileName = virtualSourcemap.getOriginalFileName(fileName);
+            const result = await transformFile(originalFileName);
+
+            if (!result) {
+                return null;
+            }
+
+            assertUniqueBaseComponent(result, originalFileName);
+
+            virtualSourcemap.rememberSetupMap(fileName, result.map);
+
+            return {
+                code: result.code,
+                map: result.map,
+            };
+        },
+
+        async transform(code, id) {
+            const fileName = withoutQuery(id);
+
+            if (!fileName.endsWith('.vue') || virtualSourcemap.isVirtualFileName(fileName)) {
+                return null;
+            }
+
+            const result = await transformSource(code, fileName);
 
             if (!result) {
                 return null;
@@ -102,6 +169,10 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
                 code: result.code,
                 map: result.map,
             };
+        },
+
+        generateBundle(outputOptions, bundle) {
+            virtualSourcemap.remapBundle(outputOptions, bundle);
         },
     };
 }

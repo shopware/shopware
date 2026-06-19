@@ -281,7 +281,6 @@ function analyzeSetupInputs(script: string, {
     defineSlotsCalls,
     defineOptionsStatements,
     defineOptionsCalls,
-    useSwPropsCalls,
 }: {
     mode: ShopwareSetupMode,
     scriptOffset: number,
@@ -293,7 +292,6 @@ function analyzeSetupInputs(script: string, {
     defineSlotsCalls: CallExpression[],
     defineOptionsStatements: DefineOptionsStatement[],
     defineOptionsCalls: CallExpression[],
-    useSwPropsCalls: CallExpression[],
 }): AnalyzeSetupInputsResult {
     const propsMacroCalls = getPropsMacroCalls({
         definePropsCalls,
@@ -313,10 +311,6 @@ function analyzeSetupInputs(script: string, {
     });
     const setupInputReplacements: SetupInputReplacement[] = [
         ...propsMacroCalls.map((call) => ({
-            ...getNodeRange(call, scriptOffset),
-            kind: 'props' as const,
-        })),
-        ...useSwPropsCalls.map((call) => ({
             ...getNodeRange(call, scriptOffset),
             kind: 'props' as const,
         })),

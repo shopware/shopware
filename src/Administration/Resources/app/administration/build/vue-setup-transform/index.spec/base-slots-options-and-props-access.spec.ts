@@ -224,29 +224,11 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
         expect(result).not.toContain('(__shopwareContext.slots)');
     });
 
-    it('replaces base useSwProps() calls instead of injecting a helper', () => {
-        const source = stripIndent`
-            <script setup sw-component="sw-my-component">
-            const props = useSwProps();
-            const count = props.initialCount ?? 0;
-            
-            swDefinePublic({
-                count,
-            });
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'base-use-sw-props.vue').code;
-
-        expect(result).toContain('const props = (__shopwareProps);');
-        expect(result).not.toContain('const useSwProps =');
-    });
-
     it('rewrites props access by source ranges instead of placeholder string replacement', () => {
         const source = stripIndent`
             <script setup sw-component="sw-my-component">
             const props = defineProps();
-            const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__ __SHOPWARE_SETUP_USE_SW_PROPS__';
+            const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';
             const count = props.initialCount ?? literal.length;
             
             swDefinePublic({
@@ -257,8 +239,7 @@ describe('build/vue-setup-transform base slots, options, and props access', () =
 
         const result = transformOrFail(source, 'base-props-placeholder-literal.vue').code;
 
-        expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__ __SHOPWARE_SETUP_USE_SW_PROPS__';");
+        expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__';");
         expect(result).toContain('const props = (__shopwareProps);');
     });
 });
-

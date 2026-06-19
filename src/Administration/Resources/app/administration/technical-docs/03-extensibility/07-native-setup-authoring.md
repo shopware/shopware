@@ -10,7 +10,9 @@ Base components use `sw-component`:
 <script setup lang="ts" sw-component="sw-my-component">
 import { ref } from 'vue';
 
-const props = useSwProps();
+const props = defineProps<{
+    initialCount?: number;
+}>();
 const count = ref(props.initialCount ?? 0);
 const internalValue = ref('private');
 
@@ -47,12 +49,12 @@ Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">` that d
 
 Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform merges those aliases into the block's default slot scope.
 
-Runtime inputs are explicit composable-style accessors:
+Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. Override props use a helper because override files cannot declare the base component's props with `defineProps(...)`.
 
-- Base: `useSwProps()`, `useSwContext()`
+- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `useSwContext()`
 - Override: `useSwPreviousState()`, `useSwProps()`, `useSwContext()`
 
-These are transform-injected local helpers, not broad runtime globals.
+The `useSw...` calls are transform-injected local helpers, not broad runtime globals.
 
 ## Setup Macros
 

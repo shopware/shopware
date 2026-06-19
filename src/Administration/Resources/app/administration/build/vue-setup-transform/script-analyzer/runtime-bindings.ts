@@ -123,13 +123,12 @@ function collectRuntimeBindingPattern(
 }
 
 /**
- * Allows `const props = useSwProps()` without returning `props` as component state.
+ * Allows setup input helper aliases without returning them as component state.
  */
 function isRuntimeInputAlias(declaration: VariableDeclarator, mode: ShopwareSetupMode): boolean {
     const runtimeInputHelpers =
         mode === 'base'
             ? new Set([
-                  'useSwProps',
                   'useSwContext',
               ])
             : new Set([

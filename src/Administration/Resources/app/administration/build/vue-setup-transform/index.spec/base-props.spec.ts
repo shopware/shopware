@@ -302,4 +302,3 @@ describe('build/vue-setup-transform base props macros', () => {
         expect(result).not.toContain('(__shopwareProps)');
     });
 });
-

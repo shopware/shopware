@@ -217,7 +217,9 @@ Base component mode uses `sw-component` on the native setup block (`<script setu
 <script setup lang="ts" sw-component="sw-example-component">
 import { ref } from 'vue';
 
-const props = useSwProps();
+const props = defineProps<{
+    initialCount?: number;
+}>();
 const count = ref(props.initialCount ?? 0);
 const internalValue = ref('private');
 
@@ -251,8 +253,8 @@ Shopware setup SFCs use transform-injected helper functions instead of broad run
 
 | Mode     | Helpers                                                  |
 | -------- | -------------------------------------------------------- |
-| Base     | `useSwProps()`, `useSwContext()`                         |
-| Override | `useSwPreviousState()`, `useSwProps()`, `useSwContext()` |
+| Base     | `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `useSwContext()` |
+| Override | `useSwPreviousState()`, `useSwProps()`, `useSwContext()`                    |
 
 `swDefinePublic({...})` is the only public marker in base mode. It accepts shorthand bindings only, so a public key always equals its local binding name:
 

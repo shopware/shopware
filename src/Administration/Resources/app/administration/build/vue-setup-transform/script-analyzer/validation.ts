@@ -32,7 +32,6 @@ const BASE_HELPERS = new Set([
     'defineOptions',
     'defineSlots',
     'withDefaults',
-    'useSwProps',
     'useSwContext',
 ]);
 
@@ -55,6 +54,7 @@ const OVERRIDE_HELPERS = new Set([
  */
 function assertNoUnsupportedSyntax(
     ast: BabelFile,
+    mode: ShopwareSetupMode,
     scriptOffset: number,
     topLevelPublicCalls: Set<CallExpression>,
     topLevelOverrideCalls: Set<CallExpression>,
@@ -71,6 +71,18 @@ function assertNoUnsupportedSyntax(
         ) {
             throw new ShopwareSetupTransformError(
                 `Vue macro ${node.callee.name}() is not supported inside Shopware setup blocks.`,
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
+        if (
+            mode === 'base' &&
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'useSwProps'
+        ) {
+            throw new ShopwareSetupTransformError(
+                'useSwProps() is only supported in override Shopware setup blocks. Base components must use Vue\'s defineProps() macro instead.',
                 scriptOffset + getNodeRange(node, scriptOffset).start,
             );
         }

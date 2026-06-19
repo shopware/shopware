@@ -161,7 +161,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     const defineOptionsCalls: CallExpression[] = [];
     const defineOptionsStatements: (DefineOptionsStatement & StatementWithCall)[] = [];
     const withDefaultsCalls: CallExpression[] = [];
-    const useSwPropsCalls: CallExpression[] = [];
     const topLevelPublicCalls = new Set<CallExpression>();
     const topLevelOverrideCalls = new Set<CallExpression>();
     const topLevelUnsupportedMacroCalls = new Set<CallExpression>();
@@ -224,14 +223,11 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         if (isCompilerMacroCall(node, 'defineOptions')) {
             defineOptionsCalls.push(node);
         }
-
-        if (mode === 'base' && isCompilerMacroCall(node, 'useSwProps')) {
-            useSwPropsCalls.push(node);
-        }
     });
 
     assertNoUnsupportedSyntax(
         ast,
+        mode,
         scriptOffset,
         topLevelPublicCalls,
         topLevelOverrideCalls,
@@ -255,7 +251,6 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
         defineSlotsCalls,
         defineOptionsStatements,
         defineOptionsCalls,
-        useSwPropsCalls,
     });
 
     validateShopwareMarkers({

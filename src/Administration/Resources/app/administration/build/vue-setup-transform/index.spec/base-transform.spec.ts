@@ -11,7 +11,9 @@ describe('build/vue-setup-transform base transforms', () => {
             <script setup lang="ts" sw-component="sw-my-component">
             import { ref, computed } from 'vue';
             
-            const props = useSwProps();
+            const props = defineProps<{
+                initialCount?: number;
+            }>();
             const count = ref(props.initialCount ?? 0);
             const doubled = computed(() => count.value * 2);
             const internalThing = ref('secret');
@@ -30,6 +32,10 @@ describe('build/vue-setup-transform base transforms', () => {
             <script setup lang="ts">
             import { ref, computed } from 'vue';
             
+            const props = defineProps<{
+                initialCount?: number;
+            }>();
+
             const {
                 count,
                 doubled,
@@ -39,7 +45,7 @@ describe('build/vue-setup-transform base transforms', () => {
             } = Shopware.Component.createExtendableSetup(
                 {
                     name: 'sw-my-component',
-                    props: {},
+                    props: props,
                 },
                 (__shopwareProps, __shopwareContext) => {
                     const useSwContext = () => __shopwareContext;
@@ -220,4 +226,3 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain('<sw-block :data="$dataScope" name="inner" />');
     });
 });
-

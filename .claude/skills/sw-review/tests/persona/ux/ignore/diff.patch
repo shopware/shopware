@@ -1,0 +1,34 @@
+diff --git a/src/Core/Migration/V6_7/Migration1799999999AddFooColumnToProduct.php b/src/Core/Migration/V6_7/Migration1799999999AddFooColumnToProduct.php
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/Core/Migration/V6_7/Migration1799999999AddFooColumnToProduct.php
+@@ -0,0 +1,30 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Migration\V6_7;
++
++use Doctrine\DBAL\Connection;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Migration\MigrationStep;
++
++#[Package('core')]
++final class Migration1799999999AddFooColumnToProduct extends MigrationStep
++{
++    public function getCreationTimestamp(): int
++    {
++        return 1799999999;
++    }
++
++    public function update(Connection $connection): void
++    {
++        $connection->executeStatement(
++            'ALTER TABLE `product`
++                ADD COLUMN `foo_flag` TINYINT(1) NOT NULL DEFAULT 0 AFTER `active`'
++        );
++    }
++
++    public function updateDestructive(Connection $connection): void
++    {
++    }
++}

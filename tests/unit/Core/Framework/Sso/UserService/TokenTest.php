@@ -56,40 +56,33 @@ class TokenTest extends TestCase
     }
 
     /**
-     * @return array<string, array{data: array<string, string>, expected: string}>
+     * @return iterable<string, array{data: array<string, string>, expected: string}>
      */
-    public static function validateTestDataProvider(): array
+    public static function validateTestDataProvider(): iterable
     {
-        return [
-            'test validate with empty array' => [
-                'data' => [],
-                'expected' => 'Invalid user Access or refresh token: [token]: This field is missing., [refreshToken]: This field is missing.',
-            ],
-
-            'test validate without token' => [
-                'data' => ['refreshToken' => Uuid::randomHex()],
-                'expected' => 'Invalid user Access or refresh token: [token]: This field is missing.',
-            ],
-
-            'test validate without token and empty refresh token' => [
-                'data' => ['refreshToken' => ''],
-                'expected' => 'Invalid user Access or refresh token: [token]: This field is missing., [refreshToken]: is required',
-            ],
-
-            'test validation without refresh token' => [
-                'data' => ['token' => Uuid::randomHex()],
-                'expected' => 'Invalid user Access or refresh token: [refreshToken]: This field is missing.',
-            ],
-
-            'test validate without refresh token and empty token' => [
-                'data' => ['token' => ''],
-                'expected' => 'Invalid user Access or refresh token: [token]: is required, [refreshToken]: This field is missing.',
-            ],
-
-            'test validate with empty token and empty refresh token' => [
-                'data' => ['token' => '', 'refreshToken' => ''],
-                'expected' => 'Invalid user Access or refresh token: [token]: is required, [refreshToken]: is required',
-            ],
+        yield 'test validate with empty array' => [
+            'data' => [],
+            'expected' => 'Invalid user Access or refresh token: [token]: This field is missing., [refreshToken]: This field is missing.',
+        ];
+        yield 'test validate without token' => [
+            'data' => ['refreshToken' => Uuid::randomHex()],
+            'expected' => 'Invalid user Access or refresh token: [token]: This field is missing.',
+        ];
+        yield 'test validate without token and empty refresh token' => [
+            'data' => ['refreshToken' => ''],
+            'expected' => 'Invalid user Access or refresh token: [token]: This field is missing., [refreshToken]: is required',
+        ];
+        yield 'test validation without refresh token' => [
+            'data' => ['token' => Uuid::randomHex()],
+            'expected' => 'Invalid user Access or refresh token: [refreshToken]: This field is missing.',
+        ];
+        yield 'test validate without refresh token and empty token' => [
+            'data' => ['token' => ''],
+            'expected' => 'Invalid user Access or refresh token: [token]: is required, [refreshToken]: This field is missing.',
+        ];
+        yield 'test validate with empty token and empty refresh token' => [
+            'data' => ['token' => '', 'refreshToken' => ''],
+            'expected' => 'Invalid user Access or refresh token: [token]: is required, [refreshToken]: is required',
         ];
     }
 }

@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 
 /**
  * @internal Concrete implementations of this class should not be extended or used as a base class/type hint.
@@ -23,6 +24,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
     public function generate(array $paths): array
     {
         $urls = [];
+
         foreach ($paths as $key => $value) {
             if (str_starts_with($value->path, 'http')) {
                 $url = $value->path;
@@ -47,12 +49,6 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             return $filePath;
         }
 
-        $segments = explode('/', $filePath);
-
-        foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
-        }
-
-        return implode('/', $segments);
+        return UrlEncoder::encodePathSegments($filePath);
     }
 }

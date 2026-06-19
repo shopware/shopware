@@ -24,6 +24,11 @@ class Migration1773829002RemoveRepairedDigitalProductStatesFlagTest extends Test
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773829002, (new Migration1773829002RemoveRepairedDigitalProductStatesFlag())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $storage = new MySQLKeyValueStorage($this->connection);

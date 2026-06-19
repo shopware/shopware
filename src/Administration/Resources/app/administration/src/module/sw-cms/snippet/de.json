@@ -652,6 +652,9 @@
       "productName": {
         "label": "Produktname"
       },
+      "categoryName": {
+        "label": "Kategoriename"
+      },
       "html": {
         "label": "HTML",
         "labelContent": "Inhalt",
@@ -662,6 +665,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Kategoriename"
+        },
         "productHeading": {
           "label": "Produktname & Hersteller-Logo"
         },

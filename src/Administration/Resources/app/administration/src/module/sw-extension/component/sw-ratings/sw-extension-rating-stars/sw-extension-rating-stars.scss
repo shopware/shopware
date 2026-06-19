@@ -17,7 +17,7 @@ $padding-star: 10%;
         background: none;
         border: none;
         outline: none;
-        color: $color-gray-200;
+        color: var(--color-icon-secondary-default);
         display: inline-block;
         position: relative;
 
@@ -30,7 +30,7 @@ $padding-star: 10%;
         }
 
         &--is-rated {
-            color: $color-module-yellow-600;
+            color: var(--color-yellow-500);
         }
     }
 
@@ -38,7 +38,7 @@ $padding-star: 10%;
         position: absolute;
         left: $padding-star;
         top: 0;
-        color: $color-module-yellow-600;
+        color: var(--color-yellow-500);
         transform: scaleX(-1);
 
         &-wrapper {
@@ -51,7 +51,7 @@ $padding-star: 10%;
         .sw-extension-rating-stars__wrapper {
             & > .sw-extension-rating-stars__star:hover,
             & > .sw-extension-rating-stars__star:hover ~ .sw-extension-rating-stars__star {
-                color: $color-module-yellow-600;
+                color: var(--color-yellow-500);
             }
         }
 
@@ -59,7 +59,7 @@ $padding-star: 10%;
             cursor: pointer;
 
             &--is-rated:hover {
-                color: #e9e1a8;
+                color: var(--color-yellow-300);
             }
         }
     }

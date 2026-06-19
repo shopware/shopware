@@ -22,6 +22,11 @@ class Migration1765205483AddTrackOffcanvasCartToAnalyticsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1765205483, (new Migration1765205483AddTrackOffcanvasCartToAnalytics())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1765205483AddTrackOffcanvasCartToAnalytics();

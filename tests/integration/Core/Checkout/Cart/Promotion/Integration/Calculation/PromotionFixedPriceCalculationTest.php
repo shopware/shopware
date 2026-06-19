@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Ca
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -156,7 +157,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         static::assertSame(40.0, $cart->getPrice()->getTotalPrice());
         static::assertSame(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
 
-        $this->expectExceptionMessage('Line item with identifier');
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($discountLineItem->getId()));
         $this->cartService->remove($cart, $discountLineItem->getId(), $context);
     }
 

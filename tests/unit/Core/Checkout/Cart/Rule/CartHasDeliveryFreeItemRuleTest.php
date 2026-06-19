@@ -102,15 +102,13 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool|null>>
+     * @return iterable<string, array<bool|null>>
      */
-    public static function inputProvider(): array
+    public static function inputProvider(): iterable
     {
-        return [
-            'free item' => [true],
-            'not free item' => [false],
-            'no delivery information' => [null],
-        ];
+        yield 'free item' => [true];
+        yield 'not free item' => [false];
+        yield 'no delivery information' => [null];
     }
 
     private function getLineItem(?bool $freeDelivery = null): LineItem

@@ -106,6 +106,10 @@ export default {
                 );
             });
         },
+
+        mediaRepository() {
+            return Shopware.Service('repositoryFactory').create('media');
+        },
     },
 
     methods: {
@@ -119,7 +123,10 @@ export default {
 
             try {
                 await this.mediaService.renameMedia(item.id, updatedName);
-                item.fileName = updatedName;
+                await this.mediaRepository.get(item.id).then((response) => {
+                    Object.assign(item, response);
+                });
+
                 item.isLoading = false;
                 this.createNotificationSuccess({
                     message: this.$t('global.sw-media-media-item.notification.renamingSuccess.message'),

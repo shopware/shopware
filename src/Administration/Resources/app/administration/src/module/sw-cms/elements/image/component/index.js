@@ -63,6 +63,10 @@ export default {
             };
         },
 
+        verticalAlignClass() {
+            return this.element.config.verticalAlign?.value ? 'has-vertical-alignment' : null;
+        },
+
         mediaUrl() {
             const fallBackImageFileName = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
             const staticFallBackImage = this.assetFilter(

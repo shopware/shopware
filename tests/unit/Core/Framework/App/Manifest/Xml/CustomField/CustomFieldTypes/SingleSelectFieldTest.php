@@ -44,4 +44,45 @@ class SingleSelectFieldTest extends TestCase
             ],
         ], $singleSelectField->getOptions());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/single-select-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $singleSelectField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(SingleSelectField::class, $singleSelectField);
+
+        static::assertEquals([
+            'name' => 'test_single_select_field',
+            'type' => 'select',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test single-select field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'placeholder' => [
+                    'en-GB' => 'Choose an option...',
+                ],
+                'componentName' => 'sw-single-select',
+                'customFieldType' => 'select',
+                'options' => [
+                    [
+                        'label' => [
+                            'en-GB' => 'First',
+                            'de-DE' => 'Erster',
+                        ],
+                        'value' => 'first',
+                    ],
+                    [
+                        'label' => [
+                            'en-GB' => 'Second',
+                        ],
+                        'value' => 'second',
+                    ],
+                ],
+            ],
+        ], $singleSelectField->toEntityPayload());
+    }
 }

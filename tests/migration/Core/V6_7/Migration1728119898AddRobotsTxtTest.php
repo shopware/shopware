@@ -18,6 +18,11 @@ class Migration1728119898AddRobotsTxtTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1728119898, (new Migration1728119898AddRobotsTxt())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

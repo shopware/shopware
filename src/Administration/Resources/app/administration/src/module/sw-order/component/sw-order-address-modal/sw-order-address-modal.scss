@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
-$sw-order-address-modal-highlight: #edf8ff;
-$sw-order-address-modal-link: $color-shopware-brand-500;
-$sw-order-address-modal-selected: $color-shopware-brand-500;
-$sw-order-address-modal-selected-text: $color-white;
+$sw-order-address-modal-highlight: var(--color-background-brand-default);
+$sw-order-address-modal-link: var(--color-text-brand-default);
+$sw-order-address-modal-selected: var(--color-interaction-primary-default);
+$sw-order-address-modal-selected-text: var(--color-text-primary-inverse);
 
 .sw-order-address-modal {
     .sw-order-address-modal__entry {

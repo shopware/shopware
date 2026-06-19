@@ -49,8 +49,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
     {
         $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
 
-        static::expectException(StorefrontFrameworkException::class);
-        static::expectExceptionMessage('SEO URL Mapping expects argument to be a ProductEntity');
+        $this->expectExceptionObject(StorefrontFrameworkException::invalidArgument('SEO URL Mapping expects argument to be a ProductEntity'));
         $route->getMapping(new ArrayEntity(), new SalesChannelEntity());
     }
 

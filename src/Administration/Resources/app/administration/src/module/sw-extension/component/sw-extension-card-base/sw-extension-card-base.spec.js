@@ -17,6 +17,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                 'sw-extension-icon': true,
                 'sw-context-menu-item': {
                     name: 'sw-context-menu-item',
+                    props: ['routerLink'],
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
                 'sw-context-button': {
@@ -176,6 +177,29 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         const state = wrapper.findAll('.sw-context-menu-item');
         expect(state).toHaveLength(1);
+    });
+
+    it('should use the extension config route as fallback open link', async () => {
+        const wrapper = await createWrapper({
+            extension: {
+                name: 'ExampleConfigurableExtension',
+                installedAt: '845618651',
+                active: true,
+                configurable: true,
+                permissions: {},
+            },
+        });
+
+        await flushPromises();
+
+        const openExtensionItem = wrapper.findComponent({ name: 'sw-context-menu-item' });
+
+        expect(openExtensionItem.props('routerLink')).toStrictEqual({
+            name: 'sw.extension.config',
+            params: {
+                namespace: 'ExampleConfigurableExtension',
+            },
+        });
     });
 
     it('should not show config menu item: not active and activated once', async () => {

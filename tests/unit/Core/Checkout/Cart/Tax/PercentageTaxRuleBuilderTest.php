@@ -39,6 +39,28 @@ class PercentageTaxRuleBuilderTest extends TestCase
         static::assertSame($percentNineteen, $nineteen->getPercentage());
     }
 
+    public function testBuildCollectionRulesFallsBackToFullAllocationWhenSingleRateNetsToZero(): void
+    {
+        $collection = new CalculatedTaxCollection([
+            new CalculatedTax(0, 19, 0),
+        ]);
+
+        $rules = (new PercentageTaxRuleBuilder())->buildCollectionRules($collection, 0);
+
+        $rule = $rules->get('19');
+
+        static::assertNotNull($rule);
+        static::assertSame(19.0, $rule->getTaxRate());
+        static::assertSame(100.0, $rule->getPercentage());
+    }
+
+    public function testBuildCollectionRulesReturnsEmptyCollectionWhenNoTaxes(): void
+    {
+        $rules = (new PercentageTaxRuleBuilder())->buildCollectionRules(new CalculatedTaxCollection(), 0);
+
+        static::assertCount(0, $rules);
+    }
+
     /**
      * @return array<string, array<float>>
      */
@@ -46,7 +68,7 @@ class PercentageTaxRuleBuilderTest extends TestCase
     {
         return [
             'with total' => [200, 25.0, 75.0],
-            'without total' => [0, 0.0, 0.0],
+            'without total falls back to equal share' => [0, 50.0, 50.0],
         ];
     }
 }

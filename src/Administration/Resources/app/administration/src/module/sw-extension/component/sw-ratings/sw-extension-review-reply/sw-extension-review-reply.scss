@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-extension-review-reply {
-    background: $color-gray-100;
+    background: var(--color-background-secondary-default);
     border-radius: $border-radius-md;
     margin: 16px 0;
     padding: 24px;
@@ -16,7 +16,7 @@
     }
 
     &__date {
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
         display: inline-block;
     }
 }

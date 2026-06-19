@@ -28,7 +28,9 @@ readonly class ExternalThumbnailData
 
     private function validate(): void
     {
-        MediaUploadService::validateExternalUrl($this->url);
+        if (!MediaUploadService::isExternalUrl($this->url)) {
+            throw MediaException::invalidUrl($this->url);
+        }
 
         if ($this->width <= 0) {
             throw MediaException::invalidDimension('width', $this->width);

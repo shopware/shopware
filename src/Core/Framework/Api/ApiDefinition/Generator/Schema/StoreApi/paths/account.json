@@ -930,6 +930,10 @@
                                         "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
                                         "type": "string"
                                     },
+                                    "requestedGroupId": {
+                                        "description": "Optional customer group registration request. The customer is created in the current sales channel group and this field stores the requested target group. The group must be available for registration in the current sales channel.",
+                                        "type": "string"
+                                    },
                                     "billingAddress": {
                                         "$ref": "#/components/schemas/CustomerAddress"
                                     },

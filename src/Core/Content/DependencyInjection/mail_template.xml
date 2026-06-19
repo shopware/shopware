@@ -36,95 +36,58 @@
 
         <!-- Controller -->
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <!-- Sending -->
-        <service id="Shopware\Core\Content\Mail\Message\SendMailHandler">
-            <argument type="service" id="mailer.transports"/>
-            <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="logger"/>
-            <tag name="messenger.message_handler"/>
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">
+            <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Service\MailSender" public="true">
-            <argument type="service" id="mailer.mailer"/>
-            <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument>%shopware.mail.max_body_length%</argument>
-            <argument type="service" id="logger"/>
-            <argument>%shopware.messenger.message_max_kib_size%</argument>
-            <argument type="abstract" id="message bus"/>
-            <argument>%shopware.staging.mailing.disable_delivery%</argument>
-        </service>
-
-        <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
-            <argument type="service" id="validator"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Mail\Service\MailService">
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailFactory" />
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailSender" />
-            <argument type="service" id="media.repository" />
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Mail\Service\SendMailTemplate">
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService">
             <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder" public="true">
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
         </service>
 
-        <service id="core_mailer" alias="mailer" />
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
 
-        <service id="Shopware\Core\Content\Mail\Transport\MailerTransportLoader">
-            <argument type="service" id="mailer.transport_factory"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder"/>
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="document.repository"/>
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator"
-                 decorates="mailer.transport_factory.smtp">
-            <argument type="service" id="Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator.inner"/>
-            <argument type="service" id="Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator"/>
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver">
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator">
-            <argument type="service" id="Shopware\Core\Content\Mail\Transport\SmtpOauthTokenProvider"/>
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestResolver">
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\Mail\Transport\SmtpOauthTokenProvider">
-            <argument type="service" id="http_client"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.event_subscriber"/>
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\SimulateRequestResolver">
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
     </services>
 </container>

@@ -66,6 +66,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\ListTranslationsCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="shopware.translation.client" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader">
@@ -98,6 +105,7 @@
 
         <service id="Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

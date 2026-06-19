@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -50,12 +51,23 @@ class PagingListingProcessor extends AbstractListingProcessor
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
         $page = $this->getPage($request);
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
+
         if ($page !== null) {
             $result->setPage($page);
         }
-
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
         $result->setLimit($limit);
+
+        if ($page === null || $page <= 1 || $limit <= 0) {
+            return;
+        }
+
+        $total = $result->getTotal();
+        $lastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
+
+        if ($page > $lastPage) {
+            throw ProductException::pageOutOfRange($page, $lastPage);
+        }
     }
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int

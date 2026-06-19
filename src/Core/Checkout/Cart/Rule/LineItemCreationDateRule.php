@@ -21,31 +21,35 @@ class LineItemCreationDateRule extends Rule
 
     /**
      * @internal
+     *
+     * @param string|array{from: string, to: string}|null $lineItemCreationDate
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $lineItemCreationDate = null
+        protected string|array|null $lineItemCreationDate = null
     ) {
         parent::__construct();
     }
 
     public function getConstraints(): array
     {
-        return [
+        $constraints = [
             'lineItemCreationDate' => RuleConstraints::datetime(),
-            'operator' => RuleConstraints::datetimeOperators(false),
+            'operator' => RuleConstraints::datetimeOperators(emptyAllowed: false),
         ];
+
+        if ($this->operator === self::OPERATOR_BETWEEN) {
+            $constraints['lineItemCreationDate'] = RuleConstraints::dateBetween();
+        }
+
+        return $constraints;
     }
 
     public function match(RuleScope $scope): bool
     {
-        if ($this->lineItemCreationDate === null) {
-            return false;
-        }
+        $ruleValue = $this->lineItemCreationDate;
 
-        try {
-            $ruleValue = $this->buildDate($this->lineItemCreationDate);
-        } catch (\Exception) {
+        if ($ruleValue === null) {
             return false;
         }
 
@@ -69,38 +73,34 @@ class LineItemCreationDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE)
             ->dateTimeField('lineItemCreationDate');
     }
 
     /**
+     * @param string|array{from: string, to: string} $ruleValue
+     *
      * @throws CartException
      */
-    private function matchesCreationDate(LineItem $lineItem, \DateTime $ruleValue): bool
+    private function matchesCreationDate(LineItem $lineItem, string|array $ruleValue): bool
     {
+        /** @var string|null $itemCreatedString */
+        $itemCreatedString = $lineItem->getPayloadValue('createdAt');
+
+        if ($itemCreatedString === null) {
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
         try {
-            /** @var string|null $itemCreatedString */
-            $itemCreatedString = $lineItem->getPayloadValue('createdAt');
-
-            if ($itemCreatedString === null) {
-                return RuleComparison::isNegativeOperator($this->operator);
-            }
-
-            $itemCreated = $this->buildDate($itemCreatedString);
+            $itemCreated = new \DateTime($itemCreatedString);
         } catch (\Exception) {
             return false;
         }
 
-        return RuleComparison::datetime($itemCreated, $ruleValue, $this->operator);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function buildDate(string $dateString): \DateTime
-    {
-        $dateTime = new \DateTime($dateString);
-
-        return $dateTime;
+        return RuleComparison::datetimeValue(
+            $itemCreated,
+            $ruleValue,
+            $this->operator
+        );
     }
 }

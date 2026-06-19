@@ -9,7 +9,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
@@ -20,8 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -35,11 +38,9 @@ class LongTextFieldSerializerTest extends TestCase
     protected function setUp(): void
     {
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
 
         $sanitizer = new HtmlSanitizer(null, true, $this->getHtmlSanitizerSets(), $this->getHtmlSanitizerFieldSets());
-        $this->serializer = new LongTextFieldSerializer($validator, $definitionRegistry, $sanitizer);
+        $this->serializer = new LongTextFieldSerializer(Validation::createValidator(), $definitionRegistry, $sanitizer);
     }
 
     public function testEncodeThrowExceptionOnWrongField(): void
@@ -54,8 +55,7 @@ class LongTextFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::invalidSerializerField(LongTextField::class, $field)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidSerializerField(LongTextField::class, $field));
 
         iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
     }
@@ -102,12 +102,59 @@ class LongTextFieldSerializerTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<Flag> $flags
+     */
+    #[DataProvider('validationProvider')]
+    public function testEncodeValidatesRequiredAndEmptyValues(bool|string|null $input, ?string $expected, bool $expectError, array $flags = []): void
+    {
+        $field = new LongTextField('long_text', 'longText');
+        $field->addFlags(...$flags);
+        $keyPair = new KeyValuePair('longText', $input, false);
+        $bag = new WriteParameterBag(
+            new ProductDefinition(),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue()
+        );
+
+        try {
+            $result = iterator_to_array($this->serializer->encode($field, EntityExistence::createEmpty(), $keyPair, $bag));
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertTrue($expectError);
+            static::assertSame('/longText', $exception->getViolations()->get(0)->getPropertyPath());
+
+            return;
+        }
+
+        static::assertFalse($expectError);
+        static::assertSame(['long_text' => $expected], $result);
+    }
+
+    /**
+     * @return iterable<string, array{bool|string|null, ?string, bool, 3?: list<Flag>}>
+     */
+    public static function validationProvider(): iterable
+    {
+        yield 'required HTML-only content throws after tag stripping' => ['<test>', null, true, [new Required()]];
+        yield 'required null content throws' => [null, null, true, [new Required()]];
+        yield 'required empty content throws' => ['', null, true, [new Required()]];
+        yield 'wrong type throws' => [true, null, true, [new Required()]];
+        yield 'required and allow empty throws with null' => [null, null, true, [new Required(), new AllowEmptyString()]];
+        yield 'string values are passed through' => ['test12-B', 'test12-B', false, [new Required()]];
+        yield 'null is allowed without required flag' => [null, null, false];
+        yield 'sanitation can be turned off' => ['<test>', '<test>', false, [new Required(), new AllowHtml(false)]];
+        yield 'empty string is treated as null without allow empty flag' => ['', null, false];
+        yield 'empty string is passed through with allow empty flag' => ['', '', false, [new AllowEmptyString()]];
+        yield 'empty string is allowed with required and allow empty flags' => ['', '', false, [new Required(), new AllowEmptyString()]];
+        yield 'HTML content is sanitized' => ['<script></script>test12-B', 'test12-B', false, [new Required(), new AllowHtml()]];
+    }
+
     public function testDecodeThrowExceptionOnWrongField(): void
     {
         $field = new LongTextField('test', 'test');
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::invalidArraySerialization($field, [])->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidArraySerialization($field, []));
 
         $this->serializer->decode($field, []);
     }

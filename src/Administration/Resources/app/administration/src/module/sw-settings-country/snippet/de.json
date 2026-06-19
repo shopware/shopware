@@ -47,6 +47,7 @@
       "labelCheckVatIdFormat": "USt-ID-Format überprüfen",
       "helpTextCheckVatIdFormat": "Überprüft das Format der europäischen USt-ID.",
       "labelForceStateInRegistration": "Land/Region ist Pflichtfeld",
+      "labelDisplayStateInRegistration": "Land/Region anzeigen",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",
       "placeholderStateSearch": "Durchsuche Länder/Regionen ...",

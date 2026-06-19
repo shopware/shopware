@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -89,6 +90,10 @@ class UserDefinition extends EntityDefinition
             (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Email of the user.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the user is enabled.'),
             (new BoolField('admin', 'admin'))->setDescription('Parameter that indicates if the user is an admin.'),
+            (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription(
+                'Optional per-type MCP allowlist for this user. Structured as {tools, resources, prompts} '
+                . 'where each key is null (unrestricted) or a list of allowed names/URIs.'
+            ),
             (new DateTimeField('last_updated_password_at', 'lastUpdatedPasswordAt'))->setDescription('Parameter that indicates when the password was last updated by the user.'),
             (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required())->setDescription('Time configuration in the user\'s profile.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),

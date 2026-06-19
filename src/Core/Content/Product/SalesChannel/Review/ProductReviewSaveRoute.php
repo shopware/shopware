@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,6 +48,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         private readonly DataValidator $validator,
         private readonly SystemConfigService $config,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductProvider $productProvider,
     ) {
     }
 
@@ -107,6 +109,11 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             $review['id'] = $data->get('id');
         }
 
+        $product = $this->productProvider->getData($productId, $context->getContext());
+        if ($product === null) {
+            throw ProductException::productNotFound($productId);
+        }
+
         $this->repository->upsert([$review], $context->getContext());
 
         $mail = $review['externalEmail'];
@@ -117,7 +124,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
-            $customerId
+            $customerId,
+            $product
         );
 
         $this->eventDispatcher->dispatch(

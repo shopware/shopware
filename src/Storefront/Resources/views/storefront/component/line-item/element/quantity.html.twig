@@ -50,6 +50,7 @@
                                   class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
+                                  autocomplete="off"
                                   data-form-auto-submit="true"
                                   data-form-auto-submit-options="{{ autoSubmitOptions|json_encode }}"
                                   {% endif %}

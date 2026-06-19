@@ -15,7 +15,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -46,7 +49,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly ProductExportRendererInterface $productExportRender,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -100,22 +103,39 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $context->getContext()
         );
 
-        $filters = $this->productStreamBuilder->buildFilters(
+        $criteria = new Criteria();
+
+        $this->productStreamBuilder->enrichCriteria(
+            $criteria,
             $productExport->getProductStreamId(),
             $context->getContext()
         );
 
         $associations = $this->getAssociations($productExport, $context);
 
-        $criteria = new Criteria();
         $criteria
             ->setTitle('product-export::products')
-            ->addFilter(...$filters)
             ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);
 
+        if ($productExport->isIncludeVariants()) {
+            // Only fetch variants and standalone products; parent products that have variants are skipped
+            $criteria->addFilter(new OrFilter([
+                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]),
+                new EqualsFilter('childCount', 0),
+            ]));
+        } else {
+            // Only fetch main and standalone products so getTotal() and pagination reflect the renderable count
+            $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
         foreach ($associations as $association) {
             $criteria->addAssociation($association);
+        }
+
+        if ($criteria->hasAssociation('categories')) {
+            $criteria->getAssociation('categories')
+                ->addFilter(new EqualsFilter('active', true));
         }
 
         $this->eventDispatcher->dispatch(
@@ -164,13 +184,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 foreach ($productResult->getEntities() as $product) {
                     $data = $productContext->getContext();
                     $data['product'] = $product;
-
-                    if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                        continue; // Skip main product if variants are included
-                    }
-                    if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                        continue; // Skip variants unless they are included
-                    }
 
                     $renderedBody = $this->renderProductBody($productExport, $context, $data);
 
@@ -272,6 +285,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     {
         try {
             $decoded = json_decode($renderedBody, true, 512, \JSON_THROW_ON_ERROR);
+
+            // URLs from media filenames may contain unescaped spaces; encode them so
+            // the row passes downstream RFC 3986 validation (FILTER_VALIDATE_URL).
+            array_walk_recursive($decoded, static function (mixed &$value): void {
+                if (\is_string($value) && preg_match('#^https?://#i', $value)) {
+                    $value = str_replace(' ', '%20', $value);
+                }
+            });
 
             return (string) json_encode($decoded, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $exception) {

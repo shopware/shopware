@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -173,7 +172,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame($fk2, $first->getForeignKey());
     }
 
-    #[Depends('testDuplicatesSameSalesChannel')]
     public function testReturnToPreviousUrl(): void
     {
         $salesChannelId = Uuid::randomHex();

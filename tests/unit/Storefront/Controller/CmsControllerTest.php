@@ -72,8 +72,7 @@ class CmsControllerTest extends TestCase
 
     public function testPageNoId(): void
     {
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "id" is missing.');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('id'));
 
         $this->controller->page(null, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -104,8 +103,7 @@ class CmsControllerTest extends TestCase
 
     public function testCategoryNoId(): void
     {
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "navigationId" is missing.');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('navigationId'));
 
         $this->controller->category(null, new Request(), $this->createMock(SalesChannelContext::class));
     }

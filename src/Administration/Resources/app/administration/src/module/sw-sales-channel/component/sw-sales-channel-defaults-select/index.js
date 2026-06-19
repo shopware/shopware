@@ -225,7 +225,7 @@ export default {
         },
 
         getActiveIconColor(item) {
-            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
+            return this.isDisabledItem(item) ? 'var(--color-icon-secondary-default)' : 'var(--color-icon-positive-default)';
         },
     },
 };

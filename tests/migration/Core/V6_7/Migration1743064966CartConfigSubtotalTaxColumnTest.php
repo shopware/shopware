@@ -20,6 +20,11 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743064966, (new Migration1743064966CartConfigSubtotalTaxColumn())->getCreationTimestamp());
+    }
+
     #[DataProvider('migrationData')]
     public function testMigration(string $key): void
     {

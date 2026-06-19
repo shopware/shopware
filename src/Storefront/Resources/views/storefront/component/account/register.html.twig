@@ -1,3 +1,7 @@
+{% if formAction is not defined %}
+    {% set formAction = path('frontend.account.register.save') %}
+{% endif %}
+
 {% block component_account_register %}
     <div class="card register-card">
         <div class="card-body">
@@ -10,7 +14,7 @@
             {% endblock %}
 
             {% block component_account_register_form %}
-                <form action="{{ path('frontend.account.register.save') }}"
+                <form action="{{ formAction }}"
                       class="register-form"
                       method="post"
                       data-form-handler="true">

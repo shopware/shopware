@@ -9,39 +9,62 @@
                 "description": "Price object",
                 "properties": {
                     "currencyId": {
+                        "description": "Unique identity of the associated currency.",
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "gross": {
-                        "description": "",
+                        "description": "Gross price for the associated currency.",
                         "type": "number"
                     },
                     "net": {
-                        "description": "",
+                        "description": "Net price for the associated currency.",
                         "type": "number"
                     },
                     "linked": {
-                        "description": "",
+                        "description": "Whether gross and net prices are linked through the tax configuration.",
                         "type": "boolean"
                     },
+                    "percentage": {
+                        "description": "Discount percentage relative to the list price for the gross and net amounts. `null` when no list price is set.",
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "gross": {
+                                "description": "Discount percentage relative to the gross list price.",
+                                "type": "number"
+                            },
+                            "net": {
+                                "description": "Discount percentage relative to the net list price.",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "gross",
+                            "net"
+                        ]
+                    },
                     "listPrice": {
-                        "description": "",
+                        "description": "Reference list price for displaying discounts.",
                         "type": "object",
                         "properties": {
                             "currencyId": {
+                                "description": "Unique identity of the associated currency.",
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "gross": {
-                                "description": "",
+                                "description": "Gross list price for the associated currency.",
                                 "type": "number"
                             },
                             "net": {
-                                "description": "",
+                                "description": "Net list price for the associated currency.",
                                 "type": "number"
                             },
                             "linked": {
-                                "description": "",
+                                "description": "Whether gross and net list prices are linked through the tax configuration.",
                                 "type": "boolean"
                             }
                         },
@@ -51,23 +74,24 @@
                         ]
                     },
                     "regulationPrice": {
-                        "description": "",
+                        "description": "Reference price used for legal price disclosures.",
                         "type": "object",
                         "properties": {
                             "currencyId": {
+                                "description": "Unique identity of the associated currency.",
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "gross": {
-                                "description": "",
+                                "description": "Gross regulation price for the associated currency.",
                                 "type": "number"
                             },
                             "net": {
-                                "description": "",
+                                "description": "Net regulation price for the associated currency.",
                                 "type": "number"
                             },
                             "linked": {
-                                "description": "",
+                                "description": "Whether gross and net regulation prices are linked through the tax configuration.",
                                 "type": "boolean"
                             }
                         },

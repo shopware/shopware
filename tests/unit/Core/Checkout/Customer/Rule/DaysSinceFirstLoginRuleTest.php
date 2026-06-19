@@ -75,6 +75,7 @@ class DaysSinceFirstLoginRuleTest extends TestCase
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getSalesChannelContext')->willReturn($salesChannelContext);
+        $scope->method('getCustomer')->willReturn($customer);
         $scope->method('getCurrentTime')->willReturn(self::getTestTimestamp());
 
         $this->rule->assign([

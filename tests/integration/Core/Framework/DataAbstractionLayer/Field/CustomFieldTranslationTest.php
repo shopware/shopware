@@ -565,8 +565,8 @@ class CustomFieldTranslationTest extends TestCase
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'translationCode' => [
                         'id' => $translationCodeId,
-                        'name' => 'x-' . $translationCodeId,
-                        'code' => 'x-' . $translationCodeId,
+                        'name' => 'de-DE-' . $translationCodeId,
+                        'code' => 'de-DE-' . $translationCodeId,
                         'territory' => $translationCodeId,
                     ],
                     'active' => true,

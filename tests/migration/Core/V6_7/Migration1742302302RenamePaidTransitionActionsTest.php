@@ -30,6 +30,11 @@ class Migration1742302302RenamePaidTransitionActionsTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1742302302, (new Migration1742302302RenamePaidTransitionActions())->getCreationTimestamp());
+    }
+
     public function testMigrationUpdate(): void
     {
         $stateMachineId = $this->connection->fetchOne(

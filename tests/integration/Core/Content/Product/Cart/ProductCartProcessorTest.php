@@ -352,213 +352,211 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return list<array{
+     * @return iterable<string, array{
      *     array{type: string, id: string|null, name: string|null, position: int},
      *     array<string, mixed>,
      *     array{type: string, value: mixed, label: string}
      * }>
      */
-    public static function productFeatureProvider(): array
+    public static function productFeatureProvider(): iterable
     {
-        return [
+        yield 'translated product description is exposed as an attribute feature' => [
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'id' => null,
-                    'name' => 'description',
-                    'position' => 1,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'description' => 'Default',
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'description' => 'Lorem ipsum dolor sit amet.',
-                        ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                'id' => null,
+                'name' => 'description',
+                'position' => 1,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'description' => 'Default',
                     ],
-                ],
-                [
-                    'label' => 'description',
-                    'value' => 'Lorem ipsum dolor sit amet.',
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                    self::TEST_LANGUAGE_ID => [
+                        'description' => 'Lorem ipsum dolor sit amet.',
+                    ],
                 ],
             ],
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'id' => null,
-                    'name' => 'manufacturerNumber',
-                    'position' => 1,
-                ],
-                [
-                    'manufacturerNumber' => '22ee3d8063da',
-                ],
-                [
-                    'label' => 'manufacturerNumber',
-                    'value' => '22ee3d8063da',
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                ],
+                'label' => 'description',
+                'value' => 'Lorem ipsum dolor sit amet.',
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+            ],
+        ];
+        yield 'manufacturer number is exposed as an attribute feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                'id' => null,
+                'name' => 'manufacturerNumber',
+                'position' => 1,
             ],
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
-                    'id' => '7c8e7851ff88447ba254d3c2a7c45101',
-                    'name' => null,
-                    'position' => 2,
-                ],
-                [
-                    'properties' => [
-                        [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                        ],
-                        [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                        ],
+                'manufacturerNumber' => '22ee3d8063da',
+            ],
+            [
+                'label' => 'manufacturerNumber',
+                'value' => '22ee3d8063da',
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+            ],
+        ];
+        yield 'translated property options are exposed as a property feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
+                'id' => '7c8e7851ff88447ba254d3c2a7c45101',
+                'name' => null,
+                'position' => 2,
+            ],
+            [
+                'properties' => [
+                    [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
                     ],
-                    'options' => [
-                        [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                            'position' => 99,
-                            'colorHexCode' => '#189eff',
-                            'group' => [
-                                'id' => '7c8e7851ff88447ba254d3c2a7c45101',
-                                'position' => 1,
-                                'translations' => [
-                                    Defaults::LANGUAGE_SYSTEM => [
-                                        'name' => 'Default',
-                                        'description' => 'Default',
-                                        'displayType' => 'Default',
-                                        'sortingType' => 'Default',
-                                    ],
-                                    self::TEST_LANGUAGE_ID => [
-                                        'name' => 'swag_color',
-                                        'description' => 'Lorem ipsum',
-                                        'displayType' => 'color',
-                                        'sortingType' => 'alphanumeric',
-                                    ],
-                                ],
-                            ],
+                    [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                    ],
+                ],
+                'options' => [
+                    [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
+                        'position' => 99,
+                        'colorHexCode' => '#189eff',
+                        'group' => [
+                            'id' => '7c8e7851ff88447ba254d3c2a7c45101',
+                            'position' => 1,
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => [
                                     'name' => 'Default',
+                                    'description' => 'Default',
+                                    'displayType' => 'Default',
+                                    'sortingType' => 'Default',
                                 ],
                                 self::TEST_LANGUAGE_ID => [
-                                    'name' => 'Blue',
+                                    'name' => 'swag_color',
+                                    'description' => 'Lorem ipsum',
+                                    'displayType' => 'color',
+                                    'sortingType' => 'alphanumeric',
                                 ],
                             ],
                         ],
-                        [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                            'position' => 98,
-                            'colorHexCode' => '#ff0000',
-                            'groupId' => '7c8e7851ff88447ba254d3c2a7c45101',
-                            'translations' => [
-                                Defaults::LANGUAGE_SYSTEM => [
-                                    'name' => 'Default',
-                                ],
-                                self::TEST_LANGUAGE_ID => [
-                                    'name' => 'Red',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'swag_color',
-                    'value' => [
-                        '0cfabe6eab0440b0974b7b7164556612' => [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                            'name' => 'Red',
-                            'mediaId' => null,
-                            'colorHexCode' => '#ff0000',
-                        ],
-                        'bf821e9e206848579049bc1694c5c3e7' => [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                            'name' => 'Blue',
-                            'mediaId' => null,
-                            'colorHexCode' => '#189eff',
-                        ],
-                    ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
-                ],
-            ],
-            [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
-                    'id' => null,
-                    'name' => 'lorem_ipsum',
-                    'position' => 3,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'customFields' => [
-                                'lorem_ipsum' => 'Default',
-                            ],
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'customFields' => [
-                                'lorem_ipsum' => 'Dolor sit amet.',
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'lorem_ipsum',
-                    'value' => [
-                        'id' => self::CUSTOM_FIELD_ID,
-                        'type' => CustomFieldTypes::TEXT,
-                        'content' => 'Dolor sit amet.',
-                    ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
-                ],
-            ],
-            [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
-                    'id' => null,
-                    'name' => null,
-                    'position' => 0,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'packUnit' => 'Default',
-                            'packUnitPlural' => 'Default',
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'packUnit' => 'Can',
-                            'packUnitPlural' => 'Cans',
-                        ],
-                    ],
-                    'unit' => [
                         'translations' => [
                             Defaults::LANGUAGE_SYSTEM => [
-                                'shortCode' => 'Default',
                                 'name' => 'Default',
                             ],
                             self::TEST_LANGUAGE_ID => [
-                                'shortCode' => 'l',
-                                'name' => 'litres',
+                                'name' => 'Blue',
                             ],
                         ],
                     ],
-                    'purchaseUnit' => 2,
-                    'referenceUnit' => 0.33,
-                ],
-                [
-                    'label' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
-                    'value' => [
-                        'purchaseUnit' => 2.0,
-                        'referenceUnit' => 0.33,
-                        'unitName' => 'litres',
+                    [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                        'position' => 98,
+                        'colorHexCode' => '#ff0000',
+                        'groupId' => '7c8e7851ff88447ba254d3c2a7c45101',
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'Default',
+                            ],
+                            self::TEST_LANGUAGE_ID => [
+                                'name' => 'Red',
+                            ],
+                        ],
                     ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
                 ],
+            ],
+            [
+                'label' => 'swag_color',
+                'value' => [
+                    '0cfabe6eab0440b0974b7b7164556612' => [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                        'name' => 'Red',
+                        'mediaId' => null,
+                        'colorHexCode' => '#ff0000',
+                    ],
+                    'bf821e9e206848579049bc1694c5c3e7' => [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
+                        'name' => 'Blue',
+                        'mediaId' => null,
+                        'colorHexCode' => '#189eff',
+                    ],
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
+            ],
+        ];
+        yield 'translated custom field is exposed as a custom field feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => 'Default',
+                        ],
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'customFields' => [
+                            'lorem_ipsum' => 'Dolor sit amet.',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::TEXT,
+                    'content' => 'Dolor sit amet.',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'translated pack unit is exposed as a reference price feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
+                'id' => null,
+                'name' => null,
+                'position' => 0,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'packUnit' => 'Default',
+                        'packUnitPlural' => 'Default',
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'packUnit' => 'Can',
+                        'packUnitPlural' => 'Cans',
+                    ],
+                ],
+                'unit' => [
+                    'translations' => [
+                        Defaults::LANGUAGE_SYSTEM => [
+                            'shortCode' => 'Default',
+                            'name' => 'Default',
+                        ],
+                        self::TEST_LANGUAGE_ID => [
+                            'shortCode' => 'l',
+                            'name' => 'litres',
+                        ],
+                    ],
+                ],
+                'purchaseUnit' => 2,
+                'referenceUnit' => 0.33,
+            ],
+            [
+                'label' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
+                'value' => [
+                    'purchaseUnit' => 2.0,
+                    'referenceUnit' => 0.33,
+                    'unitName' => 'litres',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
             ],
         ];
     }
@@ -637,25 +635,18 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
+     * @return iterable<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
-    public static function productDeliverabilityProvider(): array
+    public static function productDeliverabilityProvider(): iterable
     {
-        return [
-            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY],
-            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 10 with purchase step error message' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 10, with min order quantity error message' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY],
-        ];
+        yield 'quantity 5 is reduced to purchase step 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 10 is reduced to purchase step 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 6 is reduced to minimum purchase 5' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity above stock is capped at max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY];
+        yield 'quantity below minimum is raised to min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY];
+        yield 'quantity 2 is reduced to purchase step 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 11 is reduced to purchase step 10' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity below high minimum is raised to min purchase' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY];
     }
 
     public function testProcessCartShouldSetQuantityOfPriceDefinitionWhenAddingASimilarProduct(): void

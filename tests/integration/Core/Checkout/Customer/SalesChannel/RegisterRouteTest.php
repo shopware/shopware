@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -314,23 +315,18 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}
+     * @return iterable<string, array{array{domain: string, expectDomain: string}}>
      */
-    public static function registerWithDomainAndLeadingSlashProvider(): array
+    public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
-        return [
-            // test without leading slash
-            [
-                ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with leading slash
-            [
-                ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with double leading slash
-            [
-                ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
-            ],
+        yield 'domain without trailing slash is used unchanged' => [
+            ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        yield 'domain with trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        yield 'domain with double trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
 
@@ -648,71 +644,80 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
+     * @return iterable<string, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
      */
-    public static function customerBoundToSalesChannelProvider(): array
+    public static function customerBoundToSalesChannelProvider(): iterable
     {
-        return [[
+        yield 'scoped customer cannot reuse a bound account on the same sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
-            'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
+            'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400, // Email existed status
-        ], [
+            'expectedStatus' => 400,
+        ];
+        yield 'scoped customer can reuse a bound account on another sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 200, // Success status
-        ], [
+            'expectedStatus' => 200,
+        ];
+        yield 'scoped customer cannot reuse a global account on the same sales channel' => [
             'isCustomerScoped' => true,
-            'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
+            'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'scoped customer cannot reuse a global account on another sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'scoped customer can register without an existing account' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 200,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a bound account on the same sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a bound account on another sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a global account on the same sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a global account on another sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer can register without an existing account' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 200,
-        ]];
+        ];
     }
 
     public function testRegistrationWithAllowedAccountType(): void
@@ -987,6 +992,49 @@ class RegisterRouteTest extends TestCase
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
             static::assertNotEmpty($contextToken);
         }
+    }
+
+    public function testRegistrationBusinessAccountWithCountryVatIdsRequired(): void
+    {
+        $billingAddressCountryId = $this->getCountryIdByIsoCode('SE');
+        $shippingAddressCountryId = $this->getCountryIdByIsoCode('SI');
+
+        $this->addCountriesToSalesChannel([$billingAddressCountryId, $shippingAddressCountryId], $this->ids->get('sales-channel'));
+
+        static::getContainer()->get(Connection::class)
+            ->executeStatement(
+                'UPDATE `country` SET `check_vat_id_pattern` = 1 WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList([$billingAddressCountryId, $shippingAddressCountryId])],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'countryId' => $billingAddressCountryId,
+            ],
+            'shippingAddress' => [
+                'countryId' => $shippingAddressCountryId,
+            ],
+            'vatIds' => [
+                'SE111111111111',
+            ],
+        ];
+
+        $registrationData = array_replace_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void

@@ -44,7 +44,7 @@
 
     .sw-cms-el-image-gallery__grid-arrow {
         justify-self: center;
-        color: $color-gray-400;
+        color: var(--color-text-secondary-default);
     }
 }
 
@@ -58,7 +58,7 @@
     .sw-cms-el-image-gallery__item-placeholder,
     .sw-media-list-selection-item-v2 {
         border-radius: $border-radius-default;
-        border: 1px solid #d1d9e0;
+        border: 1px solid var(--color-border-primary-default);
         height: 64px;
         display: flex;
         align-items: center;
@@ -78,7 +78,7 @@
 
         &:hover,
         &.is--active {
-            border-color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-default);
             background: none;
         }
 

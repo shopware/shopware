@@ -26,15 +26,13 @@ class SystemCheckTest extends TestCase
 
     public function testEmptyNameThrowsException(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Empty name for RequirementCheck provided.');
+        $this->expectExceptionObject(new \RuntimeException('Empty name for RequirementCheck provided.'));
         new SystemCheck('', RequirementCheck::STATUS_SUCCESS, 'installedValue', 'status');
     }
 
     public function testWrongStatusThrowsException(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Invalid status for RequirementCheck, got "wrongStatus", allowed values are "success", "error", "warning".');
+        $this->expectExceptionObject(new \RuntimeException('Invalid status for RequirementCheck, got "wrongStatus", allowed values are "success", "error", "warning".'));
         new SystemCheck('name', 'wrongStatus', 'installedValue', 'status');
     }
 }

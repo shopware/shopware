@@ -7,7 +7,7 @@
         margin: 32px 0;
         border: none;
         height: 1px;
-        background-color: $color-gray-300;
+        background-color: var(--color-border-primary-default);
     }
 
     &__content {
@@ -23,7 +23,7 @@
     }
 
     &__state-history-text {
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     &__state-history-button {

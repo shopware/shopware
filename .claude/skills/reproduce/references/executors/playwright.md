@@ -75,6 +75,16 @@ await locator.waitFor({ state: 'visible', timeout })
 
 **(2) Symptom** — exactly ONE `await expect(...)` of the HEALTHY behaviour, with a generous
 timeout. This is the ONLY failure that may mean `reproduced`.
+- **Assert the symptom's ACTUAL mechanism, never an invented numeric threshold.** A made-up
+  cutoff (`width > 39px`, `>= 3 items`, `height < 100`) is not the symptom — it fires on
+  perfectly healthy UI and yields a false `reproduced` on BOTH legs → false `live_bug`. Live
+  miss on #28 ("quantity input cuts off the 2nd digit"): the spec demanded the input box be
+  `> 39px`, but at a 390px viewport the box is ~30px and "10" is FULLY visible — not cut off —
+  so both legs "failed" the bogus threshold. For **clipped / cut-off / truncated** content read
+  the real overflow signal, not the box size:
+  `const clipped = await el.evaluate(n => n.scrollWidth > n.clientWidth + 1); expect(clipped).toBe(false);`
+  For a **"collapsed to ~0"** symptom assert a near-zero width explicitly (`expect(box.width).toBeLessThan(4)` is the SYMPTOM, so invert: healthy = NOT near-zero). Derive the
+  property the bug actually manifests in from the issue / fix PR — do not guess a boundary.
 - For a hidden / closed / collapsed / off-canvas symptom use
   `await expect(locator).not.toBeInViewport()` or assert explicit state
   (`toHaveAttribute('aria-hidden','true')`) — **NOT** `not.toBeVisible()`: an element moved

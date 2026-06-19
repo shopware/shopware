@@ -22,11 +22,15 @@ class OrderLineItemEntityTest extends TestCase
             'productNumber' => 'SW-1',
         ]);
 
-        static::assertArrayHasKey('purchasePrices', $lineItem->getPayload());
+        $payload = $lineItem->getPayload();
+        static::assertIsArray($payload);
+        static::assertArrayHasKey('purchasePrices', $payload);
 
         $serialized = $lineItem->jsonSerialize();
+        $serializedPayload = $serialized['payload'] ?? null;
+        static::assertIsArray($serializedPayload);
 
-        static::assertArrayNotHasKey('purchasePrices', $serialized['payload']);
-        static::assertSame('SW-1', $serialized['payload']['productNumber']);
+        static::assertArrayNotHasKey('purchasePrices', $serializedPayload);
+        static::assertSame('SW-1', $serializedPayload['productNumber']);
     }
 }

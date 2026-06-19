@@ -23,6 +23,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -73,7 +74,8 @@ class RegisterConfirmRouteTest extends TestCase
             $this->eventDispatcher,
             $this->validator,
             $this->salesChannelContextPersister,
-            $this->salesChannelContextService
+            $this->salesChannelContextService,
+            new NativeClock()
         );
     }
 

@@ -85,10 +85,10 @@ class CanonicalRedirectServiceTest extends TestCase
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CanonicalRedirectExtension::NAME), $post);
+        $dispatcher->addListener(CanonicalRedirectExtension::onPost(), $post);
 
         $dispatcher->addListener(
-            ExtensionDispatcher::pre(CanonicalRedirectExtension::NAME),
+            CanonicalRedirectExtension::onPre(),
             static function (CanonicalRedirectExtension $extension): void {
                 $extension->stopPropagation();
 
@@ -130,7 +130,8 @@ class CanonicalRedirectServiceTest extends TestCase
      */
     private static function getRequest(array $attributes): Request
     {
-        $request = Request::create($_SERVER['APP_URL'], Request::METHOD_GET);
+        $appUrl = \is_string($_SERVER['APP_URL'] ?? null) ? $_SERVER['APP_URL'] : 'http://localhost';
+        $request = Request::create($appUrl, Request::METHOD_GET);
 
         foreach ($attributes as $key => $attribute) {
             $request->attributes->set($key, $attribute);

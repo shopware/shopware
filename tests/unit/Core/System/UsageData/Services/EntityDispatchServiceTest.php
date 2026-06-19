@@ -770,7 +770,7 @@ class EntityDispatchServiceTest extends TestCase
     private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&MockObject
     {
         $service = $this->createMock(GatewayStatusService::class);
-        $service->expects($this->any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
+        $service->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
     }

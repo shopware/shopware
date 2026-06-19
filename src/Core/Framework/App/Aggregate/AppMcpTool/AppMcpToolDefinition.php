@@ -43,7 +43,7 @@ class AppMcpToolDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.7.0.0';
+        return '6.7.11.0';
     }
 
     protected function getParentDefinitionClass(): ?string

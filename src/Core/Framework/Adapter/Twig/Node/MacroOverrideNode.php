@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest;
 use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\CaptureNode;
@@ -12,7 +13,9 @@ use Twig\Node\MacroNode;
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
+ * @codeCoverageIgnore
+ *
+ * @see ReturnNodeTest
  */
 #[Package('framework')]
 #[YieldReady]

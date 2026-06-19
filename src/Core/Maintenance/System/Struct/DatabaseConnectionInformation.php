@@ -126,7 +126,7 @@ class DatabaseConnectionInformation extends Struct
             $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $this->sslCertKeyPath;
         }
 
-        if ($this->sslDontVerifyServerCert) {
+        if ($this->sslDontVerifyServerCert && \defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 

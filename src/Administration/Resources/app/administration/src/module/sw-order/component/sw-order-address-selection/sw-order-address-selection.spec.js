@@ -84,6 +84,10 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
+                'sw-address': {
+                    props: ['formattingAddress'],
+                    template: '<div class="sw-address">{{ formattingAddress }}</div>',
+                },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
                     sync: true,
@@ -120,6 +124,13 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                             getEntityName: () => 'customer_address',
                         }),
                     }),
+                },
+                customSnippetApiService: {
+                    render: (address) => {
+                        return Promise.resolve({
+                            rendered: `${address.street}, ${address.zipcode} ${address.city}`,
+                        });
+                    },
                 },
                 shortcutService: {
                     stopEventListener: () => {},
@@ -286,6 +297,40 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.find('.sw-select-result__add-new-address').exists()).toBe(false);
         expect(wrapper.findAll('.sw-select-result')).toHaveLength(1);
     });
+    
+    it('should select a newly created address after saving it', async () => {
+        wrapper = await createWrapper({
+            type: 'shipping',
+        });
+
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'newCustomerAddressId',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            street: 'Example Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            countryId: 'countryId',
+        });
+
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(wrapper.emitted('change-address')).toEqual([
+            [
+                {
+                    orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                    customerAddressId: 'newCustomerAddressId',
+                    type: 'shipping',
+                    edited: false,
+                },
+            ],
+        ]);
+    });
 
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
@@ -330,5 +375,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');
+    });
+
+    it('renders the selected address details below the select', async () => {
+        await flushPromises();
+
+        const selectedAddress = wrapper.find('.sw-order-address-selection__selected-address');
+        const selectedAddressContent = selectedAddress.find('.sw-address');
+
+        expect(selectedAddress.exists()).toBe(true);
+        expect(selectedAddressContent.text()).toBe('Denesik Bridge, 05132 Bernierstad');
     });
 });

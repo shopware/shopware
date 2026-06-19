@@ -63,8 +63,8 @@
 
         <service id="Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
-            <argument type="service" id="messenger.transport.async"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
+            <argument type="service_closure" id="messenger.transport.async"/>
+            <argument type="service_closure" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
             <tag name="messenger.transport_factory"/>
         </service>
 
@@ -172,6 +172,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\StreamLockService"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">

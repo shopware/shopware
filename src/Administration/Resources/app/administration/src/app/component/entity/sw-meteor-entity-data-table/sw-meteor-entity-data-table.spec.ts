@@ -13,6 +13,7 @@ import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/d
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
+import { isNativeShopwareComponentName } from 'src/app/component/native-shopware-components';
 import SwMeteorEntityDataTable from './sw-meteor-entity-data-table.vue';
 import type {
     SwMeteorEntityDataTableColumn,
@@ -524,6 +525,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
     beforeEach(() => {
         delete _overridesMap[componentName];
+        Shopware.Component.getOverrideRegistry().delete(componentName);
     });
 
     afterEach(() => {
@@ -2045,5 +2047,37 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(table.props('currentPage')).toBe(7);
         expect(table.props('paginationLimit')).toBe(100);
         expect(table.props('searchValue')).toBe('override');
+    });
+
+    it('converts legacy Options API overrides queued through Shopware.Component.override', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        expect(isNativeShopwareComponentName(componentName)).toBe(true);
+
+        Shopware.Component.override(componentName, {
+            methods: {
+                setPage(
+                    this: {
+                        $super: (methodName: string, page: number) => unknown;
+                        state: SwMeteorEntityDataTableState;
+                    },
+                    page: number,
+                ) {
+                    this.$super('setPage', page);
+                    this.state.page += 10;
+                },
+            },
+        });
+
+        const wrapper = createWrapper();
+        await flushPromises();
+        await nextTick();
+
+        await getTable(wrapper).find('.mt-data-table-stub__page').trigger('click');
+        await nextTick();
+
+        expect(getTable(wrapper).props('currentPage')).toBe(13);
+
+        warnSpy.mockRestore();
     });
 });

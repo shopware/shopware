@@ -7,7 +7,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
-import { isNativeShopwareComponentName } from 'src/app/component/native-shopware-components';
+import { isNativeShopwareComponentName } from 'src/core/factory/native-component.registry';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -100,7 +100,7 @@ const syncComponents = new Set<string>();
 function rejectNativeShopwareComponentName(componentName: string, componentConfiguration: unknown): false {
     warn(
         'ComponentFactory',
-        `The component "${componentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`,
+        `The component "${componentName}" is a native Shopware component and cannot be registered or extended through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`,
         componentConfiguration,
     );
 
@@ -632,11 +632,8 @@ function override(
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>),
     overrideIndex: number | null = null,
 ): false | (() => Promise<ComponentConfig>) {
-    if (isNativeShopwareComponentName(componentName)) {
-        return rejectNativeShopwareComponentName(componentName, componentConfiguration);
-    }
-
     let config: ComponentConfig;
+    const isNativeComponentOverride = isNativeShopwareComponentName(componentName);
 
     /**
      * For sync object configs the block index is populated here, before any
@@ -646,6 +643,7 @@ function override(
      * changes, async Twig overrides will silently produce no output.
      */
     const isSyncWithTemplate =
+        !isNativeComponentOverride &&
         componentConfiguration !== null &&
         typeof componentConfiguration !== 'function' &&
         typeof componentConfiguration.template === 'string';
@@ -677,7 +675,7 @@ function override(
 
         config.name = componentName;
 
-        if (config.template) {
+        if (config.template && !isNativeComponentOverride) {
             // Async-only path: direct-object configs were already indexed synchronously
             // above so the block index is ready before any <sw-block> setup() runs.
             if (!isSyncWithTemplate) {

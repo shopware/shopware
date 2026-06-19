@@ -3,6 +3,12 @@
  * @private
  */
 
+import {
+    isNativeShopwareComponentName,
+    nativeShopwareComponentNames,
+    registerNativeShopwareComponentNames,
+} from 'src/core/factory/native-component.registry';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type NativeShopwareComponentLoader = () => Promise<unknown>;
 
@@ -12,10 +18,7 @@ export const nativeShopwareComponents: Record<string, NativeShopwareComponentLoa
         import('src/app/component/entity/sw-meteor-entity-data-table/sw-meteor-entity-data-table.vue'),
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export const nativeShopwareComponentNames = new Set<string>(Object.keys(nativeShopwareComponents));
+registerNativeShopwareComponentNames(Object.keys(nativeShopwareComponents));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function isNativeShopwareComponentName(componentName: string): boolean {
-    return nativeShopwareComponentNames.has(componentName);
-}
+export { isNativeShopwareComponentName, nativeShopwareComponentNames };

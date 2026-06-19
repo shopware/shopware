@@ -38,7 +38,8 @@
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",
-    "./test/**/*.d.ts"
+    "./test/**/*.d.ts",
+    "./test/**/*.ts"
   ],
   "exclude": ["node_modules"],
   "files": [

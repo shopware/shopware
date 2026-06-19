@@ -178,6 +178,7 @@ module.exports = {
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.js',
+        '<rootDir>/test/_helper_/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

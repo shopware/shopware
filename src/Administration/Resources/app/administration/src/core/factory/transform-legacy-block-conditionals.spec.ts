@@ -269,6 +269,40 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformLegacyBlockConditionals(template)).toBe(template);
     });
 
+    it('does not continue a condition chain across non-whitespace text nodes inside one block', () => {
+        const template = `
+            <div>
+                <sw-block name="test-block">
+                    <div v-if="someCondition" class="if-branch">default</div>
+                    text between branches
+                    <div v-else class="else-branch">default</div>
+                </sw-block>
+            </div>
+        `;
+
+        expect(transformLegacyBlockConditionals(template)).toBe(template);
+    });
+
+    it('does not rewrite a legacy Twig condition chain across non-whitespace text nodes inside one block', () => {
+        const [entry] = transformLegacyTwigBlockSequenceConditionals(
+            [
+                {
+                    blockName: 'test-block',
+                    innerTemplate: `
+                        <div v-if="someCondition" class="if-branch">default</div>
+                        text between branches
+                        <div v-else class="else-branch">default</div>
+                    `,
+                },
+            ],
+            TEST_COMPONENT,
+        );
+
+        expect(entry.innerTemplate).toContain('v-if="someCondition"');
+        expect(entry.innerTemplate).toContain('v-else class="else-branch"');
+        expect(entry.legacyConditionCases).toEqual([]);
+    });
+
     it('keeps whitespace between rewritten v-if and following attributes', () => {
         const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
             [

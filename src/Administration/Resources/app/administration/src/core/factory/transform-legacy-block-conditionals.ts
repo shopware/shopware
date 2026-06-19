@@ -66,6 +66,7 @@ type BlockConditionChainInfo = {
     blockName: string;
     starting: boolean; //Is this chain starting a chain in the block
     ending: boolean; //Is this chain ending a chain in the block
+    detachedFromPrevious?: boolean;
     firstChainInBlock: boolean;
     lastChainInBlock: boolean;
     index: number;
@@ -236,17 +237,47 @@ export default function transformNativeLegacyBlockConditionals(template: string,
     return template;
 }
 
-function collectBlockConditionalChains(blockName: string, children: Element[]): BlockConditionChainInfo[] {
+function isElementNode(node: ChildNode): node is Element {
+    return node.nodeType === 1;
+}
+
+function isChainBreakingTextNode(node: ChildNode): boolean {
+    return node.nodeType === 3 && (node.textContent ?? '').trim().length > 0;
+}
+
+function hasOnlyIgnorableNodesAfter(nodes: ChildNode[], currentIndex: number): boolean {
+    return nodes.slice(currentIndex + 1).every((node) => !isElementNode(node) && !isChainBreakingTextNode(node));
+}
+
+function collectBlockConditionalChains(blockName: string, children: ChildNode[]): BlockConditionChainInfo[] {
     let chainIndex: number = 0;
     let buildingChain = false;
+    let detachedFromPrevious = false;
     const conditionalChains: BlockConditionChainInfo[] = [];
 
-    children.forEach((child, childIndex) => {
+    children.forEach((node, childIndex) => {
+        if (isChainBreakingTextNode(node)) {
+            if (buildingChain) {
+                buildingChain = false;
+                chainIndex += 1;
+            }
+            detachedFromPrevious = true;
+
+            return;
+        }
+
+        if (!isElementNode(node)) {
+            return;
+        }
+
+        const child = node;
         const isConditional = child.hasAttribute('v-if') || child.hasAttribute('v-else-if') || child.hasAttribute('v-else');
+        const isLastChainNodeInBlock = hasOnlyIgnorableNodesAfter(children, childIndex);
 
         if (buildingChain && (!isConditional || child.hasAttribute('v-if'))) {
             buildingChain = false;
             chainIndex += 1;
+            detachedFromPrevious = true;
         }
 
         if (!isConditional) {
@@ -258,10 +289,10 @@ function collectBlockConditionalChains(blockName: string, children: Element[]): 
 
             if (child.hasAttribute('v-else')) {
                 conditionalChains[chainIndex].ending = true;
-                conditionalChains[chainIndex].lastChainInBlock = childIndex === children.length - 1;
+                conditionalChains[chainIndex].lastChainInBlock = isLastChainNodeInBlock;
                 buildingChain = false;
                 chainIndex += 1;
-            } else if (childIndex === children.length - 1) {
+            } else if (isLastChainNodeInBlock) {
                 conditionalChains[chainIndex].lastChainInBlock = true;
             }
 
@@ -279,11 +310,13 @@ function collectBlockConditionalChains(blockName: string, children: Element[]): 
                 index: chainIndex,
                 fullChainKey: createLegacyConditionChainKey(blockName, chainIndex),
                 blockName: blockName,
+                detachedFromPrevious,
             });
+            detachedFromPrevious = false;
             if (child.hasAttribute('v-else')) {
                 buildingChain = false;
                 chainIndex += 1;
-            } else if (childIndex === children.length - 1) {
+            } else if (isLastChainNodeInBlock) {
                 conditionalChains[chainIndex].lastChainInBlock = true;
             }
 
@@ -301,8 +334,9 @@ function collectBlockConditionalChains(blockName: string, children: Element[]): 
             fullChainKey: createLegacyConditionChainKey(blockName, chainIndex),
             blockName: blockName,
         });
+        detachedFromPrevious = false;
 
-        if (childIndex === children.length - 1 && buildingChain) {
+        if (isLastChainNodeInBlock && buildingChain) {
             conditionalChains[chainIndex].lastChainInBlock = true;
         }
     });
@@ -310,11 +344,11 @@ function collectBlockConditionalChains(blockName: string, children: Element[]): 
     return conditionalChains;
 }
 
-function parseBlockTemplateChildren(template: string): Element[] {
+function parseBlockTemplateChildren(template: string): ChildNode[] {
     const parsedTemplate = document.createElement('template');
     parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
 
-    return Array.from(parsedTemplate.content.children);
+    return Array.from(parsedTemplate.content.childNodes);
 }
 
 function fillChainIndices(
@@ -336,8 +370,9 @@ function fillChainIndices(
                 chain.fullChainKey = localChainKey;
                 lastChain = chain;
                 startingChain = chain;
-            } else if (startingChain && lastChain) {
+            } else if (!chain.detachedFromPrevious && startingChain && lastChain) {
                 chain.fullChainKey = startingChain.fullChainKey;
+                chain.detachedFromPrevious = Boolean(lastChain.detachedFromPrevious);
                 lastChain.followedBy = chain;
                 if (
                     componentName &&
@@ -490,6 +525,10 @@ function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
 }
 
 function shouldPerformChainRewrite(chain: BlockConditionChainInfo): boolean {
+    if (chain.detachedFromPrevious) {
+        return false;
+    }
+
     return !chain.starting || chain.followedBy !== undefined || chain.firstChainInBlock || chain.lastChainInBlock;
 }
 
@@ -593,10 +632,12 @@ export function transformLegacyTwigBlockSequenceConditionals(
                         caseCount: chain.children.length,
                     })),
             );
-            chains.forEach((chain) => {
-                const rewrites = constructChainAttributeRewrites(chain, 'shimExtension', componentName);
-                entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
-            });
+            chains
+                .filter((chain) => shouldPerformChainRewrite(chain))
+                .forEach((chain) => {
+                    const rewrites = constructChainAttributeRewrites(chain, 'shimExtension', componentName);
+                    entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
+                });
         }
     });
 

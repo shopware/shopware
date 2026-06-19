@@ -3,6 +3,7 @@
  */
 
 import { buildBaseScript } from './lower/base';
+import { buildOverrideScript } from './lower/override';
 import type { ShopwareSetupScriptAnalysis } from './script-analyzer';
 import type { SourceChunk } from './source-edits/chunks';
 import { render } from './source-edits/render-chunks';
@@ -20,7 +21,7 @@ function lowerShopwareSetupBlock(
     block: ShopwareSetupBlock,
     analysis: ShopwareSetupScriptAnalysis,
 ): LoweredShopwareSetupBlock {
-    const chunks = buildBaseScript(block, analysis);
+    const chunks = block.mode === 'base' ? buildBaseScript(block, analysis) : buildOverrideScript(block, analysis);
 
     return {
         chunks,

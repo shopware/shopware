@@ -55,7 +55,7 @@
     "@floating-ui/dom": "1.7.1",
     "@shopware-ag/dive": "2.2.29",
     "@shopware-ag/meteor-admin-sdk": "6.4.0",
-    "@shopware-ag/meteor-component-library": "file:.yalc/@shopware-ag/meteor-component-library",
+    "@shopware-ag/meteor-component-library": "5.1.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "11.0.4",

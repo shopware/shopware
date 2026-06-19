@@ -98,6 +98,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
     const transformed = applySourceEdits(
         source,
+        filename,
         [
             ...registrationTemplateEdits,
             ...templateAnalysis.edits,

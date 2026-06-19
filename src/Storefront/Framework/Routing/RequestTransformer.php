@@ -278,9 +278,9 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function findSalesChannel(Request $request): ?DomainStruct
     {
-        $domains = $this->domainLoader->load();
+        $domains = $this->domainLoader->loadDomains();
 
-        if ($domains === []) {
+        if ($domains->count() === 0) {
             return null;
         }
 
@@ -289,37 +289,37 @@ class RequestTransformer implements RequestTransformerInterface
 
         if ($this->isHttpHostPunycode($request)) {
             $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
-            $domain = $domains[$requestUrl] ?? $domains[$asciiRequestUrl] ?? null;
-            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
+            $domain = $domains->get($requestUrl) ?? $domains->get($asciiRequestUrl);
+            $filter = static fn (string $baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
                 || str_starts_with($asciiRequestUrl, $baseUrl);
         } else {
-            $domain = $domains[$requestUrl] ?? null;
-            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
+            $domain = $domains->get($requestUrl);
+            $filter = static fn (string $baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
         }
 
         // direct hit
         if ($domain !== null) {
-            return DomainStruct::fromArray($domain);
+            return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, $filter, \ARRAY_FILTER_USE_KEY);
+        $matches = array_filter($domains->getElements(), $filter, \ARRAY_FILTER_USE_KEY);
 
-        if ($domains === []) {
+        if ($matches === []) {
             return null;
         }
 
         // determine most matching shop base url
         $lastBaseUrl = '';
-        $bestMatch = current($domains);
-        foreach ($domains as $baseUrl => $urlConfig) {
+        $bestMatch = current($matches);
+        foreach ($matches as $baseUrl => $match) {
             if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
-                $bestMatch = $urlConfig;
+                $bestMatch = $match;
                 $lastBaseUrl = $baseUrl;
             }
         }
 
-        return DomainStruct::fromArray($bestMatch);
+        return $bestMatch;
     }
 
     /**

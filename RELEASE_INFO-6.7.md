@@ -2,9 +2,11 @@
 
 ## Storefront
 
-### Deprecated array return type of `AbstractDomainLoader::load()`
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
-The return type of `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated: with Shopware 6.8 it will return a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `DomainStruct` objects (keyed by domain URL) instead of an array of arrays. Decorators and consumers should prepare for a `DomainCollection` whose entries are `DomainStruct` objects (e.g. `$domain->url` instead of `$domain['url']`).
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ### Storefront cache hash no longer varies by language
 

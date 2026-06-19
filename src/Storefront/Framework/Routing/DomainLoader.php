@@ -5,8 +5,11 @@ namespace Shopware\Storefront\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
@@ -27,9 +30,35 @@ class DomainLoader extends AbstractDomainLoader
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use loadDomains() instead
+     *
      * @return array<string, Domain>
      */
     public function load(): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'loadDomains()')
+        );
+
+        return $this->fetch();
+    }
+
+    public function loadDomains(): DomainCollection
+    {
+        $domains = new DomainCollection();
+
+        foreach ($this->fetch() as $key => $domain) {
+            $domains->set($key, DomainStruct::fromArray($domain));
+        }
+
+        return $domains;
+    }
+
+    /**
+     * @return array<string, Domain>
+     */
+    private function fetch(): array
     {
         $query = $this->connection->createQueryBuilder();
 

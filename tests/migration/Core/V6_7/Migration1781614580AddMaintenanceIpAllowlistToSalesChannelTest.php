@@ -49,7 +49,7 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
     #[After]
     public function cleanUp(): void
     {
-        // make sure the new column and the triggers exist again for the remaining test suite
+        // make sure the new column exists again for the remaining test suite
         $this->migration->update($this->connection);
 
         $this->connection->update(
@@ -98,13 +98,6 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannelTest extends Tes
 
     private function rollback(): void
     {
-        $this->connection->executeStatement(<<<'SQL'
-            DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_insert
-        SQL);
-        $this->connection->executeStatement(<<<'SQL'
-            DROP TRIGGER IF EXISTS sales_channel_maintenance_ip_allowlist_update
-        SQL);
-
         if (TableHelper::columnExists($this->connection, 'sales_channel', 'maintenance_ip_allowlist')) {
             $this->connection->executeStatement(<<<'SQL'
                 ALTER TABLE `sales_channel` DROP COLUMN `maintenance_ip_allowlist`

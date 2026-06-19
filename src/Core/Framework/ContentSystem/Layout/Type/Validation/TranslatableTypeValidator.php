@@ -24,10 +24,24 @@ final class TranslatableTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
-        if ($value->translatable && $value->type !== 'string') {
+        if ($value->translatable && $this->normalizeTypes($value->type) !== ['string']) {
             $this->context->buildViolation($constraint->message)
                 ->atPath('translatable')
                 ->addViolation();
         }
+    }
+
+    /**
+     * @param string|list<string> $type
+     *
+     * @return list<string>
+     */
+    private function normalizeTypes(string|array $type): array
+    {
+        if (\is_string($type)) {
+            return [$type];
+        }
+
+        return array_values($type);
     }
 }

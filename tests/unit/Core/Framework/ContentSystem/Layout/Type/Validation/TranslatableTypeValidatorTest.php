@@ -66,6 +66,11 @@ class TranslatableTypeValidatorTest extends TestCase
             new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, true, 'Product', 'A product.', null, null, null),
             'translatable',
         ];
+
+        yield 'translatable on union type' => [
+            new PropertySpecificationDto('label', ['string', 'object'], false, true, 'Label', 'A label.', null, null, null),
+            'translatable',
+        ];
     }
 
     #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]

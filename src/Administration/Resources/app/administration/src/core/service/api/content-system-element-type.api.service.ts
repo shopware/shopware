@@ -6,18 +6,52 @@ import type { AxiosInstance } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
+type ContentSystemElementTypePropertyPrimitive = string | number | boolean | null;
+
+/**
+ * @private
+ */
+export interface ContentSystemElementAdminUiVisibleWhenCondition {
+    field: string;
+    equals?: ContentSystemElementTypePropertyPrimitive;
+    notEquals?: ContentSystemElementTypePropertyPrimitive;
+    in?: ContentSystemElementTypePropertyPrimitive[];
+    notIn?: ContentSystemElementTypePropertyPrimitive[];
+    isEmpty?: boolean;
+    isNotEmpty?: boolean;
+}
+
+/**
+ * @private
+ */
+export type ContentSystemElementAdminUiVisibleWhen =
+    | ContentSystemElementAdminUiVisibleWhenCondition
+    | ContentSystemElementAdminUiVisibleWhenCondition[];
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypePropertyAdminUi {
+    component?: string;
+    props?: Record<string, unknown>;
+    entity?: string;
+    visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
+    [key: string]: unknown;
+}
+
 /**
  * @private
  */
 export interface ContentSystemElementTypeProperty {
-    type: string;
+    type: string | string[];
     translatable: boolean;
     enum: Array<string | number | boolean> | null;
     default: string | number | boolean | null;
     required: boolean;
     title: string;
     description: string;
-    adminUI: Record<string, unknown> | null;
+    adminUI: ContentSystemElementTypePropertyAdminUi | null;
+    properties?: Record<string, ContentSystemElementTypeProperty> | null;
 }
 
 /**

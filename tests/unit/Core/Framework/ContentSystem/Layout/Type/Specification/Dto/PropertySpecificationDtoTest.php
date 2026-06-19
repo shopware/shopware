@@ -35,6 +35,30 @@ class PropertySpecificationDtoTest extends TestCase
         static::assertCount(0, $violations);
     }
 
+    #[TestDox('accepts object property with nested properties')]
+    public function testAcceptsObjectPropertyWithNestedProperties(): void
+    {
+        $dto = new PropertySpecificationDto(
+            'columns',
+            ['integer', 'object'],
+            false,
+            false,
+            'Columns',
+            'Columns configuration.',
+            null,
+            null,
+            null,
+            [
+                'xs' => new PropertySpecificationDto('xs', 'integer', false, false, 'XS', 'XS columns.', null, null, null),
+                'sm' => new PropertySpecificationDto('sm', 'integer', false, false, 'SM', 'SM columns.', null, null, null),
+            ],
+        );
+
+        $violations = $this->validator->validate($dto);
+
+        static::assertCount(0, $violations);
+    }
+
     #[DataProvider('blankFieldProvider')]
     #[TestDox('rejects blank $field')]
     public function testRejectsBlankField(string $field, PropertySpecificationDto $dto, int $expectedViolations): void

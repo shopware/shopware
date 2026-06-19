@@ -80,6 +80,11 @@ class TypedEnumValidatorTest extends TestCase
             new PropertySpecificationDto('variant', 'string', false, false, 'Variant', 'Variant.', ['a', 1], null, null),
             'enum',
         ];
+
+        yield 'enum on union type' => [
+            new PropertySpecificationDto('size', ['integer', 'object'], false, false, 'Size', 'Flexible size.', [1, 2], null, null),
+            'enum',
+        ];
     }
 
     #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]

@@ -30,7 +30,9 @@ final class TypedEnumValidator extends ConstraintValidator
             return;
         }
 
-        if (!\in_array($value->type, self::PRIMITIVE_TYPES, true)) {
+        $primitiveType = $this->getSinglePrimitiveType($value->type);
+
+        if ($primitiveType === null) {
             $this->context->buildViolation($constraint->typeMessage)
                 ->atPath('enum')
                 ->addViolation();
@@ -45,9 +47,9 @@ final class TypedEnumValidator extends ConstraintValidator
         }
 
         foreach ($value->enum as $enumValue) {
-            if (!$this->matchesType($enumValue, $value->type)) {
+            if (!$this->matchesType($enumValue, $primitiveType)) {
                 $this->context->buildViolation($constraint->valueTypeMessage)
-                    ->setParameter('{{ type }}', $value->type)
+                    ->setParameter('{{ type }}', $primitiveType)
                     ->atPath('enum')
                     ->addViolation();
 
@@ -65,5 +67,25 @@ final class TypedEnumValidator extends ConstraintValidator
             'number' => \is_int($value) || \is_float($value),
             default => false,
         };
+    }
+
+    /**
+     * @param string|list<string> $type
+     */
+    private function getSinglePrimitiveType(string|array $type): ?string
+    {
+        $types = \is_string($type) ? [$type] : array_values($type);
+
+        if (\count($types) !== 1) {
+            return null;
+        }
+
+        $resolvedType = $types[0];
+
+        if (!\in_array($resolvedType, self::PRIMITIVE_TYPES, true)) {
+            return null;
+        }
+
+        return $resolvedType;
     }
 }

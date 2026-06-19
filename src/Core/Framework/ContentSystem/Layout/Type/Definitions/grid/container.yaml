@@ -10,207 +10,127 @@ meta:
       - "Configure breakpoint-specific columns and rows."
 
 properties:
-  columns:
+  mode:
     type: string
+    title: "Mode"
+    description: "Grid layout mode."
+    default: "auto-fit"
+    enum:
+      - "max-content"
+      - "auto-fit"
+      - "auto-fill"
+      - "explicit"
+    adminUI:
+      component: "radio-panel"
+      props:
+        options:
+          - value: "auto-fit"
+            label: "Auto fit"
+            icon: "regular-view-grid"
+            description: "Automatically fits as many columns as possible."
+          - value: "max-content"
+            label: "Max content"
+            icon: "regular-line-column-xs"
+            description: "Size columns based on their maximum content size."
+          - value: "explicit"
+            label: "Explicit"
+            icon: "regular-table"
+            description: "Use explicit columns and rows configuration."
+
+  itemMinWidth:
+    type: string
+    title: "Item Min Width"
+    description: "Minimum item width used in auto-fit and auto-fill mode."
+    default: "400px"
+    adminUI:
+      component: "text"
+      visibleWhen:
+        field: "mode"
+        in: ["auto-fit", "auto-fill"]
+
+  columns:
+    type:
+      - "integer"
+      - "object"
     title: "Columns"
-    description: "Base column configuration."
-    default: "auto"
-    enum:
-      - "auto"
-      - "1"
-      - "2"
-      - "3"
-      - "4"
-      - "5"
-      - "6"
-      - "7"
-      - "8"
-      - "9"
-      - "10"
-      - "11"
-      - "12"
+    description: "Column count as a single integer or responsive object with breakpoint keys."
     adminUI:
-      component: "select"
-
-  columnsSm:
-    type: integer
-    title: "Columns (SM)"
-    description: "Column count on small breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  columnsMd:
-    type: integer
-    title: "Columns (MD)"
-    description: "Column count on medium breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  columnsLg:
-    type: integer
-    title: "Columns (LG)"
-    description: "Column count on large breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  columnsXl:
-    type: integer
-    title: "Columns (XL)"
-    description: "Column count on extra large breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
+      component: "responsive-number"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Columns (XS)"
+        description: "Column count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Columns (SM)"
+        description: "Column count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Columns (MD)"
+        description: "Column count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Columns (LG)"
+        description: "Column count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Columns (XL)"
+        description: "Column count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
   rows:
-    type: integer
+    type:
+      - "integer"
+      - "object"
     title: "Rows"
-    description: "Base row configuration."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
+    description: "Row count as a single integer or responsive object with breakpoint keys."
     adminUI:
-      component: "select"
-
-  rowsSm:
-    type: integer
-    title: "Rows (SM)"
-    description: "Row count on small breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  rowsMd:
-    type: integer
-    title: "Rows (MD)"
-    description: "Row count on medium breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  rowsLg:
-    type: integer
-    title: "Rows (LG)"
-    description: "Row count on large breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
-
-  rowsXl:
-    type: integer
-    title: "Rows (XL)"
-    description: "Row count on extra large breakpoint."
-    enum:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
-      - 11
-      - 12
-    adminUI:
-      component: "select"
+      component: "responsive-number"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Rows (XS)"
+        description: "Row count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Rows (SM)"
+        description: "Row count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Rows (MD)"
+        description: "Row count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Rows (LG)"
+        description: "Row count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Rows (XL)"
+        description: "Row count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
   gap:
     type: integer
@@ -284,12 +204,15 @@ properties:
     description: "Center container in available width."
     default: true
 
-  autoColumns:
+  border:
     type: string
-    title: "Auto Columns"
-    description: "Auto column sizing behavior."
+    title: "Border"
+    description: "Border position."
     enum:
-      - "max-content"
+      - "top"
+      - "end"
+      - "bottom"
+      - "start"
     adminUI:
       component: "select"
 

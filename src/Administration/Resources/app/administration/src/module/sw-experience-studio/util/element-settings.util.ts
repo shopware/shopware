@@ -1,12 +1,25 @@
-import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentSystemElementAdminUiVisibleWhenCondition,
+    ContentSystemElementTypeProperty,
+} from 'src/core/service/api/content-system-element-type.api.service';
 
-export type ElementPropertyControlType = 'switch' | 'number' | 'select' | 'entity' | 'media' | 'richtext' | 'text';
+export type ElementPropertyControlType =
+    | 'switch'
+    | 'number'
+    | 'select'
+    | 'radio-panel'
+    | 'entity'
+    | 'media'
+    | 'richtext'
+    | 'text'
+    | 'responsive-number';
 
 const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType> = {
     // Meteor/basic
     'mt-switch': 'switch',
     'mt-number-field': 'number',
     'mt-select': 'select',
+    'radio-panel': 'radio-panel',
     'mt-text-editor': 'richtext',
     'mt-text-field': 'text',
     // Shopware/base wrappers
@@ -16,6 +29,7 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'sw-entity-single-select': 'entity',
     'media-field': 'media',
     'sw-media-field': 'media',
+    'responsive-number': 'responsive-number',
 };
 
 /**
@@ -28,15 +42,15 @@ export function getPropertyControlType(property: ContentSystemElementTypePropert
         return ADMIN_UI_COMPONENT_CONTROL_MAP[adminUiComponent];
     }
 
-    if (property.type === 'boolean') {
+    if (propertyHasType(property, 'boolean')) {
         return 'switch';
     }
 
-    if (property.type === 'integer' || property.type === 'number') {
+    if (propertyHasType(property, 'integer') || propertyHasType(property, 'number')) {
         return 'number';
     }
 
-    if (property.type === 'string') {
+    if (propertyHasType(property, 'string')) {
         if (adminUiComponent === 'text-editor' || adminUiComponent === 'mt-text-editor') {
             return 'richtext';
         }
@@ -69,6 +83,35 @@ export function getAdminUiProps(property: ContentSystemElementTypeProperty): Rec
  * @private
  * @sw-package discovery
  */
+export function isPropertyVisible(
+    property: ContentSystemElementTypeProperty,
+    propertyValues: Record<string, unknown>,
+): boolean {
+    const visibleWhen = property.adminUI?.visibleWhen;
+
+    if (!visibleWhen) {
+        return true;
+    }
+
+    if (Array.isArray(visibleWhen)) {
+        if (visibleWhen.length === 0 || !visibleWhen.every(isVisibleWhenCondition)) {
+            return true;
+        }
+
+        return visibleWhen.every((condition) => matchesVisibleWhenCondition(condition, propertyValues));
+    }
+
+    if (!isVisibleWhenCondition(visibleWhen)) {
+        return true;
+    }
+
+    return matchesVisibleWhenCondition(visibleWhen, propertyValues);
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
 export function getInitialPropertyValue(
     property: ContentSystemElementTypeProperty,
     currentValue: unknown,
@@ -81,17 +124,92 @@ export function getInitialPropertyValue(
         return property.default;
     }
 
-    if (property.type === 'boolean') {
+    if (propertyHasType(property, 'boolean')) {
         return false;
     }
 
-    if (property.type === 'integer' || property.type === 'number') {
+    if (propertyHasType(property, 'integer') || propertyHasType(property, 'number')) {
         return null;
     }
 
-    if (property.type === 'string') {
+    if (propertyHasType(property, 'string')) {
         return '';
     }
 
     return null;
+}
+
+function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {
+    if (Array.isArray(property.type)) {
+        return property.type.includes(type);
+    }
+
+    return property.type === type;
+}
+
+function matchesVisibleWhenCondition(
+    condition: ContentSystemElementAdminUiVisibleWhenCondition,
+    propertyValues: Record<string, unknown>,
+): boolean {
+    if (typeof condition.field !== 'string' || condition.field.length === 0) {
+        return true;
+    }
+
+    const operator = getVisibleWhenOperator(condition);
+
+    if (!operator) {
+        return true;
+    }
+
+    const value = propertyValues[condition.field];
+
+    switch (operator) {
+        case 'equals':
+            return value === condition.equals;
+        case 'notEquals':
+            return value !== condition.notEquals;
+        case 'in':
+            return Array.isArray(condition.in) && condition.in.includes(value as string | number | boolean | null);
+        case 'notIn':
+            return Array.isArray(condition.notIn) && !condition.notIn.includes(value as string | number | boolean | null);
+        case 'isEmpty':
+            return condition.isEmpty === true ? isEmptyValue(value) : true;
+        case 'isNotEmpty':
+            return condition.isNotEmpty === true ? !isEmptyValue(value) : true;
+        default:
+            return true;
+    }
+}
+
+function isVisibleWhenCondition(value: unknown): value is ContentSystemElementAdminUiVisibleWhenCondition {
+    return typeof value === 'object' && value !== null;
+}
+
+function getVisibleWhenOperator(
+    condition: ContentSystemElementAdminUiVisibleWhenCondition,
+): 'equals' | 'notEquals' | 'in' | 'notIn' | 'isEmpty' | 'isNotEmpty' | null {
+    const operators: Array<'equals' | 'notEquals' | 'in' | 'notIn' | 'isEmpty' | 'isNotEmpty'> = [
+        'equals',
+        'notEquals',
+        'in',
+        'notIn',
+        'isEmpty',
+        'isNotEmpty',
+    ];
+
+    const usedOperators = operators.filter((operator) => condition[operator] !== undefined);
+
+    return usedOperators.length === 1 ? usedOperators[0] : null;
+}
+
+function isEmptyValue(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+        return true;
+    }
+
+    if (Array.isArray(value)) {
+        return value.length === 0;
+    }
+
+    return false;
 }

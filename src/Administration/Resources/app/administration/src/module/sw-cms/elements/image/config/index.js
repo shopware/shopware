@@ -162,8 +162,19 @@ export default {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? '' : value;
+            this.element.config.minHeight.value = this.formatMinHeight(value);
             this.emitUpdate();
+        },
+
+        formatMinHeight(value) {
+            if (value === null || value === '') {
+                return '';
+            }
+
+            const trimmed = String(value).trim();
+
+            // a plain number is interpreted as pixels so the resulting CSS stays valid
+            return /^\d+(\.\d+)?$/.test(trimmed) ? `${trimmed}px` : trimmed;
         },
 
         onChangeDisplayMode() {

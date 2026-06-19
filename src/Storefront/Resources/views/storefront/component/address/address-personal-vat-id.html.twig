@@ -22,6 +22,9 @@
             value: vatIdValue,
             violationPath: violationPath,
             additionalClass: 'col-md-6',
+            attributes: {
+                'data-form-validation-error-message': 'VIOLATION::VAT_ID_FORMAT_NOT_CORRECT'|trans|sw_sanitize,
+            },
         } %}
     {% endblock %}
 {% endblock %}

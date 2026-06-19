@@ -668,9 +668,7 @@ describe('Form country state select plugin', () => {
 
                 <div class="form-group col-md-6">
                     <label class="form-label" for="vatIds">VAT Reg.No.</label>
-                    <input type="text" name="vatIds[]" id="vatIds" class="form-name"
-                           aria-describedby="vatIds-feedback">
-                    <div id="vatIds-feedback"></div>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
                 </div>
 
                 <select class="country-select" data-initial-country-id="">
@@ -691,17 +689,52 @@ describe('Form country state select plugin', () => {
 
         const vatIdField = document.querySelector('#vatIds');
         const countrySelect = document.querySelector('.country-select');
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
 
         // Select Germany and enter a valid German VAT ID
         countrySelect.value = 'DE';
         countrySelect.dispatchEvent(new Event('change'));
         vatIdField.value = 'DE123456789';
 
-        // Switch to Netherlands — the German VAT ID is now invalid against the Dutch pattern
+        validateFieldSpy.mockClear();
+
+        // Switch to Netherlands — plugin should re-validate the existing value against the new pattern
         countrySelect.value = 'NL';
         countrySelect.dispatchEvent(new Event('change'));
 
-        expect(vatIdField.classList.contains('is-invalid')).toBe(true);
+        expect(validateFieldSpy).toHaveBeenCalledWith(vatIdField);
+    });
+
+    it('should not re-validate vatIds when field is empty on country switch', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0" data-zipcode-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        const countrySelect = document.querySelector('.country-select');
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(validateFieldSpy).not.toHaveBeenCalled();
     });
 
     it('should set pattern attribute via form field toggle change when country has checkVatIdPattern enabled', async () => {

@@ -13,7 +13,7 @@
     }
 
     .imitate-customer-modal-item {
-        transition-property: color, background-color, border-color;
+        transition-property: background-color;
         transition-duration: 0.15s;
         transition-timing-function: ease-out;
         background: var(--color-interaction-secondary-default);

@@ -240,6 +240,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce is moving to an extension",
+                    "message": "The built-in Agentic Commerce feature will be removed in Shopware 6.8. Your Sales Channel keeps working for now. Install the \"Agentic Commerce\" extension to make sure nothing breaks.",
+                    "installPlugin": "Install extension"
+                },
                 "openAiSettingsTitle": "OpenAI settings",
                 "googleSettingsTitle": "Google settings",
                 "buttonResetTemplate": "Reset to default",

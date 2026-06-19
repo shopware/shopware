@@ -3589,5 +3589,38 @@ describe('src/app/adapter/composition-extension-system', () => {
 
             expect(wrapper.find('.private').text()).toContain('Private: Overridden');
         });
+
+        it('should expose script setup override-local state through the public instance proxy', async () => {
+            const originalComponent = defineComponent({
+                template: '<div>{{ __swOverride.pluginFile.pluginMessage }}</div>',
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                        },
+                        () => ({
+                            public: {
+                                headline: ref('Base headline'),
+                            },
+                        }),
+                    ),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            overrideComponentSetup()('originalComponent', () => ({
+                __swOverride: {
+                    pluginFile: {
+                        pluginMessage: 'Plugin message',
+                    },
+                },
+            }));
+
+            await flushPromises();
+
+            expect(wrapper.text()).toBe('Plugin message');
+        });
     });
 });

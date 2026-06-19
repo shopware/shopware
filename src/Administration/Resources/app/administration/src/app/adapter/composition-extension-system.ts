@@ -1,11 +1,13 @@
-import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
+import type { ComputedRef, Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
 import {
     computed,
     getCurrentInstance as vueGetCurrentInstance,
     isReactive,
     isReadonly,
     isRef,
+    proxyRefs,
     reactive,
+    toRef,
     toRefs,
     watch,
 } from 'vue';
@@ -68,6 +70,17 @@ declare global {
  */
 type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
     setupContext: SetupContext;
+};
+
+/** @private */
+export const scriptSetupDataScopeKey = Symbol('shopwareSetupDataScope');
+const scriptSetupOverrideStateKey = '__swOverride' as const;
+
+type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
+
+type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
+    readonly [scriptSetupOverrideStateKey]: Ref<Reactive<ScriptSetupOverrideState>>;
+    readonly [scriptSetupDataScopeKey]: ShallowUnwrapRef<ToRefs<Reactive<TState>>>;
 };
 
 /**
@@ -193,7 +206,7 @@ export function createExtendableSetup<
         public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
         private?: TPrivateSetupResult;
     },
-): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     // Call the original setup function
     const originalSetupResultRaw = originalSetup(options.props, componentContext);
@@ -223,6 +236,12 @@ export function createExtendableSetup<
         ...originalSetupResultPublic,
         ...originalSetupResultPrivate,
     };
+    const scriptSetupOverrideState = reactive({}) as ScriptSetupOverrideState;
+
+    Object.defineProperty(originalSetupResult, scriptSetupOverrideStateKey, {
+        value: scriptSetupOverrideState,
+        enumerable: false,
+    });
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
@@ -299,8 +318,9 @@ export function createExtendableSetup<
 
             const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
             const publicStateKeys = Object.keys(originalSetupResultPublic);
+            const privateStateKeys = Object.keys(wrappedState).filter((key) => key !== scriptSetupOverrideStateKey);
 
-            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<PreviousStateResultForExtensions>(
+            const previousStateResultForExtensions = privateStateKeys.reduce<PreviousStateResultForExtensions>(
                 (acc, key) => {
                     if (publicStateKeys.includes(key)) {
                         (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
@@ -309,7 +329,7 @@ export function createExtendableSetup<
                 },
                 { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
             );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>((acc, key) => {
+            previousStateResultForExtensions._private = privateStateKeys.reduce<TPrivateSetupResult>((acc, key) => {
                 if (!publicStateKeys.includes(key)) {
                     (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                 }
@@ -329,6 +349,14 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
+                if (key === scriptSetupOverrideStateKey) {
+                    Object.assign(
+                        reactiveWrappedState[scriptSetupOverrideStateKey],
+                        overrideResult[scriptSetupOverrideStateKey] as ScriptSetupOverrideState,
+                    );
+                    return;
+                }
+
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
                     console.error(
@@ -400,7 +428,31 @@ export function createExtendableSetup<
     // Watch for changes in the overrides array and reapply overrides when changed
     watch(overrides, applyOverrides, { deep: true, immediate: true });
 
-    return toRefs(reactiveWrappedState);
+    const state = toRefs(reactiveWrappedState) as ExtendableSetupState<
+        Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
+    >;
+
+    Object.defineProperty(state, scriptSetupOverrideStateKey, {
+        value: toRef(reactiveWrappedState, scriptSetupOverrideStateKey),
+        enumerable: false,
+        configurable: true,
+    });
+
+    Object.defineProperty(state, scriptSetupDataScopeKey, {
+        value: proxyRefs(state),
+        enumerable: false,
+    });
+
+    const instance = getCurrentInstance();
+
+    if (instance) {
+        Object.defineProperty(instance, scriptSetupDataScopeKey, {
+            value: state[scriptSetupDataScopeKey],
+            configurable: true,
+        });
+    }
+
+    return state;
 }
 
 /**

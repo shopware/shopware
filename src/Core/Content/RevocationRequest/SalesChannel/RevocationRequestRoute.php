@@ -107,7 +107,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
             if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
                 $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];
                 $this->addReceivers($mailConfig, $categoryEntityConfig);
-                $mailConfig['message'] = $this->getStringMessage($categoryEntityConfig['confirmationText']['value']);
+                $mailConfig['message'] = $this->getStringMessage($categoryEntityConfig['confirmationText']['value'] ?? null);
             }
         }
 
@@ -124,7 +124,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
 
         $slotConfig = $slotEntity->getTranslated()['config'];
         $this->addReceivers($mailConfig, $slotConfig);
-        $mailConfig['message'] = $this->getStringMessage($slotConfig['confirmationText']['value']);
+        $mailConfig['message'] = $this->getStringMessage($slotConfig['confirmationText']['value'] ?? null);
 
         if (empty($mailConfig['receivers'])) {
             return $this->createDefaultConfig($context, $mailConfig);

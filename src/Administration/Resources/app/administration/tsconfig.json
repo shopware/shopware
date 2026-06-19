@@ -38,8 +38,10 @@
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",
+    "./eslint-rules/**/*.ts",
     "./test/**/*.d.ts",
-    "./test/**/*.ts"
+    "./test/**/*.ts",
+    "./twigVuePlugin/**/*.ts"
   ],
   "exclude": ["node_modules"],
   "files": [

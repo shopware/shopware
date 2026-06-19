@@ -177,6 +177,9 @@ export default [
         ignores: [
             'build/*.js',
             'config/*.js',
+            'eslint.config.ts',
+            'jest.config.js',
+            'jest.config.ts',
             'test/e2e/**/*',
             'scripts/**/*',
             'test/eslint/error-reference.html.twig',
@@ -576,10 +579,21 @@ export default [
         },
     },
     {
-        files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec/*.spec.js', '**/*.spec/*.spec.ts'],
+        files: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/*.spec.js',
+            '**/*.spec/*.spec.ts',
+        ],
         rules: {
-            'sw-test-rules/test-file-max-lines-warning': ['warn', { max: 500 }],
-            'sw-test-rules/test-file-max-lines-error': ['error', { max: 1000 }],
+            'sw-test-rules/test-file-max-lines-warning': [
+                'warn',
+                { max: 500 },
+            ],
+            'sw-test-rules/test-file-max-lines-error': [
+                'error',
+                { max: 1000 },
+            ],
         },
     },
 

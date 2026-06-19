@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
-// move ats
+
 export const CreateRuleNewsletterRecipient = base.extend<{ CreateRuleNewsletterRecipient: Task }, FixtureTypes>({
     CreateRuleNewsletterRecipient: async ({ ShopAdmin, AdminApiContext, TestDataService }, use) => {
         const task = (ruleConfig) => {

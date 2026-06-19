@@ -82,6 +82,50 @@ describe('build/vue-setup-transform override template pattern references', () =>
         );
     });
 
+    it('rejects nested sw-block extends declarations before generated slot scopes can shadow parent scopes', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_outer" #default="{ info }">
+                <sw-block extends="sw_example_component_inner">
+                    <p>{{ info }}</p>
+                </sw-block>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'nested-extends.override.vue')).toThrow(
+            'Nested <sw-block extends> declarations are not supported. An override block must not contain another override block.',
+        );
+    });
+
+    it('allows nested base sw-block declarations inside an override block', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_outer">
+                <sw-block name="sw_example_component_inner">
+                    <p>{{ info }}</p>
+                </sw-block>
+            </sw-block>
+            </template>
+            <script setup sw-override="sw-example-component">
+            const info = 'local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'nested-base-block.override.vue').code;
+        const privateNamespace = getPrivateNamespace(result);
+
+        expect(privateNamespace).toBeDefined();
+        expect(result).toContain(`__swOverride: { ${privateNamespace}: { info } }`);
+    });
+
     it('detects override-local references in slot-scope default values', () => {
         const source = stripIndent`
             <template>

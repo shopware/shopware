@@ -111,6 +111,86 @@ describe('build/vue-setup-transform validation', () => {
         expect(result).not.toContain('Vue macro defineModel() is not supported');
     });
 
+    it('rejects defineProps() in override mode', () => {
+        const source = stripIndent`
+            <script setup>
+            const props = defineProps();
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-props.override.vue')).toThrow(
+            'defineProps() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects withDefaults() in override mode', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const props = withDefaults(defineProps<{ label?: string }>(), {
+                label: 'fallback',
+            });
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-props-with-defaults.override.vue')).toThrow(
+            'withDefaults() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineEmits() in override mode', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const emit = defineEmits(['save']);
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-emits.override.vue')).toThrow(
+            'defineEmits() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineExpose() in override mode', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            defineExpose({});
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-expose.override.vue')).toThrow(
+            'defineExpose() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineSlots() in override mode', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const slots = defineSlots();
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-slots.override.vue')).toThrow(
+            'defineSlots() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineOptions() in override mode', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            defineOptions({ inheritAttrs: false });
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-options.override.vue')).toThrow(
+            'defineOptions() is only supported in base Shopware setup blocks.',
+        );
+    });
+
     it('rejects top-level await', () => {
         const source = stripIndent`
             <script setup>
@@ -253,6 +333,62 @@ describe('build/vue-setup-transform validation', () => {
         expect(() => transformShopwareSetupSfc(source, 'public.vue')).toThrow(expectedMessage);
     });
 
+    it.each([
+        [
+            'swDefineOverride({ [dynamicKey]: count });',
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            'swDefineOverride({ override: count });',
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            "swDefineOverride({ 'override': count });",
+            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
+        ],
+        [
+            'swDefineOverride({ ...overrideState });',
+            'Spread properties are not supported inside swDefineOverride().',
+        ],
+        [
+            'swDefineOverride(overrideState);',
+            'swDefineOverride() requires exactly one object-literal argument.',
+        ],
+        [
+            'if (true) { swDefineOverride({ count }); }',
+            'swDefineOverride() must be called once at the top level',
+        ],
+        [
+            'swDefineOverride({ count, count });',
+            'Duplicate override Shopware setup binding key "count".',
+        ],
+        [
+            'const __swOverride = {}; swDefineOverride({ __swOverride });',
+            '"__swOverride" is reserved for Shopware override-private state and cannot be exposed with swDefineOverride().',
+        ],
+    ])('rejects invalid swDefineOverride usage: %s', (overrideMarker, expectedMessage) => {
+        const source = stripIndent`
+            <script setup>
+            const count = 1;
+            ${overrideMarker}
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override.override.vue')).toThrow(expectedMessage);
+    });
+
+    it('requires swDefineOverride() in override mode', () => {
+        const source = stripIndent`
+            <script setup>
+            const count = 1;
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'missing-override.override.vue')).toThrow(
+            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+        );
+    });
+
     it('rejects swDefineOverride() in base mode', () => {
         const source = stripIndent`
             <script setup>
@@ -279,6 +415,25 @@ describe('build/vue-setup-transform validation', () => {
 
         expect(() => transformShopwareSetupSfc(source, 'reserved-prefix.vue')).toThrow(
             '"__swSetupProps" uses the reserved "__swSetup" prefix of the Shopware setup transform and must not be declared or imported.',
+        );
+    });
+
+    it('rejects imported and unknown swDefineOverride() bindings', () => {
+        const source = stripIndent`
+            <script setup>
+            import { computed } from 'vue';
+
+            const count = 1;
+
+            swDefineOverride({
+                computed,
+                missing,
+            });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-import.override.vue')).toThrow(
+            'Imported binding "computed" cannot be exposed with swDefineOverride().',
         );
     });
 

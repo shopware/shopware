@@ -96,6 +96,8 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        'build/vue-setup-transform/**/*.ts',
+        '!build/vue-setup-transform/**/*.spec.ts',
     ],
 
     coverageReporters: [
@@ -203,6 +205,7 @@ const config: Config = {
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',

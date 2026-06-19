@@ -414,6 +414,58 @@ const MtDataTableStub = {
     },
 };
 
+const globalStubs = {
+    'mt-data-table': MtDataTableStub,
+    'sw-modal': {
+        template: `
+            <div class="sw-modal">
+                <slot></slot>
+                <slot name="modal-footer"></slot>
+                <button
+                    class="sw-modal__close"
+                    type="button"
+                    @click="$emit('modal-close')"
+                >
+                    Close
+                </button>
+            </div>
+        `,
+        emits: ['modal-close'],
+    },
+    'mt-button': {
+        props: [
+            'isLoading',
+        ],
+        template: `
+            <button
+                class="mt-button"
+                type="button"
+                :data-loading="isLoading"
+                @click="$emit('click')"
+            >
+                <slot></slot>
+            </button>
+        `,
+        emits: ['click'],
+    },
+    'mt-icon': true,
+    'sw-data-grid-inline-edit': {
+        props: [
+            'value',
+            'column',
+            'compact',
+        ],
+        template: `
+            <input
+                class="sw-data-grid-inline-edit-stub"
+                :value="value"
+                @input="$emit('update:value', $event.target.value)"
+            />
+        `,
+        emits: ['update:value'],
+    },
+};
+
 function createSearchResult(
     resultRecords: TestRecord[] = records,
     total = resultRecords.length,
@@ -547,59 +599,67 @@ function createWrapper(
                       $router: options.router,
                   }
                 : {},
-            stubs: {
-                'mt-data-table': MtDataTableStub,
-                'sw-modal': {
-                    template: `
-                        <div class="sw-modal">
-                            <slot></slot>
-                            <slot name="modal-footer"></slot>
-                            <button
-                                class="sw-modal__close"
-                                type="button"
-                                @click="$emit('modal-close')"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    `,
-                    emits: ['modal-close'],
-                },
-                'mt-button': {
-                    props: [
-                        'isLoading',
-                    ],
-                    template: `
-                        <button
-                            class="mt-button"
-                            type="button"
-                            :data-loading="isLoading"
-                            @click="$emit('click')"
-                        >
-                            <slot></slot>
-                        </button>
-                    `,
-                    emits: ['click'],
-                },
-                'mt-icon': true,
-                'sw-data-grid-inline-edit': {
-                    props: [
-                        'value',
-                        'column',
-                        'compact',
-                    ],
-                    template: `
-                        <input
-                            class="sw-data-grid-inline-edit-stub"
-                            :value="value"
-                            @input="$emit('update:value', $event.target.value)"
-                        />
-                    `,
-                    emits: ['update:value'],
-                },
-            },
+            stubs: globalStubs,
         },
     });
+}
+
+function createListingConsumerWrapper(repository = createRepositoryMock()) {
+    return mount(
+        {
+            name: 'sw-meteor-entity-data-table-listing-consumer',
+            components: {
+                SwMeteorEntityDataTable,
+            },
+            mixins: [
+                Shopware.Mixin.getByName('listing'),
+            ],
+            template: `
+                <sw-meteor-entity-data-table
+                    :repository="repository"
+                    :columns="columns"
+                    selectable
+                    @selection-change="updateSelection"
+                />
+            `,
+            data() {
+                return {
+                    repository,
+                    columns,
+                    disableRouteParams: true,
+                };
+            },
+            methods: {
+                getList: jest.fn(),
+            },
+        },
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        name: 'sw.product.index',
+                        query: {},
+                        params: {},
+                    },
+                    $router: {
+                        push: jest.fn(),
+                        replace: jest.fn(),
+                    },
+                },
+                provide: {
+                    searchRankingService: {
+                        isValidTerm: (term?: string) => {
+                            return !!term && term.trim().length >= 1;
+                        },
+                        getSearchFieldsByEntity: jest.fn(),
+                        buildSearchQueriesForEntity: jest.fn(),
+                    },
+                    feature: {},
+                },
+                stubs: globalStubs,
+            },
+        },
+    );
 }
 
 function getTable(wrapper: VueWrapper) {
@@ -645,6 +705,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
     afterEach(() => {
         shopwareApplication.view.router = originalRouter;
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
 
         if (originalCurrentUser) {
             Shopware.Store.get('session').setCurrentUser(originalCurrentUser);
@@ -702,6 +764,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(componentOptions.emits).toEqual([
             'state-change',
             'selection-change',
+            'selected-ids-change',
             'load-success',
             'load-error',
             'open-detail',
@@ -1892,12 +1955,14 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.emitted('state-change')).toBeUndefined();
     });
 
-    it('adds and removes a single row selection and emits the complete selected ID list', async () => {
+    it('adds and removes a single row selection with a legacy-compatible selection-change payload', async () => {
         const wrapper = createWrapper({
             props: {
                 selectable: true,
             },
         });
+
+        await flushPromises();
 
         await wrapper.find('.mt-data-table-stub__select-row').trigger('click');
         await nextTick();
@@ -1909,6 +1974,18 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(getTable(wrapper).props('selectedRows')).toEqual([]);
         expect(wrapper.emitted('selection-change')).toEqual([
+            [
+                {
+                    'record-1': records[0],
+                },
+                1,
+            ],
+            [
+                {},
+                0,
+            ],
+        ]);
+        expect(wrapper.emitted('selected-ids-change')).toEqual([
             [
                 ['record-1'],
             ],
@@ -1925,6 +2002,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             },
         });
 
+        await flushPromises();
+
         await wrapper.find('.mt-data-table-stub__select-row').trigger('click');
         await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
         await nextTick();
@@ -1939,6 +2018,25 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(getTable(wrapper).props('selectedRows')).toEqual([]);
         expect(wrapper.emitted('selection-change')).toEqual([
+            [
+                {
+                    'record-1': records[0],
+                },
+                1,
+            ],
+            [
+                {
+                    'record-1': records[0],
+                    'record-2': records[1],
+                },
+                2,
+            ],
+            [
+                {},
+                0,
+            ],
+        ]);
+        expect(wrapper.emitted('selected-ids-change')).toEqual([
             [
                 ['record-1'],
             ],
@@ -1961,6 +2059,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             },
         });
 
+        await flushPromises();
+
         await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
         await nextTick();
 
@@ -1975,6 +2075,19 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(getTable(wrapper).props('selectedRows')).toEqual([]);
         expect(wrapper.emitted('selection-change')).toEqual([
             [
+                {
+                    'record-1': records[0],
+                    'record-2': records[1],
+                },
+                2,
+            ],
+            [
+                {},
+                0,
+            ],
+        ]);
+        expect(wrapper.emitted('selected-ids-change')).toEqual([
+            [
                 [
                     'record-1',
                     'record-2',
@@ -1984,6 +2097,23 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 [],
             ],
         ]);
+    });
+
+    it('keeps listing mixin selected ID stores in sync through selection-change', async () => {
+        const wrapper = createListingConsumerWrapper();
+
+        await flushPromises();
+
+        await wrapper.find('.mt-data-table-stub__select-row').trigger('click');
+        await nextTick();
+
+        const listingConsumer = wrapper.vm as unknown as { selection: Record<string, TestRecord> };
+
+        expect(listingConsumer.selection).toEqual({
+            'record-1': records[0],
+        });
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['record-1']);
+        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual(['record-1']);
     });
 
     it('opens a bulk delete confirmation modal and deletes selected rows', async () => {

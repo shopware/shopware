@@ -311,6 +311,8 @@ type SwMeteorEntityDataTableRecord =
 
 type SwMeteorEntityDataTableRecords = EntityCollection<SwMeteorEntityDataTableEntityName> | SwMeteorEntityDataTableRecord[];
 
+type SwMeteorEntityDataTableSelection = Record<string, SwMeteorEntityDataTableRecord>;
+
 type SwMeteorEntityDataTableResolvedColumn = {
     property: string;
     label: string;
@@ -623,6 +625,7 @@ export default defineComponent({
     emits: [
         'state-change',
         'selection-change',
+        'selected-ids-change',
         'load-success',
         'load-error',
         'open-detail',
@@ -660,6 +663,7 @@ export default defineComponent({
                 const showBulkDeleteModal = ref(false);
                 const bulkDeleting = ref(false);
                 const selectedIds = ref<string[]>([]);
+                const selectedRecords = ref<SwMeteorEntityDataTableSelection>({});
                 const currentInlineEditId = ref<string | null>(null);
                 const savingInlineEdit = ref(false);
                 const tableColumnChanges: SwMeteorEntityDataTableColumnChanges = reactive({});
@@ -1126,6 +1130,7 @@ export default defineComponent({
                             records.value = [];
                             total.value = 0;
                             currentInlineEditId.value = null;
+                            syncSelectedRecordsWithLoadedRecords();
 
                             setupContext.emit('load-success', {
                                 records: records.value,
@@ -1145,6 +1150,7 @@ export default defineComponent({
                         records.value = result;
                         total.value = resolveTotal(result);
                         currentInlineEditId.value = null;
+                        syncSelectedRecordsWithLoadedRecords();
 
                         setupContext.emit('load-success', {
                             records: result,
@@ -1224,10 +1230,29 @@ export default defineComponent({
                     const uniqueSelectedIds = nextSelectedIds.filter((id, index) => nextSelectedIds.indexOf(id) === index);
 
                     selectedIds.value = uniqueSelectedIds;
+                    selectedRecords.value = buildSelectedRecords(uniqueSelectedIds);
 
-                    setupContext.emit('selection-change', [
+                    // Keep selection-change compatible with legacy sw-data-grid consumers.
+                    setupContext.emit('selection-change', { ...selectedRecords.value }, uniqueSelectedIds.length);
+                    setupContext.emit('selected-ids-change', [
                         ...uniqueSelectedIds,
                     ]);
+                }
+
+                function buildSelectedRecords(selectedRecordIds: string[]): SwMeteorEntityDataTableSelection {
+                    return selectedRecordIds.reduce<SwMeteorEntityDataTableSelection>((selection, id) => {
+                        selection[id] = findRecordById(id) ?? selectedRecords.value[id] ?? { id };
+
+                        return selection;
+                    }, {});
+                }
+
+                function syncSelectedRecordsWithLoadedRecords(): void {
+                    selectedRecords.value = buildSelectedRecords(selectedIds.value);
+                }
+
+                function findRecordById(id: string): SwMeteorEntityDataTableRecord | null {
+                    return records.value.find((record) => record.id === id) ?? null;
                 }
 
                 function onSelectionChange(payload: SelectionChangePayload): void {

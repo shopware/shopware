@@ -99,19 +99,25 @@
                         </div>
                     </template>
 
-                    <slot
-                        v-else-if="$slots[`column-${column.property}`]"
-                        :name="`column-${column.property}`"
-                        v-bind="normalizeInlineEditSlotScope(scope, column)"
-                    />
-
                     <template v-else>
+                        <slot
+                            v-if="hasLegacyPreviewSlot(column)"
+                            :name="getLegacyPreviewSlotName(column)"
+                            v-bind="normalizeLegacyPreviewSlotScope(scope, column)"
+                        />
+
+                        <slot
+                            v-if="$slots[`column-${column.property}`]"
+                            :name="`column-${column.property}`"
+                            v-bind="normalizeInlineEditSlotScope(scope, column)"
+                        />
+
                         <div
-                            v-if="column.renderer === 'text'"
+                            v-else-if="column.renderer === 'text'"
                             class="sw-meteor-entity-data-table__text-renderer-cell"
                         >
                             <div
-                                v-if="column.previewImage"
+                                v-if="column.previewImage && !hasLegacyPreviewSlot(column)"
                                 class="sw-meteor-entity-data-table__preview-image-renderer"
                             >
                                 <img
@@ -444,6 +450,8 @@ type SwMeteorEntityDataTablePrivateApi = {
     forwardedSlotNames: ComputedRef<string[]>;
     currentInlineEditId: Ref<string | null>;
     savingInlineEdit: Ref<boolean>;
+    getLegacyPreviewSlotName: (column: SwMeteorEntityDataTableResolvedColumn) => string;
+    hasLegacyPreviewSlot: (column: SwMeteorEntityDataTableResolvedColumn) => boolean;
     getSlotRecord: (scope: ForwardedSlotScope) => SwMeteorEntityDataTableRecord | null;
     getRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => unknown;
     updateRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string, value: unknown) => void;
@@ -455,6 +463,10 @@ type SwMeteorEntityDataTablePrivateApi = {
     cancelInlineEdit: () => Promise<void>;
     isLastInlineEditableColumn: (column: SwMeteorEntityDataTableResolvedColumn) => boolean;
     normalizeInlineEditSlotScope: (
+        scope: ForwardedSlotScope,
+        column: SwMeteorEntityDataTableResolvedColumn,
+    ) => Record<string, unknown>;
+    normalizeLegacyPreviewSlotScope: (
         scope: ForwardedSlotScope,
         column: SwMeteorEntityDataTableResolvedColumn,
     ) => Record<string, unknown>;
@@ -689,8 +701,20 @@ export default defineComponent({
                 const inlineEditableColumnSlotNames = computed<Set<string>>(() => {
                     return new Set(inlineEditableColumns.value.map((column) => `column-${column.property}`));
                 });
+                const inlineEditableLegacyPreviewSlotNames = computed<Set<string>>(() => {
+                    return new Set(
+                        inlineEditableColumns.value
+                            .map((column) => getLegacyPreviewSlotName(column))
+                            .filter((slotName) => setupContext.slots[slotName]),
+                    );
+                });
                 const forwardedSlotNames = computed<string[]>(() => {
-                    return Object.keys(setupContext.slots).filter((name) => !inlineEditableColumnSlotNames.value.has(name));
+                    return Object.keys(setupContext.slots).filter((name) => {
+                        return (
+                            !inlineEditableColumnSlotNames.value.has(name) &&
+                            !inlineEditableLegacyPreviewSlotNames.value.has(name)
+                        );
+                    });
                 });
 
                 function buildStateFromProps(): SwMeteorEntityDataTableState {
@@ -1418,6 +1442,14 @@ export default defineComponent({
                     return inlineEditableColumns.value[inlineEditableColumns.value.length - 1]?.property === column.property;
                 }
 
+                function getLegacyPreviewSlotName(column: SwMeteorEntityDataTableResolvedColumn): string {
+                    return `preview-${column.property}`;
+                }
+
+                function hasLegacyPreviewSlot(column: SwMeteorEntityDataTableResolvedColumn): boolean {
+                    return Boolean(setupContext.slots[getLegacyPreviewSlotName(column)]);
+                }
+
                 function normalizeInlineEditSlotScope(
                     scope: ForwardedSlotScope,
                     column: SwMeteorEntityDataTableResolvedColumn,
@@ -1427,6 +1459,20 @@ export default defineComponent({
                     return {
                         ...normalizedScope,
                         isInlineEdit: isInlineEditing(getSlotRecord(scope)) && isInlineEditableColumn(column),
+                    };
+                }
+
+                function normalizeLegacyPreviewSlotScope(
+                    scope: ForwardedSlotScope,
+                    column: SwMeteorEntityDataTableResolvedColumn,
+                ): Record<string, unknown> {
+                    const normalizedScope = normalizeForwardedSlotScope(scope);
+
+                    return {
+                        ...normalizedScope,
+                        column: normalizedScope.column ?? column,
+                        columnDefinition: normalizedScope.columnDefinition ?? column,
+                        compact: normalizedScope.compact ?? false,
                     };
                 }
 
@@ -1666,6 +1712,8 @@ export default defineComponent({
                         forwardedSlotNames,
                         currentInlineEditId,
                         savingInlineEdit,
+                        getLegacyPreviewSlotName,
+                        hasLegacyPreviewSlot,
                         getSlotRecord,
                         getRecordValue,
                         updateRecordValue,
@@ -1677,6 +1725,7 @@ export default defineComponent({
                         cancelInlineEdit,
                         isLastInlineEditableColumn,
                         normalizeInlineEditSlotScope,
+                        normalizeLegacyPreviewSlotScope,
                         openDetailFromSlotScope,
                         itemToDelete,
                         deleting,

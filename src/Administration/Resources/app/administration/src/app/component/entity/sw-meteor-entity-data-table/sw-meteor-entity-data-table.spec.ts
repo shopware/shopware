@@ -1326,6 +1326,55 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(forwardedSlotScope?.isInlineEdit).toBe(false);
     });
 
+    it('renders legacy preview slots before editable column content', async () => {
+        let forwardedSlotScope: Record<string, unknown> | undefined;
+        const repository = createRepositoryMock(
+            createSearchResult([
+                {
+                    id: 'record-1',
+                    name: 'First record',
+                    previewUrl: '/preview.png',
+                },
+            ]),
+        );
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: [
+                    {
+                        label: 'Name',
+                        property: 'name',
+                        previewImage: 'previewUrl',
+                        inlineEdit: 'string',
+                    },
+                ],
+                allowInlineEdit: true,
+            },
+            slots: {
+                'preview-name': (slotProps: Record<string, unknown>) => {
+                    forwardedSlotScope = slotProps;
+
+                    return h(
+                        'span',
+                        { class: 'legacy-preview-name-slot' },
+                        `${(slotProps.item as TestRecord).name}:${String(slotProps.compact)}`,
+                    );
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.legacy-preview-name-slot').text()).toBe('First record:false');
+        expect(wrapper.find('.sw-meteor-entity-data-table__text-renderer').text()).toBe('First record');
+        expect(wrapper.find('.sw-meteor-entity-data-table__preview-image-renderer').exists()).toBe(false);
+        expect(forwardedSlotScope?.data).toEqual(expect.objectContaining({ id: 'record-1' }));
+        expect(forwardedSlotScope?.item).toEqual(expect.objectContaining({ id: 'record-1' }));
+        expect(forwardedSlotScope?.columnDefinition).toEqual(expect.objectContaining({ property: 'name' }));
+        expect(forwardedSlotScope?.column).toEqual(expect.objectContaining({ property: 'name' }));
+        expect(forwardedSlotScope?.compact).toBe(false);
+    });
+
     it('loads records on mount with the default context and emits load-success', async () => {
         const searchResult = createSearchResult(
             [

@@ -15,6 +15,11 @@ const { Criteria } = Shopware.Data;
 const sortableMtDataTableStub = {
     name: 'mt-data-table',
     props: {
+        dataSource: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
         columns: {
             type: Array,
             required: false,
@@ -28,9 +33,33 @@ const sortableMtDataTableStub = {
         sortableColumns() {
             return this.columns.filter((column) => column.sortable);
         },
+
+        firstRecord() {
+            return (
+                this.dataSource[0] ?? {
+                    id: 'manufacturer-1',
+                    name: 'ACME',
+                }
+            );
+        },
+
+        nameColumn() {
+            return (
+                this.columns.find((column) => column.property === 'name') ?? {
+                    property: 'name',
+                }
+            );
+        },
     },
     template: `
         <div class="mt-data-table-sort-stub">
+            <slot
+                v-if="$slots['column-name']"
+                name="column-name"
+                :data="firstRecord"
+                :column-definition="nameColumn"
+            ></slot>
+
             <button
                 v-for="column in sortableColumns"
                 :key="column.property"
@@ -184,8 +213,8 @@ async function createWrapper(
     });
 }
 
-async function createWrapperWithRealMeteorTable(repositorySearchResult = []) {
-    return createWrapper([], repositorySearchResult, 'sw-manufacturer-list', {
+async function createWrapperWithRealMeteorTable(repositorySearchResult = [], component = 'sw-manufacturer-list') {
+    return createWrapper([], repositorySearchResult, component, {
         meteorTableComponent: SwMeteorEntityDataTable,
         additionalStubs: {
             'mt-data-table': sortableMtDataTableStub,
@@ -333,6 +362,39 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper([], [], component);
 
         expect(wrapper.find('.manufacturer-column-slot').text()).toBe('ACME:name');
+    });
+
+    it('should keep the legacy manufacturer preview slot extension point', async () => {
+        await wrapTestComponent('sw-manufacturer-list', { sync: true });
+
+        Shopware.Component.extend('sw-manufacturer-list-preview-slot-extension', 'sw-manufacturer-list', {
+            template: `
+                {% block sw_manufacturer_list_grid_columns_name_preview %}
+                <template #preview-name="{ item, column, compact }">
+                    <span class="manufacturer-preview-slot">{{ item.name }}:{{ column.property }}:{{ compact }}</span>
+                </template>
+                {% endblock %}
+            `,
+        });
+        const component = await Shopware.Component.build('sw-manufacturer-list-preview-slot-extension');
+
+        component.name += '__wrapped';
+        const wrapper = await createWrapperWithRealMeteorTable(
+            [
+                {
+                    id: 'manufacturer-1',
+                    name: 'ACME',
+                    media: null,
+                },
+            ],
+            component,
+        );
+
+        await flushPromises();
+
+        expect(wrapper.find('.manufacturer-preview-slot').text()).toBe('ACME:name:false');
+        expect(wrapper.find('.sw-meteor-entity-data-table__text-renderer').text()).toBe('ACME');
+        expect(wrapper.find('.sw-meteor-entity-data-table__preview-image-renderer').exists()).toBe(false);
     });
 
     it('should include the manufacturer media association in the base criteria', async () => {

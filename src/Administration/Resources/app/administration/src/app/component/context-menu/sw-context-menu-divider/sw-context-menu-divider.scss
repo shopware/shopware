@@ -1,9 +1,5 @@
-@import "~scss/variables";
-
-$sw-context-menu-color-border: var(--color-border-primary-default);
-
 .sw_context_menu_divider {
     border: none;
-    border-bottom: 1px solid $sw-context-menu-color-border;
+    border-bottom: 1px solid var(--color-border-secondary-default);
     margin: 5px -10px;
 }

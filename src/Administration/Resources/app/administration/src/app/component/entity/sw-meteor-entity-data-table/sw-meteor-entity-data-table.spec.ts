@@ -1532,6 +1532,48 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         );
     });
 
+    it('syncs changed initial state props without emitting a table state change', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                initialPage: 2,
+                initialLimit: 10,
+                initialSearchTerm: 'shirt',
+                initialSort: {
+                    property: 'name',
+                    direction: 'ASC',
+                },
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.setProps({
+            initialPage: 4,
+            initialLimit: 50,
+            initialSearchTerm: 'jacket',
+            initialSort: {
+                property: 'name',
+                direction: 'DESC',
+            },
+        });
+        await nextTick();
+
+        expect(getTable(wrapper).props()).toEqual(
+            expect.objectContaining({
+                currentPage: 4,
+                paginationLimit: 50,
+                searchValue: 'jacket',
+                sortBy: 'name',
+                sortDirection: 'DESC',
+            }),
+        );
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(wrapper.emitted('state-change')).toBeUndefined();
+    });
+
     it('reloads without changing state', async () => {
         const repository = createRepositoryMock();
         const wrapper = createWrapper({

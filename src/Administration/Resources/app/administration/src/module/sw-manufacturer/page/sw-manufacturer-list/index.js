@@ -108,6 +108,15 @@ export default {
             this.isLoading = true;
             this.entitySearchable = true;
 
+            if (!this.disableRouteParams) {
+                this.updateRoute({
+                    term: this.term,
+                    page: 1,
+                });
+
+                return;
+            }
+
             if (this.$refs.manufacturerTable) {
                 return this.$refs.manufacturerTable.setSearchTerm(this.term);
             }
@@ -124,6 +133,8 @@ export default {
             this.entitySearchable = true;
 
             if (this.$refs.manufacturerTable) {
+                await this.$nextTick();
+
                 return this.$refs.manufacturerTable.reload();
             }
 
@@ -176,12 +187,22 @@ export default {
             this.limit = state.limit;
             this.term = state.searchTerm;
 
-            if (!state.sort) {
+            if (state.sort) {
+                this.sortBy = state.sort.property;
+                this.sortDirection = state.sort.direction;
+            }
+
+            if (this.disableRouteParams) {
                 return;
             }
 
-            this.sortBy = state.sort.property;
-            this.sortDirection = state.sort.direction;
+            this.updateRoute({
+                page: this.page,
+                limit: this.limit,
+                term: this.term,
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection,
+            });
         },
     },
 };

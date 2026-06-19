@@ -626,12 +626,7 @@ export default defineComponent({
                 const showStripes = ref(true);
                 const enableOutlineFraming = ref(false);
                 const enableRowNumbering = ref(false);
-                const state = ref<SwMeteorEntityDataTableState>({
-                    page: setupProps.initialPage ?? 1,
-                    limit: setupProps.initialLimit ?? 25,
-                    searchTerm: setupProps.initialSearchTerm ?? '',
-                    sort: setupProps.initialSort ?? undefined,
-                });
+                const state = ref<SwMeteorEntityDataTableState>(buildStateFromProps());
                 const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
 
                 // Sequences overlapping loads so a slow earlier response cannot overwrite a newer one.
@@ -650,6 +645,58 @@ export default defineComponent({
                 const forwardedSlotNames = computed<string[]>(() => {
                     return Object.keys(setupContext.slots).filter((name) => !inlineEditableColumnSlotNames.value.has(name));
                 });
+
+                function buildStateFromProps(): SwMeteorEntityDataTableState {
+                    return {
+                        page: setupProps.initialPage ?? 1,
+                        limit: setupProps.initialLimit ?? 25,
+                        searchTerm: setupProps.initialSearchTerm ?? '',
+                        ...(setupProps.initialSort
+                            ? {
+                                  sort: {
+                                      ...setupProps.initialSort,
+                                  },
+                              }
+                            : {}),
+                    };
+                }
+
+                function areSortsEqual(
+                    currentSort: SwMeteorEntityDataTableState['sort'],
+                    nextSort: SwMeteorEntityDataTableState['sort'],
+                ): boolean {
+                    if (!currentSort && !nextSort) {
+                        return true;
+                    }
+
+                    if (!currentSort || !nextSort) {
+                        return false;
+                    }
+
+                    return currentSort.property === nextSort.property && currentSort.direction === nextSort.direction;
+                }
+
+                function areStatesEqual(
+                    currentState: SwMeteorEntityDataTableState,
+                    nextState: SwMeteorEntityDataTableState,
+                ): boolean {
+                    return (
+                        currentState.page === nextState.page &&
+                        currentState.limit === nextState.limit &&
+                        currentState.searchTerm === nextState.searchTerm &&
+                        areSortsEqual(currentState.sort, nextState.sort)
+                    );
+                }
+
+                function syncStateFromProps(): void {
+                    const nextState = buildStateFromProps();
+
+                    if (areStatesEqual(state.value, nextState)) {
+                        return;
+                    }
+
+                    state.value = nextState;
+                }
 
                 function cloneState(): SwMeteorEntityDataTableState {
                     const currentState = state.value;
@@ -1159,6 +1206,20 @@ export default defineComponent({
                     () => setupProps.context,
                     () => {
                         void load();
+                    },
+                );
+
+                watch(
+                    () =>
+                        [
+                            setupProps.initialPage,
+                            setupProps.initialLimit,
+                            setupProps.initialSearchTerm,
+                            setupProps.initialSort?.property,
+                            setupProps.initialSort?.direction,
+                        ] as const,
+                    () => {
+                        syncStateFromProps();
                     },
                 );
 

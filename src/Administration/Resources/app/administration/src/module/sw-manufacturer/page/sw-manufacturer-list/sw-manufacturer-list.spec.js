@@ -207,6 +207,12 @@ function getLastRepositorySearchCriteria() {
     return lastCall[0];
 }
 
+async function reloadWithRouteState(wrapper, routeState) {
+    await wrapper.setData(routeState);
+    await wrapper.vm.getList();
+    await flushPromises();
+}
+
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should have an enabled create button', async () => {
         const wrapper = await createWrapper(['product_manufacturer.creator']);
@@ -406,15 +412,32 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('should delegate smart bar search to the meteor table', async () => {
+    it('should synchronize smart bar search with the route', async () => {
         const wrapper = await createWrapper();
+
+        await flushPromises();
+        wrapper.vm.$router.replace.mockClear();
+        wrapper.vm.$router.push.mockClear();
 
         await wrapper.vm.onSearch('ACME');
 
         expect(wrapper.vm.term).toBe('ACME');
         expect(wrapper.vm.page).toBe(1);
         expect(wrapper.vm.isLoading).toBe(true);
-        expect(setSearchTermMock).toHaveBeenCalledWith('ACME');
+        expect(setSearchTermMock).not.toHaveBeenCalled();
+        expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({
+            name: 'sw.manufacturer.index',
+            params: {},
+            query: {
+                limit: 25,
+                page: 1,
+                term: 'ACME',
+                sortBy: 'name',
+                sortDirection: 'ASC',
+                naturalSorting: false,
+            },
+        });
+        expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
     });
 
     it('should add query scores to manufacturer searches without Admin OpenSearch', async () => {
@@ -434,8 +457,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return { name: 500 };
         });
 
-        await wrapper.vm.onSearch('ACME');
-        await flushPromises();
+        await reloadWithRouteState(wrapper, {
+            term: 'ACME',
+            page: 1,
+        });
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledWith('product_manufacturer');
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
@@ -488,8 +513,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return {};
         });
 
-        await wrapper.vm.onSearch('ACME');
-        await flushPromises();
+        await reloadWithRouteState(wrapper, {
+            term: 'ACME',
+            page: 1,
+        });
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).not.toHaveBeenCalled();
@@ -517,8 +544,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return { name: 500 };
         });
 
-        await wrapper.vm.onSearch('ACME');
-        await flushPromises();
+        await reloadWithRouteState(wrapper, {
+            term: 'ACME',
+            page: 1,
+        });
 
         expect(getLastRepositorySearchCriteria().parse().sort).toBeUndefined();
     });
@@ -548,8 +577,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
                 return { name: 500 };
             });
 
-            await wrapper.vm.onSearch('ACME');
-            await flushPromises();
+            await reloadWithRouteState(wrapper, {
+                term: 'ACME',
+                page: 1,
+            });
 
             expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).not.toHaveBeenCalled();
             expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).not.toHaveBeenCalled();
@@ -577,6 +608,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper();
         const meteorTable = getMeteorTable(wrapper);
 
+        await flushPromises();
+        wrapper.vm.$router.replace.mockClear();
+        wrapper.vm.$router.push.mockClear();
+
         meteorTable.vm.$emit('state-change', {
             page: 3,
             limit: 50,
@@ -593,6 +628,52 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.term).toBe('ACME');
         expect(wrapper.vm.sortBy).toBe('link');
         expect(wrapper.vm.sortDirection).toBe('DESC');
+        expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({
+            name: 'sw.manufacturer.index',
+            params: {},
+            query: {
+                limit: 50,
+                page: 3,
+                term: 'ACME',
+                sortBy: 'link',
+                sortDirection: 'DESC',
+                naturalSorting: false,
+            },
+        });
+        expect(wrapper.vm.$router.push).not.toHaveBeenCalled();
+    });
+
+    it('should reload the meteor table with route-derived listing state after mount', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                name: 'ACME',
+            },
+        ]);
+        await flushPromises();
+        repositorySearchMock.mockClear();
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn((searchFields, term, criteria) => {
+            return criteria;
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return { name: 500 };
+        });
+
+        await reloadWithRouteState(wrapper, {
+            page: 3,
+            limit: 50,
+            term: 'ACME',
+        });
+
+        expect(repositorySearchMock).toHaveBeenCalledTimes(1);
+        expect(getLastRepositorySearchCriteria().parse()).toEqual(
+            expect.objectContaining({
+                page: 3,
+                limit: 50,
+                term: 'ACME',
+            }),
+        );
     });
 
     it('should show empty state when the meteor table reports no records after search', async () => {

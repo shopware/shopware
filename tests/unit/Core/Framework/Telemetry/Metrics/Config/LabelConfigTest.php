@@ -17,6 +17,7 @@ class LabelConfigTest extends TestCase
 {
     /**
      * @param array{allowed_values?: list<string>, policy?: string} $definition
+     * @param list<string>|null $expectedValues
      */
     #[TestDox('fromDefinition: $_dataName')]
     #[DataProvider('definitionProvider')]

@@ -29,7 +29,7 @@ class DeliveryResponseTest extends TestCase
             body: '{"ok":true}',
             statusCode: 200,
             reasonPhrase: 'OK',
-            headers: ['X-Foo' => 'bar'],
+            headers: ['X-Foo' => ['bar']],
             processingTimeSeconds: 5,
         );
 

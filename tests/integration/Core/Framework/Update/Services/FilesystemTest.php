@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Update\Services;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\Filesystem;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Update\Services\Filesystem;
  * Exercises real directory permissions, so it lives in the integration suite (the
  * runner is non-root, so the write/permission branches are genuinely reachable).
  */
-#[CoversClass(Filesystem::class)]
 class FilesystemTest extends TestCase
 {
     private string $baseDir;

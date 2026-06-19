@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -11,7 +10,6 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 /**
  * @internal
  */
-#[CoversClass(IndexManager::class)]
 class IndexManagerTest extends TestCase
 {
     use KernelTestBehaviour;

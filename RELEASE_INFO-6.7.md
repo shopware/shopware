@@ -134,7 +134,7 @@ Order line item JSON serialization no longer exposes product `purchasePrices` in
 Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
 Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
 At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
-Already placed orders are not rewritten by this change, so historical order payloads may still contain the field internally, but API responses no longer expose it.
+Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
 
 ## Core
 

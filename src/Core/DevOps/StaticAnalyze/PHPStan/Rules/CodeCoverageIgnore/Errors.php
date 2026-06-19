@@ -21,17 +21,6 @@ final class Errors
     {
     }
 
-    public static function exception(string $className, int $line): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Class %s extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
-            $className,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnException')
-            ->line($line)
-            ->build();
-    }
-
     public static function classLevel(string $className, string $methodName, int $line): IdentifierRuleError
     {
         return RuleErrorBuilder::message(\sprintf(

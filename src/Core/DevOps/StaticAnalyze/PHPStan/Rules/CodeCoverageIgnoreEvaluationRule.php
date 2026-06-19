@@ -33,9 +33,8 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 {
     private readonly ExemptionResolver $exemptions;
 
-    public function __construct(
-        private readonly ReflectionProvider $reflectionProvider,
-    ) {
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
         $this->exemptions = new ExemptionResolver($reflectionProvider);
     }
 
@@ -75,10 +74,6 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 
         if (!$classHasIgnore && !$this->anyMethodHasIgnore($node)) {
             return [];
-        }
-
-        if ($classHasIgnore && $this->isThrowable($node, $className)) {
-            return [Errors::exception($className, $node->getStartLine())];
         }
 
         $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $useMap);
@@ -134,19 +129,6 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function isThrowable(Class_ $node, string $className): bool
-    {
-        if ($node->extends === null) {
-            return false;
-        }
-
-        if (!$this->reflectionProvider->hasClass($className)) {
-            return false;
-        }
-
-        return $this->reflectionProvider->getClass($className)->is(\Throwable::class);
     }
 
     private function className(Class_ $node): string

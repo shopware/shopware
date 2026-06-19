@@ -96,19 +96,13 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             ]],
         ];
 
-        yield 'exception subclass without logic still fails' => [
-            ['ExceptionWithoutLogicClass.php'],
-            [[
-                'Class ' . self::FQCN_PREFIX . 'ExceptionWithoutLogicClass extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
-                8,
-            ]],
-        ];
+        yield 'exception subclass without logic passes' => [['ExceptionWithoutLogicClass.php'], []];
 
-        yield 'exception subclass with logic reports single exception error' => [
+        yield 'exception subclass with logic is flagged like any other class' => [
             ['ExceptionWithLogicClass.php'],
             [[
-                'Class ' . self::FQCN_PREFIX . 'ExceptionWithLogicClass extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
-                8,
+                'Class ' . self::FQCN_PREFIX . 'ExceptionWithLogicClass is annotated @codeCoverageIgnore but method describe() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
             ]],
         ];
 

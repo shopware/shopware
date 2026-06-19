@@ -184,6 +184,8 @@ export default [
             'scripts/**/*',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
+            'build/vue-setup-transform/**/*.d.ts',
+            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
             'src/app/adapter/_mocks_/example-extendable-script-setup-component.vue',
         ],
@@ -648,6 +650,18 @@ export default [
                 'enableFix',
             ],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+    {
+        files: ['build/vue-setup-transform/**/*.ts'],
+        rules: {
+            '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
         },
     },
     {

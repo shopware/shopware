@@ -37,6 +37,7 @@
     "./src/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
+    "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
     "./test/**/*.d.ts",

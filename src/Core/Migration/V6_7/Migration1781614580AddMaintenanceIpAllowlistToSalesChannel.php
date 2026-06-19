@@ -23,10 +23,7 @@ class Migration1781614580AddMaintenanceIpAllowlistToSalesChannel extends Migrati
     public function update(Connection $connection): void
     {
         if (!TableHelper::columnExists($connection, 'sales_channel', 'maintenance_ip_allowlist')) {
-            $connection->executeStatement(<<<'SQL'
-                ALTER TABLE `sales_channel`
-                ADD `maintenance_ip_allowlist` JSON NULL
-            SQL);
+            $this->addColumn($connection, 'sales_channel', 'maintenance_ip_allowlist', 'JSON');
 
             $connection->executeStatement(<<<'SQL'
                 UPDATE `sales_channel`

@@ -683,30 +683,6 @@ function getForDirective(node: ElementNode): DirectiveNode | undefined {
 }
 
 /**
- * Returns whether an element is controlled by a Vue conditional directive.
- *
- */
-function hasConditionalDirective(node: ElementNode): boolean {
-    return node.props.some((prop) => {
-        if (prop.type !== NodeTypes.DIRECTIVE) {
-            return false;
-        }
-
-        const directive = prop as DirectiveNode;
-
-        return directive.name === 'if' || directive.name === 'else-if' || directive.name === 'else';
-    });
-}
-
-/**
- * Checks whether an element renders the previous override content in a block chain.
- *
- */
-function isSwBlockParent(node: TemplateChildNode): node is ElementNode {
-    return node.type === NodeTypes.ELEMENT && node.tag === 'sw-block-parent';
-}
-
-/**
  * Collects references from one directive expression and dynamic argument.
  *
  */
@@ -1080,7 +1056,6 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
         node: TemplateChildNode,
         hasAncestorSwBlockExtends = false,
         hasAncestorForDirective = false,
-        hasAncestorConditionalDirective = false,
     ): void {
         if (isSwBlockExtends(node)) {
             if (hasAncestorSwBlockExtends) {
@@ -1159,29 +1134,12 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: ShopwareSe
             }
         }
 
-        if (isSwBlockParent(node)) {
-            if (hasAncestorForDirective || getForDirective(node)) {
-                throw new ShopwareSetupTransformError(
-                    'Repeated <sw-block-parent> declarations are not supported. Parent block rendering must not use v-for.',
-                    template.contentStart + node.loc.start.offset,
-                );
-            }
-
-            if (hasAncestorConditionalDirective || hasConditionalDirective(node)) {
-                throw new ShopwareSetupTransformError(
-                    'Conditional <sw-block-parent> declarations are not supported. Parent block rendering must be statically present.',
-                    template.contentStart + node.loc.start.offset,
-                );
-            }
-        }
-
         if (node.type === NodeTypes.ELEMENT) {
             node.children.forEach((child) =>
                 visit(
                     child,
                     hasAncestorSwBlockExtends || isSwBlockExtends(node),
                     hasAncestorForDirective || Boolean(getForDirective(node)),
-                    hasAncestorConditionalDirective || hasConditionalDirective(node),
                 ),
             );
         }

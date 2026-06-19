@@ -134,7 +134,6 @@ The transform rejects these cases loudly:
 - Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
 - Nested `<sw-block extends>` declarations inside another `<sw-block extends>` declaration
 - Repeated `<sw-block extends>` declarations using `v-for` directly or through an ancestor template
-- Conditional or repeated `<sw-block-parent>` declarations using `v-if`, `v-else-if`, `v-else`, or `v-for` directly or through an ancestor template
 - Shopware setup bindings in directive expressions on the `<sw-block extends>` element itself, for example `v-if="localState"`; use bindings inside the block content instead
 - Top-level TypeScript ambient `declare` declarations, because they are not runtime setup state
 - Additional `<script>` blocks next to Shopware setup blocks

@@ -38,7 +38,7 @@ Module root:
 - `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
-- `ContentLayoutValidator` - Lean draft-layout validation: traverses the decoded element tree and collects a violation per unregistered component (used by the preview action)
+- `ContentLayoutValidator` - Draft-layout validation for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
 
 ## Domain Placement
 
@@ -52,18 +52,22 @@ Domain-specific content system classes live in their owning domain module — no
 
 ## Administration API
 
-Admin-facing endpoints — layout preview plus the type-introspection routes the Administration consumes — are documented in `ADMINISTRATION.md`.
+Admin-facing endpoints — layout preview, resolve-and-diagnose, plus the type-introspection routes the Administration consumes — are documented in `ADMINISTRATION.md`.
 
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - Admin API controllers (layout preview action)
+- **Api/** - Admin API controllers (layout preview + resolve-and-diagnose actions)
+- **Binding/** - Source-binding enumeration for the resolvability gate (`LayoutBindingEnumerator` extension point)
 - **Cache/** - HTTP cache integration and invalidation
+- **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
 - **Event/** - Hydration lifecycle event definitions
 - **Event/Listener/** - Pre/post hydration pipeline transformations
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
 - **Layout/** - Element tree, entities, field types, scaffolding, element type system
 - **Output/** - Response formatting and partial rendering
+- **Resolution/** - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
+- **Validation/** - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)

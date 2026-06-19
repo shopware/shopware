@@ -10,19 +10,20 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 ## Source Code References
 
 - **Registry**: `Registry/AbstractContentSystemElementTypeRegistry` (abstract, decoration pattern), `Registry/ContentSystemElementTypeRegistry` (stateless aggregator), `Registry/CachedContentSystemElementTypeRegistry` (`cache.system` pool decorator)
-- **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemElementTypeCompilerPass` (discovers from core, bundles, plugins, apps)
+- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemElementTypeCompilerPass` (discovers from core, bundles, plugins, apps)
 - **Loaders**: `Loader/AbstractContentSystemElementTypeLoader` (base contract), `Loader/YamlTypeLoader` (filesystem), `Loader/DatabaseTypeLoader` (app types, prod only), `Loader/ElementTypeNameResolver` (path → name)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
 - **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)
 - **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`, `App/Lifecycle/Handler/ContentSystemElementTypeLifecycleHandler` (persists app types on install/update)
 - **Collision Detection**: `Validation/ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types)
 - **Type Map Bridge**: `Schema/ContentSystemDataLoaderTypeMap` — connects FQCNs to loader sources
+- **Specification accessors**: `Specification/ContentSystemElementTypeSpecification` exposes `name(): string` (the type's unique identifier — the key consumers match/look up by), `source(): string` (the source-label prefix, e.g. `core` / `plugin:Name`, default `''`), `properties(): array<string, PropertySpecification>` (the declared property map the `Resolution/` kernel — `Resolution/ElementResolver`, `Resolution/AvailableContextResolver` — iterates to resolve each property, reading each `PropertySpecification` and its `PropertyType::isPrimitive()`), and `toSchema(): array` (serializes the spec to the `ElementTypeSchema` wire shape served by `GET /api/_info/content-system-element-types.json`)
 
 ## Constraints
 
 - Type names must be unique across all sources (core, bundles, plugins, apps) — duplicates caught at compile time and persist time with source labels: `"core"`, `"bundle:BundleName"`, `"plugin:PluginName"`, `"app:AppName"`
 - YAML: one type per file, name is derived from the file path (directory structure + filename → PascalCase colon-separated name) via `ElementTypeNameResolver`. `meta.name` is ignored — the serializer does not read it; names come exclusively from file paths.
-- Name prefix is auto-injected: `Sw` for core/bundles, bundle class name for plugins, app name for apps
+- Name prefix is auto-injected: `Sw` for core/bundles, the plugin bundle name (the short `Plugin::getName()` value, not the FQCN) for plugins, app name for apps
 - Filenames and directories must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
 - Both `.yaml` and `.yml` extensions are accepted
 - Registry uses Shopware decoration pattern: `AbstractContentSystemElementTypeRegistry` → `ContentSystemElementTypeRegistry` (leaf) → `CachedContentSystemElementTypeRegistry` (decorator, `cache.system` pool). `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it. Consumers type-hint `AbstractContentSystemElementTypeRegistry`.
@@ -31,4 +32,5 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - `TranslatableTypeValidator` enforces: `translatable` only on `string` type
 - `TypedEnumValidator` enforces: `enum` only on primitives, must be list, values match declared type
 - `TypedDefaultValidator` enforces: `default` only on primitives, value matches declared type
+- Canonical primitive set: `string`, `integer`, `number`, `boolean`; any other `type` value is treated as a `class-string<Struct>` FQCN (filled by the pipeline). The set is currently duplicated across three places — `PropertyType::isPrimitive()` (consumed by the `Resolution/` kernel) and a private `PRIMITIVE_TYPES` constant in each of `TypedEnumValidator` and `TypedDefaultValidator`, which key off their own constant rather than `isPrimitive()`. The `enum` / `default` rules use this primitive-vs-FQCN distinction; `translatable` is narrower — it keys off `type === 'string'` only (see above)
 - `DatabaseTypeLoader` joins `app` and queries `WHERE app.active = 1` — types of deactivated apps excluded from registry (no denormalized `active` column on the type). `ElementTypeCollisionDetector` also considers types of inactive apps to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ContentSystem\ContentLayoutValidator;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
@@ -210,9 +209,15 @@ class ContentPreviewControllerTest extends TestCase
 
     private function validator(bool $registered): ContentLayoutValidator
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn($registered);
+        $violations = new ConstraintViolationList();
 
-        return new ContentLayoutValidator($registry);
+        if (!$registered) {
+            $violations->add(new ConstraintViolation('Component "Sw:Unknown:Widget" is not a registered element type.', null, [], null, 'e1', null));
+        }
+
+        $validator = $this->createMock(ContentLayoutValidator::class);
+        $validator->method('validate')->willReturn($violations);
+
+        return $validator;
     }
 }

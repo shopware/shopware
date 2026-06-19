@@ -1,0 +1,163 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnoseRequest;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnosticsController;
+use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceResolver;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
+use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * @internal
+ */
+#[CoversClass(ContentLayoutDiagnosticsController::class)]
+class ContentLayoutDiagnosticsControllerTest extends TestCase
+{
+    #[TestDox('returns resolutions and a diagnostics report for a well-formed tree without a bound source')]
+    public function testDiagnoseReturnsResolutionsAndDiagnostics(): void
+    {
+        $analysis = new LayoutAnalysis(
+            new DiagnosticsReport([]),
+            ['el-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')]],
+        );
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning($analysis),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+        );
+
+        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $body = $this->decode($response);
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertSame('headline', $body['resolutions']['el-1'][0]['key']);
+    }
+
+    #[TestDox('resolves the bound source root context from the entityType field')]
+    public function testDiagnoseResolvesEntityTypeSource(): void
+    {
+        $source = $this->createMock(AbstractSpecificationSource::class);
+        $source->expects($this->once())->method('providedRootContext')->willReturn([]);
+
+        $sourceResolver = $this->createMock(SpecificationSourceResolver::class);
+        $sourceResolver->expects($this->once())->method('resolveByEntityType')->with('product')->willReturn($source);
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+            sourceResolver: $sourceResolver,
+        );
+
+        $controller->diagnose(
+            new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], entityType: 'product'),
+            Context::createDefaultContext(),
+        );
+    }
+
+    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
+    public function testDiagnoseMapsDecodeClientDefect(): void
+    {
+        $serializer = $this->createMock(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $serializer,
+        );
+
+        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
+        $body = $this->decode($response);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
+    }
+
+    #[TestDox('rejects a structurally invalid element with a 400')]
+    public function testDiagnoseRejectsStructurallyInvalidElement(): void
+    {
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $this->createMock(ContentElementFieldSerializer::class),
+        );
+
+        try {
+            $controller->diagnose(new ContentLayoutDiagnoseRequest([['component' => 'Sw:Block']]), Context::createDefaultContext());
+            static::fail('Expected a ContentSystemException for the structurally invalid element.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+        }
+    }
+
+    #[TestDox('merges decode violations into the well-formedness verdict')]
+    public function testInvalidConfigCountsAgainstWellFormedness(): void
+    {
+        $analysis = new LayoutAnalysis(
+            new DiagnosticsReport([new Violation(ViolationCode::DuplicateElementId, 'el-1', null, 'dup')]),
+            [],
+        );
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning($analysis),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+        );
+
+        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
+        static::assertFalse($this->decode($response)['diagnostics']['wellFormed']);
+    }
+
+    private function controller(
+        LayoutDiagnostics $diagnostics,
+        ContentElementFieldSerializer $serializer,
+        ?SpecificationSourceResolver $sourceResolver = null,
+    ): ContentLayoutDiagnosticsController {
+        return new ContentLayoutDiagnosticsController(
+            $serializer,
+            $diagnostics,
+            $sourceResolver ?? $this->createMock(SpecificationSourceResolver::class),
+        );
+    }
+
+    private function diagnosticsReturning(LayoutAnalysis $analysis): LayoutDiagnostics
+    {
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturn($analysis);
+
+        return $diagnostics;
+    }
+
+    private function serializerDecoding(ContentElement $element): ContentElementFieldSerializer
+    {
+        $serializer = $this->createMock(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willReturn($element);
+
+        return $serializer;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decode(Response $response): array
+    {
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+    }
+}

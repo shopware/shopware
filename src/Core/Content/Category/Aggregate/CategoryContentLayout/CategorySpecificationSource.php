@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -64,5 +65,10 @@ class CategorySpecificationSource extends AbstractSpecificationSource
     public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData
     {
         return $this->contextFactory->buildSpecificationData($entityId, $request, $context, $this->definition);
+    }
+
+    public function providedRootContext(Context $context): array
+    {
+        return $this->contextFactory->providedRootContext($this->definition);
     }
 }

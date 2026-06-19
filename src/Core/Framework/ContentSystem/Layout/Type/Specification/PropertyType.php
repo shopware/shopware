@@ -38,4 +38,19 @@ final readonly class PropertyType
             'default' => $this->default,
         ];
     }
+
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    public function default(): string|int|float|bool|null
+    {
+        return $this->default;
+    }
+
+    public function isPrimitive(): bool
+    {
+        return \in_array($this->type, ['string', 'integer', 'number', 'boolean'], true);
+    }
 }

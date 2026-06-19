@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
@@ -80,11 +79,12 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      * Returns page-level data requirements for this entity type.
      *
      * These requirements are loaded once per page and distributed to all
-     * root elements via virtual root pattern during hydration.
+     * root elements via virtual root pattern during hydration. The requirement set is derived purely
+     * from the definition's entity type, so it needs no request or sales-channel state.
      *
      * @return array<DataRequirement>
      */
-    public function getPageDataRequirements(SalesChannelContext $context): array
+    public function getPageDataRequirements(): array
     {
         return [
             new DataRequirement(

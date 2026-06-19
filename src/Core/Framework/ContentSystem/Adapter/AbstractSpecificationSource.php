@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\ContentSystem\Adapter;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,5 +46,17 @@ abstract class AbstractSpecificationSource
     public function resolveSpecificationDataForEntity(string $entityId, Request $request, SalesChannelContext $context): SpecificationData
     {
         throw ContentSystemException::entityTypeResolutionUnsupported();
+    }
+
+    /**
+     * The root context this source supplies to a layout's top-level elements. Entity sources override it
+     * with their page data requirements; header/footer sources expose no root-ambient context. Typed on
+     * Context (not SalesChannelContext): the mapping is config/type-only and reads no sales-channel state.
+     *
+     * @return list<ProvidedContext>
+     */
+    public function providedRootContext(Context $context): array
+    {
+        return [];
     }
 }

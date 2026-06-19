@@ -56,6 +56,14 @@ final readonly class ContentSystemElementTypeSpecification
     }
 
     /**
+     * @return array<string, PropertySpecification>
+     */
+    public function properties(): array
+    {
+        return $this->properties;
+    }
+
+    /**
      * @return ElementTypeSchema
      */
     public function toSchema(): array

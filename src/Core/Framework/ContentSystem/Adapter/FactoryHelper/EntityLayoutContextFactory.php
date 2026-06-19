@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
+use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -27,7 +29,19 @@ class EntityLayoutContextFactory
 {
     public function __construct(
         private readonly EntityLayoutResolver $layoutResolver,
+        private readonly RootContextMapper $rootContextMapper,
     ) {
+    }
+
+    /**
+     * The root-ambient context this entity assignment supplies to a layout's top-level elements,
+     * derived from the definition's page data requirements via the one shared mapping path.
+     *
+     * @return list<ProvidedContext>
+     */
+    public function providedRootContext(AbstractContentLayoutAssignableDefinition $definition): array
+    {
+        return $this->rootContextMapper->map($definition->getPageDataRequirements());
     }
 
     public function supports(string $path, AbstractContentLayoutAssignableDefinition $definition): bool
@@ -88,7 +102,7 @@ class EntityLayoutContextFactory
         AbstractContentLayoutAssignableDefinition $definition
     ): SpecificationData {
         return new SpecificationData(
-            dataRequirements: array_values($definition->getPageDataRequirements($context)),
+            dataRequirements: array_values($definition->getPageDataRequirements()),
             placeholderValues: $this->layoutResolver->resolvePlaceholders(
                 $definition->getContentLayoutEntityIdField(),
                 $entityId,

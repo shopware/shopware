@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAs
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -32,6 +33,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
         $this->factory = new EntityLayoutContextFactory(
             $this->layoutResolver,
+            static::createStub(RootContextMapper::class),
         );
     }
 

@@ -44,6 +44,30 @@ class ContentSystemException extends HttpException
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
+    public const NO_SOURCE_FOR_SECTION = 'CONTENT_SYSTEM__NO_SOURCE_FOR_SECTION';
+
+    /**
+     * Error codes that represent a defect in client-supplied layout input — a typo'd entity, an undecodable
+     * config, an unregistered source named by the client — rather than an internal fault. The diagnostics
+     * layer catches only these per element and maps them to an `invalid_config` violation; every other code
+     * propagates, so an internal fault is never relabelled as the client's mistake. A status-code filter is
+     * insufficient: DATA_LOADER_NOT_REGISTERED and INVALID_FIELD_VALUE_TYPE are HTTP 500 yet are legitimate
+     * client defects for a client-supplied tree.
+     */
+    public const CLIENT_DEFECT_CODES = [
+        self::DATA_LOADER_NOT_REGISTERED,
+        self::CONFIG_SERIALIZER_NOT_REGISTERED,
+        self::UNKNOWN_LOADER_ENTITY,
+        self::INVALID_FIELD_VALUE_TYPE,
+        self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
+        self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+    ];
+
+    public static function isClientDefect(\Throwable $exception): bool
+    {
+        return $exception instanceof self
+            && \in_array($exception->getErrorCode(), self::CLIENT_DEFECT_CODES, true);
+    }
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -355,6 +379,16 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ENTITY_TYPE_RESOLUTION_UNSUPPORTED,
             'resolveSpecificationDataForEntity() must only be called on a source whose supportsEntityType() returns true.'
+        );
+    }
+
+    public static function noSourceForSection(string $section): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_SOURCE_FOR_SECTION,
+            'No content layout specification source is registered for section "{{ section }}"',
+            ['section' => $section]
         );
     }
 

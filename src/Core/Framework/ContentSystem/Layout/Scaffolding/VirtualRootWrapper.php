@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class VirtualRootWrapper
 {
-    private const VIRTUAL_ROOT_ID = '__page_context_root__';
+    public const VIRTUAL_ROOT_ID = '__page_context_root__';
     private const VIRTUAL_ROOT_TYPE = 'Sw:Internal:PageContext';
     private const VIRTUAL_ROOT_SLOT_NAME = '__page_roots__';
 

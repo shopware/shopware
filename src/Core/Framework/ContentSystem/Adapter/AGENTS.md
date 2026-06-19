@@ -2,12 +2,12 @@
 
 ## Source Code References
 
-- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `unknownEntityType`) — last two overridden by entity sources for assignment-free resolution
+- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is called by `Api/ContentLayoutDiagnosticsController` on the source selected via `Api/SpecificationSourceResolver` for the diagnose route's binding-resolvability branch
 - `RenderingSpecificationResolver` - `resolve()` iterates sources via `supports()` → `RenderingSpecificationFactory::create()`; `resolveWithoutLayout(entityType, entityId, …)` selects via `supportsEntityType()` → `createWithoutLayout()`, throws `unknownEntityType` on no match
 - `RenderingSpecificationFactory` - `create()` assembles `ResolvedContentLayout` (layout ID plus `RenderingSpecification`); `createWithoutLayout()` assembles a bare `RenderingSpecification` (no layout id, no assignment lookup) for the preview action
 - Entity sources co-located with domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
 - Domain-aware sources in Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
-- `EntityLayoutResolver`, `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity resolution
+- `EntityLayoutResolver`, `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity resolution; `EntityLayoutContextFactory::providedRootContext(AbstractContentLayoutAssignableDefinition $definition): list<ProvidedContext>` delegates to `RootContextMapper::map($definition->getPageDataRequirements())`. `buildSpecificationData(string $entityId, Request $request, SalesChannelContext $context, AbstractContentLayoutAssignableDefinition $definition): SpecificationData` is the assignment-free assembly entry point — all three entity sources call it from `resolveSpecificationDataForEntity()`; the assignment-based `resolveSpecificationData(string $path, …)` extracts the entity id from the path and delegates to it
 - `DomainAwareLayoutResolver`, `NavigationAliasResolver` (FactoryHelper/) - Header/footer resolution
 
 ## Constraints
@@ -17,4 +17,4 @@
 - Header/footer sources are NOT in the tagged iterator — injected directly into separate resolver instances
 - 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
 - Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`
-- Header/footer query: `WHERE (domain_id = X OR IS NULL) AND (sales_channel_id = Y OR IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`
+- Header/footer query: `WHERE (domain_id = X AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`. Three explicit tiers (domain+channel, then channel, then global); there is NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)

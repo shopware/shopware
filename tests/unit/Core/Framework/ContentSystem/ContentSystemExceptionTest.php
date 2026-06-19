@@ -39,6 +39,36 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    #[DataProvider('clientDefectProvider')]
+    #[TestDox('classifies $_dataName')]
+    public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
+    {
+        static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
+    }
+
+    /**
+     * @return iterable<string, array{ContentSystemException, bool}>
+     */
+    public static function clientDefectProvider(): iterable
+    {
+        // Reachable from the layout decode path (data_requirements / accepts_context), so a client typo
+        // must become an invalid_config diagnostic, not a 500 that aborts the write.
+        yield 'unknown loader entity as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
+        yield 'config serializer not registered as a client defect' => [ContentSystemException::configSerializerNotRegistered('bogus'), true];
+        yield 'invalid field value type as a client defect' => [ContentSystemException::invalidFieldValueType('entity', 'string', 'null'), true];
+        yield 'consumer alias without redistribute as a client defect' => [ContentSystemException::consumerAliasWithoutRedistribute('product'), true];
+        yield 'property alias with dot notation as a client defect' => [ContentSystemException::propertyAliasWithDotNotation('product', 'a.b'), true];
+        // Internal faults must propagate, never be relabelled as the client's mistake.
+        yield 'invalid field type as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
+        yield 'layout not found as an internal fault' => [ContentSystemException::layoutNotFound('layout-1'), false];
+    }
+
+    #[TestDox('a non content-system throwable is never a client defect')]
+    public function testForeignThrowableIsNotAClientDefect(): void
+    {
+        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
+    }
+
     /**
      * @return iterable<string, array{ContentSystemException, int, string, string}>
      */

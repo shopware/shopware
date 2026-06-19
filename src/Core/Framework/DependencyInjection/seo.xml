@@ -45,6 +45,12 @@
             <argument type="tagged_iterator" tag="shopware.seo_url.route"/>
         </service>
 
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="router"/>
+        </service>
+
         <service id="Shopware\Core\Content\Seo\EmptyPathInfoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-2000">
             <argument type="service" id="Shopware\Core\Content\Seo\EmptyPathInfoResolver.inner"/>
         </service>

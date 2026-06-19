@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Command;
 
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\Adapter\Command\CacheWatchDelayedCommandTest;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -10,11 +12,12 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @phpstan-import-type RedisTypeHint from \Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
  */
 #[Package('framework')]
 #[AsCommand(name: 'cache:watch:delayed', description: 'Watches the delayed cache keys/tags')]
@@ -96,15 +99,30 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
         $this->output = $output;
 
         $interval = $this->resolveInterval((int) $input->getOption('interval'));
-
-        $before = $adapter->sMembers('invalidation');
-
         $section = $output->section();
         $table = new Table($section);
+
+        $this->watch(static fn (): array => $adapter->sMembers('invalidation'), $section, $table, $interval);
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * The watch loop only returns once a signal flips $shouldStop, so it cannot be reached in-process.
+     *
+     * @codeCoverageIgnore
+     *
+     * @see CacheWatchDelayedCommandTest
+     *
+     * @param callable(): array<string> $poll
+     */
+    private function watch(callable $poll, ConsoleSectionOutput $section, Table $table, int $interval): void
+    {
+        $before = $poll();
         $this->render($table, $before);
 
         while (!$this->shouldStop) {
-            $current = $adapter->sMembers('invalidation');
+            $current = $poll();
 
             if ($before !== $current) {
                 $section->clear();
@@ -114,8 +132,6 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
 
             usleep($interval);
         }
-
-        return self::SUCCESS;
     }
 
     /**

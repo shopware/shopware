@@ -17,15 +17,22 @@ try {
   const page = await browser.newPage();
   await page.goto(`${appUrl}/admin`, { waitUntil: 'domcontentloaded' });
 
-  // Proven locators (live-verified on 6.6.x–trunk): role-pinned, anchored names.
-  const user = page.getByRole('textbox', { name: /^username$/i });
-  await user.waitFor({ state: 'visible', timeout: 60_000 });
-  await user.fill(process.env.SW_ADMIN_USER ?? 'admin');
-  await page.getByRole('textbox', { name: /^password$/i }).fill(process.env.SW_ADMIN_PASS ?? 'shopware');
-  await page.getByRole('button', { name: /log in|sign in/i }).click();
+  // Locate STRUCTURALLY, not by exact accessible name — login-form field names and the
+  // post-login chrome drift across releases (a strict /^username$/ + post-login `searchbox`
+  // wait failed live on the old 6.6.10.15 admin, blocking #29). The login form's first
+  // textbox is the username; the password is the type=password input.
+  const user = page.getByRole('textbox', { name: /user(name)?|e-?mail/i })
+    .or(page.getByRole('textbox').first());
+  await user.first().waitFor({ state: 'visible', timeout: 60_000 });
+  await user.first().fill(process.env.SW_ADMIN_USER ?? 'admin');
+  await page.getByRole('textbox', { name: /password/i })
+    .or(page.locator('input[type="password"]'))
+    .first().fill(process.env.SW_ADMIN_PASS ?? 'shopware');
+  await page.getByRole('button', { name: /log ?in|sign ?in|anmelden/i }).first().click();
 
-  // Authenticated shell is up when the global searchbox renders (stable across versions).
-  await page.getByRole('searchbox').waitFor({ state: 'visible', timeout: 90_000 });
+  // Login succeeded once the username field DETACHES (the SPA leaves the login route) —
+  // robust across versions, unlike waiting for a specific post-login control.
+  await user.first().waitFor({ state: 'detached', timeout: 90_000 });
 
   await page.context().storageState({ path: out });
   console.log(`admin storageState saved to ${out}`);

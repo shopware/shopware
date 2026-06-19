@@ -5,7 +5,7 @@
 import { lowerShopwareSetupBlock } from './lower';
 import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
 import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
-import { analyzeBaseTemplate, type TemplateAnalysis } from './template-analyzer';
+import { analyzeBaseTemplate, analyzeOverrideTemplate, type TemplateAnalysis } from './template-analyzer';
 import { parseShopwareSetupSfc } from './sfc-parser';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
@@ -39,13 +39,6 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         return null;
     }
 
-    if (block.mode === 'override') {
-        throw new ShopwareSetupTransformError(
-            'Shopware setup override mode is added by the override transform PR.',
-            block.start,
-        );
-    }
-
     let analysis: ShopwareSetupScriptAnalysis;
     let replacement: ReturnType<typeof lowerShopwareSetupBlock>;
     let templateAnalysis: TemplateAnalysis = {
@@ -62,6 +55,12 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         });
         if (block.mode === 'base') {
             templateAnalysis = analyzeBaseTemplate(block);
+        }
+
+        if (block.mode === 'override') {
+            templateAnalysis = analyzeOverrideTemplate(block, analysis);
+            analysis.overridePrivateBindings = templateAnalysis.privateBindings;
+            analysis.overridePrivateNamespace = templateAnalysis.privateNamespace;
         }
 
         replacement = lowerShopwareSetupBlock(block, analysis);

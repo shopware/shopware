@@ -12,6 +12,7 @@ type ScriptBlock = {
     contentStart: number;
     content: string;
     generatedPassthroughAttributesSource: string;
+    generatedNormalScriptAttributesSource: string;
     lang: string | null;
 };
 
@@ -127,6 +128,10 @@ function toScriptBlock(source: string, descriptorBlock: SFCScriptBlock, type: Sc
         content: descriptorBlock.content,
         generatedPassthroughAttributesSource: buildGeneratedAttributesSource(descriptorBlock.attrs, {
             setup: type === 'scriptSetup',
+            fallbackLanguage: 'ts',
+        }),
+        generatedNormalScriptAttributesSource: buildGeneratedAttributesSource(descriptorBlock.attrs, {
+            setup: false,
             fallbackLanguage: 'ts',
         }),
         lang: descriptorBlock.lang ?? null,

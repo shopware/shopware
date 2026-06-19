@@ -59,6 +59,7 @@ function createScriptBlock(lang: string | null): ScriptBlock {
         contentStart: '<script setup>'.length,
         content: '',
         generatedPassthroughAttributesSource: '',
+        generatedNormalScriptAttributesSource: '',
         lang,
     };
 }

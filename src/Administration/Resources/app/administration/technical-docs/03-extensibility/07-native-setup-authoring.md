@@ -1,32 +1,44 @@
 # Native Setup Authoring
 
-Native setup is the Administration term for Vue's native `<script setup>` SFC syntax. Shopware setup SFC authoring uses native setup plus filename-based mode inference for the Composition API extension system. It is not plain native setup semantics, because the body is lowered into Shopware's base callback contract before Vue compiles the SFC.
-
-> This transform handles base components. Override files (`*.override.vue`) are recognized and rejected with a clear error; override authoring is documented with the override transform.
+Native setup is the Administration term for Vue's native `<script setup>` SFC syntax. Shopware setup SFC authoring uses native setup plus filename-based base/override conventions for the Composition API extension system. It is not plain native setup semantics, because the body is lowered into Shopware's base/override callback contracts before Vue compiles the SFC.
 
 ## Supported Modes
 
-Mode and component name are inferred from the SFC filename, not from attributes. Every `<script setup>` block is treated as a Shopware setup block.
+Base components use a normal `.vue` filename. The component name is inferred from the filename:
 
-Base components use a plain `.vue` filename. The component name is the filename without its `.vue` suffix, or the parent directory name when the file is `index.vue`:
-
-- `sw-my-component.vue` -> base component `sw-my-component`
-- `sw-my-component/index.vue` -> base component `sw-my-component`
+- `sw-my-component.vue` -> `sw-my-component`
+- `sw-my-component/index.vue` -> `sw-my-component`
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
     initialCount?: number;
-}>(), {
-    initialCount: 0,
-});
-const count = ref(props.initialCount);
+}>();
+const count = ref(props.initialCount ?? 0);
 const internalValue = ref('private');
 
 swDefinePublic({
     count,
+});
+</script>
+```
+
+Overrides use an `.override.vue` filename. The overridden component name is inferred from the filename:
+
+- `sw-my-component.override.vue` -> `sw-my-component`
+- `sw-my-component/index.override.vue` -> `sw-my-component`
+
+```vue
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const doubled = computed(() => previousState.count.value * 2);
+
+swDefineOverride({
+    doubled,
 });
 </script>
 ```
@@ -74,7 +86,7 @@ const props = withDefaults(defineProps<{ initialCount?: number }>(), {
 
 ## Runtime Lowering
 
-The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`.
+The preprocessor runs before Vue compiles the SFC. Base components are lowered directly through `createExtendableSetup(...)`. Overrides are lowered to import-time `overrideComponentSetup(...)` registration so imported override SFC files register without needing to be mounted.
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 
@@ -82,9 +94,14 @@ Macro-derived bindings are treated the same way: `const props = defineProps(...)
 
 Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">` that does not already declare `data`, `:data`, or `v-bind:data`. This forwards the generated script setup data scope to block overrides without requiring every base block author to write it manually.
 
-Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros, and `useSwContext()` reads the setup context.
+Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform merges those aliases into the block's default slot scope.
 
-The `useSwContext()` call is a transform-injected local helper, not a broad runtime global.
+Runtime inputs are explicit. Base component props use Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)` macros. Override props use a helper because override files cannot declare the base component's props with `defineProps(...)`.
+
+- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `useSwContext()`
+- Override: `useSwPreviousState()`, `useSwProps()`, `useSwContext()`
+
+The `useSw...` calls are transform-injected local helpers, not broad runtime globals.
 
 ## Setup Macros
 
@@ -108,12 +125,36 @@ swDefinePublic(state);
 
 Only shorthand bindings are supported, so a public key always equals its local binding name. Renaming, string keys, and computed keys are rejected: the transform, lint, and type layers need a stable compile-time key, and a renamed key could silently shadow another binding.
 
+`swDefineOverride({...})` is the override payload marker in override mode.
+
+Supported:
+
+```text
+swDefineOverride({});
+swDefineOverride({ count });
+```
+
+Rejected:
+
+```ts
+swDefineOverride({ count: localCount });
+swDefineOverride({ 'count': localCount });
+swDefineOverride({ [dynamicKey]: count });
+swDefineOverride({ ...state });
+swDefineOverride(state);
+```
+
+Like `swDefinePublic()`, only shorthand bindings are supported.
+
+Override mode requires exactly one top-level `swDefineOverride({...})` call. Template-only overrides use `swDefineOverride({})`.
+
 ## Not Plain Native Setup Semantics
 
 Shopware setup blocks differ from plain native setup:
 
-- Author code is lowered into Shopware's base callback contract.
+- Author code is lowered into Shopware base/override callback contracts.
 - Base public/private state is explicit Shopware extension state, not native setup return behavior.
+- Override SFCs register with `overrideComponentSetup(...)` at import time.
 - Base components may use one props declaration macro, either `defineProps(...)` or `withDefaults(defineProps(...), ...)`; the declaration is hoisted once and original calls are replaced with the props object passed into the extendable setup runtime.
 - Destructuring the props declaration macro is not supported; assign it to a variable and read `props.<name>`.
 - Base components may use one `defineEmits(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context emitter.
@@ -131,15 +172,17 @@ The transform rejects these cases loudly:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
 - Vue macros except supported base props, emits, expose, slots, and options declarations: `defineModel()`
-- More than one props declaration macro
+- Props declaration macros in override mode, or more than one props declaration macro
 - Destructured `defineProps()` or `withDefaults(defineProps(...), ...)`
 - Local setup bindings referenced in hoisted macro arguments passed to `defineProps(...)`, `withDefaults(...)`, `defineEmits(...)`, or `defineOptions(...)`
-- More than one `defineEmits()` call
-- `defineExpose()` outside the top level, or more than one `defineExpose()` call
-- More than one `defineSlots()` call
-- `defineOptions()` outside the top level, or more than one `defineOptions()` call
+- Override-only helpers such as `useSwPreviousState()` and `useSwProps()` in base mode
+- `defineEmits()` in override mode, or more than one `defineEmits()` call
+- `defineExpose()` in override mode, outside the top level, or more than one `defineExpose()` call
+- `defineSlots()` in override mode, or more than one `defineSlots()` call
+- `defineOptions()` in override mode, outside the top level, or more than one `defineOptions()` call
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` usage
+- Missing, non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefineOverride()` usage in override mode
 - Top-level bindings using the reserved `__swSetup` prefix, which the transform uses for its generated bindings
 - Additional `<script>` blocks next to Shopware setup blocks
 
@@ -147,9 +190,9 @@ Malformed or unclosed SFC sections are left to Vue's compiler parser. If `@vue/c
 
 ## Parser behavior
 
-All parser-sensitive behavior lives in `build/vue-setup-transform`, with smaller helpers grouped in `build/vue-setup-transform/utils`. SFC block detection uses Vue's `@vue/compiler-sfc` parser and reads `descriptor.scriptSetup`; the mode (`base`/`override`) and component name are then derived from the filename, not from block attributes. A Shopware setup block combined with a sibling plain `<script>` block fails loudly. Plain `<script>` blocks on their own are not candidates for transformation.
+All parser-sensitive behavior lives in `build/vue-setup-transform`, with smaller helpers grouped in `build/vue-setup-transform/utils`. SFC block detection uses Vue's `@vue/compiler-sfc` parser first and reads `descriptor.scriptSetup`; mode and component name come from the normalized SFC filename. Plain `<script>` blocks are not candidates for transformation.
 
-Vue's SFC parser deliberately treats `<script setup>` text inside HTML comments, templates, styles, and script bodies as non-top-level content. Malformed sections fail loudly instead of producing partial transforms.
+Vue's SFC parser deliberately treats fake `<script setup>` text inside HTML comments, templates, styles, and script bodies as non-top-level content. Malformed sections fail loudly instead of producing partial transforms.
 
 ## Biome and oxlint outlook
 

@@ -48,126 +48,37 @@
                 :key="column.property"
                 #[`column-${column.property}`]="scope"
             >
-                <div
-                    class="sw-meteor-entity-data-table__inline-edit-cell"
-                    :class="{ 'is--inline-editing': isInlineEditing(getSlotRecord(scope)) }"
-                    @dblclick="startInlineEdit(getSlotRecord(scope))"
+                <sw-meteor-entity-data-table-cell
+                    :column="column"
+                    :value="getRecordValue(getSlotRecord(scope), column.property)"
+                    :text-value="renderRecordValue(getSlotRecord(scope), column.property)"
+                    :number-value="renderNumberRecordValue(getSlotRecord(scope), column.property)"
+                    :preview-image-value="renderRecordValue(getSlotRecord(scope), column.previewImage ?? '')"
+                    :is-inline-editing="isInlineEditing(getSlotRecord(scope))"
+                    :is-last-inline-editable-column="isLastInlineEditableColumn(column)"
+                    :saving-inline-edit="savingInlineEdit"
+                    :has-legacy-preview-slot="hasLegacyPreviewSlot(column)"
+                    :has-column-slot="Boolean($slots[`column-${column.property}`])"
+                    @start-inline-edit="startInlineEdit(getSlotRecord(scope))"
+                    @update-record-value="updateRecordValue(getSlotRecord(scope), column.property, $event)"
+                    @cancel-inline-edit="cancelInlineEdit"
+                    @save-inline-edit="saveInlineEdit(getSlotRecord(scope))"
+                    @open-detail="openDetailFromSlotScope(scope)"
                 >
-                    <template v-if="isInlineEditing(getSlotRecord(scope))">
-                        <sw-data-grid-inline-edit
-                            class="sw-meteor-entity-data-table__inline-edit-field"
-                            :value="getRecordValue(getSlotRecord(scope), column.property)"
-                            :column="column"
-                            compact
-                            @update:value="updateRecordValue(getSlotRecord(scope), column.property, $event)"
-                        />
-
-                        <div
-                            v-if="isLastInlineEditableColumn(column)"
-                            class="sw-meteor-entity-data-table__inline-edit-actions"
-                        >
-                            <mt-button
-                                class="sw-meteor-entity-data-table__inline-edit-cancel"
-                                size="x-small"
-                                square
-                                variant="secondary"
-                                :title="$t('global.default.cancel')"
-                                :aria-label="$t('global.default.cancel')"
-                                @click="cancelInlineEdit"
-                            >
-                                <mt-icon
-                                    name="regular-times-xs"
-                                    size="10px"
-                                />
-                            </mt-button>
-
-                            <mt-button
-                                class="sw-meteor-entity-data-table__inline-edit-save"
-                                size="x-small"
-                                square
-                                variant="primary"
-                                :is-loading="savingInlineEdit"
-                                :title="$t('global.default.save')"
-                                :aria-label="$t('global.default.save')"
-                                @click="saveInlineEdit(getSlotRecord(scope))"
-                            >
-                                <mt-icon
-                                    name="regular-checkmark-xxs"
-                                    size="10px"
-                                />
-                            </mt-button>
-                        </div>
-                    </template>
-
-                    <template v-else>
+                    <template #legacy-preview>
                         <slot
-                            v-if="hasLegacyPreviewSlot(column)"
                             :name="getLegacyPreviewSlotName(column)"
                             v-bind="normalizeLegacyPreviewSlotScope(scope, column)"
                         />
+                    </template>
 
+                    <template #column>
                         <slot
-                            v-if="$slots[`column-${column.property}`]"
                             :name="`column-${column.property}`"
                             v-bind="normalizeInlineEditSlotScope(scope, column)"
                         />
-
-                        <div
-                            v-else-if="column.renderer === 'text'"
-                            class="sw-meteor-entity-data-table__text-renderer-cell"
-                        >
-                            <div
-                                v-if="column.previewImage && !hasLegacyPreviewSlot(column)"
-                                class="sw-meteor-entity-data-table__preview-image-renderer"
-                            >
-                                <img
-                                    class="sw-meteor-entity-data-table__preview-image-renderer-item"
-                                    :src="renderRecordValue(getSlotRecord(scope), column.previewImage)"
-                                    :alt="renderRecordValue(getSlotRecord(scope), column.property)"
-                                />
-                            </div>
-
-                            <a
-                                v-if="column.clickable"
-                                class="sw-meteor-entity-data-table__text-renderer"
-                                href="#"
-                                @click.prevent="openDetailFromSlotScope(scope)"
-                            >
-                                {{ renderRecordValue(getSlotRecord(scope), column.property) }}
-                            </a>
-
-                            <p
-                                v-else
-                                class="sw-meteor-entity-data-table__text-renderer"
-                            >
-                                {{ renderRecordValue(getSlotRecord(scope), column.property) }}
-                            </p>
-                        </div>
-
-                        <a
-                            v-else-if="column.renderer === 'number' && column.clickable"
-                            class="sw-meteor-entity-data-table__number-renderer"
-                            href="#"
-                            @click.prevent="openDetailFromSlotScope(scope)"
-                        >
-                            {{ renderNumberRecordValue(getSlotRecord(scope), column.property) }}
-                        </a>
-
-                        <p
-                            v-else-if="column.renderer === 'number'"
-                            class="sw-meteor-entity-data-table__number-renderer"
-                        >
-                            {{ renderNumberRecordValue(getSlotRecord(scope), column.property) }}
-                        </p>
-
-                        <span
-                            v-else
-                            class="sw-meteor-entity-data-table__text-renderer"
-                        >
-                            {{ renderRecordValue(getSlotRecord(scope), column.property) }}
-                        </span>
                     </template>
-                </div>
+                </sw-meteor-entity-data-table-cell>
             </template>
 
             <template
@@ -181,28 +92,28 @@
             </template>
         </mt-data-table>
 
-        <sw-modal
+        <sw-meteor-entity-data-table-delete-modal
             v-if="itemToDelete"
-            class="sw-meteor-entity-data-table__delete-modal"
-            variant="small"
-            :title="$t('global.default.warning')"
-            @modal-close="closeDeleteModal"
+            :item="itemToDelete"
+            :is-loading="deleting"
+            @close="closeDeleteModal"
+            @delete="deleteRecord"
         >
-            <p class="sw-meteor-entity-data-table__confirm-delete-text">
+            <template #confirm-text="{ item }">
                 <slot
                     name="delete-confirm-text"
-                    :item="itemToDelete"
+                    :item="item"
                 >
                     {{ $t('global.entity-components.deleteMessage') }}
                 </slot>
-            </p>
+            </template>
 
-            <template #modal-footer>
+            <template #modal-footer="{ item, deleteItem, isLoading }">
                 <slot
                     name="delete-modal-footer"
-                    :item="itemToDelete"
-                    :delete-item="deleteRecord"
-                    :is-loading="deleting"
+                    :item="item"
+                    :delete-item="deleteItem"
+                    :is-loading="isLoading"
                 >
                     <mt-button
                         class="sw-meteor-entity-data-table__delete-cancel"
@@ -224,36 +135,36 @@
                     </mt-button>
                 </slot>
             </template>
-        </sw-modal>
+        </sw-meteor-entity-data-table-delete-modal>
 
-        <sw-modal
+        <sw-meteor-entity-data-table-bulk-delete-modal
             v-if="showBulkDeleteModal"
-            class="sw-meteor-entity-data-table__bulk-delete-modal"
-            variant="small"
-            :title="$t('global.default.warning')"
-            @modal-close="closeBulkDeleteModal"
+            :selection-count="selectedIds.length"
+            :is-loading="bulkDeleting"
+            @close="closeBulkDeleteModal"
+            @delete="deleteSelectedRecords"
         >
-            <p class="sw-meteor-entity-data-table__confirm-bulk-delete-text">
+            <template #confirm-text="{ selectionCount }">
                 <slot
                     name="bulk-delete-confirm-text"
-                    :selection-count="selectedIds.length"
+                    :selection-count="selectionCount"
                 >
                     {{
                         $t(
                             'global.entity-components.deleteMessage',
-                            { count: selectedIds.length },
-                            selectedIds.length,
+                            { count: selectionCount },
+                            selectionCount,
                         )
                     }}
                 </slot>
-            </p>
+            </template>
 
-            <template #modal-footer>
+            <template #modal-footer="{ deleteItems, isLoading, selectionCount }">
                 <slot
                     name="bulk-delete-modal-footer"
-                    :delete-items="deleteSelectedRecords"
-                    :is-loading="bulkDeleting"
-                    :selection-count="selectedIds.length"
+                    :delete-items="deleteItems"
+                    :is-loading="isLoading"
+                    :selection-count="selectionCount"
                 >
                     <mt-button
                         class="sw-meteor-entity-data-table__bulk-delete-cancel"
@@ -275,7 +186,7 @@
                     </mt-button>
                 </slot>
             </template>
-        </sw-modal>
+        </sw-meteor-entity-data-table-bulk-delete-modal>
     </div>
 </template>
 
@@ -284,220 +195,47 @@
  * @sw-package framework
  */
 
-import { computed, defineComponent, getCurrentInstance, nextTick, onMounted, reactive, ref, watch } from 'vue';
-import type { ComputedRef, PropType, Ref, SetupContext } from 'vue';
-import type { Router } from 'vue-router';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import { defineComponent, getCurrentInstance, onMounted, watch } from 'vue';
+import type { PropType, SetupContext } from 'vue';
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
-import type CriteriaType from 'src/core/data/criteria.data';
-import type Repository from 'src/core/data/repository.data';
-import type RepositoryFactory from 'src/core/data/repository-factory.data';
-import { get as objectGet, set as objectSet } from 'src/core/service/utils/object.utils';
 import type {
     SwMeteorEntityDataTableColumn,
-    SwMeteorEntityDataTableColumnRenderer,
     SwMeteorEntityDataTableContextButton,
-    SwMeteorEntityDataTableCriteriaResolver,
-    SwMeteorEntityDataTableInlineEdit,
     SwMeteorEntityDataTableLayout,
-    SwMeteorEntityDataTableSortDirection,
-    SwMeteorEntityDataTableState,
 } from './sw-meteor-entity-data-table.types';
-
-type SwMeteorEntityDataTableEntityName = keyof EntitySchema.Entities;
-
-type SwMeteorEntityDataTableRecord =
-    | Entity<SwMeteorEntityDataTableEntityName>
-    | {
-          id: string;
-          [key: string]: unknown;
-      };
-
-type SwMeteorEntityDataTableRecords = EntityCollection<SwMeteorEntityDataTableEntityName> | SwMeteorEntityDataTableRecord[];
-
-type SwMeteorEntityDataTableSelection = Record<string, SwMeteorEntityDataTableRecord>;
-
-type SwMeteorEntityDataTableResolvedColumn = {
-    property: string;
-    label: string;
-    renderer: SwMeteorEntityDataTableColumnRenderer;
-    position: number;
-    sortable?: boolean;
-    width?: number;
-    visible?: boolean;
-    clickable?: boolean;
-    previewImage?: string;
-    rendererOptions?: unknown;
-    inlineEdit?: SwMeteorEntityDataTableInlineEdit;
-};
-
-type SwMeteorEntityDataTableColumnChange = {
-    property?: string;
-    position?: number;
-    width?: number;
-    visible?: boolean;
-};
-
-type SwMeteorEntityDataTableColumnChanges = Record<string, SwMeteorEntityDataTableColumnChange>;
-
-type SwMeteorEntityDataTableUserConfigEntity = Entity<'user_config'>;
-
-type SwMeteorEntityDataTableUserConfigRepository = Repository<'user_config'>;
-
-type SwMeteorEntityDataTableAclService = {
-    can: (privilege: string) => boolean;
-};
-
-type SwMeteorEntityDataTableUserSettingColumn = {
-    property?: string;
-    dataIndex?: string;
-    position?: number;
-    width?: number;
-    visible?: boolean;
-};
-
-type SwMeteorEntityDataTableUserSettings = {
-    columns?: SwMeteorEntityDataTableUserSettingColumn[] | SwMeteorEntityDataTableColumnChanges;
-    columnChanges?: SwMeteorEntityDataTableColumnChanges;
-    showOutlines?: boolean;
-    showStripes?: boolean;
-    enableOutlineFraming?: boolean;
-    enableRowNumbering?: boolean;
-};
-
-type SwMeteorEntityDataTableNormalizedUserSettings = {
-    columnChanges: SwMeteorEntityDataTableColumnChanges;
-    showOutlines?: boolean;
-    showStripes?: boolean;
-    enableOutlineFraming?: boolean;
-    enableRowNumbering?: boolean;
-};
-
-type SwMeteorEntityDataTableProps = {
-    repository: Repository<SwMeteorEntityDataTableEntityName>;
-    columns: SwMeteorEntityDataTableColumn[];
-    identifier?: string;
-    criteria?: CriteriaType | null;
-    criteriaResolver?: SwMeteorEntityDataTableCriteriaResolver | null;
-    context?: ApiContext | null;
-    initialPage?: number;
-    initialLimit?: number;
-    initialSearchTerm?: string;
-    initialSort?: SwMeteorEntityDataTableState['sort'] | null;
-    paginationOptions?: number[];
-    layout?: SwMeteorEntityDataTableLayout;
-    searchable?: boolean;
-    reloadable?: boolean;
-    selectable?: boolean;
-    detailRoute?: string | null;
-    allowEdit?: boolean;
-    allowInlineEdit?: boolean;
-    allowDelete?: boolean;
-    hideTableSettings?: boolean;
-    additionalContextButtons?: SwMeteorEntityDataTableContextButton[];
-};
-
-type SelectionChangePayload = {
-    id: string;
-    value: boolean;
-};
-
-type MultipleSelectionChangePayload = {
-    selections: string[];
-    value: boolean;
-};
-
-type ContextSelectPayload = {
-    key: string;
-    data: SwMeteorEntityDataTableRecord;
-};
-
-type ForwardedSlotScope = Record<string, unknown> | undefined;
-
-type SwMeteorEntityDataTableRouter = Pick<Router, 'push'>;
-
-type SwMeteorEntityDataTablePublicApi = {
-    records: Ref<SwMeteorEntityDataTableRecords>;
-    total: Ref<number>;
-    loading: Ref<boolean>;
-    state: Ref<SwMeteorEntityDataTableState>;
-    selectedIds: Ref<string[]>;
-    resolvedColumns: ComputedRef<SwMeteorEntityDataTableResolvedColumn[]>;
-    buildCriteria: () => CriteriaType;
-    load: () => Promise<void>;
-    reload: () => Promise<void>;
-    setPage: (page: number) => Promise<void>;
-    setLimit: (limit: number) => Promise<void>;
-    setSearchTerm: (term: string) => Promise<void>;
-    setSort: (property: string, direction: SwMeteorEntityDataTableSortDirection) => Promise<void>;
-    setSelectedIds: (selectedIds: string[]) => void;
-};
-
-type SwMeteorEntityDataTablePrivateApi = {
-    onSelectionChange: (payload: SelectionChangePayload) => void;
-    onMultipleSelectionChange: (payload: MultipleSelectionChangePayload) => void;
-    openDetail: (record: SwMeteorEntityDataTableRecord) => void;
-    openBulkDeleteModal: () => void;
-    closeBulkDeleteModal: () => void;
-    deleteSelectedRecords: () => Promise<void>;
-    openDeleteModal: (record: SwMeteorEntityDataTableRecord) => void;
-    closeDeleteModal: () => void;
-    deleteRecord: () => Promise<void>;
-    onContextSelect: (payload: ContextSelectPayload) => void;
-    inlineEditableColumns: ComputedRef<SwMeteorEntityDataTableResolvedColumn[]>;
-    forwardedSlotNames: ComputedRef<string[]>;
-    currentInlineEditId: Ref<string | null>;
-    savingInlineEdit: Ref<boolean>;
-    getLegacyPreviewSlotName: (column: SwMeteorEntityDataTableResolvedColumn) => string;
-    hasLegacyPreviewSlot: (column: SwMeteorEntityDataTableResolvedColumn) => boolean;
-    getSlotRecord: (scope: ForwardedSlotScope) => SwMeteorEntityDataTableRecord | null;
-    getRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => unknown;
-    updateRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string, value: unknown) => void;
-    renderRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => string;
-    renderNumberRecordValue: (record: SwMeteorEntityDataTableRecord | null, property: string) => string;
-    isInlineEditing: (record: SwMeteorEntityDataTableRecord | null) => boolean;
-    startInlineEdit: (record: SwMeteorEntityDataTableRecord | null) => void;
-    saveInlineEdit: (record: SwMeteorEntityDataTableRecord | null) => Promise<void>;
-    cancelInlineEdit: () => Promise<void>;
-    isLastInlineEditableColumn: (column: SwMeteorEntityDataTableResolvedColumn) => boolean;
-    normalizeInlineEditSlotScope: (
-        scope: ForwardedSlotScope,
-        column: SwMeteorEntityDataTableResolvedColumn,
-    ) => Record<string, unknown>;
-    normalizeLegacyPreviewSlotScope: (
-        scope: ForwardedSlotScope,
-        column: SwMeteorEntityDataTableResolvedColumn,
-    ) => Record<string, unknown>;
-    openDetailFromSlotScope: (scope: ForwardedSlotScope) => void;
-    itemToDelete: Ref<SwMeteorEntityDataTableRecord | null>;
-    deleting: Ref<boolean>;
-    showBulkDeleteModal: Ref<boolean>;
-    bulkDeleting: Ref<boolean>;
-    tableColumnChanges: SwMeteorEntityDataTableColumnChanges;
-    showOutlines: Ref<boolean>;
-    showStripes: Ref<boolean>;
-    enableOutlineFraming: Ref<boolean>;
-    enableRowNumbering: Ref<boolean>;
-    setShowOutlines: (value: boolean) => void;
-    setShowStripes: (value: boolean) => void;
-    setEnableOutlineFraming: (value: boolean) => void;
-    setEnableRowNumbering: (value: boolean) => void;
-    normalizeForwardedSlotScope: (scope: ForwardedSlotScope) => Record<string, unknown>;
-};
-
-declare global {
-    interface ComponentPublicApiMapping {
-        'sw-meteor-entity-data-table': SwMeteorEntityDataTablePublicApi;
-    }
-}
-
-type SetupProps = SwMeteorEntityDataTableProps & Record<string, unknown>;
+import type {
+    ContextSelectPayload,
+    SetupProps,
+    SwMeteorEntityDataTablePrivateApi,
+    SwMeteorEntityDataTableProps,
+    SwMeteorEntityDataTablePublicApi,
+    SwMeteorEntityDataTableRecord,
+    SwMeteorEntityDataTableRouter,
+} from './sw-meteor-entity-data-table.internal-types';
+import { useMeteorTableColumns } from './composables/use-meteor-table-columns';
+import { useMeteorTableCriteria } from './composables/use-meteor-table-criteria';
+import { useMeteorTableDeleteActions } from './composables/use-meteor-table-delete-actions';
+import { useMeteorTableInlineEdit } from './composables/use-meteor-table-inline-edit';
+import { useMeteorTableSelection } from './composables/use-meteor-table-selection';
+import { useMeteorTableSlots } from './composables/use-meteor-table-slots';
+import { useMeteorTableState } from './composables/use-meteor-table-state';
+import { useMeteorTableUserSettings } from './composables/use-meteor-table-user-settings';
+// eslint-disable-next-line import/extensions
+import SwMeteorEntityDataTableBulkDeleteModal from './components/sw-meteor-entity-data-table-bulk-delete-modal.vue';
+// eslint-disable-next-line import/extensions
+import SwMeteorEntityDataTableCell from './components/sw-meteor-entity-data-table-cell.vue';
+// eslint-disable-next-line import/extensions
+import SwMeteorEntityDataTableDeleteModal from './components/sw-meteor-entity-data-table-delete-modal.vue';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default defineComponent({
     name: 'SwMeteorEntityDataTable',
+
+    components: {
+        SwMeteorEntityDataTableBulkDeleteModal,
+        SwMeteorEntityDataTableCell,
+        SwMeteorEntityDataTableDeleteModal,
+    },
 
     props: {
         repository: {
@@ -572,7 +310,7 @@ export default defineComponent({
         },
 
         layout: {
-            type: String as PropType<SwMeteorEntityDataTableProps['layout']>,
+            type: String as PropType<SwMeteorEntityDataTableLayout>,
             required: false,
             default: 'default',
         },
@@ -666,658 +404,103 @@ export default defineComponent({
                 context,
             },
             (setupProps, setupContext) => {
-                const { Criteria } = Shopware.Data;
-                const records: Ref<SwMeteorEntityDataTableRecords> = ref([]);
-                const total = ref(0);
-                const loading = ref(false);
-                const itemToDelete: Ref<SwMeteorEntityDataTableRecord | null> = ref(null);
-                const deleting = ref(false);
-                const showBulkDeleteModal = ref(false);
-                const bulkDeleting = ref(false);
-                const selectedIds = ref<string[]>([]);
-                const selectedRecords = ref<SwMeteorEntityDataTableSelection>({});
-                const currentInlineEditId = ref<string | null>(null);
-                const savingInlineEdit = ref(false);
-                const tableColumnChanges: SwMeteorEntityDataTableColumnChanges = reactive({});
-                const showOutlines = ref(true);
-                const showStripes = ref(true);
-                const enableOutlineFraming = ref(false);
-                const enableRowNumbering = ref(false);
-                const state = ref<SwMeteorEntityDataTableState>(buildStateFromProps());
+                let loadTable = (): Promise<void> => Promise.resolve();
+                let resetInlineEdit = (): void => {};
+                let syncSelectedRecordsWithLoadedRecords = (): void => {};
                 const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
-                const currentUserTableSetting = ref<SwMeteorEntityDataTableUserConfigEntity | null>(null);
 
-                // Sequences overlapping loads so a slow earlier response cannot overwrite a newer one.
-                let latestLoadToken = 0;
-                let isApplyingUserTableSettings = false;
-
-                const resolvedColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
-                    // Column order follows declaration order; explicit positions are not part of the API.
-                    return setupProps.columns.map((column, index) => resolveMeteorColumn(column, index * 100));
-                });
-                const inlineEditableColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
-                    return resolvedColumns.value.filter(isInlineEditableColumn);
-                });
-                const inlineEditableColumnSlotNames = computed<Set<string>>(() => {
-                    return new Set(inlineEditableColumns.value.map((column) => `column-${column.property}`));
-                });
-                const inlineEditableLegacyPreviewSlotNames = computed<Set<string>>(() => {
-                    return new Set(
-                        inlineEditableColumns.value
-                            .map((column) => getLegacyPreviewSlotName(column))
-                            .filter((slotName) => setupContext.slots[slotName]),
-                    );
-                });
-                const forwardedSlotNames = computed<string[]>(() => {
-                    return Object.keys(setupContext.slots).filter((name) => {
-                        return (
-                            !inlineEditableColumnSlotNames.value.has(name) &&
-                            !inlineEditableLegacyPreviewSlotNames.value.has(name)
-                        );
-                    });
+                const { resolvedColumns, inlineEditableColumns } = useMeteorTableColumns({
+                    columns: () => setupProps.columns,
                 });
 
-                function buildStateFromProps(): SwMeteorEntityDataTableState {
-                    return {
-                        page: setupProps.initialPage ?? 1,
-                        limit: setupProps.initialLimit ?? 25,
-                        searchTerm: setupProps.initialSearchTerm ?? '',
-                        ...(setupProps.initialSort
-                            ? {
-                                  sort: {
-                                      ...setupProps.initialSort,
-                                  },
-                              }
-                            : {}),
-                    };
-                }
+                const {
+                    state,
+                    syncStateFromProps,
+                    cloneState,
+                    setPage,
+                    setLimit,
+                    setSearchTerm,
+                    setSort,
+                } = useMeteorTableState({
+                    initialPage: () => setupProps.initialPage,
+                    initialLimit: () => setupProps.initialLimit,
+                    initialSearchTerm: () => setupProps.initialSearchTerm,
+                    initialSort: () => setupProps.initialSort,
+                    emitStateChange: (nextState) => {
+                        setupContext.emit('state-change', nextState);
+                    },
+                    load: () => loadTable(),
+                });
 
-                function areSortsEqual(
-                    currentSort: SwMeteorEntityDataTableState['sort'],
-                    nextSort: SwMeteorEntityDataTableState['sort'],
-                ): boolean {
-                    if (!currentSort && !nextSort) {
-                        return true;
-                    }
-
-                    if (!currentSort || !nextSort) {
-                        return false;
-                    }
-
-                    return currentSort.property === nextSort.property && currentSort.direction === nextSort.direction;
-                }
-
-                function areStatesEqual(
-                    currentState: SwMeteorEntityDataTableState,
-                    nextState: SwMeteorEntityDataTableState,
-                ): boolean {
-                    return (
-                        currentState.page === nextState.page &&
-                        currentState.limit === nextState.limit &&
-                        currentState.searchTerm === nextState.searchTerm &&
-                        areSortsEqual(currentState.sort, nextState.sort)
-                    );
-                }
-
-                function syncStateFromProps(): void {
-                    const nextState = buildStateFromProps();
-
-                    if (areStatesEqual(state.value, nextState)) {
-                        return;
-                    }
-
-                    state.value = nextState;
-                }
-
-                function cloneState(): SwMeteorEntityDataTableState {
-                    const currentState = state.value;
-
-                    return {
-                        page: currentState.page,
-                        limit: currentState.limit,
-                        searchTerm: currentState.searchTerm,
-                        ...(currentState.sort
-                            ? {
-                                  sort: {
-                                      ...currentState.sort,
-                                  },
-                              }
-                            : {}),
-                    };
-                }
-
-                function emitStateChange(): void {
-                    setupContext.emit('state-change', cloneState());
-                }
-
-                function getUserTableSettingsKey(): string {
-                    const identifier = setupProps.identifier ?? '';
-
-                    if (!identifier) {
-                        return '';
-                    }
-
-                    return identifier.startsWith('grid.setting.') ? identifier : `grid.setting.${identifier}`;
-                }
-
-                function getCurrentUserId(): string {
-                    return Shopware.Store.get('session').currentUser?.id ?? '';
-                }
-
-                function getAclService(): SwMeteorEntityDataTableAclService {
-                    return Shopware.Service('acl') as SwMeteorEntityDataTableAclService;
-                }
-
-                function getUserConfigRepository(): SwMeteorEntityDataTableUserConfigRepository {
-                    const repositoryFactory = Shopware.Service('repositoryFactory') as RepositoryFactory;
-
-                    return repositoryFactory.create('user_config');
-                }
-
-                function buildUserTableSettingsCriteria(key: string): CriteriaType {
-                    const criteria = new Criteria(1, 25);
-
-                    criteria.addFilter(Criteria.equals('key', key));
-                    criteria.addFilter(Criteria.equals('userId', getCurrentUserId()));
-
-                    return criteria;
-                }
-
-                function getFirstUserTableSetting(
-                    response: EntityCollection<'user_config'>,
-                ): SwMeteorEntityDataTableUserConfigEntity | null {
-                    if ('first' in response && typeof response.first === 'function') {
-                        return response.first() ?? null;
-                    }
-
-                    return response[0] ?? null;
-                }
-
-                function hasUserConfigPermission(permission: string): boolean {
-                    return getAclService().can(permission);
-                }
-
-                async function loadUserTableSettings(): Promise<void> {
-                    const key = getUserTableSettingsKey();
-
-                    if (!key || !hasUserConfigPermission('user_config:read')) {
-                        return;
-                    }
-
-                    try {
-                        const userConfigRepository = getUserConfigRepository();
-                        const response = await userConfigRepository.search(
-                            buildUserTableSettingsCriteria(key),
-                            Shopware.Context.api,
-                        );
-                        const userTableSetting = getFirstUserTableSetting(response);
-
-                        if (!userTableSetting) {
-                            return;
-                        }
-
-                        currentUserTableSetting.value = userTableSetting;
-                        applyUserTableSettings(userTableSetting.value);
-                    } catch {
-                        currentUserTableSetting.value = null;
-                    }
-                }
-
-                async function saveUserTableSettings(): Promise<void> {
-                    const key = getUserTableSettingsKey();
-
-                    if (
-                        !key ||
-                        !hasUserConfigPermission('user_config:create') ||
-                        !hasUserConfigPermission('user_config:update')
-                    ) {
-                        return;
-                    }
-
-                    const userConfigRepository = getUserConfigRepository();
-                    const userTableSetting =
-                        currentUserTableSetting.value ?? userConfigRepository.create(Shopware.Context.api);
-
-                    Object.assign(userTableSetting, {
-                        key,
-                        userId: getCurrentUserId(),
-                        value: buildUserTableSettingsValue(),
+                const { tableColumnChanges, showOutlines, showStripes, enableOutlineFraming, enableRowNumbering, loadUserTableSettings, setShowOutlines, setShowStripes, setEnableOutlineFraming, setEnableRowNumbering } =
+                    useMeteorTableUserSettings({
+                        identifier: () => setupProps.identifier,
+                        resolvedColumns,
                     });
 
-                    currentUserTableSetting.value = userTableSetting;
-
-                    await userConfigRepository.save(userTableSetting, Shopware.Context.api);
-                }
-
-                function saveUserTableSettingsSilently(): void {
-                    if (isApplyingUserTableSettings) {
-                        return;
-                    }
-
-                    void saveUserTableSettings().catch(() => {});
-                }
-
-                function buildUserTableSettingsValue(): SwMeteorEntityDataTableUserSettings {
-                    return {
-                        columns: serializeUserTableSettingColumns(),
-                        showOutlines: showOutlines.value,
-                        showStripes: showStripes.value,
-                        enableOutlineFraming: enableOutlineFraming.value,
-                        enableRowNumbering: enableRowNumbering.value,
-                    };
-                }
-
-                function serializeUserTableSettingColumns(): SwMeteorEntityDataTableUserSettingColumn[] {
-                    return resolvedColumns.value
-                        .map((column) => {
-                            return {
-                                ...column,
-                                ...(tableColumnChanges[column.property] ?? {}),
-                            };
-                        })
-                        .sort((columnA, columnB) => columnA.position - columnB.position)
-                        .map((column, index) => {
-                            const serializedColumn: SwMeteorEntityDataTableUserSettingColumn = {
-                                property: column.property,
-                                dataIndex: column.property,
-                                position: index * 100,
-                                visible: column.visible !== false,
-                            };
-
-                            if (typeof column.width === 'number') {
-                                serializedColumn.width = column.width;
-                            }
-
-                            return serializedColumn;
-                        });
-                }
-
-                function applyUserTableSettings(rawUserSettings: unknown): void {
-                    const userSettings = normalizeUserTableSettings(rawUserSettings);
-
-                    if (!userSettings) {
-                        return;
-                    }
-
-                    isApplyingUserTableSettings = true;
-                    replaceTableColumnChanges(userSettings.columnChanges);
-
-                    if (typeof userSettings.showOutlines === 'boolean') {
-                        showOutlines.value = userSettings.showOutlines;
-                    }
-
-                    if (typeof userSettings.showStripes === 'boolean') {
-                        showStripes.value = userSettings.showStripes;
-                    }
-
-                    if (typeof userSettings.enableOutlineFraming === 'boolean') {
-                        enableOutlineFraming.value = userSettings.enableOutlineFraming;
-                    }
-
-                    if (typeof userSettings.enableRowNumbering === 'boolean') {
-                        enableRowNumbering.value = userSettings.enableRowNumbering;
-                    }
-
-                    void nextTick(() => {
-                        isApplyingUserTableSettings = false;
-                    });
-                }
-
-                function replaceTableColumnChanges(columnChanges: SwMeteorEntityDataTableColumnChanges): void {
-                    Object.keys(tableColumnChanges).forEach((property) => {
-                        delete tableColumnChanges[property];
-                    });
-
-                    Object.entries(columnChanges).forEach(([property, columnChange]) => {
-                        tableColumnChanges[property] = columnChange;
-                    });
-                }
-
-                function normalizeUserTableSettings(
-                    rawUserSettings: unknown,
-                ): SwMeteorEntityDataTableNormalizedUserSettings | null {
-                    if (Array.isArray(rawUserSettings)) {
-                        return {
-                            columnChanges: normalizeUserTableSettingColumns(rawUserSettings),
-                        };
-                    }
-
-                    if (!isRecord(rawUserSettings)) {
-                        return null;
-                    }
-
-                    const userSettings = rawUserSettings as SwMeteorEntityDataTableUserSettings;
-                    const rawColumnChanges = userSettings.columnChanges ?? userSettings.columns;
-                    const columnChanges = Array.isArray(rawColumnChanges)
-                        ? normalizeUserTableSettingColumns(rawColumnChanges)
-                        : normalizeUserTableSettingColumnChanges(rawColumnChanges);
-
-                    return {
-                        columnChanges,
-                        showOutlines: userSettings.showOutlines,
-                        showStripes: userSettings.showStripes,
-                        enableOutlineFraming: userSettings.enableOutlineFraming,
-                        enableRowNumbering: userSettings.enableRowNumbering,
-                    };
-                }
-
-                function normalizeUserTableSettingColumns(
-                    rawColumns: unknown[],
-                ): SwMeteorEntityDataTableColumnChanges {
-                    const currentColumns = resolvedColumns.value;
-                    const currentColumnProperties = new Set(currentColumns.map((column) => column.property));
-                    const savedColumnSettings = new Map<string, SwMeteorEntityDataTableUserSettingColumn>();
-                    const savedColumnOrder: string[] = [];
-
-                    rawColumns.forEach((rawColumn) => {
-                        if (!isRecord(rawColumn)) {
-                            return;
-                        }
-
-                        const property = getUserTableSettingColumnProperty(rawColumn);
-
-                        if (!property || !currentColumnProperties.has(property) || savedColumnSettings.has(property)) {
-                            return;
-                        }
-
-                        savedColumnSettings.set(property, rawColumn as SwMeteorEntityDataTableUserSettingColumn);
-                        savedColumnOrder.push(property);
-                    });
-
-                    const orderedProperties = [
-                        ...savedColumnOrder,
-                        ...currentColumns
-                            .map((column) => column.property)
-                            .filter((property) => !savedColumnSettings.has(property)),
-                    ];
-
-                    return orderedProperties.reduce<SwMeteorEntityDataTableColumnChanges>((changes, property, index) => {
-                        const savedColumnSetting = savedColumnSettings.get(property);
-                        const columnChange: SwMeteorEntityDataTableColumnChange = {
-                            position: index * 100,
-                        };
-
-                        if (typeof savedColumnSetting?.width === 'number') {
-                            columnChange.width = savedColumnSetting.width;
-                        }
-
-                        if (typeof savedColumnSetting?.visible === 'boolean') {
-                            columnChange.visible = savedColumnSetting.visible;
-                        }
-
-                        changes[property] = columnChange;
-
-                        return changes;
-                    }, {});
-                }
-
-                function normalizeUserTableSettingColumnChanges(
-                    rawColumnChanges: unknown,
-                ): SwMeteorEntityDataTableColumnChanges {
-                    if (!isRecord(rawColumnChanges)) {
-                        return {};
-                    }
-
-                    const currentColumnProperties = new Set(resolvedColumns.value.map((column) => column.property));
-
-                    return Object.entries(rawColumnChanges).reduce<SwMeteorEntityDataTableColumnChanges>(
-                        (changes, [property, rawColumnChange]) => {
-                            if (!currentColumnProperties.has(property) || !isRecord(rawColumnChange)) {
-                                return changes;
-                            }
-
-                            const columnChange: SwMeteorEntityDataTableColumnChange = {};
-
-                            if (typeof rawColumnChange.position === 'number') {
-                                columnChange.position = rawColumnChange.position;
-                            }
-
-                            if (typeof rawColumnChange.width === 'number') {
-                                columnChange.width = rawColumnChange.width;
-                            }
-
-                            if (typeof rawColumnChange.visible === 'boolean') {
-                                columnChange.visible = rawColumnChange.visible;
-                            }
-
-                            if (Object.keys(columnChange).length > 0) {
-                                changes[property] = columnChange;
-                            }
-
-                            return changes;
-                        },
-                        {},
-                    );
-                }
-
-                function getUserTableSettingColumnProperty(column: Record<string, unknown>): string | null {
-                    if (typeof column.property === 'string') {
-                        return column.property;
-                    }
-
-                    if (typeof column.dataIndex === 'string') {
-                        return column.dataIndex;
-                    }
-
-                    return null;
-                }
-
-                function buildCriteria(): CriteriaType {
-                    const criteria = setupProps.criteria
-                        ? Criteria.fromCriteria(setupProps.criteria)
-                        : new Criteria(state.value.page, state.value.limit);
-
-                    criteria.setPage(state.value.page);
-                    criteria.setLimit(state.value.limit);
-                    criteria.setTerm(state.value.searchTerm);
-                    criteria.resetSorting();
-
-                    const activeSort = state.value.sort;
-
-                    if (!activeSort) {
-                        return criteria;
-                    }
-
-                    const activeColumn = setupProps.columns.find((column) => column.property === activeSort.property);
-                    const sortFields = toArray(activeColumn?.sortField ?? activeSort.property);
-
-                    sortFields.forEach((field) => {
-                        criteria.addSorting(
-                            Criteria.sort(field, activeSort.direction, activeColumn?.naturalSorting === true),
-                        );
-                    });
-
-                    return criteria;
-                }
-
-                async function load(): Promise<void> {
-                    const loadToken = (latestLoadToken += 1);
-                    loading.value = true;
-
-                    try {
-                        const searchContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-                        let criteria: CriteriaType | null = buildCriteria();
-
-                        if (setupProps.criteriaResolver) {
-                            criteria = await setupProps.criteriaResolver({
-                                criteria,
-                                state: cloneState(),
-                                context: searchContext as ApiContext,
-                            });
-                        }
-
-                        if (loadToken !== latestLoadToken) {
-                            return;
-                        }
-
-                        if (criteria === null) {
-                            records.value = [];
-                            total.value = 0;
-                            currentInlineEditId.value = null;
-                            syncSelectedRecordsWithLoadedRecords();
-
-                            setupContext.emit('load-success', {
-                                records: records.value,
-                                total: total.value,
-                                state: cloneState(),
-                            });
-
-                            return;
-                        }
-
-                        const result = await setupProps.repository.search(criteria, searchContext);
-
-                        if (loadToken !== latestLoadToken) {
-                            return;
-                        }
-
-                        records.value = result;
-                        total.value = resolveTotal(result);
-                        currentInlineEditId.value = null;
-                        syncSelectedRecordsWithLoadedRecords();
-
-                        setupContext.emit('load-success', {
-                            records: result,
-                            total: total.value,
-                            state: cloneState(),
-                        });
-                    } catch (error) {
-                        if (loadToken !== latestLoadToken) {
-                            return;
-                        }
-
-                        setupContext.emit('load-error', {
-                            error,
-                            state: cloneState(),
-                        });
-                    } finally {
-                        if (loadToken === latestLoadToken) {
-                            loading.value = false;
-                        }
-                    }
-                }
-
-                function setPage(nextPage: number): Promise<void> {
-                    state.value = {
-                        ...state.value,
-                        page: nextPage,
-                    };
-
-                    emitStateChange();
-
-                    return load();
-                }
-
-                function setLimit(nextLimit: number): Promise<void> {
-                    state.value = {
-                        ...state.value,
-                        page: 1,
-                        limit: nextLimit,
-                    };
-
-                    emitStateChange();
-
-                    return load();
-                }
-
-                function setSearchTerm(term: string): Promise<void> {
-                    state.value = {
-                        ...state.value,
-                        page: 1,
-                        searchTerm: term,
-                    };
-
-                    emitStateChange();
-
-                    return load();
-                }
-
-                function setSort(
-                    property: string,
-                    direction: SwMeteorEntityDataTableSortDirection,
-                ): Promise<void> {
-                    state.value = {
-                        ...state.value,
-                        page: 1,
-                        sort: {
-                            property,
-                            direction,
-                        },
-                    };
-
-                    emitStateChange();
-
-                    return load();
-                }
-
-                function setSelectedIds(nextSelectedIds: string[]): void {
-                    const uniqueSelectedIds = nextSelectedIds.filter((id, index) => nextSelectedIds.indexOf(id) === index);
-
-                    selectedIds.value = uniqueSelectedIds;
-                    selectedRecords.value = buildSelectedRecords(uniqueSelectedIds);
-
-                    // Keep selection-change compatible with legacy sw-data-grid consumers.
-                    setupContext.emit('selection-change', { ...selectedRecords.value }, uniqueSelectedIds.length);
-                    setupContext.emit('selected-ids-change', [
-                        ...uniqueSelectedIds,
-                    ]);
-                }
-
-                function buildSelectedRecords(selectedRecordIds: string[]): SwMeteorEntityDataTableSelection {
-                    return selectedRecordIds.reduce<SwMeteorEntityDataTableSelection>((selection, id) => {
-                        selection[id] = findRecordById(id) ?? selectedRecords.value[id] ?? { id };
-
-                        return selection;
-                    }, {});
-                }
-
-                function syncSelectedRecordsWithLoadedRecords(): void {
-                    selectedRecords.value = buildSelectedRecords(selectedIds.value);
-                }
-
-                function findRecordById(id: string): SwMeteorEntityDataTableRecord | null {
-                    return records.value.find((record) => record.id === id) ?? null;
-                }
-
-                function onSelectionChange(payload: SelectionChangePayload): void {
-                    if (payload.value) {
-                        setSelectedIds([
-                            ...selectedIds.value,
-                            payload.id,
-                        ]);
-                        return;
-                    }
-
-                    setSelectedIds(selectedIds.value.filter((id) => id !== payload.id));
-                }
-
-                function areAllPayloadSelectionsSelected(payload: MultipleSelectionChangePayload): boolean {
-                    return (
-                        payload.selections.length > 0 &&
-                        payload.selections.every((id) => selectedIds.value.includes(id))
-                    );
-                }
-
-                function onMultipleSelectionChange(payload: MultipleSelectionChangePayload): void {
-                    if (payload.value) {
-                        if (areAllPayloadSelectionsSelected(payload)) {
-                            setSelectedIds(selectedIds.value.filter((id) => !payload.selections.includes(id)));
-                            return;
-                        }
-
-                        setSelectedIds([
-                            ...selectedIds.value,
-                            ...payload.selections,
-                        ]);
-                        return;
-                    }
-
-                    setSelectedIds(selectedIds.value.filter((id) => !payload.selections.includes(id)));
-                }
-
-                function reload(): Promise<void> {
-                    return load();
-                }
+                const { records, total, loading, buildCriteria, load, reload } = useMeteorTableCriteria({
+                    repository: () => setupProps.repository,
+                    criteria: () => setupProps.criteria,
+                    criteriaResolver: () => setupProps.criteriaResolver,
+                    context: () => setupProps.context,
+                    state,
+                    cloneState,
+                    columns: () => setupProps.columns,
+                    resetInlineEdit: () => resetInlineEdit(),
+                    syncSelectedRecordsWithLoadedRecords: () => syncSelectedRecordsWithLoadedRecords(),
+                    emitLoadSuccess: (payload) => {
+                        setupContext.emit('load-success', payload);
+                    },
+                    emitLoadError: (payload) => {
+                        setupContext.emit('load-error', payload);
+                    },
+                });
+                loadTable = load;
+
+                const {
+                    selectedIds,
+                    setSelectedIds,
+                    onSelectionChange,
+                    onMultipleSelectionChange,
+                    syncSelectedRecordsWithLoadedRecords: syncSelectionWithLoadedRecords,
+                } = useMeteorTableSelection({
+                    records,
+                    emitSelectionChange: (selection, selectionCount) => {
+                        setupContext.emit('selection-change', selection, selectionCount);
+                    },
+                    emitSelectedIdsChange: (nextSelectedIds) => {
+                        setupContext.emit('selected-ids-change', nextSelectedIds);
+                    },
+                });
+                syncSelectedRecordsWithLoadedRecords = syncSelectionWithLoadedRecords;
+
+                const {
+                    currentInlineEditId,
+                    savingInlineEdit,
+                    getRecordValue,
+                    updateRecordValue,
+                    renderRecordValue,
+                    renderNumberRecordValue,
+                    isInlineEditing,
+                    startInlineEdit,
+                    saveInlineEdit,
+                    cancelInlineEdit,
+                    isLastInlineEditableColumn,
+                    resetInlineEdit: resetCurrentInlineEdit,
+                } = useMeteorTableInlineEdit({
+                    repository: () => setupProps.repository,
+                    context: () => setupProps.context,
+                    allowInlineEdit: () => setupProps.allowInlineEdit,
+                    inlineEditableColumns,
+                    load,
+                    emitInlineEditSave: (savePromise, record) => {
+                        setupContext.emit('inline-edit-save', savePromise, record);
+                    },
+                    emitInlineEditCancel: (reloadPromise) => {
+                        setupContext.emit('inline-edit-cancel', reloadPromise);
+                    },
+                });
+                resetInlineEdit = resetCurrentInlineEdit;
 
                 function openDetail(record: SwMeteorEntityDataTableRecord): void {
                     if (setupProps.detailRoute) {
@@ -1335,264 +518,6 @@ export default defineComponent({
                     });
                 }
 
-                function getSlotRecord(scope: ForwardedSlotScope): SwMeteorEntityDataTableRecord | null {
-                    const normalizedScope = normalizeForwardedSlotScope(scope);
-                    const candidate = normalizedScope.item ?? normalizedScope.data;
-
-                    if (!isTableRecord(candidate)) {
-                        return null;
-                    }
-
-                    return candidate;
-                }
-
-                function getRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): unknown {
-                    if (!record) {
-                        return '';
-                    }
-
-                    return objectGet(record, property, '');
-                }
-
-                function updateRecordValue(
-                    record: SwMeteorEntityDataTableRecord | null,
-                    property: string,
-                    value: unknown,
-                ): void {
-                    if (!record) {
-                        return;
-                    }
-
-                    objectSet(record as Record<string, unknown>, property, value);
-                }
-
-                function renderRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): string {
-                    const value = getRecordValue(record, property);
-
-                    if (value === null || value === undefined) {
-                        return '';
-                    }
-
-                    return String(value);
-                }
-
-                function renderNumberRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): string {
-                    return String(Number(getRecordValue(record, property)));
-                }
-
-                function isInlineEditing(record: SwMeteorEntityDataTableRecord | null): boolean {
-                    return currentInlineEditId.value !== null && currentInlineEditId.value === record?.id;
-                }
-
-                function startInlineEdit(record: SwMeteorEntityDataTableRecord | null): void {
-                    if (!setupProps.allowInlineEdit || !record || inlineEditableColumns.value.length <= 0) {
-                        return;
-                    }
-
-                    if (currentInlineEditId.value !== null && currentInlineEditId.value !== record.id) {
-                        return;
-                    }
-
-                    currentInlineEditId.value = record.id;
-                }
-
-                function saveInlineEdit(record: SwMeteorEntityDataTableRecord | null): Promise<void> {
-                    if (!record || !isInlineEditing(record)) {
-                        return Promise.resolve();
-                    }
-
-                    const saveContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-                    const savePromise = setupProps.repository
-                        .save(record as Entity<SwMeteorEntityDataTableEntityName>, saveContext)
-                        .then(() => load());
-
-                    savingInlineEdit.value = true;
-                    setupContext.emit('inline-edit-save', savePromise, record);
-
-                    void savePromise
-                        .then(() => {
-                            currentInlineEditId.value = null;
-                        })
-                        .catch(() => {
-                            // Keep inline edit active so the user can correct and retry the failed save.
-                        })
-                        .finally(() => {
-                            savingInlineEdit.value = false;
-                        });
-
-                    return savePromise.catch(() => {
-                        return undefined;
-                    });
-                }
-
-                function cancelInlineEdit(): Promise<void> {
-                    if (currentInlineEditId.value === null) {
-                        return Promise.resolve();
-                    }
-
-                    const reloadPromise = load();
-
-                    currentInlineEditId.value = null;
-                    setupContext.emit('inline-edit-cancel', reloadPromise);
-
-                    return reloadPromise;
-                }
-
-                function isLastInlineEditableColumn(column: SwMeteorEntityDataTableResolvedColumn): boolean {
-                    return inlineEditableColumns.value[inlineEditableColumns.value.length - 1]?.property === column.property;
-                }
-
-                function getLegacyPreviewSlotName(column: SwMeteorEntityDataTableResolvedColumn): string {
-                    return `preview-${column.property}`;
-                }
-
-                function hasLegacyPreviewSlot(column: SwMeteorEntityDataTableResolvedColumn): boolean {
-                    return Boolean(setupContext.slots[getLegacyPreviewSlotName(column)]);
-                }
-
-                function normalizeInlineEditSlotScope(
-                    scope: ForwardedSlotScope,
-                    column: SwMeteorEntityDataTableResolvedColumn,
-                ): Record<string, unknown> {
-                    const normalizedScope = normalizeForwardedSlotScope(scope);
-
-                    return {
-                        ...normalizedScope,
-                        isInlineEdit: isInlineEditing(getSlotRecord(scope)) && isInlineEditableColumn(column),
-                    };
-                }
-
-                function normalizeLegacyPreviewSlotScope(
-                    scope: ForwardedSlotScope,
-                    column: SwMeteorEntityDataTableResolvedColumn,
-                ): Record<string, unknown> {
-                    const normalizedScope = normalizeForwardedSlotScope(scope);
-
-                    return {
-                        ...normalizedScope,
-                        column: normalizedScope.column ?? column,
-                        columnDefinition: normalizedScope.columnDefinition ?? column,
-                        compact: normalizedScope.compact ?? false,
-                    };
-                }
-
-                function openDetailFromSlotScope(scope: ForwardedSlotScope): void {
-                    const record = getSlotRecord(scope);
-
-                    if (!record) {
-                        return;
-                    }
-
-                    openDetail(record);
-                }
-
-                function openDeleteModal(record: SwMeteorEntityDataTableRecord): void {
-                    if (!setupProps.allowDelete) {
-                        return;
-                    }
-
-                    itemToDelete.value = record;
-                }
-
-                function openBulkDeleteModal(): void {
-                    if (!setupProps.selectable || !setupProps.allowDelete || selectedIds.value.length <= 0) {
-                        return;
-                    }
-
-                    showBulkDeleteModal.value = true;
-                }
-
-                function closeBulkDeleteModal(): void {
-                    if (bulkDeleting.value) {
-                        return;
-                    }
-
-                    showBulkDeleteModal.value = false;
-                }
-
-                async function deleteSelectedRecords(): Promise<void> {
-                    const ids = [
-                        ...selectedIds.value,
-                    ];
-
-                    if (!setupProps.selectable || !setupProps.allowDelete || ids.length <= 0) {
-                        return;
-                    }
-
-                    bulkDeleting.value = true;
-
-                    try {
-                        const deleteContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-
-                        await setupProps.repository.syncDeleted(ids, deleteContext);
-                    } catch (error) {
-                        setupContext.emit('bulk-delete-failed', {
-                            ids,
-                            error,
-                        });
-                        bulkDeleting.value = false;
-
-                        return;
-                    }
-
-                    bulkDeleting.value = false;
-                    showBulkDeleteModal.value = false;
-                    setSelectedIds([]);
-
-                    setupContext.emit('bulk-delete-finish', {
-                        ids,
-                    });
-
-                    await load();
-                }
-
-                function closeDeleteModal(): void {
-                    if (deleting.value) {
-                        return;
-                    }
-
-                    itemToDelete.value = null;
-                }
-
-                async function deleteRecord(): Promise<void> {
-                    const record = itemToDelete.value;
-
-                    if (!record) {
-                        return;
-                    }
-
-                    deleting.value = true;
-
-                    try {
-                        const deleteContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
-
-                        await setupProps.repository.delete(record.id, deleteContext);
-                    } catch (error) {
-                        setupContext.emit('delete-failed', {
-                            id: record.id,
-                            record,
-                            error,
-                        });
-                        deleting.value = false;
-
-                        return;
-                    }
-
-                    deleting.value = false;
-                    itemToDelete.value = null;
-
-                    if (selectedIds.value.includes(record.id)) {
-                        setSelectedIds(selectedIds.value.filter((id) => id !== record.id));
-                    }
-
-                    setupContext.emit('delete-finish', {
-                        id: record.id,
-                        record,
-                    });
-
-                    await load();
-                }
-
                 function onContextSelect(payload: ContextSelectPayload): void {
                     setupContext.emit('context-select', {
                         key: payload.key,
@@ -1601,51 +526,54 @@ export default defineComponent({
                     });
                 }
 
-                function setShowOutlines(value: boolean): void {
-                    showOutlines.value = value;
-                    saveUserTableSettingsSilently();
-                }
+                const {
+                    forwardedSlotNames,
+                    getLegacyPreviewSlotName,
+                    hasLegacyPreviewSlot,
+                    getSlotRecord,
+                    normalizeInlineEditSlotScope,
+                    normalizeLegacyPreviewSlotScope,
+                    openDetailFromSlotScope,
+                    normalizeForwardedSlotScope,
+                } = useMeteorTableSlots({
+                    slots: setupContext.slots,
+                    inlineEditableColumns,
+                    isInlineEditing,
+                    openDetail,
+                });
 
-                function setShowStripes(value: boolean): void {
-                    showStripes.value = value;
-                    saveUserTableSettingsSilently();
-                }
-
-                function setEnableOutlineFraming(value: boolean): void {
-                    enableOutlineFraming.value = value;
-                    saveUserTableSettingsSilently();
-                }
-
-                function setEnableRowNumbering(value: boolean): void {
-                    enableRowNumbering.value = value;
-                    saveUserTableSettingsSilently();
-                }
-
-                function normalizeForwardedSlotScope(scope: ForwardedSlotScope): Record<string, unknown> {
-                    const normalizedScope = {
-                        ...(scope ?? {}),
-                    };
-
-                    if (!('item' in normalizedScope) && 'data' in normalizedScope) {
-                        normalizedScope.item = normalizedScope.data;
-                    }
-
-                    if (!('column' in normalizedScope) && 'columnDefinition' in normalizedScope) {
-                        normalizedScope.column = normalizedScope.columnDefinition;
-                    }
-
-                    return normalizedScope;
-                }
-
-                watch(
-                    tableColumnChanges,
-                    () => {
-                        saveUserTableSettingsSilently();
+                const {
+                    itemToDelete,
+                    deleting,
+                    showBulkDeleteModal,
+                    bulkDeleting,
+                    openDeleteModal,
+                    closeDeleteModal,
+                    deleteRecord,
+                    openBulkDeleteModal,
+                    closeBulkDeleteModal,
+                    deleteSelectedRecords,
+                } = useMeteorTableDeleteActions({
+                    repository: () => setupProps.repository,
+                    context: () => setupProps.context,
+                    selectable: () => setupProps.selectable,
+                    allowDelete: () => setupProps.allowDelete,
+                    selectedIds,
+                    setSelectedIds,
+                    load,
+                    emitBulkDeleteFailed: (payload) => {
+                        setupContext.emit('bulk-delete-failed', payload);
                     },
-                    {
-                        deep: true,
+                    emitBulkDeleteFinish: (payload) => {
+                        setupContext.emit('bulk-delete-finish', payload);
                     },
-                );
+                    emitDeleteFailed: (payload) => {
+                        setupContext.emit('delete-failed', payload);
+                    },
+                    emitDeleteFinish: (payload) => {
+                        setupContext.emit('delete-finish', payload);
+                    },
+                });
 
                 watch(
                     () => setupProps.criteria,
@@ -1747,51 +675,6 @@ export default defineComponent({
         );
     },
 });
-
-function toArray<TValue>(value: TValue | TValue[]): TValue[] {
-    return Array.isArray(value) ? value : [value];
-}
-
-function isInlineEditableColumn(column: SwMeteorEntityDataTableResolvedColumn): boolean {
-    return column.inlineEdit !== undefined;
-}
-
-function isTableRecord(value: unknown): value is SwMeteorEntityDataTableRecord {
-    return (
-        typeof value === 'object' &&
-        value !== null &&
-        'id' in value &&
-        typeof (value as { id: unknown }).id === 'string'
-    );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function resolveMeteorColumn(
-    column: SwMeteorEntityDataTableColumn,
-    position: number,
-): SwMeteorEntityDataTableResolvedColumn {
-    // sortField/naturalSorting are wrapper-only and must not reach mt-data-table.
-    const meteorColumn = { ...column } as Record<string, unknown>;
-    delete meteorColumn.sortField;
-    delete meteorColumn.naturalSorting;
-
-    return {
-        ...meteorColumn,
-        renderer: column.renderer ?? 'text',
-        position,
-    } as SwMeteorEntityDataTableResolvedColumn;
-}
-
-function resolveTotal(records: SwMeteorEntityDataTableRecords): number {
-    if ('total' in records && typeof records.total === 'number') {
-        return records.total;
-    }
-
-    return records.length;
-}
 
 function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): SwMeteorEntityDataTableRouter | undefined {
     const shopwareApplication = Shopware.Application as unknown as {

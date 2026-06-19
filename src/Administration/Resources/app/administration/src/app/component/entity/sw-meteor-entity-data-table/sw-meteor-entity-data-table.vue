@@ -887,8 +887,20 @@ export default defineComponent({
                     setSelectedIds(selectedIds.value.filter((id) => id !== payload.id));
                 }
 
+                function areAllPayloadSelectionsSelected(payload: MultipleSelectionChangePayload): boolean {
+                    return (
+                        payload.selections.length > 0 &&
+                        payload.selections.every((id) => selectedIds.value.includes(id))
+                    );
+                }
+
                 function onMultipleSelectionChange(payload: MultipleSelectionChangePayload): void {
                     if (payload.value) {
+                        if (areAllPayloadSelectionsSelected(payload)) {
+                            setSelectedIds(selectedIds.value.filter((id) => !payload.selections.includes(id)));
+                            return;
+                        }
+
                         setSelectedIds([
                             ...selectedIds.value,
                             ...payload.selections,

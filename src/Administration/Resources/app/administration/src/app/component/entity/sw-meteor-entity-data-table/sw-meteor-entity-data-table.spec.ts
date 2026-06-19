@@ -1654,6 +1654,38 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         ]);
     });
 
+    it('clears bulk selections when selecting all already selected rows again', async () => {
+        const wrapper = createWrapper({
+            props: {
+                selectable: true,
+            },
+        });
+
+        await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
+        await nextTick();
+
+        expect(getTable(wrapper).props('selectedRows')).toEqual([
+            'record-1',
+            'record-2',
+        ]);
+
+        await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
+        await nextTick();
+
+        expect(getTable(wrapper).props('selectedRows')).toEqual([]);
+        expect(wrapper.emitted('selection-change')).toEqual([
+            [
+                [
+                    'record-1',
+                    'record-2',
+                ],
+            ],
+            [
+                [],
+            ],
+        ]);
+    });
+
     it('opens a bulk delete confirmation modal and deletes selected rows', async () => {
         const repository = createRepositoryMock();
         const wrapper = createWrapper({

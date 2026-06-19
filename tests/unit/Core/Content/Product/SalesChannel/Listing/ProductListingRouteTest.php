@@ -102,7 +102,7 @@ class ProductListingRouteTest extends TestCase
         $productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
         $productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
-            ->with($this->isInstanceOf(Criteria::class), $streamId, $context)
+            ->with(static::isInstanceOf(Criteria::class), $streamId, $context)
             ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
                 $criteria->addFilter(new EqualsFilter('product.stock', 10));
             });
@@ -168,7 +168,7 @@ class ProductListingRouteTest extends TestCase
         $productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
         $productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
-            ->with($this->isInstanceOf(Criteria::class), $streamId, $context)
+            ->with(static::isInstanceOf(Criteria::class), $streamId, $context)
             ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
                 $criteria->addFilter(new EqualsFilter('product.stock', 10));
             });

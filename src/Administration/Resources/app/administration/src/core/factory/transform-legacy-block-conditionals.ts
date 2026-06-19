@@ -241,11 +241,11 @@ export default function transformNativeLegacyBlockConditionals(template: string,
     return template;
 }
 
-function isElementNode(node: ChildNode): node is Element {
+function isElementNode(node: Node): node is Element {
     return node.nodeType === 1;
 }
 
-function isChainBreakingTextNode(node: ChildNode): boolean {
+function isChainBreakingTextNode(node: Node): boolean {
     return node.nodeType === 3 && (node.textContent ?? '').trim().length > 0;
 }
 
@@ -254,13 +254,26 @@ function hasOnlyIgnorableNodesAfter(nodes: ChildNode[], currentIndex: number): b
 }
 
 function hasOnlyIgnorableNodesBetweenElements(previous: Element, current: Element): boolean {
-    if (previous.parentNode !== current.parentNode) {
+    const commonParent = findCommonParent(previous, current);
+
+    if (!commonParent) {
+        return false;
+    }
+
+    const previousSibling = getChildBelowParent(previous, commonParent);
+    const currentSibling = getChildBelowParent(current, commonParent);
+
+    if (!previousSibling || !currentSibling) {
+        return false;
+    }
+
+    if (previousSibling === currentSibling) {
         return true;
     }
 
-    let node = previous.nextSibling;
+    let node = previousSibling.nextSibling;
 
-    while (node && node !== current) {
+    while (node && node !== currentSibling) {
         if (isElementNode(node) || isChainBreakingTextNode(node)) {
             return false;
         }
@@ -268,7 +281,31 @@ function hasOnlyIgnorableNodesBetweenElements(previous: Element, current: Elemen
         node = node.nextSibling;
     }
 
-    return node === current;
+    return node === currentSibling;
+}
+
+function findCommonParent(previous: Element, current: Element): ParentNode | null {
+    let parent: ParentNode | null = previous.parentNode;
+
+    while (parent) {
+        if (parent.contains(current)) {
+            return parent;
+        }
+
+        parent = parent.parentNode;
+    }
+
+    return null;
+}
+
+function getChildBelowParent(element: Element, parent: ParentNode): Node | null {
+    let node: Node | null = element;
+
+    while (node?.parentNode && node.parentNode !== parent) {
+        node = node.parentNode;
+    }
+
+    return node?.parentNode === parent ? node : null;
 }
 
 function collectBlockConditionalChains(blockName: string, children: ChildNode[]): BlockConditionChainInfo[] {

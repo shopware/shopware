@@ -605,5 +605,28 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             );
             expect(transformedTemplate).not.toContain('$swLegacyBlockElseIf');
         });
+
+        it('does not continue a nested block condition chain across text after its wrapper block', () => {
+            const transformedTemplate = transformLegacyBlockConditionals(`
+                <div>
+                    <sw-block name="wrapper-block">
+                        <sw-block name="nested-block">
+                            <div v-if="showPrimary" class="primary-branch">primary</div>
+                        </sw-block>
+                    </sw-block>
+
+                    text after wrapper
+
+                    <sw-block name="next-block">
+                        <div v-else class="fallback-branch">fallback</div>
+                    </sw-block>
+                </div>
+            `);
+
+            expect(transformedTemplate).toContain(
+                `<div v-else class="fallback-branch">fallback</div>`,
+            );
+            expect(transformedTemplate).not.toContain('$swLegacyBlockElse');
+        });
     });
 });

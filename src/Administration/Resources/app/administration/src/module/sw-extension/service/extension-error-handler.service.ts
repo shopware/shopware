@@ -7,6 +7,17 @@ type MappedError = {
     };
 };
 
+const outdatedDocumentationLinks = new Map<string, string>([
+    [
+        'https://docs.shopware.com/de/shopware-6-de/einstellungen/Erweiterungen/fehlermeldungen#download-not-allowed-for-domain',
+        'https://docs.shopware.com/de/shopware-6-de/Erweiterungen/fehlermeldungen#download-not-allowed-for-domain',
+    ],
+    [
+        'https://docs.shopware.com/en/shopware-6-en/settings/extensions/error-messages#download-not-allowed-for-domain',
+        'https://docs.shopware.com/en/shopware-6-en/extensions/error-messages#download-not-allowed-for-domain',
+    ],
+]);
+
 class StoreError {
     constructor(
         public readonly title: string,
@@ -73,7 +84,7 @@ function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiExceptio
             message,
             details: null,
             parameters: {
-                documentationLink: meta.documentationLink,
+                documentationLink: outdatedDocumentationLinks.get(meta.documentationLink) ?? meta.documentationLink,
             },
         };
     }

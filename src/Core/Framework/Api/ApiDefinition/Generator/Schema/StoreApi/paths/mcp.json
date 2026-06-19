@@ -1,0 +1,626 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_mcp": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP JSON-RPC endpoint (Store API)",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Streaming responses are delivered as a `text/event-stream` body on this POST operation; a standalone GET SSE stream is not supported. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpPost",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": false,
+                        "description": "Session ID returned by the server in the `mcp-session-id` response header after a successful `initialize` request. Required for all subsequent requests within the same session.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "sw-context-token",
+                        "in": "header",
+                        "required": false,
+                        "description": "Standard Store API context token identifying the customer session. When provided, MCP tools operate in the context of that customer. Same semantics as all other Store API endpoints.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "A JSON-RPC 2.0 request object. Omit `id` for notifications (no response expected). The `params` shape depends on the `method`; extensions may register additional methods beyond the variants listed here.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["jsonrpc", "method"],
+                                "properties": {
+                                    "jsonrpc": {
+                                        "type": "string",
+                                        "enum": ["2.0"]
+                                    },
+                                    "id": {
+                                        "description": "Request identifier. Omit for notifications (fire-and-forget). Present for requests that expect a response.",
+                                        "oneOf": [
+                                            {"type": "string"},
+                                            {"type": "integer"}
+                                        ]
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "description": "MCP method name."
+                                    },
+                                    "params": {
+                                        "type": "object",
+                                        "description": "Method-specific parameters, see the request variants."
+                                    }
+                                },
+                                "oneOf": [
+                                    {
+                                        "title": "initialize",
+                                        "properties": {
+                                            "method": {"const": "initialize"},
+                                            "params": {
+                                                "type": "object",
+                                                "required": ["protocolVersion", "capabilities", "clientInfo"],
+                                                "properties": {
+                                                    "protocolVersion": {
+                                                        "type": "string",
+                                                        "description": "MCP protocol version the client supports, e.g. `2025-03-26`."
+                                                    },
+                                                    "capabilities": {
+                                                        "type": "object",
+                                                        "description": "Capabilities the client supports.",
+                                                        "additionalProperties": true
+                                                    },
+                                                    "clientInfo": {
+                                                        "type": "object",
+                                                        "required": ["name", "version"],
+                                                        "properties": {
+                                                            "name": {"type": "string"},
+                                                            "version": {"type": "string"}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "required": ["params"]
+                                    },
+                                    {
+                                        "title": "tools/list",
+                                        "properties": {
+                                            "method": {"const": "tools/list"},
+                                            "params": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cursor": {
+                                                        "type": "string",
+                                                        "description": "Opaque pagination cursor from a previous `tools/list` result."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "title": "tools/call",
+                                        "properties": {
+                                            "method": {"const": "tools/call"},
+                                            "params": {
+                                                "type": "object",
+                                                "required": ["name"],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Name of the tool to invoke, as returned by `tools/list`."
+                                                    },
+                                                    "arguments": {
+                                                        "type": "object",
+                                                        "description": "Tool arguments matching the tool's `inputSchema`.",
+                                                        "additionalProperties": true
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "required": ["params"]
+                                    },
+                                    {
+                                        "title": "resources/list",
+                                        "properties": {
+                                            "method": {"const": "resources/list"},
+                                            "params": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cursor": {
+                                                        "type": "string",
+                                                        "description": "Opaque pagination cursor from a previous `resources/list` result."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "title": "resources/read",
+                                        "properties": {
+                                            "method": {"const": "resources/read"},
+                                            "params": {
+                                                "type": "object",
+                                                "required": ["uri"],
+                                                "properties": {
+                                                    "uri": {
+                                                        "type": "string",
+                                                        "description": "URI of the resource to read, as returned by `resources/list`."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "required": ["params"]
+                                    },
+                                    {
+                                        "title": "prompts/list",
+                                        "properties": {
+                                            "method": {"const": "prompts/list"},
+                                            "params": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cursor": {
+                                                        "type": "string",
+                                                        "description": "Opaque pagination cursor from a previous `prompts/list` result."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "title": "prompts/get",
+                                        "properties": {
+                                            "method": {"const": "prompts/get"},
+                                            "params": {
+                                                "type": "object",
+                                                "required": ["name"],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Name of the prompt, as returned by `prompts/list`."
+                                                    },
+                                                    "arguments": {
+                                                        "type": "object",
+                                                        "description": "Prompt arguments as string values.",
+                                                        "additionalProperties": {"type": "string"}
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "required": ["params"]
+                                    },
+                                    {
+                                        "title": "ping",
+                                        "properties": {
+                                            "method": {"const": "ping"}
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON-RPC response or Server-Sent Events stream for streaming responses. Contains either a `result` (success) or an `error` (failure), never both.",
+                        "headers": {
+                            "mcp-session-id": {
+                                "description": "Session ID assigned by the server. Returned on the `initialize` response and echoed on subsequent responses. Send it as a request header on all following requests.",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["jsonrpc", "id"],
+                                    "properties": {
+                                        "jsonrpc": {
+                                            "type": "string",
+                                            "enum": ["2.0"]
+                                        },
+                                        "id": {
+                                            "oneOf": [
+                                                {"type": "string"},
+                                                {"type": "integer"},
+                                                {"type": "null"}
+                                            ]
+                                        }
+                                    },
+                                    "oneOf": [
+                                        {
+                                            "required": ["result"],
+                                            "properties": {
+                                                "result": {
+                                                    "description": "Method-specific result payload, one of the variants below depending on the requested method.",
+                                                    "oneOf": [
+                                                        {
+                                                            "title": "initialize result",
+                                                            "type": "object",
+                                                            "required": ["protocolVersion", "capabilities", "serverInfo"],
+                                                            "properties": {
+                                                                "protocolVersion": {"type": "string"},
+                                                                "capabilities": {
+                                                                    "type": "object",
+                                                                    "description": "Capabilities the server supports (tools, resources, prompts, logging, ...).",
+                                                                    "additionalProperties": true
+                                                                },
+                                                                "serverInfo": {
+                                                                    "type": "object",
+                                                                    "required": ["name", "version"],
+                                                                    "properties": {
+                                                                        "name": {"type": "string"},
+                                                                        "version": {"type": "string"}
+                                                                    }
+                                                                },
+                                                                "instructions": {
+                                                                    "type": "string",
+                                                                    "description": "Usage instructions for the client / model."
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "tools/list result",
+                                                            "type": "object",
+                                                            "required": ["tools"],
+                                                            "properties": {
+                                                                "tools": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["name", "inputSchema"],
+                                                                        "properties": {
+                                                                            "name": {"type": "string"},
+                                                                            "title": {"type": "string"},
+                                                                            "description": {"type": "string"},
+                                                                            "inputSchema": {
+                                                                                "type": "object",
+                                                                                "description": "JSON Schema describing the tool arguments.",
+                                                                                "additionalProperties": true
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "nextCursor": {
+                                                                    "type": "string",
+                                                                    "description": "Pagination cursor for the next page, absent on the last page."
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "tools/call result",
+                                                            "type": "object",
+                                                            "required": ["content"],
+                                                            "properties": {
+                                                                "content": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["type"],
+                                                                        "description": "Content block. `type` is one of `text` (with `text`), `image`/`audio` (with base64 `data` and `mimeType`) or `resource` (with embedded `resource`).",
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string",
+                                                                                "enum": ["text", "image", "audio", "resource"]
+                                                                            },
+                                                                            "text": {"type": "string"},
+                                                                            "data": {"type": "string"},
+                                                                            "mimeType": {"type": "string"},
+                                                                            "resource": {
+                                                                                "type": "object",
+                                                                                "additionalProperties": true
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "structuredContent": {
+                                                                    "type": "object",
+                                                                    "description": "Structured tool output matching the tool's declared output schema.",
+                                                                    "additionalProperties": true
+                                                                },
+                                                                "isError": {
+                                                                    "type": "boolean",
+                                                                    "description": "True when the tool execution failed; error details are in `content`."
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "resources/list result",
+                                                            "type": "object",
+                                                            "required": ["resources"],
+                                                            "properties": {
+                                                                "resources": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["uri", "name"],
+                                                                        "properties": {
+                                                                            "uri": {"type": "string"},
+                                                                            "name": {"type": "string"},
+                                                                            "description": {"type": "string"},
+                                                                            "mimeType": {"type": "string"}
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "nextCursor": {
+                                                                    "type": "string",
+                                                                    "description": "Pagination cursor for the next page, absent on the last page."
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "resources/read result",
+                                                            "type": "object",
+                                                            "required": ["contents"],
+                                                            "properties": {
+                                                                "contents": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["uri"],
+                                                                        "description": "Resource content with either `text` or base64 `blob`.",
+                                                                        "properties": {
+                                                                            "uri": {"type": "string"},
+                                                                            "mimeType": {"type": "string"},
+                                                                            "text": {"type": "string"},
+                                                                            "blob": {"type": "string"}
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "prompts/list result",
+                                                            "type": "object",
+                                                            "required": ["prompts"],
+                                                            "properties": {
+                                                                "prompts": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["name"],
+                                                                        "properties": {
+                                                                            "name": {"type": "string"},
+                                                                            "title": {"type": "string"},
+                                                                            "description": {"type": "string"},
+                                                                            "arguments": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "object",
+                                                                                    "required": ["name"],
+                                                                                    "properties": {
+                                                                                        "name": {"type": "string"},
+                                                                                        "description": {"type": "string"},
+                                                                                        "required": {"type": "boolean"}
+                                                                                    },
+                                                                                    "additionalProperties": true
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "nextCursor": {
+                                                                    "type": "string",
+                                                                    "description": "Pagination cursor for the next page, absent on the last page."
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "prompts/get result",
+                                                            "type": "object",
+                                                            "required": ["messages"],
+                                                            "properties": {
+                                                                "description": {"type": "string"},
+                                                                "messages": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "required": ["role", "content"],
+                                                                        "properties": {
+                                                                            "role": {
+                                                                                "type": "string",
+                                                                                "enum": ["user", "assistant"]
+                                                                            },
+                                                                            "content": {
+                                                                                "type": "object",
+                                                                                "description": "Content block, same shape as in `tools/call` results.",
+                                                                                "additionalProperties": true
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                }
+                                                            },
+                                                            "additionalProperties": true
+                                                        },
+                                                        {
+                                                            "title": "ping result",
+                                                            "type": "object",
+                                                            "description": "Empty object.",
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "required": ["error"],
+                                            "properties": {
+                                                "error": {
+                                                    "type": "object",
+                                                    "required": ["code", "message"],
+                                                    "properties": {
+                                                        "code": {
+                                                            "type": "integer",
+                                                            "description": "JSON-RPC error code, e.g. -32700 parse error, -32600 invalid request, -32601 method not found, -32602 invalid params, -32603 internal error."
+                                                        },
+                                                        "message": {"type": "string"},
+                                                        "data": {
+                                                            "description": "Optional additional error information."
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "text/event-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "Server-Sent Events stream. Each `message` event carries a JSON-RPC response object as defined for `application/json`."
+                                }
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "Notification accepted. Returned with an empty body for JSON-RPC notifications (requests without an `id`)."
+                    },
+                    "400": {
+                        "description": "Invalid request, e.g. malformed JSON-RPC payload or malformed `mcp-session-id` header.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "jsonrpc": {
+                                            "type": "string",
+                                            "enum": ["2.0"]
+                                        },
+                                        "id": {
+                                            "oneOf": [
+                                                {"type": "string"},
+                                                {"type": "integer"},
+                                                {"type": "null"}
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "required": ["code", "message"],
+                                            "properties": {
+                                                "code": {"type": "integer"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Close MCP session (Store API)",
+                "description": "Terminates the active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpDelete",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": true,
+                        "description": "Session ID of the session to close. Obtained from the `mcp-session-id` response header of the `initialize` request.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session closed successfully."
+                    },
+                    "400": {
+                        "description": "Missing or malformed `mcp-session-id` header. Returns a JSON-RPC error object.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "jsonrpc": {
+                                            "type": "string",
+                                            "enum": ["2.0"]
+                                        },
+                                        "id": {
+                                            "type": "null"
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "required": ["code", "message"],
+                                            "properties": {
+                                                "code": {"type": "integer"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "options": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP CORS preflight (Store API)",
+                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Answered before routing; the response carries the `Access-Control-Allow-*` headers including `mcp-session-id` and `mcp-protocol-version`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpOptions",
+                "responses": {
+                    "200": {
+                        "description": "CORS preflight accepted."
+                    }
+                }
+            }
+        }
+    }
+}

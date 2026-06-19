@@ -41,7 +41,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | Tool / prompt / resource discovery (core + bundles + apps) | **Done** | `McpToolCompilerPass`, `McpCapabilityDiscoveryTest` | S | — |
 | App registration (XML, persistence, HMAC execution) | **Done** | `AppMcpToolLoader` / `AppMcpToolExecutor` | M | — |
 | Auth: Admin API bearer + integration header | **Done** | `McpAuthenticationListener` | S | — |
-| Rate limiting | **Done** | `RateLimiter::MCP` + OAuth bucket | S | — |
+| Rate limiting | **Done** | `McpRateLimiter`; per-scope routes `RateLimiter::MCP_ADMIN_API` (OAuth-token key) and `RateLimiter::MCP_STORE_API` (sales-channel-token key, tighter). Per-tool limits + `Retry-After` header are open (see `AGENTS.md`) | S | — |
 | Per-installation allowlist | **Done** | `shopware.mcp.allowed_tools` + compiler pass | S | — |
 | Per-integration allowlist (Admin UI + API + runtime filter) | **Done** | `integration.mcp_allowlist`, `McpAllowlistProvider`, `sw-integration-mcp-allowlist` component | M–L | — |
 | Write safety (dry-run defaults) | **Done** | All write tools default `dryRun=true` | S | — |
@@ -171,7 +171,7 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 
 **Future roadmap (needs PM ownership)**
 
-- **Store API MCP server** — customer-authenticated MCP surface (session token / customer credentials) scoped to the buyer journey: browsing, cart, checkout, account. Enables AI shopping assistants acting *as the shopper*, not as a merchant operator. Separate endpoint (e.g. `store-api/_mcp`), auth, scope, rate limiting, tool set. Raised internally — needs PM driver.
+- **Store API MCP server** — **foundation implemented** (`StoreApiMcpServerController` at `/store-api/_mcp`, `sw-access-key` + `sw-context-token` auth, own capability registry, dedicated `mcp_store_api` rate-limit bucket, `shopware-store-api-context` tool; see [store-api-mcp.md](store-api-mcp.md)). Remaining PM-driven scope: the full buyer-journey tool set (browse, cart, checkout, account), customer-tier access control, and storefront discovery/session bridging so agents can act *as the shopper*.
 - **WebMCP (browser-native, Storefront)** — W3C WebMachinelearning CG proposal (Aug 2025, Microsoft) for browser-native JS tools exposed to in-browser agents. Human-in-loop storefront workflows only; explicitly **not** for autonomous agents (that use case = Store API MCP). No browser ships it yet. See: https://github.com/webmachinelearning/webmcp
 
 ---

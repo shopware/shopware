@@ -13,7 +13,7 @@
       "contextMenuDelete": "Löschen",
       "messageEmpty": "Noch keine Integrationen vorhanden",
       "sublineEmpty": "Verwaltung von Integrationen.",
-      "permissions": "Berechtigungen",
+      "permissions": "Rollen",
       "writeAccess": "Schreiben",
       "readAccess": "Lesen",
       "integrationName": "Integration",

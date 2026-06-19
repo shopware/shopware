@@ -322,7 +322,7 @@ class ScriptRuleTest extends TestCase
         static::assertInstanceOf(Rule::class, $payload);
         static::assertTrue($payload->match($scope));
 
-        $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
+        $this->appLifecycle->uninstall('test', ['id' => $this->appId], $this->context);
 
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $rule);

@@ -261,7 +261,22 @@
         "description": "Bulk edit finished.",
         "instruction": "The bulk edit has been finished successfully.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "No documents found"
+        "messageNoDocumentsFound": "No documents found",
+        "documentGenerationSkipped": "{count} document was not generated because it already exists. | {count} documents were not generated because they already exist.",
+        "documentGenerationFailed": "{count} document could not be generated. | {count} documents could not be generated.",
+        "failedDocuments": {
+          "columnOrder": "Order",
+          "columnDocumentType": "Document type",
+          "downloadResult": "Download result",
+          "downloadHeadline": "Failed documents",
+          "downloadFileName": "bulk-edit-document-generation-result",
+          "documentTypes": {
+            "invoice": "Invoice",
+            "storno": "Cancellation invoice",
+            "creditNote": "Credit note",
+            "deliveryNote": "Delivery note"
+          }
+        }
       },
       "error": {
         "title": "Bulk edit - Error",

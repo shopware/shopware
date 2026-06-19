@@ -4,7 +4,7 @@
 
 - `LayoutBindingEnumerator` — interface; extension point for enumerating all distinct source bindings of a layout; tagged `content_system.layout_binding_enumerator`
 - `BoundRootContext` — value object; one source binding of a layout with its `list<ProvidedContext>` root-context set; `@internal`
-- `EntityAssignmentBindingEnumerator` — Core implementation; yields one `BoundRootContext` per assignable definition type that has at least one assignment row for the layout. Each emitted binding's `$sourceId` is `$definition->getContentLayoutEntityType()` and its `$providedRootContext` is derived via `RootContextMapper::map($definition->getPageDataRequirements())` (the same shared mapping path as `Adapter/FactoryHelper/EntityLayoutContextFactory::providedRootContext()`)
+- `EntityAssignmentBindingEnumerator` — Core implementation; yields one `BoundRootContext` per assignable definition type that has at least one assignment row for the layout. Each emitted binding's `$sourceId` is `$definition->getContentLayoutEntityType()` and its `$providedRootContext` is derived via `RootContextMapper::map($definition->getPageDataRequirements())` (the same shared mapping path as `Adapter/FactoryHelper/EntityLayoutContextFactory::providedRootContext()`); `@internal`
 
 ## Constraints
 

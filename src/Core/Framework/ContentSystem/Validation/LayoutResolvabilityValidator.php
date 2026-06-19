@@ -33,7 +33,7 @@ class LayoutResolvabilityValidator
     }
 
     /**
-     * Structural validity and validity of present wiring only — the persistence gate (§8.1).
+     * Structural validity and validity of present wiring only — the persistence gate.
      *
      * @param list<ContentElement> $tree
      */
@@ -43,7 +43,7 @@ class LayoutResolvabilityValidator
     }
 
     /**
-     * Full resolvability for a bound source's root context — the serving gate (§8.2).
+     * Full resolvability for a bound source's root context — the serving gate.
      *
      * @param list<ContentElement> $tree
      * @param list<ProvidedContext> $providedRootContext

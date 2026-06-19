@@ -86,6 +86,37 @@ class HeaderFooterAssignmentWriteValidatorTest extends TestCase
         }
     }
 
+    #[TestDox('rejects a single batch that creates a layout and binds it to a header at once when the layout is unresolvable')]
+    public function testRejectsAtomicCreateAndBindOfUnresolvableHeaderLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        try {
+            $this->layoutRepository()->create([$this->layoutWithHeaderBinding($layoutId, $assignmentId, TestElementTypeLoader::UNRESOLVABLE)], $context);
+            static::fail('Expected the header binding gate to reject the atomic create-and-bind of an unresolvable layout.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+
+        static::assertNull($this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertNull($this->headerRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('persists a single batch that creates a layout and binds it to a header at once when the layout is resolvable')]
+    public function testAcceptsAtomicCreateAndBindOfResolvableHeaderLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        $this->layoutRepository()->create([$this->layoutWithHeaderBinding($layoutId, $assignmentId, TestElementTypeLoader::RESOLVABLE)], $context);
+
+        static::assertSame($layoutId, $this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertSame($assignmentId, $this->headerRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
     private function createLayout(string $component, Context $context): string
     {
         $id = Uuid::randomHex();
@@ -106,6 +137,26 @@ class HeaderFooterAssignmentWriteValidatorTest extends TestCase
     {
         return [
             ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []],
+        ];
+    }
+
+    /**
+     * A layout payload that nests its header assignment, so the layout INSERT and the header_content_layout INSERT
+     * land in a single write batch (one PreWriteValidationEvent) — the atomic create-and-bind path. A header
+     * exposes no root-ambient context, so the bound layout must resolve without any page data.
+     *
+     * @return array<string, mixed>
+     */
+    private function layoutWithHeaderBinding(string $layoutId, string $assignmentId, string $component): array
+    {
+        return [
+            'id' => $layoutId,
+            'name' => 'atomic-create-and-bind-header-layout',
+            'version' => '1.0.0',
+            'layout' => $this->tree($component),
+            'headerContentLayouts' => [
+                ['id' => $assignmentId],
+            ],
         ];
     }
 

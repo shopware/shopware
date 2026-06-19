@@ -14,15 +14,13 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The binding gate (§8.2): a single generic subscriber on every Core entity-assignment entity. When a source is
+ * The binding gate: a single generic subscriber on every Core entity-assignment entity. When a source is
  * bound to a layout it derives the bound source's root context from the written assignment's definition and
  * accumulates binding-scope violations via the shared {@see LayoutBindingGate}, establishing the
- * served-implies-resolvable invariant when the assignment and its layout are written in separate transactions —
- * the common case on every path including the Sync API. A single Sync batch that creates both the layout and its
- * binding at once is the one gap: the layout is not yet committed when this event fires, so {@see LayoutBindingGate}
- * cannot load its tree and skips the check; the §8.3 re-check on the next edit of that layout closes it. The
- * provided-context computation needs only Context — no sales-channel state — so the DAL boundary, which has no
- * SalesChannelContext, suffices.
+ * served-implies-resolvable invariant on every path including the Sync API. An atomic create-and-bind — a single
+ * batch (Admin or Sync) that creates both the layout and its binding at once — is validated against the layout's
+ * in-flight write found in the same batch, so it no longer slips past the gate. The provided-context computation
+ * needs only Context — no sales-channel state — so the DAL boundary, which has no SalesChannelContext, suffices.
  *
  * @internal
  */
@@ -89,6 +87,7 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
         $violations = $this->bindingGate->bindingViolations(
             $command->getPayload()[self::CONTENT_LAYOUT_ID],
             $providedRootContext,
+            $event->getCommands(),
             $context,
         );
 

@@ -8,8 +8,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -19,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The well-formedness gate (§8.1) and the synchronous re-check of already-bound layouts (§8.3). On every
+ * The well-formedness gate and the synchronous re-check of already-bound layouts. On every
  * content_layout write touching the layout column it decodes the tree, accumulates intrinsic-scope violations
  * (well-formedness — gates persistence), then re-validates the same tree against each distinct source bound to
  * the layout via the tagged binding enumerators, accumulating binding-scope violations so an edit cannot make a
@@ -30,14 +28,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class ContentLayoutWriteValidator implements EventSubscriberInterface
 {
-    private const LAYOUT_FIELD = 'layout';
-
     /**
      * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
      */
     public function __construct(
-        private readonly ContentLayoutDefinition $definition,
-        private readonly ContentElementListFieldSerializer $listSerializer,
+        private readonly LayoutTreeDecoder $treeDecoder,
         private readonly LayoutResolvabilityValidator $resolvabilityValidator,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly iterable $bindingEnumerators,
@@ -61,7 +56,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         }
 
         foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME || !$command->hasField(self::LAYOUT_FIELD)) {
+            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME || !$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
                 continue;
             }
 
@@ -75,7 +70,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
         $violations = new ConstraintViolationList();
 
-        $tree = $this->decodeTree($payload[self::LAYOUT_FIELD] ?? null, $violations);
+        $tree = $this->decodeTree($payload[ContentLayoutDefinition::LAYOUT_FIELD] ?? null, $violations);
 
         if ($tree !== null) {
             $report = $this->resolvabilityValidator->wellFormedness($tree, $context);
@@ -96,11 +91,8 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
      */
     private function decodeTree(mixed $value, ConstraintViolationList $violations): ?array
     {
-        $field = $this->definition->getField(self::LAYOUT_FIELD);
-        \assert($field instanceof ContentElementListField);
-
         try {
-            return array_values($this->listSerializer->decode($field, $value) ?? []);
+            return $this->treeDecoder->decode($value);
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;

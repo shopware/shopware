@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Enumerates the Core entity-assignment bindings (product/category/landing-page) of a content layout. The
- * requirement set is type-level (§15.2), so it emits one binding per registered assignment-definition type
+ * requirement set is type-level, so it emits one binding per registered assignment-definition type
  * that has any row referencing the layout — bounded by distinct assigned types, not by assignment rows.
  *
  * @internal

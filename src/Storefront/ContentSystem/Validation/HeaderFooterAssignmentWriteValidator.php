@@ -13,7 +13,7 @@ use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDef
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The Storefront counterpart of the binding gate (§8.2) for the header/footer assignment entities. Both sections
+ * The Storefront counterpart of the binding gate for the header/footer assignment entities. Both sections
  * expose no root-ambient context, so binding a layout to a header or footer requires it to be fully resolvable
  * without page data. Delegates the load-tree → resolvability path to the shared Core {@see LayoutBindingGate}.
  *
@@ -62,7 +62,7 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $violations = $this->bindingGate->bindingViolations($command->getPayload()[self::CONTENT_LAYOUT_ID], [], $context);
+            $violations = $this->bindingGate->bindingViolations($command->getPayload()[self::CONTENT_LAYOUT_ID], [], $event->getCommands(), $context);
 
             if ($violations->count() === 0) {
                 continue;

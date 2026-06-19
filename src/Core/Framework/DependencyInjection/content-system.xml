@@ -271,7 +271,7 @@
             <tag name="routing.loader"/>
         </service>
 
-        <!-- Resolution & Diagnostics (Spec A) -->
+        <!-- Resolution & Diagnostics -->
         <service id="Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver" public="true">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
         </service>
@@ -299,10 +299,16 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
 
+        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
         </service>
 
         <!-- Binding enumerators (tagged; Storefront contributes the header/footer enumerator) -->
@@ -314,8 +320,7 @@
 
         <!-- Resolvability gate (DAL PreWriteValidationEvent) -->
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
             <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * for a top-level element, the root-ambient context the bound source supplies. Section-agnostic: the
  * root-ambient set is passed in (entity assignment yields the page entity; header/footer yield nothing).
  *
- * Public Core service so the diagnostics kernel and Spec B's mutation ops share one context walk.
+ * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
  */
 #[Package('framework')]
 class AvailableContextResolver

@@ -4,6 +4,10 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -72,6 +76,70 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
+    #[TestDox('rejects a single batch that creates a layout and binds an unresolvable source to it at once')]
+    public function testRejectsAtomicCreateAndBindOfUnresolvableLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $categoryId = $this->createCategory($context);
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        try {
+            $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::UNRESOLVABLE)], $context);
+            static::fail('Expected the binding gate to reject the atomic create-and-bind of an unresolvable layout.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+            // The binding gate reports the unresolvable layout once; the well-formedness gate must not re-report it
+            // for the same in-batch layout command.
+            static::assertCount(1, iterator_to_array($exception->getErrors(), false));
+        }
+
+        static::assertNull($this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('persists a single batch that creates a layout and binds a resolvable source to it at once')]
+    public function testAcceptsAtomicCreateAndBindOfResolvableLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $categoryId = $this->createCategory($context);
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::RESOLVABLE)], $context);
+
+        static::assertSame($layoutId, $this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('rejects an atomic create-and-bind of an unresolvable layout via the Sync API')]
+    public function testRejectsAtomicCreateAndBindViaSyncApi(): void
+    {
+        $context = Context::createDefaultContext();
+        $categoryId = $this->createCategory($context);
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        $operations = [
+            new SyncOperation(
+                'create-and-bind',
+                ContentLayoutDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                [$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::UNRESOLVABLE)],
+            ),
+        ];
+
+        try {
+            $this->syncService()->sync($operations, $context, new SyncBehavior());
+            static::fail('Expected the binding gate to reject the atomic Sync create-and-bind of an unresolvable layout.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+
+        static::assertNull($this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
     private function createCategory(Context $context): string
     {
         $id = Uuid::randomHex();
@@ -103,6 +171,35 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     private function assignment(string $id, string $categoryId, string $layoutId): array
     {
         return ['id' => $id, 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId];
+    }
+
+    /**
+     * A layout payload that nests its category assignment, so the layout INSERT and the assignment INSERT land in
+     * a single write batch (one PreWriteValidationEvent) — the atomic create-and-bind path.
+     *
+     * @return array<string, mixed>
+     */
+    private function layoutWithCategoryBinding(string $layoutId, string $assignmentId, string $categoryId, string $component): array
+    {
+        return [
+            'id' => $layoutId,
+            'name' => 'atomic-create-and-bind-layout',
+            'version' => '1.0.0',
+            'layout' => [
+                ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []],
+            ],
+            'categoryContentLayouts' => [
+                ['id' => $assignmentId, 'categoryId' => $categoryId],
+            ],
+        ];
+    }
+
+    private function syncService(): SyncService
+    {
+        $service = $this->getContainer()->get(SyncService::class);
+        static::assertInstanceOf(SyncService::class, $service);
+
+        return $service;
     }
 
     /**

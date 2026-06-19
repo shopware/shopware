@@ -37,7 +37,7 @@ class Migration1758018345HeaderContentLayout extends MigrationStep
                     REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `fk.header_content_layout.content_layout_id`
                     FOREIGN KEY (`content_layout_id`)
-                    REFERENCES `content_layout` (`id`) ON DELETE CASCADE,
+                    REFERENCES `content_layout` (`id`) ON DELETE RESTRICT,
                 CONSTRAINT `chk.header_content_layout.domain_requires_channel`
                     CHECK (`domain_id` IS NULL OR `sales_channel_id` IS NOT NULL)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -24,6 +25,8 @@ use Shopware\Core\Framework\Log\Package;
 class ContentLayoutDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'content_layout';
+
+    final public const LAYOUT_FIELD = 'layout';
 
     public function getEntityName(): string
     {
@@ -51,12 +54,12 @@ class ContentLayoutDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('name', 'name', 255))->addFlags(new ApiAware(), new Required()),
             (new StringField('version', 'version', 20))->addFlags(new ApiAware(), new Required()),
-            (new ContentElementListField('layout', 'layout'))->addFlags(new ApiAware(), new Required()),
+            (new ContentElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(), new Required()),
             (new JsonField('schema', 'schema'))->addFlags(new ApiAware()),
 
-            new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'content_layout_id', 'id'),
-            new OneToManyAssociationField('categoryContentLayouts', CategoryContentLayoutDefinition::class, 'content_layout_id', 'id'),
-            new OneToManyAssociationField('landingPageContentLayouts', LandingPageContentLayoutDefinition::class, 'content_layout_id', 'id'),
+            (new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('categoryContentLayouts', CategoryContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('landingPageContentLayouts', LandingPageContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

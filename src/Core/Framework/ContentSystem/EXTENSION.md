@@ -380,6 +380,7 @@ Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 | `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
 | `content_system.data_loader`          | `getRequirementType()` | None                                           |
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
+| `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
 Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.xml`
 

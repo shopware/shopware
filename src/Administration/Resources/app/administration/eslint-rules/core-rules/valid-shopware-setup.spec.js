@@ -75,6 +75,27 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-props-with-imported-defaults.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+import { defaultCount } from './defaults';
+
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount: defaultCount,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-destructured-props-with-local-defaults.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const defaultCount = 1;
+const { initialCount = defaultCount } = defineProps<{ initialCount?: number }>();
+const count = initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'base-emits.vue',
             code: `<script setup lang="ts" sw-component="sw-my-component">
 const emit = defineEmits<{ save: [id: string] }>();
@@ -189,6 +210,40 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineOptions() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'base-with-defaults-local-binding.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const defaultCount = 1;
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount: defaultCount,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'withDefaults() defaults must not reference local setup bindings in Shopware setup blocks. Use inline literals, imported constants, or destructured defineProps() defaults instead.',
+                },
+            ],
+        },
+        {
+            filename: 'base-with-defaults-local-shorthand.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const initialCount = 1;
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+            errors: [
+                {
+                    message:
+                        'withDefaults() defaults must not reference local setup bindings in Shopware setup blocks. Use inline literals, imported constants, or destructured defineProps() defaults instead.',
                 },
             ],
         },

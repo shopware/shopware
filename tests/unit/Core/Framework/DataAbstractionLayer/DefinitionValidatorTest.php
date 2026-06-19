@@ -18,6 +18,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
@@ -308,6 +310,57 @@ class DefinitionValidatorTest extends TestCase
         yield 'order address billing order' => ['order_address.billingAddressOrder'];
     }
 
+    public function testForeignKeyViolationIsAttributedToOwningDefinition(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'version_id'], ['id', 'version_id']);
+        $child = $this->createTable('child', ['id', 'parent_id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn(new Schema([$parent, $child]));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        $owningDefinition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'child';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([]);
+            }
+        };
+        $owningClass = $owningDefinition->getClass();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([]);
+        $registry->method('getByEntityName')->willReturnCallback(
+            fn (string $name) => match ($name) {
+                'child' => $owningDefinition,
+                default => throw new DefinitionNotFoundException($name),
+            }
+        );
+
+        $violations = (new DefinitionValidator($registry, $connection))->validate();
+
+        $registryFkViolations = array_filter(
+            $violations[DefinitionInstanceRegistry::class] ?? [],
+            static fn (string $v): bool => str_contains($v, 'not a complete PRIMARY or UNIQUE key')
+        );
+        static::assertEmpty($registryFkViolations, 'FK violation should not fall back to the registry key when a definition owns the table');
+
+        static::assertArrayHasKey($owningClass, $violations);
+        $ownerFkViolations = array_filter(
+            $violations[$owningClass],
+            static fn (string $v): bool => str_contains($v, 'not a complete PRIMARY or UNIQUE key')
+        );
+        static::assertCount(1, $ownerFkViolations);
+        static::assertStringContainsString('fk_child_parent_id', reset($ownerFkViolations));
+    }
+
     /**
      * @param list<string> $dbPrimaryKeys
      */
@@ -432,7 +485,7 @@ class DefinitionValidatorTest extends TestCase
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([]);
-        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getByEntityName')->willThrowException(new DefinitionNotFoundException(''));
 
         $violations = (new DefinitionValidator($registry, $connection))->validate($toleratedForeignKeys);
         $registryViolations = $violations[DefinitionInstanceRegistry::class] ?? [];

@@ -1047,13 +1047,21 @@ class DefinitionValidator
      *
      * @param list<string> $toleratedForeignKeys Foreign key constraint names excluded from this check
      *
-     * @return array<class-string<DefinitionInstanceRegistry>, list<string>>
+     * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
      */
     private function validateForeignKeysReferenceUniqueKey(Schema $schema, array $toleratedForeignKeys): array
     {
         $violations = [];
 
         foreach ($schema->getTables() as $table) {
+            $tableName = $table->getObjectName()->toString();
+
+            try {
+                $violationKey = $this->registry->getByEntityName($tableName)->getClass();
+            } catch (DefinitionNotFoundException) {
+                $violationKey = DefinitionInstanceRegistry::class;
+            }
+
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue() ?? '';
                 if (\in_array($foreignKeyName, $toleratedForeignKeys, true)) {
@@ -1081,7 +1089,7 @@ class DefinitionValidator
                 }
 
                 if (!$isStandard) {
-                    $violations[DefinitionInstanceRegistry::class][] = \sprintf(
+                    $violations[$violationKey][] = \sprintf(
                         'Foreign key "%s" on table "%s" references %s(%s), which is not a complete PRIMARY or UNIQUE key of the referenced table. MySQL 8.4 (restrict_fk_on_non_standard_key=ON) rejects such foreign keys, which breaks schema imports. Reference the full primary/unique key (e.g. include the missing version_id column) or drop the constraint.',
                         $foreignKeyName !== '' ? $foreignKeyName : '(unnamed)',
                         $table->getObjectName()->toString(),

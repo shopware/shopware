@@ -49,8 +49,8 @@ checkout:
 
 engine:
   id: claude
-  model: claude-sonnet-4-6
-  max-turns: 45
+  model: claude-opus-4-6
+  max-turns: 75
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in
     # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads.

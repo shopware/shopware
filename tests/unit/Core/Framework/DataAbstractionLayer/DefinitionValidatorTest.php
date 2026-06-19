@@ -143,6 +143,19 @@ class DefinitionValidatorTest extends TestCase
         static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
     }
 
+    public function testForeignKeyReferencingCompositePrimaryKeyInWrongOrderReportsViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
+        $child = $this->createTable('child', ['id', 'parent_version_id', 'parent_id']);
+        // FK references (version_id, id) but PK is (id, version_id) — column order mismatch
+        $child->addForeignKeyConstraint('parent', ['parent_version_id', 'parent_id'], ['version_id', 'id'], [], 'fk_child_parent_wrong_order');
+
+        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+
+        static::assertCount(1, $violations);
+        static::assertStringContainsString('fk_child_parent_wrong_order', $violations[0]);
+    }
+
     public function testForeignKeyReferencingPrefixOfCompositePrimaryKeyReportsViolation(): void
     {
         $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);

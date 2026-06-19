@@ -1156,13 +1156,10 @@ class DefinitionValidator
      */
     private function normalizeColumnNames(array $columnNames): array
     {
-        $normalized = array_map(
+        return array_map(
             static fn (string $columnName): string => mb_strtolower(trim($columnName, '`"')),
             $columnNames
         );
-        sort($normalized);
-
-        return $normalized;
     }
 
     /**

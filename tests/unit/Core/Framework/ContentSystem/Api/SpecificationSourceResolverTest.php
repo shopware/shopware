@@ -28,6 +28,16 @@ class SpecificationSourceResolverTest extends TestCase
         static::assertSame($product, $resolver->resolveByEntityType('product'));
     }
 
+    #[TestDox('selects the section source from the locator')]
+    public function testResolvesBySection(): void
+    {
+        $header = static::createStub(AbstractSpecificationSource::class);
+
+        $resolver = new SpecificationSourceResolver([], new ServiceLocator(['header' => static fn (): AbstractSpecificationSource => $header]));
+
+        static::assertSame($header, $resolver->resolveBySection(ContentSection::HEADER));
+    }
+
     #[TestDox('throws unknownEntityType when no entity source supports the type')]
     public function testThrowsForUnknownEntityType(): void
     {
@@ -36,16 +46,6 @@ class SpecificationSourceResolverTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::unknownEntityType('mystery'));
 
         $resolver->resolveByEntityType('mystery');
-    }
-
-    #[TestDox('selects the section source from the locator')]
-    public function testResolvesBySection(): void
-    {
-        $header = $this->createMock(AbstractSpecificationSource::class);
-
-        $resolver = new SpecificationSourceResolver([], new ServiceLocator(['header' => static fn (): AbstractSpecificationSource => $header]));
-
-        static::assertSame($header, $resolver->resolveBySection(ContentSection::HEADER));
     }
 
     #[TestDox('throws noSourceForSection when the section has no registered source')]
@@ -60,7 +60,7 @@ class SpecificationSourceResolverTest extends TestCase
 
     private function sourceSupporting(string $entityType): AbstractSpecificationSource
     {
-        $source = $this->createMock(AbstractSpecificationSource::class);
+        $source = static::createStub(AbstractSpecificationSource::class);
         $source->method('supportsEntityType')->willReturnCallback(static fn (string $type): bool => $type === $entityType);
 
         return $source;

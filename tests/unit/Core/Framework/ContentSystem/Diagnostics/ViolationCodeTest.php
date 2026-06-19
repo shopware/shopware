@@ -16,26 +16,47 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationSeverity;
 #[CoversClass(ViolationCode::class)]
 class ViolationCodeTest extends TestCase
 {
-    #[DataProvider('codeProvider')]
-    #[TestDox('$_dataName derives its scope and severity from the code')]
-    public function testScopeAndSeverityDerivation(ViolationCode $code, ViolationScope $scope, ViolationSeverity $severity): void
+    #[DataProvider('derivesScopeProvider')]
+    #[TestDox('derives scope from $_dataName')]
+    public function testDerivesScopeFromCode(ViolationCode $code, ViolationScope $expectedScope): void
     {
-        static::assertSame($scope, $code->scope());
-        static::assertSame($severity, $code->severity());
+        static::assertSame($expectedScope, $code->scope());
+    }
+
+    #[DataProvider('derivesSeverityProvider')]
+    #[TestDox('derives severity from $_dataName')]
+    public function testDerivesSeverityFromCode(ViolationCode $code, ViolationSeverity $expectedSeverity): void
+    {
+        static::assertSame($expectedSeverity, $code->severity());
     }
 
     /**
-     * @return iterable<string, array{ViolationCode, ViolationScope, ViolationSeverity}>
+     * @return iterable<string, array{ViolationCode, ViolationScope}>
      */
-    public static function codeProvider(): iterable
+    public static function derivesScopeProvider(): iterable
     {
-        yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationScope::Intrinsic, ViolationSeverity::Error];
-        yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationScope::Intrinsic, ViolationSeverity::Error];
-        yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationScope::Intrinsic, ViolationSeverity::Error];
-        yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding, ViolationSeverity::Error];
-        yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding, ViolationSeverity::Error];
-        yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding, ViolationSeverity::Error];
-        yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationScope::Binding, ViolationSeverity::Warning];
-        yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic, ViolationSeverity::Warning];
+        yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationScope::Intrinsic];
+        yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationScope::Intrinsic];
+        yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationScope::Intrinsic];
+        yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
+        yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
+        yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding];
+        yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationScope::Binding];
+        yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic];
+    }
+
+    /**
+     * @return iterable<string, array{ViolationCode, ViolationSeverity}>
+     */
+    public static function derivesSeverityProvider(): iterable
+    {
+        yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationSeverity::Error];
+        yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationSeverity::Error];
+        yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationSeverity::Error];
+        yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationSeverity::Error];
+        yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationSeverity::Error];
+        yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationSeverity::Error];
+        yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
+        yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationSeverity::Warning];
     }
 }

@@ -25,13 +25,13 @@ class RootContextMapperTest extends TestCase
     #[TestDox('maps a page requirement to a broadcast single root context with the loader-resolved FQCN')]
     public function testMapsRequirementToRootContext(): void
     {
-        $requirement = new DataRequirement('product', 'entity', $this->createMock(AbstractContentDataLoaderConfig::class));
+        $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
 
-        $provider = $this->createMock(DataLoaderProvider::class);
-        $provider->method('get')->with('entity')->willReturn($loader);
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturn($loader);
 
         $contexts = (new RootContextMapper($provider))->map([$requirement]);
 
@@ -43,27 +43,26 @@ class RootContextMapperTest extends TestCase
         static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $contexts[0]->providerElementId);
     }
 
-    #[TestDox('an empty requirement set (header/footer) maps to no root context')]
+    #[TestDox('maps an empty requirement set to no root context')]
     public function testEmptyRequirementsMapToEmptyRootContext(): void
     {
-        $provider = $this->createMock(DataLoaderProvider::class);
+        $provider = static::createStub(DataLoaderProvider::class);
 
         static::assertSame([], (new RootContextMapper($provider))->map([]));
     }
 
-    #[TestDox('resolveType propagates an unknown-entity exception rather than swallowing it')]
+    #[TestDox('propagates an unknown-entity exception without swallowing it')]
     public function testResolveTypePropagatesException(): void
     {
-        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
-        $provider = $this->createMock(DataLoaderProvider::class);
+        $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
 
-        $requirement = new DataRequirement('product', 'entity', $this->createMock(AbstractContentDataLoaderConfig::class));
+        $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/unknown entity "prodct"/');
+        $this->expectExceptionObject(ContentSystemException::unknownLoaderEntity('prodct'));
 
         (new RootContextMapper($provider))->resolveType($requirement);
     }

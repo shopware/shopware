@@ -28,33 +28,19 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {
-    #[TestDox('a top-level element receives the bound source root-ambient context')]
+    #[TestDox('returns root-ambient context for a top-level element')]
     public function testTopLevelReceivesRootAmbient(): void
     {
         $root = new ContentElement('root-1', 'Sw:Block');
 
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
+        $rootContext = $this->rootAmbientProductContext();
 
         $available = $this->resolver()->resolve('root-1', [$root], $rootContext);
 
         static::assertSame($rootContext, $available);
     }
 
-    #[TestDox('a top-level element receives nothing when the bound source exposes no root context (header/footer)')]
-    public function testTopLevelWithEmptyRootContext(): void
-    {
-        $root = new ContentElement('root-1', 'Sw:Block');
-
-        static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
-    }
-
-    #[TestDox('a nested element receives its ancestor providers with the FQCN resolved from the provider type spec')]
+    #[TestDox('resolves ancestor provider context with the FQCN from the provider type spec for a nested element')]
     public function testNestedReceivesAncestorProvider(): void
     {
         $child = new ContentElement('child-1', 'Sw:Block');
@@ -79,29 +65,45 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame(DistributionStrategy::Broadcast, $available[0]->distribution);
     }
 
-    #[TestDox('a nested element does not inherit the root-ambient context of a top-level sibling')]
+    #[TestDox('excludes a top-level sibling root-ambient context from a nested element')]
     public function testNestedDoesNotReceiveRootAmbient(): void
     {
         $child = new ContentElement('child-1', 'Sw:Block');
         $root = new ContentElement('root-1', 'Sw:Block', [], [], ['content' => new SlotContent([$child])]);
 
-        $rootContext = [new ProvidedContext(
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('returns empty context for a top-level element when the bound source exposes no root context (header/footer)')]
+    public function testTopLevelWithEmptyRootContext(): void
+    {
+        $root = new ContentElement('root-1', 'Sw:Block');
+
+        static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
+    }
+
+    #[TestDox('returns an empty set for an unknown element id')]
+    public function testUnknownElementYieldsEmpty(): void
+    {
+        $root = new ContentElement('root-1', 'Sw:Block');
+
+        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
+    }
+
+    /**
+     * @return list<ProvidedContext>
+     */
+    private function rootAmbientProductContext(): array
+    {
+        return [new ProvidedContext(
             contextKey: 'product',
             fqcn: SalesChannelProductEntity::class,
             contextType: ContextType::Single,
             providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
             distribution: DistributionStrategy::Broadcast,
         )];
-
-        static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
-    }
-
-    #[TestDox('an unknown element id resolves to an empty available set')]
-    public function testUnknownElementYieldsEmpty(): void
-    {
-        $root = new ContentElement('root-1', 'Sw:Block');
-
-        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
     }
 
     private function resolver(): AvailableContextResolver
@@ -124,7 +126,7 @@ class AvailableContextResolverTest extends TestCase
             [],
         );
 
-        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:Provider');
         $registry->method('get')->willReturn($providerSpec);
 

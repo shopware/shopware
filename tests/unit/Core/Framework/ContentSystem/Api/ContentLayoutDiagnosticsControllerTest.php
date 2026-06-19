@@ -73,7 +73,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
     public function testDiagnoseMapsDecodeClientDefect(): void
     {
-        $serializer = $this->createMock(ContentElementFieldSerializer::class);
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
         $controller = $this->controller(
@@ -93,7 +93,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
     {
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $this->createMock(ContentElementFieldSerializer::class),
+            serializer: static::createStub(ContentElementFieldSerializer::class),
         );
 
         try {
@@ -130,13 +130,13 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
         return new ContentLayoutDiagnosticsController(
             $serializer,
             $diagnostics,
-            $sourceResolver ?? $this->createMock(SpecificationSourceResolver::class),
+            $sourceResolver ?? static::createStub(SpecificationSourceResolver::class),
         );
     }
 
     private function diagnosticsReturning(LayoutAnalysis $analysis): LayoutDiagnostics
     {
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
         $diagnostics->method('analyze')->willReturn($analysis);
 
         return $diagnostics;
@@ -144,7 +144,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
 
     private function serializerDecoding(ContentElement $element): ContentElementFieldSerializer
     {
-        $serializer = $this->createMock(ContentElementFieldSerializer::class);
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willReturn($element);
 
         return $serializer;

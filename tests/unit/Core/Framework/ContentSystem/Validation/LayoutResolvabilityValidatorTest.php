@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Context;
 #[CoversClass(LayoutResolvabilityValidator::class)]
 class LayoutResolvabilityValidatorTest extends TestCase
 {
-    #[TestDox('every binding is enforced by default')]
+    #[TestDox('enforces every binding by default')]
     public function testIsBindingEnforcedDefaultsToTrue(): void
     {
-        $validator = new LayoutResolvabilityValidator($this->createMock(LayoutDiagnostics::class));
+        $validator = new LayoutResolvabilityValidator(static::createStub(LayoutDiagnostics::class));
 
         static::assertTrue($validator->isBindingEnforced(new BoundRootContext('product', [])));
     }
@@ -33,8 +33,7 @@ class LayoutResolvabilityValidatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->expects($this->once())
-            ->method('analyze')
+        $diagnostics->method('analyze')
             ->with([], null, $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
@@ -50,8 +49,7 @@ class LayoutResolvabilityValidatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->expects($this->once())
-            ->method('analyze')
+        $diagnostics->method('analyze')
             ->with([], [], $context)
             ->willReturn(new LayoutAnalysis($report, []));
 

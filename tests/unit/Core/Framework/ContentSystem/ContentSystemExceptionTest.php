@@ -39,7 +39,7 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
-    #[DataProvider('clientDefectProvider')]
+    #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
     {
@@ -49,7 +49,7 @@ class ContentSystemExceptionTest extends TestCase
     /**
      * @return iterable<string, array{ContentSystemException, bool}>
      */
-    public static function clientDefectProvider(): iterable
+    public static function classifiesClientDefectProvider(): iterable
     {
         // Reachable from the layout decode path (data_requirements / accepts_context), so a client typo
         // must become an invalid_config diagnostic, not a 500 that aborts the write.
@@ -63,7 +63,7 @@ class ContentSystemExceptionTest extends TestCase
         yield 'layout not found as an internal fault' => [ContentSystemException::layoutNotFound('layout-1'), false];
     }
 
-    #[TestDox('a non content-system throwable is never a client defect')]
+    #[TestDox('rejects a non content-system throwable as a client defect')]
     public function testForeignThrowableIsNotAClientDefect(): void
     {
         static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));

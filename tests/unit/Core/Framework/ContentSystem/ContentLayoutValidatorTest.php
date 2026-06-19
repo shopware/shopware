@@ -40,7 +40,7 @@ class ContentLayoutValidatorTest extends TestCase
         static::assertCount(0, $violations);
     }
 
-    #[TestDox('binding-scope errors are not surfaced by the preview validator')]
+    #[TestDox('filters out binding-scope errors from the validation result')]
     public function testBindingErrorsAreNotSurfaced(): void
     {
         $report = new DiagnosticsReport([
@@ -54,7 +54,7 @@ class ContentLayoutValidatorTest extends TestCase
 
     private function validatorReturning(DiagnosticsReport $report): ContentLayoutValidator
     {
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
         $diagnostics->method('analyze')->willReturn(new LayoutAnalysis($report, []));
 
         return new ContentLayoutValidator($diagnostics);

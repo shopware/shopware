@@ -215,7 +215,7 @@ class ContentPreviewControllerTest extends TestCase
             $violations->add(new ConstraintViolation('Component "Sw:Unknown:Widget" is not a registered element type.', null, [], null, 'e1', null));
         }
 
-        $validator = $this->createMock(ContentLayoutValidator::class);
+        $validator = static::createStub(ContentLayoutValidator::class);
         $validator->method('validate')->willReturn($violations);
 
         return $validator;

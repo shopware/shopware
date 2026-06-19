@@ -45,7 +45,7 @@ use Shopware\Core\Framework\Struct\Struct;
 #[CoversClass(LayoutDiagnostics::class)]
 class LayoutDiagnosticsTest extends TestCase
 {
-    #[TestDox('a duplicate element id across roots is reported as an intrinsic error')]
+    #[TestDox('reports a duplicate element id across roots as an intrinsic error')]
     public function testDuplicateElementId(): void
     {
         $tree = [new ContentElement('dup', 'Sw:Block'), new ContentElement('dup', 'Sw:Block')];
@@ -56,7 +56,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
-    #[TestDox('an unregistered component is reported as an intrinsic error')]
+    #[TestDox('reports an unregistered component as an intrinsic error')]
     public function testUnregisteredComponent(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Missing')];
@@ -67,7 +67,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnregisteredComponent, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
-    #[TestDox('the well-formedness subset accepts an unsatisfied required reference and emits no binding errors')]
+    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset and emits no binding errors')]
     public function testWellFormednessSubsetIgnoresBinding(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
@@ -80,7 +80,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertArrayHasKey('el-1', $analysis->resolutions);
     }
 
-    #[TestDox('a required reference with no candidate is an unresolved_required binding error')]
+    #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
     public function testUnresolvedRequired(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
@@ -91,7 +91,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('a required reference with two complete loaders is an ambiguous_required binding error carrying candidates')]
+    #[TestDox('produces an ambiguous_required binding error carrying candidates when two complete loaders match')]
     public function testAmbiguousRequired(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
@@ -112,7 +112,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
-    #[TestDox('a required reference satisfied by root-ambient context produces no binding error')]
+    #[TestDox('produces no binding error when a required reference is satisfied by root-ambient context')]
     public function testRootAmbientSatisfiesRequired(): void
     {
         $tree = [new ContentElement('root-1', 'Sw:Block')];
@@ -131,7 +131,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->bindingErrors());
     }
 
-    #[TestDox('a required primitive without a default is an unresolved_required binding error')]
+    #[TestDox('produces an unresolved_required binding error for a required primitive without a default')]
     public function testRequiredPrimitiveWithoutDefault(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
@@ -142,7 +142,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('a required accepts_context with no provider is a broken_required_chain binding error')]
+    #[TestDox('produces a broken_required_chain binding error for a required accepts_context with no provider')]
     public function testBrokenRequiredChain(): void
     {
         $element = new ContentElement(
@@ -159,7 +159,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::BrokenRequiredChain, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('a provider with no consumer in scope is an orphaned_provider warning that does not block')]
+    #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
     public function testOrphanedProviderWarning(): void
     {
         $root = new ContentElement(
@@ -178,16 +178,16 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('root-1', $warning->elementId);
     }
 
-    #[TestDox('a data requirement naming an unknown entity is an invalid_config intrinsic error')]
+    #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
     public function testInvalidConfigForUnknownEntity(): void
     {
         $element = new ContentElement(
             'el-1',
             'Sw:Block',
-            ['product' => new DataRequirement('product', 'entity', $this->createMock(AbstractContentDataLoaderConfig::class))],
+            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
         );
 
-        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
         $report = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader))
@@ -197,22 +197,21 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
-    #[TestDox('a non-client-defect exception during config resolution propagates rather than becoming invalid_config')]
+    #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]
     public function testInternalFaultPropagates(): void
     {
         $element = new ContentElement(
             'el-1',
             'Sw:Block',
-            ['product' => new DataRequirement('product', 'entity', $this->createMock(AbstractContentDataLoaderConfig::class))],
+            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
         );
 
-        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::layoutNotFound('x'));
 
         $diagnostics = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader));
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/does not exist/');
+        $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
 
         $diagnostics->analyze([$element], null);
     }
@@ -226,24 +225,24 @@ class LayoutDiagnosticsTest extends TestCase
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
     ): LayoutDiagnostics {
-        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
-        $typeResolver = $this->createMock(AbstractContentSystemDataLoaderTypeResolver::class);
+        $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));
 
         $elementResolver = new ElementResolver(
             $registry,
             $typeResolver,
-            $serializers ?? $this->createMock(DataLoaderConfigSerializerProvider::class),
+            $serializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
         );
 
         return new LayoutDiagnostics(
             $registry,
             $elementResolver,
             new AvailableContextResolver($registry),
-            new RootContextMapper($loaderProvider ?? $this->createMock(DataLoaderProvider::class)),
+            new RootContextMapper($loaderProvider ?? static::createStub(DataLoaderProvider::class)),
         );
     }
 
@@ -252,7 +251,7 @@ class LayoutDiagnosticsTest extends TestCase
      */
     private function loaderProvider(AbstractContentDataLoader $loader): DataLoaderProvider
     {
-        $provider = $this->createMock(DataLoaderProvider::class);
+        $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
 
         return $provider;
@@ -260,8 +259,8 @@ class LayoutDiagnosticsTest extends TestCase
 
     private function decodingSerializers(): DataLoaderConfigSerializerProvider
     {
-        $serializers = $this->createMock(DataLoaderConfigSerializerProvider::class);
-        $serializers->method('decode')->willReturn($this->createMock(AbstractContentDataLoaderConfig::class));
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
         return $serializers;
     }

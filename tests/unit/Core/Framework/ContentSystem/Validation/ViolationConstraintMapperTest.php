@@ -48,4 +48,12 @@ class ViolationConstraintMapperTest extends TestCase
 
         static::assertCount(2, $list);
     }
+
+    #[TestDox('returns an empty constraint-violation list when there are no violations')]
+    public function testMapsEmptyViolationList(): void
+    {
+        $list = (new ViolationConstraintMapper())->toConstraintViolationList([]);
+
+        static::assertCount(0, $list);
+    }
 }

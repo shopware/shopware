@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Resolution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -34,11 +35,21 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 #[CoversClass(ElementResolver::class)]
 class ElementResolverTest extends TestCase
 {
-    #[TestDox('a primitive property resolves to a static value carrying type and default')]
-    public function testPrimitiveResolvesStatic(): void
+    /**
+     * @return iterable<string, array{bool, string|int|float|bool|null}>
+     */
+    public static function primitiveProvider(): iterable
+    {
+        yield 'an optional primitive with a default' => [false, 'Hello'];
+        yield 'a required primitive without a default' => [true, null];
+    }
+
+    #[DataProvider('primitiveProvider')]
+    #[TestDox('resolves $_dataName to a static value carrying type, default and required flag, never blocking')]
+    public function testResolvesPrimitiveToStaticValue(bool $required, string|int|float|bool|null $default): void
     {
         $resolutions = $this->resolve(
-            ['headline' => $this->primitive('string', required: false, default: 'Hello')],
+            ['headline' => $this->primitive('string', required: $required, default: $default)],
             new ResolutionContext('el-1', []),
             new ContentSystemDataLoaderTypeMap([]),
         );
@@ -47,26 +58,13 @@ class ElementResolverTest extends TestCase
         static::assertSame('headline', $resolutions[0]->key);
         static::assertSame(PropertyKind::Primitive, $resolutions[0]->kind);
         static::assertSame('string', $resolutions[0]->type);
-        static::assertSame('Hello', $resolutions[0]->default);
+        static::assertSame($default, $resolutions[0]->default);
+        static::assertSame($required, $resolutions[0]->required);
         static::assertNull($resolutions[0]->resolved);
         static::assertSame([], $resolutions[0]->candidates);
     }
 
-    #[TestDox('a required primitive without a default still resolves as a primitive, never blocking in the kernel')]
-    public function testRequiredPrimitiveWithoutDefault(): void
-    {
-        $resolutions = $this->resolve(
-            ['headline' => $this->primitive('string', required: true, default: null)],
-            new ResolutionContext('el-1', []),
-            new ContentSystemDataLoaderTypeMap([]),
-        );
-
-        static::assertSame(PropertyKind::Primitive, $resolutions[0]->kind);
-        static::assertTrue($resolutions[0]->required);
-        static::assertNull($resolutions[0]->default);
-    }
-
-    #[TestDox('a reference with a single matching ancestor provider resolves via that parent, loaders remain alternatives')]
+    #[TestDox('resolves a reference via the single matching ancestor provider, keeping loaders as alternatives')]
     public function testReferenceResolvesViaSingleParent(): void
     {
         $available = [new ProvidedContext(
@@ -92,7 +90,7 @@ class ElementResolverTest extends TestCase
         static::assertCount(2, $resolutions[0]->candidates);
     }
 
-    #[TestDox('a reference with no provider and a single complete loader resolves via that loader')]
+    #[TestDox('resolves a reference via the single complete loader when no provider is available')]
     public function testReferenceResolvesViaCompleteLoader(): void
     {
         $resolutions = $this->resolve(
@@ -110,7 +108,7 @@ class ElementResolverTest extends TestCase
         static::assertTrue($resolutions[0]->resolved->configComplete);
     }
 
-    #[TestDox('a reference whose only loader has required config keys stays unresolved with an incomplete candidate')]
+    #[TestDox('leaves a reference unresolved with an incomplete candidate when its only loader has required config keys')]
     public function testReferenceWithIncompleteLoaderConfig(): void
     {
         $resolutions = $this->resolve(
@@ -128,7 +126,7 @@ class ElementResolverTest extends TestCase
         static::assertSame(['entity' => 'product'], $resolutions[0]->candidates[0]->configTemplate);
     }
 
-    #[TestDox('a reference with multiple complete loaders stays unresolved and lists every candidate')]
+    #[TestDox('leaves a reference unresolved and lists every candidate when multiple complete loaders match')]
     public function testReferenceWithMultipleSourcesIsAmbiguous(): void
     {
         $resolutions = $this->resolve(
@@ -145,7 +143,7 @@ class ElementResolverTest extends TestCase
         static::assertCount(2, $resolutions[0]->candidates);
     }
 
-    #[TestDox('a reference with neither provider nor loader stays unresolved with no candidates')]
+    #[TestDox('leaves a reference unresolved with no candidates when neither provider nor loader matches')]
     public function testReferenceWithNoSource(): void
     {
         $resolutions = $this->resolve(
@@ -158,16 +156,16 @@ class ElementResolverTest extends TestCase
         static::assertSame([], $resolutions[0]->candidates);
     }
 
-    #[TestDox('an unregistered element type yields no resolutions, leaving the defect to the diagnostics layer')]
+    #[TestDox('yields no resolutions for an unregistered element type, leaving the defect to the diagnostics layer')]
     public function testUnregisteredTypeYieldsNoResolutions(): void
     {
-        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturn(false);
 
         $resolver = new ElementResolver(
             $registry,
             $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
-            $this->createMock(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
         );
 
         static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
@@ -187,7 +185,7 @@ class ElementResolverTest extends TestCase
         $resolver = new ElementResolver(
             $this->registryReturning($properties),
             $this->typeResolver($map),
-            $serializers ?? $this->createMock(DataLoaderConfigSerializerProvider::class),
+            $serializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
         );
 
         return $resolver->resolve('Sw:Block', $context);
@@ -209,7 +207,7 @@ class ElementResolverTest extends TestCase
             [],
         );
 
-        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('get')->willReturn($spec);
 
@@ -218,7 +216,7 @@ class ElementResolverTest extends TestCase
 
     private function typeResolver(ContentSystemDataLoaderTypeMap $map): AbstractContentSystemDataLoaderTypeResolver
     {
-        $resolver = $this->createMock(AbstractContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         return $resolver;
@@ -226,10 +224,10 @@ class ElementResolverTest extends TestCase
 
     private function serializersDecoding(bool $succeeds): DataLoaderConfigSerializerProvider
     {
-        $serializers = $this->createMock(DataLoaderConfigSerializerProvider::class);
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
 
         if ($succeeds) {
-            $serializers->method('decode')->willReturn($this->createMock(AbstractContentDataLoaderConfig::class));
+            $serializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
             return $serializers;
         }

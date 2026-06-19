@@ -61,6 +61,7 @@ async function createWrapper(
         props: [
             'repository',
             'columns',
+            'identifier',
             'criteria',
             'criteriaResolver',
             'initialPage',
@@ -218,6 +219,12 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper(['product_manufacturer.creator']);
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
         expect(addButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('passes the legacy grid identifier to the Meteor table', async () => {
+        const wrapper = await createWrapper();
+
+        expect(getMeteorTable(wrapper).props('identifier')).toBe('sw-manufacturer-list');
     });
 
     it('should have an disabled create button', async () => {

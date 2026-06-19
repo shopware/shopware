@@ -49,6 +49,7 @@ type TestSaveMock = jest.Mock<Promise<void>, [TestRecord, ApiContext]>;
 type TestProps = {
     repository: TestRepository;
     columns: TestColumn[];
+    identifier?: string;
     criteria?: CriteriaType | null;
     criteriaResolver?: SwMeteorEntityDataTableCriteriaResolver | null;
     context?: ApiContext | null;
@@ -79,10 +80,32 @@ type SlotRenderers = Record<string, SlotRenderer>;
 type MtDataTableStubProps = {
     columns?: TestColumn[];
     dataSource?: TestRecord[];
+    columnChanges?: Record<
+        string,
+        {
+            position?: number;
+            width?: number;
+            visible?: boolean;
+        }
+    >;
 };
 
 type TestRouter = {
     push: jest.Mock;
+};
+
+type TestUserConfigEntity = {
+    id?: string;
+    key?: string;
+    userId?: string;
+    value?: unknown;
+};
+
+type TestUserConfigRepository = {
+    search: jest.Mock<Promise<TestUserConfigEntity[]>, [CriteriaType, ApiContext]>;
+    save: jest.Mock<Promise<void>, [TestUserConfigEntity, ApiContext]>;
+    create: jest.Mock<TestUserConfigEntity, [ApiContext]>;
+    getStoredEntity: () => TestUserConfigEntity | null;
 };
 
 const columns: TestColumn[] = [
@@ -97,6 +120,17 @@ const inlineEditColumns: TestColumn[] = [
         label: 'Name',
         property: 'name',
         inlineEdit: 'string',
+    },
+];
+
+const persistedSettingsColumns: TestColumn[] = [
+    {
+        label: 'Name',
+        property: 'name',
+    },
+    {
+        label: 'Link',
+        property: 'link',
     },
 ];
 
@@ -254,6 +288,30 @@ const MtDataTableStub = {
                 h(
                     'button',
                     {
+                        class: 'mt-data-table-stub__change-column-settings',
+                        type: 'button',
+                        onClick: () => {
+                            if (!props.columnChanges) {
+                                return;
+                            }
+
+                            props.columnChanges.link = {
+                                position: 0,
+                                width: 320,
+                                visible: true,
+                            };
+                            props.columnChanges.name = {
+                                position: 100,
+                                width: 280,
+                                visible: false,
+                            };
+                        },
+                    },
+                    'Change column settings',
+                ),
+                h(
+                    'button',
+                    {
                         class: 'mt-data-table-stub__deselect-all',
                         type: 'button',
                         onClick: () =>
@@ -397,6 +455,62 @@ function createRepositoryMockWithSearch(search: TestSearchMock): TestRepository 
     } as unknown as TestRepository;
 }
 
+function createUserConfigRepositoryMock(initialEntity: TestUserConfigEntity | null = null): TestUserConfigRepository {
+    let storedEntity = initialEntity;
+    const search = jest.fn<Promise<TestUserConfigEntity[]>, [CriteriaType, ApiContext]>(() =>
+        Promise.resolve(storedEntity ? [storedEntity] : []),
+    );
+    const save = jest.fn<Promise<void>, [TestUserConfigEntity, ApiContext]>((entity) => {
+        storedEntity = entity;
+
+        return Promise.resolve();
+    });
+    const create = jest.fn<TestUserConfigEntity, [ApiContext]>(() => ({
+        id: 'created-user-config-id',
+    }));
+
+    return {
+        search,
+        save,
+        create,
+        getStoredEntity: () => storedEntity,
+    };
+}
+
+function mockUserConfigRepository(userConfigRepository: TestUserConfigRepository): void {
+    const aclService = Shopware.Service('acl') as {
+        can: (privilege: string) => boolean;
+    };
+    const repositoryFactory = Shopware.Service('repositoryFactory') as {
+        create: (entityName: keyof EntitySchema.Entities) => Repository<keyof EntitySchema.Entities>;
+    };
+
+    jest.spyOn(aclService, 'can').mockReturnValue(true);
+    jest.spyOn(repositoryFactory, 'create').mockImplementation((entityName) => {
+        if (entityName === 'user_config') {
+            return userConfigRepository as unknown as Repository<keyof EntitySchema.Entities>;
+        }
+
+        return createRepositoryMock() as unknown as Repository<keyof EntitySchema.Entities>;
+    });
+}
+
+function setCurrentUserWithUserConfigPrivileges(): void {
+    Shopware.Store.get('session').setCurrentUser({
+        id: 'current-user-id',
+        admin: true,
+        aclRoles: [
+            {
+                privileges: [
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update',
+                ],
+            },
+        ],
+    } as EntitySchema.user);
+}
+
 function getSearchMock(repository: TestRepository): TestSearchMock {
     return (repository as unknown as { search: TestSearchMock }).search;
 }
@@ -522,6 +636,7 @@ function createDeferred<TValue>() {
 
 describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
     const originalRouter = shopwareApplication.view.router;
+    const originalCurrentUser = Shopware.Store.get('session').currentUser;
 
     beforeEach(() => {
         delete _overridesMap[componentName];
@@ -530,6 +645,14 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
     afterEach(() => {
         shopwareApplication.view.router = originalRouter;
+
+        if (originalCurrentUser) {
+            Shopware.Store.get('session').setCurrentUser(originalCurrentUser);
+        } else {
+            Shopware.Store.get('session').removeCurrentUser();
+        }
+
+        jest.restoreAllMocks();
     });
 
     it('declares only the new wrapper props and emits', () => {
@@ -542,6 +665,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             expect.arrayContaining([
                 'repository',
                 'columns',
+                'identifier',
                 'criteria',
                 'context',
                 'initialPage',
@@ -681,6 +805,180 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
                 enableRowNumbering: true,
             }),
         );
+    });
+
+    it('loads table settings from user_config when an identifier is configured', async () => {
+        setCurrentUserWithUserConfigPrivileges();
+
+        const userConfigRepository = createUserConfigRepositoryMock({
+            id: 'user-config-id',
+            key: 'grid.setting.sw-manufacturer-list',
+            userId: 'current-user-id',
+            value: {
+                columns: [
+                    {
+                        dataIndex: 'link',
+                        width: 320,
+                        visible: true,
+                    },
+                    {
+                        dataIndex: 'name',
+                        width: 280,
+                        visible: false,
+                    },
+                    {
+                        dataIndex: 'removed-column',
+                        width: 120,
+                        visible: false,
+                    },
+                ],
+                showOutlines: false,
+                showStripes: false,
+                enableOutlineFraming: true,
+                enableRowNumbering: true,
+            },
+        });
+
+        mockUserConfigRepository(userConfigRepository);
+
+        const wrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        await nextTick();
+
+        expect(userConfigRepository.search).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: [
+                    {
+                        field: 'key',
+                        type: 'equals',
+                        value: 'grid.setting.sw-manufacturer-list',
+                    },
+                    {
+                        field: 'userId',
+                        type: 'equals',
+                        value: 'current-user-id',
+                    },
+                ],
+            }),
+            Shopware.Context.api,
+        );
+        expect(getTable(wrapper).props()).toEqual(
+            expect.objectContaining({
+                columnChanges: {
+                    link: {
+                        position: 0,
+                        width: 320,
+                        visible: true,
+                    },
+                    name: {
+                        position: 100,
+                        width: 280,
+                        visible: false,
+                    },
+                },
+                showOutlines: false,
+                showStripes: false,
+                enableOutlineFraming: true,
+                enableRowNumbering: true,
+            }),
+        );
+        expect(userConfigRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('persists table settings to user_config and restores them after remounting', async () => {
+        setCurrentUserWithUserConfigPrivileges();
+
+        const userConfigRepository = createUserConfigRepositoryMock();
+        mockUserConfigRepository(userConfigRepository);
+
+        const wrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        userConfigRepository.save.mockClear();
+
+        await wrapper.find('.mt-data-table-stub__change-column-settings').trigger('click');
+        await wrapper.find('.mt-data-table-stub__show-outlines').trigger('click');
+        await wrapper.find('.mt-data-table-stub__row-numbering').trigger('click');
+        await flushPromises();
+        await nextTick();
+
+        expect(userConfigRepository.create).toHaveBeenCalledTimes(1);
+        expect(userConfigRepository.save).toHaveBeenCalled();
+        expect(userConfigRepository.getStoredEntity()).toEqual(
+            expect.objectContaining({
+                id: 'created-user-config-id',
+                key: 'grid.setting.sw-manufacturer-list',
+                userId: 'current-user-id',
+                value: {
+                    columns: [
+                        {
+                            property: 'link',
+                            dataIndex: 'link',
+                            position: 0,
+                            width: 320,
+                            visible: true,
+                        },
+                        {
+                            property: 'name',
+                            dataIndex: 'name',
+                            position: 100,
+                            width: 280,
+                            visible: false,
+                        },
+                    ],
+                    showOutlines: false,
+                    showStripes: true,
+                    enableOutlineFraming: false,
+                    enableRowNumbering: true,
+                },
+            }),
+        );
+
+        wrapper.unmount();
+        userConfigRepository.save.mockClear();
+
+        const remountedWrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        await nextTick();
+
+        expect(getTable(remountedWrapper).props()).toEqual(
+            expect.objectContaining({
+                columnChanges: {
+                    link: {
+                        position: 0,
+                        width: 320,
+                        visible: true,
+                    },
+                    name: {
+                        position: 100,
+                        width: 280,
+                        visible: false,
+                    },
+                },
+                showOutlines: false,
+                showStripes: true,
+                enableOutlineFraming: false,
+                enableRowNumbering: true,
+            }),
+        );
+        expect(userConfigRepository.save).not.toHaveBeenCalled();
     });
 
     it('allows Meteor bulk delete only when row selection and deletion are enabled', () => {

@@ -278,7 +278,7 @@
  * @sw-package framework
  */
 
-import { computed, defineComponent, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import type { ComputedRef, PropType, Ref, SetupContext } from 'vue';
 import type { Router } from 'vue-router';
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
@@ -287,6 +287,7 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
+import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import { get as objectGet, set as objectSet } from 'src/core/service/utils/object.utils';
 import type {
     SwMeteorEntityDataTableColumn,
@@ -333,9 +334,43 @@ type SwMeteorEntityDataTableColumnChange = {
 
 type SwMeteorEntityDataTableColumnChanges = Record<string, SwMeteorEntityDataTableColumnChange>;
 
+type SwMeteorEntityDataTableUserConfigEntity = Entity<'user_config'>;
+
+type SwMeteorEntityDataTableUserConfigRepository = Repository<'user_config'>;
+
+type SwMeteorEntityDataTableAclService = {
+    can: (privilege: string) => boolean;
+};
+
+type SwMeteorEntityDataTableUserSettingColumn = {
+    property?: string;
+    dataIndex?: string;
+    position?: number;
+    width?: number;
+    visible?: boolean;
+};
+
+type SwMeteorEntityDataTableUserSettings = {
+    columns?: SwMeteorEntityDataTableUserSettingColumn[] | SwMeteorEntityDataTableColumnChanges;
+    columnChanges?: SwMeteorEntityDataTableColumnChanges;
+    showOutlines?: boolean;
+    showStripes?: boolean;
+    enableOutlineFraming?: boolean;
+    enableRowNumbering?: boolean;
+};
+
+type SwMeteorEntityDataTableNormalizedUserSettings = {
+    columnChanges: SwMeteorEntityDataTableColumnChanges;
+    showOutlines?: boolean;
+    showStripes?: boolean;
+    enableOutlineFraming?: boolean;
+    enableRowNumbering?: boolean;
+};
+
 type SwMeteorEntityDataTableProps = {
     repository: Repository<SwMeteorEntityDataTableEntityName>;
     columns: SwMeteorEntityDataTableColumn[];
+    identifier?: string;
     criteria?: CriteriaType | null;
     criteriaResolver?: SwMeteorEntityDataTableCriteriaResolver | null;
     context?: ApiContext | null;
@@ -459,6 +494,12 @@ export default defineComponent({
         columns: {
             type: Array as PropType<SwMeteorEntityDataTableColumn[]>,
             required: true,
+        },
+
+        identifier: {
+            type: String,
+            required: false,
+            default: '',
         },
 
         criteria: {
@@ -628,9 +669,11 @@ export default defineComponent({
                 const enableRowNumbering = ref(false);
                 const state = ref<SwMeteorEntityDataTableState>(buildStateFromProps());
                 const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
+                const currentUserTableSetting = ref<SwMeteorEntityDataTableUserConfigEntity | null>(null);
 
                 // Sequences overlapping loads so a slow earlier response cannot overwrite a newer one.
                 let latestLoadToken = 0;
+                let isApplyingUserTableSettings = false;
 
                 const resolvedColumns = computed<SwMeteorEntityDataTableResolvedColumn[]>(() => {
                     // Column order follows declaration order; explicit positions are not part of the API.
@@ -717,6 +760,318 @@ export default defineComponent({
 
                 function emitStateChange(): void {
                     setupContext.emit('state-change', cloneState());
+                }
+
+                function getUserTableSettingsKey(): string {
+                    const identifier = setupProps.identifier ?? '';
+
+                    if (!identifier) {
+                        return '';
+                    }
+
+                    return identifier.startsWith('grid.setting.') ? identifier : `grid.setting.${identifier}`;
+                }
+
+                function getCurrentUserId(): string {
+                    return Shopware.Store.get('session').currentUser?.id ?? '';
+                }
+
+                function getAclService(): SwMeteorEntityDataTableAclService {
+                    return Shopware.Service('acl') as SwMeteorEntityDataTableAclService;
+                }
+
+                function getUserConfigRepository(): SwMeteorEntityDataTableUserConfigRepository {
+                    const repositoryFactory = Shopware.Service('repositoryFactory') as RepositoryFactory;
+
+                    return repositoryFactory.create('user_config');
+                }
+
+                function buildUserTableSettingsCriteria(key: string): CriteriaType {
+                    const criteria = new Criteria(1, 25);
+
+                    criteria.addFilter(Criteria.equals('key', key));
+                    criteria.addFilter(Criteria.equals('userId', getCurrentUserId()));
+
+                    return criteria;
+                }
+
+                function getFirstUserTableSetting(
+                    response: EntityCollection<'user_config'>,
+                ): SwMeteorEntityDataTableUserConfigEntity | null {
+                    if ('first' in response && typeof response.first === 'function') {
+                        return response.first() ?? null;
+                    }
+
+                    return response[0] ?? null;
+                }
+
+                function hasUserConfigPermission(permission: string): boolean {
+                    return getAclService().can(permission);
+                }
+
+                async function loadUserTableSettings(): Promise<void> {
+                    const key = getUserTableSettingsKey();
+
+                    if (!key || !hasUserConfigPermission('user_config:read')) {
+                        return;
+                    }
+
+                    try {
+                        const userConfigRepository = getUserConfigRepository();
+                        const response = await userConfigRepository.search(
+                            buildUserTableSettingsCriteria(key),
+                            Shopware.Context.api,
+                        );
+                        const userTableSetting = getFirstUserTableSetting(response);
+
+                        if (!userTableSetting) {
+                            return;
+                        }
+
+                        currentUserTableSetting.value = userTableSetting;
+                        applyUserTableSettings(userTableSetting.value);
+                    } catch {
+                        currentUserTableSetting.value = null;
+                    }
+                }
+
+                async function saveUserTableSettings(): Promise<void> {
+                    const key = getUserTableSettingsKey();
+
+                    if (
+                        !key ||
+                        !hasUserConfigPermission('user_config:create') ||
+                        !hasUserConfigPermission('user_config:update')
+                    ) {
+                        return;
+                    }
+
+                    const userConfigRepository = getUserConfigRepository();
+                    const userTableSetting =
+                        currentUserTableSetting.value ?? userConfigRepository.create(Shopware.Context.api);
+
+                    Object.assign(userTableSetting, {
+                        key,
+                        userId: getCurrentUserId(),
+                        value: buildUserTableSettingsValue(),
+                    });
+
+                    currentUserTableSetting.value = userTableSetting;
+
+                    await userConfigRepository.save(userTableSetting, Shopware.Context.api);
+                }
+
+                function saveUserTableSettingsSilently(): void {
+                    if (isApplyingUserTableSettings) {
+                        return;
+                    }
+
+                    void saveUserTableSettings().catch(() => {});
+                }
+
+                function buildUserTableSettingsValue(): SwMeteorEntityDataTableUserSettings {
+                    return {
+                        columns: serializeUserTableSettingColumns(),
+                        showOutlines: showOutlines.value,
+                        showStripes: showStripes.value,
+                        enableOutlineFraming: enableOutlineFraming.value,
+                        enableRowNumbering: enableRowNumbering.value,
+                    };
+                }
+
+                function serializeUserTableSettingColumns(): SwMeteorEntityDataTableUserSettingColumn[] {
+                    return resolvedColumns.value
+                        .map((column) => {
+                            return {
+                                ...column,
+                                ...(tableColumnChanges[column.property] ?? {}),
+                            };
+                        })
+                        .sort((columnA, columnB) => columnA.position - columnB.position)
+                        .map((column, index) => {
+                            const serializedColumn: SwMeteorEntityDataTableUserSettingColumn = {
+                                property: column.property,
+                                dataIndex: column.property,
+                                position: index * 100,
+                                visible: column.visible !== false,
+                            };
+
+                            if (typeof column.width === 'number') {
+                                serializedColumn.width = column.width;
+                            }
+
+                            return serializedColumn;
+                        });
+                }
+
+                function applyUserTableSettings(rawUserSettings: unknown): void {
+                    const userSettings = normalizeUserTableSettings(rawUserSettings);
+
+                    if (!userSettings) {
+                        return;
+                    }
+
+                    isApplyingUserTableSettings = true;
+                    replaceTableColumnChanges(userSettings.columnChanges);
+
+                    if (typeof userSettings.showOutlines === 'boolean') {
+                        showOutlines.value = userSettings.showOutlines;
+                    }
+
+                    if (typeof userSettings.showStripes === 'boolean') {
+                        showStripes.value = userSettings.showStripes;
+                    }
+
+                    if (typeof userSettings.enableOutlineFraming === 'boolean') {
+                        enableOutlineFraming.value = userSettings.enableOutlineFraming;
+                    }
+
+                    if (typeof userSettings.enableRowNumbering === 'boolean') {
+                        enableRowNumbering.value = userSettings.enableRowNumbering;
+                    }
+
+                    void nextTick(() => {
+                        isApplyingUserTableSettings = false;
+                    });
+                }
+
+                function replaceTableColumnChanges(columnChanges: SwMeteorEntityDataTableColumnChanges): void {
+                    Object.keys(tableColumnChanges).forEach((property) => {
+                        delete tableColumnChanges[property];
+                    });
+
+                    Object.entries(columnChanges).forEach(([property, columnChange]) => {
+                        tableColumnChanges[property] = columnChange;
+                    });
+                }
+
+                function normalizeUserTableSettings(
+                    rawUserSettings: unknown,
+                ): SwMeteorEntityDataTableNormalizedUserSettings | null {
+                    if (Array.isArray(rawUserSettings)) {
+                        return {
+                            columnChanges: normalizeUserTableSettingColumns(rawUserSettings),
+                        };
+                    }
+
+                    if (!isRecord(rawUserSettings)) {
+                        return null;
+                    }
+
+                    const userSettings = rawUserSettings as SwMeteorEntityDataTableUserSettings;
+                    const rawColumnChanges = userSettings.columnChanges ?? userSettings.columns;
+                    const columnChanges = Array.isArray(rawColumnChanges)
+                        ? normalizeUserTableSettingColumns(rawColumnChanges)
+                        : normalizeUserTableSettingColumnChanges(rawColumnChanges);
+
+                    return {
+                        columnChanges,
+                        showOutlines: userSettings.showOutlines,
+                        showStripes: userSettings.showStripes,
+                        enableOutlineFraming: userSettings.enableOutlineFraming,
+                        enableRowNumbering: userSettings.enableRowNumbering,
+                    };
+                }
+
+                function normalizeUserTableSettingColumns(
+                    rawColumns: unknown[],
+                ): SwMeteorEntityDataTableColumnChanges {
+                    const currentColumns = resolvedColumns.value;
+                    const currentColumnProperties = new Set(currentColumns.map((column) => column.property));
+                    const savedColumnSettings = new Map<string, SwMeteorEntityDataTableUserSettingColumn>();
+                    const savedColumnOrder: string[] = [];
+
+                    rawColumns.forEach((rawColumn) => {
+                        if (!isRecord(rawColumn)) {
+                            return;
+                        }
+
+                        const property = getUserTableSettingColumnProperty(rawColumn);
+
+                        if (!property || !currentColumnProperties.has(property) || savedColumnSettings.has(property)) {
+                            return;
+                        }
+
+                        savedColumnSettings.set(property, rawColumn as SwMeteorEntityDataTableUserSettingColumn);
+                        savedColumnOrder.push(property);
+                    });
+
+                    const orderedProperties = [
+                        ...savedColumnOrder,
+                        ...currentColumns
+                            .map((column) => column.property)
+                            .filter((property) => !savedColumnSettings.has(property)),
+                    ];
+
+                    return orderedProperties.reduce<SwMeteorEntityDataTableColumnChanges>((changes, property, index) => {
+                        const savedColumnSetting = savedColumnSettings.get(property);
+                        const columnChange: SwMeteorEntityDataTableColumnChange = {
+                            position: index * 100,
+                        };
+
+                        if (typeof savedColumnSetting?.width === 'number') {
+                            columnChange.width = savedColumnSetting.width;
+                        }
+
+                        if (typeof savedColumnSetting?.visible === 'boolean') {
+                            columnChange.visible = savedColumnSetting.visible;
+                        }
+
+                        changes[property] = columnChange;
+
+                        return changes;
+                    }, {});
+                }
+
+                function normalizeUserTableSettingColumnChanges(
+                    rawColumnChanges: unknown,
+                ): SwMeteorEntityDataTableColumnChanges {
+                    if (!isRecord(rawColumnChanges)) {
+                        return {};
+                    }
+
+                    const currentColumnProperties = new Set(resolvedColumns.value.map((column) => column.property));
+
+                    return Object.entries(rawColumnChanges).reduce<SwMeteorEntityDataTableColumnChanges>(
+                        (changes, [property, rawColumnChange]) => {
+                            if (!currentColumnProperties.has(property) || !isRecord(rawColumnChange)) {
+                                return changes;
+                            }
+
+                            const columnChange: SwMeteorEntityDataTableColumnChange = {};
+
+                            if (typeof rawColumnChange.position === 'number') {
+                                columnChange.position = rawColumnChange.position;
+                            }
+
+                            if (typeof rawColumnChange.width === 'number') {
+                                columnChange.width = rawColumnChange.width;
+                            }
+
+                            if (typeof rawColumnChange.visible === 'boolean') {
+                                columnChange.visible = rawColumnChange.visible;
+                            }
+
+                            if (Object.keys(columnChange).length > 0) {
+                                changes[property] = columnChange;
+                            }
+
+                            return changes;
+                        },
+                        {},
+                    );
+                }
+
+                function getUserTableSettingColumnProperty(column: Record<string, unknown>): string | null {
+                    if (typeof column.property === 'string') {
+                        return column.property;
+                    }
+
+                    if (typeof column.dataIndex === 'string') {
+                        return column.dataIndex;
+                    }
+
+                    return null;
                 }
 
                 function buildCriteria(): CriteriaType {
@@ -1177,18 +1532,22 @@ export default defineComponent({
 
                 function setShowOutlines(value: boolean): void {
                     showOutlines.value = value;
+                    saveUserTableSettingsSilently();
                 }
 
                 function setShowStripes(value: boolean): void {
                     showStripes.value = value;
+                    saveUserTableSettingsSilently();
                 }
 
                 function setEnableOutlineFraming(value: boolean): void {
                     enableOutlineFraming.value = value;
+                    saveUserTableSettingsSilently();
                 }
 
                 function setEnableRowNumbering(value: boolean): void {
                     enableRowNumbering.value = value;
+                    saveUserTableSettingsSilently();
                 }
 
                 function normalizeForwardedSlotScope(scope: ForwardedSlotScope): Record<string, unknown> {
@@ -1206,6 +1565,16 @@ export default defineComponent({
 
                     return normalizedScope;
                 }
+
+                watch(
+                    tableColumnChanges,
+                    () => {
+                        saveUserTableSettingsSilently();
+                    },
+                    {
+                        deep: true,
+                    },
+                );
 
                 watch(
                     () => setupProps.criteria,
@@ -1236,6 +1605,7 @@ export default defineComponent({
                 );
 
                 onMounted(() => {
+                    void loadUserTableSettings();
                     void load();
                 });
 
@@ -1319,6 +1689,10 @@ function isTableRecord(value: unknown): value is SwMeteorEntityDataTableRecord {
         'id' in value &&
         typeof (value as { id: unknown }).id === 'string'
     );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function resolveMeteorColumn(

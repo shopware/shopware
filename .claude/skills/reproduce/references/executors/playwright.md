@@ -14,9 +14,19 @@ deterministically (proven locators) and injects the session via `storageState` b
 spec runs. Begin directly at the target module, e.g.
 `await page.goto('/admin#/sw/cms/index')`, and wait for a concrete element of that page.
 Authoring a login preamble is the single most common source of broken runs (strict-mode
-locator fumbles) — it will be redundant at best and flaky at worst. (Storefront *customer*
-login, when an issue genuinely needs it, is still yours to author — follow the locator
-rules below.)
+locator fumbles) — it will be redundant at best and flaky at worst.
+
+**Storefront *customer* login — SEED the customer, never create it at runtime.** When a bug
+needs a logged-in (or registered) storefront customer, put the customer in `fixtures.json`
+with a known plaintext `password` and a COMPLETE default billing address built from the
+resolved placeholders (`salutationId: "{{SALUTATION}}"`, `countryId: "{{COUNTRY}}"`,
+`languageId: "{{LANGUAGE}}"`, plus `firstName`/`lastName`/`street`/`zipcode`/`city`), bound to
+`{{SC}}` via `boundSalesChannelId`/`salesChannelId`. Then the spec just logs in through the
+storefront form (`/account/login`, labels "Your email address" / "Your password"). Do NOT
+assemble a customer-create payload at RUNTIME in the spec (store-api register or admin
+`POST /api/customer`): hand-built addresses routinely omit a required field and 400 with
+"This value should not be blank", killing the run at `PRECONDITION_NOT_FOUND` (hit live on
+#33). seed.sh validates + resolves the fixture deterministically; runtime creation does not.
 
 **Storefront CMS-block specs — reach the block via a CATEGORY page.** For a bug in a CMS
 element (product slider, image, text) on the storefront, seed the block on a **category** and

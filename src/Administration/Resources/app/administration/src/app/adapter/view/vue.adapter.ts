@@ -661,6 +661,7 @@ export default class VueAdapter extends ViewAdapter {
             legacy: false,
             locale: lastKnownLocale,
             fallbackLocale,
+            fallbackWarn: false,
             silentFallbackWarn: true,
             sync: true,
             messages,

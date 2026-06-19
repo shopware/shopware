@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' || github.event_name == 'pull_request'
     steps:
-      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
+      - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const { cleanupNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
@@ -52,7 +52,7 @@ jobs:
         with:
           scope: shopware
           identity: ReadCollaborators
-      - uses: tspascoal/get-user-teams-membership@57e9f42acd78f4d0f496b3be4368fc5f62696662 # 3
+      - uses: tspascoal/get-user-teams-membership@b2546c5affc730fd8e3d8483ae9ad3621938c2f9 # v4.0.2
         id: actorTeams
         with:
           username: ${{ github.actor }}
@@ -74,7 +74,7 @@ jobs:
           echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
           echo "Is custom user: ${{ steps.customUserCheck.outputs.is_custom_user }}"
       - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') || steps.customUserCheck.outputs.is_custom_user == 'true' }}
-        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const issueNumber = context.payload.issue.number;
@@ -109,7 +109,7 @@ jobs:
           identity: ManageProjects
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
@@ -128,7 +128,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           PROJECT_NUMBER: 27 # Framework Group
           DRY_RUN: true
@@ -150,7 +150,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           DRY_RUN: true
         with:
@@ -176,7 +176,7 @@ jobs:
           identity: ManageProjects
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
@@ -200,7 +200,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const { syncTestPlanSubIssue } = await import('${{ github.workspace }}/.github/bin/js/test-plan-sub-issue.mjs')

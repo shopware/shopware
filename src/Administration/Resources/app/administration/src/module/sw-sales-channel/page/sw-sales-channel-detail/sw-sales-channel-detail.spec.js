@@ -290,7 +290,26 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+
+        const tabs = wrapper.findAll('.sw-tabs-item');
+        expect(tabs[tabs.length - 1].text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+    });
+
+    it('shows agentic files tab for headless sales channels', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('hides the insights tab for product comparison channels', async () => {
@@ -303,6 +322,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Package('inventory')]
@@ -19,18 +20,25 @@ class EntityRouteResolver
     ) {
     }
 
-    public function getRouteNameForEntityName(string $entityName): string
-    {
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function getRouteNameForEntityName(
+        string $entityName,
+        array $parameters = [],
+        ?SalesChannelEntity $salesChannel = null
+    ): string {
         $routes = $this->registry->findByDefinition($entityName);
-        $route = \array_key_exists(0, $routes) ? $routes[0]->getConfig()->getRouteName() : null;
+        $route = $routes[0] ?? null;
+        $config = $route?->getConfig();
 
-        if ($route) {
-            return $route;
+        if ($config) {
+            return $salesChannel
+                ? $config->getRouteBySalesChannel($salesChannel, $parameters)
+                : $config->getRouteName();
         }
 
-        $fallback = \sprintf('store-api.%s.detail', str_replace('_', '-', $entityName));
-
-        return $this->router->getRouteCollection()->get($fallback) !== null ? $fallback : $entityName;
+        return \sprintf('store-api.%s.detail', str_replace('_', '-', $entityName));
     }
 
     /**
@@ -39,9 +47,12 @@ class EntityRouteResolver
      *
      * @param array<string, mixed> $parameters
      */
-    public function generateSeoUrlPlaceholder(string $entityName, array $parameters = []): string
-    {
-        $routeName = $this->getRouteNameForEntityName($entityName);
+    public function generateSeoUrlPlaceholder(
+        string $entityName,
+        array $parameters = [],
+        ?SalesChannelEntity $salesChannel = null,
+    ): string {
+        $routeName = $this->getRouteNameForEntityName($entityName, $parameters, $salesChannel);
 
         return $this->seoUrlPlaceholderHandler->generate($routeName, $parameters);
     }
@@ -52,9 +63,12 @@ class EntityRouteResolver
      *
      * @param array<string, mixed> $parameters
      */
-    public function generateUrl(string $entityName, array $parameters = []): string
-    {
-        $routeName = $this->getRouteNameForEntityName($entityName);
+    public function generateUrl(
+        string $entityName,
+        array $parameters = [],
+        ?SalesChannelEntity $salesChannel = null,
+    ): string {
+        $routeName = $this->getRouteNameForEntityName($entityName, $parameters, $salesChannel);
 
         return $this->router->generate($routeName, $parameters);
     }

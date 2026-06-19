@@ -20,6 +20,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\NavigationController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -68,12 +69,11 @@ class NavigationControllerTest extends TestCase
 
         $entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $entityRouteResolver->method('generateSeoUrlPlaceholder')
-            ->willReturnCallback(static function (string $entityName, array $parameters = []) {
+            ->willReturnCallback(static function (string $entityName, array $parameters = [], ?SalesChannelEntity $salesChannel = null) {
                 return match ($entityName) {
                     'product' => '/product/' . ($parameters['productId'] ?? ''),
                     'category' => '/navigation/' . ($parameters['navigationId'] ?? ''),
                     'landing_page' => '/landingPage/' . ($parameters['landingPageId'] ?? ''),
-                    'frontend.home.page' => '/',
                     default => '/' . $entityName,
                 };
             });

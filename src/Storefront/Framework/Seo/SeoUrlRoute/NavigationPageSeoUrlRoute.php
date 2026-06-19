@@ -21,6 +21,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     final public const ROUTE_NAME = 'frontend.navigation.page';
     final public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
+    final public const HOME_PAGE_ROUTE_NAME = 'frontend.home.page';
 
     /**
      * @internal
@@ -37,7 +38,16 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
             $this->categoryDefinition,
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
-            true
+            true,
+            static function (SalesChannelEntity $salesChannel, array $parameters): string {
+                $navigationId = $parameters['navigationId'] ?? null;
+
+                if ($salesChannel->getNavigationCategoryId() === $navigationId) {
+                    return self::HOME_PAGE_ROUTE_NAME;
+                }
+
+                return self::ROUTE_NAME;
+            },
         );
     }
 

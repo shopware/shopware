@@ -48,12 +48,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
                 return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, ['productId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
-                if ($salesChannel !== null && $internalLink === $salesChannel->getNavigationCategoryId()) {
-                    /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                    return $this->entityRouteResolver->generateSeoUrlPlaceholder('frontend.home.page');
-                }
-
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, ['navigationId' => $internalLink]);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, ['navigationId' => $internalLink], $salesChannel);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
                 return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, ['landingPageId' => $internalLink]);

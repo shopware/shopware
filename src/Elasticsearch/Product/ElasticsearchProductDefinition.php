@@ -54,7 +54,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
-        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
+        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::buildTextFieldConfig(lengthNorm: true));
         $technicalLanguageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
@@ -72,10 +72,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $properties = [
             'id' => self::KEYWORD_FIELD,
             'name' => $technicalLanguageFieldsWithExact,
+            'parent' => ElasticsearchFieldBuilder::nested([
+                'name' => $technicalLanguageFieldsWithExact,
+            ]),
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $technicalLanguageFieldsWithExact,
+            'customSearchKeywords' => $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true, lengthNorm: true)),
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -108,7 +111,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true),
+            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
             'ean' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
@@ -223,6 +226,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
             $names = $this->fillFallbackTranslation($languageMapping, $names);
+            $parentNames = ElasticsearchFieldMapper::translated(field: 'parentName', items: $translation);
+            $parentNames = $this->fillFallbackTranslation($languageMapping, $parentNames);
 
             $customFields = $this->mapCustomFields(
                 variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
@@ -324,6 +329,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
                 'customFields' => $customFields,
                 'name' => $names,
+                'parent' => $item['parentId'] !== null ? [
+                    'id' => $item['parentId'],
+                    '_count' => 1,
+                    'name' => $parentNames,
+                ] : null,
                 'description' => ElasticsearchFieldMapper::translated(field: 'description', items: $translation),
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
@@ -492,6 +502,7 @@ SQL;
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(product_main.name, product_parent.name) AS name,
+    product_parent.name AS parentName,
     IFNULL(product_main.description, product_parent.description) AS description,
     IFNULL(product_main.meta_title, product_parent.meta_title) AS metaTitle,
     IFNULL(product_main.meta_description, product_parent.meta_description) AS metaDescription,

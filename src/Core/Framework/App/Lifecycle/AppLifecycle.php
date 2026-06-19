@@ -44,9 +44,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appManager->update($manifest, $parameters, $this->loadApp($app['id'], $context), $context);
     }
 
-    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
+    public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
-        $this->appManager->delete($this->loadApp($app['id'], $context), $context, $keepUserData);
+        $this->appManager->uninstall($this->loadApp($app['id'], $context), $context, $keepUserData);
     }
 
     private function loadApp(string $id, Context $context): AppEntity

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Language\LanguageCollection;
 
 /**
@@ -48,7 +49,7 @@ class LanguageListResource
         return [
             'uri' => 'shopware://languages',
             'mimeType' => 'application/json',
-            'text' => json_encode($languages, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($languages),
         ];
     }
 }

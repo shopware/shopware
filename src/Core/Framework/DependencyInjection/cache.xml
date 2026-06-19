@@ -56,6 +56,7 @@
             <argument>%shopware.cache.invalidation.delay_enabled%</argument>
             <argument>%shopware.cache.invalidation.tag_invalidation_log_enabled%</argument>
             <argument type="service" id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" on-invalid="null"/>
         </service>
 

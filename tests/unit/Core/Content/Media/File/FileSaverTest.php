@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -83,6 +84,7 @@ class FileSaverTest extends TestCase
             $this->mediaPathStrategy,
             new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
             new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
+            new NativeClock()
         );
     }
 
@@ -212,6 +214,7 @@ class FileSaverTest extends TestCase
             $this->createMock(AbstractMediaPathStrategy::class),
             $this->createMock(MediaFileCleanupService::class),
             $this->createMock(MediaFileExtensionValidator::class),
+            new NativeClock(),
             true,
         );
 
@@ -439,6 +442,7 @@ class FileSaverTest extends TestCase
             $mediaPathStrategy,
             $this->createMock(MediaFileCleanupService::class),
             $this->createMock(MediaFileExtensionValidator::class),
+            new NativeClock(),
             true,
         );
 

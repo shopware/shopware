@@ -105,8 +105,7 @@ class TranslationMetadataLoaderTest extends TestCase
         $this->client = $client;
         $loader = $this->getTranslationMetadataLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('Failed to download translation metadata from "http://localhost:8000/metadata.json": Error');
+        $this->expectExceptionObject(SnippetException::translationMetadataDownloadFailed(new Uri('http://localhost:8000/metadata.json'), new \Exception('Error')));
         $loader->getUpdatedLocalMetadata(['es-ES', 'it-IT']);
     }
 

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -55,6 +56,11 @@ class DebugMcpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $name = $input->getArgument('name');
+        $integration = $input->getOption('integration');
+        $tools = (bool) $input->getOption('tools');
+        $prompts = (bool) $input->getOption('prompts');
+        $resources = (bool) $input->getOption('resources');
         $io = new SymfonyStyle($input, $output);
 
         if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
@@ -65,35 +71,30 @@ class DebugMcpCommand extends Command
 
         $this->builder->build();
 
-        $accessKey = $input->getOption('integration');
         $toolsAllowlist = null;
-        if (\is_string($accessKey) && $accessKey !== '') {
-            $allowlist = $this->allowlistProvider->forAccessKey($accessKey);
-            $toolsAllowlist = $allowlist['tools'];
+        if ($integration !== null && $integration !== '') {
+            $allowlist = $this->allowlistProvider->forAccessKey($integration);
+            $toolsAllowlist = $allowlist->tools;
             if ($toolsAllowlist === null) {
-                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $accessKey));
+                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
             } else {
-                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $accessKey, \count($toolsAllowlist)));
+                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $integration, \count($toolsAllowlist)));
             }
         }
 
-        $name = $input->getArgument('name');
         if ($name !== null) {
             return $this->renderDetail($io, $name);
         }
 
-        $filterTools = (bool) $input->getOption('tools');
-        $filterPrompts = (bool) $input->getOption('prompts');
-        $filterResources = (bool) $input->getOption('resources');
-        $noFilter = !$filterTools && !$filterPrompts && !$filterResources;
+        $noFilter = !$tools && !$prompts && !$resources;
 
-        if ($filterTools || $noFilter) {
+        if ($tools || $noFilter) {
             $this->renderTools($io, $toolsAllowlist);
         }
-        if ($filterPrompts || $noFilter) {
+        if ($prompts || $noFilter) {
             $this->renderPrompts($io);
         }
-        if ($filterResources || $noFilter) {
+        if ($resources || $noFilter) {
             $this->renderResources($io);
             $this->renderResourceTemplates($io);
         }
@@ -109,9 +110,7 @@ class DebugMcpCommand extends Command
         \assert($this->registry !== null);
 
         foreach ($this->registry->getTools()->references as $tool) {
-            if (!$tool instanceof Tool) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($tool instanceof Tool);
             if ($tool->name === $name) {
                 $ref = $this->registry->getTool($name);
                 $toolData = $this->catalog->findTool($name);
@@ -122,9 +121,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getPrompts()->references as $prompt) {
-            if (!$prompt instanceof Prompt) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($prompt instanceof Prompt);
             if ($prompt->name === $name) {
                 $ref = $this->registry->getPrompt($name);
                 $this->renderPromptDetail($io, $prompt, $ref->handler);
@@ -134,9 +131,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getResources()->references as $resource) {
-            if (!$resource instanceof Resource) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($resource instanceof Resource);
 
             if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
                 $ref = $this->registry->getResource($resource->uri, false);
@@ -164,13 +159,13 @@ class DebugMcpCommand extends Command
         if (\is_array($properties)) {
             foreach ($properties as $paramName => $def) {
                 if (!\is_array($def)) {
-                    continue; // @codeCoverageIgnore
+                    continue;
                 }
                 $type = isset($def['type']) && \is_string($def['type']) ? $def['type'] : 'mixed';
                 $req = \in_array($paramName, $required, true) ? 'required' : 'optional';
                 $desc = isset($def['description']) && \is_string($def['description']) ? $def['description'] : '';
                 if (isset($def['default'])) {
-                    $desc .= ($desc !== '' ? '. ' : '') . 'Default: ' . \json_encode($def['default']);
+                    $desc .= ($desc !== '' ? '. ' : '') . 'Default: ' . Json::encode($def['default']);
                 }
                 $rows[] = [$paramName, $type, $req, $desc];
             }
@@ -334,9 +329,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $prompt) {
-            if (!$prompt instanceof Prompt) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($prompt instanceof Prompt);
             $ref = $this->registry->getPrompt($prompt->name);
             $rows[] = [$prompt->name, $this->describeHandler($ref->handler)];
         }
@@ -360,9 +353,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $resource) {
-            if (!$resource instanceof Resource) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($resource instanceof Resource);
 
             $ref = $this->registry->getResource($resource->uri, false);
             $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];
@@ -387,9 +378,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $template) {
-            if (!$template instanceof ResourceTemplate) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($template instanceof ResourceTemplate);
             $ref = $this->registry->getResourceTemplate($template->uriTemplate);
             $rows[] = [$template->name, $template->uriTemplate, $this->describeHandler($ref->handler)];
         }

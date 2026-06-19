@@ -21,8 +21,4 @@ class Migration1778142666AddMcpAllowlistToUser extends MigrationStep
     {
         $this->addColumn($connection, 'user', 'mcp_allowlist', 'JSON');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

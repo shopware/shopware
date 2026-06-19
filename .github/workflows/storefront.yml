@@ -58,7 +58,7 @@ jobs:
         with:
           path: |
             src/Storefront/Resources/app/administration/.eslintcache
-          key: storefront-admin-modules-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs', 'src/Administration/Resources/app/administration/eslint.config.ts') }}
+          key: storefront-admin-modules-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.ts') }}
 
       - name: Lint
         run: composer eslint:storefront:admin-modules

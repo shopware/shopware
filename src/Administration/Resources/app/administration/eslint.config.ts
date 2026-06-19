@@ -176,7 +176,6 @@ export default [
         ignores: [
             'build/*.js',
             'config/*.js',
-            'eslint.config.mjs',
             'eslint.config.ts',
             'jest.config.js',
             'jest.config.ts',

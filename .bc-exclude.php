@@ -111,5 +111,15 @@ return [
 
         // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
         preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
+
+        // Contravariant widening so the filter also accepts PartialEntity media from partial listing loading
+        preg_quote('The parameter $media of Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter#encodeMediaUrl() changed from', '/'),
+
+        // Experimental MCP feature (gated behind the MCP_SERVER flag, all MCP classes are
+        // @experimental stableVersion:v6.8.0). The MCP rate-limit route was split per API
+        // scope, replacing the single RateLimiter::MCP constant with MCP_ADMIN_API /
+        // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
+        // was not auto-skipped, but it is part of the still-experimental MCP surface.
+        preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
     ],
 ];

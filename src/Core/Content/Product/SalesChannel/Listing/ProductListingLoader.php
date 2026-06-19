@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -34,6 +35,61 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ProductListingLoader
 {
+    /**
+     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
+     * data required by the default storefront product boxes. Nested association fields (e.g.
+     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_FIELDS = [
+        'id',
+        'versionId',
+        'parentId',
+        'productNumber',
+        'displayGroup',
+        'states',
+        'childCount',
+        'name',
+        'descriptionTeaser',
+        'available',
+        'availableStock',
+        'stock',
+        'isCloseout',
+        'minPurchase',
+        'maxPurchase',
+        'purchaseSteps',
+        'purchaseUnit',
+        'referenceUnit',
+        'unitId',
+        'taxId',
+        'price',
+        'prices.ruleId',
+        'prices.price',
+        'prices.quantityStart',
+        'prices.quantityEnd',
+        'cheapestPrice',
+        'variantListingConfig',
+        'variation',
+        'options.group',
+        'coverId',
+        'cover.media.url',
+        'cover.media.alt',
+        'cover.media.title',
+        'cover.media.mediaTypeRaw',
+        'cover.media.thumbnailsRo',
+        'manufacturerId',
+        'manufacturer.name',
+        'ratingAverage',
+        'releaseDate',
+        'markAsTopseller',
+        'deliveryTimeId',
+        'deliveryTime.name',
+        'deliveryTime.min',
+        'deliveryTime.max',
+        'deliveryTime.unit',
+    ];
+
     /**
      * @internal
      *
@@ -68,6 +124,13 @@ class ProductListingLoader
     private function _load(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+
+        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
+            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        }
+
         $clone = clone $criteria;
 
         $idResult = $this->extensions->publish(
@@ -264,11 +327,15 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $this->addGrouping($criteria);
+        $displayAsGroup = $this->isDisplayAsGroupEnabled($criteria);
+
+        if ($displayAsGroup) {
+            $this->addGrouping($criteria);
+        }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        if ($isSearchRoute && $this->systemConfigService->getBool(
+        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
@@ -299,10 +366,9 @@ class ProductListingLoader
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
         $mapping = array_combine($keys, $keys);
-
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = $this->isDisplayAsGroupEnabled($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -349,5 +415,10 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    private function isDisplayAsGroupEnabled(Criteria $criteria): bool
+    {
+        return !$criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
     }
 }

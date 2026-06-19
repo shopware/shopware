@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -27,25 +28,32 @@ class ShopSecretInvalidMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
+    public function __invoke(callable $handler): callable
     {
-        if ($response->getStatusCode() !== 401) {
-            return $response;
-        }
+        return function (RequestInterface $request, array $options) use ($handler) {
+            /** @var PromiseInterface $promise */
+            $promise = $handler($request, $options);
 
-        $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $code = $body['code'] ?? null;
+            return $promise->then(function (ResponseInterface $response) {
+                if ($response->getStatusCode() !== 401) {
+                    return $response;
+                }
 
-        if ($code !== self::INVALID_SHOP_SECRET) {
-            $response->getBody()->rewind();
+                $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                $code = $body['code'] ?? null;
 
-            return $response;
-        }
+                if ($code !== self::INVALID_SHOP_SECRET) {
+                    $response->getBody()->rewind();
 
-        $this->connection->executeStatement('UPDATE user SET store_token = NULL');
+                    return $response;
+                }
 
-        $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
+                $this->connection->executeStatement('UPDATE user SET store_token = NULL');
 
-        throw StoreException::shopSecretInvalid();
+                $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
+
+                throw StoreException::shopSecretInvalid();
+            });
+        };
     }
 }

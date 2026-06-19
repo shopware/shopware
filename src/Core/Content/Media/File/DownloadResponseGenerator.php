@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
@@ -40,6 +41,7 @@ class DownloadResponseGenerator
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
         private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+        private readonly ClockInterface $clock,
         private readonly string $privateLocalPathPrefix = ''
     ) {
     }
@@ -54,7 +56,7 @@ class DownloadResponseGenerator
         $path = $media->getPath();
 
         try {
-            $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
+            $url = $fileSystem->temporaryUrl($path, $this->clock->now()->modify($expiration));
 
             return new RedirectResponse($url);
         } catch (UnableToGenerateTemporaryUrl $exception) {

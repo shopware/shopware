@@ -172,26 +172,45 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
     });
 
-    it('should have currency criteria with sort', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        [
+            'paymentMethods',
+            'distinguishableName',
+        ],
+        [
+            'shippingMethods',
+            'name',
+        ],
+        [
+            'countries',
+            'name',
+        ],
+        [
+            'currencies',
+            'name',
+        ],
+        [
+            'languages',
+            'name',
+        ],
+    ])('should load %s association with alphabetical sort', async (associationName, sortField) => {
+        await createWrapper();
 
-        const criteria = wrapper.vm.getLoadSalesChannelCriteria();
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations[associationName].sort[0]).toEqual({
+            field: sortField,
+            order: 'ASC',
+            naturalSorting: false,
+        });
+    });
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                associations: expect.objectContaining({
-                    currencies: expect.objectContaining({
-                        sort: expect.arrayContaining([
-                            {
-                                field: 'name',
-                                order: 'ASC',
-                                naturalSorting: false,
-                            },
-                        ]),
-                    }),
-                }),
-            }),
-        );
+    it('should load languages association with active language filter', async () => {
+        await createWrapper();
+
+        const criteria = mockGet.mock.calls[0][2];
+        expect(criteria.parse().associations.languages.filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should provide agentic commerce export config accessor for child views', async () => {
@@ -271,7 +290,26 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+
+        const tabs = wrapper.findAll('.sw-tabs-item');
+        expect(tabs[tabs.length - 1].text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+    });
+
+    it('shows agentic files tab for headless sales channels', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('hides the insights tab for product comparison channels', async () => {
@@ -284,6 +322,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {

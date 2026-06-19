@@ -44,6 +44,13 @@ The default CMS page ID is now automatically written to the database when a cate
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
 
+## Storefront template config PHP helpers removed
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` were removed.
+Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code.
+
+Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -148,16 +155,38 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
-## Customer default address detail routes return only the configured default address
+## Reference-based Admin API detail routes use one-to-one associations
 
-The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
-Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
+Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
 </details>
 
 # Core
 
 <details>
+
+## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
 
 ## Removed stored `mail_template_type.template_data`
 
@@ -208,6 +237,45 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Product stream builder API changes
+
+The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
+Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
+
+The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
+Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
+
+### Before
+
+```php
+public function __construct(
+    private readonly ProductStreamBuilderInterface $productStreamBuilder,
+) {
+}
+
+$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
+$criteria->addFilter(...$filters);
+```
+
+### After
+
+```php
+public function __construct(
+    private readonly AbstractProductStreamBuilder $productStreamBuilder,
+) {
+}
+
+$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
+```
+
+## Product streams can disable variant grouping
+
+Product streams no longer always imply grouped variant results.
+When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
+
+The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
+If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -562,6 +630,14 @@ $this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChanne
 ```
 
 Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
+
+For plugin and app configuration fields rendered through `Resources/config/config.xml`, mark fields that affect cached storefront output with `cache-relevant="true"` so Administration saves continue to invalidate HTTP cache entries:
+
+```xml
+<input-field type="bool" cache-relevant="true">
+    <name>showBanner</name>
+</input-field>
+```
 
 ## Removed SystemConfig exceptions
 
@@ -1308,7 +1384,12 @@ The block `page_product_detail_product_buy_button_label` has been removed. Use `
 
 ## Deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets
 
-The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Override the new Twig blocks instead:
+The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Use one of the following replacements instead:
+
+- Without code, via system config: create a regular translation snippet with a custom key and enter that key in the new system config settings `core.listing.beforeListPriceSnippetKey` / `core.listing.afterListPriceSnippetKey` (Settings > Shop > Listing). The snippet content is rendered sanitized around every list price, per sales channel and language.
+- In a theme or plugin: override the central template `@Storefront/storefront/component/product/list-price-affix.html.twig` (block `component_list_price_affix_content`, with `position` set to `before` or `after`) to inject markup into all list price displays at once.
+
+To target a single display only, override the local Twig blocks instead:
 
 - `buy-widget-price.html.twig`: `buy_widget_was_price_before` / `buy_widget_was_price_after`
 - `block-price.html.twig`: `component_product_detail_block_list_price_before` / `component_product_detail_block_list_price_after`

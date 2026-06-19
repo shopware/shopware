@@ -308,12 +308,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         wrapper.vm.currentAddress = {
             id: 'newCustomerAddressId',
+            getEntityName: () => 'customer_address',
         };
         wrapper.vm.isValidAddress = jest.fn(() => true);
 
         await expect(wrapper.vm.onSaveAddress()).resolves.toBeUndefined();
 
         expect(wrapper.emitted('change-address')).toBeUndefined();
+
+        wrapper.vm.currentAddress = null;
     });
 
     it('should resolve customer loading when the order customer has no customer id', async () => {
@@ -323,10 +326,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         orderCustomer.customerId = null;
 
         try {
-            wrapper = await createWrapper();
-
-            await flushPromises();
-
             await expect(wrapper.vm.getCustomer()).resolves.toBeNull();
 
             expect(wrapper.vm.customer).toBeNull();

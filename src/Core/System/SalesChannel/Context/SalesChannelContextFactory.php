@@ -28,6 +28,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
+use Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -190,7 +191,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
-     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
+     * @see SalesChannelContextTest
      *
      * @param array<string, mixed> $options
      */
@@ -277,7 +278,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
-     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
+     * @see SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */

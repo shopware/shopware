@@ -56,10 +56,10 @@ class FilesystemTest extends TestCase
     {
         $dir = $this->baseDir . '/fixme';
         mkdir($dir, 0500);
-        static::assertFalse(is_writable($dir));
+        static::assertDirectoryIsNotWritable($dir);
 
         static::assertSame([], (new Filesystem())->checkSingleDirectoryPermissions($dir, true));
-        static::assertTrue(is_writable($dir));
+        static::assertDirectoryIsWritable($dir);
     }
 
     private function removeRecursively(string $dir): void

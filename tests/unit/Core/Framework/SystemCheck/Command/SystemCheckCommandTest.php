@@ -71,7 +71,7 @@ class SystemCheckCommandTest extends TestCase
 
     private function checker(Result ...$results): SystemChecker
     {
-        $checker = $this->createStub(SystemChecker::class);
+        $checker = static::createStub(SystemChecker::class);
         $checker->method('check')->willReturn($results);
 
         return $checker;

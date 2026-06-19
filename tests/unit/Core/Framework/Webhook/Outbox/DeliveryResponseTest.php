@@ -20,7 +20,7 @@ class DeliveryResponseTest extends TestCase
     public function testFromWithResponse(): void
     {
         $request = new WebhookRequest(
-            $this->createStub(RequestInterface::class),
+            static::createStub(RequestInterface::class),
             ['Content-Type' => 'application/json'],
             '{"event":"order.placed"}',
             1700000000,
@@ -52,7 +52,7 @@ class DeliveryResponseTest extends TestCase
     public function testFromWithoutResponse(): void
     {
         $request = new WebhookRequest(
-            $this->createStub(RequestInterface::class),
+            static::createStub(RequestInterface::class),
             [],
             '',
             1700000000,

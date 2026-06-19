@@ -13,6 +13,8 @@ const MAX_DIAGNOSTICS = 20;
 
 type VueSfcBlock = {
     content: string,
+    setup?: string | boolean,
+    type?: string,
     name?: string,
     lang?: string | null,
     attrs?: Record<string, string | boolean>,
@@ -56,7 +58,7 @@ function escapeTypeScriptString(value: string): string {
  * Returns the block-relative source name Volar uses for source maps.
  */
 function getBlockSourceName(block: VueSfcBlock): string {
-    return block.name ?? 'scriptSetup';
+    return block.name ?? (block.setup ? 'scriptSetup' : 'script');
 }
 
 /**
@@ -111,6 +113,25 @@ function maskIdentifierToken(script: string, token: { offset: number, length: nu
 }
 
 /**
+ * Returns a mapped diagnostic for descriptor-level script block errors.
+ */
+function createBlockDiagnostic(message: string, block: VueSfcBlock): ShopwareSetupVolarDiagnostic | null {
+    const token = /\S+/u.exec(block.content);
+
+    if (!token) {
+        return null;
+    }
+
+    return {
+        message,
+        block,
+        sourceName: getBlockSourceName(block),
+        offset: token.index,
+        length: token[0].length,
+    };
+}
+
+/**
  * Collects validator errors that can be exposed as source-mapped TS diagnostics.
  */
 function collectShopwareSetupVolarDiagnostics(
@@ -125,6 +146,18 @@ function collectShopwareSetupVolarDiagnostics(
     }
 
     const diagnostics: ShopwareSetupVolarDiagnostic[] = [];
+
+    if (sfc.script) {
+        const scriptDiagnostic = createBlockDiagnostic(
+            'A Shopware setup block cannot be combined with another <script> block',
+            sfc.script,
+        );
+
+        if (scriptDiagnostic) {
+            diagnostics.push(scriptDiagnostic);
+        }
+    }
+
     let script = block.content;
 
     while (diagnostics.length < MAX_DIAGNOSTICS) {

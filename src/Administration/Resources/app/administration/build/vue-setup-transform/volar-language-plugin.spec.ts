@@ -128,6 +128,40 @@ swDefineOverride({ count });
         ]);
     });
 
+    it('adds a diagnostic when a Shopware setup block is combined with a normal script block', () => {
+        const plugin = shopwareSetupVolarPlugin();
+        const source = `<script>
+export default {};
+</script>
+<script setup sw-component="sw-my-component">
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+        const sfc = parse(source, { filename: 'base-with-script.vue' }).descriptor;
+        const code = {
+            id: 'script_ts',
+            content: [],
+        };
+
+        plugin.resolveEmbeddedCode('base-with-script.vue', sfc, code);
+
+        expect(code.content).toEqual([
+            expect.stringContaining(
+                'Shopware setup error: A Shopware setup block cannot be combined with another <script> block',
+            ),
+            '__shopwareSetupDiagnostic_0(',
+            [
+                'export',
+                'script',
+                source.slice(0, source.indexOf('export')).length - sfc.script!.loc.start.offset,
+                {
+                    verification: true,
+                },
+            ],
+            ');\n',
+        ]);
+    });
+
     it('continues collecting diagnostics after an earlier invalid macro', () => {
         const plugin = shopwareSetupVolarPlugin();
         const source = `<script setup sw-component="sw-my-component">

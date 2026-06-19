@@ -217,7 +217,7 @@ class LineItem extends Struct
      */
     public function getPayload(): array
     {
-        return $this->getUnprotectedPayload();
+        return $this->payload;
     }
 
     /**

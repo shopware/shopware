@@ -295,7 +295,7 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($product->getId());
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        static::assertArrayNotHasKey('purchasePrices', $lineItem->getPayload());
+        static::assertArrayHasKey('purchasePrices', $lineItem->getPayload());
 
         $purchasePrices = json_decode((string) $lineItem->getPayloadValue('purchasePrices'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);

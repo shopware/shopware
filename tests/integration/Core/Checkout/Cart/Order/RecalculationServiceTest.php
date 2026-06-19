@@ -23,8 +23,6 @@ use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -53,7 +51,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -394,56 +391,10 @@ class RecalculationServiceTest extends TestCase
             }
         }
 
-        $this->removeProtectedPayloadValues($cart);
-        $this->removeProtectedPayloadValues($convertedCart);
+        $this->resetPayloadProtection($cart);
+        $this->resetPayloadProtection($convertedCart);
 
         static::assertEquals($cart, $convertedCart);
-    }
-
-    public function testRecalculationRehydratesPurchasePricesForLineItemRules(): void
-    {
-        $productId = Uuid::randomHex();
-        $cart = new Cart(Uuid::randomHex());
-        $cart = $this->addProduct($cart, $productId, [
-            'purchasePrices' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5.0, 'linked' => false],
-            ],
-        ]);
-
-        $orderId = $this->persistCart($cart)['orderId'];
-
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('deliveries.shippingMethod.tax')
-            ->addAssociation('deliveries.shippingMethod.deliveryTime')
-            ->addAssociation('deliveries.positions.orderLineItem')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
-
-        $order = $this->orderRepository->search($criteria, $this->context)->get($orderId);
-        static::assertNotNull($order);
-
-        $convertedCart = static::getContainer()->get(OrderConverter::class)->convertToCart($order, $this->context);
-
-        $convertedLineItem = $convertedCart->get($productId);
-        static::assertNotNull($convertedLineItem);
-        static::assertNull($convertedLineItem->getPayloadValue('purchasePrices'));
-
-        $processedCart = static::getContainer()->get(Processor::class)
-            ->process($convertedCart, $this->salesChannelContext, new CartBehavior(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS, true, true));
-
-        $processedLineItem = $processedCart->get($productId);
-        static::assertNotNull($processedLineItem);
-        static::assertNotNull($processedLineItem->getPayloadValue('purchasePrices'));
-
-        $rule = new LineItemPurchasePriceRule();
-        $rule->assign([
-            'isNet' => true,
-            'amount' => 5.0,
-            'operator' => Rule::OPERATOR_EQ,
-        ]);
-
-        static::assertTrue($rule->match(new CartRuleScope($processedCart, $this->salesChannelContext)));
     }
 
     public function testRecalculationController(): void
@@ -1545,22 +1496,19 @@ class RecalculationServiceTest extends TestCase
         return $countryId;
     }
 
-    private function removeProtectedPayloadValues(Cart $cart): void
+    private function resetPayloadProtection(Cart $cart): void
     {
-        $payload = new \ReflectionProperty(LineItem::class, 'payload');
+        // remove delivery information from line items
         $payloadProtection = new \ReflectionProperty(LineItem::class, 'payloadProtection');
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
-            $payload->setValue($lineItem, $lineItem->getPayload());
             $payloadProtection->setValue($lineItem, []);
         }
 
         foreach ($cart->getDeliveries() as $delivery) {
             foreach ($delivery->getPositions() as $position) {
-                $payload->setValue($position->getLineItem(), $position->getLineItem()->getPayload());
                 $payloadProtection->setValue($position->getLineItem(), []);
                 foreach ($position->getLineItem()->getChildren() as $lineItem) {
-                    $payload->setValue($lineItem, $lineItem->getPayload());
                     $payloadProtection->setValue($lineItem, []);
                 }
             }

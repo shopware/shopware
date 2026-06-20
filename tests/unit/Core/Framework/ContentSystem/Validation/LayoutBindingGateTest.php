@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -29,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -36,45 +36,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(LayoutBindingGate::class)]
 class LayoutBindingGateTest extends TestCase
 {
-    #[TestDox('returns no violations for a non-string layout id without touching the store')]
-    public function testReturnsNoViolationsForNonStringLayoutId(): void
-    {
-        $gate = new LayoutBindingGate(
-            static::createStub(DefinitionInstanceRegistry::class),
-            static::createStub(LayoutResolvabilityValidator::class),
-            new ViolationConstraintMapper(),
-            static::createStub(LayoutTreeDecoder::class),
-        );
-
-        static::assertCount(0, $gate->bindingViolations(null, [], [], Context::createDefaultContext()));
-    }
-
-    #[TestDox('returns no violations for an empty layout id without touching the store')]
-    public function testReturnsNoViolationsForEmptyLayoutId(): void
-    {
-        $gate = new LayoutBindingGate(
-            static::createStub(DefinitionInstanceRegistry::class),
-            static::createStub(LayoutResolvabilityValidator::class),
-            new ViolationConstraintMapper(),
-            static::createStub(LayoutTreeDecoder::class),
-        );
-
-        static::assertCount(0, $gate->bindingViolations('', [], [], Context::createDefaultContext()));
-    }
-
-    #[TestDox('returns no violations when the bound layout is not (yet) loadable')]
-    public function testReturnsNoViolationsWhenLayoutNotFound(): void
-    {
-        $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult(null)),
-            static::createStub(LayoutResolvabilityValidator::class),
-            new ViolationConstraintMapper(),
-            static::createStub(LayoutTreeDecoder::class),
-        );
-
-        static::assertCount(0, $gate->bindingViolations(Uuid::randomHex(), [], [], Context::createDefaultContext()));
-    }
-
     #[TestDox('maps the binding-scope violations of an unresolvable layout loaded from the committed store')]
     public function testMapsBindingViolationsForUnresolvableLayout(): void
     {
@@ -102,10 +63,15 @@ class LayoutBindingGateTest extends TestCase
         $layout = static::createStub(ContentLayoutEntity::class);
         $layout->method('getLayout')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
 
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('search')->willReturnCallback(
-            fn (Criteria $criteria): EntitySearchResult => $criteria->getIds() === [$hex] ? $this->searchResult($layout) : $this->searchResult(null)
-        );
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $repository */
+        $repository = new StaticEntityRepository([
+            function (Criteria $criteria) use ($hex, $layout): EntitySearchResult {
+                static::assertSame([$hex], $criteria->getIds());
+
+                return $this->searchResult($layout);
+            },
+        ]);
+
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
 
@@ -119,13 +85,13 @@ class LayoutBindingGateTest extends TestCase
     /**
      * @param class-string<WriteCommand> $commandClass
      */
-    #[DataProvider('matchingLayoutCommandProvider')]
+    #[DataProvider('resolvesInBatchTreeFromMatchingCommandProvider')]
     #[TestDox('resolves the in-batch tree from a matching $_dataName carrying the layout column and skips the store')]
     public function testResolvesInBatchTreeFromMatchingCommand(string $commandClass): void
     {
         $layoutId = Uuid::randomHex();
 
-        $decoder = static::createMock(LayoutTreeDecoder::class);
+        $decoder = static::createStub(LayoutTreeDecoder::class);
         $decoder->method('decode')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
 
         $registry = static::createMock(DefinitionInstanceRegistry::class);
@@ -141,33 +107,12 @@ class LayoutBindingGateTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired->value, $violations->get(0)->getCode());
     }
 
-    #[TestDox('falls back to the committed store when a matching update does not touch the layout column')]
-    public function testFallsBackToStoreWhenUpdateLeavesLayoutUntouched(): void
-    {
-        $layoutId = Uuid::randomHex();
-
-        $layout = static::createStub(ContentLayoutEntity::class);
-        $layout->method('getLayout')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
-
-        $decoder = static::createMock(LayoutTreeDecoder::class);
-        $decoder->expects($this->never())->method('decode');
-
-        $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult($layout)),
-            $this->resolvabilityReporting($this->unresolvedReport()),
-            new ViolationConstraintMapper(),
-            $decoder,
-        );
-
-        $command = $this->layoutCommand(UpdateCommand::class, ContentLayoutDefinition::ENTITY_NAME, $layoutId, false);
-
-        $violations = $gate->bindingViolations($layoutId, [], [$command], Context::createDefaultContext());
-
-        static::assertCount(1, $violations);
-    }
-
-    #[TestDox('falls back to the committed store for a command whose primary key does not match the bound layout')]
-    public function testFallsBackToStoreForNonMatchingCommandId(): void
+    /**
+     * @param class-string<WriteCommand> $commandClass
+     */
+    #[DataProvider('fallsBackToStoreProvider')]
+    #[TestDox('falls back to the committed store for $_dataName')]
+    public function testFallsBackToStoreForInBatchCommand(string $commandClass, string $boundLayoutId, string $commandPrimaryKey, bool $touchesLayout): void
     {
         $layout = static::createStub(ContentLayoutEntity::class);
         $layout->method('getLayout')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
@@ -182,34 +127,9 @@ class LayoutBindingGateTest extends TestCase
             $decoder,
         );
 
-        $command = $this->layoutCommand(InsertCommand::class, ContentLayoutDefinition::ENTITY_NAME, Uuid::randomHex(), true, 'encoded-tree');
+        $command = $this->layoutCommand($commandClass, ContentLayoutDefinition::ENTITY_NAME, $commandPrimaryKey, $touchesLayout, 'encoded-tree');
 
-        $violations = $gate->bindingViolations(Uuid::randomHex(), [], [$command], Context::createDefaultContext());
-
-        static::assertCount(1, $violations);
-    }
-
-    #[TestDox('skips a delete command for the bound layout and falls back to the committed store')]
-    public function testSkipsDeleteCommandAndFallsBackToStore(): void
-    {
-        $layoutId = Uuid::randomHex();
-
-        $layout = static::createStub(ContentLayoutEntity::class);
-        $layout->method('getLayout')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
-
-        $decoder = static::createMock(LayoutTreeDecoder::class);
-        $decoder->expects($this->never())->method('decode');
-
-        $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult($layout)),
-            $this->resolvabilityReporting($this->unresolvedReport()),
-            new ViolationConstraintMapper(),
-            $decoder,
-        );
-
-        $command = $this->layoutCommand(DeleteCommand::class, ContentLayoutDefinition::ENTITY_NAME, $layoutId, false);
-
-        $violations = $gate->bindingViolations($layoutId, [], [$command], Context::createDefaultContext());
+        $violations = $gate->bindingViolations($boundLayoutId, [], [$command], Context::createDefaultContext());
 
         static::assertCount(1, $violations);
     }
@@ -219,7 +139,7 @@ class LayoutBindingGateTest extends TestCase
     {
         $layoutId = Uuid::randomHex();
 
-        $decoder = static::createMock(LayoutTreeDecoder::class);
+        $decoder = static::createStub(LayoutTreeDecoder::class);
         $decoder->method('decode')->willThrowException(ContentSystemException::invalidFieldValueType('layout', 'array', 'string'));
 
         $registry = $this->registryReturning($this->searchResult(null));
@@ -233,20 +153,44 @@ class LayoutBindingGateTest extends TestCase
         static::assertCount(0, $violations);
     }
 
+    #[TestDox('returns no violations for a non-string layout id without touching the store')]
+    public function testReturnsNoViolationsForNonStringLayoutId(): void
+    {
+        $gate = $this->createDefaultGate();
+
+        static::assertCount(0, $gate->bindingViolations(null, [], [], Context::createDefaultContext()));
+    }
+
+    #[TestDox('returns no violations for an empty layout id without touching the store')]
+    public function testReturnsNoViolationsForEmptyLayoutId(): void
+    {
+        $gate = $this->createDefaultGate();
+
+        static::assertCount(0, $gate->bindingViolations('', [], [], Context::createDefaultContext()));
+    }
+
+    #[TestDox('returns no violations when the bound layout is not (yet) loadable')]
+    public function testReturnsNoViolationsWhenLayoutNotFound(): void
+    {
+        $gate = new LayoutBindingGate(
+            $this->registryReturning($this->searchResult(null)),
+            static::createStub(LayoutResolvabilityValidator::class),
+            new ViolationConstraintMapper(),
+            static::createStub(LayoutTreeDecoder::class),
+        );
+
+        static::assertCount(0, $gate->bindingViolations(Uuid::randomHex(), [], [], Context::createDefaultContext()));
+    }
+
     #[TestDox('re-throws an in-batch decode error that is not a client defect')]
     public function testRethrowsNonClientDefectInBatchDecodeError(): void
     {
         $layoutId = Uuid::randomHex();
 
-        $decoder = static::createMock(LayoutTreeDecoder::class);
+        $decoder = static::createStub(LayoutTreeDecoder::class);
         $decoder->method('decode')->willThrowException(ContentSystemException::invalidFieldType('Expected', 'Actual'));
 
-        $gate = new LayoutBindingGate(
-            static::createStub(DefinitionInstanceRegistry::class),
-            static::createStub(LayoutResolvabilityValidator::class),
-            new ViolationConstraintMapper(),
-            $decoder,
-        );
+        $gate = $this->createDefaultGate($decoder);
 
         $command = $this->layoutCommand(InsertCommand::class, ContentLayoutDefinition::ENTITY_NAME, $layoutId, true, 'internal-fault');
 
@@ -261,10 +205,22 @@ class LayoutBindingGateTest extends TestCase
     /**
      * @return iterable<string, array{class-string<WriteCommand>}>
      */
-    public static function matchingLayoutCommandProvider(): iterable
+    public static function resolvesInBatchTreeFromMatchingCommandProvider(): iterable
     {
         yield 'insert command' => [InsertCommand::class];
         yield 'update command' => [UpdateCommand::class];
+    }
+
+    /**
+     * @return iterable<string, array{class-string<WriteCommand>, string, string, bool}>
+     */
+    public static function fallsBackToStoreProvider(): iterable
+    {
+        $boundLayoutId = Uuid::randomHex();
+
+        yield 'a matching update that leaves the layout column untouched' => [UpdateCommand::class, $boundLayoutId, $boundLayoutId, false];
+        yield 'a command whose primary key does not match the bound layout' => [InsertCommand::class, $boundLayoutId, Uuid::randomHex(), true];
+        yield 'a delete command for the bound layout' => [DeleteCommand::class, $boundLayoutId, $boundLayoutId, false];
     }
 
     /**
@@ -272,7 +228,7 @@ class LayoutBindingGateTest extends TestCase
      */
     private function layoutCommand(string $commandClass, string $entityName, string $primaryKeyHex, bool $touchesLayout, mixed $payloadValue = null): WriteCommand
     {
-        $command = static::createMock($commandClass);
+        $command = static::createStub($commandClass);
         $command->method('getEntityName')->willReturn($entityName);
         $command->method('getDecodedPrimaryKey')->willReturn(['id' => $primaryKeyHex]);
         $command->method('hasField')->willReturnCallback(
@@ -305,8 +261,8 @@ class LayoutBindingGateTest extends TestCase
      */
     private function registryReturning(EntitySearchResult $result): DefinitionInstanceRegistry
     {
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('search')->willReturn($result);
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $repository */
+        $repository = new StaticEntityRepository([$result]);
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
@@ -323,5 +279,15 @@ class LayoutBindingGateTest extends TestCase
         $result->method('first')->willReturn($layout);
 
         return $result;
+    }
+
+    private function createDefaultGate(?LayoutTreeDecoder $decoder = null): LayoutBindingGate
+    {
+        return new LayoutBindingGate(
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(LayoutResolvabilityValidator::class),
+            new ViolationConstraintMapper(),
+            $decoder ?? static::createStub(LayoutTreeDecoder::class),
+        );
     }
 }

@@ -25,11 +25,11 @@ class HeaderFooterBindingEnumeratorTest extends TestCase
      */
     #[DataProvider('emitsBindingsProvider')]
     #[TestDox('enumerates the source bindings for $_dataName each with an empty provided root context')]
-    public function testEnumeratesBindings(bool $headerAssigned, bool $footerAssigned, array $expectedSources): void
+    public function testEnumeratesBindings(?string $headerId, ?string $footerId, array $expectedSources): void
     {
         $enumerator = new HeaderFooterBindingEnumerator(
-            $this->repositoryWith($headerAssigned ? Uuid::randomHex() : null),
-            $this->repositoryWith($footerAssigned ? Uuid::randomHex() : null),
+            $this->repositoryWith($headerId),
+            $this->repositoryWith($footerId),
         );
 
         $bindings = $enumerator->enumerate(Uuid::randomHex(), Context::createDefaultContext());
@@ -41,14 +41,14 @@ class HeaderFooterBindingEnumeratorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{bool, bool, list<string>}>
+     * @return iterable<string, array{?string, ?string, list<string>}>
      */
     public static function emitsBindingsProvider(): iterable
     {
-        yield 'a header assignment only' => [true, false, ['header']];
-        yield 'a footer assignment only' => [false, true, ['footer']];
-        yield 'both a header and footer assignment' => [true, true, ['header', 'footer']];
-        yield 'no assignment' => [false, false, []];
+        yield 'a header assignment only' => ['header-layout', null, ['header']];
+        yield 'a footer assignment only' => [null, 'footer-layout', ['footer']];
+        yield 'both a header and footer assignment' => ['header-layout', 'footer-layout', ['header', 'footer']];
+        yield 'no assignment' => [null, null, []];
     }
 
     /**

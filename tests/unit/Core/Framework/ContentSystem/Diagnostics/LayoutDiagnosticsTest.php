@@ -45,6 +45,67 @@ use Shopware\Core\Framework\Struct\Struct;
 #[CoversClass(LayoutDiagnostics::class)]
 class LayoutDiagnosticsTest extends TestCase
 {
+    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset and emits no binding errors')]
+    public function testWellFormednessSubsetIgnoresBinding(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+            ->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('exposes the analysed element in the resolutions map')]
+    public function testAnalysisExposesElementResolutions(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block')];
+
+        $analysis = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+            ->analyze($tree, null);
+
+        static::assertArrayHasKey('el-1', $analysis->resolutions);
+    }
+
+    #[TestDox('produces no binding error when a required reference is satisfied by root-ambient context')]
+    public function testRootAmbientSatisfiesRequired(): void
+    {
+        $tree = [new ContentElement('root-1', 'Sw:Block')];
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+            ->analyze($tree, $rootContext)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
+    public function testOrphanedProviderWarning(): void
+    {
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([new ContentElement('child-1', 'Sw:Block')])],
+            new ContextDefinitions(['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())], []),
+        );
+
+        $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze([$root], null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
+        static::assertSame('root-1', $warning->elementId);
+    }
+
     #[TestDox('reports a duplicate element id across roots as an intrinsic error')]
     public function testDuplicateElementId(): void
     {
@@ -67,17 +128,23 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnregisteredComponent, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
-    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset and emits no binding errors')]
-    public function testWellFormednessSubsetIgnoresBinding(): void
+    #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
+    public function testInvalidConfigForUnknownEntity(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $element = new ContentElement(
+            'el-1',
+            'Sw:Block',
+            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
+        );
 
-        $analysis = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
-            ->analyze($tree, null);
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
-        static::assertTrue($analysis->report->isWellFormed());
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertArrayHasKey('el-1', $analysis->resolutions);
+        $report = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader))
+            ->analyze([$element], null)->report;
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
     #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
@@ -112,25 +179,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
-    #[TestDox('produces no binding error when a required reference is satisfied by root-ambient context')]
-    public function testRootAmbientSatisfiesRequired(): void
-    {
-        $tree = [new ContentElement('root-1', 'Sw:Block')];
-
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
-        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
-            ->analyze($tree, $rootContext)->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
     #[TestDox('produces an unresolved_required binding error for a required primitive without a default')]
     public function testRequiredPrimitiveWithoutDefault(): void
     {
@@ -157,44 +205,6 @@ class LayoutDiagnosticsTest extends TestCase
         $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze([$element], [])->report;
 
         static::assertSame(ViolationCode::BrokenRequiredChain, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
-    public function testOrphanedProviderWarning(): void
-    {
-        $root = new ContentElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            ['content' => new SlotContent([new ContentElement('child-1', 'Sw:Block')])],
-            new ContextDefinitions(['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())], []),
-        );
-
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze([$root], null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
-        static::assertSame('root-1', $warning->elementId);
-    }
-
-    #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
-    public function testInvalidConfigForUnknownEntity(): void
-    {
-        $element = new ContentElement(
-            'el-1',
-            'Sw:Block',
-            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
-        );
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
-
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader))
-            ->analyze([$element], null)->report;
-
-        static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
     #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]

@@ -38,13 +38,13 @@ class ElementResolverTest extends TestCase
     /**
      * @return iterable<string, array{bool, string|int|float|bool|null}>
      */
-    public static function primitiveProvider(): iterable
+    public static function resolvesPrimitiveToStaticValueProvider(): iterable
     {
         yield 'an optional primitive with a default' => [false, 'Hello'];
         yield 'a required primitive without a default' => [true, null];
     }
 
-    #[DataProvider('primitiveProvider')]
+    #[DataProvider('resolvesPrimitiveToStaticValueProvider')]
     #[TestDox('resolves $_dataName to a static value carrying type, default and required flag, never blocking')]
     public function testResolvesPrimitiveToStaticValue(bool $required, string|int|float|bool|null $default): void
     {

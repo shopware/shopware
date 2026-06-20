@@ -19,7 +19,7 @@ class DiagnosticsReportTest extends TestCase
     /**
      * @param list<Violation> $violations
      */
-    #[DataProvider('predicateScenarioProvider')]
+    #[DataProvider('derivesPredicatesProvider')]
     #[TestDox('derives predicates for $_dataName')]
     public function testDerivesPredicates(array $violations, bool $wellFormed, bool $resolvable): void
     {
@@ -32,7 +32,7 @@ class DiagnosticsReportTest extends TestCase
     /**
      * @return iterable<string, array{violations: list<Violation>, wellFormed: bool, resolvable: bool}>
      */
-    public static function predicateScenarioProvider(): iterable
+    public static function derivesPredicatesProvider(): iterable
     {
         yield 'an intrinsic error' => [
             'violations' => [

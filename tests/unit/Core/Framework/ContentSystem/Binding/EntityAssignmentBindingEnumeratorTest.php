@@ -11,9 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -80,13 +79,9 @@ class EntityAssignmentBindingEnumeratorTest extends TestCase
         foreach ($assignments as [$definition, $firstId]) {
             $definitions[] = $definition;
 
-            $ids = static::createStub(IdSearchResult::class);
-            $ids->method('firstId')->willReturn($firstId);
-
-            $repository = static::createStub(EntityRepository::class);
-            $repository->method('searchIds')->willReturn($ids);
-
-            $repositoriesByEntity[$definition->getEntityName()] = $repository;
+            $repositoriesByEntity[$definition->getEntityName()] = new StaticEntityRepository([
+                $firstId === null ? [] : [$firstId],
+            ]);
         }
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);

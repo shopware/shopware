@@ -26,14 +26,14 @@ class LayoutResolvabilityValidatorTest extends TestCase
         static::assertTrue($validator->isBindingEnforced(new BoundRootContext('product', [])));
     }
 
-    #[TestDox('well-formedness analyses the tree with no bound source (null root context)')]
+    #[TestDox('analyses well-formedness with no bound source (null root context)')]
     public function testWellFormednessUsesNullRootContext(): void
     {
         $report = new DiagnosticsReport([]);
         $context = Context::createDefaultContext();
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
+        $diagnostics->expects($this->once())->method('analyze')
             ->with([], null, $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
@@ -42,14 +42,14 @@ class LayoutResolvabilityValidatorTest extends TestCase
         static::assertSame($report, $validator->wellFormedness([], $context));
     }
 
-    #[TestDox('resolvability analyses the tree against the bound source root context')]
+    #[TestDox('analyses resolvability against the bound source root context')]
     public function testResolvabilityUsesProvidedRootContext(): void
     {
         $report = new DiagnosticsReport([]);
         $context = Context::createDefaultContext();
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')
+        $diagnostics->expects($this->once())->method('analyze')
             ->with([], [], $context)
             ->willReturn(new LayoutAnalysis($report, []));
 

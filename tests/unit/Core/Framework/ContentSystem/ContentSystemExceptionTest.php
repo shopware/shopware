@@ -51,22 +51,37 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function classifiesClientDefectProvider(): iterable
     {
-        // Reachable from the layout decode path (data_requirements / accepts_context), so a client typo
-        // must become an invalid_config diagnostic, not a 500 that aborts the write.
-        yield 'unknown loader entity as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
-        yield 'config serializer not registered as a client defect' => [ContentSystemException::configSerializerNotRegistered('bogus'), true];
-        yield 'invalid field value type as a client defect' => [ContentSystemException::invalidFieldValueType('entity', 'string', 'null'), true];
-        yield 'consumer alias without redistribute as a client defect' => [ContentSystemException::consumerAliasWithoutRedistribute('product'), true];
-        yield 'property alias with dot notation as a client defect' => [ContentSystemException::propertyAliasWithDotNotation('product', 'a.b'), true];
-        // Internal faults must propagate, never be relabelled as the client's mistake.
-        yield 'invalid field type as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
-        yield 'layout not found as an internal fault' => [ContentSystemException::layoutNotFound('layout-1'), false];
+        // A code in the catalogue is reachable from the layout decode path (data_requirements / accepts_context),
+        // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
+        // catalogue membership is pinned separately by testClientDefectCodes.
+        yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
+        // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
+        yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
     }
 
     #[TestDox('rejects a non content-system throwable as a client defect')]
     public function testForeignThrowableIsNotAClientDefect(): void
     {
         static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
+    }
+
+    #[TestDox('pins the catalogue of client-defect error codes')]
+    public function testClientDefectCodes(): void
+    {
+        $expected = [
+            ContentSystemException::DATA_LOADER_NOT_REGISTERED,
+            ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED,
+            ContentSystemException::UNKNOWN_LOADER_ENTITY,
+            ContentSystemException::INVALID_FIELD_VALUE_TYPE,
+            ContentSystemException::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
+            ContentSystemException::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+        ];
+
+        $actual = ContentSystemException::CLIENT_DEFECT_CODES;
+        sort($expected);
+        sort($actual);
+
+        static::assertSame($expected, $actual);
     }
 
     /**

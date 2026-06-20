@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ContentLayoutDiagnosticsController::class)]
 class ContentLayoutDiagnosticsControllerTest extends TestCase
 {
-    #[TestDox('returns resolutions and a diagnostics report for a well-formed tree without a bound source')]
-    public function testDiagnoseReturnsResolutionsAndDiagnostics(): void
+    #[TestDox('returns the per-element resolutions for a well-formed tree without a bound source')]
+    public function testDiagnoseReturnsPerElementResolutions(): void
     {
         $analysis = new LayoutAnalysis(
             new DiagnosticsReport([]),
@@ -43,10 +43,28 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
 
         $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
 
+        static::assertSame('headline', $this->decode($response)['resolutions']['el-1'][0]['key']);
+    }
+
+    #[TestDox('reports a not-well-formed verdict that merges analysis violations into the diagnostics report')]
+    public function testDiagnoseMergesAnalysisViolationsIntoWellFormednessVerdict(): void
+    {
+        $analysis = new LayoutAnalysis(
+            new DiagnosticsReport([new Violation(ViolationCode::DuplicateElementId, 'el-1', null, 'dup')]),
+            [],
+        );
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning($analysis),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+        );
+
+        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $body = $this->decode($response);
-        static::assertTrue($body['diagnostics']['wellFormed']);
-        static::assertSame('headline', $body['resolutions']['el-1'][0]['key']);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
     #[TestDox('resolves the bound source root context from the entityType field')]
@@ -102,24 +120,6 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
         }
-    }
-
-    #[TestDox('merges decode violations into the well-formedness verdict')]
-    public function testInvalidConfigCountsAgainstWellFormedness(): void
-    {
-        $analysis = new LayoutAnalysis(
-            new DiagnosticsReport([new Violation(ViolationCode::DuplicateElementId, 'el-1', null, 'dup')]),
-            [],
-        );
-
-        $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning($analysis),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
-        );
-
-        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
-
-        static::assertFalse($this->decode($response)['diagnostics']['wellFormed']);
     }
 
     private function controller(

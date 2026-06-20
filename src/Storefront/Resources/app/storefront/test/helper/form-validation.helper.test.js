@@ -693,6 +693,107 @@ describe('form-validation', () => {
         });
     });
 
+    describe('validateEmail', () => {
+        test('should allow empty value for optional email field', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <div class="form-group">
+                        <label for="optionalEmail">Email (optional)</label>
+                        <input
+                            type="email"
+                            id="optionalEmail"
+                            data-validation="email"
+                            aria-describedby="optionalEmail-feedback"
+                        >
+                        <div id="optionalEmail-feedback" class="form-field-feedback"></div>
+                    </div>
+                </form>
+            `;
+
+            const field = document.getElementById('optionalEmail');
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            // Empty value should be valid for an optional email field.
+            field.value = '';
+            const validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(0);
+            expect(field.classList).not.toContain(formValidation.config.invalidClass);
+        });
+
+        test('should still reject an invalid email address when a value is entered', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <div class="form-group">
+                        <label for="optionalEmail">Email (optional)</label>
+                        <input
+                            type="email"
+                            id="optionalEmail"
+                            data-validation="email"
+                            aria-describedby="optionalEmail-feedback"
+                        >
+                        <div id="optionalEmail-feedback" class="form-field-feedback"></div>
+                    </div>
+                </form>
+            `;
+
+            const field = document.getElementById('optionalEmail');
+            const feedback = document.getElementById('optionalEmail-feedback');
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            field.value = 'not-an-email';
+            const validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('email');
+            expect(field.classList).toContain(formValidation.config.invalidClass);
+            expect(feedback.textContent).toBe('Invalid email address.');
+        });
+
+        test('should require a value when combined with required validator', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <div class="form-group">
+                        <input
+                            type="email"
+                            id="requiredEmail"
+                            data-validation="required,email"
+                            aria-describedby="requiredEmail-feedback"
+                        >
+                        <div id="requiredEmail-feedback" class="form-field-feedback"></div>
+                    </div>
+                </form>
+            `;
+
+            const field = document.getElementById('requiredEmail');
+            const feedback = document.getElementById('requiredEmail-feedback');
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            // Empty value should fail required validation.
+            field.value = '';
+            let validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('required');
+            expect(feedback.textContent).toBe('Input should not be empty.');
+
+            // Invalid email should fail email validation.
+            field.value = 'not-an-email';
+            validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('email');
+            expect(feedback.textContent).toBe('Invalid email address.');
+
+            // Valid email should pass.
+            field.value = 'valid@example.com';
+            validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(0);
+            expect(field.classList).not.toContain(formValidation.config.invalidClass);
+        });
+    });
+
     describe('validatePattern', () => {
         test('should validate field with valid pattern', () => {
             document.body.innerHTML = `

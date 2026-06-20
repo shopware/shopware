@@ -15,6 +15,10 @@ The Admin API exposes documented action routes for listing, reading details, and
 
 ## Storefront
 
+### Optional email fields no longer fail validation when empty
+
+The `FormValidation` helper now treats empty values as valid for the email validator. This aligns with standard `<input type="email">` behavior, ensuring optional email fields are no longer marked invalid when left blank. Fields with the required rule remain unaffected.
+
 ### Storefront cache hash no longer varies by language
 
 The HTTP cache hash no longer includes the language id for storefront requests, because the storefront language is derived from the resolved domain URL.

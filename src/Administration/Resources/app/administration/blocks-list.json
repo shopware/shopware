@@ -1737,6 +1737,8 @@
  "sw_data_grid_body_cell_spacer",
  "sw_data_grid_body_columns",
  "sw_data_grid_body_columns_content",
+ "sw_data_grid_body_empty_state",
+ "sw_data_grid_body_empty_state_content",
  "sw_data_grid_body_row",
  "sw_data_grid_bulk",
  "sw_data_grid_bulk_delete_content",

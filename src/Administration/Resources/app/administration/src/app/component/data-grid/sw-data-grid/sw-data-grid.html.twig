@@ -465,6 +465,26 @@
                     {% endblock %}
                 </tr>
                 {% endblock %}
+
+                {% block sw_data_grid_body_empty_state %}
+                <tr
+                    v-if="showEmptyState"
+                    class="sw-data-grid__row sw-data-grid__row--empty"
+                >
+                    <td
+                        class="sw-data-grid__cell sw-data-grid__cell--empty"
+                        :colspan="emptyStateColspan"
+                    >
+                        <div class="sw-data-grid__cell-content">
+                            <slot name="empty-state">
+                                {% block sw_data_grid_body_empty_state_content %}
+                                {{ $t('global.sw-data-grid.messageEmpty') }}
+                                {% endblock %}
+                            </slot>
+                        </div>
+                    </td>
+                </tr>
+                {% endblock %}
             </tbody>
             {% endblock %}
 

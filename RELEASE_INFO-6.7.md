@@ -213,6 +213,10 @@ A new read-only, translatable `descriptionTeaser` field is available on `product
 
 ## Administration
 
+### `sw-data-grid` has an empty-state slot
+
+`sw-data-grid` now renders a built-in empty state when it finishes loading and has no records, instead of showing only the header. The default text comes from the new `global.sw-data-grid.messageEmpty` snippet. A new `empty-state` slot lets consumers replace the message with custom content (e.g. an illustration or a call-to-action), and the new `sw_data_grid_body_empty_state` Twig block allows template overrides.
+
 ### Cache-relevant extension configuration fields
 
 As a follow-up to [Reduced HTTP cache invalidation on system config changes](#reduced-http-cache-invalidation-on-system-config-changes), plugin and app `Resources/config/config.xml` files can now mark fields that affect cached storefront output with the `cache-relevant="true"` attribute on `<input-field>` or `<component>`.

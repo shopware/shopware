@@ -1245,4 +1245,67 @@ describe('components/data-grid/sw-data-grid', () => {
             expect($te).toHaveBeenCalledWith('sw-grid.column.name');
         });
     });
+
+    describe('empty state', () => {
+        it('renders the empty-state row when there are no records', async () => {
+            const wrapper = await createWrapper({ dataSource: [] });
+            await flushPromises();
+
+            const emptyRow = wrapper.find('.sw-data-grid__row--empty');
+            expect(emptyRow.exists()).toBe(true);
+            expect(emptyRow.find('.sw-data-grid__cell--empty').text()).toBe('global.sw-data-grid.messageEmpty');
+        });
+
+        it('spans the empty cell across visible columns plus selection and actions', async () => {
+            // No user config is returned, so both columns stay visible.
+            const wrapper = await createWrapper({ dataSource: [] }, {});
+            await flushPromises();
+
+            // 2 visible columns + selection + actions (both default to true).
+            expect(wrapper.find('.sw-data-grid__cell--empty').attributes('colspan')).toBe('4');
+        });
+
+        it('shrinks the empty cell colspan when selection and actions are hidden', async () => {
+            const wrapper = await createWrapper({ dataSource: [], showSelection: false, showActions: false }, {});
+            await flushPromises();
+
+            // 2 visible columns, no selection, no actions.
+            expect(wrapper.find('.sw-data-grid__cell--empty').attributes('colspan')).toBe('2');
+        });
+
+        it('does not render the empty-state row when records exist', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-data-grid__row--empty').exists()).toBe(false);
+        });
+
+        it('renders the empty-state slot content when provided', async () => {
+            const wrapperWithSlot = mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
+                global: {
+                    directives: {
+                        popover: {},
+                        tooltip: { beforeMount() {} },
+                    },
+                    stubs,
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve([defaultUserConfig]),
+                                save: () => Promise.resolve(),
+                                get: () => Promise.resolve({}),
+                            }),
+                        },
+                        acl: { can: () => true },
+                    },
+                },
+                props: { ...defaultProps, dataSource: [] },
+                slots: { 'empty-state': '<span class="custom-empty">Nothing here</span>' },
+            });
+            await flushPromises();
+
+            expect(wrapperWithSlot.find('.custom-empty').exists()).toBe(true);
+            expect(wrapperWithSlot.find('.sw-data-grid__cell--empty').text()).toBe('Nothing here');
+        });
+    });
 });

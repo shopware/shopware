@@ -335,6 +335,16 @@ export default {
         currentVisibleColumns() {
             return this.currentColumns.filter((column) => column.visible);
         },
+
+        // Total number of rendered <td> per row, used as the colspan of the
+        // full-width empty-state cell (visible columns + selection + actions).
+        emptyStateColspan() {
+            return this.currentVisibleColumns.length + (this.showSelection ? 1 : 0) + (this.showActions ? 1 : 0);
+        },
+
+        showEmptyState() {
+            return !this.loading && (!this.records || this.records.length === 0);
+        },
     },
 
     watch: {

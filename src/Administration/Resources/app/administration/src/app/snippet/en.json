@@ -261,7 +261,8 @@
       "columnsActions": "Column actions",
       "actionsMenu": "Open actions menu",
       "labelSelectAll": "Select all",
-      "labelSelected": "Selected"
+      "labelSelected": "Selected",
+      "messageEmpty": "No records found."
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:",

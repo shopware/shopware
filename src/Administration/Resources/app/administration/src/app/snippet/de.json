@@ -261,7 +261,8 @@
       "columnsActions": "Spaltenaktionen",
       "actionsMenu": "Aktionsmenü öffnen",
       "labelSelectAll": "Alles auswählen",
-      "labelSelected": "Ausgewählt"
+      "labelSelected": "Ausgewählt",
+      "messageEmpty": "Keine Einträge gefunden."
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:",

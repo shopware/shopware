@@ -19,25 +19,19 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
  * @internal
@@ -50,7 +44,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, null)->report;
 
         static::assertTrue($report->isWellFormed());
@@ -62,7 +56,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $analysis = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, null);
 
         static::assertArrayHasKey('el-1', $analysis->resolutions);
@@ -81,7 +75,7 @@ class LayoutDiagnosticsTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, $rootContext)->report;
 
         static::assertSame([], $report->bindingErrors());
@@ -90,16 +84,12 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
     public function testOrphanedProviderWarning(): void
     {
-        $root = new ContentElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            ['content' => new SlotContent([new ContentElement('child-1', 'Sw:Block')])],
-            new ContextDefinitions(['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())], []),
-        );
+        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [new ContentElement('child-1', 'Sw:Block')])
+            ->build();
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze([$root], null)->report;
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
 
         static::assertTrue($report->isWellFormed());
         $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
@@ -111,7 +101,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('dup', 'Sw:Block'), new ContentElement('dup', 'Sw:Block')];
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze($tree, null)->report;
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze($tree, null)->report;
 
         static::assertFalse($report->isWellFormed());
         static::assertSame(ViolationCode::DuplicateElementId, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
@@ -131,16 +121,14 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
     public function testInvalidConfigForUnknownEntity(): void
     {
-        $element = new ContentElement(
-            'el-1',
-            'Sw:Block',
-            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
-        );
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader))
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()], loaderProvider: $this->loaderProvider($loader))
             ->analyze([$element], null)->report;
 
         static::assertFalse($report->isWellFormed());
@@ -152,7 +140,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec(['product' => $this->reference(SalesChannelProductEntity::class, true)])])
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, [])->report;
 
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
@@ -169,7 +157,7 @@ class LayoutDiagnosticsTest extends TestCase
         ]);
 
         $report = $this->diagnostics(
-            ['Sw:Block' => $this->spec(['category' => $this->reference(CategoryEntity::class, true)])],
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
             $map,
             $this->decodingSerializers(),
         )->analyze($tree, [])->report;
@@ -184,7 +172,7 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec(['headline' => $this->primitive('string', true, null)])])
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
             ->analyze($tree, [])->report;
 
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
@@ -193,16 +181,11 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces a broken_required_chain binding error for a required accepts_context with no provider')]
     public function testBrokenRequiredChain(): void
     {
-        $element = new ContentElement(
-            'el-1',
-            'Sw:Block',
-            [],
-            [],
-            [],
-            new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: true)]),
-        );
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
 
-        $report = $this->diagnostics(['Sw:Block' => $this->spec([])])->analyze([$element], [])->report;
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$element], [])->report;
 
         static::assertSame(ViolationCode::BrokenRequiredChain, $this->onlyBindingError($report->bindingErrors())->code);
     }
@@ -210,16 +193,14 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]
     public function testInternalFaultPropagates(): void
     {
-        $element = new ContentElement(
-            'el-1',
-            'Sw:Block',
-            ['product' => new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
-        );
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('resolveProducedType')->willThrowException(ContentSystemException::layoutNotFound('x'));
 
-        $diagnostics = $this->diagnostics(['Sw:Block' => $this->spec([])], loaderProvider: $this->loaderProvider($loader));
+        $diagnostics = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()], loaderProvider: $this->loaderProvider($loader));
 
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
 
@@ -273,33 +254,6 @@ class LayoutDiagnosticsTest extends TestCase
         $serializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
         return $serializers;
-    }
-
-    /**
-     * @param array<string, PropertySpecification> $properties
-     */
-    private function spec(array $properties): ContentSystemElementTypeSpecification
-    {
-        return new ContentSystemElementTypeSpecification(
-            'Sw:Block',
-            'Block',
-            '',
-            null,
-            null,
-            new CopilotSpecification('', []),
-            $properties,
-            [],
-        );
-    }
-
-    private function reference(string $fqcn, bool $required): PropertySpecification
-    {
-        return new PropertySpecification('prop', new PropertyType($fqcn, false, null, null), $required, '', '', null);
-    }
-
-    private function primitive(string $type, bool $required, string|int|float|bool|null $default): PropertySpecification
-    {
-        return new PropertySpecification('prop', new PropertyType($type, false, null, $default), $required, '', '', null);
     }
 
     /**

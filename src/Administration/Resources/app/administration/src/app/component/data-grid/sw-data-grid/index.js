@@ -268,25 +268,14 @@ export default {
                 return false;
             }
 
-            if (!this.records) {
-                return false;
-            }
-
-            const currentVisibleIds = this.records.map((record) => record.id);
-
-            return (
-                this.reachMaximumSelectionExceed &&
-                Object.keys(this.selection).every((id) => !currentVisibleIds.includes(id))
-            );
+            // When the selection maximum is reached, selecting every record is no longer possible,
+            // so the select-all header checkbox is disabled (a tooltip explains why on hover).
+            return this.reachMaximumSelectionExceed;
         },
 
         allSelectedChecked() {
             if (this.isSelectAllDisabled) {
                 return false;
-            }
-
-            if (this.reachMaximumSelectionExceed) {
-                return true;
             }
 
             if (!this.records || this.records.length === 0) {

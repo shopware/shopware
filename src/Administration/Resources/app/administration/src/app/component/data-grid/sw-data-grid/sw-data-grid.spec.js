@@ -911,10 +911,49 @@ describe('components/data-grid/sw-data-grid', () => {
 
         await wrapper.vm.$nextTick();
 
-        const newBulkActions = wrapper.find('.sw-data-grid__bulk');
-        const maximumHint = newBulkActions.find('.sw-data-grid__bulk-max-selection');
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
 
-        expect(maximumHint.exists()).toBe(true);
+        // The maximum-selection notice is exposed as a tooltip on the disabled select-all checkbox.
+        const selectAll = wrapper.find('.sw-data-grid__header .sw-data-grid__select-all');
+
+        expect(selectAll.attributes('data-tooltip-message')).toBeDefined();
+    });
+
+    it('should disable the select-all header checkbox and keep it unchecked when the maximum selection is reached', async () => {
+        const wrapper = await createWrapper({
+            maximumSelectItems: 1,
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
+        expect(wrapper.vm.isSelectAllDisabled).toBe(true);
+        // A single visible selection must not make the header look like "all items selected".
+        expect(wrapper.vm.allSelectedChecked).toBe(false);
+
+        const selectAll = wrapper.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
+
+        expect(selectAll.attributes().disabled).toBe('');
+        expect(selectAll.element.checked).toBe(false);
+    });
+
+    it('should not disable the select-all header checkbox when no maximum selection is set', async () => {
+        const wrapper = await createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isSelectAllDisabled).toBe(false);
     });
 
     it('should disable checkboxes when maximum selection exceed', async () => {
@@ -939,6 +978,9 @@ describe('components/data-grid/sw-data-grid', () => {
         const uncheckedBox = rows.at(4).find('.mt-field--checkbox__container input');
 
         expect(uncheckedBox.attributes().disabled).toBe('');
+
+        // unselected rows blocked by the maximum expose the reason as a tooltip on hover
+        expect(rows.at(4).find('.sw-data-grid__cell--selection [data-tooltip-message]').exists()).toBe(true);
 
         // Change data source, select all checkbox and all items checkboxes will be disabled
         await wrapper.setProps({

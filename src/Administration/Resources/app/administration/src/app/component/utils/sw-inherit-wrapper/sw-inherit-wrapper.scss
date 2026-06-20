@@ -37,17 +37,14 @@
         color: $color-shopware-brand-500;
     }
 
-    .sw-card__title {
-        .sw-inheritance-switch {
-            display: inline-block;
-            position: relative;
-            top: -1px;
-            margin-right: 4px;
-        }
+    .sw-inherit-wrapper__card-title {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-        &.sw-card__title__inherited {
-            color: $color-module-purple-900;
-        }
+    .sw-inherit-wrapper__card-title--inherited .mt-card__title {
+        color: $color-module-purple-900;
     }
 
     .sw-card__inherited .sw-card__content {

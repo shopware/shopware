@@ -900,4 +900,20 @@ describe('src/app/service/rule-condition.service.js', () => {
             ],
         });
     });
+
+    it('should strip the disabled flag from custom field condition config', () => {
+        const ruleConditionService = new RuleConditionService();
+
+        const result = ruleConditionService.getTransformedCustomFieldConditionConfig({
+            type: 'text',
+            componentName: 'sw-text-field',
+            disabled: true,
+        });
+
+        expect(result).not.toHaveProperty('disabled');
+        expect(result).toMatchObject({
+            type: 'text',
+            componentName: 'sw-text-field',
+        });
+    });
 });

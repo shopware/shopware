@@ -73,7 +73,7 @@ skills — never per-skill.
    security validation forbids importing files outside `.github/`. The
    interactive skill references the same file via its repo-root path; the
    gh aw policy fragment imports it via
-   `{{#runtime-import .github/aw/shared/<name>-policy.md}}`. See how the
+   <code v-pre>{{#runtime-import .github/aw/shared/&lt;name&gt;-policy.md}}</code>. See how the
    `triage` skill wires it up for the exact pattern.
 
 3. **Decide on the unattended path.** If the skill should also run in CI:

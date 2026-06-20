@@ -11,16 +11,17 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * Lean draft-layout validation for the preview action. Delegates to {@see LayoutDiagnostics} (intrinsic subset,
- * no bound source) and maps the intrinsic-scope errors back to constraint violations, so the preview action and
- * the persistence gate share one diagnostics path and the component-registration check cannot drift.
+ * Runs the well-formedness gate on a draft layout for the preview action. Delegates to {@see LayoutDiagnostics}
+ * (intrinsic subset, no bound source) and maps the intrinsic-scope diagnostics back to constraint violations,
+ * which it returns; it never throws. The preview action and the persistence gate thus share one diagnostics path
+ * and the component-registration check cannot drift.
  *
  * @internal
  *
  * @final
  */
 #[Package('framework')]
-class ContentLayoutValidator
+class DraftLayoutChecker
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
@@ -30,7 +31,7 @@ class ContentLayoutValidator
     /**
      * @param list<ContentElement> $elements
      */
-    public function validate(array $elements): ConstraintViolationListInterface
+    public function check(array $elements): ConstraintViolationListInterface
     {
         $violations = new ConstraintViolationList();
 

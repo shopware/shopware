@@ -67,7 +67,7 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
         [$container, $resolverDefinition] = $this->createContainerWithResolver();
 
         $sourceDefinition = new Definition();
-        $sourceDefinition->addTag('content_system.context_factory');
+        $sourceDefinition->addTag('content_system.entity_specification_source');
         $container->setDefinition('null_class_source', $sourceDefinition);
 
         $pass = new ContentLayoutAssignableCompilerPass();
@@ -84,14 +84,14 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
 
         $sourceDefinition = new Definition(\stdClass::class);
         $sourceDefinition->setArguments([new Reference('some.other.service')]);
-        $sourceDefinition->addTag('content_system.context_factory');
+        $sourceDefinition->addTag('content_system.entity_specification_source');
         $container->setDefinition('broken_source', $sourceDefinition);
 
         $otherService = new Definition(\stdClass::class);
         $container->setDefinition('some.other.service', $otherService);
 
         $this->expectExceptionObject(
-            DependencyInjectionException::missingAssignableDefinition('broken_source', 'content_system.context_factory')
+            DependencyInjectionException::missingAssignableDefinition('broken_source', 'content_system.entity_specification_source')
         );
 
         $pass = new ContentLayoutAssignableCompilerPass();
@@ -115,7 +115,7 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
 
         $sourceDefinition = new Definition(\stdClass::class);
         $sourceDefinition->setArguments($sourceArguments);
-        $sourceDefinition->addTag('content_system.context_factory');
+        $sourceDefinition->addTag('content_system.entity_specification_source');
         $container->setDefinition('product_source', $sourceDefinition);
 
         $pass = new ContentLayoutAssignableCompilerPass();
@@ -171,7 +171,7 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
             new Reference($definitionServiceId),
             new Reference('some.factory'),
         ]);
-        $sourceDefinition->addTag('content_system.context_factory');
+        $sourceDefinition->addTag('content_system.entity_specification_source');
         $container->setDefinition($serviceId, $sourceDefinition);
 
         if (!$container->hasDefinition('some.repository')) {

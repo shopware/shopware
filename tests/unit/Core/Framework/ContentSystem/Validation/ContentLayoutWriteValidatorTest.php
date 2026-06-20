@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
@@ -48,12 +48,12 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $decoder = static::createStub(LayoutTreeDecoder::class);
         $decoder->method('decode')->willThrowException($expected);
 
-        $resolvabilityValidator = $this->createMock(LayoutResolvabilityValidator::class);
-        $resolvabilityValidator->expects($this->never())->method('wellFormedness');
-        $resolvabilityValidator->expects($this->never())->method('resolvability');
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->expects($this->never())->method('wellFormedness');
+        $gate->expects($this->never())->method('resolvability');
 
         $validator = new ContentLayoutWriteValidator(
-            $resolvabilityValidator,
+            $gate,
             new ViolationConstraintMapper(),
             $decoder,
             []
@@ -98,7 +98,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $decoder->method('decode')->willThrowException($expected);
 
         $validator = new ContentLayoutWriteValidator(
-            static::createStub(LayoutResolvabilityValidator::class),
+            static::createStub(LayoutGate::class),
             new ViolationConstraintMapper(),
             $decoder,
             []

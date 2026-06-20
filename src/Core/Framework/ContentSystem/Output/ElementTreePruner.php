@@ -10,14 +10,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Tree manipulation utilities using visitor pattern for state tracking and direct recursion for early-exit/reconstruction.
+ * Prunes a content-element tree to a target element's path plus its descendants: the pre-hydration optimization for
+ * partial rendering, which drops the siblings along the path because context flows parent to child only.
  *
  * @internal
  *
  * @final
  */
 #[Package('framework')]
-class ElementTreeUtil
+class ElementTreePruner
 {
     /**
      * @return list<string> Element IDs from root to target (inclusive), empty array if not found

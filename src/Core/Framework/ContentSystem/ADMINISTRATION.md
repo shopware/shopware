@@ -193,7 +193,7 @@ All failures are `400 Bad Request` (`ContentSystemException`):
 | Missing/invalid envelope field                             | `#[MapRequestPayload]` validation (forced to 400)    |
 | `entityType` matches no specification source               | `unknownEntityType`                                  |
 | Layout element missing a non-empty string `id`/`component` | `invalidLayoutStructure`                             |
-| Layout has an intrinsic error: unregistered `component`, duplicate element `id`, or undecodable element config | `elementTypesInvalid` (via `ContentLayoutValidator`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
+| Layout has an intrinsic error: unregistered `component`, duplicate element `id`, or undecodable element config | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
 | Target entity not found / unresolvable data requirement    | data-loader exception during hydration               |
 | Invalid sales channel id                                   | sales-channel context exception                      |
 
@@ -249,7 +249,7 @@ The optional `entityType` or `section` binds the draft to a source's root contex
         "default": null,
         "fqcn": null,
         "resolved": {
-          "via": "loader",
+          "origin": "loader",
           "contextKey": null,
           "providerElementId": null,
           "path": null,
@@ -281,7 +281,7 @@ The optional `entityType` or `section` binds the draft to a source's root contex
 }
 ```
 
-`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled. `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `via` is `parent` (an ancestor/root provider) or `loader` (a data loader).
+`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled. `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider) or `loader` (a data loader).
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 

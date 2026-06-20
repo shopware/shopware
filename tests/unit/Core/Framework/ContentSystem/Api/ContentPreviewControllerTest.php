@@ -9,9 +9,9 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentLayoutValidator;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
@@ -70,7 +70,7 @@ class ContentPreviewControllerTest extends TestCase
             $contextService,
             $resolver,
             $serializer,
-            $this->validator(registered: true),
+            $this->checker(registered: true),
             $pipeline,
             new FullResponseFactory(),
         );
@@ -88,7 +88,7 @@ class ContentPreviewControllerTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
             static::createStub(ContentElementFieldSerializer::class),
-            $this->validator(registered: true),
+            $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
         );
@@ -115,7 +115,7 @@ class ContentPreviewControllerTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $resolver,
             static::createStub(ContentElementFieldSerializer::class),
-            $this->validator(registered: true),
+            $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
         );
@@ -137,7 +137,7 @@ class ContentPreviewControllerTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
             $serializer,
-            $this->validator(registered: false),
+            $this->checker(registered: false),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
         );
@@ -163,7 +163,7 @@ class ContentPreviewControllerTest extends TestCase
             $contextService,
             static::createStub(RenderingSpecificationResolver::class),
             static::createStub(ContentElementFieldSerializer::class),
-            $this->validator(registered: true),
+            $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
         );
@@ -207,7 +207,7 @@ class ContentPreviewControllerTest extends TestCase
         return $resolver;
     }
 
-    private function validator(bool $registered): ContentLayoutValidator
+    private function checker(bool $registered): DraftLayoutChecker
     {
         $violations = new ConstraintViolationList();
 
@@ -215,9 +215,9 @@ class ContentPreviewControllerTest extends TestCase
             $violations->add(new ConstraintViolation('Component "Sw:Unknown:Widget" is not a registered element type.', null, [], null, 'e1', null));
         }
 
-        $validator = static::createStub(ContentLayoutValidator::class);
-        $validator->method('validate')->willReturn($violations);
+        $checker = static::createStub(DraftLayoutChecker::class);
+        $checker->method('check')->willReturn($violations);
 
-        return $validator;
+        return $checker;
     }
 }

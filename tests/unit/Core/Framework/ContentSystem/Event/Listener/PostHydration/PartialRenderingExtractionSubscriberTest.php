@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Event\Listener\PostHydration\PartialRenderingExtractionSubscriber;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil;
+use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -25,7 +25,7 @@ class PartialRenderingExtractionSubscriberTest extends TestCase
     protected function setUp(): void
     {
         $this->subscriber = new PartialRenderingExtractionSubscriber(
-            new PartialRenderer(new ElementTreeUtil(), new ContextDependencyAnalyzer(), new SubTreeExtractor())
+            new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor())
         );
     }
 

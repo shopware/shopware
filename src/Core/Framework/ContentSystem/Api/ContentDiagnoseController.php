@@ -177,7 +177,7 @@ class ContentDiagnoseController
     private function serializeCandidate(ResolutionCandidate $candidate): array
     {
         return [
-            'via' => $candidate->via->value,
+            'origin' => $candidate->origin->value,
             'contextKey' => $candidate->contextKey,
             'providerElementId' => $candidate->providerElementId,
             'path' => $candidate->path,

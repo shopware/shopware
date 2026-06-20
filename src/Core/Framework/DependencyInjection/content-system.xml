@@ -14,7 +14,7 @@
 
         <!-- Output Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Output\PartialRenderer">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor"/>
         </service>
@@ -163,7 +163,7 @@
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
 
         <!-- Output Services (Post-Hydration Processing) -->
-        <service id="Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil"/>
+        <service id="Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner"/>
         <service id="Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor"/>
 
         <!-- Entity Layout Services -->
@@ -192,7 +192,7 @@
 
         <!-- Section Resolvers -->
         <service id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver">
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="tagged_iterator" tag="content_system.entity_specification_source"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory"/>
             <tag name="content_system.section_resolver" section="main"/>
         </service>
@@ -338,12 +338,12 @@
 
         <!-- Specification source selection for the diagnose route -->
         <service id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator">
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="tagged_iterator" tag="content_system.entity_specification_source"/>
             <argument type="tagged_locator" tag="content_system.specification_source" index-by="section"/>
         </service>
 
         <!-- Layout Validation -->
-        <service id="Shopware\Core\Framework\ContentSystem\ContentLayoutValidator">
+        <service id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
         </service>
 
@@ -359,7 +359,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentLayoutValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentPipeline"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory"/>
         </service>

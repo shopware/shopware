@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentLayoutValidator;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
@@ -41,7 +41,7 @@ class ContentPreviewController
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly RenderingSpecificationResolver $specificationResolver,
         private readonly ContentElementFieldSerializer $elementSerializer,
-        private readonly ContentLayoutValidator $layoutValidator,
+        private readonly DraftLayoutChecker $draftChecker,
         private readonly ContentPipeline $contentPipeline,
         private readonly AbstractResponseFactory $responseFactory,
     ) {
@@ -76,7 +76,7 @@ class ContentPreviewController
 
         $elements = $this->decodeLayout($payload->layout);
 
-        $violations = $this->layoutValidator->validate($elements);
+        $violations = $this->draftChecker->check($elements);
         if ($violations->count() > 0) {
             throw ContentSystemException::elementTypesInvalid($violations);
         }

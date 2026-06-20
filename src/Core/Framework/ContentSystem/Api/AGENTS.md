@@ -7,7 +7,7 @@
 - `ContentPreviewRequest` / `ContentDiagnoseRequest` - envelope DTOs; each controller action binds its DTO via `#[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]` on the **action parameter** (the attribute is on the parameter, not on the DTO class)
 - Preview resolution entry: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout(entityType, entityId, request, context)` — assignment-free, selects source by `supportsEntityType()`
 - Diagnose source selection: `SpecificationSourceLocator::resolveByEntityType(entityType)` (first match over the tagged entity sources via `supportsEntityType()`) or `resolveBySection(ContentSection)` (a `ContentSection`-keyed `ServiceLocator` populated by the `content_system.specification_source` tag, `index-by="section"`); the controller then calls `->providedRootContext($context)` on the selected source to seed binding-scope resolvability. It does NOT use `resolveWithoutLayout()`
-- Validation: `ContentLayoutValidator` (module root) — preview-action draft validation (intrinsic-subset diagnostics)
+- Check: `DraftLayoutChecker` (module root) — preview-action draft check (intrinsic-subset diagnostics)
 - Introspection endpoints the admin UI pairs with this action: `Framework/Api/Controller/InfoController` (`content-system-element-types`, `content-system-data-loader-types`, `content-system-entity-types`)
 
 ## Constraints

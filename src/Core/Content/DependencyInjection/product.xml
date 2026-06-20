@@ -692,7 +692,7 @@
             <argument type="service" id="product_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
-            <tag name="content_system.context_factory" priority="100"/>
+            <tag name="content_system.entity_specification_source" priority="100"/>
         </service>
     </services>
 </container>

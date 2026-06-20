@@ -74,7 +74,7 @@ class ElementResolverTest extends TestCase
 
         static::assertSame(PropertyKind::Reference, $resolutions[0]->kind);
         static::assertNotNull($resolutions[0]->resolved);
-        static::assertSame(CandidateOrigin::Parent, $resolutions[0]->resolved->via);
+        static::assertSame(CandidateOrigin::Parent, $resolutions[0]->resolved->origin);
         static::assertSame('root-1', $resolutions[0]->resolved->providerElementId);
         static::assertCount(2, $resolutions[0]->candidates);
     }
@@ -92,7 +92,7 @@ class ElementResolverTest extends TestCase
         );
 
         static::assertNotNull($resolutions[0]->resolved);
-        static::assertSame(CandidateOrigin::Loader, $resolutions[0]->resolved->via);
+        static::assertSame(CandidateOrigin::Loader, $resolutions[0]->resolved->origin);
         static::assertSame('category_fixed', $resolutions[0]->resolved->loaderSource);
         static::assertTrue($resolutions[0]->resolved->configComplete);
     }
@@ -110,7 +110,7 @@ class ElementResolverTest extends TestCase
 
         static::assertNull($resolutions[0]->resolved);
         static::assertCount(1, $resolutions[0]->candidates);
-        static::assertSame(CandidateOrigin::Loader, $resolutions[0]->candidates[0]->via);
+        static::assertSame(CandidateOrigin::Loader, $resolutions[0]->candidates[0]->origin);
         static::assertFalse($resolutions[0]->candidates[0]->configComplete);
         static::assertSame(['entity' => 'product'], $resolutions[0]->candidates[0]->configTemplate);
     }

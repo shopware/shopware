@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\ContentSystem\Validation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
+use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -14,9 +14,10 @@ use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDef
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The Storefront counterpart of the binding gate for the header/footer assignment entities. Both sections
- * expose no root-ambient context, so binding a layout to a header or footer requires it to be fully resolvable
- * without page data. Delegates the load-tree → resolvability path to the shared Core {@see LayoutBindingGate}.
+ * The Storefront header/footer assignment write validator: applies the shared binding check to the
+ * header/footer assignment entities. Both sections expose no root-ambient context, so binding a layout to a
+ * header or footer requires it to be fully resolvable without page data. Delegates the load-tree → resolvability
+ * path to the shared Core {@see LayoutBindingChecker}.
  *
  * @internal
  */
@@ -31,8 +32,8 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private readonly LayoutResolvabilityValidator $resolvabilityValidator,
-        private readonly LayoutBindingGate $bindingGate,
+        private readonly LayoutGate $gate,
+        private readonly LayoutBindingChecker $bindingChecker,
     ) {
     }
 
@@ -48,7 +49,7 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
     {
         $context = $event->getContext();
 
-        if ($context->hasState(LayoutResolvabilityValidator::SKIP_VALIDATION_STATE)) {
+        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             return;
         }
 
@@ -59,11 +60,11 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!$this->resolvabilityValidator->isBindingEnforced(new BoundRootContext($section, []))) {
+            if (!$this->gate->isBindingEnforced(new SourceBinding($section, []))) {
                 continue;
             }
 
-            $violations = $this->bindingGate->bindingViolations($command->getPayload()[self::CONTENT_LAYOUT_ID], [], $event->getCommands(), $context);
+            $violations = $this->bindingChecker->bindingViolations($command->getPayload()[self::CONTENT_LAYOUT_ID], [], $event->getCommands(), $context);
 
             if ($violations->count() === 0) {
                 continue;

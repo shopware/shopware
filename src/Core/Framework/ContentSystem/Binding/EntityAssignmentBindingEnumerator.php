@@ -39,7 +39,7 @@ class EntityAssignmentBindingEnumerator implements LayoutBindingEnumerator
                 continue;
             }
 
-            $bindings[] = new BoundRootContext(
+            $bindings[] = new SourceBinding(
                 $definition->getContentLayoutEntityType(),
                 $this->rootContextMapper->map($definition->getPageDataRequirements()),
             );

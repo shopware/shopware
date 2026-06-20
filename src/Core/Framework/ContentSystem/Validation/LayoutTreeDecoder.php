@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Single decode path from a content_layout `layout` storage value to its element tree, shared by the
- * well-formedness gate and the binding gate so the decode step cannot drift between them. Throws on any
+ * well-formedness validator and the binding checker so the decode step cannot drift between them. Throws on any
  * decode defect; each caller keeps its own catch policy ({@see ContentLayoutWriteValidator} records an
- * invalid_config violation, {@see LayoutBindingGate} skips to the committed-store fallback).
+ * invalid_config violation, {@see LayoutBindingChecker} skips to the committed-store fallback).
  *
  * @internal
  */

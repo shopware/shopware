@@ -11,4 +11,4 @@ Property-resolution kernel for the ContentSystem. Given an element's position in
 - `ProvidedContext` — a single context entry available at a position; six fields: `contextKey`, `fqcn`, `contextType` (`ContextType`, required), `providerElementId` (`?string`), `distribution` (`DistributionStrategy`), and `path` (`?string`, optional)
 - `ResolutionContext` — input bundle passed to `ElementResolver`: target element id plus the `list<ProvidedContext>` from `AvailableContextResolver`
 - `PropertyKind` — enum: `Primitive`, `Reference`
-- `CandidateVia` — enum: `Parent`, `Loader`
+- `CandidateOrigin` — enum: `Parent`, `Loader` — where a candidate value originates

@@ -17,11 +17,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The well-formedness gate and the synchronous re-check of already-bound layouts. On every
- * content_layout write touching the layout column it decodes the tree, accumulates intrinsic-scope violations
- * (well-formedness — gates persistence), then re-validates the same tree against each distinct source bound to
- * the layout via the tagged binding enumerators, accumulating binding-scope violations so an edit cannot make a
- * live layout unresolvable and reach serving. An incomplete or unbound layout persists freely.
+ * The validator that applies the well-formedness gate plus the synchronous re-check of already-bound layouts. On
+ * every content_layout write touching the layout column it decodes the tree, accumulates intrinsic-scope
+ * violations (well-formedness — gates persistence), then re-validates the same tree against each distinct source
+ * bound to the layout via the tagged binding enumerators, accumulating binding-scope violations so an edit cannot
+ * make a live layout unresolvable and reach serving. An incomplete or unbound layout persists freely.
  *
  * @internal
  */
@@ -32,7 +32,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
      * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
      */
     public function __construct(
-        private readonly LayoutResolvabilityValidator $resolvabilityValidator,
+        private readonly LayoutGate $gate,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutTreeDecoder $treeDecoder,
         private readonly iterable $bindingEnumerators,
@@ -51,7 +51,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     {
         $context = $event->getContext();
 
-        if ($context->hasState(LayoutResolvabilityValidator::SKIP_VALIDATION_STATE)) {
+        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             return;
         }
 
@@ -73,7 +73,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         $tree = $this->decodeTree($payload[ContentLayoutDefinition::LAYOUT_FIELD] ?? null, $violations);
 
         if ($tree !== null) {
-            $report = $this->resolvabilityValidator->wellFormedness($tree, $context);
+            $report = $this->gate->wellFormedness($tree, $context);
             $violations->addAll($this->violationMapper->toConstraintViolationList($report->intrinsicErrors()));
 
             $violations->addAll($this->recheckBoundSources($tree, $command, $context));
@@ -126,11 +126,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
         foreach ($this->bindingEnumerators as $enumerator) {
             foreach ($enumerator->enumerate($contentLayoutId, $context) as $binding) {
-                if (!$this->resolvabilityValidator->isBindingEnforced($binding)) {
+                if (!$this->gate->isBindingEnforced($binding)) {
                     continue;
                 }
 
-                $report = $this->resolvabilityValidator->resolvability($tree, $binding->providedRootContext, $context);
+                $report = $this->gate->resolvability($tree, $binding->providedRootContext, $context);
                 $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
             }
         }

@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
-use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnoseRequest;
-use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnosticsController;
-use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceResolver;
+use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
+use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -25,8 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(ContentLayoutDiagnosticsController::class)]
-class ContentLayoutDiagnosticsControllerTest extends TestCase
+#[CoversClass(ContentDiagnoseController::class)]
+class ContentDiagnoseControllerTest extends TestCase
 {
     #[TestDox('returns the per-element resolutions for a well-formed tree without a bound source')]
     public function testDiagnoseReturnsPerElementResolutions(): void
@@ -41,7 +41,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
-        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
 
         static::assertSame('headline', $this->decode($response)['resolutions']['el-1'][0]['key']);
     }
@@ -59,7 +59,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
-        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $body = $this->decode($response);
@@ -67,23 +67,23 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('resolves the bound source root context from the entityType field')]
+    #[TestDox('resolves the source binding from the entityType field')]
     public function testDiagnoseResolvesEntityTypeSource(): void
     {
         $source = static::createMock(AbstractSpecificationSource::class);
         $source->expects($this->once())->method('providedRootContext')->willReturn([]);
 
-        $sourceResolver = static::createMock(SpecificationSourceResolver::class);
-        $sourceResolver->expects($this->once())->method('resolveByEntityType')->with('product')->willReturn($source);
+        $sourceLocator = static::createMock(SpecificationSourceLocator::class);
+        $sourceLocator->expects($this->once())->method('resolveByEntityType')->with('product')->willReturn($source);
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
-            sourceResolver: $sourceResolver,
+            sourceLocator: $sourceLocator,
         );
 
         $controller->diagnose(
-            new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], entityType: 'product'),
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], entityType: 'product'),
             Context::createDefaultContext(),
         );
     }
@@ -99,7 +99,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
             serializer: $serializer,
         );
 
-        $response = $controller->diagnose(new ContentLayoutDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
 
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
@@ -115,7 +115,7 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
         );
 
         try {
-            $controller->diagnose(new ContentLayoutDiagnoseRequest([['component' => 'Sw:Block']]), Context::createDefaultContext());
+            $controller->diagnose(new ContentDiagnoseRequest([['component' => 'Sw:Block']]), Context::createDefaultContext());
             static::fail('Expected a ContentSystemException for the structurally invalid element.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
@@ -125,12 +125,12 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
     private function controller(
         LayoutDiagnostics $diagnostics,
         ContentElementFieldSerializer $serializer,
-        ?SpecificationSourceResolver $sourceResolver = null,
-    ): ContentLayoutDiagnosticsController {
-        return new ContentLayoutDiagnosticsController(
+        ?SpecificationSourceLocator $sourceLocator = null,
+    ): ContentDiagnoseController {
+        return new ContentDiagnoseController(
             $diagnostics,
             $serializer,
-            $sourceResolver ?? static::createStub(SpecificationSourceResolver::class),
+            $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
         );
     }
 

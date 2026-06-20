@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -52,7 +52,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
         try {
             $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $context);
-            static::fail('Expected the binding gate to reject the assignment of an unresolvable layout.');
+            static::fail('Expected the binding checker to reject the assignment of an unresolvable layout.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
         }
@@ -60,7 +60,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('bypasses the binding gate when the write context carries the skip flag')]
+    #[TestDox('bypasses the binding checker when the write context carries the skip flag')]
     public function testSkipFlagBypassesBindingGate(): void
     {
         $context = Context::createDefaultContext();
@@ -68,7 +68,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $layoutId = $this->createLayout(TestElementTypeLoader::UNRESOLVABLE, $context);
 
         $skipContext = Context::createDefaultContext();
-        $skipContext->addState(LayoutResolvabilityValidator::SKIP_VALIDATION_STATE);
+        $skipContext->addState(LayoutGate::SKIP_VALIDATION_STATE);
         $assignmentId = Uuid::randomHex();
 
         $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $skipContext);
@@ -86,10 +86,10 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
         try {
             $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::UNRESOLVABLE)], $context);
-            static::fail('Expected the binding gate to reject the atomic create-and-bind of an unresolvable layout.');
+            static::fail('Expected the binding checker to reject the atomic create-and-bind of an unresolvable layout.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
-            // The binding gate reports the unresolvable layout once; the well-formedness gate must not re-report it
+            // The binding checker reports the unresolvable layout once; the well-formedness gate must not re-report it
             // for the same in-batch layout command.
             static::assertCount(1, iterator_to_array($exception->getErrors(), false));
         }
@@ -131,7 +131,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
         try {
             $this->syncService()->sync($operations, $context, new SyncBehavior());
-            static::fail('Expected the binding gate to reject the atomic Sync create-and-bind of an unresolvable layout.');
+            static::fail('Expected the binding checker to reject the atomic Sync create-and-bind of an unresolvable layout.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
         }

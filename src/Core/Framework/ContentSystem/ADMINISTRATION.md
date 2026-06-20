@@ -201,9 +201,9 @@ All failures are `400 Bad Request` (`ContentSystemException`):
 
 `POST /api/_action/content-system/layout/diagnose`
 
-Resolves every element property of an **unsaved** draft layout and reports what is structurally broken or still unresolved — **without** persisting and **without** rendering against a real entity. It answers the editor's after-local-edit "what is broken / still unresolved" question and backs agent layout linting. Served by `Api/ContentLayoutDiagnosticsController`. Route name: `api.action.content_system.layout.diagnose`.
+Resolves every element property of an **unsaved** draft layout and reports what is structurally broken or still unresolved — **without** persisting and **without** rendering against a real entity. It answers the editor's after-local-edit "what is broken / still unresolved" question and backs agent layout linting. Served by `Api/ContentDiagnoseController`. Route name: `api.action.content_system.layout.diagnose`.
 
-The optional `entityType` or `section` binds the draft to a source's root context so binding-scope resolvability can be checked. With neither, only intrinsic well-formedness is evaluated. Source selection runs through `Api/SpecificationSourceResolver` (`entityType` via `supportsEntityType()`, `section` via a `ContentSection`-keyed locator).
+The optional `entityType` or `section` binds the draft to a source's root context so binding-scope resolvability can be checked. With neither, only intrinsic well-formedness is evaluated. Source selection runs through `Api/SpecificationSourceLocator` (`entityType` via `supportsEntityType()`, `section` via a `ContentSection`-keyed locator).
 
 ### Request
 
@@ -231,7 +231,7 @@ The optional `entityType` or `section` binds the draft to a source's root contex
 | `entityType` | no       | One of the `content-system-entity-types.json` values; binds an entity source's root context. Mutually exclusive with `section`.        |
 | `section`    | no       | Exact `ContentSection` value; binds a registered section source's root context (Storefront registers `header` and `footer`). An invalid value, or one with no registered source, → 400. Mutually exclusive with `entityType`. |
 
-`entityType` takes precedence when both are supplied. With neither set, the response still reports intrinsic well-formedness; binding-scope violations are not evaluated because there is no bound root context.
+`entityType` takes precedence when both are supplied. With neither set, the response still reports intrinsic well-formedness; binding-scope violations are not evaluated because there is no source binding.
 
 ### Response
 

@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 
 /**
  * @internal
  */
-#[CoversClass(LayoutResolvabilityValidator::class)]
-class LayoutResolvabilityValidatorTest extends TestCase
+#[CoversClass(LayoutGate::class)]
+class LayoutGateTest extends TestCase
 {
     #[TestDox('analyses well-formedness with no bound source (null root context)')]
     public function testWellFormednessUsesNullRootContext(): void
@@ -28,9 +28,9 @@ class LayoutResolvabilityValidatorTest extends TestCase
             ->with([], null, $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $validator = new LayoutResolvabilityValidator($diagnostics);
+        $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $validator->wellFormedness([], $context));
+        static::assertSame($report, $gate->wellFormedness([], $context));
     }
 
     #[TestDox('analyses resolvability against the bound source root context')]
@@ -44,8 +44,8 @@ class LayoutResolvabilityValidatorTest extends TestCase
             ->with([], [], $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $validator = new LayoutResolvabilityValidator($diagnostics);
+        $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $validator->resolvability([], [], $context));
+        static::assertSame($report, $gate->resolvability([], [], $context));
     }
 }

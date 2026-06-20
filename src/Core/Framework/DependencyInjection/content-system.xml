@@ -294,7 +294,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator">
+        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
         </service>
 
@@ -305,8 +305,8 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
+        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -321,7 +321,7 @@
 
         <!-- Resolvability gate (DAL PreWriteValidationEvent) -->
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
             <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
@@ -331,13 +331,13 @@
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Specification source selection for the diagnose route -->
-        <service id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceResolver">
+        <service id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator">
             <argument type="tagged_iterator" tag="content_system.context_factory"/>
             <argument type="tagged_locator" tag="content_system.specification_source" index-by="section"/>
         </service>
@@ -348,10 +348,10 @@
         </service>
 
         <!-- Resolve-and-diagnose Action (Admin API) -->
-        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnosticsController" public="true">
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController" public="true">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
         </service>
 
         <!-- Preview Action (Admin API) -->

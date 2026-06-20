@@ -27,28 +27,30 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * Resolve-and-diagnose action: given a layout tree (and optionally a bound source via entityType/section), it
- * returns the per-element resolutions plus the diagnostics report without persisting. Serves the editor's
- * after-local-edit "what is broken / still unresolved" need and agent layout linting. The admin Context is
- * passed straight through; no SalesChannelContext is built, because the binding computation needs only Context.
+ * Resolve-and-diagnose action: given a draft layout tree from the request (and optionally a bound source via
+ * entityType/section), it returns the per-element resolutions plus the diagnostics report without persisting.
+ * Operates only on the draft tree in the request; it never reads or writes the stored content_layout entity.
+ * Serves the editor's after-local-edit "what is broken / still unresolved" need and agent layout linting. The
+ * admin Context is passed straight through; no SalesChannelContext is built, because the binding computation
+ * needs only Context.
  *
  * @internal
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
-class ContentLayoutDiagnosticsController
+class ContentDiagnoseController
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
         private readonly ContentElementFieldSerializer $elementSerializer,
-        private readonly SpecificationSourceResolver $sourceResolver,
+        private readonly SpecificationSourceLocator $sourceLocator,
     ) {
     }
 
     #[Route(path: '/api/_action/content-system/layout/diagnose', name: 'api.action.content_system.layout.diagnose', methods: [Request::METHOD_POST])]
     public function diagnose(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
-        ContentLayoutDiagnoseRequest $payload,
+        ContentDiagnoseRequest $payload,
         Context $context,
     ): Response {
         [$tree, $decodeViolations] = $this->decodeLayout($payload->layout);
@@ -126,16 +128,16 @@ class ContentLayoutDiagnosticsController
     /**
      * @return list<ProvidedContext>|null
      */
-    private function resolveRootContext(ContentLayoutDiagnoseRequest $payload, Context $context): ?array
+    private function resolveRootContext(ContentDiagnoseRequest $payload, Context $context): ?array
     {
         if ($payload->entityType !== null && $payload->entityType !== '') {
-            return $this->sourceResolver->resolveByEntityType($payload->entityType)->providedRootContext($context);
+            return $this->sourceLocator->resolveByEntityType($payload->entityType)->providedRootContext($context);
         }
 
         if ($payload->section !== null && $payload->section !== '') {
             $section = ContentSection::tryFrom($payload->section) ?? throw ContentSystemException::noSourceForSection($payload->section);
 
-            return $this->sourceResolver->resolveBySection($section)->providedRootContext($context);
+            return $this->sourceLocator->resolveBySection($section)->providedRootContext($context);
         }
 
         return null;

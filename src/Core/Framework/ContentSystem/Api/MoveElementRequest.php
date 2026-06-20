@@ -6,21 +6,23 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Envelope DTO for the resolve-and-diagnose action. The raw layout tree stays undecoded so
- * ContentElementFieldSerializer::decodeElement() remains the single decode path. Optional source fields
- * (entityType or section) enable the binding-resolvability branch; absent both, only well-formedness is checked.
+ * Envelope DTO for the move-element mutation action.
  *
  * @internal
  */
 #[Package('framework')]
-final class ContentDiagnoseRequest
+final class MoveElementRequest
 {
     /**
      * @param array<int|string, mixed> $layout
      */
     public function __construct(
+        public readonly string $elementId,
         #[Assert\Type('array')]
         public readonly array $layout = [],
+        public readonly ?string $newParentId = null,
+        public readonly ?string $newSlot = null,
+        public readonly ?int $index = null,
         public readonly ?string $entityType = null,
         public readonly ?string $section = null,
     ) {

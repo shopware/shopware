@@ -24,6 +24,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * boundary, which has no SalesChannelContext, suffices.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface

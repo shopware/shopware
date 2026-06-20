@@ -5,7 +5,7 @@
 - `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext, ?Context $context = null): LayoutAnalysis`. Flattens the element tree, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
 - `LayoutAnalysis` - Output of `analyze()`. `public DiagnosticsReport $report` and `public array $resolutions` (keyed by element id, values are `list<PropertyResolution>`). `@internal final readonly`.
 - `DiagnosticsReport` - Holds `list<Violation> $violations`. `isWellFormed(): bool` (no intrinsic-scope Error violations — persistence gate). `isResolvable(): bool` (no binding-scope Error violations — serving gate). Also `intrinsicErrors()`, `bindingErrors()`. `@internal final readonly`.
-- `Violation` - `@internal final readonly`. Constructor: `ViolationCode $code, string $elementId, ?string $key, string $message, array $candidates = []`. `scope()` and `severity()` delegate to the code.
+- `Violation` - `@internal final readonly`. Constructor: `ViolationCode $code, string $elementId, ?string $key, string $message, list<ResolutionCandidate> $candidates = []`. `scope()` and `severity()` delegate to the code.
 - `ViolationCode` - `enum: string`, 8 cases. Single source of truth for scope and severity. See README for the full mapping table.
 - `ViolationScope` - `enum: string`. Cases: `Intrinsic`, `Binding`. `@internal`.
 - `ViolationSeverity` - `enum: string`. Cases: `Error`, `Warning`. `@internal`.

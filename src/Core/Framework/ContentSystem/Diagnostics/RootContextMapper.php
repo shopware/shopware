@@ -13,9 +13,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Maps a bound source's page data requirements to the root-ambient context it supplies to a layout's
- * top-level elements, by resolving each requirement's produced FQCN via its data loader (Spec 0). The
+ * top-level elements, by resolving each requirement's produced FQCN via its data loader. The
  * page context is exposed exactly as the {@see VirtualRootWrapper} exposes it at runtime: broadcast Single.
  * One mapping path, shared by the entity sources' providedRootContext override and the diagnostics core.
+ *
+ * @final
  */
 #[Package('framework')]
 class RootContextMapper

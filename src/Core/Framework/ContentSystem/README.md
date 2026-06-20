@@ -12,7 +12,7 @@ Three content sections with different resolution strategies:
 
 **Footer** (`/store-api/content-footer*`) — Same domain-aware resolution as header.
 
-Header and Footer are pure Storefront concepts — the Core has no knowledge of them. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections. The Storefront module registers its own entity definitions, specification sources, and section resolvers via `content-system.xml`.
+Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core, but their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.xml`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
 
 Each section supports four response formats: full, decomposed, skeleton, and data. See SalesChannel/ and Output/.
 
@@ -22,7 +22,7 @@ The pipeline is source-independent — specification sources translate entity ID
 
 1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
 2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
-3. **PreHydration Events** — Listeners prepare layout: placeholder resolution, virtual root wrapping, partial rendering pruning. See Event/Listener/.
+3. **PreHydration Events** — Listeners prepare layout: virtual root wrapping, redistribute-flag expansion, placeholder resolution, partial rendering pruning. See Event/Listener/.
 4. **Hydration** (FULL mode only) — `ContentElementHydrator` loads data per element's requirements, then distributes context. Skipped in SKELETON mode. See Hydration/.
 5. **PostHydration Events** — Listeners finalize: virtual root cleanup, partial extraction. See Event/Listener/.
 
@@ -56,12 +56,12 @@ The reasoning behind how classes in this module are named (the subjects, role-su
 
 ## Administration API
 
-Admin-facing endpoints — layout preview, resolve-and-diagnose, plus the type-introspection routes the Administration consumes — are documented in `ADMINISTRATION.md`.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven layout mutation actions, plus the type-introspection routes the Administration consumes) are documented in `ADMINISTRATION.md`.
 
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - Admin API controllers (layout preview + resolve-and-diagnose actions)
+- **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, and the seven layout mutation actions)
 - **Binding/** - Source-binding enumeration for the resolvability gate (`LayoutBindingEnumerator` extension point)
 - **Cache/** - HTTP cache integration and invalidation
 - **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
@@ -70,6 +70,7 @@ Admin-facing endpoints — layout preview, resolve-and-diagnose, plus the type-i
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
 - **Layout/** - Element tree, entities, field types, scaffolding, element type system
+- **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap), each re-resolved through the diagnostics pass
 - **Output/** - Response formatting and partial rendering
 - **Resolution/** - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - Store API endpoints

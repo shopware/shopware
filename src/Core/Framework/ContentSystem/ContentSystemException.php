@@ -45,6 +45,11 @@ class ContentSystemException extends HttpException
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
     public const NO_SOURCE_FOR_SECTION = 'CONTENT_SYSTEM__NO_SOURCE_FOR_SECTION';
+    public const MUTATION_TARGET_NOT_FOUND = 'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND';
+    public const MUTATION_CYCLE = 'CONTENT_SYSTEM__MUTATION_CYCLE';
+    public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
+    public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
+    public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
 
     /**
      * Error codes that represent a defect in client-supplied layout input — a typo'd entity, an undecodable
@@ -404,6 +409,55 @@ class ContentSystemException extends HttpException
             self::INVALID_LAYOUT_STRUCTURE,
             'Invalid layout structure: {{ reason }}',
             ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    public static function mutationTargetNotFound(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_TARGET_NOT_FOUND,
+            'Element "{{ elementId }}" was not found in the layout.',
+            ['elementId' => $elementId]
+        );
+    }
+
+    public static function mutationCycle(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_CYCLE,
+            'Cannot move element "{{ elementId }}" into itself or one of its descendants.',
+            ['elementId' => $elementId]
+        );
+    }
+
+    public static function mutationSlotRequired(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_SLOT_REQUIRED,
+            'A slot must be supplied to place the element into a parent.'
+        );
+    }
+
+    public static function mutationInvalidWrapTargets(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_INVALID_WRAP_TARGETS,
+            'Cannot wrap the given elements: {{ reason }}',
+            ['reason' => $reason]
+        );
+    }
+
+    public static function mutationUnknownType(string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_UNKNOWN_TYPE,
+            'Element type "{{ type }}" is not a registered element type.',
+            ['type' => $type]
         );
     }
 }

@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
  * entity; header/footer yield nothing).
  *
  * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
+ *
+ * @final
  */
 #[Package('framework')]
 class AvailableContextResolver

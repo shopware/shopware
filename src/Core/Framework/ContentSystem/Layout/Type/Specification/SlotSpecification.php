@@ -23,6 +23,11 @@ final readonly class SlotSpecification
     ) {
     }
 
+    public function name(): string
+    {
+        return $this->name;
+    }
+
     /**
      * @return SlotSchema
      */

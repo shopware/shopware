@@ -32,6 +32,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Previews how a draft content layout renders with real entity data, without persisting the layout.
  *
  * @internal
+ *
+ * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]

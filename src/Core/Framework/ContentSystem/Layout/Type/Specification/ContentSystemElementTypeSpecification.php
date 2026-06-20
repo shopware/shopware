@@ -64,6 +64,14 @@ final readonly class ContentSystemElementTypeSpecification
     }
 
     /**
+     * @return list<SlotSpecification>
+     */
+    public function slots(): array
+    {
+        return $this->slots;
+    }
+
+    /**
      * @return ElementTypeSchema
      */
     public function toSchema(): array

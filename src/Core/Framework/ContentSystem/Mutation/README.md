@@ -1,0 +1,65 @@
+# Mutation
+
+Server-side structural edits to a draft layout tree. Each operation takes a whole draft tree, applies exactly one structural change, re-resolves the result, and returns the new tree plus a diagnostics report, without persisting. This is the "assemble" step performed server-side: the admin editor (or an agentic layout builder) sends the current draft and one edit, and gets back the edited, freshly diagnosed layout.
+
+## Stateless Whole-Tree Model
+
+An operation is a pure transform over the element tree:
+
+1. It receives the entire draft tree (`list<ContentElement>`).
+2. It applies one structural change by reconstructing only the nodes on the path to the change (immutable path-copying), through the `ContentElement` constructor. Untouched subtrees are reused by reference, which is safe because nothing is mutated.
+3. It returns a new tree. The input tree, its elements, and its slots are never mutated.
+
+Because the operation never mutates shared state, the same draft can be diffed against the result, and the result fed straight back into the next operation.
+
+## Pipeline
+
+`MutationPipeline` is the single entry point every operation runs through:
+
+1. **Decode** the raw draft array into a `ContentElement` tree, through the same `ContentElementFieldSerializer` path a stored layout uses. A structurally malformed element (not an array, or missing a non-empty string `id`/`component`) fails with a `400`, as does an element whose config is a client defect, so the caller never sees a serializer `500`.
+2. **Apply** the operation to the decoded tree.
+3. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness output.
+4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, and the orphaned subtrees and dropped wiring the operation surfaced.
+
+## Result Channels
+
+Every operation reports three things alongside the new tree:
+
+- **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for the editor, not a correctness claim; the diagnostics pass is the authority.
+- **orphaned** (`list<ContentElement>`) - subtrees the operation detached (for example, a replace dropping the children of a slot the new type does not have). Returned so the caller can re-place them; never discarded.
+- **droppedWiring** (`list<string>`) - wiring keys the operation dropped because they no longer fit (for example, a replace to a type without that reference property). Reported so the caller can re-wire; never silently re-mapped.
+
+The contract is that no structural edit silently loses content or wiring: anything an operation cannot keep is handed back through `orphaned` or `droppedWiring`.
+
+## Affected-set rationale
+
+`affected` is a conservative highlight hint, never the correctness output: the diagnostics pass over the whole new tree is the authority. Each operation derives its affected set from how context can flow, not from what structurally moved:
+
+- **RemoveElement reports nothing.** Context flows strictly down the tree, so a provider inside the removed subtree could only feed elements that are themselves inside it. A removed subtree therefore strands no surviving element.
+- **MoveElement reports the moved subtree only when the parent changes.** Resolution is candidate selection by type/key, never by sibling index, so a same-parent move (a reorder, or a different slot under the same parent) leaves every element's available providers unchanged and re-resolves nothing. Only a parent change re-scopes the moved subtree.
+- **ReplaceElement reports the whole reconstructed subtree.** The new type may provide fewer context providers than the old, so a kept descendant that consumed a now-dropped provider must re-resolve.
+- **UnwrapElement reports the whole hoisted forest.** The hoisted subtrees lose the container from their ancestor chain, so any context the container provided is gone.
+
+## Operations
+
+All seven live in `Op/` and extend `AbstractLayoutMutation`:
+
+- **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
+- **RemoveElement** - deletes an element and its whole subtree.
+- **MoveElement** - relocates an element and its subtree under a new parent slot (or to the root), rejecting a move onto itself or a descendant as a cycle.
+- **ReplaceElement** - swaps an element's component to a new type, keeping the same id and carrying over matching properties, wiring, and slot children; anything the new type cannot hold is surfaced via `orphaned`/`droppedWiring`.
+- **DuplicateElement** - deep-clones a subtree with freshly minted ids and splices the clone as the next sibling.
+- **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
+- **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position.
+
+## Key Classes
+
+- `LayoutMutation` - The operation contract: `apply()` returns the new tree; `affected()`, `orphaned()`, `droppedWiring()` report what changed. Single-use, `apply()` runs before any reporter is read.
+- `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
+- `MutationPipeline` - Decode, apply, diagnose, assemble. The shared runner for every operation.
+- `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring.
+- `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
+
+## Subdirectories
+
+- **Op/** - The seven concrete operations, each one structural edit.

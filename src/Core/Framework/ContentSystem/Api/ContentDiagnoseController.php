@@ -5,15 +5,12 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
-use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -35,6 +32,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * needs only Context.
  *
  * @internal
+ *
+ * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
@@ -59,9 +58,11 @@ class ContentDiagnoseController
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
+        $normalizer = new LayoutDiagnosticsResultNormalizer();
+
         return new JsonResponse([
-            'resolutions' => $this->serializeResolutions($analysis),
-            'diagnostics' => $this->serializeReport($report),
+            'resolutions' => (object) $normalizer->normalizeResolutions($analysis->resolutions),
+            'diagnostics' => $normalizer->normalizeReport($report),
         ]);
     }
 
@@ -141,80 +142,6 @@ class ContentDiagnoseController
         }
 
         return null;
-    }
-
-    /**
-     * @return array<string, list<array<string, mixed>>>
-     */
-    private function serializeResolutions(LayoutAnalysis $analysis): array
-    {
-        return array_map(
-            fn (array $resolutions): array => array_map($this->serializeResolution(...), $resolutions),
-            $analysis->resolutions,
-        );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializeResolution(PropertyResolution $resolution): array
-    {
-        return [
-            'key' => $resolution->key,
-            'kind' => $resolution->kind->value,
-            'required' => $resolution->required,
-            'type' => $resolution->type,
-            'default' => $resolution->default,
-            'fqcn' => $resolution->fqcn,
-            'resolved' => $resolution->resolved === null ? null : $this->serializeCandidate($resolution->resolved),
-            'candidates' => array_map($this->serializeCandidate(...), $resolution->candidates),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializeCandidate(ResolutionCandidate $candidate): array
-    {
-        return [
-            'origin' => $candidate->origin->value,
-            'contextKey' => $candidate->contextKey,
-            'providerElementId' => $candidate->providerElementId,
-            'path' => $candidate->path,
-            'distribution' => $candidate->distribution?->value,
-            'contextType' => $candidate->contextType?->value,
-            'loaderSource' => $candidate->loaderSource,
-            'configTemplate' => $candidate->configTemplate,
-            'configComplete' => $candidate->configComplete,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializeReport(DiagnosticsReport $report): array
-    {
-        return [
-            'wellFormed' => $report->isWellFormed(),
-            'resolvable' => $report->isResolvable(),
-            'violations' => array_map($this->serializeViolation(...), $report->violations),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializeViolation(Violation $violation): array
-    {
-        return [
-            'code' => $violation->code->value,
-            'scope' => $violation->scope()->value,
-            'severity' => $violation->severity()->value,
-            'elementId' => $violation->elementId,
-            'key' => $violation->key,
-            'message' => $violation->message,
-            'candidates' => array_map($this->serializeCandidate(...), $violation->candidates),
-        ];
     }
 
     private function structuralViolation(string $propertyPath, string $message, mixed $invalidValue): ConstraintViolation

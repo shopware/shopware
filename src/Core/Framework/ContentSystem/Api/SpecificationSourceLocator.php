@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  * Storefront contributes to. Returns the source instance on which the route calls providedRootContext().
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class SpecificationSourceLocator

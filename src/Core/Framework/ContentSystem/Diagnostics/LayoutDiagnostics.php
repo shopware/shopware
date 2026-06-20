@@ -25,6 +25,8 @@ use Shopware\Core\Framework\Log\Package;
  * The binding-scope checks (required-property satisfaction, broken chains) run only when a bound source's
  * root context is supplied; with a null root context only the well-formedness subset runs. The analysis
  * never reads sales-channel state — a plain {@see Context} suffices.
+ *
+ * @final
  */
 #[Package('framework')]
 class LayoutDiagnostics

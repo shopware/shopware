@@ -363,5 +363,19 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentPipeline"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory"/>
         </service>
+
+        <!-- Mutation Pipeline -->
+        <service id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
+        </service>
+
+        <!-- Layout Mutation Actions (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+        </service>
     </services>
 </container>

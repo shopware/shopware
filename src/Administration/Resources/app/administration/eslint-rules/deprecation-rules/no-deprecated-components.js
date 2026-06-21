@@ -1,8 +1,6 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations, isMigrationSelected } = require('./registry/filter-migrations');
 
-/* eslint-disable max-len */
-
 function formatReferences(migration) {
     if (!migration.references?.length) {
         return '';
@@ -197,8 +195,6 @@ module.exports = {
                                 : `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
                                 if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
 
                                 // Get the range of the start tag
                                 const startTagRange = [

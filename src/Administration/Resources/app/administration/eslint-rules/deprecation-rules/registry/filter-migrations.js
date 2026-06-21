@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 function getSelectedMigrationIds() {
     return (process.env.SHOPWARE_ADMIN_DEPRECATION_IDS ?? '')
         .split(',')

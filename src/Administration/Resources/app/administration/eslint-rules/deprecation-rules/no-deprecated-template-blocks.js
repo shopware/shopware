@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 

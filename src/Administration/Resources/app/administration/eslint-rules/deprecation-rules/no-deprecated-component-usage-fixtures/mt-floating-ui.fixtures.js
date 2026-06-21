@@ -68,6 +68,34 @@ const mtFloatingUiInvalidTests = [
         ],
     },
     {
+        name: '"mt-floating-ui" does not add isOpened when legacy open prop still needs manual migration',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-floating-ui open />
+            </template>`,
+        output: null,
+        errors: [
+            {
+                message: '[mt-floating-ui] The "open" prop is deprecated. Use "is-opened" instead.',
+            },
+        ],
+    },
+    {
+        name: '"mt-floating-ui" does not add isOpened when legacy bound open prop still needs manual migration',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-floating-ui :open="false" />
+            </template>`,
+        output: null,
+        errors: [
+            {
+                message: '[mt-floating-ui] The "open" prop is deprecated. Use "is-opened" instead.',
+            },
+        ],
+    },
+    {
         name: '"mt-floating-ui" replaces resize-width with match-reference-width',
         filename: 'test.html.twig',
         code: `

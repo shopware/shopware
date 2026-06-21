@@ -799,7 +799,7 @@ function reportButtonDefaultVariant(context, node, migration, usage) {
 }
 
 function reportFloatingUiDefaultOpened(context, node, migration, usage) {
-    if (hasMatchingPropAttribute(node, 'is-opened')) {
+    if (hasMatchingPropAttribute(node, 'is-opened') || hasMatchingPropAttribute(node, 'open')) {
         return;
     }
 

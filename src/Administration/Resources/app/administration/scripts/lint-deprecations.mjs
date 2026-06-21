@@ -35,6 +35,7 @@ if (files.length === 0) {
 const eslint = spawnSync(
     'eslint',
     [
+        '--no-warn-ignored',
         '--rule',
         '"sw-deprecation-rules/private-feature-declarations": "error"',
         ...files,

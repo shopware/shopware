@@ -27,6 +27,20 @@ const tester = new RuleTester({
     },
 })
 
+function withRegistryMessageContext(cases) {
+    return cases.map((testCase) => {
+        return {
+            ...testCase,
+            errors: testCase.errors?.map((error) => {
+                return {
+                    ...error,
+                    message: /Removed in Shopware/,
+                };
+            }),
+        };
+    });
+}
+
 tester.run('no-deprecated-component-usage', rule, {
     valid: [
         {
@@ -54,7 +68,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtFloatingUiValidTests,
         ...swEntityListingValidChecks,
     ],
-    invalid: [
+    invalid: withRegistryMessageContext([
         ...mtButtonInvalidChecks,
         ...mtIconInvalidTests,
         ...mtCardInvalidTests,
@@ -74,5 +88,5 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtProgressBarInvalidTests,
         ...mtFloatingUiInvalidTests,
         ...swEntityListingInvalidChecks,
-    ]
+    ])
 })

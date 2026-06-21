@@ -15,6 +15,7 @@
 
 import { h, shallowRef, type Slot } from 'vue';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
+import { getLegacyTwigBlockDeprecationMessage } from 'src/app/deprecation-registry/runtime';
 import swBlockParent from '../sw-block-parent/index';
 
 const warnedBlocks = new Set<string>();
@@ -27,11 +28,8 @@ const isInternalKey = (key: string | symbol): boolean =>
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
-        console.warn(
-            `[Shopware Deprecation] Block "${blockName}" in component "${entry.componentName}" ` +
-                `uses a legacy Twig override. ` +
-                `Migrate to: <sw-block extends="${blockName}">...</sw-block>`,
-        );
+
+        console.warn(getLegacyTwigBlockDeprecationMessage(blockName, entry.componentName));
     }
 
     const def = {

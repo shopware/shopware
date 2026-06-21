@@ -31,12 +31,6 @@ export default {
                 return true;
             }
 
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-loader',
-                'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',
-            );
-
             return false;
         },
     },

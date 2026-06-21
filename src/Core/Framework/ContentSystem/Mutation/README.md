@@ -14,12 +14,11 @@ Because the operation never mutates shared state, the same draft can be diffed a
 
 ## Pipeline
 
-`MutationPipeline` is the single entry point every operation runs through:
+`MutationPipeline` is the shared runner every operation goes through, on an **already-decoded** tree. The admin routes decode the request draft upstream through the shared `Api/DraftLayoutDecoder` (the structural pre-gate that fails a malformed or config-defective element with a `400` so the caller never sees a serializer `500`); the pipeline itself is agnostic to whether the tree came from a request draft or a loaded `content_layout`:
 
-1. **Decode** the raw draft array into a `ContentElement` tree, through the same `ContentElementFieldSerializer` path a stored layout uses. A structurally malformed element (not an array, or missing a non-empty string `id`/`component`) fails with a `400`, as does an element whose config is a client defect, so the caller never sees a serializer `500`.
-2. **Apply** the operation to the decoded tree.
-3. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness output.
-4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, and the orphaned subtrees and dropped wiring the operation surfaced.
+1. **Apply** the operation to the decoded tree.
+2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness output.
+3. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the diagnostics report, the affected element ids, and the orphaned subtrees and dropped wiring the operation surfaced.
 
 ## Result Channels
 
@@ -56,7 +55,7 @@ All seven live in `Op/` and extend `AbstractLayoutMutation`:
 
 - `LayoutMutation` - The operation contract: `apply()` returns the new tree; `affected()`, `orphaned()`, `droppedWiring()` report what changed. Single-use, `apply()` runs before any reporter is read.
 - `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
-- `MutationPipeline` - Decode, apply, diagnose, assemble. The shared runner for every operation.
+- `MutationPipeline` - Apply, diagnose, assemble. The shared runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream).
 - `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring.
 - `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
 

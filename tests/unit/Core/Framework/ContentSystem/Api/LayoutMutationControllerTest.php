@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\DuplicateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\InsertElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
@@ -160,6 +161,7 @@ class LayoutMutationControllerTest extends TestCase
         ?SpecificationSourceLocator $sourceLocator = null,
     ): LayoutMutationController {
         return new LayoutMutationController(
+            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
             $pipeline ?? $this->pipelineReturning(new MutationResult([], [], new DiagnosticsReport([]), [])),
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),

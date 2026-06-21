@@ -7,8 +7,6 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
@@ -25,8 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Previews how a draft content layout renders with real entity data, without persisting the layout.
@@ -42,7 +38,7 @@ class ContentPreviewController
     public function __construct(
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly RenderingSpecificationResolver $specificationResolver,
-        private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly DraftLayoutDecoder $decoder,
         private readonly DraftLayoutChecker $draftChecker,
         private readonly ContentPipeline $contentPipeline,
         private readonly AbstractResponseFactory $responseFactory,
@@ -76,7 +72,7 @@ class ContentPreviewController
             $salesChannelContext,
         );
 
-        $elements = $this->decodeLayout($payload->layout);
+        $elements = $this->decoder->decode($payload->layout);
 
         $violations = $this->draftChecker->check($elements);
         if ($violations->count() > 0) {
@@ -97,62 +93,5 @@ class ContentPreviewController
         );
 
         return $this->responseFactory->createResponse($contentPage);
-    }
-
-    /**
-     * Structural pre-decode gate: every layout element must be an array with a non-empty string
-     * id and component. Runs in full before decodeElement(), so a malformed element is a 400 client
-     * error instead of a 500 from the field serializer's id/component guards.
-     *
-     * @param array<int|string, mixed> $layout
-     *
-     * @return list<ContentElement>
-     */
-    private function decodeLayout(array $layout): array
-    {
-        $violations = new ConstraintViolationList();
-        $decodable = [];
-
-        foreach ($layout as $index => $element) {
-            $path = '[' . $index . ']';
-
-            if (!\is_array($element)) {
-                $violations->add($this->structuralViolation($path, 'Layout element must be an array.', $element));
-
-                continue;
-            }
-
-            $id = $element['id'] ?? null;
-            $component = $element['component'] ?? null;
-            $valid = true;
-
-            if (!\is_string($id) || $id === '') {
-                $violations->add($this->structuralViolation($path . '.id', 'Layout element id must be a non-empty string.', $id));
-                $valid = false;
-            }
-
-            if (!\is_string($component) || $component === '') {
-                $violations->add($this->structuralViolation($path . '.component', 'Layout element component must be a non-empty string.', $component));
-                $valid = false;
-            }
-
-            if ($valid) {
-                $decodable[] = $element;
-            }
-        }
-
-        if ($violations->count() > 0) {
-            throw ContentSystemException::invalidLayoutStructure($violations);
-        }
-
-        return array_map(
-            fn (array $element): ContentElement => $this->elementSerializer->decodeElement($element),
-            $decodable,
-        );
-    }
-
-    private function structuralViolation(string $propertyPath, string $message, mixed $invalidValue): ConstraintViolation
-    {
-        return new ConstraintViolation($message, null, [], null, $propertyPath, $invalidValue);
     }
 }

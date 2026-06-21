@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
@@ -128,8 +129,8 @@ class ContentDiagnoseControllerTest extends TestCase
         ?SpecificationSourceLocator $sourceLocator = null,
     ): ContentDiagnoseController {
         return new ContentDiagnoseController(
+            new DraftLayoutDecoder($serializer),
             $diagnostics,
-            $serializer,
             $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
         );
     }

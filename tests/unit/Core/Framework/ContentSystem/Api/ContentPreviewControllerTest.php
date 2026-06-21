@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -69,7 +70,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $contextService,
             $resolver,
-            $serializer,
+            new DraftLayoutDecoder($serializer),
             $this->checker(registered: true),
             $pipeline,
             new FullResponseFactory(),
@@ -87,7 +88,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            static::createStub(ContentElementFieldSerializer::class),
+            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -114,7 +115,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $resolver,
-            static::createStub(ContentElementFieldSerializer::class),
+            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -136,7 +137,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            $serializer,
+            new DraftLayoutDecoder($serializer),
             $this->checker(registered: false),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -162,7 +163,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $contextService,
             static::createStub(RenderingSpecificationResolver::class),
-            static::createStub(ContentElementFieldSerializer::class),
+            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),

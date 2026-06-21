@@ -39,6 +39,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class LayoutMutationController
 {
     public function __construct(
+        private readonly DraftLayoutDecoder $decoder,
         private readonly MutationPipeline $pipeline,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly SpecificationSourceLocator $sourceLocator,
@@ -122,7 +123,8 @@ class LayoutMutationController
      */
     private function respond(LayoutMutation $mutation, array $layout, ?string $entityType, ?string $section, Context $context): JsonResponse
     {
-        $result = $this->pipeline->run($mutation, $layout, $this->resolveRootContext($entityType, $section, $context), $context);
+        $tree = $this->decoder->decode($layout);
+        $result = $this->pipeline->run($mutation, $tree, $this->resolveRootContext($entityType, $section, $context), $context);
 
         $normalizer = new LayoutDiagnosticsResultNormalizer();
 

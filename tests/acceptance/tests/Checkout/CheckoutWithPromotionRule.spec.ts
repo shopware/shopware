@@ -19,14 +19,16 @@ test('Registered newsletter recipient should have corresponding promotion applie
         AddProductToCart,
         ProceedFromCartToCheckout,
         ConfirmTermsAndConditions,
+        SelectPaymentMethod,
+        SelectShippingMethod,
         SubmitOrder,
     }) => {
-        let ruleConfig = { ruleId: IdProvider.getIdPair().uuid };
+        const ruleConfig = { ruleId: IdProvider.getIdPair().uuid };
         await ShopAdmin.attemptsTo(CreateRuleNewsletterRecipient(ruleConfig));
 
         // add promotion with discount percentage and condition "customer is newsletter recipient"
         const discountPercentage = 10, promotionName = 'Newsletter Recipient Promotion';
-        let promotionConfig = {
+        const promotionConfig = {
             id: IdProvider.getIdPair().uuid,
             name: `${promotionName} ${ruleConfig.ruleId}`,
             useCode: false,
@@ -40,13 +42,14 @@ test('Registered newsletter recipient should have corresponding promotion applie
 
         const productGrossPrice = 50, discountPrice = 45.00, discountValue = 5.00;
         const productPrices = [
-            { currencyId: DefaultSalesChannel.salesChannel.currencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 }, 
-            { currencyId: SalesChannelBaseConfig.defaultCurrencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 }
+            { currencyId: DefaultSalesChannel.salesChannel.currencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 },
+            { currencyId: SalesChannelBaseConfig.defaultCurrencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 },
         ];
         const product = await TestDataService.createBasicProduct({ price: productPrices, purchasePrices: productPrices });
-        await TestDataService.createNewsletterRecipient(DefaultSalesChannel.customer);
 
         await ShopCustomer.attemptsTo(Login(DefaultSalesChannel.customer));
+        await TestDataService.createNewsletterRecipient(DefaultSalesChannel.customer);
+
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(productGrossPrice));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
@@ -59,6 +62,8 @@ test('Registered newsletter recipient should have corresponding promotion applie
         await ShopCustomer.expects(promoItem.promotionPrice).toContainText(formatPrice(discountValue));
         await ShopCustomer.expects(StorefrontOffCanvasCart.subTotalPrice).toContainText(formatPrice(discountPrice));
         await ShopCustomer.attemptsTo(ProceedFromCartToCheckout());
+        await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+        await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
         const productLineItem = StorefrontCheckoutConfirm.getLineItemByProductName(StorefrontCheckoutConfirm.productLineItems, product.translated.name);
         await ShopCustomer.expects(productLineItem.productNameLabel).toContainText(product.translated.name);

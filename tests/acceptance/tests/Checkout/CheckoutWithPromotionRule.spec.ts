@@ -15,7 +15,6 @@ test('Registered newsletter recipient should have corresponding promotion applie
         StorefrontCheckoutFinish,
         Login,
         CreateRuleNewsletterRecipient,
-        AddPromotionWithConditionRule,
         AddProductToCart,
         ProceedFromCartToCheckout,
         ConfirmTermsAndConditions,
@@ -38,7 +37,7 @@ test('Registered newsletter recipient should have corresponding promotion applie
             salesChannelId: DefaultSalesChannel.salesChannel.id,
             ruleId: ruleConfig.ruleId,
         };
-        await ShopAdmin.attemptsTo(AddPromotionWithConditionRule(promotionConfig));
+        await TestDataService.createPromotionWithConditionRule(promotionConfig);
 
         const productGrossPrice = 50, discountPrice = 45.00, discountValue = 5.00;
         const productPrices = [
@@ -74,6 +73,7 @@ test('Registered newsletter recipient should have corresponding promotion applie
         await ShopCustomer.expects(promotionLineItem.productTotalPrice).toContainText(formatPrice(discountValue));
         await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(formatPrice(discountPrice));
 
+        await StorefrontCheckoutConfirm.page.waitForLoadState('load');
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
         await ShopCustomer.attemptsTo(SubmitOrder());
         await ShopCustomer.expects(StorefrontCheckoutFinish.page.getByText(promotionName)).toBeVisible();

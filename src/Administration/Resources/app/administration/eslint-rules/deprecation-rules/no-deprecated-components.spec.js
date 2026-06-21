@@ -917,6 +917,17 @@ tester.run('no-deprecated-components', rule, {
             ],
         },
         {
+            name: '"sw-data-grid" usage on first line is not allowed',
+            filename: 'test.html.twig',
+            code: '<template><sw-data-grid /></template>',
+            output: null,
+            errors: [
+                {
+                    message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
+                },
+            ],
+        },
+        {
             name: '"sw-data-grid" usage is not allowed [disableFix]',
             filename: 'test.html.twig',
             options: [

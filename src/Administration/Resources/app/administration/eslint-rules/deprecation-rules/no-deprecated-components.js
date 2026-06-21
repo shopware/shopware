@@ -173,7 +173,8 @@ module.exports = {
                         }
 
                         // Check if comment a line before the sw-data-grid component exists
-                        const commentBeforeNode = context.getSourceCode().getText().split('\n')[node.loc.start.line - 2];
+                        const commentBeforeNode =
+                            context.getSourceCode().getText().split('\n')[node.loc.start.line - 2] ?? '';
 
                         // Do not add comment if it already exists
                         if (

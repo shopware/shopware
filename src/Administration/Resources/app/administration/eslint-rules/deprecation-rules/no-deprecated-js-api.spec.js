@@ -98,5 +98,29 @@ tester.run('no-deprecated-js-api', rule, {
                 },
             ],
         },
+        {
+            name: 'migrates generic CMS element publishData identifiers',
+            code: "Shopware.ExtensionAPI.publishData({ id: publishingKey, path: 'element' });",
+            output: "Shopware.ExtensionAPI.publishData({ id: `${publishingKey}__${element.id}`, path: 'element' });",
+            errors: [
+                {
+                    message: /Generic CMS element publishData identifiers are deprecated/,
+                },
+            ],
+        },
+        {
+            name: 'reports Options API component overrides without autofix',
+            code: `
+                Shopware.Component.override('sw-example', {
+                    methods: {},
+                });
+            `,
+            output: null,
+            errors: [
+                {
+                    message: /Options API component overrides are deprecated/,
+                },
+            ],
+        },
     ],
 });

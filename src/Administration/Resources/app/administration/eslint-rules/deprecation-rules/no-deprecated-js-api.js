@@ -53,6 +53,29 @@ function getMemberPropertyName(node) {
     return getPropertyName(node.property);
 }
 
+function getMemberName(node) {
+    if (!node) {
+        return null;
+    }
+
+    if (node.type === 'Identifier') {
+        return node.name;
+    }
+
+    if (node.type !== 'MemberExpression') {
+        return null;
+    }
+
+    const objectName = getMemberName(node.object);
+    const propertyName = getPropertyName(node.property);
+
+    if (!objectName || !propertyName) {
+        return null;
+    }
+
+    return `${objectName}.${propertyName}`;
+}
+
 function getObjectOptionReplacement(sourceCode, node) {
     const valueText = sourceCode.getText(node.value);
 
@@ -61,6 +84,14 @@ function getObjectOptionReplacement(sourceCode, node) {
     }
 
     return `metaInfo() { return ${valueText}; }`;
+}
+
+function normalizeSource(text) {
+    return text.replace(/\s+/g, ' ').trim();
+}
+
+function usageFixesAutomatically(usage) {
+    return usage.fix !== 'manual';
 }
 
 module.exports = {
@@ -102,6 +133,7 @@ module.exports = {
 
         const objectOptionUsages = usages.filter(({ usage }) => usage.kind === 'replace-object-option');
         const memberCallUsages = usages.filter(({ usage }) => usage.kind === 'member-call');
+        const replaceApiUsages = usages.filter(({ usage }) => usage.kind === 'replace-api');
         const packageImportUsages = packageUsages.filter(({ usage }) => usage.kind === 'rename-package');
 
         return {
@@ -152,13 +184,41 @@ module.exports = {
                 const propertyName = getMemberPropertyName(node.callee);
                 const match = memberCallUsages.find(({ usage }) => usage.from === propertyName);
 
-                if (!match) {
+                if (match) {
+                    context.report({
+                        node: node.callee.property,
+                        message: buildMessage(match.migration, match.usage),
+                    });
+                }
+
+                const calleeName = getMemberName(node.callee);
+                const sourceText = context.sourceCode.getText(node);
+                const replaceApiMatch = replaceApiUsages.find(({ usage }) => {
+                    return usage.from.includes('(')
+                        ? normalizeSource(usage.from) === normalizeSource(sourceText)
+                        : usage.from === calleeName;
+                });
+
+                if (!replaceApiMatch) {
                     return;
                 }
 
                 context.report({
-                    node: node.callee.property,
-                    message: buildMessage(match.migration, match.usage),
+                    node: replaceApiMatch.usage.from.includes('(') ? node : node.callee,
+                    message: buildMessage(replaceApiMatch.migration, replaceApiMatch.usage),
+                    fix(fixer) {
+                        if (
+                            context.options.includes('disableFix') ||
+                            !usageFixesAutomatically(replaceApiMatch.usage)
+                        ) {
+                            return null;
+                        }
+
+                        return fixer.replaceText(
+                            replaceApiMatch.usage.from.includes('(') ? node : node.callee,
+                            replaceApiMatch.usage.to,
+                        );
+                    },
                 });
             },
         };

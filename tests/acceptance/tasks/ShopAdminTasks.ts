@@ -48,11 +48,6 @@ import { CreateRuleNewsletterRecipient } from '@tasks/ShopAdmin/RuleBuilder/Crea
 import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
 import { WaitForFlowValidationSideEffects } from '@tasks/ShopAdmin/FlowBuilder/WaitForFlowValidationSideEffects';
 
-/**
- * Marketing
- */
-import { AddPromotionWithConditionRule } from '@tasks/ShopAdmin/Marketing/CreatePromotionWithConditionRule';
-
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,

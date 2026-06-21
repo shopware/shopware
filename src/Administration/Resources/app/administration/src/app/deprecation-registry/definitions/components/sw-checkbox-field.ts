@@ -2,7 +2,6 @@ import {
     componentMigration,
     reference,
     removeProp,
-    removeSlot,
     renameComponent,
     renameEvent,
     renameProp,

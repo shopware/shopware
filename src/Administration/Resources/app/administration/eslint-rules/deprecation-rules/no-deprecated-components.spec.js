@@ -583,17 +583,13 @@ tester.run('no-deprecated-components', rule, {
             ],
         },
         {
-            name: '"sw-tabs" usage is not allowed',
+            name: '"sw-tabs" usage is not allowed without autofix because tab metadata needs manual migration',
             filename: 'test.html.twig',
             code: `
 <template>
     <sw-tabs />
 </template>`,
-            output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-tabs - please check if everything works correctly -->
-    <mt-tabs />
-</template>`,
+            output: null,
             errors: [
                 {
                     message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',

@@ -43,6 +43,10 @@ function getCodemodComment(componentName, hasDynamicProps) {
     return `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly${vBindWarning} -->`;
 }
 
+function usageFixesAutomatically(usage) {
+    return usage?.fix !== 'manual';
+}
+
 /**
  * @sw-package framework
  *
@@ -110,7 +114,7 @@ module.exports = {
                                 renameUsage,
                             ),
                             *fix(fixer) {
-                                if (!enableFix) return;
+                                if (!enableFix || !usageFixesAutomatically(renameUsage)) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
                                 const codemodComment = getCodemodComment(componentName, hasObjectVBind(node));

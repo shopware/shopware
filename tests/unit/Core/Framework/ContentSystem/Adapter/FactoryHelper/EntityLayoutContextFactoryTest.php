@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAs
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -32,23 +34,17 @@ class EntityLayoutContextFactoryTest extends TestCase
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
         $this->factory = new EntityLayoutContextFactory(
             $this->layoutResolver,
+            static::createStub(RootContextMapper::class),
         );
     }
 
-    #[TestDox('returns true when path matches definition prefix')]
-    public function testSupportsReturnsTrueWhenPathMatchesPrefix(): void
+    #[DataProvider('supportsProvider')]
+    #[TestDox('reports whether $_dataName is supported')]
+    public function testSupports(string $path, bool $expected): void
     {
         $definition = $this->createDefinitionMock('/product/');
 
-        static::assertTrue($this->factory->supports('/product/abc123', $definition));
-    }
-
-    #[TestDox('returns false when path does not match definition prefix')]
-    public function testSupportsReturnsFalseWhenPathDoesNotMatchPrefix(): void
-    {
-        $definition = $this->createDefinitionMock('/product/');
-
-        static::assertFalse($this->factory->supports('/category/abc123', $definition));
+        static::assertSame($expected, $this->factory->supports($path, $definition));
     }
 
     #[TestDox('resolves layout ID from resolver')]
@@ -68,28 +64,6 @@ class EntityLayoutContextFactoryTest extends TestCase
         $result = $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
 
         static::assertSame($layoutId, $result);
-    }
-
-    #[TestDox('throws when no layout assignment found')]
-    public function testResolveLayoutIdThrowsWhenNoAssignment(): void
-    {
-        $entityId = Uuid::randomHex();
-
-        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-
-        $this->layoutResolver->method('findLayoutId')
-            ->willReturn(null);
-
-        $repository = $this->createRepository();
-        $context = Generator::generateSalesChannelContext();
-
-        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
-            'product',
-            $entityId,
-            $context->getSalesChannel()->getId()
-        ));
-
-        $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
     }
 
     #[TestDox('resolves specification data without requiring a layout assignment')]
@@ -117,20 +91,14 @@ class EntityLayoutContextFactoryTest extends TestCase
         static::assertSame([], $result->dataRequirements);
     }
 
-    #[TestDox('returns element ID from request query when present')]
-    public function testResolveTargetElementIdReturnsElementIdWhenPresent(): void
+    /**
+     * @param array<string, string> $query
+     */
+    #[DataProvider('resolveTargetElementIdProvider')]
+    #[TestDox('returns the target element id for $_dataName')]
+    public function testResolveTargetElementId(array $query, ?string $expected): void
     {
-        $request = new Request(['elementId' => 'elem-42']);
-
-        static::assertSame('elem-42', $this->factory->resolveTargetElementId($request));
-    }
-
-    #[TestDox('returns null when no element ID in request')]
-    public function testResolveTargetElementIdReturnsNullWhenMissing(): void
-    {
-        $request = new Request();
-
-        static::assertNull($this->factory->resolveTargetElementId($request));
+        static::assertSame($expected, $this->factory->resolveTargetElementId(new Request($query)));
     }
 
     #[TestDox('returns cache tags derived from entity ID in path')]
@@ -146,6 +114,28 @@ class EntityLayoutContextFactoryTest extends TestCase
         static::assertSame(['product-' . $entityId], $result);
     }
 
+    #[TestDox('throws when no layout assignment found')]
+    public function testResolveLayoutIdThrowsWhenNoAssignment(): void
+    {
+        $entityId = Uuid::randomHex();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $repository = $this->createRepository();
+        $context = Generator::generateSalesChannelContext();
+
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+            'product',
+            $entityId,
+            $context->getSalesChannel()->getId()
+        ));
+
+        $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
+    }
+
     #[TestDox('throws when path does not match expected route pattern')]
     public function testResolveCacheTagsThrowsWhenPathDoesNotMatchRoutePattern(): void
     {
@@ -159,6 +149,24 @@ class EntityLayoutContextFactoryTest extends TestCase
         ));
 
         $this->factory->resolveCacheTags('/completely/invalid', $definition);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function supportsProvider(): iterable
+    {
+        yield 'a path matching the definition prefix' => ['/product/abc123', true];
+        yield 'a path not matching the definition prefix' => ['/category/abc123', false];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>, ?string}>
+     */
+    public static function resolveTargetElementIdProvider(): iterable
+    {
+        yield 'an element id present in the request query' => [['elementId' => 'elem-42'], 'elem-42'];
+        yield 'no element id in the request query' => [[], null];
     }
 
     /**

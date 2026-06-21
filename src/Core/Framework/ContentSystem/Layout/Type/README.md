@@ -35,13 +35,13 @@ The type spec declares WHAT properties exist and their types. The element instan
 - Forward: given a loader source (e.g., `"entity"`), what types can it produce?
 - Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
 
-This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass` and available at runtime via `ContentSystemDataLoaderTypeResolver`. Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
+`ContentSystemDataLoaderTypeResolver` assembles and memoizes this bridge lazily on its first runtime lookup; `ContentSystemDataLoaderTypeCompilerPass` builds no map — at compile time it only validates each tagged loader's `@extends` annotation (`extendsDescriptor()`). Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
 
 ## Architecture
 
-1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentSystemElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
+1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentSystemElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). `ContentSystemElementTypeSpecification::toSchema()` serializes the spec into the `ElementTypeSchema` array shape (`name`, `label`, `description`, `source`, `icon`, `category`, `copilot`, `properties`, `slots`) served by `GET /api/_info/content-system-element-types.json`. DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
 
-2. **Loading** (Loader/) — Both loaders extend `AbstractContentSystemElementTypeLoader` (shared `load()` contract). `YamlTypeLoader` scans directories for *.yaml files, resolves names via `ElementTypeNameResolver` (path-based), deserializes via `ElementTypeSpecificationSerializer`, validates via Symfony Validator, and deduplicates within the same source. `DatabaseTypeLoader` loads active app types from the `app_content_system_element_type` table (prod only; returns empty in dev where apps load from filesystem via the compiler pass). `ElementTypeSourceDirectory` carries source/path/prefix per directory; `ResolvedElementTypeSpecificationDto` bridges loading and specification creation.
+2. **Loading** (Loader/) — Both loaders extend `AbstractContentSystemElementTypeLoader` (shared `load()` contract). `YamlTypeLoader` scans directories for `*.yaml` and `*.yml` files, resolves names via `ElementTypeNameResolver` (path-based), deserializes via `ElementTypeSpecificationSerializer`, validates via Symfony Validator, and deduplicates within the same source. `DatabaseTypeLoader` loads active app types from the `app_content_system_element_type` table (prod only; returns empty in dev where apps load from filesystem via the compiler pass). `ElementTypeSourceDirectory` carries source/path/prefix per directory; `ResolvedElementTypeSpecificationDto` bridges loading and specification creation.
 
 3. **Registry** (Registry/) — Uses the Shopware decoration pattern. `AbstractContentSystemElementTypeRegistry` defines the contract; `ContentSystemElementTypeRegistry` is the stateless aggregator (leaf) that iterates `AbstractContentSystemElementTypeLoader` instances (tagged `content_system.type_loader`); `CachedContentSystemElementTypeRegistry` decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
 
@@ -51,7 +51,7 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 ## Subdirectories
 
-- **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
+- **Definitions/** - Core YAML type definitions (49 files): seven category subdirectories (content, filter, grid, header, media, product, rating) plus five uncategorized root-level files (`alert`, `button`, `header`, `icon`, `media`)
 - **Loader/** - Type loading: `AbstractContentSystemElementTypeLoader` (base), `YamlTypeLoader` (filesystem), `DatabaseTypeLoader` (app types in prod), `ElementTypeNameResolver` (path-to-name), `ElementTypeSourceDirectory` (source directory VO), `ResolvedElementTypeSpecificationDto` (loading-to-spec bridge)
 - **Registry/** - AbstractContentSystemElementTypeRegistry (decoration pattern contract), ContentSystemElementTypeRegistry (stateless aggregator), CachedContentSystemElementTypeRegistry (cross-request cache decorator)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)

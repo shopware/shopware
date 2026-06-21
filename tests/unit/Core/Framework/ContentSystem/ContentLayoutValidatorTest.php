@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentLayoutValidator;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 
 /**
  * @internal
@@ -15,65 +18,45 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 #[CoversClass(ContentLayoutValidator::class)]
 class ContentLayoutValidatorTest extends TestCase
 {
-    #[TestDox('returns no violations when every component in the tree is registered')]
-    public function testReturnsNoViolationsForFullyRegisteredTree(): void
+    #[TestDox('maps an intrinsic error to a constraint violation addressed by the element id')]
+    public function testMapsIntrinsicErrorToConstraintViolation(): void
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-
-        $validator = new ContentLayoutValidator($registry);
-
-        $tree = ContentElementBuilder::create('Sw:Layout:Section', 'root')
-            ->withSlot('content', [ContentElementBuilder::create('Sw:Content:Heading', 'child')->build()])
-            ->build();
-
-        static::assertCount(0, $validator->validate([$tree]));
-    }
-
-    #[TestDox('reports a violation for an unregistered component nested below a registered root')]
-    public function testReportsViolationForUnregisteredNestedComponent(): void
-    {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturnMap([
-            ['Sw:Layout:Section', true],
-            ['Sw:Unknown:Widget', false],
+        $report = new DiagnosticsReport([
+            new Violation(ViolationCode::UnregisteredComponent, 'bad-child', null, 'Component "Sw:Unknown" is not a registered element type.'),
         ]);
 
-        $validator = new ContentLayoutValidator($registry);
-
-        $tree = ContentElementBuilder::create('Sw:Layout:Section', 'root')
-            ->withSlot('content', [ContentElementBuilder::create('Sw:Unknown:Widget', 'bad-child')->build()])
-            ->build();
-
-        $violations = $validator->validate([$tree]);
+        $violations = $this->validatorReturning($report)->validate([]);
 
         static::assertCount(1, $violations);
         static::assertSame('bad-child', $violations->get(0)->getPropertyPath());
+        static::assertSame(ViolationCode::UnregisteredComponent->value, $violations->get(0)->getCode());
     }
 
-    #[TestDox('collects violations across multiple root elements without throwing')]
-    public function testCollectsViolationsAcrossMultipleRoots(): void
+    #[TestDox('returns no violations when the diagnostics report is well-formed')]
+    public function testReturnsNoViolationsWhenWellFormed(): void
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(false);
+        $violations = $this->validatorReturning(new DiagnosticsReport([]))->validate([]);
 
-        $validator = new ContentLayoutValidator($registry);
-
-        $roots = [
-            ContentElementBuilder::create('Sw:Unknown:A', 'root-a')->build(),
-            ContentElementBuilder::create('Sw:Unknown:B', 'root-b')->build(),
-        ];
-
-        static::assertCount(2, $validator->validate($roots));
+        static::assertCount(0, $violations);
     }
 
-    #[TestDox('returns no violations for an empty layout element list')]
-    public function testReturnsNoViolationsForEmptyLayoutList(): void
+    #[TestDox('filters out binding-scope errors from the validation result')]
+    public function testBindingErrorsAreNotSurfaced(): void
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $report = new DiagnosticsReport([
+            new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'product', 'unresolved'),
+        ]);
 
-        $validator = new ContentLayoutValidator($registry);
+        $violations = $this->validatorReturning($report)->validate([]);
 
-        static::assertCount(0, $validator->validate([]));
+        static::assertCount(0, $violations);
+    }
+
+    private function validatorReturning(DiagnosticsReport $report): ContentLayoutValidator
+    {
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturn(new LayoutAnalysis($report, []));
+
+        return new ContentLayoutValidator($diagnostics);
     }
 }

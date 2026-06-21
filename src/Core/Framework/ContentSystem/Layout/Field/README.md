@@ -1,6 +1,6 @@
 # Field
 
-Custom DAL field types for persisting ContentElement structures to JSON. Each field extends `JsonField` with a corresponding serializer for encode/decode.
+Custom DAL field types for persisting ContentElement structures to JSON. Each field extends `JsonField` with a corresponding serializer for encode/decode. Each serializer is registered with the `shopware.field_serializer` DAL tag (six in total) so the framework's serializer registry discovers it.
 
 ## Key Classes
 

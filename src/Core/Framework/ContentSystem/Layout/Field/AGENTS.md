@@ -4,5 +4,5 @@
 
 - Validation: Symfony `Collection` constraint with `allowMissingFields: false` + `Optional` per field
 - Composition root: `ContentElementFieldSerializer` (injects all child serializers)
-- Recursive: `ElementSlotsFieldSerializer` injects `ContentElementFieldSerializer` for tree serialization
+- Recursive: `ElementSlotsFieldSerializer` injects `ContentElementFieldSerializer` for tree serialization; `ElementSlotsFieldSerializer` is registered `lazy="true"` to break the `ContentElementFieldSerializer` ↔ `ElementSlotsFieldSerializer` circular dependency
 - Infrastructure only — used in `ContentLayoutDefinition`, not domain API

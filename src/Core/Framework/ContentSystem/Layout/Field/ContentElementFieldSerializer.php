@@ -133,6 +133,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('component', 'string', \gettype($data['component'] ?? null));
         }
 
+        if (!\is_array($data['properties'] ?? [])) {
+            throw ContentSystemException::invalidFieldValueType('properties', 'array', \gettype($data['properties'] ?? null));
+        }
+
         $dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
         $dataRequirements = \array_key_exists('data_requirements', $data) && \is_array($data['data_requirements'])
             ? $this->dataRequirementsSerializer->decode($dataRequirementsField, $data['data_requirements'])

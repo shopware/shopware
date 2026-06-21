@@ -127,6 +127,8 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
 {
     public function __construct(
         private readonly EntityRepository $blogLayoutAssignmentRepository,
+        // Must be an AbstractContentLayoutAssignableDefinition subclass (see note below)
+        private readonly BlogPostContentLayoutDefinition $definition,
     ) {}
 
     public function supports(string $path, Request $request, SalesChannelContext $context): bool
@@ -149,18 +151,26 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
 **Service registration:**
 
 ```xml
+<!-- The assignable-entity definition the compiler pass derives the entity type from -->
+<service id="MyPlugin\ContentSystem\BlogPostContentLayoutDefinition">
+    <tag name="shopware.entity.definition"/>
+</service>
+
 <service id="MyPlugin\ContentSystem\BlogPostSpecificationSource">
     <argument type="service" id="blog_post_content_layout.repository"/>
+    <argument type="service" id="MyPlugin\ContentSystem\BlogPostContentLayoutDefinition"/>
     <!-- Higher priority = tried first -->
     <tag name="content_system.context_factory" priority="100"/>
 </service>
 ```
 
-Reference: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php`
+**Required: an assignable-entity definition.** A `content_system.context_factory` source must receive an `AbstractContentLayoutAssignableDefinition` subclass (here `BlogPostContentLayoutDefinition`) as a constructor argument. At container build, `ContentLayoutAssignableCompilerPass` introspects each tagged source's arguments for such a definition and derives the entity type from its `getContentLayoutEntityType()`; a source with no assignable-definition argument fails compilation with `missingAssignableDefinition`. Define the assignment entity and its definition alongside the source — see `Adapter/Entity/AbstractContentLayoutAssignableDefinition`.
+
+Reference: `src/Core/Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php` (and `ProductContentLayoutDefinition.php` in the same directory)
 
 ### Assignment-Free Resolution (Preview Support)
 
-The steps above resolve a layout from a path for the Store API. To also let the Admin preview action render a draft against an entity that has no assignment yet, an entity-backed source overrides two more methods: `supportsEntityType(string $entityType): bool` (match the source's content-layout entity type) and `resolveSpecificationDataForEntity(string $entityId, Request, SalesChannelContext): SpecificationData` (build the spec data from the entity id directly, with no assignment lookup). An assignable entity type registered this way also appears in `GET /api/_info/content-system-entity-types.json`. See `ADMINISTRATION.md`.
+The steps above resolve a layout from a path for the Store API. To also let the Admin preview and diagnose actions work against an entity that has no assignment yet, an entity-backed source overrides three more methods: `supportsEntityType(string $entityType): bool` (match the source's content-layout entity type), `resolveSpecificationDataForEntity(string $entityId, Request, SalesChannelContext): SpecificationData` (build the spec data from the entity id directly, with no assignment lookup), and `providedRootContext(Context $context): list<ProvidedContext>` (the root-ambient context the source supplies to the layout's top-level elements; default `[]`). The diagnose route (`POST /api/_action/content-system/layout/diagnose`) reads `providedRootContext()` from the selected source to run its binding-resolvability checks — a source that leaves it at the default exposes no root context, so those checks have nothing to bind against. An assignable entity type registered this way also appears in `GET /api/_info/content-system-entity-types.json`. See `ADMINISTRATION.md`.
 
 ---
 
@@ -364,11 +374,13 @@ Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 
 ## Service Tag Reference
 
-| Tag                                | Index Method           | Attributes                       |
-|------------------------------------|------------------------|----------------------------------|
-| `content_system.context_factory`   | N/A                    | `priority` (optional, default 0) |
-| `content_system.data_loader`       | `getRequirementType()` | None                             |
-| `content_system.config_serializer` | `getSource()`          | None                             |
+| Tag                                   | Index Method           | Attributes                                     |
+|---------------------------------------|------------------------|------------------------------------------------|
+| `content_system.context_factory`      | N/A                    | `priority` (optional, default 0)               |
+| `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
+| `content_system.data_loader`          | `getRequirementType()` | None                                           |
+| `content_system.config_serializer`    | `getSource()`          | None                                           |
+| `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
 Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.xml`
 

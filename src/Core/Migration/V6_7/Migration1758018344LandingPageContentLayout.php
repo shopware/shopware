@@ -34,7 +34,7 @@ class Migration1758018344LandingPageContentLayout extends MigrationStep
                     REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `fk.landing_page_content_layout.content_layout_id`
                     FOREIGN KEY (`content_layout_id`)
-                    REFERENCES `content_layout` (`id`) ON DELETE CASCADE
+                    REFERENCES `content_layout` (`id`) ON DELETE RESTRICT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;
 

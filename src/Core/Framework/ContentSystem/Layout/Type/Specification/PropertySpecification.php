@@ -30,6 +30,16 @@ final readonly class PropertySpecification
         return $this->name;
     }
 
+    public function type(): PropertyType
+    {
+        return $this->type;
+    }
+
+    public function required(): bool
+    {
+        return $this->required;
+    }
+
     /**
      * @return PropertySchema
      */

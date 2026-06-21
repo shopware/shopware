@@ -318,6 +318,53 @@ const registryDrivenInvalidTests = [
     },
 ];
 
+const objectVBindInvalidTests = [
+    {
+        name: 'does not crash on object v-bind while checking deprecated button variant values',
+        filename: 'test.html.twig',
+        code: '<template><mt-button v-bind="buttonProps" variant="ghost" /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-button] The "variant" API is deprecated. Use "primary" instead.',
+            },
+        ],
+    },
+    {
+        name: 'does not fix router-link when object v-bind can hide button props',
+        filename: 'test.html.twig',
+        code: '<template><mt-button v-bind="buttonProps" variant="primary" router-link="sw.dashboard.index" /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-button] The "router-link" API is deprecated.',
+            },
+        ],
+    },
+    {
+        name: 'does not fix ai-badge when object v-bind can hide card props',
+        filename: 'test.html.twig',
+        code: '<template><mt-card v-bind="cardProps" ai-badge /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-card] The "ai-badge" API is deprecated.',
+            },
+        ],
+    },
+    {
+        name: 'does not fix show-icon inversion when object v-bind can hide banner props',
+        filename: 'test.html.twig',
+        code: '<template><mt-banner v-bind="bannerProps" show-icon /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
+            },
+        ],
+    },
+];
+
 tester.run('no-deprecated-component-usage', rule, {
     valid: [
         {
@@ -364,5 +411,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtFloatingUiInvalidTests,
         ...duplicateReplacementInvalidTests,
         ...registryDrivenInvalidTests,
+        ...objectVBindInvalidTests,
     ]),
 });

@@ -264,7 +264,9 @@ function findMatchingPropAttribute(node, propName) {
             return true;
         }
 
-        return getDirectiveName(attribute) === 'bind' && matchesTemplateName(getDirectiveArgumentName(attribute), propName);
+        const argumentName = getDirectiveArgumentName(attribute);
+
+        return getDirectiveName(attribute) === 'bind' && argumentName && matchesTemplateName(argumentName, propName);
     });
 }
 

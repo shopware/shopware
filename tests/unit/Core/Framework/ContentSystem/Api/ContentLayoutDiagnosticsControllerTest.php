@@ -128,8 +128,8 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
         ?SpecificationSourceResolver $sourceResolver = null,
     ): ContentLayoutDiagnosticsController {
         return new ContentLayoutDiagnosticsController(
-            $serializer,
             $diagnostics,
+            $serializer,
             $sourceResolver ?? static::createStub(SpecificationSourceResolver::class),
         );
     }

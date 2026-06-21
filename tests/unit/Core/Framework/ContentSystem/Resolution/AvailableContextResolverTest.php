@@ -7,7 +7,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -20,7 +24,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
 
 /**
  * @internal
@@ -83,6 +90,137 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
     }
 
+    #[TestDox('exposes a backed ancestor provider to its direct child but not past a non-redistributing intermediate')]
+    public function testProviderContextStopsAtNonRedistributingIntermediate(): void
+    {
+        $grandchild = new ContentElement('grandchild-1', 'Sw:Block');
+        $child = new ContentElement('child-1', 'Sw:Block', [], [], ['content' => new SlotContent([$grandchild])]);
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                [],
+            ),
+        );
+
+        $resolver = $this->resolver();
+
+        static::assertSame(['product'], $this->keys($resolver->resolve('child-1', [$root], [])));
+        static::assertSame([], $resolver->resolve('grandchild-1', [$root], []));
+    }
+
+    #[TestDox('re-exposes incoming root-ambient context through a redistributing intermediate with the inflowing type')]
+    public function testRedistributeReExposesIncomingRootAmbient(): void
+    {
+        $child = new ContentElement('child-1', 'Sw:Block');
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                [],
+                ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)],
+            ),
+        );
+
+        $available = $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext());
+
+        static::assertCount(1, $available);
+        static::assertSame('product', $available[0]->contextKey);
+        static::assertSame(SalesChannelProductEntity::class, $available[0]->fqcn);
+        static::assertSame(ContextType::Single, $available[0]->contextType);
+        static::assertSame('root-1', $available[0]->providerElementId);
+        static::assertSame(DistributionStrategy::Broadcast, $available[0]->distribution);
+    }
+
+    #[TestDox('remaps the re-exposed key to the consumer alias while keeping the inflowing type')]
+    public function testRedistributeConsumerAliasRemapsExposedKey(): void
+    {
+        $child = new ContentElement('child-1', 'Sw:Block');
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                [],
+                ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item')],
+            ),
+        );
+
+        $available = $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext());
+
+        static::assertCount(1, $available);
+        static::assertSame('item', $available[0]->contextKey);
+        static::assertSame(SalesChannelProductEntity::class, $available[0]->fqcn);
+    }
+
+    #[TestDox('does not re-expose a redistribute consumer whose key is absent from the incoming context')]
+    public function testRedistributeWithoutMatchingIncomingKeyExposesNothing(): void
+    {
+        // F1 regression guard: a redistribute consumer re-exposes only a key that actually flows into the
+        // element, so unconditional re-exposure cannot re-open the over-permissive availability leak.
+        $child = new ContentElement('child-1', 'Sw:Block');
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$child])],
+            new ContextDefinitions(
+                [],
+                ['category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)],
+            ),
+        );
+
+        static::assertSame([], $this->resolver()->resolve('child-1', [$root], $this->rootAmbientProductContext()));
+    }
+
+    #[TestDox('accumulates redistributed context across multiple intermediates down to a deep descendant')]
+    public function testRedistributeChainsAcrossMultipleLevels(): void
+    {
+        $deep = new ContentElement('deep-1', 'Sw:Block');
+        $level2 = new ContentElement(
+            'level-2',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$deep])],
+            new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)]),
+        );
+        $root = new ContentElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => new SlotContent([$level2])],
+            new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)]),
+        );
+
+        $available = $this->resolver()->resolve('deep-1', [$root], $this->rootAmbientProductContext());
+
+        static::assertCount(1, $available);
+        static::assertSame('product', $available[0]->contextKey);
+        static::assertSame('level-2', $available[0]->providerElementId);
+    }
+
+    /**
+     * @param list<ProvidedContext> $available
+     *
+     * @return list<string>
+     */
+    private function keys(array $available): array
+    {
+        return array_map(static fn (ProvidedContext $provided): string => $provided->contextKey, $available);
+    }
+
     /**
      * @return list<ProvidedContext>
      */
@@ -121,6 +259,18 @@ class AvailableContextResolverTest extends TestCase
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:Provider');
         $registry->method('get')->willReturn($providerSpec);
 
-        return new AvailableContextResolver($registry);
+        // A single complete loader backs the provider's own `product` property, so its declared provider
+        // resolves on its element (Level 2) and is exposed to descendants.
+        $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
+        $typeResolver->method('resolve')->willReturn(new ContentSystemDataLoaderTypeMap([
+            'product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)],
+        ]));
+
+        $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
+
+        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers);
+
+        return new AvailableContextResolver($registry, $elementResolver);
     }
 }

@@ -351,6 +351,20 @@ class ContentElementFieldSerializerTest extends TestCase
         yield 'missing component' => [['id' => 'elem-1'], 'component'];
     }
 
+    #[TestDox('throws a client-defect invalid_field_value_type when decodeElement receives non-array properties')]
+    public function testDecodeElementThrowsOnNonArrayProperties(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('properties', 'array', 'string')
+        );
+
+        $this->serializer->decodeElement([
+            'id' => 'elem-1',
+            'component' => 'text',
+            'properties' => 'not-an-array',
+        ]);
+    }
+
     #[TestDox('serializes ContentElement with minimal fields to array')]
     public function testSerializeContentElementWithMinimalFieldsReturnsExpectedArray(): void
     {

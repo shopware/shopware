@@ -274,6 +274,7 @@
         <!-- Resolution & Diagnostics -->
         <service id="Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver" public="true">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver">
@@ -287,9 +288,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper"/>
         </service>
 
@@ -305,10 +306,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <!-- Binding enumerators (tagged; Storefront contributes the header/footer enumerator) -->
@@ -320,9 +321,9 @@
 
         <!-- Resolvability gate (DAL PreWriteValidationEvent) -->
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
             <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -348,8 +349,8 @@
 
         <!-- Resolve-and-diagnose Action (Admin API) -->
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDiagnosticsController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceResolver"/>
         </service>
 

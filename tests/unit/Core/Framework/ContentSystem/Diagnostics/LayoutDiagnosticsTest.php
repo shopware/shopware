@@ -157,6 +157,24 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
+    #[TestDox('reports a required reference whose only candidates are incomplete loaders as unresolved_required, not ambiguous_required')]
+    public function testIncompleteLoaderCandidatesAreUnresolvedNotAmbiguous(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block')];
+
+        $map = new ContentSystemDataLoaderTypeMap([
+            'category_a' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
+            'category_b' => [new LoaderTypeCapability(CategoryEntity::class, [], ['property'])],
+        ]);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build()],
+            $map,
+        )->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
     #[TestDox('produces an unresolved_required binding error for a required primitive without a default')]
     public function testRequiredPrimitiveWithoutDefault(): void
     {
@@ -178,6 +196,81 @@ class LayoutDiagnosticsTest extends TestCase
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$element], [])->report;
 
         static::assertSame(ViolationCode::BrokenRequiredChain, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('flags a deep required consumer reached only through a non-redistributing intermediate as broken_required_chain at that consumer, leaving the intermediate satisfied')]
+    public function testNonRedistributingIntermediateBreaksDeepRequiredChain(): void
+    {
+        $level3 = ContentElementBuilder::create('Sw:Block', 'level-3')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->withSlot('content', [$level3])
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $report = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            new ContentSystemDataLoaderTypeMap(['product_loader' => [new LoaderTypeCapability(SalesChannelProductEntity::class)]]),
+            $this->decodingSerializers(),
+        )->analyze([$root], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('level-3', $error->elementId);
+    }
+
+    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
+    public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
+    {
+        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$root], $rootContext)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('flags a descendant requiring a declared provider whose own property does not resolve on the providing element as broken_required_chain')]
+    public function testUnbackedDeclaredProviderBreaksDescendantChain(): void
+    {
+        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+            'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+        ])->analyze([$root], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('child-1', $error->elementId);
     }
 
     #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]
@@ -220,9 +313,9 @@ class LayoutDiagnosticsTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            $registry,
+            new AvailableContextResolver($registry, $elementResolver),
             $elementResolver,
-            new AvailableContextResolver($registry),
+            $registry,
             new RootContextMapper($loaderProvider ?? static::createStub(DataLoaderProvider::class)),
         );
     }

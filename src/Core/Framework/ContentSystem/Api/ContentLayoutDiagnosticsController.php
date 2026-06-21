@@ -39,8 +39,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 class ContentLayoutDiagnosticsController
 {
     public function __construct(
-        private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly SpecificationSourceResolver $sourceResolver,
     ) {
     }

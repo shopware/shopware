@@ -82,7 +82,7 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      * root elements via virtual root pattern during hydration. The requirement set is derived purely
      * from the definition's entity type, so it needs no request or sales-channel state.
      *
-     * @return array<DataRequirement>
+     * @return list<DataRequirement>
      */
     public function getPageDataRequirements(): array
     {

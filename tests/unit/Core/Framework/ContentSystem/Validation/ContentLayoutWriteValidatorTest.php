@@ -53,9 +53,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $resolvabilityValidator->expects($this->never())->method('resolvability');
 
         $validator = new ContentLayoutWriteValidator(
-            $decoder,
             $resolvabilityValidator,
             new ViolationConstraintMapper(),
+            $decoder,
             []
         );
 
@@ -98,9 +98,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $decoder->method('decode')->willThrowException($expected);
 
         $validator = new ContentLayoutWriteValidator(
-            $decoder,
             static::createStub(LayoutResolvabilityValidator::class),
             new ViolationConstraintMapper(),
+            $decoder,
             []
         );
 

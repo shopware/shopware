@@ -29,7 +29,7 @@ class RootContextMapper
     }
 
     /**
-     * @param array<DataRequirement> $requirements
+     * @param list<DataRequirement> $requirements
      *
      * @return list<ProvidedContext>
      */

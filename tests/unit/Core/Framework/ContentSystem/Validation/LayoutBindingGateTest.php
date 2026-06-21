@@ -43,10 +43,10 @@ class LayoutBindingGateTest extends TestCase
         $layout->method('getLayout')->willReturn([new ContentElement('el-1', 'Sw:Test:RequiresEntity')]);
 
         $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult($layout)),
             $this->resolvabilityReporting($this->unresolvedReport()),
             new ViolationConstraintMapper(),
             static::createStub(LayoutTreeDecoder::class),
+            $this->registryReturning($this->searchResult($layout)),
         );
 
         $violations = $gate->bindingViolations(Uuid::randomHex(), [], [], Context::createDefaultContext());
@@ -75,7 +75,7 @@ class LayoutBindingGateTest extends TestCase
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturn($repository);
 
-        $gate = new LayoutBindingGate($registry, $this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), static::createStub(LayoutTreeDecoder::class));
+        $gate = new LayoutBindingGate($this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), static::createStub(LayoutTreeDecoder::class), $registry);
 
         $violations = $gate->bindingViolations(Uuid::fromHexToBytes($hex), [], [], Context::createDefaultContext());
 
@@ -97,7 +97,7 @@ class LayoutBindingGateTest extends TestCase
         $registry = static::createMock(DefinitionInstanceRegistry::class);
         $registry->expects($this->never())->method('getRepository');
 
-        $gate = new LayoutBindingGate($registry, $this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), $decoder);
+        $gate = new LayoutBindingGate($this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), $decoder, $registry);
 
         $command = $this->layoutCommand($commandClass, ContentLayoutDefinition::ENTITY_NAME, $layoutId, true, 'encoded-tree');
 
@@ -121,10 +121,10 @@ class LayoutBindingGateTest extends TestCase
         $decoder->expects($this->never())->method('decode');
 
         $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult($layout)),
             $this->resolvabilityReporting($this->unresolvedReport()),
             new ViolationConstraintMapper(),
             $decoder,
+            $this->registryReturning($this->searchResult($layout)),
         );
 
         $command = $this->layoutCommand($commandClass, ContentLayoutDefinition::ENTITY_NAME, $commandPrimaryKey, $touchesLayout, 'encoded-tree');
@@ -144,7 +144,7 @@ class LayoutBindingGateTest extends TestCase
 
         $registry = $this->registryReturning($this->searchResult(null));
 
-        $gate = new LayoutBindingGate($registry, $this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), $decoder);
+        $gate = new LayoutBindingGate($this->resolvabilityReporting($this->unresolvedReport()), new ViolationConstraintMapper(), $decoder, $registry);
 
         $command = $this->layoutCommand(InsertCommand::class, ContentLayoutDefinition::ENTITY_NAME, $layoutId, true, 'not-decodable');
 
@@ -166,10 +166,10 @@ class LayoutBindingGateTest extends TestCase
     public function testReturnsNoViolationsWhenLayoutNotFound(): void
     {
         $gate = new LayoutBindingGate(
-            $this->registryReturning($this->searchResult(null)),
             static::createStub(LayoutResolvabilityValidator::class),
             new ViolationConstraintMapper(),
             static::createStub(LayoutTreeDecoder::class),
+            $this->registryReturning($this->searchResult(null)),
         );
 
         static::assertCount(0, $gate->bindingViolations(Uuid::randomHex(), [], [], Context::createDefaultContext()));
@@ -286,10 +286,10 @@ class LayoutBindingGateTest extends TestCase
     private function createDefaultGate(?LayoutTreeDecoder $decoder = null): LayoutBindingGate
     {
         return new LayoutBindingGate(
-            static::createStub(DefinitionInstanceRegistry::class),
             static::createStub(LayoutResolvabilityValidator::class),
             new ViolationConstraintMapper(),
             $decoder ?? static::createStub(LayoutTreeDecoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
         );
     }
 }

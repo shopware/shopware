@@ -4,6 +4,7 @@ namespace Shopware\Storefront\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
 use Shopware\Core\Framework\ContentSystem\Binding\LayoutBindingEnumerator;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -38,11 +39,11 @@ class HeaderFooterBindingEnumerator implements LayoutBindingEnumerator
         $bindings = [];
 
         if ($this->hasAssignment($this->headerRepository, $contentLayoutId, $context)) {
-            $bindings[] = new BoundRootContext('header', []);
+            $bindings[] = new BoundRootContext(ContentSection::HEADER->value, []);
         }
 
         if ($this->hasAssignment($this->footerRepository, $contentLayoutId, $context)) {
-            $bindings[] = new BoundRootContext('footer', []);
+            $bindings[] = new BoundRootContext(ContentSection::FOOTER->value, []);
         }
 
         return $bindings;

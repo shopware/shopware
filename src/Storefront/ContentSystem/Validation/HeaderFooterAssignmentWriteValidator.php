@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -25,8 +26,8 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
     private const CONTENT_LAYOUT_ID = 'content_layout_id';
 
     private const SECTION_BY_ENTITY = [
-        HeaderContentLayoutDefinition::ENTITY_NAME => 'header',
-        FooterContentLayoutDefinition::ENTITY_NAME => 'footer',
+        HeaderContentLayoutDefinition::ENTITY_NAME => ContentSection::HEADER->value,
+        FooterContentLayoutDefinition::ENTITY_NAME => ContentSection::FOOTER->value,
     ];
 
     public function __construct(

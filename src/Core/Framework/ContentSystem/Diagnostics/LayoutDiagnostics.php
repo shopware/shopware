@@ -7,10 +7,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateVia;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -31,9 +33,9 @@ class LayoutDiagnostics
      * @internal
      */
     public function __construct(
-        private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly ElementResolver $elementResolver,
         private readonly AvailableContextResolver $availableContextResolver,
+        private readonly ElementResolver $elementResolver,
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly RootContextMapper $rootContextMapper,
     ) {
     }
@@ -227,7 +229,7 @@ class LayoutDiagnostics
         }
 
         if ($resolution->required) {
-            $code = \count($resolution->candidates) >= 2 ? ViolationCode::AmbiguousRequired : ViolationCode::UnresolvedRequired;
+            $code = $this->usableCandidateCount($resolution->candidates) >= 2 ? ViolationCode::AmbiguousRequired : ViolationCode::UnresolvedRequired;
 
             return new Violation(
                 $code,
@@ -248,6 +250,26 @@ class LayoutDiagnostics
         }
 
         return null;
+    }
+
+    /**
+     * Candidates the resolver could actually select: a parent (received-context) provider, or a loader whose
+     * config is complete. Incomplete loaders cannot be picked, so 0 parents + N incomplete loaders is
+     * unresolved, not ambiguous.
+     *
+     * @param list<ResolutionCandidate> $candidates
+     */
+    private function usableCandidateCount(array $candidates): int
+    {
+        $usable = array_filter(
+            $candidates,
+            static fn (ResolutionCandidate $candidate): bool => match ($candidate->via) {
+                CandidateVia::Parent => true,
+                CandidateVia::Loader => $candidate->configComplete,
+            },
+        );
+
+        return \count($usable);
     }
 
     /**

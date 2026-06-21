@@ -30,14 +30,35 @@ class ViolationCodeTest extends TestCase
         static::assertSame($expectedSeverity, $code->severity());
     }
 
+    #[TestDox('the scope and severity providers stay exhaustive over every violation code')]
+    public function testProvidersCoverEveryViolationCode(): void
+    {
+        $scopeCodes = array_values(array_map(
+            static fn (array $row): ViolationCode => $row[0],
+            iterator_to_array(self::derivesScopeProvider()),
+        ));
+        $severityCodes = array_values(array_map(
+            static fn (array $row): ViolationCode => $row[0],
+            iterator_to_array(self::derivesSeverityProvider()),
+        ));
+
+        static::assertEqualsCanonicalizing(ViolationCode::cases(), $scopeCodes);
+        static::assertEqualsCanonicalizing(ViolationCode::cases(), $severityCodes);
+    }
+
     /**
      * @return iterable<string, array{ViolationCode, ViolationScope}>
      */
     public static function derivesScopeProvider(): iterable
     {
-        // scope() is a two-arm match; one representative per arm pins both branches.
-        yield 'an intrinsic-scope code' => [ViolationCode::UnregisteredComponent, ViolationScope::Intrinsic];
-        yield 'a binding-scope code' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
+        yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationScope::Intrinsic];
+        yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationScope::Intrinsic];
+        yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationScope::Intrinsic];
+        yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic];
+        yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
+        yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
+        yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding];
+        yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationScope::Binding];
     }
 
     /**
@@ -45,8 +66,13 @@ class ViolationCodeTest extends TestCase
      */
     public static function derivesSeverityProvider(): iterable
     {
-        // severity() is a two-arm match; one representative per arm pins both branches.
-        yield 'an error-severity code' => [ViolationCode::UnregisteredComponent, ViolationSeverity::Error];
-        yield 'a warning-severity code' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
+        yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationSeverity::Error];
+        yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationSeverity::Error];
+        yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationSeverity::Error];
+        yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationSeverity::Error];
+        yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationSeverity::Error];
+        yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationSeverity::Error];
+        yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
+        yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationSeverity::Warning];
     }
 }

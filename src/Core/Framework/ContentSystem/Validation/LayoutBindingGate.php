@@ -30,10 +30,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 class LayoutBindingGate
 {
     public function __construct(
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly LayoutResolvabilityValidator $resolvabilityValidator,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutTreeDecoder $treeDecoder,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
     ) {
     }
 

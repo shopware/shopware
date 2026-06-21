@@ -32,9 +32,9 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
      * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
      */
     public function __construct(
-        private readonly LayoutTreeDecoder $treeDecoder,
         private readonly LayoutResolvabilityValidator $resolvabilityValidator,
         private readonly ViolationConstraintMapper $violationMapper,
+        private readonly LayoutTreeDecoder $treeDecoder,
         private readonly iterable $bindingEnumerators,
     ) {
     }
@@ -107,6 +107,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
+     * Re-validates the written tree against every source currently bound to the layout. The binding
+     * enumerators read committed bindings, so a single batch that both makes the layout unresolvable for a
+     * source and deletes the only binding to that source still re-checks against it and over-rejects. This
+     * errs safe (it never accepts a write that leaves a live binding unresolvable); the trigger is contrived.
+     *
      * @param list<ContentElement> $tree
      */
     private function recheckBoundSources(array $tree, WriteCommand $command, Context $context): ConstraintViolationList

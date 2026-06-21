@@ -39,26 +39,16 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(LayoutDiagnostics::class)]
 class LayoutDiagnosticsTest extends TestCase
 {
-    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset and emits no binding errors')]
+    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset, emits no binding errors and exposes the analysed element in the resolutions map')]
     public function testWellFormednessSubsetIgnoresBinding(): void
-    {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
-            ->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('exposes the analysed element in the resolutions map')]
-    public function testAnalysisExposesElementResolutions(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
         $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, null);
 
+        static::assertTrue($analysis->report->isWellFormed());
+        static::assertSame([], $analysis->report->bindingErrors());
         static::assertArrayHasKey('el-1', $analysis->resolutions);
     }
 

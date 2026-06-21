@@ -28,16 +28,15 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {
-    #[TestDox('returns root-ambient context for a top-level element')]
+    #[TestDox('returns the bound source root-ambient context for a top-level element, or empty when the source exposes none (header/footer)')]
     public function testTopLevelReceivesRootAmbient(): void
     {
         $root = new ContentElement('root-1', 'Sw:Block');
 
         $rootContext = $this->rootAmbientProductContext();
 
-        $available = $this->resolver()->resolve('root-1', [$root], $rootContext);
-
-        static::assertSame($rootContext, $available);
+        static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
+        static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
     #[TestDox('resolves ancestor provider context with the FQCN from the provider type spec for a nested element')]
@@ -74,14 +73,6 @@ class AvailableContextResolverTest extends TestCase
         $rootContext = $this->rootAmbientProductContext();
 
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
-    }
-
-    #[TestDox('returns empty context for a top-level element when the bound source exposes no root context (header/footer)')]
-    public function testTopLevelWithEmptyRootContext(): void
-    {
-        $root = new ContentElement('root-1', 'Sw:Block');
-
-        static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
     #[TestDox('returns an empty set for an unknown element id')]

@@ -46,19 +46,6 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
     }
 
-    /**
-     * @return iterable<string, array{ContentSystemException, bool}>
-     */
-    public static function classifiesClientDefectProvider(): iterable
-    {
-        // A code in the catalogue is reachable from the layout decode path (data_requirements / accepts_context),
-        // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
-        // catalogue membership is pinned separately by testClientDefectCodes.
-        yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
-        // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
-        yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
-    }
-
     #[TestDox('rejects a non content-system throwable as a client defect')]
     public function testForeignThrowableIsNotAClientDefect(): void
     {
@@ -82,6 +69,19 @@ class ContentSystemExceptionTest extends TestCase
         sort($actual);
 
         static::assertSame($expected, $actual);
+    }
+
+    /**
+     * @return iterable<string, array{ContentSystemException, bool}>
+     */
+    public static function classifiesClientDefectProvider(): iterable
+    {
+        // A code in the catalogue is reachable from the layout decode path (data_requirements / accepts_context),
+        // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
+        // catalogue membership is pinned separately by testClientDefectCodes.
+        yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
+        // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
+        yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
     }
 
     /**

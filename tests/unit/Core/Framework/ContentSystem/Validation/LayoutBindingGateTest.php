@@ -153,20 +153,13 @@ class LayoutBindingGateTest extends TestCase
         static::assertCount(0, $violations);
     }
 
-    #[TestDox('returns no violations for a non-string layout id without touching the store')]
-    public function testReturnsNoViolationsForNonStringLayoutId(): void
+    #[DataProvider('invalidLayoutIdProvider')]
+    #[TestDox('returns no violations for $_dataName without touching the store')]
+    public function testReturnsNoViolationsForInvalidLayoutId(?string $invalidId): void
     {
         $gate = $this->createDefaultGate();
 
-        static::assertCount(0, $gate->bindingViolations(null, [], [], Context::createDefaultContext()));
-    }
-
-    #[TestDox('returns no violations for an empty layout id without touching the store')]
-    public function testReturnsNoViolationsForEmptyLayoutId(): void
-    {
-        $gate = $this->createDefaultGate();
-
-        static::assertCount(0, $gate->bindingViolations('', [], [], Context::createDefaultContext()));
+        static::assertCount(0, $gate->bindingViolations($invalidId, [], [], Context::createDefaultContext()));
     }
 
     #[TestDox('returns no violations when the bound layout is not (yet) loadable')]
@@ -200,6 +193,15 @@ class LayoutBindingGateTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $exception->getErrorCode());
         }
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function invalidLayoutIdProvider(): iterable
+    {
+        yield 'a non-string (null) layout id' => [null];
+        yield 'an empty string layout id' => [''];
     }
 
     /**

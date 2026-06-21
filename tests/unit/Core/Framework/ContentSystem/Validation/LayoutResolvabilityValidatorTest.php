@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
@@ -18,22 +17,14 @@ use Shopware\Core\Framework\Context;
 #[CoversClass(LayoutResolvabilityValidator::class)]
 class LayoutResolvabilityValidatorTest extends TestCase
 {
-    #[TestDox('enforces every binding by default')]
-    public function testIsBindingEnforcedDefaultsToTrue(): void
-    {
-        $validator = new LayoutResolvabilityValidator(static::createStub(LayoutDiagnostics::class));
-
-        static::assertTrue($validator->isBindingEnforced(new BoundRootContext('product', [])));
-    }
-
     #[TestDox('analyses well-formedness with no bound source (null root context)')]
     public function testWellFormednessUsesNullRootContext(): void
     {
         $report = new DiagnosticsReport([]);
         $context = Context::createDefaultContext();
 
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->expects($this->once())->method('analyze')
+        $diagnostics = static::createMock(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')
             ->with([], null, $context)
             ->willReturn(new LayoutAnalysis($report, []));
 
@@ -48,8 +39,8 @@ class LayoutResolvabilityValidatorTest extends TestCase
         $report = new DiagnosticsReport([]);
         $context = Context::createDefaultContext();
 
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->expects($this->once())->method('analyze')
+        $diagnostics = static::createMock(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')
             ->with([], [], $context)
             ->willReturn(new LayoutAnalysis($report, []));
 

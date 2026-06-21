@@ -33,15 +33,6 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(ElementResolver::class)]
 class ElementResolverTest extends TestCase
 {
-    /**
-     * @return iterable<string, array{bool, string|int|float|bool|null}>
-     */
-    public static function resolvesPrimitiveToStaticValueProvider(): iterable
-    {
-        yield 'an optional primitive with a default' => [false, 'Hello'];
-        yield 'a required primitive without a default' => [true, null];
-    }
-
     #[DataProvider('resolvesPrimitiveToStaticValueProvider')]
     #[TestDox('resolves $_dataName to a static value carrying type, default and required flag, never blocking')]
     public function testResolvesPrimitiveToStaticValue(bool $required, string|int|float|bool|null $default): void
@@ -167,6 +158,15 @@ class ElementResolverTest extends TestCase
         );
 
         static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
+    }
+
+    /**
+     * @return iterable<string, array{bool, string|int|float|bool|null}>
+     */
+    public static function resolvesPrimitiveToStaticValueProvider(): iterable
+    {
+        yield 'an optional primitive with a default' => [false, 'Hello'];
+        yield 'a required primitive without a default' => [true, null];
     }
 
     /**

@@ -94,7 +94,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     /**
      * @param array<string, string> $query
      */
-    #[DataProvider('resolvesTargetElementIdProvider')]
+    #[DataProvider('resolveTargetElementIdProvider')]
     #[TestDox('returns the target element id for $_dataName')]
     public function testResolveTargetElementId(array $query, ?string $expected): void
     {
@@ -163,7 +163,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     /**
      * @return iterable<string, array{array<string, string>, ?string}>
      */
-    public static function resolvesTargetElementIdProvider(): iterable
+    public static function resolveTargetElementIdProvider(): iterable
     {
         yield 'an element id present in the request query' => [['elementId' => 'elem-42'], 'elem-42'];
         yield 'no element id in the request query' => [[], null];

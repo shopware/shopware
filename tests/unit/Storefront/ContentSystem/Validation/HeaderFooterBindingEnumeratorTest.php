@@ -9,9 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\ContentSystem\Validation\HeaderFooterBindingEnumerator;
 
 /**
@@ -52,15 +51,13 @@ class HeaderFooterBindingEnumeratorTest extends TestCase
     }
 
     /**
-     * @return EntityRepository<EntityCollection<Entity>>
+     * @return StaticEntityRepository<EntityCollection<Entity>>
      */
-    private function repositoryWith(?string $firstId): EntityRepository
+    private function repositoryWith(?string $firstId): StaticEntityRepository
     {
-        $ids = static::createStub(IdSearchResult::class);
-        $ids->method('firstId')->willReturn($firstId);
-
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('searchIds')->willReturn($ids);
+        // searchIds() shifts the next queue entry; a flat id list builds the IdSearchResult, an empty list yields firstId() === null.
+        /** @var StaticEntityRepository<EntityCollection<Entity>> $repository */
+        $repository = new StaticEntityRepository([$firstId !== null ? [$firstId] : []]);
 
         return $repository;
     }

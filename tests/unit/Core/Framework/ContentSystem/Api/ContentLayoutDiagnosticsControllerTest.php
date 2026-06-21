@@ -70,10 +70,10 @@ class ContentLayoutDiagnosticsControllerTest extends TestCase
     #[TestDox('resolves the bound source root context from the entityType field')]
     public function testDiagnoseResolvesEntityTypeSource(): void
     {
-        $source = $this->createMock(AbstractSpecificationSource::class);
+        $source = static::createMock(AbstractSpecificationSource::class);
         $source->expects($this->once())->method('providedRootContext')->willReturn([]);
 
-        $sourceResolver = $this->createMock(SpecificationSourceResolver::class);
+        $sourceResolver = static::createMock(SpecificationSourceResolver::class);
         $sourceResolver->expects($this->once())->method('resolveByEntityType')->with('product')->willReturn($source);
 
         $controller = $this->controller(

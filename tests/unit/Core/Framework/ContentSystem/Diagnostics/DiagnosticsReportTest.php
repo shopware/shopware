@@ -29,6 +29,28 @@ class DiagnosticsReportTest extends TestCase
         static::assertSame($resolvable, $report->isResolvable());
     }
 
+    #[TestDox('collects an intrinsic error into the intrinsic bucket only')]
+    public function testIntrinsicErrorBucket(): void
+    {
+        $report = new DiagnosticsReport([
+            new Violation(ViolationCode::UnregisteredComponent, 'el-1', null, 'unregistered'),
+        ]);
+
+        static::assertCount(1, $report->intrinsicErrors());
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('collects a binding error into the binding bucket only')]
+    public function testBindingErrorBucket(): void
+    {
+        $report = new DiagnosticsReport([
+            new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'product', 'unresolved'),
+        ]);
+
+        static::assertSame([], $report->intrinsicErrors());
+        static::assertCount(1, $report->bindingErrors());
+    }
+
     /**
      * @return iterable<string, array{violations: list<Violation>, wellFormed: bool, resolvable: bool}>
      */
@@ -58,27 +80,5 @@ class DiagnosticsReportTest extends TestCase
             'wellFormed' => true,
             'resolvable' => true,
         ];
-    }
-
-    #[TestDox('collects an intrinsic error into the intrinsic bucket only')]
-    public function testIntrinsicErrorBucket(): void
-    {
-        $report = new DiagnosticsReport([
-            new Violation(ViolationCode::UnregisteredComponent, 'el-1', null, 'unregistered'),
-        ]);
-
-        static::assertCount(1, $report->intrinsicErrors());
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('collects a binding error into the binding bucket only')]
-    public function testBindingErrorBucket(): void
-    {
-        $report = new DiagnosticsReport([
-            new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'product', 'unresolved'),
-        ]);
-
-        static::assertSame([], $report->intrinsicErrors());
-        static::assertCount(1, $report->bindingErrors());
     }
 }

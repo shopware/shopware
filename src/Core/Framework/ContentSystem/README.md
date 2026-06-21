@@ -38,7 +38,7 @@ Module root:
 - `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
-- `ContentLayoutValidator` - Draft-layout validation for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
+- `DraftLayoutChecker` - Draft-layout check for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
 
 ## Domain Placement
 
@@ -48,7 +48,11 @@ Domain-specific content system classes live in their owning domain module — no
 
 **Framework-owned (stays here):** Pipeline, hydration engine, field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
 
-**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.context_factory`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
+**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
+
+## Naming
+
+The reasoning behind how classes in this module are named (the subjects, role-suffix contracts, and domain vocabulary a new class should follow) lives in [`NAMING.md`](NAMING.md). Consult it before adding or renaming a type.
 
 ## Administration API
 

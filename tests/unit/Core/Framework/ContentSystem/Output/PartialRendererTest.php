@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil;
+use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -23,7 +23,7 @@ class PartialRendererTest extends TestCase
     protected function setUp(): void
     {
         $this->renderer = new PartialRenderer(
-            new ElementTreeUtil(),
+            new ElementTreePruner(),
             new ContextDependencyAnalyzer(),
             new SubTreeExtractor(),
         );

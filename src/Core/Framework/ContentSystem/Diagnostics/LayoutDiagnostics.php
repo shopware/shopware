@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
-use Shopware\Core\Framework\ContentSystem\Resolution\CandidateVia;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
@@ -263,9 +263,9 @@ class LayoutDiagnostics
     {
         $usable = array_filter(
             $candidates,
-            static fn (ResolutionCandidate $candidate): bool => match ($candidate->via) {
-                CandidateVia::Parent => true,
-                CandidateVia::Loader => $candidate->configComplete,
+            static fn (ResolutionCandidate $candidate): bool => match ($candidate->origin) {
+                CandidateOrigin::Parent => true,
+                CandidateOrigin::Loader => $candidate->configComplete,
             },
         );
 

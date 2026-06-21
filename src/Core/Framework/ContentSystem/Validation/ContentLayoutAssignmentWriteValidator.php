@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
+use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -14,13 +14,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The binding gate: a single generic subscriber on every Core entity-assignment entity. When a source is
- * bound to a layout it derives the bound source's root context from the written assignment's definition and
- * accumulates binding-scope violations via the shared {@see LayoutBindingGate}, establishing the
- * served-implies-resolvable invariant on every path including the Sync API. An atomic create-and-bind — a single
- * batch (Admin or Sync) that creates both the layout and its binding at once — is validated against the layout's
- * in-flight write found in the same batch, so it no longer slips past the gate. The provided-context computation
- * needs only Context — no sales-channel state — so the DAL boundary, which has no SalesChannelContext, suffices.
+ * The assignment-binding validator: a single generic subscriber on every Core entity-assignment entity that
+ * applies the serving gate. When a source is bound to a layout it derives the source's provided root context from
+ * the written assignment's definition and accumulates binding-scope violations via the shared
+ * {@see LayoutBindingChecker}, establishing the served-implies-resolvable invariant on every path including the
+ * Sync API. An atomic create-and-bind — a single batch (Admin or Sync) that creates both the layout and its
+ * binding at once — is validated against the layout's in-flight write found in the same batch, so it no longer
+ * slips past the gate. The provided-context computation needs only Context — no sales-channel state — so the DAL
+ * boundary, which has no SalesChannelContext, suffices.
  *
  * @internal
  */
@@ -32,8 +33,8 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RootContextMapper $rootContextMapper,
-        private readonly LayoutResolvabilityValidator $resolvabilityValidator,
-        private readonly LayoutBindingGate $bindingGate,
+        private readonly LayoutGate $gate,
+        private readonly LayoutBindingChecker $bindingChecker,
     ) {
     }
 
@@ -49,7 +50,7 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
     {
         $context = $event->getContext();
 
-        if ($context->hasState(LayoutResolvabilityValidator::SKIP_VALIDATION_STATE)) {
+        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             return;
         }
 
@@ -78,13 +79,13 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
         Context $context,
     ): void {
         $providedRootContext = $this->rootContextMapper->map($definition->getPageDataRequirements());
-        $binding = new BoundRootContext($definition->getContentLayoutEntityType(), $providedRootContext);
+        $binding = new SourceBinding($definition->getContentLayoutEntityType(), $providedRootContext);
 
-        if (!$this->resolvabilityValidator->isBindingEnforced($binding)) {
+        if (!$this->gate->isBindingEnforced($binding)) {
             return;
         }
 
-        $violations = $this->bindingGate->bindingViolations(
+        $violations = $this->bindingChecker->bindingViolations(
             $command->getPayload()[self::CONTENT_LAYOUT_ID],
             $providedRootContext,
             $event->getCommands(),

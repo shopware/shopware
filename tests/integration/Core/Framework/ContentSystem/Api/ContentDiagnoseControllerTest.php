@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class ContentLayoutDiagnosticsControllerTest extends TestCase
+class ContentDiagnoseControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 

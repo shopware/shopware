@@ -9,22 +9,22 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Output\ElementTreeUtil;
+use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
-#[CoversClass(ElementTreeUtil::class)]
-class ElementTreeUtilTest extends TestCase
+#[CoversClass(ElementTreePruner::class)]
+class ElementTreePrunerTest extends TestCase
 {
-    private ElementTreeUtil $util;
+    private ElementTreePruner $pruner;
 
     private ContextDependencyAnalyzer $dependencyAnalyzer;
 
     protected function setUp(): void
     {
-        $this->util = new ElementTreeUtil();
+        $this->pruner = new ElementTreePruner();
         $this->dependencyAnalyzer = new ContextDependencyAnalyzer();
     }
 
@@ -43,7 +43,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$child])
             ->build();
 
-        $path = $this->util->findPathToElement($root, $grandChildId);
+        $path = $this->pruner->findPathToElement($root, $grandChildId);
 
         static::assertSame([$rootId, $childId, $grandChildId], $path);
     }
@@ -57,7 +57,7 @@ class ElementTreeUtilTest extends TestCase
             ])
             ->build();
 
-        $path = $this->util->findPathToElement($root, 'non-existent-id');
+        $path = $this->pruner->findPathToElement($root, 'non-existent-id');
 
         static::assertSame([], $path);
     }
@@ -78,7 +78,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$child])
             ->build();
 
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         // Since target has no context consumers, it is the data root — pruned tree starts at target
         static::assertSame($targetId, $pruned->getId());
@@ -107,7 +107,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$provider])
             ->build();
 
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         // Provider is the data root (doesn't consume), so pruned tree starts there
         static::assertSame($providerId, $pruned->getId());
@@ -142,7 +142,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$provider])
             ->build();
 
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         static::assertSame($providerId, $pruned->getId());
 
@@ -181,7 +181,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$grandparent])
             ->build();
 
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         // Grandparent is data root (provides context but doesn't consume)
         static::assertSame($grandparentId, $pruned->getId());
@@ -225,7 +225,7 @@ class ElementTreeUtilTest extends TestCase
             ->withSlot('default', [$provider])
             ->build();
 
-        $pruned = $this->util->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
         // Provider is data root — pruned tree starts there
         static::assertSame('provider-id', $pruned->getId());
@@ -250,6 +250,6 @@ class ElementTreeUtilTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::elementNotFound('non-existent-id'));
 
-        $this->util->pruneToPathAndDescendants($root, 'non-existent-id', $this->dependencyAnalyzer);
+        $this->pruner->pruneToPathAndDescendants($root, 'non-existent-id', $this->dependencyAnalyzer);
     }
 }

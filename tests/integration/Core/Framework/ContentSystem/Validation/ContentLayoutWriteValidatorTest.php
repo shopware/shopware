@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -53,7 +53,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     public function testSkipFlagBypassesGate(): void
     {
         $context = Context::createDefaultContext();
-        $context->addState(LayoutResolvabilityValidator::SKIP_VALIDATION_STATE);
+        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
         $id = Uuid::randomHex();
 
         $this->repository()->create([$this->layout('Sw:Test:DefinitelyUnregistered', $id)], $context);

@@ -160,11 +160,11 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
     <argument type="service" id="blog_post_content_layout.repository"/>
     <argument type="service" id="MyPlugin\ContentSystem\BlogPostContentLayoutDefinition"/>
     <!-- Higher priority = tried first -->
-    <tag name="content_system.context_factory" priority="100"/>
+    <tag name="content_system.entity_specification_source" priority="100"/>
 </service>
 ```
 
-**Required: an assignable-entity definition.** A `content_system.context_factory` source must receive an `AbstractContentLayoutAssignableDefinition` subclass (here `BlogPostContentLayoutDefinition`) as a constructor argument. At container build, `ContentLayoutAssignableCompilerPass` introspects each tagged source's arguments for such a definition and derives the entity type from its `getContentLayoutEntityType()`; a source with no assignable-definition argument fails compilation with `missingAssignableDefinition`. Define the assignment entity and its definition alongside the source — see `Adapter/Entity/AbstractContentLayoutAssignableDefinition`.
+**Required: an assignable-entity definition.** A `content_system.entity_specification_source` source must receive an `AbstractContentLayoutAssignableDefinition` subclass (here `BlogPostContentLayoutDefinition`) as a constructor argument. At container build, `ContentLayoutAssignableCompilerPass` introspects each tagged source's arguments for such a definition and derives the entity type from its `getContentLayoutEntityType()`; a source with no assignable-definition argument fails compilation with `missingAssignableDefinition`. Define the assignment entity and its definition alongside the source — see `Adapter/Entity/AbstractContentLayoutAssignableDefinition`.
 
 Reference: `src/Core/Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php` (and `ProductContentLayoutDefinition.php` in the same directory)
 
@@ -376,7 +376,7 @@ Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 
 | Tag                                   | Index Method           | Attributes                                     |
 |---------------------------------------|------------------------|------------------------------------------------|
-| `content_system.context_factory`      | N/A                    | `priority` (optional, default 0)               |
+| `content_system.entity_specification_source` | N/A             | `priority` (optional, default 0)               |
 | `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
 | `content_system.data_loader`          | `getRequirementType()` | None                                           |
 | `content_system.config_serializer`    | `getSource()`          | None                                           |

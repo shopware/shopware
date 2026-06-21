@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-enum CandidateVia: string
+enum CandidateOrigin: string
 {
     case Parent = 'parent';
     case Loader = 'loader';

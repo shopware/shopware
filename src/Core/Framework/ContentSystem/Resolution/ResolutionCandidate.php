@@ -18,7 +18,7 @@ final readonly class ResolutionCandidate
      * @param array<string, mixed>|null $configTemplate
      */
     public function __construct(
-        public CandidateVia $via,
+        public CandidateOrigin $origin,
         public ?string $contextKey = null,
         public ?string $providerElementId = null,
         public ?string $path = null,

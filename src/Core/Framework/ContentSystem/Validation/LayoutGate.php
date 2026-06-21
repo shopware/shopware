@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BoundRootContext;
+use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -11,12 +11,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The two gate predicates plus the binding-enforcement seam. Well-formedness gates persistence; resolvability
- * for a bound source gates serving. {@see isBindingEnforced()} is the single overridable point through which a
- * future versioning/draft system can exempt a binding from the binding gate; the default enforces every binding.
+ * The layout gate: the two gate predicates plus the binding-enforcement seam. It never throws — it returns
+ * a {@see DiagnosticsReport}. Well-formedness gates persistence; resolvability for a bound source gates serving.
+ * {@see isBindingEnforced()} is the single overridable point through which a future versioning/draft system can
+ * exempt a binding from the serving gate; the default enforces every binding.
  */
 #[Package('framework')]
-class LayoutResolvabilityValidator
+class LayoutGate
 {
     /**
      * Write-context state that suppresses the content-layout gates. Migrations and trusted bulk importers set
@@ -54,10 +55,10 @@ class LayoutResolvabilityValidator
     }
 
     /**
-     * Whether a binding must pass the binding gate. Default: every binding is enforced. A future draft system
+     * Whether a binding must pass the serving gate. Default: every binding is enforced. A future draft system
      * overrides this to exempt non-live versions while the published version still must pass.
      */
-    public function isBindingEnforced(BoundRootContext $binding): bool
+    public function isBindingEnforced(SourceBinding $binding): bool
     {
         return true;
     }

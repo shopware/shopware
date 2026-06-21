@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * A reference-property target FQCN that no data loader produces and no source provides as root-ambient
  * context. A required element-type property of this type is therefore unresolvable against every binding,
- * which is exactly what the resolvability binding-gate tests need to force a binding-scope violation.
+ * which is exactly what the resolvability-gate tests need to force a binding-scope violation.
  *
  * @internal
  *

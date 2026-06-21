@@ -90,7 +90,7 @@ class ElementResolver
             }
 
             $candidates[] = new ResolutionCandidate(
-                via: CandidateVia::Parent,
+                origin: CandidateOrigin::Parent,
                 contextKey: $provided->contextKey,
                 providerElementId: $provided->providerElementId,
                 path: $provided->path,
@@ -119,7 +119,7 @@ class ElementResolver
             }
 
             $candidates[] = new ResolutionCandidate(
-                via: CandidateVia::Loader,
+                origin: CandidateOrigin::Loader,
                 loaderSource: $source,
                 configTemplate: $capability->configTemplate,
                 configComplete: $this->isConfigComplete($source, $capability),

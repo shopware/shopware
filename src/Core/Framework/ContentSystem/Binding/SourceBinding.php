@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final readonly class BoundRootContext
+final readonly class SourceBinding
 {
     /**
      * @param list<ProvidedContext> $providedRootContext

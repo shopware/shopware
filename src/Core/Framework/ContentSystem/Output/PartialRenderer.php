@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 class PartialRenderer
 {
     public function __construct(
-        private readonly ElementTreeUtil $treeUtil,
+        private readonly ElementTreePruner $treePruner,
         private readonly ContextDependencyAnalyzer $dependencyAnalyzer,
         private readonly SubTreeExtractor $subTreeExtractor
     ) {
@@ -41,7 +41,7 @@ class PartialRenderer
         // Try each root element - target may be in any root
         foreach ($elements as $element) {
             try {
-                $prunedElement = $this->treeUtil->pruneToPathAndDescendants(
+                $prunedElement = $this->treePruner->pruneToPathAndDescendants(
                     $element,
                     $targetElementId,
                     $this->dependencyAnalyzer

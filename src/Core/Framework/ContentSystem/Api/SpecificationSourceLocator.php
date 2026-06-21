@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  * @internal
  */
 #[Package('framework')]
-class SpecificationSourceResolver
+class SpecificationSourceLocator
 {
     /**
      * @param iterable<AbstractSpecificationSource> $entitySources

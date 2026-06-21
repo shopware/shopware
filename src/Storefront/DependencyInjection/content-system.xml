@@ -64,8 +64,8 @@
         </service>
 
         <service id="Shopware\Storefront\ContentSystem\Validation\HeaderFooterAssignmentWriteValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutResolvabilityValidator"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingGate"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

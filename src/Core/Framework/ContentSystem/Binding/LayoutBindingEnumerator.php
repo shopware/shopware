@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 interface LayoutBindingEnumerator
 {
     /**
-     * @return list<BoundRootContext> distinct source bindings for this layout, each with its provided root-context set
+     * @return list<SourceBinding> distinct source bindings for this layout, each with its provided root-context set
      */
     public function enumerate(string $contentLayoutId, Context $context): array;
 }

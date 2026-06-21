@@ -22,7 +22,7 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
             return;
         }
 
-        $sources = $container->findTaggedServiceIds('content_system.context_factory');
+        $sources = $container->findTaggedServiceIds('content_system.entity_specification_source');
 
         $entityTypes = [];
         foreach ($sources as $serviceId => $tags) {
@@ -70,6 +70,6 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
             return $instance->getContentLayoutEntityType();
         }
 
-        throw DependencyInjectionException::missingAssignableDefinition($serviceId, 'content_system.context_factory');
+        throw DependencyInjectionException::missingAssignableDefinition($serviceId, 'content_system.entity_specification_source');
     }
 }

@@ -2,7 +2,7 @@
 
 ## Source Code References
 
-- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is called by `Api/ContentLayoutDiagnosticsController` on the source selected via `Api/SpecificationSourceResolver` for the diagnose route's binding-resolvability branch
+- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is called by `Api/ContentDiagnoseController` on the source selected via `Api/SpecificationSourceLocator` for the diagnose route's binding-resolvability branch
 - `RenderingSpecificationResolver` - `resolve()` iterates sources via `supports()` → `RenderingSpecificationFactory::create()`; `resolveWithoutLayout(entityType, entityId, …)` selects via `supportsEntityType()` → `createWithoutLayout()`, throws `unknownEntityType` on no match
 - `RenderingSpecificationFactory` - `create()` assembles `ResolvedContentLayout` (layout ID plus `RenderingSpecification`); `createWithoutLayout()` assembles a bare `RenderingSpecification` (no layout id, no assignment lookup) for the preview action
 - Entity sources co-located with domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
@@ -13,7 +13,7 @@
 ## Constraints
 
 - Sources use `supports()` bool method — NOT null-return pattern
-- Entity sources tagged `content_system.context_factory` priority 100 — higher priority runs first
+- Entity sources tagged `content_system.entity_specification_source` priority 100 — higher priority runs first
 - Header/footer sources are NOT in the tagged iterator — injected directly into separate resolver instances
 - 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
 - Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`

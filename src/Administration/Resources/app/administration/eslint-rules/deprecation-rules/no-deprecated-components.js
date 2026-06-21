@@ -198,7 +198,7 @@ module.exports = {
                                   )
                                 : `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
-                                if (!enableFix) return;
+                                if (!enableFix || !usageFixesAutomatically(replacementUsage)) return;
 
                                 // Get the range of the start tag
                                 const startTagRange = [

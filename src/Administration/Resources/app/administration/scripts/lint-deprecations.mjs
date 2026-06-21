@@ -36,6 +36,7 @@ const eslint = spawnSync(
     'eslint',
     [
         '--no-warn-ignored',
+        '--quiet',
         '--rule',
         '"sw-deprecation-rules/private-feature-declarations": "error"',
         ...files,

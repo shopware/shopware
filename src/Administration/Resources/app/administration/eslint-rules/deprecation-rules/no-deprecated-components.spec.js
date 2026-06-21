@@ -909,11 +909,7 @@ tester.run('no-deprecated-components', rule, {
 <template>
     <sw-data-grid />
 </template>`,
-            output: `
-<template>
-    <!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->
-    <sw-data-grid />
-</template>`,
+            output: null,
             errors: [
                 {
                     message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',

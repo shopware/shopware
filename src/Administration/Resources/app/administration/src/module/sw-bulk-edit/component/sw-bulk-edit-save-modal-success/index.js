@@ -374,7 +374,7 @@ export default {
         getDocumentGenerationResultFileName() {
             return (
                 [
-                    this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadFileName'),
+                    'bulk-edit-document-generation-result',
                     this.getDateTimeForFileName(new Date()),
                 ].join('-') + '.txt'
             );

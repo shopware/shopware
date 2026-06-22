@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\AclFacadeHookFactory;
@@ -38,6 +39,7 @@ class ScriptExecutor
      */
     public function __construct(
         private readonly ScriptLoader $loader,
+        private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly ScriptTraces $traces,
         private readonly ContainerInterface $container,
         private readonly ScriptEnvironmentFactory $scriptEnvironmentFactory,
@@ -60,8 +62,14 @@ class ScriptExecutor
                 continue;
             }
 
-            if (!$hook instanceof AppLifecycleHook && !$script->isActive()) {
-                continue;
+            if (!$hook instanceof AppLifecycleHook) {
+                if (!$script->isActive()) {
+                    continue;
+                }
+
+                if ($scriptAppInfo && !$this->activeAppsLoader->isActive($scriptAppInfo->getAppName())) {
+                    continue;
+                }
             }
 
             try {

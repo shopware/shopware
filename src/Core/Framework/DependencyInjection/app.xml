@@ -200,6 +200,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument>%kernel.project_dir%</argument>
+            <argument>%env(ENABLE_SERVICES)%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="kernel.reset" method="reset"/>
             <tag name="kernel.event_listener" event="console.terminate" method="reset"/>

@@ -19,6 +19,8 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class ActiveAppsLoader implements ResetInterface
 {
+    private const SERVICES_ENABLED_AUTO = 'auto';
+
     /**
      * @var array<App>|null
      */
@@ -27,7 +29,9 @@ class ActiveAppsLoader implements ResetInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly AppLoader $appLoader,
-        private readonly string $projectDir
+        private readonly string $projectDir,
+        private readonly string $servicesEnabled = self::SERVICES_ENABLED_AUTO,
+        private readonly string $appEnv = 'prod',
     ) {
     }
 
@@ -41,6 +45,19 @@ class ActiveAppsLoader implements ResetInterface
         }
 
         return $this->activeApps;
+    }
+
+    public function isActive(string $appName): bool
+    {
+        foreach ($this->getActiveApps() as $app) {
+            if ($app['name'] !== $appName) {
+                continue;
+            }
+
+            return !$app['selfManaged'] || $this->servicesEnabled();
+        }
+
+        return false;
     }
 
     public function reset(): void
@@ -86,5 +103,14 @@ class ActiveAppsLoader implements ResetInterface
                 'selfManaged' => false,
             ], $this->appLoader->load());
         }
+    }
+
+    private function servicesEnabled(): bool
+    {
+        if ($this->servicesEnabled === self::SERVICES_ENABLED_AUTO) {
+            return $this->appEnv === 'prod';
+        }
+
+        return filter_var($this->servicesEnabled, \FILTER_VALIDATE_BOOLEAN);
     }
 }

@@ -17,6 +17,7 @@
 
         <service id="Shopware\Core\Framework\Script\Execution\ScriptExecutor" public="true">
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory"/>
@@ -72,4 +73,3 @@
         </service>
     </services>
 </container>
-

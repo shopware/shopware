@@ -91,4 +91,64 @@ class ActiveAppsLoaderTest extends TestCase
 
         static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
+
+    public function testIsActiveChecksServicesEnvForSelfManagedApps(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'name' => 'regular-app',
+                    'path' => 'regular-app',
+                    'author' => 'test',
+                    'self_managed' => 0,
+                ],
+                [
+                    'name' => 'service-app',
+                    'path' => 'service-app',
+                    'author' => 'test',
+                    'self_managed' => 1,
+                ],
+            ]);
+
+        $activeAppsLoader = new ActiveAppsLoader(
+            $connection,
+            $this->createMock(AppLoader::class),
+            '/',
+            'false',
+            'prod'
+        );
+
+        static::assertTrue($activeAppsLoader->isActive('regular-app'));
+        static::assertFalse($activeAppsLoader->isActive('service-app'));
+        static::assertFalse($activeAppsLoader->isActive('missing-app'));
+    }
+
+    public function testIsActiveUsesProdForAutoServicesEnv(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'name' => 'service-app',
+                    'path' => 'service-app',
+                    'author' => 'test',
+                    'self_managed' => 1,
+                ],
+            ]);
+
+        $activeAppsLoader = new ActiveAppsLoader(
+            $connection,
+            $this->createMock(AppLoader::class),
+            '/',
+            'auto',
+            'dev'
+        );
+
+        static::assertFalse($activeAppsLoader->isActive('service-app'));
+    }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -95,6 +96,7 @@ class ProductPricingHookTest extends TestCase
 
         $executor = new ScriptExecutor(
             $loader,
+            static::getContainer()->get(ActiveAppsLoader::class),
             $traces,
             static::getContainer(),
             static::getContainer()->get(ScriptEnvironmentFactory::class),

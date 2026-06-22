@@ -1,6 +1,31 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.19
+*  [#16588 - Fix CMS content language inheritance](./changelog/release-6-6-10-19/2026-05-06-fix-cms-content-language-inheritance.md)
+*  [#16464 - Rule config is not cleared after condition change](https://github.com/shopware/shopware/issues/16464)
+*  [#5493 - Promotions allow only 20 exclusions](https://github.com/shopware/shopware/issues/5493)
+*  [#4337 - Admin order list - date filter selects wrong orders due to user's timezone](https://github.com/shopware/shopware/issues/4337)
+*  [#16512 - Paypal PayLater not available if order created by Admin](https://github.com/shopware/shopware/issues/16512)
+*  [#11473 - cms-element-image: "stretch" option & alignment](https://github.com/shopware/shopware/issues/11473)
+*  [#15965 - Some order UI filters in the admin panel are not selected when clicked](https://github.com/shopware/shopware/issues/15965)
+*  [#9651 - Register Doctrine enum type mapping](./changelog/release-6-6-10-19/2026-05-20-register-doctrine-enum-type-mapping.md)
+*  [#16592 - Migration1768545320RevocationRequestCmsForm causes CMS Page "Default shop page layout with revocation request form" to be not visible on MariaDB installations](https://github.com/shopware/shopware/issues/16592)
+*  [#16897 - Order placement fails when Elasticsearch is temporarily unavailable](https://github.com/shopware/shopware/issues/16897)
+*  [#13449 - CMS block editing controls become inaccessible when large image is added via HTML in text element](https://github.com/shopware/shopware/issues/13449)
+*  [#16803 - Revocation button only visible after opening footer column on smartphones and tablets](https://github.com/shopware/shopware/issues/16803)
+*  [#16736 - Feature::triggerDeprecationOrThrow emits empty since-version: 'Since shopware/core : ...'](https://github.com/shopware/shopware/issues/16736)
+*  [#13510 - Menu navigation goes to unassigned root category instead of main entry on mobile device](https://github.com/shopware/shopware/issues/13510)
+*  [#14100 - GoogleCaptchaV3 is completely skipped in 6.6](https://github.com/shopware/shopware/issues/14100)
+*  [#16895 - getEntityName is not a function when trying to replace an image that is used in a teaser](https://github.com/shopware/shopware/issues/16895)
+*  [#9094 - Checkout : On clicking Back button the Quantity is getting affected](https://github.com/shopware/shopware/issues/9094)
+*  [#8412 - Broken snippets in rule builder conditions](https://github.com/shopware/shopware/issues/8412)
+*  [#16803 - Revocation button only visible after opening footer column on smartphones and tablets](https://github.com/shopware/shopware/issues/16803)
+*  [#13642 - DateRangeRule/Promotion: DateTime format mismatch causes (silent) validation errors at order conversion](https://github.com/shopware/shopware/issues/13642)
+*  [#16780 - Fix storefront method switchers with checkout gateway](./changelog/release-6-6-10-19/2026-05-29-fix-storefront-method-switchers-checkout-gateway.md)
+*  [#17337 - fix: match constant-form ACL keys in route attribute PHPStan rule + apply correct name on new findings (backport: 6.6.x)](https://github.com/shopware/shopware/pull/17337)
+*  [#17211 - fix: match all line items returns false when no line items are present](https://github.com/shopware/shopware/pull/17211)
+
 ## 6.6.10.18
 *  [GHSA-gv8p-48fr-4fxg - Privilege Escalation via Sync API Integration Admin Flag Bypass](https://github.com/shopware/shopware/security/advisories/GHSA-gv8p-48fr-4fxg)
 *  [GHSA-8v9p-g828-v98f - Admin Account Takeover via User Recovery Hash Exposure](https://github.com/shopware/shopware/security/advisories/GHSA-8v9p-g828-v98f)

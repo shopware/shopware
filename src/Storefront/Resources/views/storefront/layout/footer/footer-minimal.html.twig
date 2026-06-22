@@ -7,3 +7,25 @@
         {% endblock %}
     </footer>
 {% endblock %}
+
+{% block layout_footer_service_menu %}
+    {% block layout_footer_minimal_revocation_button %}
+        {% set cmsPath = cmsPath|default('frontend.cms.page.full') %}
+        {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
+        {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
+        {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
+
+        {% if revocationRequestCmsPageId and showRevocationButton %}
+            <div class="mb-3 text-center">
+                {% sw_include '@Storefront/storefront/component/footer/revocation-button.html.twig' with {
+                    cmsPath: 'frontend.cms.page.full',
+                    revocationRequestSnippetKey: revocationRequestSnippetKey,
+                    revocationRequestCmsPageId: revocationRequestCmsPageId,
+                    showRevocationButton: showRevocationButton
+                } %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {{ parent() }}
+{% endblock %}

@@ -3,14 +3,15 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -48,20 +49,19 @@ class CartPageTest extends TestCase
             new ErrorCollection()
         );
 
-        $route = $this->createMock(AbstractCheckoutGatewayRoute::class);
-        $route
-            ->method('load')
-            ->willReturn($response);
+        $context = $this->createSalesChannelContextWithNavigation();
+
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
+            ->willReturn(new StorefrontCartGatewayResult(new Cart($context->getToken()), $response));
 
         $loader = new CheckoutCartPageLoader(
             static::getContainer()->get(GenericPageLoader::class),
             static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(StorefrontCartFacade::class),
-            $route,
+            $cartService,
             static::getContainer()->get(CountryRoute::class)
         );
-
-        $context = $this->createSalesChannelContextWithNavigation();
 
         $result = $loader->load(new Request(), $context);
 

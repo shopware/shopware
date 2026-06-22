@@ -230,6 +230,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
     #[DataProvider('getEmptyFilteredLineItemsTestData')]
     public function testEmptyFilteredLineItemsWithCartScope(
+        string $lineItemType,
         ?int $minimumShouldMatch,
         bool $expected
     ): void {
@@ -242,8 +243,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         $allLineItemsRule = new MatchAllLineItemsRule([], $minimumShouldMatch, 'product');
         $allLineItemsRule->addRule($lineItemRule);
 
-        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')
-            ->setPayloadValue('promotionId', 'A');
+        $promotionLineItem = $this->createLineItem($lineItemType, 1, 'PRODUCT');
         $cart = $this->createCart(new LineItemCollection([$promotionLineItem]));
 
         $match = $allLineItemsRule->match(new CartRuleScope(
@@ -260,8 +260,10 @@ class MatchAllLineItemsRuleTest extends TestCase
     public static function getEmptyFilteredLineItemsTestData(): array
     {
         return [
-            'no type match / no minimum / returns true (vacuously true)' => [null, true],
-            'no type match / minimum set / returns false' => [1, false],
+            'no type match / promotion / no minimum / returns true (vacuously true)' => [LineItem::PROMOTION_LINE_ITEM_TYPE, null, true],
+            'no type match / promotion / minimum set / returns false' => [LineItem::PROMOTION_LINE_ITEM_TYPE, 1, false],
+            'no type match / custom / no minimum / returns false' => [LineItem::CUSTOM_LINE_ITEM_TYPE, null, false],
+            'no type match / custom / minimum set / returns false' => [LineItem::CUSTOM_LINE_ITEM_TYPE, 1, false],
         ];
     }
 

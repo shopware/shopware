@@ -59,7 +59,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
         \assert($controllerReflection instanceof \ReflectionClass);
         $classRouteAttr = $this->getRouteAnnotation($controllerReflection->getAttributes());
         if ($classRouteAttr !== null) {
-            $errors = array_merge($errors, $this->validateAttribute($classRouteAttr));
+            $errors = array_merge($errors, $this->validateAttribute($classRouteAttr, $scope));
         }
 
         foreach ($controllerReflection->getMethods() as $method) {
@@ -74,7 +74,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
             if ($methodRouteAttr === null) {
                 continue;
             }
-            $errors = array_merge($errors, $this->validateAttribute($methodRouteAttr));
+            $errors = array_merge($errors, $this->validateAttribute($methodRouteAttr, $scope));
         }
 
         return $errors;
@@ -99,7 +99,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
     /**
      * @return RuleError[]
      */
-    private function validateAttribute(ReflectionAttribute $attribute): array
+    private function validateAttribute(ReflectionAttribute $attribute, Scope $scope): array
     {
         $errors = [];
         $defaults = $attribute->getArgumentsExpressions()['defaults'] ?? null;
@@ -111,7 +111,9 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
         foreach ($defaults->items as $item) {
             if ($item instanceof ArrayItem) {
                 $key = $item->key;
-                if ($key instanceof String_ && $key->value === PlatformRequest::ATTRIBUTE_ACL) {
+                // The ACL key may be written as the string literal '_acl' or, as in every real controller,
+                // as the PlatformRequest::ATTRIBUTE_ACL constant. Resolve it through the type system so both forms match.
+                if ($key !== null && $this->resolveConstantString($key, $scope) === PlatformRequest::ATTRIBUTE_ACL) {
                     if (!$item->value instanceof Array_) {
                         return $errors;
                     }
@@ -138,5 +140,20 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
         }
 
         return $errors;
+    }
+
+    /**
+     * Resolves an expression node to its single constant string value, or null if it is not a constant string.
+     * This collapses both the string literal ('_acl') and the constant fetch (PlatformRequest::ATTRIBUTE_ACL) forms.
+     */
+    private function resolveConstantString(Node\Expr $node, Scope $scope): ?string
+    {
+        $constantStrings = $scope->getType($node)->getConstantStrings();
+
+        if (\count($constantStrings) !== 1) {
+            return null;
+        }
+
+        return $constantStrings[0]->getValue();
     }
 }

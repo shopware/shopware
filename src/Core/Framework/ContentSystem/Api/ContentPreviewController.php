@@ -27,14 +27,15 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Previews how a draft content layout renders with real entity data, without persisting the layout.
  *
- * @internal
- *
  * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ContentPreviewController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly RenderingSpecificationResolver $specificationResolver,

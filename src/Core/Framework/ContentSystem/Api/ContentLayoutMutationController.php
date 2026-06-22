@@ -30,14 +30,15 @@ use Symfony\Component\Routing\Attribute\Route;
  * re-resolved layout plus diagnostics. The persisted counterpart to {@see LayoutMutationController}, which
  * mutates a stateless draft tree without touching storage.
  *
- * @internal
- *
  * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ContentLayoutMutationController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly PersistedLayoutMutator $mutator,
         private readonly AbstractContentSystemElementTypeRegistry $registry,

@@ -25,14 +25,15 @@ use Symfony\Component\Routing\Attribute\Route;
  * admin Context is passed straight through; no SalesChannelContext is built, because the binding computation
  * needs only Context.
  *
- * @internal
- *
  * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ContentDiagnoseController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DraftLayoutDecoder $decoder,
         private readonly LayoutDiagnostics $diagnostics,

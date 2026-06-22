@@ -31,14 +31,15 @@ use Symfony\Component\Routing\Attribute\Route;
  * Exposes the eight layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
  * runs it through {@see MutationPipeline}, returning the re-resolved layout plus diagnostics without persisting.
  *
- * @internal
- *
  * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class LayoutMutationController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly DraftLayoutDecoder $decoder,
         private readonly MutationPipeline $pipeline,

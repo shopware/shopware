@@ -51,6 +51,7 @@ class ContentSystemException extends HttpException
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
+    public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
 
     /**
@@ -470,6 +471,16 @@ class ContentSystemException extends HttpException
             self::LAYOUT_VERSION_CONFLICT,
             'Content layout "{{ layoutId }}" was modified concurrently; the expected version no longer matches. Reload the layout and retry.',
             ['layoutId' => $layoutId]
+        );
+    }
+
+    public static function invalidVersionToken(string $expectedVersion): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_VERSION_TOKEN,
+            'The expected version token "{{ expectedVersion }}" is not a valid date-time. Reload the layout and retry with the value the Admin API returned.',
+            ['expectedVersion' => $expectedVersion]
         );
     }
 

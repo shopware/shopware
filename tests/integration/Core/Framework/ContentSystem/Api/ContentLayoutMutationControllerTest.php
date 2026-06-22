@@ -56,6 +56,28 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame(['block-a', 'block-b'], $this->layoutIds($layoutId));
     }
 
+    #[TestDox('rejects a second writer that started from the same version once the first has committed')]
+    public function testTwoWritersFromSameVersionYieldOneConflict(): void
+    {
+        $layoutId = $this->createLayout([
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]);
+
+        // Both writers read the same starting revision: a never-updated layout, whose token is null.
+        // The named lock in PersistedLayoutMutator serializes them under real concurrency; here the
+        // sequential manifestation is pinned: the first writer commits and bumps updatedAt, so the
+        // second writer's once-valid token no longer matches and it gets a 409 without writing.
+        $token = null;
+
+        $this->mutate('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => $token]);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-b', 'expectedVersion' => $token]);
+
+        static::assertSame(Response::HTTP_CONFLICT, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(['block-b'], $this->layoutIds($layoutId));
+    }
+
     #[TestDox('accepts the updatedAt token a client reads back through the Admin API')]
     public function testMatchingVersionTokenAfterUpdateIsAccepted(): void
     {

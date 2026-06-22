@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * Applies one structural mutation to a stored content_layout and commits it. Loads the layout by id, guards an
@@ -36,6 +37,7 @@ class PersistedLayoutMutator
      * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
      */
     public function __construct(
+        private readonly LockFactory $lockFactory,
         private readonly EntityRepository $contentLayoutRepository,
         private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly iterable $bindingEnumerators,
@@ -45,35 +47,45 @@ class PersistedLayoutMutator
 
     public function mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult
     {
-        $layout = $this->contentLayoutRepository->search(new Criteria([$layoutId]), $context)->first();
+        // Serialize concurrent writers for this layout id so the load → versionMatches → update span is atomic:
+        // a second writer blocks here, then re-reads the now-bumped updatedAt and fails versionMatches with a 409
+        // instead of silently clobbering the first edit (the lost-update window the optimistic token alone leaves open).
+        $lock = $this->lockFactory->createLock('content-layout-mutate-' . $layoutId, 5.0);
+        $lock->acquire(true);
 
-        if (!$layout instanceof ContentLayoutEntity) {
-            throw ContentSystemException::contentLayoutNotFound($layoutId);
+        try {
+            $layout = $this->contentLayoutRepository->search(new Criteria([$layoutId]), $context)->first();
+
+            if (!$layout instanceof ContentLayoutEntity) {
+                throw ContentSystemException::contentLayoutNotFound($layoutId);
+            }
+
+            if (!$this->versionMatches($expectedVersion, $layout->getUpdatedAt())) {
+                throw ContentSystemException::layoutVersionConflict($layoutId);
+            }
+
+            $mutated = $mutation->apply($layout->getLayout());
+            $affected = $mutation->affected();
+
+            $this->contentLayoutRepository->update([[
+                'id' => $layoutId,
+                'layout' => array_map($this->elementSerializer->serializeContentElement(...), $mutated),
+            ]], $context);
+
+            $analysis = $this->diagnose($layoutId, $mutated, $context);
+
+            return new MutationResult(
+                $mutated,
+                array_intersect_key($analysis->resolutions, array_flip($affected)),
+                $analysis->report,
+                $affected,
+                $mutation->orphaned(),
+                $mutation->droppedWiring(),
+                $mutation->droppedProperties(),
+            );
+        } finally {
+            $lock->release();
         }
-
-        if (!$this->versionMatches($expectedVersion, $layout->getUpdatedAt())) {
-            throw ContentSystemException::layoutVersionConflict($layoutId);
-        }
-
-        $mutated = $mutation->apply($layout->getLayout());
-        $affected = $mutation->affected();
-
-        $this->contentLayoutRepository->update([[
-            'id' => $layoutId,
-            'layout' => array_map($this->elementSerializer->serializeContentElement(...), $mutated),
-        ]], $context);
-
-        $analysis = $this->diagnose($layoutId, $mutated, $context);
-
-        return new MutationResult(
-            $mutated,
-            array_intersect_key($analysis->resolutions, array_flip($affected)),
-            $analysis->report,
-            $affected,
-            $mutation->orphaned(),
-            $mutation->droppedWiring(),
-            $mutation->droppedProperties(),
-        );
     }
 
     private function versionMatches(?string $expectedVersion, ?\DateTimeInterface $updatedAt): bool
@@ -89,7 +101,7 @@ class PersistedLayoutMutator
         try {
             $expected = new \DateTimeImmutable($expectedVersion);
         } catch (\Exception) {
-            return false;
+            throw ContentSystemException::invalidVersionToken($expectedVersion);
         }
 
         // Compare at the storage precision: content_layout.updated_at is DATETIME(3) (millisecond) and the Admin

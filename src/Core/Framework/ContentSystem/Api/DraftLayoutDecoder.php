@@ -21,8 +21,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * of the tree so it can still be diagnosed.
  *
  * The strict path ({@see decode()}, and {@see decodeOne()} through it) additionally rejects a structurally
- * corrupt tree before any operation runs — globally duplicate ids, nesting past {@see MAX_NESTING_DEPTH}, or a
- * non-array nested child — because a mutation applied to such a tree would silently corrupt or drop content. The
+ * corrupt tree before any operation runs — globally duplicate ids, nesting past {@see MAX_NESTING_DEPTH}, a
+ * non-array slot-children container, or a non-array nested child — because a mutation applied to such a tree
+ * would silently corrupt or drop content. The
  * lenient {@see decodeLintable()} path deliberately does NOT run that check: the diagnose route is meant to
  * report a duplicate id as a `duplicate_element_id` violation in its 200 body, not to reject it.
  *
@@ -159,7 +160,8 @@ class DraftLayoutDecoder
      * lenient diagnose decode. Walks the whole tree once and rejects (before any operation runs) the corruptions a
      * structural transform cannot survive: ids that repeat across the tree (the read primitives match the first,
      * the write primitives rewrite all, so a duplicate silently loses one subtree), nesting past
-     * {@see MAX_NESTING_DEPTH}, and a non-array nested child (which the storage serializer would silently drop).
+     * {@see MAX_NESTING_DEPTH}, a non-array slot-children container (which would serialize to an empty slot), and
+     * a non-array nested child (which the storage serializer would silently drop).
      *
      * @param list<array{index: int|string, id: string, element: array<string, mixed>}> $gated
      */
@@ -207,6 +209,8 @@ class DraftLayoutDecoder
 
         foreach ($slots as $slotName => $children) {
             if (!\is_array($children)) {
+                $violations->add($this->structuralViolation($path . '.slots.' . $slotName, 'Layout slot must be an array of elements.', $children));
+
                 continue;
             }
 

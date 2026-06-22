@@ -116,6 +116,24 @@ class DraftLayoutDecoderTest extends TestCase
         ]]);
     }
 
+    #[TestDox('decode rejects a non-array slot children container instead of silently dropping it')]
+    public function testDecodeRejectsNonArraySlotValue(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout slot must be an array of elements.', null, [], null, '[0].slots.main', 'garbage'),
+            ]),
+        ));
+
+        $decoder->decode([[
+            'id' => 'root',
+            'component' => 'Sw:Block',
+            'slots' => ['main' => 'garbage'],
+        ]]);
+    }
+
     #[TestDox('decode rejects a tree nested past the maximum depth')]
     public function testDecodeRejectsExcessiveNestingDepth(): void
     {

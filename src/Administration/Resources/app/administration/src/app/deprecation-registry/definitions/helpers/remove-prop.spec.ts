@@ -9,6 +9,7 @@ describe('removeProp', () => {
         expect(usage.fix).toBe('auto');
         expect(usage.runtimeProp).toBe('legacyProp');
         expect(usage.runtime?.detect({ usedProps: { legacyProp: true } })).toBe(true);
+        expect(usage.runtime?.detect({ usedProps: { 'legacy-prop': true } })).toBe(true);
         expect(usage.runtime?.detect({ usedProps: { legacyPropOther: true } })).toBe(false);
     });
 

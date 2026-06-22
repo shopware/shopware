@@ -10,6 +10,7 @@ describe('renameProp', () => {
         expect(usage.fix).toBe('auto');
         expect(usage.runtimeProp).toBe('oldProp');
         expect(usage.runtime?.detect({ usedProps: { oldProp: true } })).toBe(true);
+        expect(usage.runtime?.detect({ usedProps: { 'old-prop': true } })).toBe(true);
         expect(usage.runtime?.detect({ usedProps: { oldPropOther: true } })).toBe(false);
     });
 

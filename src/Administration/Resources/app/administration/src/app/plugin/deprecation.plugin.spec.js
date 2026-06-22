@@ -301,6 +301,34 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-text-field'));
     });
 
+    it('[registry prop] should warn when a registry-deprecated prop is provided as a dash-case vnode prop', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-card',
+                props: {
+                    contentPadding: {
+                        type: Boolean,
+                        required: false,
+                        default: false,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    'content-padding': true,
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-card]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "contentPadding"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-card'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-card'));
+    });
+
     it('[prop] should use registry metadata for known deprecated props', async () => {
         component = createComponent({
             customComponent: {

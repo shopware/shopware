@@ -38,8 +38,23 @@ type ComponentWithDeprecation = ComponentPublicInstance & {
     $watch: ComponentPublicInstance['$watch'];
 };
 
+type RuntimeDeprecationUsage = ReturnType<typeof getRuntimeDeprecatedProps>[number];
+
 function hasOwn(object: Record<string, unknown>, key: string): boolean {
     return Object.prototype.hasOwnProperty.call(object, key);
+}
+
+function usageWasRuntimeDetected(
+    usage: RuntimeDeprecationUsage,
+    usedProps: Record<string, unknown>,
+    componentName: string,
+): boolean {
+    const runtimeProp = usage.runtimeProp;
+
+    return usage.runtime?.detect?.({
+        usedProps,
+        componentName,
+    }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false);
 }
 
 /**
@@ -335,12 +350,7 @@ class DeprecationPlugin {
         deprecatedProps.forEach((usage) => {
             const runtimeProp = usage.runtimeProp;
 
-            const runtimeDetected = usage.runtime?.detect?.({
-                usedProps,
-                componentName,
-            }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false);
-
-            if (!runtimeDetected) {
+            if (!usageWasRuntimeDetected(usage, usedProps, componentName)) {
                 return;
             }
 
@@ -385,7 +395,7 @@ class DeprecationPlugin {
         deprecatedProps.forEach((usage) => {
             const runtimeProp = usage.runtimeProp;
 
-            if (!runtimeProp || !hasOwn(usedProps, runtimeProp)) {
+            if (!runtimeProp || !usageWasRuntimeDetected(usage, usedProps, componentName)) {
                 return;
             }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { missingProp } from './missing-prop';
 import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 

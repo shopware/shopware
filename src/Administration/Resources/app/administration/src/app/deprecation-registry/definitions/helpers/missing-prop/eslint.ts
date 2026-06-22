@@ -50,7 +50,8 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                         const startTagLine = api.node.startTag.loc?.start?.line;
 
                         if (typeof attributeLine === 'number' && typeof startTagLine === 'number' && attributeLine > startTagLine) {
-                            const indentation = ' '.repeat(objectVBindAttribute.loc?.start?.column ?? 0);
+                            const column = objectVBindAttribute.loc?.start?.column;
+                            const indentation = ' '.repeat(typeof column === 'number' ? column : 0);
 
                             return fixer.insertTextBefore(objectVBindAttribute, `${propSource}\n${indentation}`);
                         }

@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -231,8 +231,7 @@ class TaxProviderPayloadServiceTest extends TestCase
 
         $payload = $this->createMock(TaxProviderPayload::class);
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App secret is missing');
+        $this->expectExceptionObject(AppException::registrationFailed('Test app', 'App secret is missing'));
 
         $taxProviderPayloadService->request(
             $url,

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
@@ -40,7 +41,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
         private readonly DataValidator $validator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -91,7 +93,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(Hasher::hash($recipient->getEmail(), 'sha1')));
 
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_IN;
-        $data['confirmedAt'] = new \DateTime();
+        $data['confirmedAt'] = $this->clock->now();
 
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -81,6 +82,7 @@ class DeliveryNoteRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
+            new NativeClock()
         );
 
         $operations = [

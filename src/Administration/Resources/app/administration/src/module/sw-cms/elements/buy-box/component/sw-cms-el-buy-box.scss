@@ -8,10 +8,10 @@
     width: 100%;
     pointer-events: none;
     font-size: $font-size-xxs;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
 
     &__placeholder {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
         height: 10px;
         border-radius: $border-radius-pill;
         margin-bottom: 16px;
@@ -75,7 +75,7 @@
     &__variant {
         width: 80px;
         margin-right: 8px;
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
 
         &:last-of-type {
             margin-right: 0;
@@ -88,7 +88,7 @@
         position: absolute;
         right: 10px;
         top: calc(50% - 15px);
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
 
         .icon--regular-chevron-up-xxs {
             width: 16px;
@@ -122,7 +122,7 @@
         font-weight: $font-weight-bold;
         text-align: center;
         text-decoration: none;
-        color: $color-white;
+        color: var(--color-static-white);
         background: $gradient-action-button;
         border-radius: $border-radius-default;
     }

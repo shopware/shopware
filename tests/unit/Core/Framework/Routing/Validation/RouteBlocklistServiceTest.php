@@ -34,21 +34,19 @@ class RouteBlocklistServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, bool}>
+     * @return iterable<string, array{string, bool}>
      */
-    public static function pathBlockedDataProvider(): array
+    public static function pathBlockedDataProvider(): iterable
     {
-        return [
-            'maintenance route blocked' => ['maintenance', true],
-            'maintenance with slash blocked' => ['/maintenance', true],
-            'maintenance with trailing slash blocked' => ['maintenance/', true],
-            'maintenance sub-path not blocked' => ['maintenance/singlepage/123', false],
-            'custom category allowed' => ['my-custom-category', false],
-            'products category allowed' => ['products', false],
-            'empty string not allowed' => ['', true],
-            'nested custom path allowed' => ['custom/nested/path', false],
-            'in use by other methods not allowed' => ['api/test', true],
-        ];
+        yield 'maintenance route blocked' => ['maintenance', true];
+        yield 'maintenance with slash blocked' => ['/maintenance', true];
+        yield 'maintenance with trailing slash blocked' => ['maintenance/', true];
+        yield 'maintenance sub-path not blocked' => ['maintenance/singlepage/123', false];
+        yield 'custom category allowed' => ['my-custom-category', false];
+        yield 'products category allowed' => ['products', false];
+        yield 'empty string not allowed' => ['', true];
+        yield 'nested custom path allowed' => ['custom/nested/path', false];
+        yield 'in use by other methods not allowed' => ['api/test', true];
     }
 
     public function testHttpMethodIsResetAfterIsPathBlocked(): void

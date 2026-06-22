@@ -41,7 +41,11 @@ class ServiceClientFactory
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed with the legacy commercial license sync endpoint support. Use the `commercial_license.provided` webhook instead.
+     *
      * @throws ShopIdChangeSuggestedException
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (not triggering deprecation to avoid polluting logs)
      */
     public function newAuthenticatedFor(ServiceEntry $entry, AppEntity $app, Context $context): AuthenticatedServiceClient
     {

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -80,8 +79,11 @@ class ScriptExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $this->expectException(ScriptExecutionFailedException::class);
-        $this->expectExceptionMessage('The service "Hook: simple-function-case" has a dependency on a non-existent service "none-existing"');
+        $this->expectExceptionObject(ScriptException::scriptExecutionFailed(
+            'simple-function-case',
+            'simple-function-case/simple-function-case.twig',
+            new \Exception('The service "Hook: simple-function-case" has a dependency on a non-existent service "none-existing"')
+        ));
 
         $this->executor->execute(new TestHook('simple-function-case', Context::createDefaultContext(), [], ['none-existing']));
     }
@@ -90,10 +92,11 @@ class ScriptExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $this->expectException(ScriptExecutionFailedException::class);
-        $innerException = ScriptException::noHookServiceFactory('product.repository');
-
-        $this->expectExceptionMessage($innerException->getMessage());
+        $this->expectExceptionObject(ScriptException::scriptExecutionFailed(
+            'simple-function-case',
+            'simple-function-case/simple-function-case.twig',
+            ScriptException::noHookServiceFactory('product.repository')
+        ));
 
         $this->executor->execute(new TestHook('simple-function-case', Context::createDefaultContext(), [], ['product.repository']));
     }

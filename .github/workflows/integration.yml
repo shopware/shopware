@@ -18,39 +18,28 @@ permissions:
     id-token: write
 
 jobs:
-  acceptance:
+  generate-acceptance-matrix:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        name:
-          - "Platform"
-        php-version:
-          - "8.2"
-        shard:
-          - '1'
-          - '2'
-          - '3'
-        shard-count:
-          - 3
-        include:
-          # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
-          # - name: "Platform"
-          #   major: "major"
-          #   no-currents: true
-          #   php-version: 8.2
-          # - name: "Platform"
-          #   major: "major"
-          #   no-currents: true
-          #   php-version: 8.4
-          - name: "Install"
-            major: ''
-            php-version: 8.2
-            shard: 1
-            shard-count: 1
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - id: generate-matrix
+        run: |
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          jq . <<<"$MATRIX"
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$MATRIX" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+  acceptance:
+    runs-on: ubuntu-24.04
+    needs: generate-acceptance-matrix
+    strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: ./.github/actions/ats
         with:
           project: ${{ matrix.name }}
@@ -58,6 +47,7 @@ jobs:
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
           workers: 1
+          major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
@@ -68,17 +58,105 @@ jobs:
           s3-bucket: shopware-ci-playwright-traces
           report-prefix: playwright-reports
 
+  acceptance-status-check:
+    runs-on: ubuntu-24.04
+    needs: acceptance
+    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    permissions:
+      actions: read
+    steps:
+      - name: Generate Slack Message
+        id: generate-message
+        env:
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Collect all jobs through pagination (GitHub API returns max 100 per page)
+          JOBS=""
+          PAGE=1
+
+          while true; do
+            RESPONSE=$(gh api "/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100&page=$PAGE")
+
+            # Append jobs from this page to the jobs
+            if [ -z "$JOBS" ]; then
+              JOBS=$(jq '.jobs' <<<"$RESPONSE")
+            else
+              PAGE_JOBS=$(jq '.jobs' <<<"$RESPONSE")
+              JOBS=$(jq --argjson new "${PAGE_JOBS}" '. + $new' <<<"$JOBS")
+            fi
+
+            # Check if this was the last page by counting returned jobs
+            JOBS_ON_PAGE=$(jq '.jobs | length' <<<"$RESPONSE")
+            if [ "$JOBS_ON_PAGE" -lt 100 ]; then
+              break
+            fi
+
+            PAGE=$((PAGE + 1))
+          done
+
+          # Extract only acceptance jobs (they have prefix "acceptance (")
+          ACCEPTANCE_JOBS=$(jq -r '
+              .[]
+              | select(.name | contains("acceptance ("))
+              | . as $job
+              | ($job.name | capture("acceptance \\((?<name>[^,]+), (?:(?<major>major), )?(?<php>[^,]+), (?<shard>\\d+), (?<shardCount>\\d+), (?<currents>true|false)\\)")) as $parsed
+              | {
+                  id: $job.id,
+                  name: $job.name,
+                  conclusion: $job.conclusion,
+                  sort: [
+                    ($parsed.name == "Install"),          # Install last
+                    ($parsed.major == "major"),           # non-major first
+                    ($parsed.php),                        # PHP version
+                    ($parsed.shard | tonumber),           # shard order
+                    ($parsed.currents == "false")         # currents=false last
+                  ]
+                }
+              | @json
+              ' <<<"$JOBS" |
+            jq -s -r 'sort_by(.sort)[] | "\(.id);\(.name);\(.conclusion)"')
+
+          MESSAGE=""
+          # Process each acceptance job
+          while IFS=';' read -r JOB_ID JOB_NAME JOB_CONCLUSION; do
+          case "$JOB_CONCLUSION" in
+            success)
+            MESSAGE="$MESSAGE✅ $JOB_NAME\n"
+            ;;
+            failure|cancelled)
+            MESSAGE="$MESSAGE❌ $JOB_NAME ( https://github.com/$REPO/actions/runs/$RUN_ID/job/$JOB_ID )\n"
+            ;;
+            skipped|skipped*)
+            MESSAGE="$MESSAGE⏭️ $JOB_NAME\n"
+            ;;
+            *)
+            MESSAGE="$MESSAGE❓ $JOB_NAME ( https://github.com/$REPO/actions/runs/$RUN_ID/job/$JOB_ID )\n"
+            ;;
+          esac
+          done<<<"$ACCEPTANCE_JOBS"
+
+          echo "slack-msg=$MESSAGE" >>"$GITHUB_OUTPUT"
+      - name: Post Slack message
+        if: ${{ !cancelled() && inputs.nightly == 'true' }}
+        env:
+          MESSAGE: ${{ steps.generate-message.outputs.slack-msg }}
+        run: |
+          SLACK_PAYLOAD=$(jq --null-input --arg message "$(printf '%b' "$MESSAGE")" '{"message": $message}')
+          curl --silent --request POST --url "${{ secrets.SLACK_ATS_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
+
   acceptance-tests-changed:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0 # Fetch full history in order to see what's changed
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@8cba46e29c11878d930bca7870bb54394d3e8b21 # v46
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             tests/acceptance/tests/**/*.spec.ts
@@ -102,7 +180,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
@@ -131,7 +209,10 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
+        # Only the Elasticsearch path shard needs OpenSearch (matches the "Wait for
+        # OpenSearch" gate below); every other shard uses the cheap alpine placeholder
+        # instead of pulling the full OpenSearch image it never uses.
+        image: ${{ contains(matrix.test.path, 'Elasticsearch') && matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -207,7 +288,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
   php-security:
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
@@ -215,10 +296,10 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: "8.2"
 
@@ -246,21 +327,21 @@ jobs:
         security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/autobuild@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
 
   tested-update-versions:
     name: tested-versions
@@ -274,6 +355,8 @@ jobs:
       - name: Generate versions
         id: versions
         uses: shopware/github-actions/versions@main
+        with:
+          github-token: ${{ github.token }}
 
   acceptance-update:
     needs: tested-update-versions
@@ -307,6 +390,7 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: 6.7.9999999-dev
         with:
+          npm-version: 11.8.0
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-admin: true
@@ -314,17 +398,28 @@ jobs:
           path: new-shopware
 
       - name: Cache Storefront npm packages
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
-          path: new-shopware/src/Storefront/Resources/app/storefront/node_modules
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps the install off the network.
+          path: |
+            new-shopware/src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
           key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-storefront-
 
+      # This job checks the repo out into new-shopware/, so the composite action is
+      # referenced at its checked-out subpath (local ./ actions resolve from the workspace root).
+      - name: Install storefront dependencies
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware
+          command: composer run npm:storefront ci
+
       - name: Build new shopware
         working-directory: new-shopware
         run: |
-          composer run npm:storefront ci
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
@@ -334,7 +429,7 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Checkout template
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           repository: shopware/production
           path: old-shopware
@@ -366,13 +461,18 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 22
+      - name: Install npm
+        run: npm install -g npm@11.8.0
 
+      # ~/.npm is cached earlier in this job, so prefer-offline reuses tarballs.
+      # Referenced at the new-shopware/ subpath where the repo is checked out.
       - name: Install dependencies
-        working-directory: new-shopware/tests/acceptance
-        run: npm ci
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware/tests/acceptance
 
       - name: Refresh Package List
         run: sudo apt-get update --allow-releaseinfo-change
@@ -389,7 +489,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
@@ -411,7 +511,7 @@ jobs:
 
       - name: Configure AWS credentials (OIDC)
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
            aws-region: eu-central-1
            role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
@@ -558,7 +658,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ github.ref }}
 
@@ -573,7 +673,7 @@ jobs:
           bin/console system:update:finish
 
       - name: Checkout previous major version again
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
 
@@ -639,7 +739,7 @@ jobs:
             run: composer init:testdb
 
           - name: Checkout current major version
-            uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+            uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
             with:
                 ref: ${{ github.ref }}
 

@@ -6,6 +6,7 @@ $bundles = [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
+    Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
     Shopware\Core\Profiling\Profiling::class => ['all' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Shopware\Core\Framework\Framework::class => ['all' => true],
@@ -22,6 +23,12 @@ $bundles = [
 
 if (InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
     $bundles[Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class] = ['dev' => true, 'test' => true, 'phpstan_dev' => true];
+}
+
+$bundles[Symfony\AI\McpBundle\McpBundle::class] = ['all' => true];
+
+if (InstalledVersions::isInstalled('swag/mcp-dev-tools')) {
+    $bundles[Swag\McpDevTools\SwagMcpDevToolsBundle::class] = ['all' => true];
 }
 
 return $bundles;

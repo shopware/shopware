@@ -30,7 +30,7 @@ class RequirementsValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->projectDir = (new TestBootstrapper())->getProjectDir();
-        $this->fixturePath = __DIR__ . '/../../../../../../src/Core/Framework/Test/Plugin/Requirement/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/Plugin/Requirement/_fixtures/';
     }
 
     public function testValidateRequirementsValid(): void

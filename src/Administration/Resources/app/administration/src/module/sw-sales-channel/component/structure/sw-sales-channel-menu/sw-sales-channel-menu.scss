@@ -10,7 +10,7 @@
         cursor: inherit;
 
         .sw-sales-channel-menu-domain-link__icon {
-            color: darken($color-gray-300, 20%);
+            color: var(--color-zinc-200);
         }
     }
 
@@ -29,7 +29,7 @@
         }
 
         .sw-admin-menu__headline_text a {
-            color: $color-white;
+            color: var(--color-static-white);
             text-decoration: none;
         }
     }
@@ -41,7 +41,7 @@
         &-text {
             font-size: $font-size-xs;
             line-height: $line-height-md;
-            color: darken($color-gray-300, 20%);
+            color: var(--color-text-secondary-default);
         }
 
         &.collapsible-text {
@@ -59,7 +59,7 @@
         position: absolute !important;
 
         .sw-context-button__button {
-            color: $color-white !important;
+            color: var(--color-static-white) !important;
         }
     }
 

@@ -274,8 +274,7 @@ class PagingListingProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Requested listing page 99 is out of range (last page: 3).');
+        $this->expectExceptionObject(ProductException::pageOutOfRange(99, 3));
 
         $processor->process($request, $result, $context);
     }
@@ -354,12 +353,7 @@ class PagingListingProcessorTest extends TestCase
 
         if ($shouldThrow) {
             $expectedLastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
-            $this->expectException(ProductException::class);
-            $this->expectExceptionMessage(\sprintf(
-                'Requested listing page %d is out of range (last page: %d).',
-                $page,
-                $expectedLastPage
-            ));
+            $this->expectExceptionObject(ProductException::pageOutOfRange($page, $expectedLastPage));
         }
 
         $processor->process($request, $result, $context);

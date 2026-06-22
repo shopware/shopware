@@ -28,6 +28,11 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
         $this->connection->executeStatement(\sprintf('DROP TABLE IF EXISTS `%s`;', DocumentFileDefinition::ENTITY_NAME));
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1776770187, (new Migration1776770187AddDocumentFileTable())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::tableExists($this->connection, DocumentFileDefinition::ENTITY_NAME));

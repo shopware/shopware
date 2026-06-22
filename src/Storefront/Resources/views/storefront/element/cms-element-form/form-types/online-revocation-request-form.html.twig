@@ -52,16 +52,18 @@
                 {% endblock %}
             </div>
 
-            {% block cms_form_revocation_input_contract_number %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                    with {
-                    fieldName: 'contractNumber',
-                    required: true,
-                    additionalClass: 'col-md-12',
-                    label: 'revocationRequest.contractNumberLabel',
-                    placeholder: 'revocationRequest.contractNumberPlaceholder'
-                } %}
-            {% endblock %}
+            <div class="row g-2">
+                {% block cms_form_revocation_input_contract_number %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'contractNumber',
+                        required: true,
+                        additionalClass: 'col-md-12',
+                        label: 'revocationRequest.contractNumberLabel',
+                        placeholder: 'revocationRequest.contractNumberPlaceholder'
+                    } %}
+                {% endblock %}
+            </div>
 
             <div class="row g-2">
                 {% block cms_form_revocation_comment_textarea %}
@@ -82,7 +84,16 @@
             {% endblock %}
 
             {% block cms_form_revocation_privacy %}
-                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+                <div class="form-text privacy-notice data-protection-information">
+                    {% block cms_form_revocation_privacy_notice %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+
+                        {{ 'revocationRequest.privacyNoticeTextModal'|trans({
+                            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                            '%privacyModalTagClose%': '</button>',
+                        })|raw }}
+                    {% endblock %}
+                </div>
             {% endblock %}
 
             {% block cms_form_revocation_required_fields_info %}

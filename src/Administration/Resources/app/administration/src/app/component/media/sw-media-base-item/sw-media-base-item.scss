@@ -1,23 +1,23 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-base-item-color: $color-darkgray-200;
+$sw-media-base-item-color: var(--color-text-primary-default);
 $sw-media-base-item-border-radius: $border-radius-default;
 $sw-media-base-item-small-font-size: $font-size-xs;
-$sw-media-base-item-color-border: $color-gray-300;
-$sw-media-base-item-color-text-inline-input: $color-darkgray-200;
-$sw-media-base-item-color-context-button: $color-white;
-$sw-media-base-item-color-loading-indicator: $color-darkgray-200;
-$sw-media-base-item-color-hover: $color-shopware-brand-50;
-$sw-media-base-item-color-metadata: lighten($color-darkgray-200, 30);
+$sw-media-base-item-color-border: var(--color-border-primary-default);
+$sw-media-base-item-color-text-inline-input: var(--color-text-primary-default);
+$sw-media-base-item-color-context-button: var(--color-elevation-surface-raised);
+$sw-media-base-item-color-loading-indicator: var(--color-text-primary-default);
+$sw-media-base-item-color-hover: var(--color-background-brand-default);
+$sw-media-base-item-color-metadata: var(--color-text-secondary-default);
 $sw-media-base-item-pseudo-padding: 33px;
-$sw-media-base-item-color-input-background: $color-white;
-$sw-media-base-item-color-input-border: $color-gray-300;
+$sw-media-base-item-color-input-background: var(--color-elevation-surface-raised);
+$sw-media-base-item-color-input-border: var(--color-border-primary-default);
 $sw-media-base-item-border-radius-input: $border-radius-default;
-$sw-media-base-item-color-selected: $color-shopware-brand-500;
-$sw-media-base-item-color-checkmark: $color-white;
-$sw-media-base-item-color-input: $color-black;
-$sw-media-base-item-preview-background: $color-white;
+$sw-media-base-item-color-selected: var(--color-border-brand-default);
+$sw-media-base-item-color-checkmark: var(--color-static-white);
+$sw-media-base-item-color-input: var(--color-text-primary-default);
+$sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
 
 .sw-media-base-item {
     position: relative;
@@ -190,6 +190,8 @@ $sw-media-base-item-preview-background: $color-white;
         }
 
         .sw-media-base-item__name-container {
+            min-width: 0;
+            overflow: hidden;
             margin: 0;
             text-align: left;
             font-size: $font-size-xs;
@@ -231,7 +233,7 @@ $sw-media-base-item-preview-background: $color-white;
             border-color: transparent;
 
             &:hover {
-                border-color: $color-gray-300;
+                border-color: var(--color-border-primary-default);
             }
         }
 

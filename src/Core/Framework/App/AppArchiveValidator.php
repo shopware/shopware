@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\App\AppArchiveValidatorTest
  */
 #[Package('framework')]
 class AppArchiveValidator

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
@@ -49,6 +50,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         private readonly EntityRepository $orderRepository,
         private readonly OrderConverter $orderConverter,
         private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
@@ -156,6 +158,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $cart->setToken($salesChannelContext->getToken());
+
+        $this->cartService->setCart($cart);
+        $request->attributes->set('orderId', $order->getId());
+
         $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
 
         if ($response->getPaymentMethods()->get($paymentMethodId) === null) {

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-config-product-box {
     .sw-select,
     .sw-single-select {
@@ -15,7 +13,7 @@
 
         .sw-cms-el-config-product-box__select-product-number {
             display: inline;
-            color: $color-gray-400;
+            color: var(--color-text-secondary-default);
             margin-left: 10px;
         }
     }

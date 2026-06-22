@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
-$sw-media-folder-item-background-color-preview: $color-white;
+$sw-media-folder-item-background-color-preview: var(--color-elevation-surface-raised);
 $sw-media-folder-item-border-radius-preview: $border-radius-default;
-$sw-media-folder-item-border-color-preview: $color-gray-300;
-$sw-media-folder-item-border-color-highlighted-preview: $color-shopware-brand-500;
+$sw-media-folder-item-border-color-preview: var(--color-border-primary-default);
+$sw-media-folder-item-border-color-highlighted-preview: var(--color-border-brand-default);
 
 .sw-media-folder-item {
     position: relative;
@@ -22,7 +22,7 @@ $sw-media-folder-item-border-color-highlighted-preview: $color-shopware-brand-50
         }
 
         &.icon--solid-chevron-left {
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
         }
     }
 

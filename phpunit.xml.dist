@@ -26,6 +26,7 @@
             <directory suffix="Exception.php">src</directory>
 
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
+            <file>src/Core/Content/Resources/config/routes_test.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>
             <directory suffix="Event.php">src/Administration/Notification/</directory>
@@ -143,13 +144,13 @@
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Mcp</directory>
             <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch2">
             <directory>tests/integration/Core/Framework/DataAbstractionLayer</directory>
             <directory>tests/integration/Core/Framework/Demodata</directory>
-            <directory>tests/integration/Core/Framework/DependencyInjection</directory>
             <directory>tests/integration/Core/Framework/FeatureFlag</directory>
             <directory>tests/integration/Core/Framework/Increment</directory>
             <directory>tests/integration/Core/Framework/Language</directory>

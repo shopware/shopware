@@ -28,5 +28,10 @@
 
             <tag name="shopware.system_check"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\Api\LocaleCodeFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

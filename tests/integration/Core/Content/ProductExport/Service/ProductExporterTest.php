@@ -73,8 +73,7 @@ class ProductExporterTest extends TestCase
 
     public function testExportNotFound(): void
     {
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage('No product exports found');
+        $this->expectExceptionObject(new ExportNotFoundException());
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
     }
@@ -83,8 +82,7 @@ class ProductExporterTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(\sprintf('Product export with ID %s not found', $id));
+        $this->expectExceptionObject(new ExportNotFoundException($id));
 
         $this->service->export($this->salesChannelContext, new ExportBehavior(), $id);
     }

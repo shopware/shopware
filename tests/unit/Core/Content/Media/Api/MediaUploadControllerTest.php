@@ -140,8 +140,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request([], ['fileName' => '']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -159,8 +158,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request(['fileName' => '', 'extension' => 'jpg']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -178,8 +176,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request(['fileName' => 'test', 'extension' => '']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file.');
+        $this->expectExceptionObject(MediaException::missingFileExtension());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -196,8 +193,7 @@ class MediaUploadControllerTest extends TestCase
     {
         self::$simulateFailedTempnam = true;
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Cannot create a temp file.');
+        $this->expectExceptionObject(MediaException::cannotCreateTempFile());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -212,8 +208,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadThrowsOnIllegalFileName(): void
     {
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -228,8 +223,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testRenameThrowsOnIllegalFileName(): void
     {
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -244,8 +238,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testProvideNameThrowsOnIllegalFileName(): void
     {
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,

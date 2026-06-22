@@ -14,6 +14,11 @@ use Shopware\Core\Migration\V6_6\Migration1707064042CartRemoveFK;
 #[CoversClass(Migration1707064042CartRemoveFK::class)]
 class Migration1707064042CartRemoveFKTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1707064042, (new Migration1707064042CartRemoveFK())->getCreationTimestamp());
+    }
+
     public function testIndexGetsDropped(): void
     {
         $connection = KernelLifecycleManager::getConnection();

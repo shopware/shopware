@@ -39,6 +39,11 @@ class Migration1773815272SalesChannelNameTranslationTest extends TestCase
         $this->languageByteId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773815272, (new Migration1773815272SalesChannelNameTranslation())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->prepareTestMailTemplate();
@@ -100,7 +105,7 @@ EOD;
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 INSERT INTO mail_template_type (id, technical_name, available_entities, created_at) 
 VALUES (:id, :technical_name, :available_entities, :created_at);
 SQL;
@@ -117,7 +122,7 @@ SQL;
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 INSERT INTO mail_template (id, mail_template_type_id, system_default, created_at) 
 VALUES (:id, :mail_template_type_id, :system_default, :created_at);
 SQL;
@@ -130,7 +135,7 @@ SQL;
      */
     private function getTestTranslation(): array|false
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT mail_template_id, language_id, sender_name, subject, content_html, content_plain
 FROM mail_template_translation
 WHERE mail_template_id = :mail_template_id
@@ -172,7 +177,7 @@ EOD;
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 INSERT INTO mail_template_translation (mail_template_id, language_id, sender_name, subject, content_html, content_plain, created_at) 
 VALUES (:mail_template_id, :language_id, :sender_name, :subject, :content_html, :content_plain, :created_at)
 SQL;
@@ -185,7 +190,7 @@ SQL;
      */
     private function getMailTemplateTranslations(): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT
     mtt.mail_template_id,
     mtt.language_id,

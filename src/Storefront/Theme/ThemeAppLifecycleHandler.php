@@ -2,42 +2,61 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\App\Event\AppActivatedEvent;
-use Shopware\Core\Framework\App\Event\AppChangedEvent;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
-use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
+use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class ThemeAppLifecycleHandler implements EventSubscriberInterface
+class ThemeAppLifecycleHandler extends AbstractLifecycleHandler
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory,
-        private readonly ThemeLifecycleHandler $themeLifecycleHandler
+        private readonly ThemeLifecycleHandler $themeLifecycleHandler,
+        private readonly ThemeLifecycleService $themeLifecycleService,
     ) {
     }
 
-    public static function getSubscribedEvents(): array
+    public function activate(AppActivationContext $context): void
     {
-        return [
-            AppUpdatedEvent::class => 'handleAppActivationOrUpdate',
-            AppActivatedEvent::class => 'handleAppActivationOrUpdate',
-            AppDeactivatedEvent::class => 'handleUninstall',
-        ];
+        $this->setupTheme($context->app, $context->context);
     }
 
-    public function handleAppActivationOrUpdate(AppChangedEvent $event): void
+    public function update(AppPersistContext $context): void
     {
-        $app = $event->getApp();
+        $this->setupTheme($context->app, $context->context);
+    }
+
+    public function deactivate(AppActivationContext $context): void
+    {
+        $this->tearDownTheme($context->app, $context->context);
+    }
+
+    public function uninstall(AppRemovalContext $context): void
+    {
+        // the config was torn down by deactivate(); only the theme record remains
+        if (!$context->keepUserData) {
+            $this->themeLifecycleService->removeTheme($context->app->getName(), $context->context);
+        }
+    }
+
+    public function delete(AppRemovalContext $context): void
+    {
+        // local-only delete never deactivates, so tear the config down here; the record is left in place
+        $this->tearDownTheme($context->app, $context->context);
+    }
+
+    private function setupTheme(AppEntity $app, Context $context): void
+    {
         if (!$app->isActive()) {
             return;
         }
@@ -51,21 +70,20 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
             $configurationCollection->add($config);
         }
 
-        $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
-            $config,
-            $configurationCollection,
-            $event->getContext()
-        );
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($config, $configurationCollection, $context);
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
     }
 
-    public function handleUninstall(AppDeactivatedEvent $event): void
+    private function tearDownTheme(AppEntity $app, Context $context): void
     {
-        $config = $this->themeRegistry->getConfigurations()->getByTechnicalName($event->getApp()->getName());
+        // build the config from the app, not the active-apps registry, so it works after the app is inactive
+        $config = $this->themeConfigFactory->createFromApp($app->getName(), $app->getPath());
 
-        if (!$config) {
-            return;
-        }
+        $configurationCollection = $this->themeRegistry
+            ->getConfigurations()
+            ->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $app->getName());
 
-        $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext());
+        $this->themeLifecycleHandler->handleThemeUninstall($config, $context);
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
     }
 }

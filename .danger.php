@@ -434,10 +434,10 @@ return (new Config())
         }
 
         if (\count($missingUnitTests) > 0) {
-            $context->warning(
+            $context->failure(
                 'Please be kind and add unit tests for your new code in these files: <br/><br/>'
                 . implode('<br/>', $missingUnitTests)
-                . '<br/><br/>If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
+                . '<br/> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
             );
         }
     })
@@ -450,8 +450,12 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
+            $composerFileName = (string) $composerFile->name;
+
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, '/Test/')
+                || str_starts_with($composerFileName, 'tests/')
+                || str_contains($composerFileName, '/test/')
+                || str_contains($composerFileName, '/Test/')
             ) {
                 continue;
             }

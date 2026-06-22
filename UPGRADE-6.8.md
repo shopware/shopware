@@ -44,6 +44,13 @@ The default CMS page ID is now automatically written to the database when a cate
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
 
+## Storefront template config PHP helpers removed
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` were removed.
+Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code.
+
+Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -74,6 +81,12 @@ Affected commands:
 | `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
 | `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
 | `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
+## Agentic Commerce sales channel features removed
+
+The Agentic Commerce sales channel features — including product export providers, sales channel tracking, and related classes — have been removed from Shopware's core and are no longer available out of the box.
+
+> Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
 
 </details>
 

@@ -126,6 +126,36 @@ describe('src/module/sw-cms/elements/image/config', () => {
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
     });
 
+    it('should append px to a unitless min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('500');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('500px');
+
+        wrapper.vm.onChangeMinHeight('260.5');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('260.5px');
+    });
+
+    it('should keep an explicitly given unit on the min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('340px');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+
+        wrapper.vm.onChangeMinHeight('20rem');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('20rem');
+    });
+
+    it('should clear the min height value when emptied', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+
+        wrapper.vm.onChangeMinHeight(null);
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+    });
+
     it('should change the isDecorative value', async () => {
         const wrapper = await createWrapper();
         const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image__is-decorative input');

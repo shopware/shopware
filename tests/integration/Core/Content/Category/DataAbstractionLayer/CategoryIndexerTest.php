@@ -156,7 +156,7 @@ class CategoryIndexerTest extends TestCase
         }
 
         static::assertNotNull($message);
-        static::assertEqualsCanonicalizing($expectedSkips, $message->getSkip());
+        static::assertEqualsCanonicalizing(array_values($expectedSkips), array_values($message->getSkip()));
     }
 
     /**

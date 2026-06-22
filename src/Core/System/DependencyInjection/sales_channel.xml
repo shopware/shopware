@@ -51,12 +51,79 @@
             <tag name="shopware.entity.definition" entity="sales_channel_analytics" />
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader">
+            <tag name="twig.loader" priority="100"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery" public="true">
+            <argument type="service" id="twig.template_iterator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader">
+            <argument type="service" id="sales_channel_file.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader"/>
+            <argument type="service" id="twig"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer">
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="sales_channel.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileController" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" public="true">

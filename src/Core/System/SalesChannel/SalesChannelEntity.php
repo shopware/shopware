@@ -40,6 +40,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
@@ -196,6 +197,8 @@ class SalesChannelEntity extends Entity
     protected ?array $paymentMethodIds = null;
 
     protected ?ProductExportCollection $productExports = null;
+
+    protected ?SalesChannelFileCollection $salesChannelFiles = null;
 
     protected bool $hreflangActive;
 
@@ -850,6 +853,16 @@ class SalesChannelEntity extends Entity
     public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
+    }
+
+    public function getSalesChannelFiles(): ?SalesChannelFileCollection
+    {
+        return $this->salesChannelFiles;
+    }
+
+    public function setSalesChannelFiles(SalesChannelFileCollection $salesChannelFiles): void
+    {
+        $this->salesChannelFiles = $salesChannelFiles;
     }
 
     public function getNavigationCategoryDepth(): int

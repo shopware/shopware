@@ -38,6 +38,7 @@
             "buttonShowDetails": "Details",
             "buttonBack": "Zurück",
             "titleDescription": "Informationen",
+            "messageAgenticCommerce": "Um Agentic-Commerce-Vertriebskanäle zu erstellen, installiere bitte die Agentic Commerce Erweiterung aus dem Shopware Store.",
             "messageNoProductStreams": "Um Produktvergleiche oder Agentic-Commerce-Vertriebskanäle zu erstellen, musst Du zunächst eine dynamische Produktgruppe erstellen."
         },
         "detail": {
@@ -53,6 +54,7 @@
             "tabAnalytics": "Analyse",
             "tabProductComparison": "Template",
             "tabProducts": "Produkte",
+            "tabAgenticFiles": "Agentic-Dateien",
             "titleProductComparisonTemplate": "Template",
             "titleProductComparisonPreview": "Vorschau",
             "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
@@ -238,6 +240,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce wird zur Erweiterung",
+                    "message": "Die integrierte Agentic-Commerce-Funktion wird in Shopware 6.8 entfernt. Dein Verkaufskanal läuft vorerst weiter. Installiere die \"Agentic Commerce\" Erweiterung, damit es zu keiner Unterbrechung kommt.",
+                    "installPlugin": "Erweiterung installieren"
+                },
                 "openAiSettingsTitle": "OpenAI-Einstellungen",
                 "googleSettingsTitle": "Google-Einstellungen",
                 "buttonResetTemplate": "Auf Standard zurücksetzen",
@@ -269,6 +276,58 @@
                             },
                             "stepByStep": "<li>Erstelle ein Merchant-Center-Konto unter <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> und verifiziere die URL deines Onlineshops</li><li>Öffne im Merchant Center <em>Einstellungen &rsaquo; Datenquellen</em> und klicke auf <em>Produktquelle hinzufügen</em></li><li>Wähle <em>Datei</em>, dann <em>Geplanten Abruf von einer URL hinzufügen</em>, und füge die Export-URL (unten) als Datei-URL ein</li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist (ohne Authentifizierung)</li><li>Prüfe die <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google-Produktdaten-Spezifikation</a> und passe die Attribute bei Bedarf an</li>"
                         }
+                    }
+                }
+            },
+            "agenticFiles": {
+                "cardTitle": "Agentic-Dateien",
+                "description": "Verwalte KI-lesbare Dateien, die für diesen Verkaufskanal öffentlich ausgeliefert werden, zum Beispiel llms.txt und agents.md. Sie geben Assistenten einen kompakten Überblick über Deinen Shop und Hinweise zur Nutzung öffentlicher Inhalte.",
+                "columnFileName": "Datei",
+                "columnEnabled": "Status",
+                "columnDescription": "Beschreibung",
+                "emptyState": "Keine Agentic-Dateien gefunden",
+                "messageLoadError": "Agentic-Dateien konnten nicht geladen werden.",
+                "actionEdit": "Bearbeiten",
+                "actionEnable": "Aktivieren",
+                "actionDisable": "Deaktivieren",
+                "enabledState": {
+                    "enabled": "Aktiviert",
+                    "disabled": "Deaktiviert",
+                    "custom": "Angepasst"
+                },
+                "detail": {
+                    "backToList": "Zurück zu Agentic-Dateien",
+                    "previewTitle": "Generierte Vorschau",
+                    "previewDescription": "Dieser Inhalt wird aktuell für diesen Verkaufskanal ausgeliefert, einschließlich gespeicherter Anpassungen.",
+                    "templatesTitle": "Inhaltsquellen",
+                    "templatesDescription": "Zeigt, welche Templates zum generierten Inhalt beitragen und ob ein Template angepasst wurde. Erfahrene Benutzer können einzelne Templates überschreiben, wenn eigene Hinweise nicht ausreichen.",
+                    "showContentSources": "Quellen anzeigen",
+                    "hideContentSources": "Quellen ausblenden",
+                    "customNotesTitle": "Eigene Hinweise",
+                    "customNotesDescription": "Füge eigene Hinweise am Ende dieser Datei hinzu, ohne die Standardinhalte von Shopware oder Erweiterungen zu ersetzen.",
+                    "customNotesPlaceholder": "Zusätzliche Hinweise für KI-Agents hinzufügen ...",
+                    "labelPublicPath": "Öffentlicher Pfad",
+                    "labelContentType": "Content-Type",
+                    "actionPreviewPublicPath": "Vorschau",
+                    "actionEnablePublicPathPreview": "Aktiviere diese Datei zuerst, um den öffentlichen Pfad als Vorschau zu öffnen.",
+                    "columnTemplate": "Template",
+                    "columnSourceRole": "Rolle",
+                    "actionEditOverride": "Überschreibung bearbeiten",
+                    "overrideModalTitle": "{source} bearbeiten",
+                    "overrideModalDescription": "Passe den Inhalt an, den dieses Template für diesen Verkaufskanal beiträgt. Die Änderung wird als Anpassung gespeichert und kann jederzeit auf den Standardinhalt des Templates zurückgesetzt werden.",
+                    "overrideModalFieldLabel": "Inhalt",
+                    "overrideModalReset": "Auf Standard zurücksetzen",
+                    "overrideModalApply": "Überschreibung anwenden",
+                    "roleBase": "Basis-Template",
+                    "roleExtension": "Erweiterung",
+                    "previewEmpty": "Keine Vorschau generiert.",
+                    "emptyState": "Agentic-Datei nicht gefunden",
+                    "messagePreviewError": "Die Vorschau konnte nicht generiert werden."
+                },
+                "descriptions": {
+                    "agentic": {
+                        "llms.txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
+                        "agents.md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
                     }
                 }
             },

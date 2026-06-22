@@ -196,8 +196,8 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 |----------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
 | Missing/invalid envelope field                                                                                 | 400       | `#[MapRequestPayload]` validation (forced to 400)                                                                     |
 | `entityType` matches no specification source                                                                   | 400       | `unknownEntityType`                                                                                                   |
-| Layout element missing a non-empty string `id`/`component`                                                     | 400       | `invalidLayoutStructure`                                                                                              |
-| Layout has an intrinsic error: unregistered `component`, duplicate element `id`, or undecodable element config | 400       | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
+| Layout element missing a non-empty string `id`/`component`, or an element config that is a client defect       | 400       | `invalidLayoutStructure`                                                                                              |
+| Layout has an intrinsic error: unregistered `component` or duplicate element `id`                              | 400       | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
 | Target entity not found / unresolvable data requirement                                                        | 500       | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`)                            |
 | Invalid sales channel id                                                                                       | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`)                                                              |
 
@@ -285,7 +285,7 @@ The optional `entityType` or `section` binds the draft to a source's root contex
 }
 ```
 
-`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled. `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider) or `loader` (a data loader).
+`resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider) or `loader` (a data loader).
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 

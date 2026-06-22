@@ -38,16 +38,11 @@
       "updated-at-label": "Last updated: {updatedAt}",
       "version": "Version: {version}",
       "cannot-remove-or-deactivate": "Cannot be removed or deactivated",
-      "gmv-reporting-requirement": "required to ensure compliance with contractual obligations and Fair Usage Policy requirements related to GMV",
-      "gmv-reporting-requirement-suffix": "reporting",
       "deactivate-modal": {
         "warning": "Are you sure you want to deactivate “{serviceName}”?",
         "consequences": "This will result in an immediate loss of access to the Service and all associated processes."
       },
       "permissions": "Show permissions"
-    },
-    "gmv-info": {
-      "text": "The following permissions remain required for two reasons:<br><br><ul><li>Community Edition customers who use the Shopware Account and related services (e.g. Shopware Store) are subject to the applicable Terms and Conditions and have a contractual obligation to report GMV usage to comply with the Fair Usage Policy.</li><li>Customers on a Shopware plan (Rise, Evolve, or Beyond) have a contractual obligation to report GMV usage and comply with the GMV and order allowances included in their plan.</li></ul><br>These permissions ensure that Shopware can provide the relevant services and fulfil the associated contractual requirements."
     },
     "grant-permissions": {
       "title": "Unlock the full potential of Shopware Services",

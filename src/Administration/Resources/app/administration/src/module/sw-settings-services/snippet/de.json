@@ -38,16 +38,11 @@
       "updated-at-label": "Zuletzt aktualisiert: {updatedAt}",
       "version": "Version: {version}",
       "cannot-remove-or-deactivate": "Kann nicht entfernt oder deaktiviert werden",
-      "gmv-reporting-requirement": "erforderlich, um die Einhaltung vertraglicher Verpflichtungen und der Anforderungen der Fair Usage Policy im Zusammenhang mit der GMV-Meldung",
-      "gmv-reporting-requirement-suffix": "sicherzustellen",
       "deactivate-modal": {
         "warning": "Bist Du sicher, dass Du „{serviceName}“ deaktivieren möchtest?",
         "consequences": "Dadurch verlierst Du sofort den Zugriff auf den Service und alle zugehörigen Prozesse."
       },
       "permissions": "Berechtigungen anzeigen"
-    },
-    "gmv-info": {
-      "text": "Die folgenden Berechtigungen bleiben aus zwei Gründen erforderlich:<br><br><ul><li>Kunden der Community Edition, die den Shopware Account und zugehörige Services (z. B. Shopware Store) nutzen, unterliegen den anwendbaren Allgemeinen Geschäftsbedingungen und sind vertraglich verpflichtet, die GMV-Nutzung zu melden, um die Fair Usage Policy einzuhalten.</li><li>Kunden mit einem Shopware Plan (Rise, Evolve oder Beyond) sind vertraglich verpflichtet, die GMV-Nutzung zu melden und die in ihrem Plan enthaltenen GMV- und Bestellkontingente einzuhalten.</li></ul><br>Diese Berechtigungen stellen sicher, dass Shopware die relevanten Services bereitstellen und die damit verbundenen vertraglichen Anforderungen erfüllen kann."
     },
     "grant-permissions": {
       "title": "Schalte das volle Potenzial von Shopware Services frei",

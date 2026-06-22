@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesDeactivateModal from './index';
-import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 
 const createWrapper = async (props = {}) => {
     return mount(SwSettingsServicesDeactivateModal, {
@@ -15,9 +14,6 @@ const createWrapper = async (props = {}) => {
                 'mt-modal-root': MtModalRoot,
                 'mt-icon': {
                     template: '<span :class="$attrs.class" />',
-                },
-                'sw-settings-services-gmv-info': {
-                    template: '<span class="sw-settings-services-gmv-info" />',
                 },
             },
         },
@@ -49,9 +45,6 @@ const createContentWrapper = async (props = {}) => {
                 },
                 'mt-icon': {
                     template: '<span :class="$attrs.class" />',
-                },
-                'sw-settings-services-gmv-info': {
-                    template: '<span class="sw-settings-services-gmv-info" />',
                 },
             },
         },
@@ -113,8 +106,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
         const deactivateModal = await createContentWrapper({
             servicesWithAccountRequirement: [
                 {
-                    name: GMV_REPORTING_SERVICE_NAME,
-                    label: 'GMV Reporting',
+                    name: 'account-service',
+                    label: 'Account Service',
                 },
                 {
                     name: 'another-account-service',
@@ -126,9 +119,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
 
         expect(deactivateModal.find('.sw-settings-services-deactivate-modal__account-requirement-info').exists()).toBe(true);
         expect(deactivateModal.text()).toContain('sw-settings-services.deactivate-modal.p-3');
-        expect(deactivateModal.findAll('.sw-settings-services-gmv-info')).toHaveLength(1);
         expect(deactivateModal.findAll('.sw-settings-services-deactivate-modal__services-list li')).toHaveLength(2);
-        expect(deactivateModal.text()).toContain('GMV Reporting');
+        expect(deactivateModal.text()).toContain('Account Service');
         expect(deactivateModal.text()).toContain('Another Account Service');
     });
 

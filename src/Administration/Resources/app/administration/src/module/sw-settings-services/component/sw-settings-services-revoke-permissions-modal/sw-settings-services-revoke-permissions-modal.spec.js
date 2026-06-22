@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesRevokePermissionsModal from './index';
 import * as permissionsComposable from '../../composables/permissions';
-import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 
 jest.mock('../../composables/permissions', () => {
     const _reloadPageMock = jest.fn();
@@ -28,9 +27,6 @@ const createWrapper = async (props = {}) => {
                 'mt-modal-root': MtModalRoot,
                 'mt-icon': {
                     template: '<span :class="$attrs.class" />',
-                },
-                'sw-settings-services-gmv-info': {
-                    template: '<span class="sw-settings-services-gmv-info" />',
                 },
             },
         },
@@ -59,9 +55,6 @@ const createContentWrapper = async (props = {}) => {
                 },
                 'mt-icon': {
                     template: '<span :class="$attrs.class" />',
-                },
-                'sw-settings-services-gmv-info': {
-                    template: '<span class="sw-settings-services-gmv-info" />',
                 },
             },
         },
@@ -122,8 +115,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
         const revokePermissionsModal = await createContentWrapper({
             servicesWithAccountRequirement: [
                 {
-                    name: GMV_REPORTING_SERVICE_NAME,
-                    label: 'GMV Reporting',
+                    name: 'account-service',
+                    label: 'Account Service',
                 },
                 {
                     name: 'another-account-service',
@@ -137,11 +130,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             revokePermissionsModal.find('.sw-settings-services-revoke-permissions-modal__account-requirement-info').exists(),
         ).toBe(true);
         expect(revokePermissionsModal.text()).toContain('sw-settings-services.revoke-permissions-modal.p-3');
-        expect(revokePermissionsModal.findAll('.sw-settings-services-gmv-info')).toHaveLength(1);
         expect(
             revokePermissionsModal.findAll('.sw-settings-services-revoke-permissions-modal__services-list li'),
         ).toHaveLength(2);
-        expect(revokePermissionsModal.text()).toContain('GMV Reporting');
+        expect(revokePermissionsModal.text()).toContain('Account Service');
         expect(revokePermissionsModal.text()).toContain('Another Account Service');
     });
 

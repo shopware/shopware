@@ -62,15 +62,6 @@
             >
                 <p>
                     {{ $t('sw-settings-services.service-card.cannot-remove-or-deactivate') }}
-
-                    <span v-if="serviceIsGmvReportingService">
-                        -
-                        {{ $t('sw-settings-services.service-card.gmv-reporting-requirement') }}
-                        <span class="sw-settings-services-service-card__gmv-requirement-nowrap">
-                            {{ $t('sw-settings-services.service-card.gmv-reporting-requirement-suffix') }}
-                            <sw-settings-services-gmv-info />
-                        </span>
-                    </span>
                 </p>
             </div>
         </div>

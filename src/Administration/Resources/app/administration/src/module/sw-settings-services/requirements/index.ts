@@ -14,11 +14,6 @@ export const SHOPWARE_ACCOUNT_REQUIREMENT = 'shopware_account';
 /**
  * @private
  */
-export const GMV_REPORTING_SERVICE_NAME = 'SwagGmvReportingService';
-
-/**
- * @private
- */
 export interface ServiceWithShopwareAccountRequirement {
     name: string;
     label: string;

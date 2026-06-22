@@ -11,7 +11,6 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesServiceCard from './index';
 import SwColorBadge from '../../../../app/component/utils/sw-color-badge';
-import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 
 const createService = (overrides = {}) => ({
     id: 'service-id',
@@ -230,7 +229,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     MtPopover,
                     MtPopoverItem,
                     MtButton,
-                    SwSettingsServicesGmvInfo: true,
                     SwExtensionPermissionsModal: true,
                 },
             },
@@ -238,8 +236,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         expect(card.vm.serviceHasShopwareAccountRequirement).toBe(true);
         expect(card.text()).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
-        expect(card.text()).not.toContain('sw-settings-services.service-card.gmv-reporting-requirement');
-        expect(card.findComponent({ name: 'sw-settings-services-gmv-info' }).exists()).toBe(false);
 
         await card.findComponent(MtPopover).findComponent(MtButton).trigger('click');
         // Wait 32ms for debounce
@@ -251,47 +247,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         expect(popoverItems).not.toContain('sw-settings-services.general.deactivate');
         expect(popoverItems).toContain('sw-settings-services.service-card.permissions');
-    });
-
-    it('shows GMV compliance information for the GMV reporting service', async () => {
-        const card = mount(SwSettingsServicesServiceCard, {
-            props: {
-                service: createService({
-                    name: GMV_REPORTING_SERVICE_NAME,
-                    requirements: ['shopware_account'],
-                }),
-            },
-            global: {
-                stubs: {
-                    SwColorBadge,
-                    SwExtensionIcon: {
-                        template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
-                    },
-                    SwStatus,
-                    MtModalAction,
-                    MtModal,
-                    MtModalRoot,
-                    MtModalTrigger,
-                    MtPopover,
-                    MtPopoverItem,
-                    MtButton,
-                    SwSettingsServicesGmvInfo: true,
-                    SwExtensionPermissionsModal: true,
-                },
-            },
-        });
-
-        expect(card.vm.serviceHasShopwareAccountRequirement).toBe(true);
-        expect(card.vm.serviceIsGmvReportingService).toBe(true);
-        expect(card.text()).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
-        expect(card.text()).toContain('sw-settings-services.service-card.gmv-reporting-requirement');
-        expect(card.text()).toContain('sw-settings-services.service-card.gmv-reporting-requirement-suffix');
-        expect(card.find('.sw-settings-services-service-card__gmv-requirement-nowrap').exists()).toBe(true);
-        expect(card.findComponent({ name: 'sw-settings-services-gmv-info' }).exists()).toBe(true);
     });
 
     it('activates a service', async () => {

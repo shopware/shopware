@@ -11,8 +11,8 @@ describe('src/module/sw-settings-services/requirements', () => {
         expect(
             getServicesWithShopwareAccountRequirement([
                 {
-                    name: 'gmv-reporting',
-                    label: 'GMV Reporting',
+                    name: 'account-service',
+                    label: 'Account Service',
                     requirements: ['shopware_account'],
                 },
                 {
@@ -23,8 +23,8 @@ describe('src/module/sw-settings-services/requirements', () => {
             ]),
         ).toEqual([
             {
-                name: 'gmv-reporting',
-                label: 'GMV Reporting',
+                name: 'account-service',
+                label: 'Account Service',
             },
         ]);
     });

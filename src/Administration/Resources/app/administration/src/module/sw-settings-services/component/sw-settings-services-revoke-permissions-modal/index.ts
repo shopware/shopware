@@ -2,8 +2,6 @@ import template from './sw-settings-services-revoke-permissions-modal.html.twig'
 import './sw-settings-services-revoke-permissions-modal.scss';
 import { revokePermissions } from '../../composables/permissions';
 import extractErrorMessage from '../../composables/extract-error';
-import SwSettingsServicesGmvInfo from '../sw-settings-services-gmv-info';
-import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 
 /**
  * @sw-package framework
@@ -12,10 +10,6 @@ import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-revoke-permissions-modal',
     template,
-
-    components: {
-        SwSettingsServicesGmvInfo,
-    },
 
     emits: ['service-permissions-revoked'],
 
@@ -30,12 +24,6 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             isLoading: false,
         };
-    },
-
-    computed: {
-        gmvReportingServiceName() {
-            return GMV_REPORTING_SERVICE_NAME;
-        },
     },
 
     methods: {

@@ -24,12 +24,7 @@
                         v-for="service in servicesWithAccountRequirement"
                         :key="service.name"
                     >
-                        <span>
-                            {{ service.label }}
-                            <sw-settings-services-gmv-info
-                                v-if="service.name === gmvReportingServiceName"
-                            />
-                        </span>
+                        {{ service.label }}
                     </li>
                 </ul>
             </div>

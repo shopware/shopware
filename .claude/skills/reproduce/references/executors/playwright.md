@@ -38,6 +38,22 @@ sales channel, so it easily returns "Page not found" and the spec dies at
 block's semantic REGION (its aria-label, e.g. a product slider's
 `getByRole('region', {name:/Product gallery containing/i})`), never on a seeded product name.
 
+**Cookie-consent-gated storefront features need their consent COOKIE set — the client-side
+twin of the server-side `system_config` opt-in.** Several storefront features read/write
+localStorage only after the shopper accepts their cookie; on a default install the consent
+banner is shown and the cookie is absent, so the feature's JS returns early and the feature
+looks dead even though you enabled it server-side. The **wishlist** gates on the
+`wishlist-enabled` cookie (`local-wishlist.plugin.js`: `if (window.useDefaultCookieConsent &&
+!CookieStorageHelper.getItem('wishlist-enabled')) return;`), so a guest-wishlist repro that
+only seeds localStorage renders "Your wishlist is empty" (hit live on #33). Set the cookie in
+the browser context BEFORE the feature's page loads:
+```ts
+await page.goto('/');                                   // establish the origin first
+await page.context().addCookies([{ name: 'wishlist-enabled', value: '1', url: page.url() }]);
+```
+This complements (does NOT replace) the server-side `system_config: {core.cart.wishlistEnabled:
+true}` — a gated feature needs BOTH the server flag and the browser consent cookie.
+
 **File uploads — set files on the INPUT, never drive the native file chooser.** When a step
 uploads a file (media library, Replace dialog, import), do NOT click an "Upload"/"Hochladen"
 button and `page.waitForEvent('filechooser')`. Shopware's `sw-media-upload-v2` renders SEVERAL
@@ -46,9 +62,11 @@ controls (upload-file, upload-from-URL, a context menu), so a `getByRole('button
 times out at `PRECONDITION_NOT_FOUND` (hit live on #29, "filechooser Timeout 10000ms exceeded").
 Instead set files straight on the hidden file input, scoped to the dialog/region you're in:
 ```ts
-await dialog.locator('input[type="file"]').setFiles({ name: 'f.png', mimeType: 'image/png', buffer });
+await dialog.locator('input[type="file"]').setInputFiles({ name: 'f.png', mimeType: 'image/png', buffer });
 ```
-`setFiles`/`setInputFiles` REQUIRES the `<input type=file>` element and a file input carries no
+The Locator method is **`setInputFiles`** — NOT `setFiles` (that exists only on the `FileChooser`
+object, and calling it on a Locator throws `TypeError: …setFiles is not a function`, hit live on
+#29). `setInputFiles` REQUIRES the `<input type=file>` element and a file input carries no
 accessible name, so `input[type="file"]` is the one attribute selector this skill permits — it
 is semantic (the element's PURPOSE, not a brittle CSS class) and is the standard Playwright
 upload pattern. Scope it inside the relevant landmark (`dialog`/`region`) so it can't match a

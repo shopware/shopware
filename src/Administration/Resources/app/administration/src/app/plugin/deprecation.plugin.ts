@@ -44,6 +44,18 @@ function hasOwn(object: Record<string, unknown>, key: string): boolean {
     return Object.prototype.hasOwnProperty.call(object, key);
 }
 
+function propNameToAttributeName(propName: string): string {
+    return propName.replace(/[A-Z]/g, (letter: string) => `-${letter.toLowerCase()}`);
+}
+
+function runtimePropWasProvided(runtimeProp: string | undefined, usedProps: Record<string, unknown>): boolean {
+    if (!runtimeProp) {
+        return false;
+    }
+
+    return hasOwn(usedProps, runtimeProp) || hasOwn(usedProps, propNameToAttributeName(runtimeProp));
+}
+
 function usageWasRuntimeDetected(
     usage: RuntimeDeprecationUsage,
     usedProps: Record<string, unknown>,
@@ -395,15 +407,15 @@ class DeprecationPlugin {
         deprecatedProps.forEach((usage) => {
             const runtimeProp = usage.runtimeProp;
 
-            if (!runtimeProp || !usageWasRuntimeDetected(usage, usedProps, componentName)) {
+            if (!runtimeProp || !runtimePropWasProvided(runtimeProp, usedProps)) {
                 return;
             }
 
             component.$watch(
                 () => component.$props[runtimeProp],
-                () => {
+                (value) => {
                     this.throwRegistryPropsDeprecationErrors(component, {
-                        [runtimeProp]: true,
+                        [runtimeProp]: value,
                     });
                 },
             );

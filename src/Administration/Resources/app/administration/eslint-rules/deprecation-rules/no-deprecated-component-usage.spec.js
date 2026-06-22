@@ -1,5 +1,6 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-deprecated-component-usage');
+const { loadRegistry } = require('./registry/load-registry');
 const { mtIconValidTests, mtIconInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-icon.fixtures');
 const { mtButtonValidChecks, mtButtonInvalidChecks } = require('./no-deprecated-component-usage-fixtures/mt-button.fixtures');
 const { mtCardValidTests, mtCardInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-card.fixtures');
@@ -47,6 +48,23 @@ const tester = new RuleTester({
         parser: require('vue-eslint-parser'),
         ecmaVersion: 2015,
     },
+});
+
+describe('registry helper ownership', () => {
+    it('keeps component usage ESLint behavior owned by registry helpers', () => {
+        const registry = loadRegistry();
+        const componentLevelKinds = new Set([
+            'rename-component',
+            'manual-component-replacement',
+        ]);
+        const usagesWithoutHelperEslint = registry.componentApiMigrations.flatMap((migration) => {
+            return migration.usage
+                .filter((usage) => !componentLevelKinds.has(usage.kind) && !usage.eslint?.report)
+                .map((usage) => `${migration.id}:${usage.kind}`);
+        });
+
+        expect(usagesWithoutHelperEslint).toEqual([]);
+    });
 });
 
 function withRegistryMessageContext(cases) {

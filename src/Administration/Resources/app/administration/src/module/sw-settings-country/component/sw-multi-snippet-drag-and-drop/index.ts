@@ -11,9 +11,14 @@ interface DragItem {
     snippet: string[];
 }
 
-interface DropIndicator {
+interface SnippetItem {
     index: number;
-    position: 'before' | 'after';
+    snippet: string[];
+}
+
+interface DragPreview {
+    dragIndex: number;
+    dropIndex: number;
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -100,7 +105,7 @@ export default Component.wrapComponentConfig({
 
     data(): {
         defaultConfig: DragConfig<DragItem>;
-        dropIndicator: DropIndicator | null;
+        dragPreview: DragPreview | null;
     } {
         return {
             defaultConfig: {
@@ -110,7 +115,7 @@ export default Component.wrapComponentConfig({
                 preventEvent: true,
                 disabled: this.disabled,
             } as DragConfig<DragItem>,
-            dropIndicator: null,
+            dragPreview: null,
         };
     },
 
@@ -148,6 +153,27 @@ export default Component.wrapComponentConfig({
         isMinLines(): boolean {
             return this.totalLines <= DEFAULT_MIN_LINES;
         },
+
+        previewSnippets(): SnippetItem[] {
+            const snippets = this.value.map((snippet, index) => ({ snippet, index }));
+
+            if (!this.dragPreview) {
+                return snippets;
+            }
+
+            const dragIndex = snippets.findIndex(({ index }) => index === this.dragPreview?.dragIndex);
+            const dropIndex = snippets.findIndex(({ index }) => index === this.dragPreview?.dropIndex);
+
+            if (dragIndex === -1 || dropIndex === -1) {
+                return snippets;
+            }
+
+            const [snippet] = snippets.splice(dragIndex, 1);
+
+            snippets.splice(dropIndex, 0, snippet);
+
+            return snippets;
+        },
     },
 
     methods: {
@@ -161,9 +187,9 @@ export default Component.wrapComponentConfig({
             }
 
             if (dragData.linePosition === dropData.linePosition) {
-                this.dropIndicator = {
-                    index: dropData.index,
-                    position: dragData.index < dropData.index ? 'after' : 'before',
+                this.dragPreview = {
+                    dragIndex: dragData.index,
+                    dropIndex: dropData.index,
                 };
             }
 
@@ -171,11 +197,11 @@ export default Component.wrapComponentConfig({
         },
 
         onDragLeave() {
-            this.dropIndicator = null;
+            this.dragPreview = null;
         },
 
         onDrop(dragData: DragItem, dropData: DragItem) {
-            this.dropIndicator = null;
+            this.dragPreview = null;
 
             if (!dragData || !dropData) {
                 return;
@@ -193,13 +219,6 @@ export default Component.wrapComponentConfig({
             }
 
             this.$emit('drop-end', this.linePosition, { dragData, dropData });
-        },
-
-        getDropIndicatorClass(index: number): Record<string, boolean> {
-            return {
-                'is--drop-before': this.dropIndicator?.index === index && this.dropIndicator.position === 'before',
-                'is--drop-after': this.dropIndicator?.index === index && this.dropIndicator.position === 'after',
-            };
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {

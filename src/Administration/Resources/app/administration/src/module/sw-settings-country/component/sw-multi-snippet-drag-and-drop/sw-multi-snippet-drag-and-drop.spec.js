@@ -207,8 +207,15 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         ]);
     });
 
-    it('should show the drop indicator next to the insert position', async () => {
-        const wrapper = await createWrapper();
+    it('should preview the snippet order while dragging', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
         await flushPromises();
 
         await wrapper.vm.onDragEnter(
@@ -224,17 +231,21 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             },
         );
 
-        expect(wrapper.vm.getDropIndicatorClass(2)).toEqual({
-            'is--drop-before': false,
-            'is--drop-after': true,
-        });
+        expect(wrapper.vm.previewSnippets.map(({ snippet }) => snippet)).toEqual([
+            'symbol/dash',
+            'address/department',
+            'address/company',
+            'address/city',
+        ]);
 
         await wrapper.vm.onDragLeave();
 
-        expect(wrapper.vm.getDropIndicatorClass(2)).toEqual({
-            'is--drop-before': false,
-            'is--drop-after': false,
-        });
+        expect(wrapper.vm.previewSnippets.map(({ snippet }) => snippet)).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/department',
+            'address/city',
+        ]);
     });
 
     it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {

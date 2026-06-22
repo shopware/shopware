@@ -19,7 +19,7 @@
             >
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <li
-                    v-for="(snippet, index) in value"
+                    v-for="{ snippet, index } in previewSnippets"
                     :key="index"
                     class="sw-select-selection-list__item-holder"
                     :class="'sw-select-selection-list__item-holder--' + index"
@@ -32,7 +32,6 @@
                         <sw-label
                             v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
                             v-draggable="{ ...mergedDragConfig, data: { snippet, index, linePosition }}"
-                            :class="getDropIndicatorClass(index)"
                             :dismissable="!isSelectionDisabled(snippet)"
                             :size="size"
                             @dismiss="onClickDismiss(index)"

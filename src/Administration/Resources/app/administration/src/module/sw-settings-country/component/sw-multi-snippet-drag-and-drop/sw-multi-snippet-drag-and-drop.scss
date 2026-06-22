@@ -76,30 +76,6 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         .sw-label.is--valid-drop {
             box-shadow: none;
         }
-
-        .sw-label.is--drop-before,
-        .sw-label.is--drop-after {
-            position: relative;
-        }
-
-        .sw-label.is--drop-before::before,
-        .sw-label.is--drop-after::after {
-            content: "";
-            position: absolute;
-            top: 4px;
-            bottom: 4px;
-            width: 2px;
-            border-radius: 2px;
-            background: var(--color-border-brand-selected);
-        }
-
-        .sw-label.is--drop-before::before {
-            left: -4px;
-        }
-
-        .sw-label.is--drop-after::after {
-            right: -4px;
-        }
     }
 
     .sw-context-button {

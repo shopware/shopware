@@ -62,6 +62,21 @@ class DraftLayoutDecoder
     }
 
     /**
+     * Decodes a single raw element (e.g. the subtree an attach action splices in) through the same structural
+     * gate as {@see decode()}: a malformed element is a 400 invalidLayoutStructure rather than a serializer 500.
+     *
+     * @param array<string, mixed> $rawElement
+     */
+    public function decodeOne(array $rawElement): ContentElement
+    {
+        foreach ($this->decode([$rawElement]) as $element) {
+            return $element;
+        }
+
+        throw ContentSystemException::invalidLayoutStructure(new ConstraintViolationList());
+    }
+
+    /**
      * @param array<int|string, mixed> $rawLayout
      *
      * @return array{0: list<ContentElement>, 1: list<Violation>}

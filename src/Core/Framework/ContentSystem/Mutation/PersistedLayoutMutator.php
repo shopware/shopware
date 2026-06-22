@@ -58,10 +58,6 @@ class PersistedLayoutMutator
         $mutated = $mutation->apply($layout->getLayout());
         $affected = $mutation->affected();
 
-        if ($mutation->orphaned() !== []) {
-            throw ContentSystemException::mutationDetachesContent(array_map(static fn (ContentElement $element): string => $element->getId(), $mutation->orphaned()));
-        }
-
         $this->contentLayoutRepository->update([[
             'id' => $layoutId,
             'layout' => array_map($this->elementSerializer->serializeContentElement(...), $mutated),
@@ -74,7 +70,7 @@ class PersistedLayoutMutator
             array_intersect_key($analysis->resolutions, array_flip($affected)),
             $analysis->report,
             $affected,
-            [],
+            $mutation->orphaned(),
             $mutation->droppedWiring(),
         );
     }

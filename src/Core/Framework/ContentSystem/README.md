@@ -70,7 +70,7 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven draft mu
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
 - **Layout/** - Element tree, entities, field types, scaffolding, element type system
-- **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
+- **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
 - **Output/** - Response formatting and partial rendering
 - **Resolution/** - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - Store API endpoints

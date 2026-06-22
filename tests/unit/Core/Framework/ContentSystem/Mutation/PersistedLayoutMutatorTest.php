@@ -75,20 +75,21 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame(['block-b'], array_column(array_map(static fn (ContentElement $e): array => ['id' => $e->getId()], $result->layout), 'id'));
     }
 
-    #[TestDox('rejects a mutation that would detach content and never writes')]
-    public function testRejectsOrphaningMutationWithoutWriting(): void
+    #[TestDox('persists an orphaning mutation and reports the detached subtree for re-attachment')]
+    public function testPersistsOrphaningMutationAndReportsOrphans(): void
     {
         $id = Uuid::randomHex();
         $repository = $this->repository($this->entity($id, null));
-        $repository->expects($this->never())->method('update');
+        $repository->expects($this->once())->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
 
         $orphaning = $this->orphaningMutation('detached-child');
 
         $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [], $this->diagnostics());
 
-        $this->expectExceptionObject(ContentSystemException::mutationDetachesContent(['detached-child']));
+        $result = $mutator->mutate($id, null, $orphaning, Context::createDefaultContext());
 
-        $mutator->mutate($id, null, $orphaning, Context::createDefaultContext());
+        static::assertCount(1, $result->orphaned);
+        static::assertSame('detached-child', $result->orphaned[0]->getId());
     }
 
     #[TestDox('persists the mutated tree and returns the re-resolved result')]

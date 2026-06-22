@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerial
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -116,6 +117,17 @@ class LayoutMutationController
         Context $context,
     ): Response {
         return $this->respond(new UnwrapElement($payload->containerElementId), $payload->layout, $payload->entityType, $payload->section, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/attach-element', name: 'api.action.content_system.layout.attach_element', methods: [Request::METHOD_POST])]
+    public function attach(
+        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        AttachElementRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new AttachElement($this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+
+        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
     /**

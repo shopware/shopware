@@ -50,7 +50,6 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
-    public const MUTATION_DETACHES_CONTENT = 'CONTENT_SYSTEM__MUTATION_DETACHES_CONTENT';
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
 
@@ -461,19 +460,6 @@ class ContentSystemException extends HttpException
             self::MUTATION_UNKNOWN_TYPE,
             'Element type "{{ type }}" is not a registered element type.',
             ['type' => $type]
-        );
-    }
-
-    /**
-     * @param list<string> $orphanedElementIds
-     */
-    public static function mutationDetachesContent(array $orphanedElementIds): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MUTATION_DETACHES_CONTENT,
-            'The mutation would detach content that the commit cannot keep: {{ elementIds }}. Relocate these elements before applying it.',
-            ['elementIds' => implode(', ', $orphanedElementIds)]
         );
     }
 

@@ -396,6 +396,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
         </service>
     </services>
 </container>

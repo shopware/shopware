@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutAttachRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDuplicateRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutInsertRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMoveRequest;
@@ -14,12 +15,14 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRemoveRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutReplaceRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUnwrapRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutWrapRequest;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -134,6 +137,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'duplicate' => [static fn (ContentLayoutMutationController $c): Response => $c->duplicate('l', new ContentLayoutDuplicateRequest('el', null), $context), DuplicateElement::class];
         yield 'wrap' => [static fn (ContentLayoutMutationController $c): Response => $c->wrap('l', new ContentLayoutWrapRequest(['a'], 'Sw:Container', null), $context), WrapElements::class];
         yield 'unwrap' => [static fn (ContentLayoutMutationController $c): Response => $c->unwrap('l', new ContentLayoutUnwrapRequest('el', null), $context), UnwrapElement::class];
+        yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
     }
 
     private function controller(PersistedLayoutMutator $mutator): ContentLayoutMutationController
@@ -142,7 +146,21 @@ class ContentLayoutMutationControllerTest extends TestCase
             $mutator,
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $this->elementSerializer(),
+            $this->decoder(),
         );
+    }
+
+    private function decoder(): DraftLayoutDecoder
+    {
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willReturnCallback(
+            static fn (array $raw): ContentElement => new ContentElement(
+                \is_string($raw['id'] ?? null) ? $raw['id'] : 'incoming',
+                \is_string($raw['component'] ?? null) ? $raw['component'] : 'Sw:Card',
+            ),
+        );
+
+        return new DraftLayoutDecoder($serializer);
     }
 
     private function mutatorReturning(MutationResult $result): PersistedLayoutMutator

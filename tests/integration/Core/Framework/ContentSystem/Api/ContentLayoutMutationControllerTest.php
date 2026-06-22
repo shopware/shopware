@@ -93,21 +93,36 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->getComponent());
     }
 
-    #[TestDox('rejects a persisted replace that would detach slot content without writing')]
-    public function testReplaceDetachingContentIsRejected(): void
+    #[TestDox('persists a replace that detaches slot content and returns the orphans for re-attachment')]
+    public function testReplaceDetachingContentReportsOrphans(): void
     {
         $parent = $this->element('parent', TestElementTypeLoader::RESOLVABLE);
         $parent['slots'] = ['content' => [$this->element('kid', TestElementTypeLoader::RESOLVABLE)]];
         $layoutId = $this->createLayout([$parent]);
 
-        $this->request('replace-element', $layoutId, [
+        $body = $this->mutate('replace-element', $layoutId, [
             'elementId' => 'parent',
             'newType' => TestElementTypeLoader::RESOLVABLE,
             'expectedVersion' => null,
         ]);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNotSame([], $this->reload($layoutId)->getLayout()[0]->getSlots());
+        static::assertSame(['kid'], array_column($body['orphaned'], 'id'));
+        static::assertSame([], $this->reload($layoutId)->getLayout()[0]->getSlots());
+    }
+
+    #[TestDox('attaches a returned orphan subtree to a stored layout with a server-minted id')]
+    public function testAttachElementPersistsToStorage(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $body = $this->mutate('attach-element', $layoutId, [
+            'element' => $this->element('incoming', TestElementTypeLoader::RESOLVABLE),
+            'expectedVersion' => null,
+        ]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertCount(2, $this->reload($layoutId)->getLayout());
+        static::assertNotContains('incoming', $this->layoutIds($layoutId));
     }
 
     #[TestDox('returns 404 for a mutation targeting an unknown layout id')]

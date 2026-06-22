@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -41,6 +42,7 @@ class ContentLayoutMutationController
         private readonly PersistedLayoutMutator $mutator,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly DraftLayoutDecoder $decoder,
     ) {
     }
 
@@ -120,6 +122,18 @@ class ContentLayoutMutationController
         Context $context,
     ): Response {
         return $this->respond($layoutId, $payload->expectedVersion, new UnwrapElement($payload->containerElementId), $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/{layoutId}/attach-element', name: 'api.action.content_system.layout.persisted_attach_element', methods: [Request::METHOD_POST])]
+    public function attach(
+        string $layoutId,
+        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentLayoutAttachRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new AttachElement($this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+
+        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }
 
     private function respond(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): JsonResponse

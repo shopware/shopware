@@ -128,6 +128,21 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['block-a', 'block-b'], array_column($body['layout'], 'id'));
     }
 
+    #[TestDox('attaches a supplied subtree to the draft with a server-minted id')]
+    public function testAttachElement(): void
+    {
+        $component = $this->registeredComponent();
+
+        $body = $this->mutate('attach-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'element' => $this->element('incoming', $component),
+        ]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertCount(1, $body['affectedElementIds']);
+        static::assertNotSame('incoming', $body['affectedElementIds'][0]);
+    }
+
     #[TestDox('rejects a structural impossibility with a 400 without persisting')]
     public function testStructuralImpossibilityReturns400(): void
     {

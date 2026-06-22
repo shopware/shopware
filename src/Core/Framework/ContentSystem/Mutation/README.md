@@ -41,7 +41,7 @@ The contract is that no structural edit silently loses content or wiring: anythi
 
 ## Operations
 
-All seven live in `Op/` and extend `AbstractLayoutMutation`:
+All eight live in `Op/` and extend `AbstractLayoutMutation`:
 
 - **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
 - **RemoveElement** - deletes an element and its whole subtree.
@@ -50,16 +50,17 @@ All seven live in `Op/` and extend `AbstractLayoutMutation`:
 - **DuplicateElement** - deep-clones a subtree with freshly minted ids and splices the clone as the next sibling.
 - **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
 - **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position.
+- **AttachElement** - splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the detachment a replace reports through `orphaned`: it re-places a detached subtree (or a copied one) without trusting client ids.
 
 ## Key Classes
 
 - `LayoutMutation` - The operation contract: `apply()` returns the new tree; `affected()`, `orphaned()`, `droppedWiring()` report what changed. Single-use, `apply()` runs before any reporter is read.
 - `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
 - `MutationPipeline` - Apply, diagnose, assemble. The shared stateless runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream). Never persists.
-- `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, rejects a mutation that would detach content (400, since the commit cannot keep it and no operation re-attaches an existing subtree), and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the layout's real source bindings, consistent with what the gate enforces. Dropped wiring is persisted and reported, not rejected.
+- `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the layout's real source bindings, consistent with what the gate enforces. Detached content (`orphaned`) and dropped wiring (`droppedWiring`) are committed-out of the tree but returned in the result so the caller can re-place the subtrees with `AttachElement` or re-wire the keys; nothing is silently lost.
 - `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring.
 - `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
 
 ## Subdirectories
 
-- **Op/** - The seven concrete operations, each one structural edit.
+- **Op/** - The eight concrete operations, each one structural edit.

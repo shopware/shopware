@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Api\AttachElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\DuplicateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\InsertElementRequest;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -154,6 +156,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'duplicate' => [static fn (LayoutMutationController $c): Response => $c->duplicate(new DuplicateElementRequest('el'), $context), DuplicateElement::class];
         yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
+        yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
     }
 
     private function controller(
@@ -161,12 +164,25 @@ class LayoutMutationControllerTest extends TestCase
         ?SpecificationSourceLocator $sourceLocator = null,
     ): LayoutMutationController {
         return new LayoutMutationController(
-            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
+            $this->decoder(),
             $pipeline ?? $this->pipelineReturning(new MutationResult([], [], new DiagnosticsReport([]), [])),
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
             $this->elementSerializer(),
         );
+    }
+
+    private function decoder(): DraftLayoutDecoder
+    {
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willReturnCallback(
+            static fn (array $raw): ContentElement => new ContentElement(
+                \is_string($raw['id'] ?? null) ? $raw['id'] : 'incoming',
+                \is_string($raw['component'] ?? null) ? $raw['component'] : 'Sw:Card',
+            ),
+        );
+
+        return new DraftLayoutDecoder($serializer);
     }
 
     private function pipelineReturning(MutationResult $result): MutationPipeline

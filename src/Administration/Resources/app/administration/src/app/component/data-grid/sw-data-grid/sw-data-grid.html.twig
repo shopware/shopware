@@ -117,20 +117,20 @@
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </sw-icon>
 
                                 <sw-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </sw-icon>
                                 {% endblock %}
 
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ getColumnLabel(column) }}
                                 </template>
                                 {% endblock %}
                             </slot>

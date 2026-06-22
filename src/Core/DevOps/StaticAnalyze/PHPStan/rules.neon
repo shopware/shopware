@@ -24,6 +24,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoLegacySqlHashFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\AssertEqualsCanonicalizingListArgumentRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAttributeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\DataProviderRowArityRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule

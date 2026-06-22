@@ -95,7 +95,10 @@ function normalizeSource(text) {
 }
 
 function normalizeComparableSource(text) {
-    return normalizeSource(text).replace(/"/g, "'");
+    return normalizeSource(text)
+        .replace(/,\s*([}\]])/g, '$1')
+        .replace(/\s+([}\])])/g, '$1')
+        .replace(/"/g, "'");
 }
 
 function usageFixesAutomatically(usage) {

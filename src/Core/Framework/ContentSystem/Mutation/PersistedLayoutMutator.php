@@ -25,6 +25,15 @@ use Symfony\Component\Lock\LockFactory;
  * source bindings, and persists the mutated tree (whose write runs the resolvability gates). The persisted
  * counterpart to {@see MutationPipeline}, which transforms a stateless draft tree without touching storage.
  *
+ * Known interim limitations, owned by and deferred to the planned layout draft/versioning system that will
+ * supersede this `expectedVersion`/lock concurrency mechanism:
+ * - The per-layout lock has a fixed 5.0s TTL (see {@see mutate()}); a critical section that runs longer could let
+ *   the lock expire mid-write, reopening the lost-update window the lock closes. The optimistic `updatedAt` token
+ *   still narrows that window but does not eliminate it.
+ * - If {@see diagnose()} throws after the `update()` has already committed, the caller sees an error even though
+ *   the write landed. The committed tree is the source of truth, so a retry re-reads the bumped `updatedAt` and
+ *   gets a 409 `layoutVersionConflict`.
+ *
  * @internal
  *
  * @final

@@ -107,7 +107,7 @@ class ContentLayoutMutationController
     public function wrap(
         string $layoutId,
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
-        ContentLayoutWrapRequest $payload,
+        ContentLayoutWrapElementsRequest $payload,
         Context $context,
     ): Response {
         $mutation = new WrapElements($this->registry, $payload->elementIds, $payload->containerType, $payload->slot);

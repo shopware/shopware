@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-final class ContentLayoutWrapRequest
+final class ContentLayoutWrapElementsRequest
 {
     /**
      * @param list<string> $elementIds

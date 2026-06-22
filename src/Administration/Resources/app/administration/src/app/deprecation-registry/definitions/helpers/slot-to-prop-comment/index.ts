@@ -4,29 +4,32 @@
 
 import type { DeprecationUsage, FixLevel } from '../types';
 import { withoutUndefined } from '../shared';
-import { createCustomUsageEslint } from './eslint';
+import { createSlotToPropCommentEslint } from './eslint';
 
-const DEFAULT_FIX = 'manual';
+const DEFAULT_FIX = 'unsafe-auto';
 
-export function customUsage(config: {
-    name: string;
+export function slotToPropComment(config: {
+    slot: string;
+    prop: string;
     fix?: FixLevel;
     message?: string;
 }): DeprecationUsage {
     const {
-        name,
+        slot,
+        prop,
         fix = DEFAULT_FIX,
         message,
     } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
-        kind: 'custom',
-        name,
+        kind: 'slot-to-prop-comment',
+        slot,
+        prop,
         fix,
         message,
     });
 
     return {
         ...usageConfig,
-        eslint: createCustomUsageEslint(usageConfig),
+        eslint: createSlotToPropCommentEslint(usageConfig),
     };
 }

@@ -15,6 +15,7 @@ type FakeApiConfig = {
     slot?: Record<string, any>;
     disabledFix?: boolean;
     existingProps?: string[];
+    attributeValueSource?: string | null;
     transform?: MigrationTransformResult | null;
 };
 
@@ -84,6 +85,18 @@ export function createFixer(): Record<string, jest.Mock> {
     };
 }
 
+function getFakeSourceText(node: Record<string, any>): string {
+    if (typeof node?.name === 'string') {
+        return node.name;
+    }
+
+    if (typeof node?.value === 'string') {
+        return node.value;
+    }
+
+    return 'expressionValue';
+}
+
 export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { reports: Array<Record<string, any>> } {
     const reports: Array<Record<string, any>> = [];
     const attribute = config.attribute;
@@ -108,7 +121,7 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
             options: config.disabledFix ? ['disableFix'] : [],
             sourceCode: {
                 text: 'routeName',
-                getText: jest.fn(() => 'expressionValue'),
+                getText: jest.fn((sourceNode) => getFakeSourceText(sourceNode as Record<string, any>)),
                 ast: {
                     templateBody: {
                         comments: [],
@@ -118,7 +131,7 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
         },
         sourceCode: {
             text: 'routeName',
-            getText: jest.fn(() => 'expressionValue'),
+            getText: jest.fn((sourceNode) => getFakeSourceText(sourceNode as Record<string, any>)),
             ast: {
                 templateBody: {
                     comments: [],
@@ -175,7 +188,7 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
                 return config.slot?.slotName === slotName ? config.slot : undefined;
             }),
             hasCodemodComment: jest.fn(() => false),
-            getAttributeValueSource: jest.fn(() => 'sourceValue'),
+            getAttributeValueSource: jest.fn(() => config.attributeValueSource ?? 'sourceValue'),
             getCondensedTextContent: jest.fn(() => 'Slot content'),
             getDirectiveName: jest.fn((attr) => {
                 return attr?.key?.name?.name ?? null;

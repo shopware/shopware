@@ -1,6 +1,6 @@
 import {
     componentMigration,
-    customUsage,
+    mapOptionsPropKeys,
     reference,
     removeProp,
     renameComponent,
@@ -8,6 +8,7 @@ import {
     renameProp,
     renameVModelArgument,
     slotToProp,
+    slotToPropComment,
 } from '../helpers';
 
 export default componentMigration({
@@ -33,12 +34,22 @@ export default componentMigration({
         removeProp({
             prop: 'aside',
         }),
-        customUsage({ name: 'select-options-name-id-to-label-value', fix: 'manual' }),
+        mapOptionsPropKeys({
+            prop: 'options',
+            from: {
+                name: 'label',
+                id: 'value',
+            },
+            fix: 'unsafe-auto',
+            message: 'Replace option object keys "name"/"id" with "label"/"value".',
+            unsafeMessage:
+                'Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
+        }),
         slotToProp({
             slot: 'label',
             prop: 'label',
             fix: 'unsafe-auto',
         }),
-        customUsage({ name: 'select-default-option-slot-to-options', fix: 'unsafe-auto' }),
+        slotToPropComment({ slot: 'default', prop: 'options', fix: 'unsafe-auto' }),
     ],
 });

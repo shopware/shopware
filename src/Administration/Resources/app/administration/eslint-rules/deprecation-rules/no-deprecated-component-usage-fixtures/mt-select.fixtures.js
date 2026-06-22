@@ -212,6 +212,33 @@ const mtSelectInvalidTests = [
         }]
     },
     {
+        name: '"mt-select" options with name/id keys should be replaced with label/value keys',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="[{ name: 'Option A', id: 'optionA' }]" />
+            </template>`,
+        output: `
+            <template>
+                <mt-select :options="[{ label: 'Option A', value: 'optionA' }]" />
+            </template>`,
+        errors: [{
+            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".',
+        }]
+    },
+    {
+        name: '"mt-select" dynamic options with name/id keys should be reported without auto-fix',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="options.map(({ name, id }) => ({ name, id }))" />
+            </template>`,
+        output: null,
+        errors: [{
+            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".',
+        }]
+    },
+    {
         name: '"mt-select" wrong "default" slot usage. Should be replaced with prop "options" [without declaration]',
         filename: 'test.html.twig',
         code: `

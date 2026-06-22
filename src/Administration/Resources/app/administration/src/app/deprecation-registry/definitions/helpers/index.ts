@@ -26,9 +26,12 @@ export type {
 export { renameProp } from './rename-prop';
 export { removeProp } from './remove-prop';
 export { mapPropValue } from './map-prop-value';
+export { mapOptionsPropKeys } from './map-options-prop-keys';
 export { removeSlot } from './remove-slot';
 export { slotToProp } from './slot-to-prop';
-export { customUsage } from './custom-usage';
+export { missingProp } from './missing-prop';
+export { slotToItemsProp } from './slot-to-items-prop';
+export { slotToPropComment } from './slot-to-prop-comment';
 export { renameEvent } from './rename-event';
 export { removeEvent } from './remove-event';
 export { renameVModelArgument } from './rename-v-model-argument';

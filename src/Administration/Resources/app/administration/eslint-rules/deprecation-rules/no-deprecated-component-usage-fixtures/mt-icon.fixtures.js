@@ -338,33 +338,33 @@ const mtIconInvalidTests = [
             },
         ],
     },
-    // {
-    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px',
-    //     filename: 'test.html.twig',
-    //     code: `
-    //         <template>
-    //             <mt-icon name="regular-times-s" />
-    //         </template>`,
-    //     output: `
-    //         <template>
-    //             <mt-icon name="regular-times-s" size="24px" />
-    //         </template>`,
-    //     errors: [{
-    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-    //     }]
-    // },
-    // {
-    //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [disableFix]',
-    //     filename: 'test.html.twig',
-    //     options: ['disableFix'],
-    //     code: `
-    //         <template>
-    //             <mt-icon name="regular-times-s" />
-    //         </template>`,
-    //     errors: [{
-    //         message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-    //     }]
-    // },
+    {
+        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-icon name="regular-times-s" />
+            </template>`,
+        output: `
+            <template>
+                <mt-icon name="regular-times-s" size="24px" />
+            </template>`,
+        errors: [{
+            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+        }]
+    },
+    {
+        name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [disableFix]',
+        filename: 'test.html.twig',
+        options: ['disableFix'],
+        code: `
+            <template>
+                <mt-icon name="regular-times-s" />
+            </template>`,
+        errors: [{
+            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+        }]
+    },
     // {
     //     name: '"mt-icon" without a size prop should be replaced with size prop with value 24px [nested]',
     //     filename: 'test.html.twig',

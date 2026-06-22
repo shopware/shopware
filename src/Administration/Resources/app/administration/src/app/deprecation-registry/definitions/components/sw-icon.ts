@@ -1,6 +1,6 @@
 import {
     componentMigration,
-    customUsage,
+    missingProp,
     reference,
     renameComponent,
     renameProp,
@@ -31,6 +31,16 @@ export default componentMigration({
             to: 'size',
             transform: replaceWithStaticValueTransform({ value: '32px' }),
         }),
-        customUsage({ name: 'icon-default-size-24px', fix: 'unsafe-auto' }),
+        missingProp({
+            prop: 'size',
+            value: '24px',
+            unlessProps: [
+                'size',
+                'small',
+                'large',
+            ],
+            fix: 'unsafe-auto',
+            message: 'Add size="24px" when no size is set to preserve the previous default icon size.',
+        }),
     ],
 });

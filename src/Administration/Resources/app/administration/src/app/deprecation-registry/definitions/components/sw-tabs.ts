@@ -1,4 +1,4 @@
-import { componentMigration, customUsage, reference, removeProp, removeSlot, renameComponent, renameProp } from '../helpers';
+import { componentMigration, reference, removeProp, removeSlot, renameComponent, renameProp, slotToItemsProp } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-tabs',
@@ -26,8 +26,10 @@ export default componentMigration({
         removeProp({
             prop: 'align-right',
         }),
-        customUsage({
-            name: 'tabs-default-slot-to-items',
+        slotToItemsProp({
+            slot: 'default',
+            prop: 'items',
+            itemComponent: 'sw-tabs-item',
             fix: 'unsafe-auto',
             message: 'Convert the default slot tab declarations into mt-tabs items.',
         }),

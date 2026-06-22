@@ -374,7 +374,8 @@ Example (`insert-element`):
   "diagnostics": { "wellFormed": true, "resolvable": false, "violations": [ ... ] },
   "affectedElementIds": ["<elementId>"],
   "orphaned": [ ... ],
-  "droppedWiring": ["<wiringKey>"]
+  "droppedWiring": ["<wiringKey>"],
+  "droppedProperties": { "<propertyKey>": "<droppedValue>" }
 }
 ```
 
@@ -386,8 +387,9 @@ Example (`insert-element`):
 | `affectedElementIds` | Elements whose resolution may have changed. A highlight hint for the editor; `diagnostics` is the authority.                                                                                       |
 | `orphaned`           | Subtrees the edit detached (for example, a replace dropping the children of a slot the new type does not have), serialized as elements so the caller can re-place them.                            |
 | `droppedWiring`      | Wiring keys the edit could not keep (for example, a replace to a type without that reference property), so the caller can re-wire.                                                                 |
+| `droppedProperties`  | Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key, so the caller can re-apply them; encodes as `{}` when empty.     |
 
-Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned` or `droppedWiring`.
+Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned`, `droppedWiring`, or `droppedProperties`.
 
 ### Errors
 
@@ -446,7 +448,7 @@ Example (`replace-element`):
 
 ### Response
 
-`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned`; nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's real bindings: a layout bound to several sources has every binding-scope violation unioned into the one report.
+`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring, droppedProperties }` shape as the stateless endpoints — but the layout is now committed. A `replace` that detaches the children of a slot the new type does not have commits the tree **without** them and returns them in `orphaned` (and any static property values the new type cannot hold in `droppedProperties`); nothing is silently lost, and the caller re-places them with an `attach-element` call. `diagnostics` reflects the layout's real bindings: a layout bound to several sources has every binding-scope violation unioned into the one report.
 
 ### Errors
 
@@ -458,7 +460,7 @@ In addition to the structural `400`s of the stateless endpoints (`mutationTarget
 | `expectedVersion` does not match the layout's current `updatedAt`                 | 409  | `layoutVersionConflict` (no write)                                                                                                          |
 | The committed edit breaks resolvability for a bound source, or is not well-formed | 400  | `ContentLayoutWriteValidator` rejects the `content_layout` write (`WriteException`); the binding-scope violations ride in the error payload |
 
-Detached content (`orphaned`) and dropped wiring (`droppedWiring`) are **committed-out and reported**, never rejected: the stored tree omits them and the response hands them back, so the caller re-places subtrees with `attach-element` or re-wires the keys. The new type structurally has no home for dropped wiring, and no operation edits a surviving element's wiring.
+Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped property values (`droppedProperties`) are **committed-out and reported**, never rejected: the stored tree omits them and the response hands them back, so the caller re-places subtrees with `attach-element`, re-wires the keys, or re-applies the values. The new type structurally has no home for dropped wiring, and no operation edits a surviving element's wiring.
 
 ## Related
 

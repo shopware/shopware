@@ -72,6 +72,7 @@ class PersistedLayoutMutator
             $affected,
             $mutation->orphaned(),
             $mutation->droppedWiring(),
+            $mutation->droppedProperties(),
         );
     }
 

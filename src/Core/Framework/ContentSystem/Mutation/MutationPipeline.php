@@ -44,6 +44,7 @@ class MutationPipeline
             $affected,
             $mutation->orphaned(),
             $mutation->droppedWiring(),
+            $mutation->droppedProperties(),
         );
     }
 }

@@ -16,8 +16,9 @@ use Shopware\Core\Framework\Log\Package;
  * Swaps $elementId's component to $newType, keeping the same id. Carryover (policy 1 — never silently rewire):
  * primitive properties whose key and type match a $newType property are kept; wiring (data requirements and
  * context definitions) whose key matches a $newType reference property is kept; children of slots that exist
- * in $newType are kept. Children of slots absent from $newType are detached into {@see orphaned()}, and wiring
- * keys with no matching $newType reference property are reported via {@see droppedWiring()}.
+ * in $newType are kept. Children of slots absent from $newType are detached into {@see orphaned()}, wiring
+ * keys with no matching $newType reference property are reported via {@see droppedWiring()}, and static
+ * property values the new type cannot hold are reported via {@see droppedProperties()}.
  *
  * @internal
  */
@@ -80,12 +81,16 @@ final class ReplaceElement extends AbstractLayoutMutation
 
         foreach ($properties as $key => $value) {
             if (!isset($newTypeProperties[$key])) {
+                $this->droppedProperties[$key] = $value;
+
                 continue;
             }
 
             $type = $newTypeProperties[$key]->type();
 
             if (!$type->isPrimitive() || !$this->primitiveMatches($value, $type->type())) {
+                $this->droppedProperties[$key] = $value;
+
                 continue;
             }
 

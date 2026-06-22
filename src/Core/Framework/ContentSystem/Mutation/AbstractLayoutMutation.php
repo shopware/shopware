@@ -35,6 +35,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      */
     protected array $droppedWiring = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $droppedProperties = [];
+
     public function affected(): array
     {
         return $this->affected;
@@ -48,6 +53,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     public function droppedWiring(): array
     {
         return $this->droppedWiring;
+    }
+
+    public function droppedProperties(): array
+    {
+        return $this->droppedProperties;
     }
 
     /**

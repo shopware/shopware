@@ -81,6 +81,17 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['legacy'], $this->decode($response)['droppedWiring']);
     }
 
+    #[TestDox('serializes dropped property values in the response')]
+    public function testReplaceSerializesDroppedProperties(): void
+    {
+        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']);
+        $controller = $this->controller($this->pipelineReturning($result));
+
+        $response = $controller->replace(new ReplaceElementRequest('el', 'Sw:New'), Context::createDefaultContext());
+
+        static::assertSame('Old headline', $this->decode($response)['droppedProperties']['headline']);
+    }
+
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
     public function testEmptyResolutionsEncodeAsJsonObject(): void
     {

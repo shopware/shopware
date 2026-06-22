@@ -337,6 +337,11 @@ class PersistedLayoutMutatorTest extends TestCase
             {
                 return [];
             }
+
+            public function droppedProperties(): array
+            {
+                return [];
+            }
         };
     }
 
@@ -369,6 +374,11 @@ class PersistedLayoutMutatorTest extends TestCase
             }
 
             public function droppedWiring(): array
+            {
+                return [];
+            }
+
+            public function droppedProperties(): array
             {
                 return [];
             }

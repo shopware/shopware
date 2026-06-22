@@ -22,6 +22,7 @@ final readonly class MutationResult
      * @param list<string> $affectedElementIds
      * @param list<ContentElement> $orphaned subtrees detached by the op, returned so the caller can re-place them
      * @param list<string> $droppedWiring wiring keys the op dropped, reported so the caller can re-wire
+     * @param array<string, mixed> $droppedProperties static property values the op could not carry over, keyed by property key
      */
     public function __construct(
         public array $layout,
@@ -30,6 +31,7 @@ final readonly class MutationResult
         public array $affectedElementIds,
         public array $orphaned = [],
         public array $droppedWiring = [],
+        public array $droppedProperties = [],
     ) {
     }
 }

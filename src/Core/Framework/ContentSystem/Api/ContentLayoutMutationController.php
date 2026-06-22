@@ -149,6 +149,7 @@ class ContentLayoutMutationController
             'affectedElementIds' => $result->affectedElementIds,
             'orphaned' => array_map($this->elementSerializer->serializeContentElement(...), $result->orphaned),
             'droppedWiring' => $result->droppedWiring,
+            'droppedProperties' => (object) $result->droppedProperties,
         ]);
     }
 }

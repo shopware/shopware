@@ -68,6 +68,22 @@ class ReplaceElementTest extends TestCase
         yield 'scalar under a reference key dropped' => [['product' => 'oops'], []];
     }
 
+    #[TestDox('reports static property values the new type cannot hold via droppedProperties')]
+    public function testReplaceReportsDroppedProperties(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old', [], [
+            'headline' => 'Hi',
+            'ghost' => 'orphaned-value',
+            'count' => 'not-an-int',
+        ])];
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New');
+        $result = $replace->apply($tree);
+
+        static::assertSame(['headline' => 'Hi'], $result[0]->getProperties());
+        static::assertSame(['ghost' => 'orphaned-value', 'count' => 'not-an-int'], $replace->droppedProperties());
+    }
+
     #[TestDox('keeps wiring whose key matches a new-type reference property')]
     public function testReplaceKeepsMatchingWiring(): void
     {

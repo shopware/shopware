@@ -43,4 +43,12 @@ interface LayoutMutation
      *                      silently altered
      */
     public function droppedWiring(): array;
+
+    /**
+     * @return array<string, mixed> static property values the op could not carry over to the new type (e.g.
+     *                              replace to a type lacking that property, or whose property type rejects the
+     *                              value), keyed by property key, reported so authored content is never silently
+     *                              lost
+     */
+    public function droppedProperties(): array;
 }

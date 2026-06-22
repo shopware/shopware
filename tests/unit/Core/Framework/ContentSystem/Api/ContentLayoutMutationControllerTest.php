@@ -90,6 +90,17 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame(['legacy'], $this->decode($response)['droppedWiring']);
     }
 
+    #[TestDox('reports dropped property values in the persisted response')]
+    public function testReplaceReportsDroppedProperties(): void
+    {
+        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']);
+        $controller = $this->controller($this->mutatorReturning($result));
+
+        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
+
+        static::assertSame('Old headline', $this->decode($response)['droppedProperties']['headline']);
+    }
+
     #[TestDox('passes the path layout id and expected version token through to the mutator')]
     public function testPassesLayoutIdAndExpectedVersionToMutator(): void
     {

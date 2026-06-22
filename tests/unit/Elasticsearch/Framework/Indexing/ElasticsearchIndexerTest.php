@@ -422,7 +422,8 @@ class ElasticsearchIndexerTest extends TestCase
             $logger,
             $eventDispatcher,
             1,
-            new NativeClock()
+            new NativeClock(),
+            true
         );
     }
 

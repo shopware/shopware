@@ -94,4 +94,51 @@ describe('mapOptionsPropKeys', () => {
         expect(api.reports[0].message).toContain('Migrate dynamic options manually.');
         expect(api.reports[0].fix(createFixer())).toBeNull();
     });
+
+    it('reports option objects with replacement key conflicts as manual without a fixer', () => {
+        const usage = mapOptionsPropKeys({
+            prop: 'options',
+            from: {
+                name: 'label',
+                id: 'value',
+            },
+            unsafeMessage: 'Migrate conflicting options manually.',
+        });
+        const attribute = createDirectiveAttribute('bind', 'options', {
+            expression: {
+                type: 'ArrayExpression',
+                elements: [
+                    {
+                        type: 'ObjectExpression',
+                        properties: [
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'name',
+                                },
+                            },
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'label',
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+        });
+        const api = createRuleApi({
+            usage,
+            attribute,
+            attributeValueSource: `[{ name: 'One', label: 'Existing' }]`,
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Migrate conflicting options manually.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

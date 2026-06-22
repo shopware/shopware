@@ -79,6 +79,25 @@ function collectDeprecatedProperties(
     });
 }
 
+function hasReplacementKeyConflict(optionObjects: Array<Record<string, any>>, keyMap: Record<string, string>): boolean {
+    return optionObjects.some((optionObject) => {
+        if (!Array.isArray(optionObject.properties)) {
+            return false;
+        }
+
+        const propertyNames = new Set(
+            optionObject.properties
+                .map((property: Record<string, any>) => getStaticPropertyName(property))
+                .filter((propertyName: string | null): propertyName is string => typeof propertyName === 'string'),
+        );
+
+        return Object.entries(keyMap).some(([
+            from,
+            to,
+        ]) => propertyNames.has(from) && propertyNames.has(to));
+    });
+}
+
 function getUnsafeMessage(usageConfig: DeprecationUsage): string {
     if (typeof usageConfig.unsafeMessage === 'string') {
         return usageConfig.unsafeMessage;
@@ -111,7 +130,8 @@ export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): D
             const expression = attribute.value?.expression as Record<string, any> | undefined;
             const optionObjects = getSafeOptionObjects(expression);
             const deprecatedProperties = optionObjects ? collectDeprecatedProperties(optionObjects, keyMap) : [];
-            const canFixSafely = optionObjects !== null && deprecatedProperties.length > 0;
+            const hasKeyConflict = optionObjects ? hasReplacementKeyConflict(optionObjects, keyMap) : false;
+            const canFixSafely = optionObjects !== null && deprecatedProperties.length > 0 && !hasKeyConflict;
             const reportUsageConfig: DeprecationUsage = canFixSafely
                 ? usageConfig
                 : {

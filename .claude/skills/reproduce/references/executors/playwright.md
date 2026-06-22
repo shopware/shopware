@@ -38,6 +38,22 @@ sales channel, so it easily returns "Page not found" and the spec dies at
 block's semantic REGION (its aria-label, e.g. a product slider's
 `getByRole('region', {name:/Product gallery containing/i})`), never on a seeded product name.
 
+**File uploads — set files on the INPUT, never drive the native file chooser.** When a step
+uploads a file (media library, Replace dialog, import), do NOT click an "Upload"/"Hochladen"
+button and `page.waitForEvent('filechooser')`. Shopware's `sw-media-upload-v2` renders SEVERAL
+controls (upload-file, upload-from-URL, a context menu), so a `getByRole('button',
+{name:/upload/i}).first()` clicks the wrong one and NO native picker opens → `waitForEvent`
+times out at `PRECONDITION_NOT_FOUND` (hit live on #29, "filechooser Timeout 10000ms exceeded").
+Instead set files straight on the hidden file input, scoped to the dialog/region you're in:
+```ts
+await dialog.locator('input[type="file"]').setFiles({ name: 'f.png', mimeType: 'image/png', buffer });
+```
+`setFiles`/`setInputFiles` REQUIRES the `<input type=file>` element and a file input carries no
+accessible name, so `input[type="file"]` is the one attribute selector this skill permits — it
+is semantic (the element's PURPOSE, not a brittle CSS class) and is the standard Playwright
+upload pattern. Scope it inside the relevant landmark (`dialog`/`region`) so it can't match a
+stray uploader elsewhere on the page.
+
 ## Locators — version-stable, semantic ONLY
 - Use `getByRole(role, {name})` / `getByLabel` / `getByText` / `getByPlaceholder` with
   case-insensitive regex and accessible/visible names. `getByRole` and `getByLabel` both

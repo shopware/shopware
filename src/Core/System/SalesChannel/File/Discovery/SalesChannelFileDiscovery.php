@@ -125,6 +125,8 @@ class SalesChannelFileDiscovery
      */
     private function resolveTemplateChainForFile(string $templatePath): array
     {
+        $this->templateFinder->reset();
+
         $templates = [];
         $seen = [];
         $source = null;

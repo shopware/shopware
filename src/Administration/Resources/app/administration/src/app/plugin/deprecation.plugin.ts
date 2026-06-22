@@ -44,18 +44,6 @@ function hasOwn(object: Record<string, unknown>, key: string): boolean {
     return Object.prototype.hasOwnProperty.call(object, key);
 }
 
-function propNameToAttributeName(propName: string): string {
-    return propName.replace(/[A-Z]/g, (letter: string) => `-${letter.toLowerCase()}`);
-}
-
-function runtimePropWasProvided(runtimeProp: string | undefined, usedProps: Record<string, unknown>): boolean {
-    if (!runtimeProp) {
-        return false;
-    }
-
-    return hasOwn(usedProps, runtimeProp) || hasOwn(usedProps, propNameToAttributeName(runtimeProp));
-}
-
 function usageWasRuntimeDetected(
     usage: RuntimeDeprecationUsage,
     usedProps: Record<string, unknown>,
@@ -179,7 +167,7 @@ class DeprecationPlugin {
                 _this.throwComponentDeprecationInformationErrors(component, componentDeprecationInformation);
                 _this.throwPropsDeprecationErrors(component, usedDeprecationProps);
                 _this.throwRegistryPropsDeprecationErrors(component, rawPropsData);
-                _this.watchRegistryPropsDeprecationErrors(component, rawPropsData);
+                _this.watchRegistryPropsDeprecationErrors(component);
             },
         });
 
@@ -417,16 +405,19 @@ class DeprecationPlugin {
      * not create warnings.
      *
      */
-    watchRegistryPropsDeprecationErrors(component: ComponentWithDeprecation, usedProps: Record<string, unknown>): void {
+    watchRegistryPropsDeprecationErrors(component: ComponentWithDeprecation): void {
         const componentName = component.$options.name ?? '';
         const deprecatedProps = getRuntimeDeprecatedProps(componentName);
+        const watchedProps = new Set<string>();
 
         deprecatedProps.forEach((usage) => {
             const runtimeProp = usage.runtimeProp;
 
-            if (!runtimeProp || !runtimePropWasProvided(runtimeProp, usedProps)) {
+            if (!runtimeProp || watchedProps.has(runtimeProp)) {
                 return;
             }
+
+            watchedProps.add(runtimeProp);
 
             component.$watch(
                 () => component.$props[runtimeProp],

@@ -20,6 +20,7 @@ final class ContentLayoutWrapRequest
     public function __construct(
         #[Assert\Type('array')]
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
+        #[Assert\Unique]
         public readonly array $elementIds,
         public readonly string $containerType,
         public readonly ?string $expectedVersion,

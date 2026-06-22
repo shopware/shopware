@@ -143,6 +143,15 @@ class WrapElementsTest extends TestCase
         $wrap->apply([new ContentElement('a', 'Sw:Block')]);
     }
 
+    #[TestDox('rejects wrapping the same element id twice with a 400')]
+    public function testWrapDuplicateTargetsRejected(): void
+    {
+        $wrap = new WrapElements($this->registry('Sw:Container'), ['a', 'a'], 'Sw:Container', 'content');
+
+        $this->expectExceptionObject(ContentSystemException::mutationInvalidWrapTargets('they must be distinct'));
+        $wrap->apply([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]);
+    }
+
     #[TestDox('does not mutate the input parent in place when wrapping nested siblings')]
     public function testWrapDoesNotMutateInput(): void
     {

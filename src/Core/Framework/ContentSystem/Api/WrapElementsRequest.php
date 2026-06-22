@@ -20,6 +20,7 @@ final class WrapElementsRequest
     public function __construct(
         #[Assert\Type('array')]
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
+        #[Assert\Unique]
         public readonly array $elementIds,
         public readonly string $containerType,
         #[Assert\Type('array')]

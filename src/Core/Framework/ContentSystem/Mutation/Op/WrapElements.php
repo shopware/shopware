@@ -74,6 +74,10 @@ final class WrapElements extends AbstractLayoutMutation
             throw ContentSystemException::mutationInvalidWrapTargets('at least one element is required');
         }
 
+        if (\count(array_unique($this->elementIds)) !== \count($this->elementIds)) {
+            throw ContentSystemException::mutationInvalidWrapTargets('they must be distinct');
+        }
+
         $locations = [];
 
         foreach ($this->elementIds as $id) {

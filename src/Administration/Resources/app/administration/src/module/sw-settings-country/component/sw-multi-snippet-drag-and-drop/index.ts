@@ -160,10 +160,10 @@ export default Component.wrapComponentConfig({
             }
 
             if (dragData.linePosition === dropData.linePosition) {
-                const newValue = Object.assign([], this.value, {
-                    [dragData.index]: this.value[dropData.index],
-                    [dropData.index]: this.value[dragData.index],
-                });
+                const newValue = [...this.value];
+                const [snippet] = newValue.splice(dragData.index, 1);
+
+                newValue.splice(dropData.index, 0, snippet);
 
                 this.$emit('update:value', this.linePosition, newValue);
 

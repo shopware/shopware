@@ -167,8 +167,15 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.find('.sw-select-selection-list__input-wrapper .sw-select-selection-list__input').exists()).toBe(true);
     });
 
-    it('should emit `change` when swap on the same line on dragging', async () => {
-        const wrapper = await createWrapper();
+    it('should move snippets on the same line when dragging', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
         await flushPromises();
 
         expect(wrapper.vm.value[1]).toBe('symbol/dash');
@@ -181,9 +188,9 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 snippet: 'address/company',
             },
             {
-                index: 1,
+                index: 2,
                 linePosition: 0,
-                snippet: 'symbol/dash',
+                snippet: 'address/department',
             },
         );
         await flushPromises();
@@ -193,8 +200,9 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             0,
             [
                 'symbol/dash',
-                'address/company',
                 'address/department',
+                'address/company',
+                'address/city',
             ],
         ]);
     });

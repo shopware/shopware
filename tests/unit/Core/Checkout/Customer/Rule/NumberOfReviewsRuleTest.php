@@ -101,6 +101,7 @@ class NumberOfReviewsRuleTest extends TestCase
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         static::assertSame($isMatching, $rule->match($scope));
     }

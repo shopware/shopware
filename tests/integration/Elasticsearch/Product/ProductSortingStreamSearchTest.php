@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\AfterClass;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -60,6 +59,12 @@ class ProductSortingStreamSearchTest extends TestCase
 
     private Context $context;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp so the suite no longer depends on test execution order.
+     */
+    private static IdsCollection $indexedIds;
+
     protected function setUp(): void
     {
         $this->helper = static::getContainer()->get(ElasticsearchHelper::class);
@@ -72,6 +77,10 @@ class ProductSortingStreamSearchTest extends TestCase
         $this->ids = new IdsCollection();
 
         parent::setUp();
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     #[AfterClass]
@@ -96,7 +105,281 @@ class ProductSortingStreamSearchTest extends TestCase
         $connection->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 
-    public function testIndexing(): IdsCollection
+    public function testCustomFieldMappingsExist(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $allIndices = $this->indexDetector->getAllUsedIndices();
+        static::assertNotEmpty($allIndices, 'No ES indices found. Keys: ' . implode(', ', array_keys($allIndices)));
+
+        $indexName = array_keys($allIndices)[0];
+
+        $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
+        $properties = $indices['mappings']['properties']['customFields']['properties'] ?? [];
+
+        static::assertArrayHasKey(
+            Defaults::LANGUAGE_SYSTEM,
+            $properties,
+            'Language system key not found. Available keys: ' . implode(', ', array_keys($properties))
+        );
+        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
+        static::assertIsArray($languageProperties);
+
+        static::assertArrayHasKey('ss_test_int', $languageProperties);
+        static::assertSame('long', $languageProperties['ss_test_int']['type']);
+
+        static::assertArrayHasKey('ss_test_float', $languageProperties);
+        static::assertSame('double', $languageProperties['ss_test_float']['type']);
+
+        static::assertArrayHasKey('ss_test_text', $languageProperties);
+        static::assertSame('keyword', $languageProperties['ss_test_text']['type']);
+
+        static::assertArrayHasKey('ss_test_bool', $languageProperties);
+        static::assertSame('boolean', $languageProperties['ss_test_bool']['type']);
+    }
+
+    public function testSortByCustomFieldIntAsc(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::ASCENDING));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+
+        // Expected order by ss_test_int ASC: product-4 (50), product-1 (100), product-2 (200), product-3 (300)
+        static::assertSame($ids->get('product-4'), $result[0]);
+        static::assertSame($ids->get('product-1'), $result[1]);
+        static::assertSame($ids->get('product-2'), $result[2]);
+        static::assertSame($ids->get('product-3'), $result[3]);
+    }
+
+    public function testSortByCustomFieldIntDesc(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::DESCENDING));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+
+        // Expected order by ss_test_int DESC: product-3 (300), product-2 (200), product-1 (100), product-4 (50)
+        static::assertSame($ids->get('product-3'), $result[0]);
+        static::assertSame($ids->get('product-2'), $result[1]);
+        static::assertSame($ids->get('product-1'), $result[2]);
+        static::assertSame($ids->get('product-4'), $result[3]);
+    }
+
+    public function testSortByCustomFieldFloatDesc(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('customFields.ss_test_float', FieldSorting::DESCENDING));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+
+        // Expected order by ss_test_float DESC: product-4 (3.5), product-2 (2.5), product-1 (1.5), product-3 (0.5)
+        static::assertSame($ids->get('product-4'), $result[0]);
+        static::assertSame($ids->get('product-2'), $result[1]);
+        static::assertSame($ids->get('product-1'), $result[2]);
+        static::assertSame($ids->get('product-3'), $result[3]);
+    }
+
+    public function testFilterByCustomFieldTextEquals(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_text', 'alpha'));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // product-1 and product-3 have ss_test_text = 'alpha'
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has($ids->get('product-3')));
+    }
+
+    public function testFilterByCustomFieldBoolTrue(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', true));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // product-1 and product-3 have ss_test_bool = true
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has($ids->get('product-3')));
+    }
+
+    public function testFilterByCustomFieldBoolFalse(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', false));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // product-2 and product-4 have ss_test_bool = false
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-2')));
+        static::assertTrue($result->has($ids->get('product-4')));
+    }
+
+    public function testFilterByCustomFieldIntRange(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new RangeFilter('customFields.ss_test_int', [
+            RangeFilter::GTE => 100,
+            RangeFilter::LTE => 200,
+        ]));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // product-1 (100) and product-2 (200) are in range [100, 200]
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has($ids->get('product-2')));
+    }
+
+    public function testFilterByCustomFieldIntExact(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_int', 300));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // Only product-3 has ss_test_int = 300
+        static::assertSame(1, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-3')));
+    }
+
+    public function testFilterByCustomFieldFloatRange(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new RangeFilter('customFields.ss_test_float', [
+            RangeFilter::GT => 1.0,
+            RangeFilter::LT => 3.0,
+        ]));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        // product-1 (1.5) and product-2 (2.5) are in range (1.0, 3.0)
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has($ids->get('product-2')));
+    }
+
+    public function testCombinedFilterAndSort(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_text', 'alpha'));
+        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::ASCENDING));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+
+        // Filtered to alpha (product-1, product-3), sorted by int ASC (100, 300)
+        static::assertCount(2, $result);
+        static::assertSame($ids->get('product-1'), $result[0]);
+        static::assertSame($ids->get('product-3'), $result[1]);
+    }
+
+    public function testCombinedBoolFilterAndFloatSort(): void
+    {
+        $ids = self::$indexedIds;
+
+        $this->ids = $ids;
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', false));
+        $criteria->addSorting(new FieldSorting('customFields.ss_test_float', FieldSorting::ASCENDING));
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+
+        // Filtered to bool=false (product-2, product-4), sorted by float ASC (2.5, 3.5)
+        static::assertCount(2, $result);
+        static::assertSame($ids->get('product-2'), $result[0]);
+        static::assertSame($ids->get('product-4'), $result[1]);
+    }
+
+    protected function getDiContainer(): ContainerInterface
+    {
+        return static::getContainer();
+    }
+
+    protected function runWorker(): void
+    {
+    }
+
+    private function buildIndex(): IdsCollection
     {
         $this->connection->executeStatement('DELETE FROM product');
 
@@ -279,267 +562,5 @@ class ProductSortingStreamSearchTest extends TestCase
         static::assertTrue($exists, 'Expected elasticsearch indices present');
 
         return $this->ids;
-    }
-
-    #[Depends('testIndexing')]
-    public function testCustomFieldMappingsExist(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $allIndices = $this->indexDetector->getAllUsedIndices();
-        static::assertNotEmpty($allIndices, 'No ES indices found. Keys: ' . implode(', ', array_keys($allIndices)));
-
-        $indexName = array_keys($allIndices)[0];
-
-        $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
-        $properties = $indices['mappings']['properties']['customFields']['properties'] ?? [];
-
-        static::assertArrayHasKey(
-            Defaults::LANGUAGE_SYSTEM,
-            $properties,
-            'Language system key not found. Available keys: ' . implode(', ', array_keys($properties))
-        );
-        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
-        static::assertIsArray($languageProperties);
-
-        static::assertArrayHasKey('ss_test_int', $languageProperties);
-        static::assertSame('long', $languageProperties['ss_test_int']['type']);
-
-        static::assertArrayHasKey('ss_test_float', $languageProperties);
-        static::assertSame('double', $languageProperties['ss_test_float']['type']);
-
-        static::assertArrayHasKey('ss_test_text', $languageProperties);
-        static::assertSame('keyword', $languageProperties['ss_test_text']['type']);
-
-        static::assertArrayHasKey('ss_test_bool', $languageProperties);
-        static::assertSame('boolean', $languageProperties['ss_test_bool']['type']);
-    }
-
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::ASCENDING));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-
-        // Expected order by ss_test_int ASC: product-4 (50), product-1 (100), product-2 (200), product-3 (300)
-        static::assertSame($ids->get('product-4'), $result[0]);
-        static::assertSame($ids->get('product-1'), $result[1]);
-        static::assertSame($ids->get('product-2'), $result[2]);
-        static::assertSame($ids->get('product-3'), $result[3]);
-    }
-
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::DESCENDING));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-
-        // Expected order by ss_test_int DESC: product-3 (300), product-2 (200), product-1 (100), product-4 (50)
-        static::assertSame($ids->get('product-3'), $result[0]);
-        static::assertSame($ids->get('product-2'), $result[1]);
-        static::assertSame($ids->get('product-1'), $result[2]);
-        static::assertSame($ids->get('product-4'), $result[3]);
-    }
-
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldFloatDesc(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addSorting(new FieldSorting('customFields.ss_test_float', FieldSorting::DESCENDING));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-
-        // Expected order by ss_test_float DESC: product-4 (3.5), product-2 (2.5), product-1 (1.5), product-3 (0.5)
-        static::assertSame($ids->get('product-4'), $result[0]);
-        static::assertSame($ids->get('product-2'), $result[1]);
-        static::assertSame($ids->get('product-1'), $result[2]);
-        static::assertSame($ids->get('product-3'), $result[3]);
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldTextEquals(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_text', 'alpha'));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // product-1 and product-3 have ss_test_text = 'alpha'
-        static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-3')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldBoolTrue(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', true));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // product-1 and product-3 have ss_test_bool = true
-        static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-3')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldBoolFalse(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', false));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // product-2 and product-4 have ss_test_bool = false
-        static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-4')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldIntRange(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new RangeFilter('customFields.ss_test_int', [
-            RangeFilter::GTE => 100,
-            RangeFilter::LTE => 200,
-        ]));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // product-1 (100) and product-2 (200) are in range [100, 200]
-        static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-2')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldIntExact(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_int', 300));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // Only product-3 has ss_test_int = 300
-        static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-3')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldFloatRange(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new RangeFilter('customFields.ss_test_float', [
-            RangeFilter::GT => 1.0,
-            RangeFilter::LT => 3.0,
-        ]));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
-
-        // product-1 (1.5) and product-2 (2.5) are in range (1.0, 3.0)
-        static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-2')));
-    }
-
-    #[Depends('testIndexing')]
-    public function testCombinedFilterAndSort(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_text', 'alpha'));
-        $criteria->addSorting(new FieldSorting('customFields.ss_test_int', FieldSorting::ASCENDING));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-
-        // Filtered to alpha (product-1, product-3), sorted by int ASC (100, 300)
-        static::assertCount(2, $result);
-        static::assertSame($ids->get('product-1'), $result[0]);
-        static::assertSame($ids->get('product-3'), $result[1]);
-    }
-
-    #[Depends('testIndexing')]
-    public function testCombinedBoolFilterAndFloatSort(IdsCollection $ids): void
-    {
-        $this->ids = $ids;
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('customFields.ss_test_bool', false));
-        $criteria->addSorting(new FieldSorting('customFields.ss_test_float', FieldSorting::ASCENDING));
-
-        $searcher = $this->createEntitySearcher();
-
-        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-
-        // Filtered to bool=false (product-2, product-4), sorted by float ASC (2.5, 3.5)
-        static::assertCount(2, $result);
-        static::assertSame($ids->get('product-2'), $result[0]);
-        static::assertSame($ids->get('product-4'), $result[1]);
-    }
-
-    protected function getDiContainer(): ContainerInterface
-    {
-        return static::getContainer();
-    }
-
-    protected function runWorker(): void
-    {
     }
 }

@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Cache\CacheInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -39,7 +41,7 @@ class SalesChannelFileDiscoveryTest extends TestCase
                 '@Ucp/files/agentic/llms.txt.twig' => '',
                 '@Ucp/files/agentic/.well-known/ucp.json.twig' => '',
             ]),
-            new ArrayAdapter(),
+            $this->createCache(),
         );
 
         $files = $discovery->discover('agentic');
@@ -71,7 +73,7 @@ class SalesChannelFileDiscoveryTest extends TestCase
                 '@Framework/files/agentic/llms.txt.twig' => '',
                 '@Framework/files/seo/robots.txt.twig' => '',
             ]),
-            new ArrayAdapter(),
+            $this->createCache(),
         );
 
         $files = $discovery->discover('seo');
@@ -81,9 +83,9 @@ class SalesChannelFileDiscoveryTest extends TestCase
         static::assertSame('files/seo/robots.txt.twig', $files['robots.txt']->templatePath);
     }
 
-    public function testItCachesDiscoveredFileCatalogueAcrossInstances(): void
+    public function testItCachesDiscoveredFilesAcrossInstances(): void
     {
-        $cache = new ArrayAdapter();
+        $cache = $this->createCache();
         $firstTemplateFinder = $this->createTemplateFinder([
             '@Framework/files/agentic/llms.txt.twig' => '',
         ]);
@@ -111,7 +113,6 @@ class SalesChannelFileDiscoveryTest extends TestCase
         static::assertSame(
             [
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
             $secondDiscovery->discover('agentic')['llms.txt']->templates
         );
@@ -134,6 +135,11 @@ class SalesChannelFileDiscoveryTest extends TestCase
             ]),
             new TemplateScopeDetector(new RequestStack()),
         );
+    }
+
+    private function createCache(): CacheInterface
+    {
+        return new TagAwareAdapter(new ArrayAdapter());
     }
 }
 

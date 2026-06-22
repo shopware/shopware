@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -29,17 +30,15 @@ class SalesChannelFileDiscovery
      */
     public function discover(string $fileFamily = SalesChannelFile::DEFAULT_FILE_FAMILY): array
     {
-        $files = [];
+        return $this->cache->get(
+            'sales-channel-file-discovery-' . Hasher::hash($fileFamily),
+            function (ItemInterface $item) use ($fileFamily): array {
+                $item->expiresAfter(null);
+                $item->tag(SalesChannelFileCacheInvalidator::buildDiscoveryCacheTag());
 
-        foreach ($this->catalogueRegisteredFilesCached($fileFamily) as $fileName => $templatePath) {
-            $file = $this->createFile($fileFamily, $fileName, $templatePath);
-
-            if ($file !== null) {
-                $files[$fileName] = $file;
+                return $this->discoverUncached($fileFamily);
             }
-        }
-
-        return $files;
+        );
     }
 
     public function get(string $templatePath): ?SalesChannelFile
@@ -54,47 +53,33 @@ class SalesChannelFileDiscovery
             return null;
         }
 
-        $templatePath = $this->catalogueRegisteredFilesCached($fileFamily)[$fileName] ?? null;
-        if ($templatePath === null) {
-            return null;
-        }
-
-        return $this->createFile($fileFamily, $fileName, $templatePath);
-    }
-
-    private function createFile(string $fileFamily, string $fileName, string $templatePath): ?SalesChannelFile
-    {
-        $templates = $this->resolveTemplateChainForFile($templatePath);
-
-        if ($templates === []) {
-            return null;
-        }
-
-        return new SalesChannelFile(
-            $fileFamily,
-            $fileName,
-            $templatePath,
-            $this->resolveContentType($fileName),
-            $templatePath,
-            $templates,
-        );
+        return $this->discover($fileFamily)[$fileName] ?? null;
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, SalesChannelFile>
      */
-    private function catalogueRegisteredFilesCached(string $fileFamily): array
+    private function discoverUncached(string $fileFamily): array
     {
-        // Only the root file catalogue is cross-request stable. The resolved Twig chain
-        // depends on the current namespace hierarchy, so it is rebuilt per call.
-        return $this->cache->get(
-            'sales-channel-file-discovery-' . Hasher::hash($fileFamily),
-            function (ItemInterface $item) use ($fileFamily): array {
-                $item->expiresAfter(null);
+        $files = [];
+        foreach ($this->catalogueRegisteredFiles($fileFamily) as $fileName => $templatePath) {
+            $templates = $this->resolveTemplateChainForFile($templatePath);
 
-                return $this->catalogueRegisteredFiles($fileFamily);
+            if ($templates === []) {
+                continue;
             }
-        );
+
+            $files[$fileName] = new SalesChannelFile(
+                $fileFamily,
+                $fileName,
+                $templatePath,
+                $this->resolveContentType($fileName),
+                $templatePath,
+                $templates,
+            );
+        }
+
+        return $files;
     }
 
     /**

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\Filesystem\Path;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 final class StorefrontBundleConfigStyleFileResolver implements BundleConfigStyleFileResolver
 {

@@ -28,12 +28,12 @@ export default componentMigration({
         }),
         customUsage({
             name: 'tabs-default-slot-to-items',
-            fix: 'manual',
+            fix: 'unsafe-auto',
             message: 'Convert the default slot tab declarations into mt-tabs items.',
         }),
         removeSlot({
             slot: 'content',
-            fix: 'manual',
+            fix: 'unsafe-auto',
             message: 'Move content slot markup out of mt-tabs and render it next to the active tab state.',
         }),
     ],

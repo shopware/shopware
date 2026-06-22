@@ -16,7 +16,6 @@ export default componentMigration({
         renameComponent({ from: 'sw-popover', to: 'mt-floating-ui', fix: 'unsafe-auto' }),
         removeProp({
             prop: 'z-index',
-            fix: 'manual',
         }),
         renameProp({
             from: 'resize-width',
@@ -24,7 +23,6 @@ export default componentMigration({
         }),
         removeProp({
             prop: 'popover-class',
-            fix: 'manual',
         }),
         renameProp({
             from: 'open',

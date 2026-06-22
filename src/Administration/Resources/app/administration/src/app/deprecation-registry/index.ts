@@ -179,7 +179,7 @@ export function getRuntimeDeprecatedProps(
     }
 
     return migration.usage
-        .filter((usage) => usage.runtimeProp)
+        .filter((usage) => typeof usage.runtime?.detect === 'function' || usage.runtimeProp)
         .map((usage) => {
             return {
                 ...usage,

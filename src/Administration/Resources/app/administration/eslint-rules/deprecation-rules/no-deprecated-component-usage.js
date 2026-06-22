@@ -379,6 +379,44 @@ function buildUsageMessage(componentName, migration, usage) {
     return appendRegistryContext(`[${componentName}] The "${apiName}" API is deprecated.${replacement}`, migration);
 }
 
+function createComponentUsageRuleApi(context, node, migration, usage) {
+    return {
+        context,
+        sourceCode: context.sourceCode,
+        node,
+        migration,
+        usage,
+        appendRegistryContext,
+        reportWithDuplicateReplacementGuard(descriptor) {
+            reportWithDuplicateReplacementGuard(context, descriptor);
+        },
+        isFixDisabled() {
+            return context.options.includes('disableFix');
+        },
+        getTransformResult(usageConfig, usageNode, attribute) {
+            return getTransformResult(usageConfig, usageNode, attribute);
+        },
+        ast: {
+            findMatchingPropAttribute,
+            hasMatchingPropAttribute,
+            findMatchingEventAttribute,
+            findMatchingVModelAttribute,
+            findSlot,
+            getCondensedTextContent,
+            getDirectiveName,
+            getFirstElementChildWithoutSlot,
+            getStaticAttributeName,
+            getDirectiveArgumentName,
+            getAttributeValueSource(attribute) {
+                return getAttributeValueSource(context, attribute);
+            },
+            hasCodemodComment(usageNode, text) {
+                return hasCodemodComment(context, usageNode, text);
+            },
+        },
+    };
+}
+
 function reportRenameProp(context, node, migration, usage) {
     const attribute = findMatchingPropAttribute(node, usage.from);
 
@@ -844,6 +882,11 @@ function reportCustomUsage(context, node, migration, usage) {
 }
 
 function runRegistryUsage(context, node, migration, usage) {
+    if (usage.eslint?.report) {
+        usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
+        return;
+    }
+
     if (usage.kind === 'rename-prop') {
         reportRenameProp(context, node, migration, usage);
         return;

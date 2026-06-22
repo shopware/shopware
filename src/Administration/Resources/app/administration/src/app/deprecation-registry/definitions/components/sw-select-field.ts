@@ -39,6 +39,6 @@ export default componentMigration({
             prop: 'label',
             fix: 'unsafe-auto',
         }),
-        customUsage({ name: 'select-default-option-slot-to-options', fix: 'manual' }),
+        customUsage({ name: 'select-default-option-slot-to-options', fix: 'unsafe-auto' }),
     ],
 });

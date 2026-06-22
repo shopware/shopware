@@ -1,4 +1,4 @@
-import { componentMigration, reference, removeProp, renameComponent } from '../helpers';
+import { aiBadgeToTitleSlotTransform, componentMigration, reference, removeProp, renameComponent } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-card',
@@ -15,9 +15,9 @@ export default componentMigration({
         renameComponent({ from: 'sw-card', to: 'mt-card' }),
         removeProp({
             prop: 'ai-badge',
-            fix: 'manual',
-            message:
-                'Remove the AI badge prop and decide whether the badge needs to be rendered explicitly outside mt-card.',
+            fix: 'unsafe-auto',
+            transform: aiBadgeToTitleSlotTransform,
+            message: 'Remove the AI badge prop and render the AI badge directly in the title slot.',
         }),
         removeProp({
             prop: 'content-padding',

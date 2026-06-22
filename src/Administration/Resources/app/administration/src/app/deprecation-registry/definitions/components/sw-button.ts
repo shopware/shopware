@@ -1,10 +1,12 @@
 import {
     addBooleanPropTransform,
     componentMigration,
+    customUsage,
     mapPropValue,
     reference,
     removeProp,
     renameComponent,
+    routerLinkToClickTransform,
 } from '../helpers';
 
 export default componentMigration({
@@ -34,15 +36,31 @@ export default componentMigration({
         }),
         mapPropValue({
             prop: 'variant',
+            from: 'contrast',
+            to: 'TODO-Codemod-Variant-Contrast-Was-Removed',
+        }),
+        mapPropValue({
+            prop: 'variant',
+            from: 'context',
+            to: 'TODO-Codemod-Variant-Context-Was-Removed',
+        }),
+        mapPropValue({
+            prop: 'variant',
             from: 'ghost-danger',
             to: 'critical',
             transform: addBooleanPropTransform({ prop: 'ghost' }),
         }),
         removeProp({
             prop: 'router-link',
-            fix: 'manual',
+            fix: 'unsafe-auto',
+            transform: routerLinkToClickTransform,
             message:
                 'Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
+        }),
+        customUsage({
+            name: 'button-default-variant-secondary',
+            fix: 'auto',
+            message: 'Add variant="secondary" when no variant is set to preserve the previous default button style.',
         }),
     ],
 });

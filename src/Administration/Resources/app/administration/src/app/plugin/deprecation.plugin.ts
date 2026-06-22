@@ -264,7 +264,14 @@ class DeprecationPlugin {
                 const deprecationVersion =
                     typeof deprecationValue === 'string' ? deprecationValue : deprecationValue.version;
                 const registryMigration = getComponentUsageMigration(componentName, (usage) => {
-                    return usage.runtimeProp === propName || usage.from === propName || usage.prop === propName;
+                    const runtimeDetected = usage.runtime?.detect?.({
+                        usedProps: {
+                            [propName]: true,
+                        },
+                        componentName,
+                    });
+
+                    return runtimeDetected || usage.runtimeProp === propName || usage.from === propName || usage.prop === propName;
                 });
 
                 if (registryMigration) {
@@ -328,14 +335,19 @@ class DeprecationPlugin {
         deprecatedProps.forEach((usage) => {
             const runtimeProp = usage.runtimeProp;
 
-            if (!runtimeProp || !hasOwn(usedProps, runtimeProp)) {
+            const runtimeDetected = usage.runtime?.detect?.({
+                usedProps,
+                componentName,
+            }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false);
+
+            if (!runtimeDetected) {
                 return;
             }
 
             const warningKey = [
                 usage.migration.id,
                 componentName,
-                runtimeProp,
+                runtimeProp ?? usage.kind,
                 componentTrace,
             ].join('|');
 

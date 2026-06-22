@@ -28,12 +28,17 @@ export default componentMigration({
             to: 'checked',
         }),
         renameVModelArgument({ from: null, to: 'checked' }),
+        renameVModelArgument({ from: 'value', to: 'checked' }),
         slotToProp({
             slot: 'label',
             prop: 'label',
             fix: 'unsafe-auto',
         }),
-        removeSlot({ slot: 'hint' }),
+        slotToProp({
+            slot: 'hint',
+            prop: 'label',
+            fix: 'unsafe-auto',
+        }),
         removeProp({
             prop: 'id',
         }),

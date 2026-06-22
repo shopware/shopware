@@ -45,7 +45,7 @@ class MetaInfoPlugin {
                     warn(
                         'Meta Info Plugin',
                         getRuntimeMigrationDescription('js-api.meta-info-object') ||
-                        'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
+                            'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
                     );
                 }
             },

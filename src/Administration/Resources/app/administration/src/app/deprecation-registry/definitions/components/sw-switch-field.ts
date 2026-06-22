@@ -36,7 +36,7 @@ export default componentMigration({
         }),
         renameProp({
             from: 'value',
-            to: 'checked',
+            to: 'model-value',
         }),
         removeProp({
             prop: 'ghost-value',

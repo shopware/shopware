@@ -68,6 +68,17 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertStringContainsString('"resolutions":{}', $content);
     }
 
+    #[TestDox('serializes orphaned subtrees in the persisted response')]
+    public function testReplaceSerializesOrphaned(): void
+    {
+        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]);
+        $controller = $this->controller($this->mutatorReturning($result));
+
+        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
+
+        static::assertSame('orphan', $this->decode($response)['orphaned'][0]['id']);
+    }
+
     #[TestDox('reports dropped wiring keys in the persisted response')]
     public function testReplaceReportsDroppedWiring(): void
     {

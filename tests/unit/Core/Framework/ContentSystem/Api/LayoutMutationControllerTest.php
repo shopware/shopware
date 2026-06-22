@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -119,6 +120,16 @@ class LayoutMutationControllerTest extends TestCase
         $controller = $this->controller(sourceLocator: $sourceLocator);
 
         $controller->insert(new InsertElementRequest('Sw:Card', section: 'header'), Context::createDefaultContext());
+    }
+
+    #[TestDox('rejects a section value with no matching ContentSection with a 400')]
+    public function testRejectsUnknownSection(): void
+    {
+        $controller = $this->controller();
+
+        $this->expectExceptionObject(ContentSystemException::noSourceForSection('does-not-exist'));
+
+        $controller->insert(new InsertElementRequest('Sw:Card', section: 'does-not-exist'), Context::createDefaultContext());
     }
 
     /**

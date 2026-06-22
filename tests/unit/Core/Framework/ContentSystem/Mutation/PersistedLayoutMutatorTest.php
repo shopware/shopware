@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -217,6 +218,50 @@ class PersistedLayoutMutatorTest extends TestCase
 
         static::assertSame([$intrinsic, $sharedLast, $onlyProduct, $onlyCategory], $result->diagnostics->violations);
         static::assertSame(['el' => [$fromLast]], $result->resolutions);
+    }
+
+    #[TestDox('propagates a WriteException from the committing write without swallowing it')]
+    public function testPropagatesWriteGateRejection(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+
+        $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
+        $repository->expects($this->once())->method('update')->willThrowException($writeException);
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject($writeException);
+
+        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('collects bindings across every enumerator when diagnosing the committed tree')]
+    public function testCollectsBindingsAcrossMultipleEnumerators(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+        $repository->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $productEnumerator = static::createStub(LayoutBindingEnumerator::class);
+        $productEnumerator->method('enumerate')->willReturn([new SourceBinding('product', [])]);
+        $categoryEnumerator = static::createStub(LayoutBindingEnumerator::class);
+        $categoryEnumerator->method('enumerate')->willReturn([new SourceBinding('category', [])]);
+
+        $fromProduct = new Violation(ViolationCode::UnresolvedRequired, 'el', 'a', 'missing-for-product');
+        $fromCategory = new Violation(ViolationCode::UnresolvedRequired, 'el', 'b', 'missing-for-category');
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnOnConsecutiveCalls(
+            new LayoutAnalysis(new DiagnosticsReport([$fromProduct]), []),
+            new LayoutAnalysis(new DiagnosticsReport([$fromCategory]), []),
+        );
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [$productEnumerator, $categoryEnumerator], $diagnostics);
+
+        $result = $mutator->mutate($id, null, $this->affectingMutation(['el']), Context::createDefaultContext());
+
+        static::assertSame([$fromProduct, $fromCategory], $result->diagnostics->violations);
     }
 
     /**

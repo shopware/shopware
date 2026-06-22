@@ -89,6 +89,22 @@ class ContentDiagnoseControllerTest extends TestCase
         );
     }
 
+    #[TestDox('rejects a section value with no matching ContentSection with a 400')]
+    public function testDiagnoseRejectsUnknownSection(): void
+    {
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::noSourceForSection('does-not-exist'));
+
+        $controller->diagnose(
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], section: 'does-not-exist'),
+            Context::createDefaultContext(),
+        );
+    }
+
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
     public function testDiagnoseMapsDecodeClientDefect(): void
     {

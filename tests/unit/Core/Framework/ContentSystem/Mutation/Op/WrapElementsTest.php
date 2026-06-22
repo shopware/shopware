@@ -143,6 +143,20 @@ class WrapElementsTest extends TestCase
         $wrap->apply([new ContentElement('a', 'Sw:Block')]);
     }
 
+    #[TestDox('rejects wrapping elements that share a parent but sit in different slots with a 400')]
+    public function testWrapSameParentDifferentSlotRejected(): void
+    {
+        $tree = [new ContentElement('parent', 'Sw:Block', [], [], [
+            'left' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
+            'right' => new SlotContent([new ContentElement('b', 'Sw:Block')]),
+        ])];
+
+        $wrap = new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'content');
+
+        $this->expectExceptionObject(ContentSystemException::mutationInvalidWrapTargets('they must be siblings in one slot'));
+        $wrap->apply($tree);
+    }
+
     #[TestDox('rejects wrapping the same element id twice with a 400')]
     public function testWrapDuplicateTargetsRejected(): void
     {

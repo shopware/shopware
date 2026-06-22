@@ -62,6 +62,10 @@ function getMemberName(node) {
         return node.name;
     }
 
+    if (node.type === 'ThisExpression') {
+        return 'this';
+    }
+
     if (node.type !== 'MemberExpression') {
         return null;
     }
@@ -96,6 +100,14 @@ function normalizeComparableSource(text) {
 
 function usageFixesAutomatically(usage) {
     return usage.fix !== 'manual';
+}
+
+function matchesMemberCall(usage, propertyName, calleeName) {
+    if (usage.from.includes('.')) {
+        return usage.from === calleeName;
+    }
+
+    return usage.from === propertyName;
 }
 
 module.exports = {
@@ -186,7 +198,10 @@ module.exports = {
 
             CallExpression(node) {
                 const propertyName = getMemberPropertyName(node.callee);
-                const match = memberCallUsages.find(({ usage }) => usage.from === propertyName);
+                const calleeName = getMemberName(node.callee);
+                const match = memberCallUsages.find(({ usage }) => {
+                    return matchesMemberCall(usage, propertyName, calleeName);
+                });
 
                 if (match) {
                     context.report({
@@ -195,7 +210,6 @@ module.exports = {
                     });
                 }
 
-                const calleeName = getMemberName(node.callee);
                 const sourceText = context.sourceCode.getText(node);
                 const replaceApiMatch = replaceApiUsages.find(({ usage }) => {
                     return usage.from.includes('(')

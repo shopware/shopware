@@ -10,6 +10,6 @@ export default jsApiMigration({
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
     ],
     usage: [
-        memberCall({ from: 'loadConfigSettingGroups', to: null, fix: 'manual' }),
+        memberCall({ from: 'this.loadConfigSettingGroups', to: null, fix: 'manual' }),
     ],
 });

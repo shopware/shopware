@@ -32,6 +32,30 @@ tester.run('no-deprecated-js-api', rule, {
             name: 'allows current Meteor Admin SDK package',
             code: 'import { ui } from "@shopware-ag/meteor-admin-sdk";',
         },
+        {
+            name: 'allows unrelated object computePath calls',
+            code: `
+                export default {
+                    methods: {
+                        check(event) {
+                            return pathHelper.computePath(event);
+                        },
+                    },
+                };
+            `,
+        },
+        {
+            name: 'allows unrelated object loadConfigSettingGroups calls',
+            code: `
+                export default {
+                    methods: {
+                        load() {
+                            configService.loadConfigSettingGroups();
+                        },
+                    },
+                };
+            `,
+        },
     ],
     invalid: [
         {

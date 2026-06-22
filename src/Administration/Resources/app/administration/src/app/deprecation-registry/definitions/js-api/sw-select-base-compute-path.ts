@@ -10,7 +10,7 @@ export default jsApiMigration({
     ],
     usage: [
         memberCall({
-            from: 'computePath',
+            from: 'this.computePath',
             to: 'event.target instanceof Node && this.$el.contains(event.target)',
             fix: 'manual',
         }),

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
@@ -50,18 +51,19 @@ class EntityRouteResolverTest extends TestCase
         $id = Uuid::randomHex();
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setNavigationCategoryId($id);
+        $parameters = new ArrayStruct(['navigationId' => $id]);
 
         $resolver = $this->createResolverWithRoute(
             'category',
             'frontend.navigation.page',
-            static fn (SalesChannelEntity $sc, array $params): string => $sc->getNavigationCategoryId() === ($params['navigationId'] ?? null)
+            static fn (SalesChannelEntity $sc, ArrayStruct $params): string => $sc->getNavigationCategoryId() === $params->get('navigationId')
                 ? 'frontend.home.page'
                 : 'frontend.navigation.page',
         );
 
         static::assertSame(
             'frontend.home.page',
-            $resolver->getRouteNameForEntityName('category', ['navigationId' => $id], $salesChannel)
+            $resolver->getRouteNameForEntityName('category', $parameters, $salesChannel)
         );
     }
 
@@ -86,7 +88,7 @@ class EntityRouteResolverTest extends TestCase
 
         $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
 
-        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('product', ['productId' => 'abc123']));
+        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('product', new ArrayStruct(['productId' => 'abc123'])));
     }
 
     public function testGenerateSeoUrlPlaceholderUsesEmptyParametersByDefault(): void
@@ -117,14 +119,14 @@ class EntityRouteResolverTest extends TestCase
         $resolver = $this->createResolverWithRoute(
             'category',
             'frontend.navigation.page',
-            static fn (SalesChannelEntity $sc, array $params): string => $sc->getNavigationCategoryId() === ($params['navigationId'] ?? null)
+            static fn (SalesChannelEntity $sc, ArrayStruct $params): string => $sc->getNavigationCategoryId() === $params->get('navigationId')
                 ? 'frontend.home.page'
                 : 'frontend.navigation.page',
         );
 
         static::assertSame(
             'HOME_PLACEHOLDER',
-            $resolver->generateSeoUrlPlaceholder('category', ['navigationId' => $id], $salesChannel)
+            $resolver->generateSeoUrlPlaceholder('category', new ArrayStruct(['navigationId' => $id]), $salesChannel)
         );
     }
 
@@ -138,7 +140,7 @@ class EntityRouteResolverTest extends TestCase
 
         $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
 
-        static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', ['productId' => 'abc123']));
+        static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', new ArrayStruct(['productId' => 'abc123'])));
     }
 
     private function createResolverWithRoute(string $entityName, string $routeName, ?\Closure $routeBySalesChannelGetter = null): EntityRouteResolver

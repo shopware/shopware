@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -34,8 +35,8 @@ class CategoryUrlGeneratorTest extends TestCase
         $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $this->urlGenerator = new CategoryUrlGenerator($this->entityRouteResolver);
         $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnCallback(
-            static function (string $entityName, array $parameters, ?SalesChannelEntity $salesChannel): string {
-                if (isset($parameters['navigationId']) && $salesChannel?->getNavigationCategoryId() === $parameters['navigationId']) {
+            static function (string $entityName, ArrayStruct $parameters, ?SalesChannelEntity $salesChannel): string {
+                if ($parameters->has('navigationId') && $salesChannel?->getNavigationCategoryId() === $parameters->get('navigationId')) {
                     return 'frontend.home.page';
                 }
 

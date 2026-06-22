@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
@@ -54,6 +56,29 @@ class NavigationPageSeoUrlRouteTest extends TestCase
 
         $notFilterQueries = $notFilter->getQueries();
         static::assertCount(2, $notFilterQueries);
+    }
+
+    public function testConfigRouteBySalesChannelClosure(): void
+    {
+        $navigationPageSeoUrlRoute = new NavigationPageSeoUrlRoute(
+            new CategoryDefinition(),
+            static::createStub(CategoryBreadcrumbBuilder::class)
+        );
+        $config = $navigationPageSeoUrlRoute->getConfig();
+        $categoryId = Uuid::randomHex();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->assign(['navigationCategoryId' => $categoryId]);
+
+        $parameters = new ArrayStruct(['navigationId' => $categoryId]);
+        static::assertSame(
+            'frontend.home.page',
+            $config->getRouteBySalesChannel($salesChannel, $parameters)
+        );
+        static::assertFalse($parameters->has('navigationId'));
+        static::assertSame(
+            'frontend.navigation.page',
+            $config->getRouteBySalesChannel($salesChannel, $parameters)
+        );
     }
 
     private function assertEqualsFilter(

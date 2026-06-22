@@ -83,8 +83,10 @@ class ExtensionThemeDetectionSubscriber implements EventSubscriberInterface, Res
         $criteria = new Criteria();
         $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
 
-        /** @var TermsResult $themeNameAggregation */
         $themeNameAggregation = $this->themeRepository->aggregate($criteria, $context)->get($themeNameAggregationName);
+        if (!$themeNameAggregation instanceof TermsResult) {
+            return $this->installedThemeNames = [];
+        }
 
         return $this->installedThemeNames = $themeNameAggregation->getKeys();
     }

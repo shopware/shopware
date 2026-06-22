@@ -61,5 +61,16 @@ tester.run('no-deprecated-template-events', rule, {
                 },
             ],
         },
+        {
+            name: 'does not fix when object v-on can hide deprecated listeners',
+            filename: 'test.html.twig',
+            code: '<template><sw-text-field v-on="listeners" @input="onInput" /></template>',
+            output: null,
+            errors: [
+                {
+                    message: /Object v-on can hide the replacement event/,
+                },
+            ],
+        },
     ],
 });

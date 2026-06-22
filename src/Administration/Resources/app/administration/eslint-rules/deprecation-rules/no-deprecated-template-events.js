@@ -13,11 +13,12 @@ function formatReferences(migration) {
     return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
 }
 
-function buildMessage(migration, usage) {
+function buildMessage(migration, usage, additionalMessage = '') {
     const references = formatReferences(migration);
 
     return [
         `[${usage.component}] The "${usage.from}" event is deprecated. Use "${usage.to}" instead.`,
+        additionalMessage,
         '',
         migration.description,
         `Removed in Shopware ${migration.removedIn}.`,
@@ -37,6 +38,12 @@ function getEventName(attribute) {
 
 function isDynamicEvent(attribute) {
     return attribute.key?.argument?.type !== 'VIdentifier';
+}
+
+function hasObjectVOn(node) {
+    return node.startTag.attributes.some((attribute) => {
+        return attribute.key?.name?.name === 'on' && !attribute.key?.argument;
+    });
 }
 
 module.exports = {
@@ -89,11 +96,16 @@ module.exports = {
                         return;
                     }
 
+                    const objectVOnMessage = hasObjectVOn(node)
+                        ? `Object v-on can hide the replacement event. Review the bound listener object and rename "${match.usage.from}" to "${match.usage.to}" manually if needed.`
+                        : '';
+
                     context.report({
                         node: attribute,
-                        message: buildMessage(match.migration, match.usage),
+                        message: buildMessage(match.migration, match.usage, objectVOnMessage),
                         *fix(fixer) {
                             if (context.options.includes('disableFix')) return;
+                            if (objectVOnMessage) return;
 
                             yield fixer.replaceText(attribute.key.argument, match.usage.to);
                         },

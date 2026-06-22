@@ -94,3 +94,20 @@ if [ "$CODE" != "200" ] && [ "$CODE" != "204" ]; then
   exit 1
 fi
 echo "seeded OK (sync HTTP $CODE; SC=$SC nav=$NAV tax=$TAX cur=$CUR)"
+
+# 4. Apply any system_config the plan declares (analysis.json `.system_config`: a flat
+#    {key:value} map). Needed when a bug sits behind an OPT-IN feature that is OFF by default —
+#    e.g. core.cart.wishlistEnabled is disabled by default (Migration…TemporarilyDisableWishlist),
+#    so a guest-wishlist repro's storefront pages stay dead until it is turned on. Use the admin
+#    batch route (it handles the {"_value":…} serialization the raw sync does not); set both
+#    global ("null") and the seeded SC. A declared-but-unappliable setting = a dead env → fail loud.
+CFG=$(jq -c '.system_config // {}' "${ANALYSIS:-analysis.json}" 2>/dev/null || echo '{}')
+if [ -n "$CFG" ] && [ "$CFG" != '{}' ] && [ "$CFG" != 'null' ]; then
+  BATCH=$(jq -cn --argjson cfg "$CFG" --arg sc "$SC" '{"null":$cfg} + (if $sc=="" then {} else {($sc):$cfg} end)')
+  CCODE=$(curl -sS --max-time 30 -o "$RESP" -w '%{http_code}' -X POST "$BASE/api/_action/system-config/batch" "${AUTH[@]}" --data "$BATCH")
+  if [ "$CCODE" != "200" ] && [ "$CCODE" != "204" ]; then
+    echo "::error::system-config batch failed (HTTP $CCODE)"; cat "$RESP"
+    { printf 'system-config HTTP %s: ' "$CCODE"; head -c 300 "$RESP"; } > seed-error.txt; exit 1
+  fi
+  echo "system_config applied ($CFG)"
+fi

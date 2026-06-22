@@ -115,6 +115,14 @@ Rules:
   multi-line carts) do NOT hand-write the entity graph from memory: `rg` the entity name under
   `tests/` (or reuse the fix PR's own test data) for a known-good factory/fixture and mirror
   its required links and field shapes rather than inventing config keys.
+- **`system_config` (optional, top-level): enable an OPT-IN feature the bug needs.** A flat
+  `{ "<config.key>": <value> }` map (e.g. `"system_config": { "core.cart.wishlistEnabled": true }`)
+  that seed.sh applies via the admin `/api/_action/system-config/batch` route (global + the
+  seeded SC) BEFORE the executor runs. Several features are DISABLED by default — wishlist
+  (`core.cart.wishlistEnabled`) most notably (a migration turned it off), so any guest/account
+  wishlist repro renders a dead page until you enable it. Set it here; do NOT try to set config
+  via a raw `system_config` SYNC entity (its `{"_value":…}` serialization differs and silently
+  no-ops).
 - **Executor authoring contracts live in [`references/executors/`](executors/)** — once you
   pick the layer, read the ONE file for its executor and follow it:
   - [`executors/http.md`](executors/http.md) — `request`/`requests` (assertion on the FINAL

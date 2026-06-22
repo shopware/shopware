@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -22,7 +23,7 @@ class AttachElementTest extends TestCase
     {
         $tree = [new ContentElement('existing', 'Sw:Block')];
 
-        $result = (new AttachElement(new ContentElement('incoming', 'Sw:Card')))->apply($tree);
+        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card')))->apply($tree);
 
         static::assertCount(2, $result);
         static::assertSame('existing', $result[0]->getId());
@@ -38,7 +39,7 @@ class AttachElementTest extends TestCase
             'content' => new SlotContent([new ContentElement('incoming-child', 'Sw:Card')]),
         ]);
 
-        $result = (new AttachElement($incoming))->apply([]);
+        $result = (new AttachElement($this->registry(), $incoming))->apply([]);
 
         $attached = $result[0];
         $child = array_values($attached->getSlots()['content']->getElements())[0];
@@ -54,7 +55,7 @@ class AttachElementTest extends TestCase
             'content' => new SlotContent([new ContentElement('incoming-child', 'Sw:Card')]),
         ]);
 
-        $attach = new AttachElement($incoming);
+        $attach = new AttachElement($this->registry(), $incoming);
         $result = $attach->apply([]);
 
         $attached = $result[0];
@@ -69,7 +70,7 @@ class AttachElementTest extends TestCase
             'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
         ])];
 
-        $result = (new AttachElement(new ContentElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
+        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
 
         $children = array_values($result[0]->getSlots()['content']->getElements());
         static::assertCount(2, $children);
@@ -82,17 +83,26 @@ class AttachElementTest extends TestCase
     {
         $tree = [new ContentElement('block-a', 'Sw:Card'), new ContentElement('block-b', 'Sw:Card')];
 
-        $result = (new AttachElement(new ContentElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
+        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
 
         static::assertCount(3, $result);
         static::assertSame(['block-a', 'block-b'], [$result[0]->getId(), $result[1]->getId()]);
         static::assertNotSame('incoming', $result[2]->getId());
     }
 
+    #[TestDox('rejects an unregistered root component with a 400')]
+    public function testAttachUnregisteredComponentRejected(): void
+    {
+        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Ghost'));
+
+        $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
+        $attach->apply([]);
+    }
+
     #[TestDox('rejects attaching into a parent absent from the tree with a 400')]
     public function testAttachIntoMissingParentRejected(): void
     {
-        $attach = new AttachElement(new ContentElement('incoming', 'Sw:Card'), 'ghost', 'content');
+        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'ghost', 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $attach->apply([new ContentElement('other', 'Sw:Block')]);
@@ -101,7 +111,7 @@ class AttachElementTest extends TestCase
     #[TestDox('rejects attaching into a parent without naming a slot with a 400')]
     public function testAttachIntoParentWithoutSlotRejected(): void
     {
-        $attach = new AttachElement(new ContentElement('incoming', 'Sw:Card'), 'parent');
+        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
         $attach->apply([new ContentElement('parent', 'Sw:Block')]);
@@ -110,7 +120,7 @@ class AttachElementTest extends TestCase
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
-        $attach = new AttachElement(new ContentElement('incoming', 'Sw:Card'));
+        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'));
         $attach->apply([]);
 
         static::assertSame([], $attach->orphaned());
@@ -124,8 +134,18 @@ class AttachElementTest extends TestCase
             'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
         ]);
 
-        (new AttachElement(new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply([$parent]);
+        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply([$parent]);
 
         static::assertCount(1, $parent->getSlots()['content']->getElements());
+    }
+
+    private function registry(): AbstractContentSystemElementTypeRegistry
+    {
+        $registered = ['Sw:Card', 'Sw:Block'];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => \in_array($name, $registered, true));
+
+        return $registry;
     }
 }

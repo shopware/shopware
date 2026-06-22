@@ -125,7 +125,7 @@ class LayoutMutationController
         AttachElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new AttachElement($this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+        $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
 
         return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }

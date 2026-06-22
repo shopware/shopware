@@ -71,7 +71,7 @@
       "labelCheckPostalCodePattern": "Postal code validation",
       "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
       "placeholderAdvancedPostalCodePattern": "Enter postal code pattern...",
-      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<ul><li>^\\d{5}$ - Exact 5 Digits, e.g 12345</li><li>^(\\d{4})\\s*([A-Z]{2})$ - Exact 4 Digits and 2 Letters, e.g 1234 AB</li></ul>",
+      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<ul><li>^\\d&#123;5&#125;$ - Exact 5 Digits, e.g 12345</li><li>^(\\d&#123;4&#125;)\\s*([A-Z]&#123;2&#125;)$ - Exact 4 Digits and 2 Letters, e.g 1234 AB</li></ul>",
       "labelCheckDefaultAddressFormat": "Custom address format",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Address markup",

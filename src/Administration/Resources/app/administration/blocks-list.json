@@ -5351,6 +5351,7 @@
  "sw_sales_channel_detail",
  "sw_sales_channel_detail_actions",
  "sw_sales_channel_detail_actions_save",
+ "sw_sales_channel_detail_agentic_commerce_deprecation_banner",
  "sw_sales_channel_detail_agentic_commerce_integration",
  "sw_sales_channel_detail_agentic_commerce_integration_card",
  "sw_sales_channel_detail_agentic_commerce_integration_feed_url",

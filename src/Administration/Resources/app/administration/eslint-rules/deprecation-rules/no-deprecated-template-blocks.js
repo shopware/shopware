@@ -32,7 +32,7 @@ function collectBlockMatches(sourceText) {
     const matches = [];
     const twigBlockPattern = /\{%\s*block\s+([A-Za-z0-9_]+)\s*%}/g;
     const swBlockPattern = /<sw-block\b[^>]*>/g;
-    const swBlockAttributePattern = /\s(?:name|extends)=(["'])([^"']+)\1/g;
+    const swBlockAttributePattern = /\s(?:name|extends)\s*=\s*(["'])([^"']+)\1/g;
 
     let match = twigBlockPattern.exec(sourceText);
     while (match) {

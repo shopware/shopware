@@ -1,25 +1,23 @@
-@import "~scss/variables";
-
 .sw-shortcut-overview-item {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     column-gap: var(--scale-size-8);
-    margin: var(--scale-size-10) 0;
+    margin: var(--scale-size-8) 0;
 
-    .sw-shortcut-overview-item__keys {
+    &__keys {
         display: inline-flex;
         align-items: center;
         gap: var(--scale-size-8);
         justify-self: end;
         min-width: 0;
+        user-select: none;
     }
 
-    .sw-shortcut-overview-item__key {
+    &__key {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-sizing: border-box;
         min-width: var(--scale-size-24);
         height: var(--scale-size-24);
         padding: 0 var(--scale-size-6);

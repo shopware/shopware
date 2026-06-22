@@ -99,11 +99,14 @@
                                 variant="secondary"
                                 @click="openShortcutModal"
                             >
-                                <mt-icon
-                                    name="solid-keyboard"
-                                    color="var(--color-icon-primary-default)"
-                                    size="var(--scale-size-16)"
-                                />
+                                <template #iconFront>
+                                    <mt-icon
+                                        name="solid-keyboard"
+                                        color="var(--color-icon-primary-default)"
+                                        size="var(--scale-size-16)"
+                                    />
+                                </template>
+
                                 {{ $t('sw-shortcut-overview.title') }}
                             </mt-button>
                         </template>

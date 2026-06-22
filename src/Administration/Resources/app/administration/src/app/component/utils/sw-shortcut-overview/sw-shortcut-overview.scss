@@ -1,8 +1,7 @@
-@import "~scss/variables";
-
 .sw-modal.sw-shortcut-overview--modal {
     .sw-modal__dialog {
-        max-width: calc(var(--scale-size-224) * 5 + var(--scale-size-80));
+        max-width: 75rem;
+        max-height: 60rem;
     }
 
     .sw-modal__body {
@@ -17,7 +16,10 @@
         min-width: 0;
 
         h3 {
-            margin: 0 0 var(--scale-size-10);
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-semibold);
+            margin: 0 0 var(--scale-size-8);
         }
 
         .sw-shortcut-overview-item {
@@ -62,7 +64,7 @@
         margin-bottom: 0;
     }
 
-    @media screen and (max-width: $content-width) {
+    @media screen and (max-width: 60rem) {
         .sw-modal__body {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             grid-template-areas:
@@ -72,7 +74,7 @@
         }
     }
 
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 31.25rem) {
         .sw-modal__body {
             grid-template-columns: minmax(0, 1fr);
             grid-template-areas:

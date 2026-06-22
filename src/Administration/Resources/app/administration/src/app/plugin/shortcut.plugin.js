@@ -29,6 +29,11 @@ export default {
             componentShortcutKeystrokeDelay,
         );
 
+        function resetSequenceNow() {
+            resetComponentShortcutStateDebounced.cancel?.();
+            resetComponentShortcutState();
+        }
+
         function isSystemShortcut(shortcutKey) {
             return /SYSTEMKEY/.test(shortcutKey);
         }
@@ -41,12 +46,23 @@ export default {
             return isEditableDiv || isRestrictedTag;
         }
 
+        function findShortcut(key) {
+            return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === key);
+        }
+
+        function hasLongerSequenceThan(sequence) {
+            return activeShortcuts.some((shortcut) => {
+                const registeredKey = shortcut.key.toUpperCase();
+
+                return !isSystemShortcut(registeredKey) && registeredKey.startsWith(sequence) && registeredKey !== sequence;
+            });
+        }
+
         function getMatchedShortcut(shortcutKey) {
             if (isSystemShortcut(shortcutKey)) {
-                resetComponentShortcutStateDebounced.cancel?.();
-                resetComponentShortcutState();
+                resetSequenceNow();
 
-                return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
+                return findShortcut(shortcutKey);
             }
 
             const buffer = [
@@ -54,7 +70,7 @@ export default {
                 shortcutKey,
             ];
             const sequence = buffer.join('');
-            const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === sequence);
+            const matchedShortcut = findShortcut(sequence);
 
             componentShortcutState = {
                 buffer,
@@ -62,26 +78,18 @@ export default {
             resetComponentShortcutStateDebounced();
 
             if (matchedShortcut) {
-                resetComponentShortcutStateDebounced.cancel?.();
-                resetComponentShortcutState();
+                resetSequenceNow();
 
                 return matchedShortcut;
             }
 
-            const hasLongerSequence = activeShortcuts.some((shortcut) => {
-                const registeredKey = shortcut.key.toUpperCase();
-
-                return !isSystemShortcut(registeredKey) && registeredKey.startsWith(sequence) && registeredKey !== sequence;
-            });
-
-            if (hasLongerSequence) {
+            if (hasLongerSequenceThan(sequence)) {
                 return null;
             }
 
-            resetComponentShortcutStateDebounced.cancel?.();
-            resetComponentShortcutState();
+            resetSequenceNow();
 
-            return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
+            return findShortcut(shortcutKey);
         }
 
         function handleKeyDown(event) {

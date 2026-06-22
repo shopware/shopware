@@ -2,15 +2,16 @@
  * @sw-package framework
  */
 
+import { classifyPlatform, PLATFORM } from 'src/core/helper/shortcut-key.helper';
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
 const utils = Shopware.Utils;
 
-const platformShortcutSuffixes = {
-    mac: 'Mac',
-    windows: 'Windows',
-    linux: 'Linux',
+const PLATFORM_NAMES = {
+    [PLATFORM.MAC]: 'Mac',
+    [PLATFORM.WINDOWS]: 'Windows',
+    [PLATFORM.LINUX]: 'Linux',
 };
 
 /**
@@ -57,21 +58,13 @@ export default {
 
     computed: {
         platform() {
-            const platform = this.$device?.getPlatform?.() ?? window.navigator.platform;
+            const userPlatform = this.$device?.getPlatform?.() ?? window.navigator.platform;
 
-            if (platform.includes('Mac')) {
-                return 'mac';
-            }
-
-            if (platform.includes('Win')) {
-                return 'windows';
-            }
-
-            return 'linux';
+            return classifyPlatform(userPlatform);
         },
 
         platformShortcutSuffix() {
-            return platformShortcutSuffixes[this.platform];
+            return PLATFORM_NAMES[this.platform];
         },
 
         sections() {

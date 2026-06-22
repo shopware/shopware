@@ -161,6 +161,16 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         expect(wrapper.find('.sw-help-sidebar__shortcut-button').exists()).toBeFalsy();
     });
 
+    it('should hide the shortcut button when the viewport is resized below the mobile breakpoint', async () => {
+        expect(wrapper.find('.sw-help-sidebar__shortcut-button').exists()).toBe(true);
+
+        window.innerWidth = 500;
+        window.dispatchEvent(new Event('resize'));
+        await flushPromises();
+
+        expect(wrapper.find('.sw-help-sidebar__shortcut-button').exists()).toBe(false);
+    });
+
     it('should close the sidebar if the user clicks outside of the sidebar', async () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 

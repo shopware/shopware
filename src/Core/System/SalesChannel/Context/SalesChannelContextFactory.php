@@ -28,6 +28,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
+use Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -190,6 +191,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
+     * @see SalesChannelContextTest
+     *
      * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
@@ -274,6 +277,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     /**
      * @codeCoverageIgnore
+     *
+     * @see SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */

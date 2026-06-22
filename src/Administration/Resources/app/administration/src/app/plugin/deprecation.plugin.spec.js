@@ -443,6 +443,36 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
     });
 
+    it('[registry prop] should warn when a provided value-mapped prop changes to another deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'ghost',
+                },
+            },
+        });
+
+        expect(global.console.warn.mock.calls[0][1]).toEqual(expect.stringContaining('Use "primary" instead.'));
+
+        await component.setProps({
+            variant: 'danger',
+        });
+        await flushPromises();
+
+        expect(global.console.warn.mock.calls[2][1]).toEqual(expect.stringContaining('Use "critical" instead.'));
+    });
+
     it('[prop] should use registry metadata for known deprecated props', async () => {
         component = createComponent({
             customComponent: {

@@ -69,6 +69,18 @@ function usageWasRuntimeDetected(
     }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false);
 }
 
+function getRuntimeUsageWarningKey(usage: RuntimeDeprecationUsage): string {
+    return [
+        usage.kind,
+        usage.runtimeProp,
+        usage.prop,
+        usage.from,
+        usage.to,
+    ]
+        .filter((entry) => typeof entry === 'string')
+        .join(':');
+}
+
 /**
  * @sw-package framework
  *
@@ -360,8 +372,6 @@ class DeprecationPlugin {
         const componentTrace = this.getComponentTrace(component);
 
         deprecatedProps.forEach((usage) => {
-            const runtimeProp = usage.runtimeProp;
-
             if (!usageWasRuntimeDetected(usage, usedProps, componentName)) {
                 return;
             }
@@ -369,7 +379,7 @@ class DeprecationPlugin {
             const warningKey = [
                 usage.migration.id,
                 componentName,
-                runtimeProp ?? usage.kind,
+                getRuntimeUsageWarningKey(usage),
                 componentTrace,
             ].join('|');
 

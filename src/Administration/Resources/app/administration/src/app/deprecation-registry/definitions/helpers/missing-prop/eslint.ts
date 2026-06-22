@@ -3,8 +3,20 @@
  * @sw-package framework
  */
 
-import type { DeprecationUsage } from '../types';
+import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+
+function findObjectVBindAttribute(api: ComponentUsageRuleApi): Record<string, any> | null {
+    return api.node.startTag.attributes.find((attribute: Record<string, any>) => {
+        return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
+    }) ?? null;
+}
+
+function getPropSource(usageConfig: DeprecationUsage): string {
+    const prefix = usageConfig.bind === true ? ':' : '';
+
+    return `${prefix}${usageConfig.prop}="${usageConfig.value}"`;
+}
 
 export function createMissingPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {
@@ -30,6 +42,22 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                         return null;
                     }
 
+                    const objectVBindAttribute = findObjectVBindAttribute(api);
+                    const propSource = getPropSource(usageConfig);
+
+                    if (objectVBindAttribute) {
+                        const attributeLine = objectVBindAttribute.loc?.start?.line;
+                        const startTagLine = api.node.startTag.loc?.start?.line;
+
+                        if (typeof attributeLine === 'number' && typeof startTagLine === 'number' && attributeLine > startTagLine) {
+                            const indentation = ' '.repeat(objectVBindAttribute.loc?.start?.column ?? 0);
+
+                            return fixer.insertTextBefore(objectVBindAttribute, `${propSource}\n${indentation}`);
+                        }
+
+                        return fixer.insertTextBefore(objectVBindAttribute, `${propSource} `);
+                    }
+
                     const insertPosition = usageConfig.insertPosition === 'after-name' ? 'after-name' : 'before-end';
                     const startTagSource = api.sourceCode.getText(api.node.startTag);
                     const selfClosingEnd = startTagSource.match(/\s*\/>\s*$/);
@@ -39,14 +67,13 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                     const insertOffset = insertPosition === 'after-name'
                         ? api.node.startTag.range[0] + `<${api.node.name}`.length
                         : beforeEndOffset;
-                    const prefix = usageConfig.bind === true ? ':' : '';
 
                     return fixer.insertTextAfterRange(
                         [
                             insertOffset,
                             insertOffset,
                         ],
-                        ` ${prefix}${usageConfig.prop}="${usageConfig.value}"`,
+                        ` ${propSource}`,
                     );
                 },
             });

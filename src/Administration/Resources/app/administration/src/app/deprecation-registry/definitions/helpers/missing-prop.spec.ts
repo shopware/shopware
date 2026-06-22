@@ -1,5 +1,5 @@
 import { missingProp } from './missing-prop';
-import { createFixer, createRuleApi } from './test-utils';
+import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('missingProp', () => {
     it('adds a static missing prop value', () => {
@@ -58,6 +58,68 @@ describe('missingProp', () => {
                 15,
             ],
             text: ' :is-opened="true"',
+        });
+    });
+
+    it('adds missing props before object v-bind on the same line', () => {
+        const usage = missingProp({ prop: 'variant', value: 'secondary' });
+        const objectVBind = createDirectiveAttribute('bind');
+        const node = {
+            name: 'mt-button',
+            startTag: {
+                range: [
+                    0,
+                    30,
+                ],
+                loc: {
+                    start: {
+                        line: 1,
+                    },
+                },
+                attributes: [objectVBind],
+            },
+            children: [],
+        };
+        const api = createRuleApi({ usage, node });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].fix(createFixer())).toEqual({
+            method: 'insertTextBefore',
+            target: objectVBind,
+            text: 'variant="secondary" ',
+        });
+    });
+
+    it('adds missing props on their own line before multiline object v-bind', () => {
+        const usage = missingProp({ prop: 'variant', value: 'secondary' });
+        const objectVBind = createDirectiveAttribute('bind');
+        objectVBind.loc.start.line = 2;
+        objectVBind.loc.start.column = 20;
+        const node = {
+            name: 'mt-button',
+            startTag: {
+                range: [
+                    0,
+                    30,
+                ],
+                loc: {
+                    start: {
+                        line: 1,
+                    },
+                },
+                attributes: [objectVBind],
+            },
+            children: [],
+        };
+        const api = createRuleApi({ usage, node });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].fix(createFixer())).toEqual({
+            method: 'insertTextBefore',
+            target: objectVBind,
+            text: 'variant="secondary"\n                    ',
         });
     });
 

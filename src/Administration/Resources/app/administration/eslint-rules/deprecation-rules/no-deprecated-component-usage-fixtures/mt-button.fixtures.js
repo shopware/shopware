@@ -281,6 +281,23 @@ const mtButtonInvalidChecks = [
         ],
     },
     {
+        name: '"mt-button" no variant defined is inserted before object v-bind',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-button v-bind="buttonProps">Hello</mt-button>
+            </template>`,
+        output: `
+            <template>
+                <mt-button variant="secondary" v-bind="buttonProps">Hello</mt-button>
+            </template>`,
+        errors: [
+            {
+                message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+            },
+        ],
+    },
+    {
         name: '"mt-button" no variant defined will be replaced with secondary [With more props]',
         filename: 'test.html.twig',
         code: `

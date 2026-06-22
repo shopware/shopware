@@ -31,26 +31,26 @@ export function createAttribute(name: string, value: unknown = null): Record<str
         range: [1, 2],
         loc: {
             start: {
+                line: 1,
                 column: 4,
             },
         },
     };
 }
 
-export function createDirectiveAttribute(directive: string, argument: string, value: unknown = null): Record<string, any> {
+export function createDirectiveAttribute(directive: string, argument?: string, value: unknown = null): Record<string, any> {
     return {
         key: {
             name: {
                 name: directive,
             },
-            argument: {
-                name: argument,
-            },
+            ...(argument ? { argument: { name: argument } } : {}),
         },
         value,
         range: [1, 2],
         loc: {
             start: {
+                line: 1,
                 column: 4,
             },
         },

@@ -45,6 +45,28 @@ tester.run('no-deprecated-template-blocks', rule, {
             ],
         },
         {
+            name: 'renames deprecated single-quoted sw-block name',
+            filename: 'test.html.twig',
+            code: "<template><sw-block name='sw_cms_detail_stage_empty_stade_content'><div /></sw-block></template>",
+            output: "<template><sw-block name='sw_cms_detail_stage_empty_stage_content'><div /></sw-block></template>",
+            errors: [
+                {
+                    message: /Use "sw_cms_detail_stage_empty_stage_content" instead/,
+                },
+            ],
+        },
+        {
+            name: 'renames deprecated single-quoted sw-block extends',
+            filename: 'test.html.twig',
+            code: "<template><sw-block extends='sw_cms_detail_stage_empty_stade_content'><div /></sw-block></template>",
+            output: "<template><sw-block extends='sw_cms_detail_stage_empty_stage_content'><div /></sw-block></template>",
+            errors: [
+                {
+                    message: /Use "sw_cms_detail_stage_empty_stage_content" instead/,
+                },
+            ],
+        },
+        {
             name: 'reports removed block without fixer',
             filename: 'test.html.twig',
             code: '<template>{% block sw_import_export_language_switch %}<div />{% endblock %}</template>',

@@ -1,0 +1,424 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}": {
+            "get": {
+                "tags": [
+                    "Sales Channel Files"
+                ],
+                "summary": "List discovered sales channel files",
+                "description": "Lists all discovered public files for a file family and sales channel, including content type and the stored sales-channel configuration when one exists.",
+                "operationId": "listSalesChannelFiles",
+                "parameters": [
+                    {
+                        "name": "fileFamily",
+                        "in": "path",
+                        "description": "File family below `Resources/views/files`, for example `agentic`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "description": "Identifier of the sales channel for which stored configuration should be loaded.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Discovered sales channel files for the given file family.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelFileListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file family.",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail": {
+            "get": {
+                "tags": [
+                    "Sales Channel Files"
+                ],
+                "summary": "Load sales channel file detail",
+                "description": "Loads detail data for a discovered public file, including contributing Twig templates, their source content, and the stored sales-channel configuration when one exists.",
+                "operationId": "getSalesChannelFileDetail",
+                "parameters": [
+                    {
+                        "name": "fileFamily",
+                        "in": "path",
+                        "description": "File family below `Resources/views/files`, for example `agentic`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "description": "Identifier of the sales channel for which stored configuration should be loaded.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "fileName",
+                        "in": "query",
+                        "description": "Public file path without a leading slash. Subfolders are supported, for example `.well-known/ucp.json`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "llms.txt",
+                                ".well-known/ucp.json"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail data for the discovered sales channel file.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelFileDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file family or file name.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "description": "The requested sales channel file was not discovered.",
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview": {
+            "post": {
+                "tags": [
+                    "Sales Channel Files"
+                ],
+                "summary": "Preview a sales channel file",
+                "description": "Renders a discovered public file for a sales channel with the supplied Twig template overrides. This allows Administration previews without persisting the overrides first.",
+                "operationId": "previewSalesChannelFile",
+                "parameters": [
+                    {
+                        "name": "fileFamily",
+                        "in": "path",
+                        "description": "File family below `Resources/views/files`, for example `agentic`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "description": "Identifier of the sales channel used to build the rendering context.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Preview input containing the public file name and optional Twig overrides keyed by Twig namespace.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SalesChannelFilePreviewRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rendered preview content.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelFilePreviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload, file family, or file name.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "description": "The requested sales channel file was not discovered.",
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SalesChannelFileConfiguration": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "enabled",
+                    "templateOverrides"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Identifier of the sales_channel_file row.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "enabled": {
+                        "description": "Whether this file is served publicly for the sales channel.",
+                        "type": "boolean"
+                    },
+                    "templateOverrides": {
+                        "description": "Merchant-provided Twig overrides keyed by Twig namespace. The reserved `user_provided_content` key stores plain text for the dedicated append block when supported by the template chain.",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "SalesChannelFileDescriptor": {
+                "type": "object",
+                "required": [
+                    "fileFamily",
+                    "fileName",
+                    "contentType",
+                    "configuration"
+                ],
+                "properties": {
+                    "fileFamily": {
+                        "description": "File family below `Resources/views/files`.",
+                        "type": "string",
+                        "maxLength": 64
+                    },
+                    "fileName": {
+                        "description": "Public file path without a leading slash.",
+                        "type": "string",
+                        "examples": [
+                            "llms.txt",
+                            ".well-known/ucp.json"
+                        ]
+                    },
+                    "contentType": {
+                        "description": "Detected response content type for the public file.",
+                        "type": "string",
+                        "examples": [
+                            "text/plain; charset=utf-8"
+                        ]
+                    },
+                    "configuration": {
+                        "description": "Stored sales-channel configuration for this file, or null when it has not been configured yet.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SalesChannelFileConfiguration"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "SalesChannelFileDetail": {
+                "type": "object",
+                "required": [
+                    "fileFamily",
+                    "fileName",
+                    "templatePath",
+                    "contentType",
+                    "templates",
+                    "supportsUserProvidedContent",
+                    "configuration"
+                ],
+                "properties": {
+                    "fileFamily": {
+                        "description": "File family below `Resources/views/files`.",
+                        "type": "string",
+                        "maxLength": 64
+                    },
+                    "fileName": {
+                        "description": "Public file path without a leading slash.",
+                        "type": "string",
+                        "examples": [
+                            "llms.txt",
+                            ".well-known/ucp.json"
+                        ]
+                    },
+                    "templatePath": {
+                        "description": "Relative Twig template path used for rendering.",
+                        "type": "string",
+                        "examples": [
+                            "files/agentic/llms.txt.twig"
+                        ]
+                    },
+                    "contentType": {
+                        "description": "Detected response content type for the public file.",
+                        "type": "string",
+                        "examples": [
+                            "text/plain; charset=utf-8"
+                        ]
+                    },
+                    "templates": {
+                        "description": "Contributing Twig templates in resolved inheritance order.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SalesChannelFileTemplate"
+                        }
+                    },
+                    "supportsUserProvidedContent": {
+                        "description": "Whether the template chain exposes the `user_provided_content` block for simple appended merchant notes.",
+                        "type": "boolean"
+                    },
+                    "configuration": {
+                        "description": "Stored sales-channel configuration for this file, or null when it has not been configured yet.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SalesChannelFileConfiguration"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "SalesChannelFileDetailResponse": {
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/SalesChannelFileDetail"
+                    }
+                }
+            },
+            "SalesChannelFileListResponse": {
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SalesChannelFileDescriptor"
+                        }
+                    }
+                }
+            },
+            "SalesChannelFilePreviewRequest": {
+                "type": "object",
+                "required": [
+                    "fileName"
+                ],
+                "properties": {
+                    "fileName": {
+                        "description": "Public file path without a leading slash.",
+                        "type": "string",
+                        "examples": [
+                            "llms.txt",
+                            ".well-known/ucp.json"
+                        ]
+                    },
+                    "templateOverrides": {
+                        "description": "Unsaved Twig overrides keyed by Twig namespace. The reserved `user_provided_content` key stores plain text for the dedicated append block when supported by the template chain.",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "SalesChannelFilePreviewResponse": {
+                "type": "object",
+                "required": [
+                    "fileName",
+                    "contentType",
+                    "content"
+                ],
+                "properties": {
+                    "fileName": {
+                        "description": "Public file path without a leading slash.",
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "description": "Detected content type of the rendered file.",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Rendered file content.",
+                        "type": "string"
+                    }
+                }
+            },
+            "SalesChannelFileTemplate": {
+                "type": "object",
+                "required": [
+                    "twigNamespace",
+                    "templateName",
+                    "templateContent",
+                    "role"
+                ],
+                "properties": {
+                    "twigNamespace": {
+                        "description": "Twig namespace that contributed the template, for example `Framework` or a plugin name.",
+                        "type": "string"
+                    },
+                    "templateName": {
+                        "description": "Resolved Twig template name.",
+                        "type": "string",
+                        "examples": [
+                            "@Framework/files/agentic/llms.txt.twig"
+                        ]
+                    },
+                    "templateContent": {
+                        "description": "Original source template content. Administration clients can use this as the default text when editing a template override.",
+                        "type": "string"
+                    },
+                    "role": {
+                        "description": "Whether this source provides the base template or extends another source in the resolved template chain.",
+                        "type": "string",
+                        "enum": [
+                            "base",
+                            "extension"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

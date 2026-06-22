@@ -44,6 +44,13 @@ The default CMS page ID is now automatically written to the database when a cate
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
 
+## Storefront template config PHP helpers removed
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` were removed.
+Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code.
+
+Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -74,6 +81,12 @@ Affected commands:
 | `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
 | `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
 | `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
+## Agentic Commerce sales channel features removed
+
+The Agentic Commerce sales channel features — including product export providers, sales channel tracking, and related classes — have been removed from Shopware's core and are no longer available out of the box.
+
+> Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
 
 </details>
 
@@ -159,6 +172,28 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
+
 ## Removed stored `mail_template_type.template_data`
 
 The deprecated `template_data` column on `mail_template_type` was removed.
@@ -208,6 +243,45 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Product stream builder API changes
+
+The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
+Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
+
+The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
+Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
+
+### Before
+
+```php
+public function __construct(
+    private readonly ProductStreamBuilderInterface $productStreamBuilder,
+) {
+}
+
+$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
+$criteria->addFilter(...$filters);
+```
+
+### After
+
+```php
+public function __construct(
+    private readonly AbstractProductStreamBuilder $productStreamBuilder,
+) {
+}
+
+$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
+```
+
+## Product streams can disable variant grouping
+
+Product streams no longer always imply grouped variant results.
+When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
+
+The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
+If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 

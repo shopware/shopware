@@ -290,11 +290,12 @@ class RequestTransformer implements RequestTransformerInterface
         if ($this->isHttpHostPunycode($request)) {
             $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
             $domain = $domains->get($requestUrl) ?? $domains->get($asciiRequestUrl);
-            $filter = static fn (string $baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
-                || str_starts_with($asciiRequestUrl, $baseUrl);
+            // append the trailing slash to keep the base url a full path segment (so `/de` does not match `/destination`)
+            $filter = static fn (DomainStruct $candidate): bool => str_starts_with($requestUrl, $candidate->url . '/')
+                || str_starts_with($asciiRequestUrl, $candidate->url . '/');
         } else {
             $domain = $domains->get($requestUrl);
-            $filter = static fn (string $baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
+            $filter = static fn (DomainStruct $candidate): bool => str_starts_with($requestUrl, $candidate->url . '/');
         }
 
         // direct hit
@@ -303,15 +304,15 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // reduce shops to which base url is the beginning of the request
-        $matches = array_filter($domains->getElements(), $filter, \ARRAY_FILTER_USE_KEY);
+        $matches = $domains->filter($filter);
 
-        if ($matches === []) {
+        if ($matches->count() === 0) {
             return null;
         }
 
         // determine most matching shop base url
         $lastBaseUrl = '';
-        $bestMatch = current($matches);
+        $bestMatch = $matches->first();
         foreach ($matches as $baseUrl => $match) {
             if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
                 $bestMatch = $match;

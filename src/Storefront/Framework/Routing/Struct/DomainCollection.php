@@ -6,20 +6,34 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * Keyed by the sales channel domain URL with a trailing slash (e.g. `https://example.com/de/`),
+ * which matches the normalized request URL the RequestTransformer uses for lookups.
+ *
  * @extends Collection<DomainStruct>
  */
 #[Package('framework')]
 class DomainCollection extends Collection
 {
     /**
-     * @param array<string, array<string, mixed>> $rows
+     * @param array<string, array<string, string|null>> $rows
      */
     public static function fromArray(array $rows): self
     {
-        return new self(array_map(
-            static fn (array $row): DomainStruct => DomainStruct::fromArray($row),
-            $rows
-        ));
+        $collection = new self();
+
+        foreach ($rows as $row) {
+            $collection->add(DomainStruct::fromArray($row));
+        }
+
+        return $collection;
+    }
+
+    /**
+     * @param DomainStruct $element
+     */
+    public function add($element): void
+    {
+        $this->set($element->url . '/', $element);
     }
 
     public function getApiAlias(): string

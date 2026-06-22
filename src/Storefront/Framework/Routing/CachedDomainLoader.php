@@ -15,6 +15,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 #[Package('framework')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed together with the deprecated load(), use DOMAIN_COLLECTION_CACHE_KEY instead
+     */
     final public const CACHE_KEY = 'routing-domains';
 
     final public const DOMAIN_COLLECTION_CACHE_KEY = 'routing-domain-collection';

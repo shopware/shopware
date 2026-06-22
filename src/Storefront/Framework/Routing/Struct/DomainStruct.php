@@ -25,7 +25,7 @@ readonly class DomainStruct
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array<string, string|null> $row
      */
     public static function fromArray(array $row): self
     {

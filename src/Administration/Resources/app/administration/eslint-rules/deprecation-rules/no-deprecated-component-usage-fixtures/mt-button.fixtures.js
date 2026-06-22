@@ -442,6 +442,20 @@ const mtButtonInvalidChecks = [
             },
         ],
     },
+    {
+        name: '"mt-button" deprecated usage of "router-link" prop should not duplicate existing click handler',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-button variant="secondary" @click="onClick" router-link="sw.example.link">Hello</mt-button>
+            </template>`,
+        output: null,
+        errors: [
+            {
+                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+            },
+        ],
+    },
 ];
 
 module.exports = {

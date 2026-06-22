@@ -109,32 +109,38 @@ function getAttributeDescriptor(attribute) {
     return null;
 }
 
+function getReplacementAttributeName(replacement) {
+    return replacement.trim().match(/^[^\s=]+/)?.[0] ?? replacement;
+}
+
 function getReplacementDescriptor(attribute, target, replacement) {
-    if (attribute.key === target) {
-        if (replacement === 'v-model' || replacement.startsWith('v-model:')) {
+    const replacementName = getReplacementAttributeName(replacement);
+
+    if (attribute === target || attribute.key === target) {
+        if (replacementName === 'v-model' || replacementName.startsWith('v-model:')) {
             return {
                 kind: 'model',
-                name: normalizeAttributeName(replacement),
+                name: normalizeAttributeName(replacementName),
             };
         }
 
-        if (replacement.startsWith('@')) {
+        if (replacementName.startsWith('@')) {
             return {
                 kind: 'event',
-                name: normalizeAttributeName(replacement.slice(1)),
+                name: normalizeAttributeName(replacementName.slice(1)),
             };
         }
 
-        if (replacement.startsWith('v-on:')) {
+        if (replacementName.startsWith('v-on:')) {
             return {
                 kind: 'event',
-                name: normalizeAttributeName(replacement.slice('v-on:'.length)),
+                name: normalizeAttributeName(replacementName.slice('v-on:'.length)),
             };
         }
 
         return {
             kind: 'prop',
-            name: normalizeAttributeName(replacement),
+            name: normalizeAttributeName(replacementName),
         };
     }
 
@@ -144,21 +150,21 @@ function getReplacementDescriptor(attribute, target, replacement) {
         if (directive === 'bind') {
             return {
                 kind: 'prop',
-                name: normalizeAttributeName(replacement),
+                name: normalizeAttributeName(replacementName),
             };
         }
 
         if (directive === 'on') {
             return {
                 kind: 'event',
-                name: normalizeAttributeName(replacement),
+                name: normalizeAttributeName(replacementName),
             };
         }
 
         if (directive === 'model') {
             return {
                 kind: 'model',
-                name: normalizeAttributeName(`v-model:${replacement}`),
+                name: normalizeAttributeName(`v-model:${replacementName}`),
             };
         }
     }
@@ -193,7 +199,7 @@ function hasDuplicateReplacementAttribute(descriptor) {
         }
 
         const replacedAttribute = attributes.find((attribute) => {
-            return attribute.key === target || attribute.key?.argument === target;
+            return attribute === target || attribute.key === target || attribute.key?.argument === target;
         });
 
         if (!replacedAttribute) {

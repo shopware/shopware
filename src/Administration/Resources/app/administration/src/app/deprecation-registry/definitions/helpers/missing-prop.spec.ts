@@ -124,6 +124,41 @@ describe('missingProp', () => {
         });
     });
 
+    it('skips fixes when object v-bind can hide a fallback prop alias', () => {
+        const usage = missingProp({
+            prop: 'is-opened',
+            value: 'true',
+            bind: true,
+            unlessProps: [
+                'is-opened',
+                'open',
+            ],
+        });
+        const objectVBind = createDirectiveAttribute('bind');
+        const node = {
+            name: 'mt-floating-ui',
+            startTag: {
+                range: [
+                    0,
+                    16,
+                ],
+                loc: {
+                    start: {
+                        line: 1,
+                    },
+                },
+                attributes: [objectVBind],
+            },
+            children: [],
+        };
+        const api = createRuleApi({ usage, node });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-bind can hide one of the fallback props.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
+
     it('does not report when an unless prop exists', () => {
         const usage = missingProp({
             prop: 'is-opened',

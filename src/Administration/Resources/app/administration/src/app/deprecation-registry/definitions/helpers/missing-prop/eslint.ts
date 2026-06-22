@@ -20,6 +20,16 @@ function getPropSource(usageConfig: DeprecationUsage): string {
     return `${prefix}${usageConfig.prop}="${usageConfig.value}"`;
 }
 
+function objectVBindCanHideAlias(usageConfig: DeprecationUsage): boolean {
+    if (typeof usageConfig.prop !== 'string' || !Array.isArray(usageConfig.unlessProps)) {
+        return false;
+    }
+
+    return usageConfig.unlessProps.some((propName) => {
+        return typeof propName === 'string' && propName !== usageConfig.prop;
+    });
+}
+
 export function createMissingPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
@@ -36,15 +46,27 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                 return;
             }
 
+            const objectVBindAttribute = findObjectVBindAttribute(api);
+            const objectVBindAliasMessage =
+                objectVBindAttribute && objectVBindCanHideAlias(usageConfig)
+                    ? `Object v-bind can hide one of the fallback props. Review the bound object and add "${usageConfig.prop}" manually if needed.`
+                    : undefined;
+            const reportUsageConfig: DeprecationUsage = objectVBindAliasMessage
+                ? {
+                      ...usageConfig,
+                      fix: 'manual',
+                      message: objectVBindAliasMessage,
+                  }
+                : usageConfig;
+
             api.reportWithDuplicateReplacementGuard({
                 node: api.node,
-                message: componentUsageMessage(api, usageConfig, usageConfig.prop),
+                message: componentUsageMessage(api, reportUsageConfig, usageConfig.prop),
                 fix(fixer: Record<string, any>) {
-                    if (!usageFixesAutomatically(api, usageConfig)) {
+                    if (!usageFixesAutomatically(api, reportUsageConfig)) {
                         return null;
                     }
 
-                    const objectVBindAttribute = findObjectVBindAttribute(api);
                     const propSource = getPropSource(usageConfig);
 
                     if (objectVBindAttribute) {

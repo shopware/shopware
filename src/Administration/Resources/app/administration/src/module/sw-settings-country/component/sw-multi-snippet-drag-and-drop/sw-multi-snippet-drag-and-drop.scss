@@ -55,6 +55,10 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             max-width: 220px;
             line-height: 0;
             margin: 8px 6px 0 0;
+
+            &.is--drag-preview-source {
+                display: none;
+            }
         }
 
         .sw-select-selection-list__input-wrapper {

@@ -211,6 +211,10 @@ export default Component.wrapComponentConfig({
             return !!this.dragPreview && this.dragPreview.dragIndex < this.dragPreview.dropIndex && this.dragPreview.dropIndex === index;
         },
 
+        isDragPreviewSource(index: number): boolean {
+            return !!this.dragPreview && this.dragPreview.dragIndex === index;
+        },
+
         isSelectionDisabled(selection: $TSFixMe): boolean {
             if (this.disabled) {
                 return true;

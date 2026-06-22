@@ -232,6 +232,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         );
 
         expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
+        expect(wrapper.vm.isDragPreviewSource(0)).toBe(true);
         expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(true);
         expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(false);
 

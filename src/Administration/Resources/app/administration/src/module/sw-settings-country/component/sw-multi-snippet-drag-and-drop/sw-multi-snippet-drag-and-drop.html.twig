@@ -40,7 +40,10 @@
 
                     <li
                         class="sw-select-selection-list__item-holder"
-                        :class="'sw-select-selection-list__item-holder--' + index"
+                        :class="[
+                            'sw-select-selection-list__item-holder--' + index,
+                            { 'is--drag-preview-source': isDragPreviewSource(index) },
+                        ]"
                         :data-id="snippet"
                     >
                         <slot

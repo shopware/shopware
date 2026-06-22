@@ -8,7 +8,9 @@ describe('mapPropValue', () => {
         expect(usage.kind).toBe('map-prop-value');
         expect(usage.fix).toBe('auto');
         expect(usage.runtimeProp).toBe('variant');
-        expect(usage.runtime?.detect({ usedProps: { variant: true } })).toBe(true);
+        expect(usage.runtime?.detect({ usedProps: { variant: 'old' } })).toBe(true);
+        expect(usage.runtime?.detect({ usedProps: { 'variant': 'old' } })).toBe(true);
+        expect(usage.runtime?.detect({ usedProps: { variant: 'new' } })).toBe(false);
     });
 
     it('reports and fixes matching static values', () => {

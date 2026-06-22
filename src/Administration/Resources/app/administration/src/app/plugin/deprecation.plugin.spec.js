@@ -329,6 +329,57 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-card'));
     });
 
+    it('[registry prop] should not warn when a value-mapped prop uses a non-deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'primary',
+                },
+            },
+        });
+
+        expect(global.console.warn).not.toHaveBeenCalled();
+    });
+
+    it('[registry prop] should warn when a value-mapped prop uses a deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'ghost',
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "variant"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
+    });
+
     it('[prop] should use registry metadata for known deprecated props', async () => {
         component = createComponent({
             customComponent: {

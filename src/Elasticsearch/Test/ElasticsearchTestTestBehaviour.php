@@ -50,8 +50,6 @@ trait ElasticsearchTestTestBehaviour
             ->run(new ArrayInput([]), new NullOutput());
 
         $this->runWorker();
-
-        $this->refreshIndex();
     }
 
     public function refreshIndex(): void

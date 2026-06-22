@@ -77,4 +77,38 @@ describe('renameProp', () => {
         expect(api.reports[0].message).toContain('Expression-bound prop values can be false at runtime.');
         expect(api.reports[0].fix(createFixer())).toBeNull();
     });
+
+    it('skips fixes when object v-bind can hide the replacement prop', () => {
+        const usage = renameProp({ from: 'old-prop', to: 'new-prop' });
+        const attribute = createDirectiveAttribute('bind', 'old-prop');
+        const objectVBind = createDirectiveAttribute('bind');
+        const api = createRuleApi({
+            usage,
+            attribute,
+            node: {
+                name: 'mt-test',
+                startTag: {
+                    range: [
+                        0,
+                        10,
+                    ],
+                    loc: {
+                        start: {
+                            column: 0,
+                        },
+                    },
+                    attributes: [
+                        objectVBind,
+                        attribute,
+                    ],
+                },
+                children: [],
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-bind can hide the replacement prop.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

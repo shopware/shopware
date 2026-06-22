@@ -394,6 +394,17 @@ const objectVBindInvalidTests = [
         ],
     },
     {
+        name: 'does not fix renamed props when object v-bind can hide replacement props',
+        filename: 'test.html.twig',
+        code: '<template><mt-progress-bar v-bind="progressProps" value="50" /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-progress-bar] The "value" API is deprecated. Use "model-value" instead.',
+            },
+        ],
+    },
+    {
         name: 'does not fix show-icon inversion when object v-bind can hide banner props',
         filename: 'test.html.twig',
         code: '<template><mt-banner v-bind="bannerProps" show-icon /></template>',

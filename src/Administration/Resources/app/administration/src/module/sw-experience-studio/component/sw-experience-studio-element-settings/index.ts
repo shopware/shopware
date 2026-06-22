@@ -66,6 +66,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        isInlineEditingActive: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     emits: [
@@ -120,6 +125,22 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         getControlType(property: ContentSystemElementTypeProperty): string | null {
             return getPropertyControlType(property);
+        },
+
+        isInlineTextProperty(key: string, property: ContentSystemElementTypeProperty): boolean {
+            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+
+            if (!selectedElementType || key !== 'text') {
+                return false;
+            }
+
+            const matchesTextType = selectedElementType.name.endsWith(':text');
+            const matchesTextProperty = Boolean(
+                selectedElementType.properties.text
+                && this.getControlType(selectedElementType.properties.text) === 'richtext',
+            );
+
+            return (matchesTextType || matchesTextProperty) && this.getControlType(property) === 'richtext';
         },
 
         getPropertyValue(key: string, property: ContentSystemElementTypeProperty): PrimitiveValue {
@@ -316,8 +337,8 @@ export default Shopware.Component.wrapComponentConfig({
                 return options
                     .filter((option): option is Record<string, unknown> => typeof option === 'object' && option !== null)
                     .map((option) => {
-                        const value = String(option.value ?? '');
-                        const label = String(option.label ?? value);
+                        const value = typeof option.value === 'string' ? option.value : '';
+                        const label = typeof option.label === 'string' ? option.label : value;
 
                         return {
                             value,

@@ -14,6 +14,13 @@ type ContentSystemPreviewService = {
     }) => Promise<string>;
 };
 
+type PreviewMessagePayload = {
+    source?: string;
+    type?: string;
+    elementId?: string | null;
+    value?: string | null;
+} | null;
+
 /**
  * @private
  * @sw-package discovery
@@ -23,6 +30,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: [
         'select-element',
+        'inline-edit-start',
+        'inline-edit-change',
+        'inline-edit-commit',
+        'inline-edit-cancel',
     ],
 
     props: {
@@ -51,6 +62,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        suspendAutoReload: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -73,21 +89,56 @@ export default Shopware.Component.wrapComponentConfig({
         }, 300);
 
         this.previewMessageHandler = (event: MessageEvent) => {
-            const payload = event.data as {
-                source?: string;
-                type?: string;
-                elementId?: string | null;
-            } | null;
+            const payload = event.data as PreviewMessagePayload;
 
             if (!payload || payload.source !== 'sw-experience-studio-preview') {
                 return;
             }
 
-            if (payload.type !== 'select-element') {
+            if (!this.isTrustedPreviewMessage(event)) {
                 return;
             }
 
-            this.$emit('select-element', payload.elementId ?? null);
+            if (payload.type === 'select-element') {
+                this.$emit('select-element', payload.elementId ?? null);
+                return;
+            }
+
+            if (!payload.elementId) {
+                return;
+            }
+
+            if (payload.type === 'inline-edit-start') {
+                this.$emit('inline-edit-start', {
+                    elementId: payload.elementId,
+                });
+
+                return;
+            }
+
+            if (payload.type === 'inline-edit-change' && typeof payload.value === 'string') {
+                this.$emit('inline-edit-change', {
+                    elementId: payload.elementId,
+                    value: payload.value,
+                });
+
+                return;
+            }
+
+            if (payload.type === 'inline-edit-commit' && typeof payload.value === 'string') {
+                this.$emit('inline-edit-commit', {
+                    elementId: payload.elementId,
+                    value: payload.value,
+                });
+
+                return;
+            }
+
+            if (payload.type === 'inline-edit-cancel') {
+                this.$emit('inline-edit-cancel', {
+                    elementId: payload.elementId,
+                });
+            }
         };
         window.addEventListener('message', this.previewMessageHandler);
 
@@ -119,6 +170,12 @@ export default Shopware.Component.wrapComponentConfig({
         entityId() {
             this.schedulePreviewReload();
         },
+
+        suspendAutoReload(nextValue: boolean, previousValue: boolean) {
+            if (previousValue && !nextValue) {
+                this.debouncedLoadPreview?.();
+            }
+        },
     },
 
     computed: {
@@ -140,7 +197,54 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getActiveFrameElement(): HTMLIFrameElement | null {
+            if (this.activeFrame === 'a') {
+                return this.$refs.iframeA as HTMLIFrameElement | null;
+            }
+
+            if (this.activeFrame === 'b') {
+                return this.$refs.iframeB as HTMLIFrameElement | null;
+            }
+
+            return null;
+        },
+
+        getActiveFrameOrigin(): string | null {
+            const activeFrame = this.getActiveFrameElement();
+            const frameUrl = activeFrame?.getAttribute('src');
+
+            if (!frameUrl) {
+                return null;
+            }
+
+            try {
+                return new URL(frameUrl, window.location.origin).origin;
+            } catch {
+                return null;
+            }
+        },
+
+        isTrustedPreviewMessage(event: MessageEvent): boolean {
+            const activeFrame = this.getActiveFrameElement();
+
+            if (!activeFrame?.contentWindow || event.source !== activeFrame.contentWindow) {
+                return false;
+            }
+
+            const activeOrigin = this.getActiveFrameOrigin();
+
+            if (!activeOrigin) {
+                return false;
+            }
+
+            return event.origin === activeOrigin;
+        },
+
         schedulePreviewReload(): void {
+            if (this.suspendAutoReload) {
+                return;
+            }
+
             this.debouncedLoadPreview?.();
         },
 

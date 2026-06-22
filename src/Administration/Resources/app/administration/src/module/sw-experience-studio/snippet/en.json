@@ -53,7 +53,9 @@
         "loading": "Loading element settings...",
         "typeLoadError": "Element settings could not be loaded.",
         "typeMissing": "No registered element type was found for this component yet.",
-        "noEditableProperties": "This element does not provide editable primitive properties."
+        "noEditableProperties": "This element does not provide editable primitive properties.",
+        "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
+        "inlineTextEditingActive": "Inline editing is currently active in the preview."
       },
       "elementPicker": {
         "title": "Add element",

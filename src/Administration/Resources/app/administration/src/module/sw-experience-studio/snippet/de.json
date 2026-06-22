@@ -53,7 +53,9 @@
         "loading": "Element-Einstellungen werden geladen ...",
         "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
         "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
-        "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften."
+        "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
+        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
+        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
       },
       "elementPicker": {
         "title": "Element hinzufügen",

@@ -199,4 +199,25 @@
         font-size: var(--font-size-xs);
         min-width: 20px;
     }
+
+    &__inline-text-hint {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-default);
+        background: var(--color-background-primary-default);
+    }
+
+    &__inline-text-title {
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__inline-text-description,
+    &__inline-text-state {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+    }
 }

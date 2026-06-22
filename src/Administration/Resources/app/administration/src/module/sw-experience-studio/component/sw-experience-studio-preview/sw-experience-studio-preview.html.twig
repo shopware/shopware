@@ -40,6 +40,7 @@
             >
                 <iframe
                     v-if="getFrameUrl('a')"
+                    ref="iframeA"
                     :class="getFrameClass('a')"
                     :src="getFrameUrl('a')"
                     :title="$t('sw-experience-studio.detail.preview.title')"
@@ -47,6 +48,7 @@
                 ></iframe>
                 <iframe
                     v-if="getFrameUrl('b')"
+                    ref="iframeB"
                     :class="getFrameClass('b')"
                     :src="getFrameUrl('b')"
                     :title="$t('sw-experience-studio.detail.preview.title')"

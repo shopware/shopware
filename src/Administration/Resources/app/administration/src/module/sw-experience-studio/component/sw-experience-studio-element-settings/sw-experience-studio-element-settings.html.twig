@@ -187,6 +187,24 @@
                     @update:value="onUpdateProperty(entry.key, $event)"
                 />
 
+                <div
+                    v-else-if="isInlineTextProperty(entry.key, entry.property)"
+                    class="sw-experience-studio-element-settings__inline-text-hint"
+                >
+                    <div class="sw-experience-studio-element-settings__inline-text-title">
+                        {{ entry.property.title }}
+                    </div>
+                    <div class="sw-experience-studio-element-settings__inline-text-description">
+                        {{ $t('sw-experience-studio.detail.elementSettings.inlineTextHint') }}
+                    </div>
+                    <div
+                        v-if="isInlineEditingActive"
+                        class="sw-experience-studio-element-settings__inline-text-state"
+                    >
+                        {{ $t('sw-experience-studio.detail.elementSettings.inlineTextEditingActive') }}
+                    </div>
+                </div>
+
                 <mt-text-editor
                     v-else-if="getControlType(entry.property) === 'richtext'"
                     v-bind="getControlProps(entry.property)"

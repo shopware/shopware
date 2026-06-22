@@ -50,7 +50,12 @@
                     :sales-channel-id="previewSalesChannelId"
                     :entity-type="previewEntityType"
                     :entity-id="previewEntityId"
+                    :suspend-auto-reload="isInlineEditing"
                     @select-element="onSelectElement"
+                    @inline-edit-start="onInlineEditStart"
+                    @inline-edit-change="onInlineEditChange"
+                    @inline-edit-commit="onInlineEditCommit"
+                    @inline-edit-cancel="onInlineEditCancel"
                 />
                 {% endblock %}
 
@@ -64,6 +69,7 @@
                     :is-loading-types="elementTypeStore.isLoading"
                     :type-load-error="elementTypeStore.loadError"
                     :allow-edit="allowSave"
+                    :is-inline-editing-active="isInlineEditing"
                     @update-properties="onElementSettingsChange"
                 />
                 {% endblock %}

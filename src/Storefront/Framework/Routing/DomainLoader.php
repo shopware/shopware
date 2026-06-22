@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
-use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
@@ -46,13 +45,7 @@ class DomainLoader extends AbstractDomainLoader
 
     public function loadDomains(): DomainCollection
     {
-        $domains = new DomainCollection();
-
-        foreach ($this->fetch() as $key => $domain) {
-            $domains->set($key, DomainStruct::fromArray($domain));
-        }
-
-        return $domains;
+        return DomainCollection::fromArray($this->fetch());
     }
 
     /**

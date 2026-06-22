@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -126,7 +127,7 @@ class MaintenanceController extends StorefrontController
             ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
 
         if ($ips) {
-            $ips = implode(',', json_decode($ips, true, flags: \JSON_THROW_ON_ERROR));
+            $ips = implode(',', Json::decodeToList((string) $ips));
 
             $response->headers->set(HttpCacheKernel::MAINTENANCE_ALLOWLIST_HEADER, $ips);
             // @deprecated tag:v6.8.0 - remove setting the deprecated header

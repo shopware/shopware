@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
-use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 
 /**
  * @phpstan-type Domain = array{url: string, id: string, salesChannelId: string, typeId: string, snippetSetId: string, currencyId: string, languageId: string, themeId: string, maintenance: string, maintenanceIpAllowlist: string, locale: string, themeName: string, parentThemeName: string}
@@ -26,12 +25,6 @@ abstract class AbstractDomainLoader
      */
     public function loadDomains(): DomainCollection
     {
-        $domains = new DomainCollection();
-
-        foreach ($this->load() as $key => $domain) {
-            $domains->set($key, DomainStruct::fromArray($domain));
-        }
-
-        return $domains;
+        return DomainCollection::fromArray($this->load());
     }
 }

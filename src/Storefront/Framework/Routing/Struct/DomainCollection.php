@@ -11,6 +11,17 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('framework')]
 class DomainCollection extends Collection
 {
+    /**
+     * @param array<string, array<string, mixed>> $rows
+     */
+    public static function fromArray(array $rows): self
+    {
+        return new self(array_map(
+            static fn (array $row): DomainStruct => DomainStruct::fromArray($row),
+            $rows
+        ));
+    }
+
     public function getApiAlias(): string
     {
         return 'storefront_domain_collection';

@@ -333,8 +333,6 @@ class ProductSearchQueryBuilderTest extends TestCase
         $ids = new IdsCollection();
         $this->createData($ids);
 
-        $this->refreshIndex();
-
         return $ids;
     }
 

@@ -345,6 +345,26 @@ class ProductListingRouteTest extends TestCase
         static::assertSame([$streamProductId], $this->loadListingIds($streamChildCategoryId));
     }
 
+    public function testStreamParentIncludesManualChildProducts(): void
+    {
+        [$parentCategoryId, $manualChildCategoryId, $manualProductId, $streamProductId] = $this->createStreamParentWithManualChildData(true);
+
+        $parentIds = $this->loadListingIds($parentCategoryId);
+
+        // a stream parent must surface its own stream products AND products manually assigned in its subtree
+        static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+    }
+
+    public function testStreamParentWithoutStreamMatchStillIncludesManualChildProducts(): void
+    {
+        [$parentCategoryId, $manualChildCategoryId, $manualProductId] = $this->createStreamParentWithManualChildData(false);
+
+        // even when the parent's own stream matches nothing, descendant products must still appear
+        static::assertSame([$manualProductId], $this->loadListingIds($parentCategoryId));
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+    }
+
     /**
      * @param array<string, mixed> $product
      * @param array<string, mixed> $expected
@@ -1107,6 +1127,88 @@ class ProductListingRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: string}
+     */
+    private function createStreamParentWithManualChildData(bool $withMatchingStreamProduct): array
+    {
+        $parentCategoryId = Uuid::randomHex();
+        $manualChildCategoryId = Uuid::randomHex();
+        $manualProductId = Uuid::randomHex();
+        $streamProductId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+        $streamProductNumber = 'stream-product-' . Uuid::randomHex();
+
+        $streamWrittenEvent = static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'parent-stream',
+                'filters' => [[
+                    'type' => 'equals',
+                    'field' => 'productNumber',
+                    'value' => $streamProductNumber,
+                ]],
+            ],
+        ], Context::createDefaultContext());
+        $this->indexProductStreamDefinition($streamWrittenEvent);
+
+        $this->categoryRepository->create([
+            [
+                'id' => $parentCategoryId,
+                'name' => 'stream-parent-category',
+                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                'productStreamId' => $streamId,
+            ],
+            [
+                'id' => $manualChildCategoryId,
+                'name' => 'manual-child-category',
+                'parentId' => $parentCategoryId,
+            ],
+        ], Context::createDefaultContext());
+        $this->indexCategories([$parentCategoryId, $manualChildCategoryId]);
+
+        $products = [
+            [
+                'id' => $manualProductId,
+                'name' => 'manual-product',
+                'productNumber' => $manualProductId,
+                'stock' => 10,
+                'active' => true,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'categories' => [
+                    ['id' => $manualChildCategoryId],
+                ],
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ];
+
+        if ($withMatchingStreamProduct) {
+            $products[] = [
+                'id' => $streamProductId,
+                'name' => 'stream-product',
+                'productNumber' => $streamProductNumber,
+                'stock' => 10,
+                'active' => true,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+        }
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        return [$parentCategoryId, $manualChildCategoryId, $manualProductId, $streamProductId];
     }
 
     private function indexProductStreamDefinition(EntityWrittenContainerEvent $writtenEvent): void

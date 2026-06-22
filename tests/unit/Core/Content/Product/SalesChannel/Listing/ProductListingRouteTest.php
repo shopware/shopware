@@ -189,8 +189,8 @@ class ProductListingRouteTest extends TestCase
             'product.visibilities.visibility',
             'product.visibilities.salesChannelId',
             'product.active',
-            'product.categoriesRo.id',
             'product.stock',
+            'product.categoriesRo.id',
         ], $criteria->getFilterFields());
     }
 

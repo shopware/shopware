@@ -141,4 +141,63 @@ describe('mapOptionsPropKeys', () => {
         expect(api.reports[0].message).toContain('Migrate conflicting options manually.');
         expect(api.reports[0].fix(createFixer())).toBeNull();
     });
+
+    it('skips fixes when object v-bind can hide the options prop', () => {
+        const usage = mapOptionsPropKeys({
+            prop: 'options',
+            from: {
+                name: 'label',
+                id: 'value',
+            },
+        });
+        const attribute = createDirectiveAttribute('bind', 'options', {
+            expression: {
+                type: 'ArrayExpression',
+                elements: [
+                    {
+                        type: 'ObjectExpression',
+                        properties: [
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'name',
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+        });
+        const objectVBind = createDirectiveAttribute('bind');
+        const api = createRuleApi({
+            usage,
+            attribute,
+            attributeValueSource: `[{ name: 'One' }]`,
+            node: {
+                name: 'mt-test',
+                startTag: {
+                    range: [
+                        0,
+                        10,
+                    ],
+                    loc: {
+                        start: {
+                            column: 0,
+                        },
+                    },
+                    attributes: [
+                        objectVBind,
+                        attribute,
+                    ],
+                },
+                children: [],
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-bind can hide the "options" prop.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

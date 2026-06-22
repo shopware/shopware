@@ -108,6 +108,14 @@ function getUnsafeMessage(usageConfig: DeprecationUsage): string {
     return 'Migrate option object keys manually because this options expression is dynamic or structurally unsafe to rewrite automatically.';
 }
 
+function hasObjectVBind(api: Parameters<NonNullable<DeprecationUsage['eslint']>['report']>[0]): boolean {
+    return api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
+        return (
+            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
+        );
+    });
+}
+
 export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
@@ -133,13 +141,17 @@ export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): D
             const optionObjects = getSafeOptionObjects(expression);
             const deprecatedProperties = optionObjects ? collectDeprecatedProperties(optionObjects, keyMap) : [];
             const hasKeyConflict = optionObjects ? hasReplacementKeyConflict(optionObjects, keyMap) : false;
-            const canFixSafely = optionObjects !== null && deprecatedProperties.length > 0 && !hasKeyConflict;
+            const objectVBindMessage = hasObjectVBind(api)
+                ? `Object v-bind can hide the "${usageConfig.prop}" prop. Review the bound object and migrate option keys manually if needed.`
+                : undefined;
+            const canFixSafely =
+                optionObjects !== null && deprecatedProperties.length > 0 && !hasKeyConflict && !objectVBindMessage;
             const reportUsageConfig: DeprecationUsage = canFixSafely
                 ? usageConfig
                 : {
                       ...usageConfig,
                       fix: 'manual',
-                      message: getUnsafeMessage(usageConfig),
+                      message: objectVBindMessage ?? getUnsafeMessage(usageConfig),
                   };
 
             api.reportWithDuplicateReplacementGuard({

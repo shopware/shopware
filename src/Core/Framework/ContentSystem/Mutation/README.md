@@ -26,8 +26,8 @@ Every operation reports four things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for the editor, not a correctness claim; the diagnostics pass is the authority.
 - **orphaned** (`list<ContentElement>`) - subtrees the operation detached (for example, a replace dropping the children of a slot the new type does not have). Returned so the caller can re-place them; never discarded.
-- **droppedWiring** (`list<string>`) - wiring keys the operation dropped because they no longer fit (for example, a replace to a type without that reference property). Reported so the caller can re-wire; never silently re-mapped.
-- **droppedProperties** (`array<string, mixed>`) - static property values the operation could not carry to the new type (key absent, or a value the new type's property type rejects), keyed by property key. Reported so the caller can re-apply them; never silently discarded.
+- **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home (for example, a replace to a type without that reference property, or the data-requirement and accepted-context keys an unwrapped container consumed). Reported so the caller can re-wire; never silently re-mapped.
+- **droppedProperties** (`array<string, mixed>`) - static property values the operation could not carry over (a replace whose new type cannot hold them — key absent, or a value the new type's property type rejects — or an unwrap that removes the container holding them), keyed by property key. Reported so the caller can re-apply them; never silently discarded.
 
 The contract is that no structural edit silently loses content or wiring: anything an operation cannot keep is handed back through `orphaned`, `droppedWiring`, or `droppedProperties`.
 
@@ -50,7 +50,7 @@ All eight live in `Op/` and extend `AbstractLayoutMutation`:
 - **ReplaceElement** - swaps an element's component to a new type, keeping the same id and carrying over matching properties, wiring, and slot children; anything the new type cannot hold is surfaced via `orphaned`/`droppedWiring`/`droppedProperties`.
 - **DuplicateElement** - deep-clones a subtree with freshly minted ids and splices the clone as the next sibling.
 - **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
-- **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position.
+- **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position. The removed container's own static property values and consumed wiring (its data requirements and accepted context) come back through `droppedProperties` / `droppedWiring`, so nothing the container held is lost.
 - **AttachElement** - splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the detachment a replace reports through `orphaned`: it re-places a detached subtree (or a copied one) without trusting client ids.
 
 ## Key Classes

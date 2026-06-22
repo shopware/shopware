@@ -31,10 +31,10 @@ final class InsertElement extends AbstractLayoutMutation
     {
         $this->requireRegistered($this->registry, $this->type);
 
-        if ($this->parentElementId === null) {
-            $element = $this->scaffoldElement($this->registry, $this->type);
-            $this->affected = [$element->getId()];
+        $element = $this->scaffoldElement($this->registry, $this->type);
+        $this->affected = [$element->getId()];
 
+        if ($this->parentElementId === null) {
             return $this->insertAtRoot($tree, $this->index, [$element]);
         }
 
@@ -47,9 +47,6 @@ final class InsertElement extends AbstractLayoutMutation
         if ($this->findNode($tree, $this->parentElementId) === null) {
             throw ContentSystemException::mutationTargetNotFound($this->parentElementId);
         }
-
-        $element = $this->scaffoldElement($this->registry, $this->type);
-        $this->affected = [$element->getId()];
 
         return $this->insertIntoSlot($tree, $this->parentElementId, $slot, $this->index, [$element]);
     }

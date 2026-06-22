@@ -9,7 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Replaces $containerElementId with its slot children, hoisted into the container's parent slot at the
  * container's position. The children flatten across all the container's slots in slot order. Reports the whole
- * hoisted forest as affected.
+ * hoisted forest as affected, and the removed container's own static property values ({@see droppedProperties()})
+ * and consumed wiring — its data requirements plus accepted context ({@see droppedWiring()}) — so neither is
+ * silently lost. Context the container provided to its descendants is not reported here; a hoisted descendant
+ * that depended on it surfaces as a BrokenRequiredChain binding violation in the diagnostics pass instead.
  *
  * @internal
  */
@@ -31,6 +34,16 @@ final class UnwrapElement extends AbstractLayoutMutation
 
         $children = $this->childList($location->node);
         $this->affected = array_merge([], ...array_map($this->subtreeIds(...), $children));
+
+        // The container is removed but its hoisted children survive: its own static property values and the wiring
+        // it consumed (data requirements + accepted context) have no home on any child, so report them rather than
+        // drop them silently. Context the container *provided* is not reported here — its loss surfaces as a
+        // BrokenRequiredChain binding violation in the diagnostics pass instead.
+        $this->droppedProperties = $location->node->getProperties();
+        $this->droppedWiring = array_values(array_unique([
+            ...array_keys($location->node->getDataRequirements()),
+            ...array_keys($location->node->getContextDefinitions()->getAllConsumers()),
+        ]));
 
         $without = $this->removeSubtree($tree, $this->containerElementId);
 

@@ -63,7 +63,11 @@ class ReplaceElementTest extends TestCase
     {
         yield 'matching string kept' => [['headline' => 'Hi'], ['headline' => 'Hi']];
         yield 'matching integer kept' => [['count' => 5], ['count' => 5]];
+        yield 'matching number keeps an int' => [['ratio' => 5], ['ratio' => 5]];
+        yield 'matching number keeps a float' => [['ratio' => 1.5], ['ratio' => 1.5]];
+        yield 'matching boolean kept' => [['featured' => true], ['featured' => true]];
         yield 'mismatched type dropped' => [['count' => 'text'], []];
+        yield 'float dropped from an integer property' => [['count' => 1.5], []];
         yield 'key absent from new type dropped' => [['ghost' => 'x'], []];
         yield 'scalar under a reference key dropped' => [['product' => 'oops'], []];
     }
@@ -82,6 +86,17 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame(['headline' => 'Hi'], $result[0]->getProperties());
         static::assertSame(['ghost' => 'orphaned-value', 'count' => 'not-an-int'], $replace->droppedProperties());
+    }
+
+    #[TestDox('resets droppedProperties on re-apply so a second run does not accumulate the first run drops')]
+    public function testReplaceResetsDroppedPropertiesOnReapply(): void
+    {
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New');
+
+        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['ghost' => 'first-run'])]);
+        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'second-run'])]);
+
+        static::assertSame(['count' => 'second-run'], $replace->droppedProperties());
     }
 
     #[TestDox('keeps wiring whose key matches a new-type reference property')]
@@ -229,6 +244,8 @@ class ReplaceElementTest extends TestCase
             [
                 'headline' => $this->primitive('string'),
                 'count' => $this->primitive('integer'),
+                'ratio' => $this->primitive('number'),
+                'featured' => $this->primitive('boolean'),
                 'product' => $this->reference(),
             ],
             [new SlotSpecification('content', null, [], '')],

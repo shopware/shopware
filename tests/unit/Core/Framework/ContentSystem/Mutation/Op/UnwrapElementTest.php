@@ -6,7 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 
@@ -63,6 +70,28 @@ class UnwrapElementTest extends TestCase
         $unwrap->apply($tree);
 
         static::assertSame(['a', 'grandchild', 'b'], $unwrap->affected());
+    }
+
+    #[TestDox('reports the removed containers own static properties and consumed wiring, not its provided context')]
+    public function testUnwrapReportsContainerOwnConfig(): void
+    {
+        $container = new ContentElement(
+            'container',
+            'Sw:Container',
+            ['hero' => new DataRequirement('hero', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
+            ['title' => 'Section', 'spacing' => 3],
+            ['content' => new SlotContent([new ContentElement('kid', 'Sw:Block')])],
+            new ContextDefinitions(
+                ['themeProvider' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['theme' => new ContextConsumer(ContextType::Single, true)],
+            ),
+        );
+
+        $unwrap = new UnwrapElement('container');
+        $unwrap->apply([$container]);
+
+        static::assertSame(['title' => 'Section', 'spacing' => 3], $unwrap->droppedProperties());
+        static::assertSame(['hero', 'theme'], $unwrap->droppedWiring());
     }
 
     #[TestDox('flattens children across all container slots in slot order')]

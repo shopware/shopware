@@ -36,6 +36,11 @@ final class ReplaceElement extends AbstractLayoutMutation
     {
         $this->requireRegistered($this->registry, $this->newType);
 
+        // carryProperties accumulates into $droppedProperties, unlike the other channels which are reassigned;
+        // reset it here so re-application reports only the current run's drops and the single-use contract is not
+        // load-bearing for correctness.
+        $this->droppedProperties = [];
+
         $node = $this->findNode($tree, $this->elementId);
 
         if ($node === null) {

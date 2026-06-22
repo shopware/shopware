@@ -38,7 +38,7 @@ jobs:
           npm run lint:scss
 
   lint-admin-modules:
-    name: "Storefront admin-modules ESLint"
+    name: "Storefront admin-modules code style"
     runs-on: ubuntu-24.04
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"

@@ -34,7 +34,7 @@ the checklist for adding a new skill), see
 
 | Workflow | Trigger | Engine | Output |
 |---|---|---|---|
-| `bugfixer` | `qi:fix` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-6` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
+| `bugfixer` | `qi:fix` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
 | `triage` | `workflow_dispatch` (input: `issue_number`) | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
 
 The triage agent is read-only — it has no write permissions and cannot label, comment, or close. Its only side effect is the artifact, which a downstream job (or a human) consumes.
@@ -56,7 +56,7 @@ The Bugfixer agent also runs without direct write credentials. Branch creation, 
 ## Pinning
 
 - **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.79.6`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
-- **Engine model** — `triage.md` is pinned to `claude-sonnet-4-6`; `bugfixer.md` is pinned to `claude-opus-4-6` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
+- **Engine model** — `triage.md` is pinned to `claude-sonnet-4-6`; `bugfixer.md` is pinned to `claude-opus-4-8` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
 - **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
 
 ## Secrets

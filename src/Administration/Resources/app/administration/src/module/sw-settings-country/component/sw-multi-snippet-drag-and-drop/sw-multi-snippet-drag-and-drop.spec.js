@@ -238,7 +238,18 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             'address/city',
         ]);
 
-        await wrapper.vm.onDragLeave();
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+        );
 
         expect(wrapper.vm.previewSnippets.map(({ snippet }) => snippet)).toEqual([
             'address/company',

@@ -132,8 +132,6 @@ export default Component.wrapComponentConfig({
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDragEnter: this.onDragEnter,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDragLeave: this.onDragLeave,
-                // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onDrop,
                 ...this.dragConfig,
             } as DragConfig<DragItem>;
@@ -194,10 +192,6 @@ export default Component.wrapComponentConfig({
             }
 
             this.$emit('drag-enter', { dragData, dropData });
-        },
-
-        onDragLeave() {
-            this.dragPreview = null;
         },
 
         onDrop(dragData: DragItem, dropData: DragItem) {

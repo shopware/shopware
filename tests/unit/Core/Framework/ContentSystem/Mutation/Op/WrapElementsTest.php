@@ -19,6 +19,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 #[CoversClass(WrapElements::class)]
 class WrapElementsTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('wraps root siblings into a freshly minted container slot')]
     public function testWrapMovesSiblingsIntoContainer(): void
     {
@@ -169,13 +171,14 @@ class WrapElementsTest extends TestCase
     #[TestDox('does not mutate the input parent in place when wrapping nested siblings')]
     public function testWrapDoesNotMutateInput(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
-        ]);
+        ])];
+        $before = $this->snapshotTree($tree);
 
-        (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'items'))->apply([$parent]);
+        (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'items'))->apply($tree);
 
-        static::assertCount(2, $parent->getSlots()['content']->getElements());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(string $type): AbstractContentSystemElementTypeRegistry

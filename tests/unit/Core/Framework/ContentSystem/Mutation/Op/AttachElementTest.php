@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(AttachElement::class)]
 class AttachElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('appends the supplied subtree at the root with a server-minted id')]
     public function testAttachesAtRootWithMintedId(): void
     {
@@ -130,13 +132,14 @@ class AttachElementTest extends TestCase
     #[TestDox('does not mutate the input tree in place')]
     public function testAttachDoesNotMutateInput(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
-        ]);
+        ])];
+        $before = $this->snapshotTree($tree);
 
-        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply([$parent]);
+        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply($tree);
 
-        static::assertCount(1, $parent->getSlots()['content']->getElements());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

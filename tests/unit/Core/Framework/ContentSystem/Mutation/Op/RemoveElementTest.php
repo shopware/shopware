@@ -18,6 +18,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 #[CoversClass(RemoveElement::class)]
 class RemoveElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('deletes the element together with its whole subtree')]
     public function testRemoveDeletesElementAndSubtree(): void
     {
@@ -83,12 +85,13 @@ class RemoveElementTest extends TestCase
     #[TestDox('does not mutate the input parent in place when removing a nested child')]
     public function testRemoveDoesNotMutateInput(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
-        ]);
+        ])];
+        $before = $this->snapshotTree($tree);
 
-        (new RemoveElement('a'))->apply([$parent]);
+        (new RemoveElement('a'))->apply($tree);
 
-        static::assertCount(2, $parent->getSlots()['content']->getElements());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 }

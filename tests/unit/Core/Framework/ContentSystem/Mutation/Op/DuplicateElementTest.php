@@ -23,6 +23,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(DuplicateElement::class)]
 class DuplicateElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('inserts the clone as the next sibling with a fresh id')]
     public function testDuplicateInsertsCloneAsNextSibling(): void
     {
@@ -121,12 +123,17 @@ class DuplicateElementTest extends TestCase
     #[TestDox('does not mutate the input parent in place when duplicating a nested child')]
     public function testDuplicateDoesNotMutateInput(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('original', 'Sw:Card')]),
-        ]);
+        $tree = [new ContentElement('parent', 'Sw:Block', [], [], [
+            'content' => new SlotContent([
+                new ContentElement('original', 'Sw:Card', [], ['title' => 'Section'], [
+                    'inner' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
+                ]),
+            ]),
+        ])];
+        $before = $this->snapshotTree($tree);
 
-        (new DuplicateElement('original'))->apply([$parent]);
+        (new DuplicateElement('original'))->apply($tree);
 
-        static::assertCount(1, $parent->getSlots()['content']->getElements());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 }

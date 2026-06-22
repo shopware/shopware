@@ -23,6 +23,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 #[CoversClass(UnwrapElement::class)]
 class UnwrapElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('replaces the container with its slot children at the root')]
     public function testUnwrapReplacesContainerWithChildren(): void
     {
@@ -131,13 +133,13 @@ class UnwrapElementTest extends TestCase
     #[TestDox('does not mutate the input tree')]
     public function testUnwrapDoesNotMutateInput(): void
     {
-        $tree = [new ContentElement('container', 'Sw:Container', [], [], [
+        $tree = [new ContentElement('container', 'Sw:Container', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
         ])];
+        $before = $this->snapshotTree($tree);
 
         (new UnwrapElement('container'))->apply($tree);
 
-        static::assertCount(1, $tree);
-        static::assertTrue($tree[0]->hasSlots());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 }

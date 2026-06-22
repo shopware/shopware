@@ -30,6 +30,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 #[CoversClass(ReplaceElement::class)]
 class ReplaceElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('keeps the element id while swapping the component')]
     public function testReplaceKeepsElementId(): void
     {
@@ -225,11 +227,14 @@ class ReplaceElementTest extends TestCase
     #[TestDox('does not mutate the input tree')]
     public function testReplaceDoesNotMutateInput(): void
     {
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['headline' => 'Hi'])];
+        $tree = [new ContentElement('el', 'Sw:Old', [], ['headline' => 'Hi'], [
+            'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
+        ])];
+        $before = $this->snapshotTree($tree);
 
         (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply($tree);
 
-        static::assertSame('Sw:Old', $tree[0]->getComponent());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

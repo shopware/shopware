@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(InsertElement::class)]
 class InsertElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('appends a fresh element of the type to the root with a server-minted id')]
     public function testInsertAppendsRootElement(): void
     {
@@ -118,13 +120,14 @@ class InsertElementTest extends TestCase
     #[TestDox('does not mutate the input parent in place when inserting into its slot')]
     public function testInsertDoesNotMutateInput(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-        ]);
+        ])];
+        $before = $this->snapshotTree($tree);
 
-        (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply([$parent]);
+        (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply($tree);
 
-        static::assertCount(1, $parent->getSlots()['content']->getElements());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry

@@ -21,6 +21,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 #[CoversClass(MoveElement::class)]
 class MoveElementTest extends TestCase
 {
+    use AssertsImmutableInput;
+
     #[TestDox('relocates the element and its subtree into the new parent slot')]
     public function testMoveRelocatesSubtreeToNewParent(): void
     {
@@ -87,6 +89,24 @@ class MoveElementTest extends TestCase
 
         $right = array_values($result[0]->getSlots()['right']->getElements());
         static::assertSame('child', $right[0]->getId());
+        static::assertSame([], $move->affected());
+    }
+
+    #[TestDox('reuses the element current slot for a same-parent move that omits the new slot')]
+    public function testMoveSameParentWithoutSlotReusesCurrentSlot(): void
+    {
+        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+            'content' => new SlotContent([
+                new ContentElement('a', 'Sw:Block'),
+                new ContentElement('child', 'Sw:Block'),
+            ]),
+        ]);
+
+        $move = new MoveElement('child', 'parent', null, 0);
+        $result = $move->apply([$parent]);
+
+        $children = array_values($result[0]->getSlots()['content']->getElements());
+        static::assertSame(['child', 'a'], array_map(static fn (ContentElement $e): string => $e->getId(), $children));
         static::assertSame([], $move->affected());
     }
 
@@ -170,13 +190,18 @@ class MoveElementTest extends TestCase
     public function testMoveDoesNotMutateInput(): void
     {
         $tree = [
-            new ContentElement('movable', 'Sw:Block'),
-            new ContentElement('target', 'Sw:Block'),
+            new ContentElement('parent', 'Sw:Block', [], [], [
+                'content' => new SlotContent([
+                    new ContentElement('movable', 'Sw:Block', [], ['title' => 'Section'], [
+                        'inner' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
+                    ]),
+                ]),
+            ]),
         ];
+        $before = $this->snapshotTree($tree);
 
-        (new MoveElement('movable', 'target', 'content'))->apply($tree);
+        (new MoveElement('movable'))->apply($tree);
 
-        static::assertCount(2, $tree);
-        static::assertFalse($tree[1]->hasSlots());
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 }

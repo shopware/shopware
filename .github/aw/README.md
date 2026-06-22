@@ -30,9 +30,9 @@ the checklist for adding a new skill), see
 
 | Workflow | Trigger | Engine | Output |
 |---|---|---|---|
-| `triage` | `workflow_dispatch` (input: `issue_number`) | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
+| `triage` | `workflow_dispatch` (input: `issue_number`), `/triage` issue comment, `qi/triage` issue label | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
 
-The triage agent is read-only — it has no write permissions and cannot label, comment, or close. Its only side effect is the artifact, which a downstream job (or a human) consumes.
+The triage agent job is read-only — it cannot label, comment, or close. Command-trigger activation may add status/reaction feedback, and the validated artifact is consumed by the downstream processor that posts the triage result.
 
 ## Editing a workflow
 

@@ -6,20 +6,32 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: "Issue number to triage"
-        required: true
+        # (github.event.issue.number); only a manual workflow_dispatch fills this input.
+        description: "Issue number to triage (manual dispatch only)"
+        required: false
         type: number
+  label_command:
+    name: qi/triage             # PLACEHOLDER — swap for the real trigger label when wiring triage into the wider pipeline
+    events: [issues]
+    remove_label: false
+  slash_command:
+    name: triage                # `/triage` on an issue
+    events: [issue_comment]
+  reaction: none
+  status-comment:
+    issues: true
+    pull-requests: false
 
 run-name: "Shopware Issue Triage #${{ github.event.issue.number || github.event.inputs.issue_number }}"
 
 concurrency:                 # explicit — workflow_dispatch default group cancels parallel runs (gh-aw #19467)
-  group: triage-${{ github.event.inputs.issue_number }}
+  group: triage-${{ github.event.issue.number || github.event.inputs.issue_number }}
   cancel-in-progress: false
 
 engine:
   id: claude
   model: claude-sonnet-4-6   # explicit pin (Sonnet was already the default, just no drift)
-  max-turns: 15              # claude-only; bound the loop so Bash-denials don't burn turns.
+  max-turns: 30              # claude-only; bound the loop so Bash-denials don't burn turns.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in
     # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads.
@@ -62,7 +74,7 @@ post-steps:
     if: always()
     shell: bash
     env:
-      TRIAGE_ISSUE_NUMBER: ${{ github.event.inputs.issue_number }}
+      TRIAGE_ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
       TRIAGE_RUN_ID: ${{ github.run_id }}
     run: |
       mkdir -p "${RUNNER_TEMP}/triage-context"
@@ -92,8 +104,13 @@ post-steps:
 
 ## This run
 
-Triage issue **#${{ github.event.inputs.issue_number }}** using the policy and references
-above. Investigate read-only (no labels, comments, or writes). When done, write your
-single `TriageOutput` JSON object to a file named `triage-output.json` in the workspace
-root, then call the `upload_artifact` tool on that path. Emit ONLY the JSON to that file
+Triage issue **#${{ github.event.issue.number || github.event.inputs.issue_number }}** using the policy and references
+above. Investigate read-only (no labels, comments, or writes).
+
+Write a **best-effort** `TriageOutput` JSON object to a file named `triage-output.json`
+in the workspace root **early** — within your first few tool calls, before you are
+"done" — then refine it as evidence accumulates. Treat producing the file as step one,
+not the finale: a run cut off by the turn limit or timeout must still leave a usable
+result rather than failing with no output. Re-write the whole file on each update. When
+finished, call the `upload_artifact` tool on that path. Emit ONLY the JSON to that file
 — no surrounding prose, no markdown fence.

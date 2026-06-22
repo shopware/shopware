@@ -70,10 +70,17 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
    `fix:` or `revert:` commits, **especially those referencing the issue
    number (`#N`) in the message** — direct fix-PR references.
 
-4. **Search for duplicates / related fixes** (`gh`). Pick 2–3 distinctive
-   title keywords. Run ONE good `gh issue list --search "<keywords>"` query,
-   and (if a fix-commit surfaced in step 3) `gh pr view <pr-number>` to
-   verify it closes this issue. Max ~5 `gh` calls total.
+4. **Search for duplicates / related fixes.** Pick 2–3 distinctive title
+   keywords, run ONE good search, and (if a fix-commit surfaced in step 3)
+   verify the PR closes this issue. Use the tools available in your mode:
+   - Interactive: `gh issue list --search "<keywords>"` and `gh pr view <pr-number>`.
+   - Unattended (gh aw): the GitHub MCP `search_issues` / `list_issues` and
+     `get_pull_request` tools (from the `issues` / `pull_requests` toolsets the
+     workflow grants — `gh` is NOT available in this mode).
+
+   Max ~5 search/lookup calls total. Duplicate detection drives the
+   `duplicate` disposition and `duplicate_of`: if you cannot run a search in
+   your mode, say so in `reasoning` and do NOT assert `duplicate`.
 
 5. **Estimate change-size.** Single contained file = `quick-fix` / `small`;
    multiple subsystems = `medium`; can't tell = `unknown`. Only justify a

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 #[Package('inventory')]
@@ -22,7 +21,6 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     final public const ROUTE_NAME = 'frontend.navigation.page';
     final public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
-    final public const HOME_PAGE_ROUTE_NAME = 'frontend.home.page';
 
     /**
      * @internal
@@ -39,18 +37,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
             $this->categoryDefinition,
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
-            true,
-            static function (SalesChannelEntity $salesChannel, ArrayStruct $parameters): string {
-                $navigationId = $parameters->get('navigationId');
-
-                if ($salesChannel->getNavigationCategoryId() === $navigationId) {
-                    $parameters->offsetUnset('navigationId');
-
-                    return self::HOME_PAGE_ROUTE_NAME;
-                }
-
-                return self::ROUTE_NAME;
-            },
+            true
         );
     }
 

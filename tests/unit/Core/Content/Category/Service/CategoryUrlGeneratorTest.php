@@ -35,13 +35,7 @@ class CategoryUrlGeneratorTest extends TestCase
         $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $this->urlGenerator = new CategoryUrlGenerator($this->entityRouteResolver);
         $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnCallback(
-            static function (string $entityName, ArrayStruct $parameters, ?SalesChannelEntity $salesChannel): string {
-                if ($parameters->has('navigationId') && $salesChannel?->getNavigationCategoryId() === $parameters->get('navigationId')) {
-                    return 'frontend.home.page';
-                }
-
-                return $entityName;
-            }
+            static fn (string $entityName, ArrayStruct $parameters): string => $entityName
         );
         $this->salesChannel = new SalesChannelEntity();
         $this->salesChannel->setNavigationCategoryId(Uuid::randomHex());
@@ -62,22 +56,6 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
         static::assertNull($this->urlGenerator->generate($category, $this->salesChannel));
-    }
-
-    public function testLinkCategoryHome(): void
-    {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->setInternalLink(Uuid::randomHex());
-
-        $internalLink = $category->getInternalLink();
-        static::assertIsString($internalLink);
-        $category->addTranslated('internalLink', $internalLink);
-        $this->salesChannel->setNavigationCategoryId($internalLink);
-
-        static::assertSame('frontend.home.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     #[DataProvider('dataProviderLinkTypes')]

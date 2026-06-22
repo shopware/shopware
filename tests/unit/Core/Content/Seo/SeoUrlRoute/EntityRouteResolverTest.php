@@ -12,8 +12,6 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -46,38 +44,6 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame('store-api.product.detail', $resolver->getRouteNameForEntityName('product'));
     }
 
-    public function testGetRouteNameUsesRouteBySalesChannelClosureWhenSalesChannelProvided(): void
-    {
-        $id = Uuid::randomHex();
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setNavigationCategoryId($id);
-        $parameters = new ArrayStruct(['navigationId' => $id]);
-
-        $resolver = $this->createResolverWithRoute(
-            'category',
-            'frontend.navigation.page',
-            static fn (SalesChannelEntity $sc, ArrayStruct $params): string => $sc->getNavigationCategoryId() === $params->get('navigationId')
-                ? 'frontend.home.page'
-                : 'frontend.navigation.page',
-        );
-
-        static::assertSame(
-            'frontend.home.page',
-            $resolver->getRouteNameForEntityName('category', $parameters, $salesChannel)
-        );
-    }
-
-    public function testGetRouteNameIgnoresSalesChannelClosureWhenNoSalesChannelProvided(): void
-    {
-        $resolver = $this->createResolverWithRoute(
-            'category',
-            'frontend.navigation.page',
-            static fn (SalesChannelEntity $sc, array $params): string => 'frontend.home.page',
-        );
-
-        static::assertSame('frontend.navigation.page', $resolver->getRouteNameForEntityName('category'));
-    }
-
     public function testGenerateSeoUrlPlaceholderPassesResolvedRouteAndParameters(): void
     {
         $this->placeholderHandler
@@ -104,32 +70,6 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('category'));
     }
 
-    public function testGenerateSeoUrlPlaceholderRespectsRouteBySalesChannelClosure(): void
-    {
-        $id = Uuid::randomHex();
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setNavigationCategoryId($id);
-
-        $this->placeholderHandler
-            ->expects($this->once())
-            ->method('generate')
-            ->with('frontend.home.page', ['navigationId' => $id])
-            ->willReturn('HOME_PLACEHOLDER');
-
-        $resolver = $this->createResolverWithRoute(
-            'category',
-            'frontend.navigation.page',
-            static fn (SalesChannelEntity $sc, ArrayStruct $params): string => $sc->getNavigationCategoryId() === $params->get('navigationId')
-                ? 'frontend.home.page'
-                : 'frontend.navigation.page',
-        );
-
-        static::assertSame(
-            'HOME_PLACEHOLDER',
-            $resolver->generateSeoUrlPlaceholder('category', new ArrayStruct(['navigationId' => $id]), $salesChannel)
-        );
-    }
-
     public function testGenerateUrlPassesResolvedRouteAndParameters(): void
     {
         $this->router
@@ -143,12 +83,12 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', new ArrayStruct(['productId' => 'abc123'])));
     }
 
-    private function createResolverWithRoute(string $entityName, string $routeName, ?\Closure $routeBySalesChannelGetter = null): EntityRouteResolver
+    private function createResolverWithRoute(string $entityName, string $routeName): EntityRouteResolver
     {
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($entityName);
 
-        $config = new SeoUrlRouteConfig($definition, $routeName, '{{ entity.name }}', true, $routeBySalesChannelGetter);
+        $config = new SeoUrlRouteConfig($definition, $routeName, '{{ entity.name }}', true);
 
         $seoUrlRoute = static::createStub(SeoUrlRouteInterface::class);
         $seoUrlRoute->method('getConfig')->willReturn($config);

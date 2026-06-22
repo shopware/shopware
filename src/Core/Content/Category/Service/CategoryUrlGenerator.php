@@ -57,8 +57,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
             case CategoryDefinition::LINK_TYPE_CATEGORY:
                 return $this->entityRouteResolver->generateSeoUrlPlaceholder(
                     CategoryDefinition::ENTITY_NAME,
-                    new ArrayStruct(['navigationId' => $internalLink]),
-                    $salesChannel
+                    new ArrayStruct(['navigationId' => $internalLink])
                 );
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:

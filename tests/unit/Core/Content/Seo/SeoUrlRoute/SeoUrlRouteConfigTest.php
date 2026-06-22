@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
@@ -23,14 +22,12 @@ class SeoUrlRouteConfigTest extends TestCase
             $entityDefinition,
             'foo_bar',
             '{{ foo.bar }}',
-            false,
-            static fn () => 'foo_bar_baz'
+            false
         );
 
         static::assertSame($entityDefinition, $config->getDefinition());
         static::assertSame('foo_bar', $config->getRouteName());
         static::assertSame('{{ foo.bar }}', $config->getTemplate());
         static::assertFalse($config->getSkipInvalid());
-        static::assertSame('foo_bar_baz', $config->getRouteBySalesChannel(new SalesChannelEntity()));
     }
 }

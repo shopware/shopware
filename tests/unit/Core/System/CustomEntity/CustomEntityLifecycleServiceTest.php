@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -307,7 +308,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
         static::assertSame($customEntity->getId(), $customEntityRepository->updates[0][0]['id']);
         static::assertNull($customEntityRepository->updates[0][0]['appId']);
         static::assertInstanceOf(\DateTimeImmutable::class, $customEntityRepository->updates[0][0]['deletedAt']);
-        static::assertEquals($deletedAt, $customEntityRepository->updates[0][0]['deletedAt']);
+        static::assertSame(
+            $deletedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $customEntityRepository->updates[0][0]['deletedAt']->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
         static::assertSame([], $customEntityRepository->deletes);
     }
 

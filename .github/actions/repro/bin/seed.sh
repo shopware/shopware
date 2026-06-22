@@ -33,6 +33,17 @@ jq 'with_entries(if (.value|type) == "array"
       else . end)' "$PAYLOAD" > "$WRAPPED" || { echo "::error::fixtures payload is not valid JSON"; exit 1; }
 PAYLOAD="$WRAPPED"
 
+# `customer` requires a non-blank `customerNumber` (no server-side default), which
+# hand-assembled fixtures routinely omit → sync 400 "This value should not be blank"
+# at /customer/0/customerNumber (hit live on #33). Auto-fill it deterministically from
+# the row id for any customer operation that lacks one — this is harness boilerplate,
+# not repro logic, same class as resolving the {{…}} placeholders below.
+ENRICHED=$(mktemp)
+jq 'with_entries(if (.value.entity? == "customer")
+      then .value.payload |= map(if ((.customerNumber // "") == "")
+            then . + {customerNumber: ("RPR-" + ((.id // "x") | tostring)[0:12])} else . end)
+      else . end)' "$PAYLOAD" > "$ENRICHED" && PAYLOAD="$ENRICHED"
+
 # 1. Admin token via the first-party password grant (works on a default install).
 TOKEN=$(curl -sS --max-time 30 -X POST "$BASE/api/oauth/token" \
   -H 'Content-Type: application/json' \

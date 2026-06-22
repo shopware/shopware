@@ -22,6 +22,14 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
     public function update(Connection $connection): void
     {
         $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE);
+
+        if ($connection->fetchOne(
+            'SELECT 1 FROM `sales_channel_type` WHERE `id` = :id',
+            ['id' => $salesChannelTypeId]
+        ) !== false) {
+            return;
+        }
+
         $defaultLanguageIds = $this->fetchDefaultLanguageIds($connection);
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 

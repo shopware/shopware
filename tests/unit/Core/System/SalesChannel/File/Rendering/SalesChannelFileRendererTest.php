@@ -67,6 +67,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -96,6 +97,80 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('plugin + core', $renderer->render($file, $context));
     }
 
+    public function testRenderEntryIsResolvedThroughTemplateFinderInsteadOfDiscoveredSourceOrder(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% endblock %}',
+                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $templateFinder = $this->createTemplateFinder($twig, $loader);
+
+        $renderer = new SalesChannelFileRenderer(
+            $twig,
+            $templateFinder,
+            $templateOverrideLoader,
+            $this->createSeoUrlPlaceholderHandler(),
+            $this->createSalesChannelRepository(),
+            $this->createExtensionDispatcher()
+        );
+
+        $file = new SalesChannelFile(
+            'agentic',
+            'llms.txt',
+            'files/agentic/llms.txt.twig',
+            'text/plain; charset=utf-8',
+            'files/agentic/llms.txt.twig',
+            [
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+            ],
+        );
+
+        static::assertSame('plugin + core', $renderer->render($file, $this->createSalesChannelContext()));
+    }
+
+    public function testExtensionProvidedBaseTemplateCanBeExtended(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@VendorBase/files/agentic/vendor.txt.twig' => '{% block content %}vendor base{% endblock %}',
+                '@Ucp/files/agentic/vendor.txt.twig' => '{% sw_extends \'files/agentic/vendor.txt.twig\' %}{% block content %}ucp + {{ parent() }}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $templateFinder = $this->createTemplateFinder($twig, $loader, ['VendorBase' => -1, 'Ucp' => 0]);
+
+        $renderer = new SalesChannelFileRenderer(
+            $twig,
+            $templateFinder,
+            $templateOverrideLoader,
+            $this->createSeoUrlPlaceholderHandler(),
+            $this->createSalesChannelRepository(),
+            $this->createExtensionDispatcher()
+        );
+
+        $file = new SalesChannelFile(
+            'agentic',
+            'vendor.txt',
+            'files/agentic/vendor.txt.twig',
+            'text/plain; charset=utf-8',
+            'files/agentic/vendor.txt.twig',
+            [
+                'Ucp' => '@Ucp/files/agentic/vendor.txt.twig',
+                'VendorBase' => '@VendorBase/files/agentic/vendor.txt.twig',
+            ],
+        );
+
+        static::assertSame('ucp + vendor base', $renderer->render($file, $this->createSalesChannelContext()));
+    }
+
     public function testUserProvidedContentIsRenderedThroughDedicatedBlock(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
@@ -120,6 +195,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -179,6 +255,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -243,6 +320,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $salesChannelRepository,
@@ -266,12 +344,14 @@ class SalesChannelFileRendererTest extends TestCase
     public function testSalesChannelFileContextUsesCurrentDomainForTwig(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
-        $twig = new Environment(new ChainLoader([
+        $loader = new ChainLoader([
             $templateOverrideLoader,
             new ArrayLoader([
                 '@Framework/files/agentic/.well-known/ai-catalog.json.twig' => '{{ salesChannelFileContext.baseUrl }}|{{ salesChannelFileContext.publisher }}|{{ salesChannelFileContext.storeApiMcpServerUrl|default("none") }}',
             ]),
-        ]));
+        ]);
+        $twig = new Environment($loader);
+        $templateFinder = $this->createTemplateFinder($twig, $loader, ['Framework' => 0]);
 
         $currentDomain = $this->createDomain('https://shop.example.com/en/');
         $fallbackDomain = $this->createDomain('https://fallback.example.com');
@@ -285,6 +365,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository($reloadedSalesChannel),
@@ -311,12 +392,14 @@ class SalesChannelFileRendererTest extends TestCase
     public function testRenderParametersCanBeExtendedForSpecificFile(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
-        $twig = new Environment(new ChainLoader([
+        $loader = new ChainLoader([
             $templateOverrideLoader,
             new ArrayLoader([
                 '@Framework/files/agentic/llms.txt.twig' => '{{ customAgenticValue }}',
             ]),
-        ]));
+        ]);
+        $twig = new Environment($loader);
+        $templateFinder = $this->createTemplateFinder($twig, $loader, ['Framework' => 0]);
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(SalesChannelFileRenderParametersExtension::onPost(), static function (SalesChannelFileRenderParametersExtension $extension): void {
@@ -330,6 +413,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
+            $templateFinder,
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -358,6 +442,29 @@ class SalesChannelFileRendererTest extends TestCase
             ->willReturnArgument(0);
 
         return $seoUrlPlaceholderHandler;
+    }
+
+    /**
+     * @param array<string, int> $hierarchy
+     */
+    private function createTemplateFinder(Environment $twig, ChainLoader $loader, array $hierarchy = ['Framework' => -1, 'Ucp' => 0]): TemplateFinder
+    {
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
+        $templateFinder = new TemplateFinder(
+            $twig,
+            $loader,
+            '',
+            new NamespaceHierarchyBuilder([
+                new SalesChannelFileRendererTestHierarchyBuilder($hierarchy),
+            ]),
+            $scopeDetector,
+        );
+
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
+
+        return $templateFinder;
     }
 
     private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&MockObject

@@ -62,7 +62,7 @@ class SalesChannelFileAdministrationReader
             $file->fileName,
             $file->templatePath,
             $file->contentType,
-            $this->serializeTemplates($file->templates),
+            $this->serializeTemplates($file),
             $this->supportsUserProvidedContent($file->templates),
             $configuration === null ? null : $this->serializeConfiguration($configuration),
         );
@@ -78,25 +78,34 @@ class SalesChannelFileAdministrationReader
     }
 
     /**
-     * @param array<string, string> $templates Twig namespace mapped to resolved template name
-     *
      * @return list<SalesChannelFileAdministrationTemplate>
      */
-    private function serializeTemplates(array $templates): array
+    private function serializeTemplates(SalesChannelFile $file): array
     {
         $serialized = [];
-        $baseTwigNamespace = array_key_first($templates);
+        $baseTemplateName = $this->getBaseTemplateName($file);
 
-        foreach ($templates as $twigNamespace => $templateName) {
+        foreach ($file->templates as $twigNamespace => $templateName) {
             $serialized[] = new SalesChannelFileAdministrationTemplate(
                 $twigNamespace,
                 $templateName,
                 $this->loadTemplateContent($templateName),
-                $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
+                $templateName === $baseTemplateName ? 'base' : 'extension',
             );
         }
 
         return $serialized;
+    }
+
+    private function getBaseTemplateName(SalesChannelFile $file): string
+    {
+        foreach ($file->templates as $templateName) {
+            if (!$this->templateExtendsAnotherTemplate($templateName)) {
+                return $templateName;
+            }
+        }
+
+        return $file->baseTemplateName;
     }
 
     private function loadTemplateContent(string $templateName): string
@@ -122,5 +131,11 @@ class SalesChannelFileAdministrationReader
         }
 
         return false;
+    }
+
+    private function templateExtendsAnotherTemplate(string $templateName): bool
+    {
+        // Only detect inheritance markers; Twig still resolves the actual template chain.
+        return preg_match('/{%-?\s*(?:sw_)?extends\b/', $this->loadTemplateContent($templateName)) === 1;
     }
 }

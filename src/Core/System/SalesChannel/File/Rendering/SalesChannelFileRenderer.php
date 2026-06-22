@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\File\Rendering;
 
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -31,6 +33,7 @@ class SalesChannelFileRenderer
      */
     public function __construct(
         private readonly Environment $twig,
+        private readonly TemplateFinder $templateFinder,
         private readonly SalesChannelFileTemplateOverrideLoader $templateOverrideLoader,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly EntityRepository $salesChannelRepository,
@@ -49,8 +52,9 @@ class SalesChannelFileRenderer
 
         $userProvidedContent = $this->getUserProvidedContent($templateOverrides);
         if ($userProvidedContent !== null) {
+            $parentTemplateName = $templateName;
             $templateName = \sprintf(self::USER_PROVIDED_CONTENT_TEMPLATE, $file->templatePath);
-            $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($file, $userProvidedContent, $this->getRenderTemplateName($file));
+            $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($userProvidedContent, $parentTemplateName);
         }
 
         $content = $this->templateOverrideLoader->withTemplateOverrides(
@@ -63,10 +67,30 @@ class SalesChannelFileRenderer
 
     private function getRenderTemplateName(SalesChannelFile $file): string
     {
-        $key = array_key_last($file->templates);
-        $templateName = $key === null ? null : $file->templates[$key];
+        return $this->templateFinder->find($this->getBaseTemplateName($file));
+    }
 
-        return \is_string($templateName) ? $templateName : $file->baseTemplateName;
+    private function getBaseTemplateName(SalesChannelFile $file): string
+    {
+        foreach ($file->templates as $templateName) {
+            if (!$this->templateExtendsAnotherTemplate($templateName)) {
+                return $templateName;
+            }
+        }
+
+        return $file->baseTemplateName;
+    }
+
+    private function templateExtendsAnotherTemplate(string $templateName): bool
+    {
+        try {
+            $source = $this->twig->getLoader()->getSourceContext($templateName)->getCode();
+        } catch (LoaderError) {
+            return false;
+        }
+
+        // Only detect inheritance markers; Twig still resolves the actual template chain.
+        return preg_match('/{%-?\s*(?:sw_)?extends\b/', $source) === 1;
     }
 
     /**
@@ -105,13 +129,13 @@ class SalesChannelFileRenderer
         return $userProvidedContent;
     }
 
-    private function buildUserProvidedContentTemplate(SalesChannelFile $file, string $userProvidedContent, string $parentTemplateName): string
+    private function buildUserProvidedContentTemplate(string $userProvidedContent, string $parentTemplateName): string
     {
         $encodedContent = json_encode($userProvidedContent, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         \assert(\is_string($encodedContent));
 
-        // The parent was already resolved by discovery; using sw_extends here would resolve
-        // the hierarchy again from the generated namespace and could skip extension templates.
+        // The generated override namespace is not part of the normal namespace hierarchy.
+        // Resolve the render entry first, then extend that concrete template.
         return \sprintf(
             "{%% extends '%s' %%}\n\n{%% block user_provided_content %%}{{ %s|raw }}{%% endblock %%}",
             $parentTemplateName,

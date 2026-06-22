@@ -80,6 +80,7 @@
 
         <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer">
             <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="sales_channel.repository"/>

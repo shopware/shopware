@@ -111,7 +111,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
                 new SalesChannelFileAdministrationTemplate(
                     'Ucp',
                     '@Ucp/files/agentic/llms.txt.twig',
-                    '{% block user_provided_content %}{% endblock %}',
+                    '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
                     'extension',
                 ),
             ],
@@ -182,7 +182,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
     private function createTwigEnvironment(): Environment
     {
         return new Environment(new ArrayLoader([
-            '@Ucp/files/agentic/llms.txt.twig' => '{% block user_provided_content %}{% endblock %}',
+            '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
             '@Framework/files/agentic/llms.txt.twig' => 'Core template',
         ]));
     }

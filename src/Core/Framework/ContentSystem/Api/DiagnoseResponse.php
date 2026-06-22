@@ -1,0 +1,57 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\ContentSystem\Api;
+
+use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+
+/**
+ * The wire response for the resolve-and-diagnose route ({ resolutions, diagnostics }). Single definition of its
+ * shape and of the resolutions map encoding ({} when empty), the sibling of {@see MutationResponse}.
+ *
+ * Output-only: this struct is serialized to JSON for the HTTP response and discarded. It is never cached, never
+ * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
+ * The transforming jsonSerialize() (empty map cast to {}, no extensions/apiAlias) is safe only on that path; a future
+ * requirement that caches or reconstructs this object must revisit it.
+ *
+ * @final
+ */
+#[Package('framework')]
+class DiagnoseResponse extends Struct
+{
+    /**
+     * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions (map -> {})
+     * @param array<string, mixed> $diagnostics normalized diagnostics report
+     */
+    private function __construct(
+        public array $resolutions,
+        public array $diagnostics,
+    ) {
+    }
+
+    /**
+     * @param array<string, list<PropertyResolution>> $resolutions
+     */
+    public static function fromReport(array $resolutions, DiagnosticsReport $report): self
+    {
+        $normalizer = new LayoutDiagnosticsResultNormalizer();
+
+        return new self(
+            $normalizer->normalizeResolutions($resolutions),
+            $normalizer->normalizeReport($report),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'resolutions' => (object) $this->resolutions,
+            'diagnostics' => $this->diagnostics,
+        ];
+    }
+}

@@ -140,16 +140,6 @@ class ContentLayoutMutationController
     {
         $result = $this->mutator->mutate($layoutId, $expectedVersion, $mutation, $context);
 
-        $normalizer = new LayoutDiagnosticsResultNormalizer();
-
-        return new JsonResponse([
-            'layout' => array_map($this->elementSerializer->serializeContentElement(...), $result->layout),
-            'resolutions' => (object) $normalizer->normalizeResolutions($result->resolutions),
-            'diagnostics' => $normalizer->normalizeReport($result->diagnostics),
-            'affectedElementIds' => $result->affectedElementIds,
-            'orphaned' => array_map($this->elementSerializer->serializeContentElement(...), $result->orphaned),
-            'droppedWiring' => $result->droppedWiring,
-            'droppedProperties' => (object) $result->droppedProperties,
-        ]);
+        return new JsonResponse(MutationResponse::fromResult($result, $this->elementSerializer));
     }
 }

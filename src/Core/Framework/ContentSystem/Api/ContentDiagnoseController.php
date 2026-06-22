@@ -52,12 +52,7 @@ class ContentDiagnoseController
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
-        $normalizer = new LayoutDiagnosticsResultNormalizer();
-
-        return new JsonResponse([
-            'resolutions' => (object) $normalizer->normalizeResolutions($analysis->resolutions),
-            'diagnostics' => $normalizer->normalizeReport($report),
-        ]);
+        return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report));
     }
 
     /**

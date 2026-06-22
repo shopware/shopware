@@ -37,12 +37,14 @@ export default componentMigration({
         mapPropValue({
             prop: 'variant',
             from: 'contrast',
-            to: 'TODO-Codemod-Variant-Contrast-Was-Removed',
+            fix: 'manual',
+            message: 'The "variant" prop with value "contrast" is deprecated without replacement.',
         }),
         mapPropValue({
             prop: 'variant',
             from: 'context',
-            to: 'TODO-Codemod-Variant-Context-Was-Removed',
+            fix: 'manual',
+            message: 'The "variant" prop with value "context" is deprecated without replacement.',
         }),
         mapPropValue({
             prop: 'variant',

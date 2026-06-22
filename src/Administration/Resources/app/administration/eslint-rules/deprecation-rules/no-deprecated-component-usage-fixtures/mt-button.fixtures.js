@@ -183,10 +183,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button variant="contrast">Hello</mt-button>
             </template>`,
-        output: `
-            <template>
-                <mt-button variant="TODO-Codemod-Variant-Contrast-Was-Removed">Hello</mt-button>
-            </template>`,
+        output: null,
         errors: [
             {
                 message: '[mt-button] The "variant" prop with value "contrast" is deprecated without replacement.',
@@ -218,14 +215,7 @@ const mtButtonInvalidChecks = [
                     Hello
                 </mt-button>
             </template>`,
-        output: `
-            <template>
-                <mt-button
-                    variant="TODO-Codemod-Variant-Contrast-Was-Removed"
-                >
-                    Hello
-                </mt-button>
-            </template>`,
+        output: null,
         errors: [
             {
                 message: '[mt-button] The "variant" prop with value "contrast" is deprecated without replacement.',
@@ -239,10 +229,7 @@ const mtButtonInvalidChecks = [
             <template>
                 <mt-button variant="context">Hello</mt-button>
             </template>`,
-        output: `
-            <template>
-                <mt-button variant="TODO-Codemod-Variant-Context-Was-Removed">Hello</mt-button>
-            </template>`,
+        output: null,
         errors: [
             {
                 message: '[mt-button] The "variant" prop with value "context" is deprecated without replacement.',

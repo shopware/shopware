@@ -9,12 +9,12 @@ interface DragItem {
     index: number;
     linePosition?: number | null;
     snippet: string[];
+    targetIndex?: number;
 }
 
 interface DragPreview {
     dragIndex: number;
-    dropIndex: number;
-    position: 'before' | 'after';
+    targetIndex: number;
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -102,6 +102,7 @@ export default Component.wrapComponentConfig({
     data(): {
         defaultConfig: DragConfig<DragItem>;
         dragPreview: DragPreview | null;
+        isDragging: boolean;
     } {
         return {
             defaultConfig: {
@@ -112,6 +113,7 @@ export default Component.wrapComponentConfig({
                 disabled: this.disabled,
             } as DragConfig<DragItem>,
             dragPreview: null,
+            isDragging: false,
         };
     },
 
@@ -163,6 +165,8 @@ export default Component.wrapComponentConfig({
 
     methods: {
         onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
+            this.isDragging = true;
+
             this.$emit('drag-start', { config, element, dragElement });
         },
 
@@ -171,13 +175,12 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (dragData.linePosition === dropData.linePosition) {
+            if (dragData.linePosition === dropData.linePosition && typeof dropData.targetIndex === 'number') {
                 this.dragPreview = {
                     dragIndex: dragData.index,
-                    dropIndex: dropData.index,
-                    position: this.getDragPreviewPosition(dragData, dropData),
+                    targetIndex: dropData.targetIndex,
                 };
-            } else {
+            } else if (dragData.linePosition !== dropData.linePosition) {
                 this.dragPreview = null;
             }
 
@@ -188,6 +191,7 @@ export default Component.wrapComponentConfig({
             const dragPreview = this.dragPreview as DragPreview | null;
 
             this.dragPreview = null;
+            this.isDragging = false;
 
             if (!dragData || !dropData) {
                 return;
@@ -196,11 +200,11 @@ export default Component.wrapComponentConfig({
             if (dragData.linePosition === dropData.linePosition) {
                 const newValue = [...this.value];
                 const [snippet] = newValue.splice(dragData.index, 1);
-                const position: DragPreview['position'] =
-                    dragPreview?.position ?? (dragData.index < dropData.index ? 'after' : 'before');
-                const targetIndex = dropData.index - (dragData.index < dropData.index ? 1 : 0);
+                const fallbackTargetIndex = dragData.index < dropData.index ? dropData.index + 1 : dropData.index;
+                const targetIndex = dropData.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
+                const insertIndex = targetIndex > dragData.index ? targetIndex - 1 : targetIndex;
 
-                newValue.splice(position === 'after' ? targetIndex + 1 : targetIndex, 0, snippet);
+                newValue.splice(insertIndex, 0, snippet);
 
                 this.$emit('update:value', this.linePosition, newValue);
 
@@ -210,47 +214,12 @@ export default Component.wrapComponentConfig({
             this.$emit('drop-end', this.linePosition, { dragData, dropData });
         },
 
-        getDragPreviewPosition(dragData: DragItem, dropData: DragItem): DragPreview['position'] {
-            if (dragData.index === dropData.index) {
-                return 'before';
-            }
-
-            const previousPreview = this.dragPreview;
-            const previousDropIndex = previousPreview?.dropIndex ?? dragData.index;
-
-            if (previousPreview?.dropIndex === dropData.index) {
-                return previousPreview.position;
-            }
-
-            const isMovingLeft = dropData.index < previousDropIndex;
-            const isMovingRight = dropData.index > previousDropIndex;
-            const isReturningAcrossHiddenSource =
-                previousPreview &&
-                !this.isOriginalDragPreview(dragData.index, previousPreview) &&
-                ((isMovingLeft && dropData.index === dragData.index - 1) ||
-                    (isMovingRight && dropData.index === dragData.index + 1));
-
-            if (isReturningAcrossHiddenSource) {
-                return dropData.index < dragData.index ? 'after' : 'before';
-            }
-
-            return isMovingLeft ? 'before' : 'after';
-        },
-
-        isOriginalDragPreview(dragIndex: number, dragPreview: DragPreview): boolean {
-            return (
-                (dragPreview.dropIndex === dragIndex && dragPreview.position === 'before') ||
-                (dragPreview.dropIndex === dragIndex - 1 && dragPreview.position === 'after') ||
-                (dragPreview.dropIndex === dragIndex + 1 && dragPreview.position === 'before')
-            );
-        },
-
         shouldShowPlaceholderBefore(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.position === 'before' && this.dragPreview.dropIndex === index;
+            return !!this.dragPreview && this.dragPreview.targetIndex === index;
         },
 
         shouldShowPlaceholderAfter(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.position === 'after' && this.dragPreview.dropIndex === index;
+            return !!this.dragPreview && this.dragPreview.targetIndex === this.value.length && index === this.value.length - 1;
         },
 
         isDragPreviewSource(index: number): boolean {

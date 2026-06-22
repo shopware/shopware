@@ -1,7 +1,10 @@
 {% block sw_multi_snippet_drag_and_drop %}
 <div
     class="sw-multi-snippet-drag-and-drop"
-    :class="{ 'is--drag-previewing': hasDragPreview }"
+    :class="{
+        'is--drag-previewing': hasDragPreview,
+        'is--dragging-snippet': isDragging,
+    }"
 >
     <mt-icon
         class="sw-multi-snippet-drag-and-drop__action"
@@ -57,6 +60,16 @@
                                 :size="size"
                                 @dismiss="onClickDismiss(index)"
                             >
+                                <span
+                                    class="sw-multi-snippet-drag-and-drop__drop-zone sw-multi-snippet-drag-and-drop__drop-zone--before"
+                                    aria-hidden="true"
+                                    v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition, targetIndex: index }}"
+                                ></span>
+                                <span
+                                    class="sw-multi-snippet-drag-and-drop__drop-zone sw-multi-snippet-drag-and-drop__drop-zone--after"
+                                    aria-hidden="true"
+                                    v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition, targetIndex: index + 1 }}"
+                                ></span>
                                 <span class="sw-select-selection-list__item">
                                     <slot
                                         name="label-property"

@@ -77,6 +77,10 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             text-align: center;
         }
 
+        .sw-label {
+            position: relative;
+        }
+
         .sw-label.is--valid-drop,
         .sw-label.is--valid-drop:hover {
             color: var(--color-text-primary-default);
@@ -84,6 +88,27 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             background: var(--color-background-secondary-default);
             box-shadow: none;
         }
+    }
+
+    &__drop-zone {
+        display: none;
+    }
+
+    &.is--dragging-snippet &__drop-zone {
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 1;
+        width: 50%;
+    }
+
+    &__drop-zone--before {
+        left: 0;
+    }
+
+    &__drop-zone--after {
+        right: 0;
     }
 
     &.is--drag-previewing .sw-label.sw-label--dismissable:hover {

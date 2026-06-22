@@ -228,13 +228,14 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 2,
                 linePosition: 0,
                 snippet: 'address/department',
+                targetIndex: 3,
             },
         );
 
         expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
         expect(wrapper.vm.isDragPreviewSource(0)).toBe(true);
-        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(true);
-        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(false);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(false);
 
         await wrapper.vm.onDragEnter(
             {
@@ -246,6 +247,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 1,
                 linePosition: 0,
                 snippet: 'symbol/dash',
+                targetIndex: 1,
             },
         );
 
@@ -263,6 +265,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 1,
                 linePosition: 0,
                 snippet: 'symbol/dash',
+                targetIndex: 1,
             },
         );
 
@@ -299,11 +302,12 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 2,
                 linePosition: 0,
                 snippet: 'address/department',
+                targetIndex: 3,
             },
         );
 
         expect(wrapper.vm.isDragPreviewSource(1)).toBe(true);
-        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
 
         await wrapper.vm.onDragEnter(
             {
@@ -315,11 +319,12 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 0,
                 linePosition: 0,
                 snippet: 'address/company',
+                targetIndex: 1,
             },
         );
 
-        expect(wrapper.vm.shouldShowPlaceholderBefore(0)).toBe(false);
-        expect(wrapper.vm.shouldShowPlaceholderAfter(0)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(0)).toBe(false);
 
         await wrapper.vm.onDrop(
             {
@@ -331,6 +336,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 0,
                 linePosition: 0,
                 snippet: 'address/company',
+                targetIndex: 1,
             },
         );
 
@@ -340,6 +346,76 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 'address/company',
                 'symbol/dash',
                 'address/department',
+                'address/city',
+            ],
+        ]);
+    });
+
+    it('should update the drop position when entering the same snippet twice', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 2,
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(false);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 3,
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(false);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
+
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 3,
+            },
+        );
+
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'symbol/dash',
+                'address/department',
+                'address/company',
                 'address/city',
             ],
         ]);

@@ -56,10 +56,6 @@ tester.run('no-deprecated-js-api', rule, {
                 };
             `,
         },
-        {
-            name: 'allows generic CMS element publishData identifiers with extra object properties',
-            code: "Shopware.ExtensionAPI.publishData({ id: publishingKey, path: 'element', scope: 'custom' });",
-        },
     ],
     invalid: [
         {
@@ -160,6 +156,16 @@ tester.run('no-deprecated-js-api', rule, {
             name: 'migrates generic CMS element publishData identifiers with reordered object properties',
             code: "Shopware.ExtensionAPI.publishData({ path: 'element', id: publishingKey });",
             output: "Shopware.ExtensionAPI.publishData({ id: `${publishingKey}__${element.id}`, path: 'element' });",
+            errors: [
+                {
+                    message: /Generic CMS element publishData identifiers are deprecated/,
+                },
+            ],
+        },
+        {
+            name: 'reports generic CMS element publishData identifiers with extra object properties without autofix',
+            code: "Shopware.ExtensionAPI.publishData({ id: publishingKey, path: 'element', scope: 'custom' });",
+            output: null,
             errors: [
                 {
                     message: /Generic CMS element publishData identifiers are deprecated/,

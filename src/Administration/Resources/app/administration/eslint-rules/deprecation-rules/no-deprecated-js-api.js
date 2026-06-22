@@ -169,11 +169,7 @@ function getObjectExpressionProperties(sourceCode, node) {
     return properties;
 }
 
-function mapsAreEqual(expectedProperties, actualProperties) {
-    if (expectedProperties.size !== actualProperties.size) {
-        return false;
-    }
-
+function mapIncludesExpectedProperties(expectedProperties, actualProperties) {
     return Array.from(expectedProperties).every(([
         propertyName,
         expectedValue,
@@ -182,18 +178,26 @@ function mapsAreEqual(expectedProperties, actualProperties) {
 
 function matchesExactCall(usage, node, sourceCode, sourceText, calleeName) {
     if (normalizeComparableSource(usage.from) === normalizeComparableSource(sourceText)) {
-        return true;
+        return {
+            fixable: true,
+        };
     }
 
     const expectedCall = parseSimpleObjectCall(usage.from);
 
     if (!expectedCall || expectedCall.calleeName !== calleeName || node.arguments.length !== 1) {
-        return false;
+        return null;
     }
 
     const actualProperties = getObjectExpressionProperties(sourceCode, node.arguments[0]);
 
-    return actualProperties ? mapsAreEqual(expectedCall.properties, actualProperties) : false;
+    if (!actualProperties || !mapIncludesExpectedProperties(expectedCall.properties, actualProperties)) {
+        return null;
+    }
+
+    return {
+        fixable: expectedCall.properties.size === actualProperties.size,
+    };
 }
 
 module.exports = {
@@ -297,10 +301,35 @@ module.exports = {
                 }
 
                 const sourceText = context.sourceCode.getText(node);
-                const replaceApiMatch = replaceApiUsages.find(({ usage }) => {
-                    return usage.from.includes('(')
-                        ? matchesExactCall(usage, node, context.sourceCode, sourceText, calleeName)
-                        : usage.from === calleeName;
+                let replaceApiMatch = null;
+                let replaceApiFixable = true;
+
+                replaceApiUsages.some((candidate) => {
+                    if (!candidate.usage.from.includes('(')) {
+                        if (candidate.usage.from !== calleeName) {
+                            return false;
+                        }
+
+                        replaceApiMatch = candidate;
+                        replaceApiFixable = true;
+                        return true;
+                    }
+
+                    const exactCallMatch = matchesExactCall(
+                        candidate.usage,
+                        node,
+                        context.sourceCode,
+                        sourceText,
+                        calleeName,
+                    );
+
+                    if (!exactCallMatch) {
+                        return false;
+                    }
+
+                    replaceApiMatch = candidate;
+                    replaceApiFixable = exactCallMatch.fixable;
+                    return true;
                 });
 
                 if (!replaceApiMatch) {
@@ -313,7 +342,8 @@ module.exports = {
                     fix(fixer) {
                         if (
                             context.options.includes('disableFix') ||
-                            !usageFixesAutomatically(replaceApiMatch.usage)
+                            !usageFixesAutomatically(replaceApiMatch.usage) ||
+                            !replaceApiFixable
                         ) {
                             return null;
                         }

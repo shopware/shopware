@@ -78,7 +78,7 @@ class ScriptResponseFactoryFacade
      * or if the Storefront-bundle is not installed.
      *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
-     * @param array<mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
+     * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
      *
      * @return ScriptResponse The created response object with the rendered template as content, remember to assign it to the hook with `hook.setResponse()`.
      *

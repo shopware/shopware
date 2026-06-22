@@ -21,7 +21,7 @@ final class RenderStorefrontForScriptEvent extends Event
     public ?Response $response = null;
 
     /**
-     * @param array<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public function __construct(
         public readonly string $view,

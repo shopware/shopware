@@ -170,7 +170,7 @@ export default Component.wrapComponentConfig({
             this.$emit('drag-start', { config, element, dragElement });
         },
 
-        onDragEnter(dragData: DragItem, dropData: DragItem) {
+        onDragEnter(dragData: DragItem | null, dropData: DragItem | null) {
             if (!dragData || !dropData) {
                 return;
             }
@@ -187,21 +187,22 @@ export default Component.wrapComponentConfig({
             this.$emit('drag-enter', { dragData, dropData });
         },
 
-        onDrop(dragData: DragItem, dropData: DragItem) {
+        onDrop(dragData: DragItem | null, dropData: DragItem | null) {
             const dragPreview = this.dragPreview as DragPreview | null;
 
             this.dragPreview = null;
             this.isDragging = false;
 
-            if (!dragData || !dropData) {
+            if (!dragData || (!dropData && !dragPreview)) {
                 return;
             }
 
-            if (dragData.linePosition === dropData.linePosition) {
+            if (!dropData || dragData.linePosition === dropData.linePosition) {
                 const newValue = [...this.value];
                 const [snippet] = newValue.splice(dragData.index, 1);
-                const fallbackTargetIndex = dragData.index < dropData.index ? dropData.index + 1 : dropData.index;
-                const targetIndex = dropData.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
+                const fallbackTargetIndex =
+                    dropData && dragData.index < dropData.index ? dropData.index + 1 : (dropData?.index ?? dragData.index);
+                const targetIndex = dropData?.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
                 const insertIndex = targetIndex > dragData.index ? targetIndex - 1 : targetIndex;
 
                 newValue.splice(insertIndex, 0, snippet);

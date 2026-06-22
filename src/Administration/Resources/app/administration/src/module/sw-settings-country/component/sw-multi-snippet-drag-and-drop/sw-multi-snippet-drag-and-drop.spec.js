@@ -402,12 +402,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 linePosition: 0,
                 snippet: 'address/company',
             },
-            {
-                index: 2,
-                linePosition: 0,
-                snippet: 'address/department',
-                targetIndex: 3,
-            },
+            null,
         );
 
         expect(wrapper.emitted('update:value')[0]).toEqual([

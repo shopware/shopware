@@ -163,14 +163,14 @@ class JsonApiEncodingResult implements \JsonSerializable
         }
 
         foreach ($recordB->getRelationships() as $key => $value) {
-            if (empty($value['data'])) {
+            if (($value['data'] ?? null) === null || $value['data'] === []) {
                 continue;
             }
             $recordA->addRelationship($key, $value);
         }
 
         foreach ($recordB->getExtensions() as $key => $value) {
-            if (empty($value['data'])) {
+            if (($value['data'] ?? null) === null || $value['data'] === []) {
                 continue;
             }
             $recordA->addExtension((string) $key, $value);

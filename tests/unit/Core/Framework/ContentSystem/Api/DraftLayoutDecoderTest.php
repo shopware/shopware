@@ -52,16 +52,86 @@ class DraftLayoutDecoderTest extends TestCase
         }
     }
 
-    #[TestDox('decode throws invalidLayoutStructure for an element that is not an array')]
+    #[TestDox('decode rejects a non-array top-level element with a precise structural violation')]
     public function testDecodeRejectsNonArrayElement(): void
     {
         $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
 
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element must be an array.', null, [], null, '[0]', 'not-an-array'),
+            ]),
+        ));
+
+        $decoder->decode(['not-an-array']);
+    }
+
+    #[TestDox('decode aggregates both the id and component violations when an element is missing both')]
+    public function testDecodeRejectsElementMissingBothIdAndComponent(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
+            ]),
+        ));
+
+        $decoder->decode([[]]);
+    }
+
+    #[TestDox('decode rejects a duplicate element id before any mutation runs')]
+    public function testDecodeRejectsDuplicateElementId(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id "dup" is not unique across the layout.', null, [], null, '[1].id', 'dup'),
+            ]),
+        ));
+
+        $decoder->decode([
+            ['id' => 'dup', 'component' => 'Sw:Block'],
+            ['id' => 'dup', 'component' => 'Sw:Other'],
+        ]);
+    }
+
+    #[TestDox('decode rejects a nested child that is not an array instead of letting it be silently dropped')]
+    public function testDecodeRejectsNonArrayNestedChild(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element must be an array.', null, [], null, '[0].slots.content[0]', 'not-an-array'),
+            ]),
+        ));
+
+        $decoder->decode([[
+            'id' => 'root',
+            'component' => 'Sw:Block',
+            'slots' => ['content' => ['not-an-array']],
+        ]]);
+    }
+
+    #[TestDox('decode rejects a tree nested past the maximum depth')]
+    public function testDecodeRejectsExcessiveNestingDepth(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        $element = ['id' => 'leaf', 'component' => 'Sw:Block'];
+        for ($level = 0; $level < 60; ++$level) {
+            $element = ['id' => 'n' . $level, 'component' => 'Sw:Block', 'slots' => ['content' => [$element]]];
+        }
+
         try {
-            $decoder->decode(['not-an-array']);
-            static::fail('Expected a ContentSystemException for the non-array element.');
+            $decoder->decode([$element]);
+            static::fail('Expected a ContentSystemException for the over-deep tree.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+            static::assertStringContainsString('maximum depth', $exception->getMessage());
         }
     }
 
@@ -156,6 +226,26 @@ class DraftLayoutDecoderTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
         static::assertSame('bad', $violations[0]->elementId);
+    }
+
+    #[TestDox('decodeLintable keeps a duplicate-id tree so the diagnostics pass can report it, instead of rejecting')]
+    public function testDecodeLintableKeepsDuplicateIdTreeForDiagnostics(): void
+    {
+        $first = new ContentElement('dup', 'Sw:Block');
+        $second = new ContentElement('dup', 'Sw:Other');
+
+        $serializer = static::createStub(ContentElementFieldSerializer::class);
+        $serializer->method('decodeElement')->willReturnOnConsecutiveCalls($first, $second);
+
+        $decoder = new DraftLayoutDecoder($serializer);
+
+        [$tree, $violations] = $decoder->decodeLintable([
+            ['id' => 'dup', 'component' => 'Sw:Block'],
+            ['id' => 'dup', 'component' => 'Sw:Other'],
+        ]);
+
+        static::assertSame([$first, $second], $tree);
+        static::assertSame([], $violations);
     }
 
     #[TestDox('decodeLintable still throws invalidLayoutStructure for a structurally invalid element')]

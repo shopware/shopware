@@ -238,9 +238,9 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         await wrapper.vm.onDragEnter(
             {
-                index: 3,
+                index: 0,
                 linePosition: 0,
-                snippet: 'address/city',
+                snippet: 'address/company',
             },
             {
                 index: 1,
@@ -249,7 +249,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             },
         );
 
-        expect(wrapper.vm.dragPreviewSnippet).toBe('address/city');
+        expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
         expect(wrapper.vm.shouldShowPlaceholderBefore(1)).toBe(true);
         expect(wrapper.vm.shouldShowPlaceholderAfter(1)).toBe(false);
 
@@ -260,13 +260,89 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 snippet: 'address/company',
             },
             {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+        );
+
+        expect(wrapper.vm.hasDragPreview).toBe(false);
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        ]);
+    });
+
+    it('should preview the original position after reversing across the hidden dragged snippet', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
                 index: 2,
                 linePosition: 0,
                 snippet: 'address/department',
             },
         );
 
-        expect(wrapper.vm.hasDragPreview).toBe(false);
+        expect(wrapper.vm.isDragPreviewSource(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(true);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(0)).toBe(false);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(0)).toBe(true);
+
+        await wrapper.vm.onDrop(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+        );
+
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        ]);
     });
 
     it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {

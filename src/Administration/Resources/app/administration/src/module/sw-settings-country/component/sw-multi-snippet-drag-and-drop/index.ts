@@ -14,6 +14,7 @@ interface DragItem {
 interface DragPreview {
     dragIndex: number;
     dropIndex: number;
+    position: 'before' | 'after';
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -170,10 +171,11 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (dragData.linePosition === dropData.linePosition && dragData.index !== dropData.index) {
+            if (dragData.linePosition === dropData.linePosition) {
                 this.dragPreview = {
                     dragIndex: dragData.index,
                     dropIndex: dropData.index,
+                    position: this.getDragPreviewPosition(dragData, dropData),
                 };
             } else {
                 this.dragPreview = null;
@@ -183,6 +185,8 @@ export default Component.wrapComponentConfig({
         },
 
         onDrop(dragData: DragItem, dropData: DragItem) {
+            const dragPreview = this.dragPreview as DragPreview | null;
+
             this.dragPreview = null;
 
             if (!dragData || !dropData) {
@@ -192,8 +196,11 @@ export default Component.wrapComponentConfig({
             if (dragData.linePosition === dropData.linePosition) {
                 const newValue = [...this.value];
                 const [snippet] = newValue.splice(dragData.index, 1);
+                const position: DragPreview['position'] =
+                    dragPreview?.position ?? (dragData.index < dropData.index ? 'after' : 'before');
+                const targetIndex = dropData.index - (dragData.index < dropData.index ? 1 : 0);
 
-                newValue.splice(dropData.index, 0, snippet);
+                newValue.splice(position === 'after' ? targetIndex + 1 : targetIndex, 0, snippet);
 
                 this.$emit('update:value', this.linePosition, newValue);
 
@@ -203,12 +210,47 @@ export default Component.wrapComponentConfig({
             this.$emit('drop-end', this.linePosition, { dragData, dropData });
         },
 
+        getDragPreviewPosition(dragData: DragItem, dropData: DragItem): DragPreview['position'] {
+            if (dragData.index === dropData.index) {
+                return 'before';
+            }
+
+            const previousPreview = this.dragPreview;
+            const previousDropIndex = previousPreview?.dropIndex ?? dragData.index;
+
+            if (previousPreview?.dropIndex === dropData.index) {
+                return previousPreview.position;
+            }
+
+            const isMovingLeft = dropData.index < previousDropIndex;
+            const isMovingRight = dropData.index > previousDropIndex;
+            const isReturningAcrossHiddenSource =
+                previousPreview &&
+                !this.isOriginalDragPreview(dragData.index, previousPreview) &&
+                ((isMovingLeft && dropData.index === dragData.index - 1) ||
+                    (isMovingRight && dropData.index === dragData.index + 1));
+
+            if (isReturningAcrossHiddenSource) {
+                return dropData.index < dragData.index ? 'after' : 'before';
+            }
+
+            return isMovingLeft ? 'before' : 'after';
+        },
+
+        isOriginalDragPreview(dragIndex: number, dragPreview: DragPreview): boolean {
+            return (
+                (dragPreview.dropIndex === dragIndex && dragPreview.position === 'before') ||
+                (dragPreview.dropIndex === dragIndex - 1 && dragPreview.position === 'after') ||
+                (dragPreview.dropIndex === dragIndex + 1 && dragPreview.position === 'before')
+            );
+        },
+
         shouldShowPlaceholderBefore(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.dragIndex > this.dragPreview.dropIndex && this.dragPreview.dropIndex === index;
+            return !!this.dragPreview && this.dragPreview.position === 'before' && this.dragPreview.dropIndex === index;
         },
 
         shouldShowPlaceholderAfter(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.dragIndex < this.dragPreview.dropIndex && this.dragPreview.dropIndex === index;
+            return !!this.dragPreview && this.dragPreview.position === 'after' && this.dragPreview.dropIndex === index;
         },
 
         isDragPreviewSource(index: number): boolean {

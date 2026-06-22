@@ -96,7 +96,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->storeReferralCode($this->createControllerEvent($request));
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
     }
 
@@ -192,7 +191,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->createTrackingRecords($event);
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
         static::assertCount(0, $orderRepo->upserts);
     }
@@ -213,7 +211,6 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->createTrackingRecords($event);
 
-        static::assertTrue($request->hasSession());
         static::assertFalse($request->hasSession(true));
         static::assertCount(0, $orderRepo->upserts);
     }

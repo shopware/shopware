@@ -633,6 +633,7 @@
     "contractNumberPlaceholder": "Enter contract number...",
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
+    "privacyNoticeTextModal": "Our Privacy Notice is available %privacyModalTagOpen%here%privacyModalTagClose%.",
     "formSubmit": "Confirm revocation",
     "success": "We have received your revocation request and will process it as soon as possible."
   },

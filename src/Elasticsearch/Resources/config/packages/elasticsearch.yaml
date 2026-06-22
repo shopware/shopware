@@ -125,6 +125,7 @@ elasticsearch:
         exclude_source: "%env(bool:SHOPWARE_ES_EXCLUDE_SOURCE)%"
     ssl:
         verify_server_cert: true
+    refresh_after_bulk: false
     index_settings:
         number_of_shards: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_SHARDS)%'
         number_of_replicas: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_REPLICAS)%'

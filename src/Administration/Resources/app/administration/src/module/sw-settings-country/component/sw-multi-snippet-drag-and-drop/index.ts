@@ -11,11 +11,6 @@ interface DragItem {
     snippet: string[];
 }
 
-interface SnippetItem {
-    index: number;
-    snippet: string[];
-}
-
 interface DragPreview {
     dragIndex: number;
     dropIndex: number;
@@ -152,25 +147,16 @@ export default Component.wrapComponentConfig({
             return this.totalLines <= DEFAULT_MIN_LINES;
         },
 
-        previewSnippets(): SnippetItem[] {
-            const snippets = this.value.map((snippet, index) => ({ snippet, index }));
+        hasDragPreview(): boolean {
+            return !!this.dragPreview;
+        },
 
+        dragPreviewSnippet(): string[] | null {
             if (!this.dragPreview) {
-                return snippets;
+                return null;
             }
 
-            const dragIndex = snippets.findIndex(({ index }) => index === this.dragPreview?.dragIndex);
-            const dropIndex = snippets.findIndex(({ index }) => index === this.dragPreview?.dropIndex);
-
-            if (dragIndex === -1 || dropIndex === -1) {
-                return snippets;
-            }
-
-            const [snippet] = snippets.splice(dragIndex, 1);
-
-            snippets.splice(dropIndex, 0, snippet);
-
-            return snippets;
+            return this.value[this.dragPreview.dragIndex] ?? null;
         },
     },
 
@@ -184,11 +170,13 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (dragData.linePosition === dropData.linePosition) {
+            if (dragData.linePosition === dropData.linePosition && dragData.index !== dropData.index) {
                 this.dragPreview = {
                     dragIndex: dragData.index,
                     dropIndex: dropData.index,
                 };
+            } else {
+                this.dragPreview = null;
             }
 
             this.$emit('drag-enter', { dragData, dropData });
@@ -213,6 +201,14 @@ export default Component.wrapComponentConfig({
             }
 
             this.$emit('drop-end', this.linePosition, { dragData, dropData });
+        },
+
+        shouldShowPlaceholderBefore(index: number): boolean {
+            return !!this.dragPreview && this.dragPreview.dragIndex > this.dragPreview.dropIndex && this.dragPreview.dropIndex === index;
+        },
+
+        shouldShowPlaceholderAfter(index: number): boolean {
+            return !!this.dragPreview && this.dragPreview.dragIndex < this.dragPreview.dropIndex && this.dragPreview.dropIndex === index;
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {

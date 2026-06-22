@@ -73,9 +73,33 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             text-align: center;
         }
 
-        .sw-label.is--valid-drop {
+        .sw-label.is--valid-drop,
+        .sw-label.is--valid-drop:hover {
+            color: var(--color-text-primary-default);
+            border-color: var(--color-border-primary-default);
+            background: var(--color-background-secondary-default);
             box-shadow: none;
         }
+    }
+
+    &.is--drag-previewing .sw-label.sw-label--dismissable:hover {
+        color: var(--color-text-primary-default);
+        border-color: var(--color-border-primary-default);
+        background: var(--color-background-secondary-default);
+
+        .sw-label__caption {
+            width: 100%;
+        }
+
+        .sw-label__dismiss {
+            display: none;
+        }
+    }
+
+    &__placeholder .sw-label {
+        color: transparent;
+        border-style: dashed;
+        background: transparent;
     }
 
     .sw-context-button {

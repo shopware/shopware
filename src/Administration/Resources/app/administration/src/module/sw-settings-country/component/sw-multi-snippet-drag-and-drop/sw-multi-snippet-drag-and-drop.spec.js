@@ -207,7 +207,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         ]);
     });
 
-    it('should preview the snippet order while dragging', async () => {
+    it('should preview the dragged snippet position while dragging', async () => {
         const wrapper = await createWrapper({
             value: [
                 'address/company',
@@ -231,12 +231,26 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             },
         );
 
-        expect(wrapper.vm.previewSnippets.map(({ snippet }) => snippet)).toEqual([
-            'symbol/dash',
-            'address/department',
-            'address/company',
-            'address/city',
-        ]);
+        expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
+        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(false);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 3,
+                linePosition: 0,
+                snippet: 'address/city',
+            },
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+        );
+
+        expect(wrapper.vm.dragPreviewSnippet).toBe('address/city');
+        expect(wrapper.vm.shouldShowPlaceholderBefore(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(1)).toBe(false);
 
         await wrapper.vm.onDrop(
             {
@@ -251,12 +265,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             },
         );
 
-        expect(wrapper.vm.previewSnippets.map(({ snippet }) => snippet)).toEqual([
-            'address/company',
-            'symbol/dash',
-            'address/department',
-            'address/city',
-        ]);
+        expect(wrapper.vm.hasDragPreview).toBe(false);
     });
 
     it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {

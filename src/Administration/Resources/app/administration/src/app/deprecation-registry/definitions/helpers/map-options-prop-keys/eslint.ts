@@ -91,10 +91,12 @@ function hasReplacementKeyConflict(optionObjects: Array<Record<string, any>>, ke
                 .filter((propertyName: string | null): propertyName is string => typeof propertyName === 'string'),
         );
 
-        return Object.entries(keyMap).some(([
-            from,
-            to,
-        ]) => propertyNames.has(from) && propertyNames.has(to));
+        return Object.entries(keyMap).some(
+            ([
+                from,
+                to,
+            ]) => propertyNames.has(from) && propertyNames.has(to),
+        );
     });
 }
 
@@ -135,10 +137,10 @@ export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): D
             const reportUsageConfig: DeprecationUsage = canFixSafely
                 ? usageConfig
                 : {
-                    ...usageConfig,
-                    fix: 'manual',
-                    message: getUnsafeMessage(usageConfig),
-                };
+                      ...usageConfig,
+                      fix: 'manual',
+                      message: getUnsafeMessage(usageConfig),
+                  };
 
             api.reportWithDuplicateReplacementGuard({
                 node: attribute,

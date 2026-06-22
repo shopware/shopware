@@ -56,7 +56,11 @@ export type ComponentUsageRuleApi = {
     appendRegistryContext(message: string, migration: DeprecationMigration): string;
     reportWithDuplicateReplacementGuard(descriptor: Record<string, any>): void;
     isFixDisabled(): boolean;
-    getTransformResult(usage: DeprecationUsage, node: Record<string, any>, attribute: Record<string, any> | null): MigrationTransformResult | null;
+    getTransformResult(
+        usage: DeprecationUsage,
+        node: Record<string, any>,
+        attribute: Record<string, any> | null,
+    ): MigrationTransformResult | null;
     ast: {
         findMatchingPropAttribute(node: Record<string, any>, propName: string): Record<string, any> | undefined;
         hasMatchingPropAttribute(node: Record<string, any>, propName: string): boolean;

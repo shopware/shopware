@@ -6,15 +6,26 @@
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
-function buildItems(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage, slotChildren: Array<Record<string, any>>): string {
+function buildItems(
+    api: ComponentUsageRuleApi,
+    usageConfig: DeprecationUsage,
+    slotChildren: Array<Record<string, any>>,
+): string {
     const itemNameProp = typeof usageConfig.itemNameProp === 'string' ? usageConfig.itemNameProp : 'name';
     const itemRouteProp = typeof usageConfig.itemRouteProp === 'string' ? usageConfig.itemRouteProp : 'route';
     const items = slotChildren.map((child) => {
         const attributes = child.startTag.attributes;
-        const nameAttribute = attributes.find((attribute: Record<string, any>) => api.ast.getStaticAttributeName(attribute) === itemNameProp);
-        const routeAttribute = attributes.find((attribute: Record<string, any>) => api.ast.getStaticAttributeName(attribute) === itemRouteProp);
+        const nameAttribute = attributes.find(
+            (attribute: Record<string, any>) => api.ast.getStaticAttributeName(attribute) === itemNameProp,
+        );
+        const routeAttribute = attributes.find(
+            (attribute: Record<string, any>) => api.ast.getStaticAttributeName(attribute) === itemRouteProp,
+        );
         const routeAttributeExpression = attributes.find((attribute: Record<string, any>) => {
-            return api.ast.getDirectiveName(attribute) === 'bind' && api.ast.getDirectiveArgumentName(attribute) === itemRouteProp;
+            return (
+                api.ast.getDirectiveName(attribute) === 'bind' &&
+                api.ast.getDirectiveArgumentName(attribute) === itemRouteProp
+            );
         });
         const rawTextContent = child.children.find((itemChild: Record<string, any>) => itemChild.type === 'VText')?.value;
         const textContent = rawTextContent?.replace(/\n/g, '').trim();
@@ -37,7 +48,9 @@ function buildItems(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage, s
         };
     });
 
-    return JSON.stringify(items, null, 4).replace(/[\/()']/g, "\\'").replace(/"/g, "'");
+    return JSON.stringify(items, null, 4)
+        .replace(/[\/()']/g, "\\'")
+        .replace(/"/g, "'");
 }
 
 export function createSlotToItemsPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
@@ -67,9 +80,11 @@ export function createSlotToItemsPropEslint(usageConfig: DeprecationUsage): Depr
                         return null;
                     }
 
-                    const slotChildren = (defaultSlot?.children ?? api.node.children).filter((child: Record<string, any>) => {
-                        return child.type === 'VElement' && child.name === usageConfig.itemComponent;
-                    });
+                    const slotChildren = (defaultSlot?.children ?? api.node.children).filter(
+                        (child: Record<string, any>) => {
+                            return child.type === 'VElement' && child.name === usageConfig.itemComponent;
+                        },
+                    );
                     const rangeAfterComponentName = api.node.startTag.range[0] + `<${api.node.name}`.length;
                     const fixes = [
                         fixer.insertTextAfterRange(

@@ -8,16 +8,8 @@ import { createRemoveSlotEslint } from './eslint';
 
 const DEFAULT_FIX = 'auto';
 
-export function removeSlot(config: {
-    slot: string;
-    fix?: FixLevel;
-    message?: string;
-}): DeprecationUsage {
-    const {
-        slot,
-        fix = DEFAULT_FIX,
-        message,
-    } = config;
+export function removeSlot(config: { slot: string; fix?: FixLevel; message?: string }): DeprecationUsage {
+    const { slot, fix = DEFAULT_FIX, message } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'remove-slot',
         slot,

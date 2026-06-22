@@ -63,10 +63,12 @@ function usageWasRuntimeDetected(
 ): boolean {
     const runtimeProp = usage.runtimeProp;
 
-    return usage.runtime?.detect?.({
-        usedProps,
-        componentName,
-    }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false);
+    return (
+        usage.runtime?.detect?.({
+            usedProps,
+            componentName,
+        }) ?? (runtimeProp ? hasOwn(usedProps, runtimeProp) : false)
+    );
 }
 
 function getRuntimeUsageWarningKey(usage: RuntimeDeprecationUsage): string {
@@ -310,7 +312,12 @@ class DeprecationPlugin {
                         componentName,
                     });
 
-                    return runtimeDetected || usage.runtimeProp === propName || usage.from === propName || usage.prop === propName;
+                    return (
+                        runtimeDetected ||
+                        usage.runtimeProp === propName ||
+                        usage.from === propName ||
+                        usage.prop === propName
+                    );
                 });
 
                 if (registryMigration) {

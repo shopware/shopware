@@ -15,13 +15,7 @@ export function mapOptionsPropKeys(config: {
     message?: string;
     unsafeMessage?: string;
 }): DeprecationUsage {
-    const {
-        prop,
-        from,
-        fix = DEFAULT_FIX,
-        message,
-        unsafeMessage,
-    } = config;
+    const { prop, from, fix = DEFAULT_FIX, message, unsafeMessage } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'map-options-prop-keys',
         prop,

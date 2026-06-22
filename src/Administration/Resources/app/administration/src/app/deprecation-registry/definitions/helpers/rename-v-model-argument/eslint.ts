@@ -4,10 +4,7 @@
  */
 
 import type { DeprecationUsage } from '../types';
-import {
-    componentUsageMessage,
-    usageFixesAutomatically,
-} from '../shared';
+import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
 export function createRenameVModelArgumentEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {

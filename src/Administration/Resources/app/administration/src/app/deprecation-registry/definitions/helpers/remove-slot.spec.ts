@@ -12,6 +12,10 @@ describe('removeSlot', () => {
 
         expect(usage.fix).toBe('auto');
         expect(api.reports[0].message).toContain('"actions" API is deprecated');
-        expect(fix).toEqual({ method: 'replaceText', target: slot, text: '<!-- Slot "actions" was removed and has no replacement. -->' });
+        expect(fix).toEqual({
+            method: 'replaceText',
+            target: slot,
+            text: '<!-- Slot "actions" was removed and has no replacement. -->',
+        });
     });
 });

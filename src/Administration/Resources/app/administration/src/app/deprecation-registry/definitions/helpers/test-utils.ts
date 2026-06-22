@@ -28,7 +28,10 @@ export function createAttribute(name: string, value: unknown = null): Record<str
             },
         },
         value,
-        range: [1, 2],
+        range: [
+            1,
+            2,
+        ],
         loc: {
             start: {
                 line: 1,
@@ -47,7 +50,10 @@ export function createDirectiveAttribute(directive: string, argument?: string, v
             ...(argument ? { argument: { name: argument } } : {}),
         },
         value,
-        range: [1, 2],
+        range: [
+            1,
+            2,
+        ],
         loc: {
             start: {
                 line: 1,
@@ -62,7 +68,10 @@ export function createSlot(slotName: string, children: Array<Record<string, any>
         type: 'VElement',
         name: 'template',
         startTag: {
-            range: [3, 4],
+            range: [
+                3,
+                4,
+            ],
             loc: {
                 start: {
                     column: 8,
@@ -104,7 +113,10 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
     const node = config.node ?? {
         name: 'mt-test',
         startTag: {
-            range: [0, 10],
+            range: [
+                0,
+                10,
+            ],
             loc: {
                 start: {
                     column: 0,
@@ -173,7 +185,9 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
                     return undefined;
                 }
 
-                return attribute.matchName === propName || attribute.key?.name === propName || attribute.key?.argument?.name === propName
+                return attribute.matchName === propName ||
+                    attribute.key?.name === propName ||
+                    attribute.key?.argument?.name === propName
                     ? attribute
                     : undefined;
             }),

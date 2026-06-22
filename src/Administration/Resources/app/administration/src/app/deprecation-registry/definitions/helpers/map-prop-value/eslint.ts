@@ -4,10 +4,7 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import {
-    componentUsageMessage,
-    usageFixesAutomatically,
-} from '../shared';
+import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
 function reportMapPropValue(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
     if (typeof usageConfig.prop !== 'string') {

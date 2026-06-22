@@ -14,12 +14,7 @@ export function renameVModelArgument(config: {
     fix?: FixLevel;
     message?: string;
 }): DeprecationUsage {
-    const {
-        from,
-        to = null,
-        fix = DEFAULT_FIX,
-        message,
-    } = config;
+    const { from, to = null, fix = DEFAULT_FIX, message } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'rename-v-model-argument',
         from,

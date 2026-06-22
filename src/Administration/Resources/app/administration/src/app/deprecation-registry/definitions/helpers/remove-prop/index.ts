@@ -3,20 +3,19 @@
  */
 
 import type { DeprecationUsage } from '../types';
-import {
-    attributeNameToPropName,
-    normalizeFixLevel,
-    withoutUndefined,
-} from '../shared';
+import { attributeNameToPropName, normalizeFixLevel, withoutUndefined } from '../shared';
 import { createRemovePropEslint } from './eslint';
 import { createRemovePropRuntime } from './runtime';
 
 const DEFAULT_FIX = 'auto';
 
 export function removeProp(config: Record<string, unknown>): DeprecationUsage {
-    const runtimeProp = typeof config.runtimeProp === 'string'
-        ? config.runtimeProp
-        : typeof config.prop === 'string' ? attributeNameToPropName(config.prop) : undefined;
+    const runtimeProp =
+        typeof config.runtimeProp === 'string'
+            ? config.runtimeProp
+            : typeof config.prop === 'string'
+              ? attributeNameToPropName(config.prop)
+              : undefined;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'remove-prop',
         ...config,

@@ -1,4 +1,12 @@
-import { componentMigration, reference, removeProp, removeSlot, renameComponent, renameProp, slotToItemsProp } from '../helpers';
+import {
+    componentMigration,
+    reference,
+    removeProp,
+    removeSlot,
+    renameComponent,
+    renameProp,
+    slotToItemsProp,
+} from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-tabs',

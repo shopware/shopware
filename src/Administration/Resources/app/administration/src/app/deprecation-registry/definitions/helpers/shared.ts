@@ -116,10 +116,7 @@ export function componentUsageMessage(
     const defaultMessage = `[${api.node.name}] The "${apiName}" API is deprecated.${replacement}`;
     const message = typeof usageConfig.message === 'string' ? `[${api.node.name}] ${usageConfig.message}` : defaultMessage;
 
-    return api.appendRegistryContext(
-        additionalMessage ? `${message}\n${additionalMessage}` : message,
-        api.migration,
-    );
+    return api.appendRegistryContext(additionalMessage ? `${message}\n${additionalMessage}` : message, api.migration);
 }
 
 export function usageFixesAutomatically(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {

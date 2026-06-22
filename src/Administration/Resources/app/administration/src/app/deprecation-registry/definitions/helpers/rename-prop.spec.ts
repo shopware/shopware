@@ -49,7 +49,8 @@ describe('renameProp', () => {
             kind: 'replace-with-static-value',
             fix: 'manual',
             value: '16px',
-            message: 'Expression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
+            message:
+                'Expression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
         });
     });
 

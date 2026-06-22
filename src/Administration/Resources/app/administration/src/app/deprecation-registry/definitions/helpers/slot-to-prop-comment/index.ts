@@ -14,12 +14,7 @@ export function slotToPropComment(config: {
     fix?: FixLevel;
     message?: string;
 }): DeprecationUsage {
-    const {
-        slot,
-        prop,
-        fix = DEFAULT_FIX,
-        message,
-    } = config;
+    const { slot, prop, fix = DEFAULT_FIX, message } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'slot-to-prop-comment',
         slot,

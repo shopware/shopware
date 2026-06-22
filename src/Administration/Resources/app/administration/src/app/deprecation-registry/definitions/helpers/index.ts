@@ -7,10 +7,7 @@
 
 import type { DeprecationUsage, FixLevel, MigrationTransform, MigrationTransformContext } from './types';
 import { migration, manualUsage, usage, withoutUndefined } from './shared';
-export {
-    defineDeprecations,
-    reference,
-} from './shared';
+export { defineDeprecations, reference } from './shared';
 export type {
     ComponentUsageRuleApi,
     DeprecationDefinition,

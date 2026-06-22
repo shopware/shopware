@@ -4,10 +4,7 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import {
-    componentUsageMessage,
-    usageFixesAutomatically,
-} from '../shared';
+import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
 function hasConflictingDeprecatedProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {
     return api.migration.usage.some((candidate) => {

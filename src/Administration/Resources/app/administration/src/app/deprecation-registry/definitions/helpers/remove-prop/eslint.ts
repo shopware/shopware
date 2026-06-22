@@ -4,10 +4,7 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import {
-    componentUsageMessage,
-    usageFixesAutomatically,
-} from '../shared';
+import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
 function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
     if (typeof usageConfig.prop !== 'string') {
@@ -35,18 +32,20 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
             }
 
             if (transform?.kind === 'router-link-to-click') {
-                const routerLinkValue = api.ast.getDirectiveName(attribute) === 'bind'
-                    ? api.ast.getAttributeValueSource(attribute)
-                    : `'${api.ast.getAttributeValueSource(attribute)}'`;
+                const routerLinkValue =
+                    api.ast.getDirectiveName(attribute) === 'bind'
+                        ? api.ast.getAttributeValueSource(attribute)
+                        : `'${api.ast.getAttributeValueSource(attribute)}'`;
 
                 return fixer.replaceText(attribute, `@click="$router.push(${routerLinkValue})"`);
             }
 
             if (transform?.kind === 'ai-badge-to-title-slot') {
                 const indent = api.node.startTag.loc.start.column + 4;
-                const aiBadgeCondition = api.ast.getDirectiveName(attribute) === 'bind'
-                    ? ` v-if="${api.ast.getAttributeValueSource(attribute)}"`
-                    : '';
+                const aiBadgeCondition =
+                    api.ast.getDirectiveName(attribute) === 'bind'
+                        ? ` v-if="${api.ast.getAttributeValueSource(attribute)}"`
+                        : '';
 
                 return [
                     fixer.remove(attribute),

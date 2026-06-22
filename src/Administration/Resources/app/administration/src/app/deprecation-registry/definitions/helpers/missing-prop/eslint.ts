@@ -7,9 +7,11 @@ import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
 function findObjectVBindAttribute(api: ComponentUsageRuleApi): Record<string, any> | null {
-    return api.node.startTag.attributes.find((attribute: Record<string, any>) => {
-        return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
-    }) ?? null;
+    return (
+        api.node.startTag.attributes.find((attribute: Record<string, any>) => {
+            return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
+        }) ?? null
+    );
 }
 
 function getPropSource(usageConfig: DeprecationUsage): string {
@@ -49,7 +51,11 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                         const attributeLine = objectVBindAttribute.loc?.start?.line;
                         const startTagLine = api.node.startTag.loc?.start?.line;
 
-                        if (typeof attributeLine === 'number' && typeof startTagLine === 'number' && attributeLine > startTagLine) {
+                        if (
+                            typeof attributeLine === 'number' &&
+                            typeof startTagLine === 'number' &&
+                            attributeLine > startTagLine
+                        ) {
                             const column = objectVBindAttribute.loc?.start?.column;
                             const indentation = ' '.repeat(typeof column === 'number' ? column : 0);
 
@@ -65,9 +71,10 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                     const beforeEndOffset = selfClosingEnd
                         ? api.node.startTag.range[1] - selfClosingEnd[0].length
                         : api.node.startTag.range[1] - 1;
-                    const insertOffset = insertPosition === 'after-name'
-                        ? api.node.startTag.range[0] + `<${api.node.name}`.length
-                        : beforeEndOffset;
+                    const insertOffset =
+                        insertPosition === 'after-name'
+                            ? api.node.startTag.range[0] + `<${api.node.name}`.length
+                            : beforeEndOffset;
 
                     return fixer.insertTextAfterRange(
                         [

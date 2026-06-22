@@ -56,16 +56,15 @@
             <div
                 v-show="notifications.length === 0"
                 class="sw-notification-center__empty-state-wrapper"
+                @animationend="isBellRinging = false"
             >
                 <mt-empty-state
                     class="sw-notification-center__empty-state"
-                    :class="emptyStateBellAnimationClasses"
+                    :class="{ 'sw-notification-center__empty-state--ringing': isBellRinging }"
                     :headline="$t('global.notification-center.emptyText')"
                     :description="$t('global.notification-center.emptyDescription')"
                     icon="regular-bell"
                     role="status"
-                    aria-live="polite"
-                    aria-atomic="true"
                     centered
                 />
 
@@ -74,7 +73,7 @@
                     class="sw-notification-center__empty-state-bell-button"
                     :aria-label="$t('global.notification-center.ringBellLabel')"
                     @mousedown.prevent
-                    @click="onEmptyStateBellClick"
+                    @click.stop="onEmptyStateBellClick"
                 ></button>
             </div>
         </div>

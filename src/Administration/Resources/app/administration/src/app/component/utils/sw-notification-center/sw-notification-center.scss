@@ -93,82 +93,18 @@
     }
 }
 
-.sw-notification-center__empty-state--animated .mt-empty-state__icon .mt-icon {
+.sw-notification-center__empty-state--ringing .mt-empty-state__icon .mt-icon {
     animation: sw-notification-center-empty-state-bell 480ms ease-out both;
     transform-origin: 50% 18%;
 }
 
-.sw-notification-center__empty-state--bell-hit-a .mt-empty-state__icon .mt-icon {
-    animation: sw-notification-center-empty-state-bell-hit-a 480ms ease-out both;
-    transform-origin: 50% 18%;
-}
-
-.sw-notification-center__empty-state--bell-hit-b .mt-empty-state__icon .mt-icon {
-    animation: sw-notification-center-empty-state-bell-hit-b 480ms ease-out both;
-    transform-origin: 50% 18%;
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .sw-notification-center__empty-state--animated .mt-empty-state__icon .mt-icon,
-    .sw-notification-center__empty-state--bell-hit-a .mt-empty-state__icon .mt-icon,
-    .sw-notification-center__empty-state--bell-hit-b .mt-empty-state__icon .mt-icon {
+    .sw-notification-center__empty-state--ringing .mt-empty-state__icon .mt-icon {
         animation: none;
     }
 }
 
 @keyframes sw-notification-center-empty-state-bell {
-    0% {
-        transform: rotate(0deg) scale(0.96);
-    }
-
-    20% {
-        transform: rotate(-7deg) scale(1.03);
-    }
-
-    42% {
-        transform: rotate(6deg);
-    }
-
-    64% {
-        transform: rotate(-3deg);
-    }
-
-    82% {
-        transform: rotate(2deg);
-    }
-
-    100% {
-        transform: rotate(0deg) scale(1);
-    }
-}
-
-@keyframes sw-notification-center-empty-state-bell-hit-a {
-    0% {
-        transform: rotate(0deg) scale(0.96);
-    }
-
-    20% {
-        transform: rotate(-7deg) scale(1.03);
-    }
-
-    42% {
-        transform: rotate(6deg);
-    }
-
-    64% {
-        transform: rotate(-3deg);
-    }
-
-    82% {
-        transform: rotate(2deg);
-    }
-
-    100% {
-        transform: rotate(0deg) scale(1);
-    }
-}
-
-@keyframes sw-notification-center-empty-state-bell-hit-b {
     0% {
         transform: rotate(0deg) scale(0.96);
     }

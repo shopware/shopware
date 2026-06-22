@@ -179,8 +179,8 @@ export default {
         },
 
         handleOutsideClickEvent(event) {
-            if (!this.autoCloseOutsideClick || !this.showMenu) {
-                return false;
+            if (!this.showMenu) {
+                return;
             }
 
             const contextButton = this.$refs.swContextButton;
@@ -189,11 +189,9 @@ export default {
             const clickedInsideButton = contextButton?.contains(event.target) ?? false;
             const clickedInsideMenu = contextMenu?.contains(event.target) ?? false;
 
-            if (!event?.target || (!clickedInsideButton && !clickedInsideMenu)) {
-                return this.closeMenu();
+            if (!clickedInsideButton && !clickedInsideMenu) {
+                this.closeMenu();
             }
-
-            return false;
         },
 
         handleClickEvent(event) {

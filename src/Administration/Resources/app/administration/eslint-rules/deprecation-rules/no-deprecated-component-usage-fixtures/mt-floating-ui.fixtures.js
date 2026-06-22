@@ -8,34 +8,34 @@ const mtFloatingUiValidTests = [
             </template>`,
     },
     {
-        name: '"mt-floating-ui" set "isOpened" prop to "true" when not exists to maintain backward compatibility',
+        name: '"mt-floating-ui" set "is-opened" prop to "true" when not exists to maintain backward compatibility',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-floating-ui :isOpened="true" />
+                <mt-floating-ui :is-opened="true" />
             </template>`,
     },
     {
-        name: '"mt-floating-ui" set "isOpened" prop to "true" when not exists to maintain backward compatibility',
+        name: '"mt-floating-ui" set "is-opened" prop to "true" when not exists to maintain backward compatibility',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-floating-ui isOpened="true" />
+                <mt-floating-ui is-opened="true" />
             </template>`,
     },
     {
-        name: '"mt-floating-ui" set "isOpened" prop to "true" when not exists to maintain backward compatibility',
+        name: '"mt-floating-ui" set "is-opened" prop to "true" when not exists to maintain backward compatibility',
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-floating-ui isOpened />
+                <mt-floating-ui is-opened />
             </template>`,
     },
 ];
 
 const mtFloatingUiInvalidTests = [
     {
-        name: '"mt-floating-ui" set "isOpened" prop to "true" when not exists to maintain backward compatibility',
+        name: '"mt-floating-ui" set "is-opened" prop to "true" when not exists to maintain backward compatibility',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -43,17 +43,17 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-floating-ui :isOpened="true" />
+                <mt-floating-ui :is-opened="true" />
             </template>`,
         errors: [
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "isOpened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
             },
         ],
     },
     {
-        name: '"mt-floating-ui" set "isOpened" prop to "true" when not exists to maintain backward compatibility',
+        name: '"mt-floating-ui" set "is-opened" prop to "true" when not exists to maintain backward compatibility',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -63,12 +63,12 @@ const mtFloatingUiInvalidTests = [
         errors: [
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "isOpened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
             },
         ],
     },
     {
-        name: '"mt-floating-ui" does not add isOpened when legacy open prop still needs manual migration',
+        name: '"mt-floating-ui" does not add is-opened when legacy open prop still needs manual migration',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -82,7 +82,7 @@ const mtFloatingUiInvalidTests = [
         ],
     },
     {
-        name: '"mt-floating-ui" does not add isOpened when legacy bound open prop still needs manual migration',
+        name: '"mt-floating-ui" does not add is-opened when legacy bound open prop still needs manual migration',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -104,7 +104,7 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-floating-ui :isOpened="true" match-reference-width />
+                <mt-floating-ui :is-opened="true" match-reference-width />
             </template>`,
         errors: [
             {
@@ -112,7 +112,7 @@ const mtFloatingUiInvalidTests = [
             },
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "isOpened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
             },
         ],
     },
@@ -121,7 +121,7 @@ const mtFloatingUiInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-floating-ui match-reference-width resize-width :isOpened="true" />
+                <mt-floating-ui match-reference-width resize-width :is-opened="true" />
             </template>`,
         output: null,
         errors: [
@@ -135,7 +135,7 @@ const mtFloatingUiInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-floating-ui :match-reference-width="foo" :resize-width="bar" :isOpened="true" />
+                <mt-floating-ui :match-reference-width="foo" :resize-width="bar" :is-opened="true" />
             </template>`,
         output: null,
         errors: [
@@ -153,7 +153,7 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-floating-ui :isOpened="true"  />
+                <mt-floating-ui :is-opened="true"  />
             </template>`,
         errors: [
             {
@@ -161,7 +161,7 @@ const mtFloatingUiInvalidTests = [
             },
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "isOpened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
             },
         ],
     },

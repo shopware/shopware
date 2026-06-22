@@ -11,7 +11,7 @@ const mtBannerValidTests = [
 
 const mtBannerInvalidTests = [
     {
-        name: '"mt-banner" wrong "notificationIndex" prop usage should be replaced with "bannerIndex"',
+        name: '"mt-banner" wrong "notificationIndex" prop usage should be replaced with "banner-index"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -19,10 +19,10 @@ const mtBannerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-banner bannerIndex="1" />
+                <mt-banner banner-index="1" />
             </template>`,
         errors: [{
-            message: '[mt-banner] The "notificationIndex" prop is deprecated. Use "bannerIndex" instead.',
+            message: '[mt-banner] The "notificationIndex" prop is deprecated. Use "banner-index" instead.',
         }]
     },
     {

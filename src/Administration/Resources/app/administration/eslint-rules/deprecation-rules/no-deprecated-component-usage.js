@@ -813,7 +813,7 @@ function reportFloatingUiDefaultOpened(context, node, migration, usage) {
 
             const rangeAfterStartTag = node.startTag?.range[0] + '<mt-floating-ui'.length;
 
-            return fixer.insertTextAfterRange([rangeAfterStartTag, rangeAfterStartTag], ` :isOpened="true"`);
+            return fixer.insertTextAfterRange([rangeAfterStartTag, rangeAfterStartTag], ` :is-opened="true"`);
         },
     });
 }

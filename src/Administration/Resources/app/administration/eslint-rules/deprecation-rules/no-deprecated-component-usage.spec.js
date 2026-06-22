@@ -122,11 +122,11 @@ const duplicateReplacementInvalidTests = [
     {
         name: 'does not fix camelCase prop rename when replacement already exists',
         filename: 'test.html.twig',
-        code: '<template><mt-switch removeTopMargin no-margin-top /></template>',
+        code: '<template><mt-switch remove-top-margin no-margin-top /></template>',
         output: null,
         errors: [
             {
-                message: '[mt-switch] The "noMarginTop" prop is removed. Use "removeTopMargin" instead.',
+                message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
             },
         ],
     },

@@ -11,7 +11,7 @@ const mtSwitchValidChecks = [
 ]
 const mtSwitchInvalidChecks = [
     {
-        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "removeTopMargin"',
+        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "remove-top-margin"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -19,14 +19,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch removeTopMargin />
+                <mt-switch remove-top-margin />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "removeTopMargin" instead.',
+            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
         }]
     },
     {
-        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "removeTopMargin" [disabledFix]',
+        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "remove-top-margin" [disabledFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -34,11 +34,11 @@ const mtSwitchInvalidChecks = [
                 <mt-switch noMarginTop />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "removeTopMargin" instead.',
+            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
         }]
     },
     {
-        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "removeTopMargin" [bindUsage]',
+        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "remove-top-margin" [bindUsage]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -46,14 +46,14 @@ const mtSwitchInvalidChecks = [
             </template>`,
         output: `
             <template>
-                <mt-switch :removeTopMargin="true" />
+                <mt-switch :remove-top-margin="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "removeTopMargin" instead.',
+            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
         }]
     },
     {
-        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "removeTopMargin" [bindUsage]',
+        name: '"mt-switch" wrong "noMarginTop" prop usage should be replaced with "remove-top-margin" [bindUsage]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -61,7 +61,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :noMarginTop="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "removeTopMargin" instead.',
+            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
         }]
     },
     {

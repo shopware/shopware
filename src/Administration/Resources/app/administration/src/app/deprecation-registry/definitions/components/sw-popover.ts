@@ -1,4 +1,4 @@
-import { componentMigration, reference, removeProp, renameComponent, renameProp } from '../helpers';
+import { componentMigration, customUsage, reference, removeProp, renameComponent, renameProp } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-popover',
@@ -30,6 +30,11 @@ export default componentMigration({
             from: 'open',
             to: 'is-opened',
             fix: 'manual',
+        }),
+        customUsage({
+            name: 'floating-ui-default-opened',
+            fix: 'auto',
+            message: 'Add :is-opened="true" when no opened state is set to preserve the previous default visibility.',
         }),
     ],
 });

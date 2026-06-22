@@ -82,8 +82,8 @@
             <sw-checkbox-field
                 :disabled="column.primary"
                 :label="getColumnLabel(column)"
-                :checked="currentColumns[index].visible"
-                @update:checked="onChangeColumnVisibility($event, index)"
+                :value="currentColumns[index].visible"
+                @update:value="onChangeColumnVisibility($event, index)"
             />
             {% endblock %}
 

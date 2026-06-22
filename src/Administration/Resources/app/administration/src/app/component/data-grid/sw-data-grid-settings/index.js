@@ -1,7 +1,7 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -10,6 +10,8 @@ const { Mixin } = Shopware;
  */
 Component.register('sw-data-grid-settings', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('translate-with-fallback'),

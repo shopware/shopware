@@ -37,9 +37,10 @@ Finish with exactly one of these safe-output actions:
 - `create_pull_request` after a fix run produced useful code changes;
 - `push_to_pull_request_branch` after an improvement run produced useful code
   changes on the checked-out Bugfixer PR branch;
-- `add_comment` only when an improvement run needs to report that there was no
-  actionable feedback or no remaining diff;
-- `noop` when no change should be made.
+- `add_comment` when a fix run was investigated but no safe or useful code
+  change should be made, or when an improvement run needs to report that there
+  was no actionable feedback or no remaining diff;
+- `noop` only when no code change and no public explanation are needed.
 
 Do not use direct `gh pr create`, `git push`, `gh issue comment`, label
 mutation, issue closing, review submission, or PR metadata mutation commands.
@@ -63,5 +64,12 @@ When creating a pull request, include:
 - validation commands and outcomes;
 - a confidence note when reproduction or validation was limited.
 
-When adding a comment, keep it brief and operational. Explain why no code was
-changed and what evidence or feedback caused the decision.
+When adding a comment after a fix run, include the issue number, state clearly
+that no code was changed, and explain the technical reason. If a proposed fix
+was rejected, say why it would regress behavior or why trunk already handles the
+case. Cite concrete code paths, tests, SQL behavior, or triage evidence observed
+during the run. Do not include token counts, cost, or private run telemetry.
+
+When adding a comment after an improvement run, keep it brief and operational.
+Explain why no code was changed and what evidence or feedback caused the
+decision.

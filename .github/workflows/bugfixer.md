@@ -114,8 +114,7 @@ safe-outputs:
     protected-files: fallback-to-issue
     max-patch-size: 1024
   add-comment:
-    target: "*"
-    required-labels: [qi:fix]
+    target: "${{ github.event.inputs.issue_number || github.event.inputs.pr_number || github.event.issue.number || github.event.pull_request.number }}"
     max: 1
     footer: false
   noop:

@@ -86,7 +86,12 @@ Use the latest valid `triage-output.json` this way:
   and the likely patch is small; otherwise make no change.
 
 "No change" is a correct outcome. Do not manufacture a patch to satisfy the
-trigger.
+trigger. If you investigated a fix run and determined that no safe or useful
+code change should be made, report that outcome with an issue comment via
+`add_comment` rather than silently ending with `noop`. The comment should be
+technical and actionable: explain why no patch was applied, whether the issue is
+already fixed on trunk, whether the proposed fix would regress behavior, and
+what evidence supports the decision.
 
 ### Improvement run
 

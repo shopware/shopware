@@ -2,6 +2,10 @@
 
 ## Storefront
 
+### Correct `hreflang` URLs in multi-language storefronts
+
+Hreflang tags now correctly point to the canonical URL when a product has a defined canonical variant or when opening a parent product URL, the hreflang URL now points to the correct variant product, i.e. for products the `hreflang` URLs now match the canonical URLs.
+
 ### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.

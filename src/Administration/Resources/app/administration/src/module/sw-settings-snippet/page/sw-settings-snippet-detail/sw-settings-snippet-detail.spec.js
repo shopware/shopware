@@ -376,6 +376,71 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
     });
 
+    describe('getPlaceholder', () => {
+        let wrapper;
+
+        beforeEach(async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+        });
+
+        it('returns the empty placeholder when snippet state is "empty"', () => {
+            const snippet = {
+                setId: 'set-1',
+                id: 'some-id',
+                value: '',
+                resetTo: 'file val',
+                origin: '',
+                _hasFileValue: false,
+            };
+            wrapper.vm.snippets = [snippet];
+
+            expect(wrapper.vm.getPlaceholder(snippet)).toBe('sw-settings-snippet.general.placeholderValue');
+        });
+
+        it('returns resetTo when snippet state is not empty and resetTo is set', () => {
+            const snippet = {
+                setId: 'set-1',
+                id: 'some-id',
+                value: 'custom',
+                resetTo: 'file val',
+                origin: '',
+                _hasFileValue: true,
+            };
+            wrapper.vm.snippets = [snippet];
+
+            expect(wrapper.vm.getPlaceholder(snippet)).toBe('file val');
+        });
+
+        it('falls back to origin when resetTo is not set', () => {
+            const snippet = {
+                setId: 'set-1',
+                id: null,
+                value: null,
+                resetTo: null,
+                origin: 'file val',
+                _overriding: true,
+            };
+            wrapper.vm.snippets = [snippet];
+
+            expect(wrapper.vm.getPlaceholder(snippet)).toBe('file val');
+        });
+
+        it('falls back to the empty placeholder when neither resetTo nor origin is set', () => {
+            const snippet = {
+                setId: 'set-1',
+                id: null,
+                value: null,
+                resetTo: null,
+                origin: null,
+                _overriding: false,
+            };
+            wrapper.vm.snippets = [snippet];
+
+            expect(wrapper.vm.getPlaceholder(snippet)).toBe('sw-settings-snippet.general.placeholderValue');
+        });
+    });
+
     describe('onResetSnippet', () => {
         let wrapper;
 

@@ -381,6 +381,15 @@ export default {
             });
         },
 
+        getPlaceholder(snippet) {
+            const emptyPlaceholder = this.$t('sw-settings-snippet.general.placeholderValue');
+            if (this.snippetStates[snippet.setId] === 'empty') {
+                return emptyPlaceholder;
+            }
+
+            return snippet.resetTo || snippet.origin || emptyPlaceholder;
+        },
+
         getSnippetState(snippet) {
             if (snippet.id !== null) {
                 if (snippet._pendingDelete) {

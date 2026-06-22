@@ -113,6 +113,89 @@ function matchesMemberCall(usage, propertyName, calleeName) {
     return usage.from === propertyName;
 }
 
+function parseSimpleObjectCall(source) {
+    const match = source.match(/^([\w$.]+)\(\{\s*(.*)\s*}\)$/);
+
+    if (!match) {
+        return null;
+    }
+
+    const properties = new Map();
+    const propertySources = match[2]
+        .split(',')
+        .map((propertySource) => propertySource.trim())
+        .filter(Boolean);
+
+    for (const propertySource of propertySources) {
+        const separatorIndex = propertySource.indexOf(':');
+
+        if (separatorIndex === -1) {
+            return null;
+        }
+
+        properties.set(
+            propertySource.slice(0, separatorIndex).trim(),
+            normalizeComparableSource(propertySource.slice(separatorIndex + 1)),
+        );
+    }
+
+    return {
+        calleeName: match[1],
+        properties,
+    };
+}
+
+function getObjectExpressionProperties(sourceCode, node) {
+    if (node?.type !== 'ObjectExpression') {
+        return null;
+    }
+
+    const properties = new Map();
+
+    for (const property of node.properties) {
+        if (property.type !== 'Property') {
+            return null;
+        }
+
+        const propertyName = getPropertyName(property.key);
+
+        if (!propertyName) {
+            return null;
+        }
+
+        properties.set(propertyName, normalizeComparableSource(sourceCode.getText(property.value)));
+    }
+
+    return properties;
+}
+
+function mapsAreEqual(expectedProperties, actualProperties) {
+    if (expectedProperties.size !== actualProperties.size) {
+        return false;
+    }
+
+    return Array.from(expectedProperties).every(([
+        propertyName,
+        expectedValue,
+    ]) => actualProperties.get(propertyName) === expectedValue);
+}
+
+function matchesExactCall(usage, node, sourceCode, sourceText, calleeName) {
+    if (normalizeComparableSource(usage.from) === normalizeComparableSource(sourceText)) {
+        return true;
+    }
+
+    const expectedCall = parseSimpleObjectCall(usage.from);
+
+    if (!expectedCall || expectedCall.calleeName !== calleeName || node.arguments.length !== 1) {
+        return false;
+    }
+
+    const actualProperties = getObjectExpressionProperties(sourceCode, node.arguments[0]);
+
+    return actualProperties ? mapsAreEqual(expectedCall.properties, actualProperties) : false;
+}
+
 module.exports = {
     meta: {
         type: 'suggestion',
@@ -216,7 +299,7 @@ module.exports = {
                 const sourceText = context.sourceCode.getText(node);
                 const replaceApiMatch = replaceApiUsages.find(({ usage }) => {
                     return usage.from.includes('(')
-                        ? normalizeComparableSource(usage.from) === normalizeComparableSource(sourceText)
+                        ? matchesExactCall(usage, node, context.sourceCode, sourceText, calleeName)
                         : usage.from === calleeName;
                 });
 

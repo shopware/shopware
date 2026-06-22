@@ -22,8 +22,7 @@ abstract class AbstractDomainLoader
     abstract public function load(): array;
 
     /**
-     * The default implementation builds the collection from the deprecated load() for backward compatibility.
-     * It will be removed with v6.8 and this method becomes abstract; decorators should implement it directly.
+     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract, the default implementation that builds the collection from the deprecated load() will be removed
      */
     public function loadDomains(): DomainCollection
     {

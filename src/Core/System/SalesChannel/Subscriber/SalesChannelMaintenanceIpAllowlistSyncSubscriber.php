@@ -13,9 +13,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Mirrors the new `maintenance_ip_allowlist` column and the deprecated `maintenance_ip_whitelist`
  * column on every sales channel write, so writes through either field stay in sync without DB triggers.
- * Active until the deprecated column is dropped in v6.8.
  *
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed together with the deprecated `maintenance_ip_whitelist` column
  */
 #[Package('discovery')]
 class SalesChannelMaintenanceIpAllowlistSyncSubscriber implements EventSubscriberInterface

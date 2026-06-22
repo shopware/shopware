@@ -67,6 +67,22 @@ stray uploader elsewhere on the page.
   "Show password" toggle, AND the "Forgot your password?" link. Use `/^password$/i` and pin
   the role: `getByRole('textbox', {name:/^password$/i})` (a password input is a `textbox`;
   the toggle is a `button`), so only the field matches.
+- **A broad regex + `.first()` fails SILENTLY when it matches a SEEDED entity whose name
+  contains the action word — anchor the action name with `^…$`.** Unlike a strict-mode
+  violation (which throws), `.first()` just clicks the wrong element and the spec dies later at
+  a misleading `PRECONDITION_NOT_FOUND`. Live miss on #29: the spec wanted the media sidebar's
+  **Replace** action, but `getByRole('button', {name:/ersetzen|replace/i}).first()` matched the
+  seeded media card `button "repro-replace-media …"` FIRST (its filename contains "re**place**"),
+  re-selected the item instead of opening the dialog, and failed at "Replace dialog did not
+  open". Use an EXACT-anchored name for action controls: `getByRole('button',
+  {name:/^(ersetzen|replace)$/i})` — it cannot match the card. Corollary: do NOT give a seeded
+  fixture a name that contains a UI action word (`replace`/`delete`/`save`/`upload`) you will
+  also locate by.
+- **Admin item actions often live behind a per-row context menu, not a visible button.** In
+  list/grid views (media, products, categories) the row's actions ("Replace", "Delete",
+  "Duplicate") are revealed by clicking the row's **"Open context menu"** button first, then
+  clicking the action as a `menuitem`. If an action button isn't directly visible after
+  selecting a row, open that context menu rather than declaring `PRECONDITION_NOT_FOUND`.
 - **Beware untranslated snippet keys.** If the target admin renders raw keys (e.g.
   `global.sw-admin-menu.navigation.label` instead of "Navigation"), accessible-name / text
   locators can't match. Prefer the issue's own visible strings + structural roles; a

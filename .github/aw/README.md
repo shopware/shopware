@@ -34,7 +34,7 @@ the checklist for adding a new skill), see
 
 | Workflow | Trigger | Engine | Output |
 |---|---|---|---|
-| `bugfixer` | `qi:fix` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
+| `bugfixer` | `qi/bugfixer` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
 | `triage` | `workflow_dispatch` (input: `issue_number`) | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
 
 The triage agent is read-only — it has no write permissions and cannot label, comment, or close. Its only side effect is the artifact, which a downstream job (or a human) consumes.

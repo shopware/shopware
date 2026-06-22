@@ -53,8 +53,8 @@ PR titles must use Conventional Commit format. For bug fixes, prefer
 
 ### Fix run
 
-A fix run starts from an issue, normally because the issue received `qi:fix`.
-Keep `qi:fix` in place. Do not remove labels, close the issue, assign anyone, or
+A fix run starts from an issue, normally because the issue received `qi/bugfixer`.
+Keep `qi/bugfixer` in place. Do not remove labels, close the issue, assign anyone, or
 mutate issue metadata.
 
 Before editing code:
@@ -212,6 +212,6 @@ patch, but the PR/comment must clearly state the failure.
 - Do not overstate confidence when the triage output was missing or the issue is
   underspecified.
 - Do not broaden the fix to make the result look more substantial.
-- Do not implement medium/large feature requests just because `qi:fix` was
+- Do not implement medium/large feature requests just because `qi/bugfixer` was
   added.
 - Prefer `noop` / no changes over a speculative patch.

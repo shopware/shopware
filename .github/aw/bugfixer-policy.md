@@ -16,7 +16,7 @@ tools exposed to you.
 
 This workflow can be started by:
 
-- a `qi:fix` label on an issue;
+- a `qi/bugfixer` label on an issue;
 - manual `workflow_dispatch` with `mode=fix-bug` and `issue_number`;
 - `/bugfixer ...` on a pull request, pull request comment, or pull request
   review comment;

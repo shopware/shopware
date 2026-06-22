@@ -3,7 +3,7 @@ name: bugfixer
 description: >
   Diagnose and fix a Shopware 6 GitHub issue, or improve an existing Bugfixer pull
   request after maintainer feedback. Use when the user asks to fix an issue,
-  create a bugfix PR, handle a qi:fix issue, improve a Bugfixer PR, or react to
+  create a bugfix PR, handle a qi/bugfixer issue, improve a Bugfixer PR, or react to
   /bugfixer feedback.
 license: MIT
 allowed-tools: Bash(rg:*) Bash(find:*) Bash(ls:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*) Bash(git blame:*) Bash(git status:*) Bash(git branch:*) Bash(git checkout:*) Bash(git switch:*) Bash(git rev-parse:*) Bash(git merge-base:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(gh pr view:*) Bash(gh pr diff:*) Bash(gh pr checks:*) Bash(gh api repos/*:*) Bash(composer:*) Bash(php:*) Bash(bin/console:*) Bash(npm:*) Bash(pnpm:*) Read Glob Grep Edit
@@ -29,7 +29,7 @@ allowed to write to GitHub.
 The user typed something like:
 
 - "fix issue #12345"
-- "this issue has `qi:fix`, should Bugfixer run?"
+- "this issue has `qi/bugfixer`, should Bugfixer run?"
 - "improve PR #12345 based on the comments"
 - "/bugfixer improve ..."
 

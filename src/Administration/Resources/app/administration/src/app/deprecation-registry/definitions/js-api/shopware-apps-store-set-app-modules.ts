@@ -10,6 +10,6 @@ export default jsApiMigration({
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#administration' }),
     ],
     usage: [
-        memberCall({ from: 'setAppModules', to: null, fix: 'manual' }),
+        memberCall({ from: "Shopware.Store.get('shopwareApps').setAppModules", to: null, fix: 'manual' }),
     ],
 });

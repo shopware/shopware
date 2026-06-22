@@ -56,6 +56,16 @@ tester.run('no-deprecated-js-api', rule, {
                 };
             `,
         },
+        {
+            name: 'allows unrelated object setAppModules calls',
+            code: `
+                const other = {
+                    setAppModules() {},
+                };
+
+                other.setAppModules();
+            `,
+        },
     ],
     invalid: [
         {
@@ -83,6 +93,30 @@ tester.run('no-deprecated-js-api', rule, {
             errors: [
                 {
                     message: /Providing metaInfo as an object is not supported anymore/,
+                },
+            ],
+        },
+        {
+            name: 'reports removed shopwareApps setAppModules store call',
+            code: `
+                Shopware.Store.get('shopwareApps').setAppModules();
+            `,
+            output: null,
+            errors: [
+                {
+                    message: /setAppModules action/,
+                },
+            ],
+        },
+        {
+            name: 'reports removed shopwareApps setAppModules store call with double quoted store name',
+            code: `
+                Shopware.Store.get("shopwareApps").setAppModules();
+            `,
+            output: null,
+            errors: [
+                {
+                    message: /setAppModules action/,
                 },
             ],
         },

@@ -105,9 +105,12 @@ function usageFixesAutomatically(usage) {
     return usage.fix !== 'manual';
 }
 
-function matchesMemberCall(usage, propertyName, calleeName) {
+function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     if (usage.from.includes('.')) {
-        return usage.from === calleeName;
+        return (
+            usage.from === calleeName ||
+            normalizeComparableSource(usage.from) === normalizeComparableSource(calleeSource)
+        );
     }
 
     return usage.from === propertyName;
@@ -289,8 +292,9 @@ module.exports = {
             CallExpression(node) {
                 const propertyName = getMemberPropertyName(node.callee);
                 const calleeName = getMemberName(node.callee);
+                const calleeSource = context.sourceCode.getText(node.callee);
                 const match = memberCallUsages.find(({ usage }) => {
-                    return matchesMemberCall(usage, propertyName, calleeName);
+                    return matchesMemberCall(usage, propertyName, calleeName, calleeSource);
                 });
 
                 if (match) {

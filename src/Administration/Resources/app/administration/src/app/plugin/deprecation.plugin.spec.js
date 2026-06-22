@@ -324,9 +324,37 @@ describe('app/plugins/deprecated.plugin', () => {
         const firstCall = global.console.warn.mock.calls[0];
 
         expect(firstCall[0]).toEqual(expect.stringContaining('[mt-card]'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "contentPadding"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "content-padding"'));
         expect(firstCall[1]).toEqual(expect.stringContaining('mt-card'));
         expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-card'));
+    });
+
+    it('[registry prop] should warn with the original dash-case name when a renamed prop is provided as a dash-case vnode prop', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-banner',
+                props: {
+                    notificationIndex: {
+                        type: Number,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    'notification-index': 1,
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-banner]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "notification-index"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('Use "banner-index" instead.'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-alert'));
     });
 
     it('[registry prop] should not warn when a value-mapped prop uses a non-deprecated value', async () => {

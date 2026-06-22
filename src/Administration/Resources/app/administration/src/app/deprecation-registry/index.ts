@@ -145,7 +145,7 @@ export function formatComponentUsageWarning(
     usage: DeprecationUsage & { migration?: DeprecationMigration },
 ): string {
     const migration = usage.migration ?? getComponentApiMigration(componentName);
-    const apiName = usage.runtimeProp ?? usage.prop ?? usage.from ?? usage.event ?? usage.slot ?? usage.name;
+    const apiName = usage.prop ?? usage.from ?? usage.event ?? usage.slot ?? usage.name ?? usage.runtimeProp;
 
     if (!migration) {
         return `The component "${componentName}" was used with deprecated API "${apiName}".`;

@@ -1061,6 +1061,14 @@ describe('components/data-grid/sw-data-grid', () => {
 
             return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
                 global: {
+                    directives: {
+                        popover: {},
+                        tooltip: {
+                            beforeMount(el, binding) {
+                                el.setAttribute('data-tooltip-message', binding.value);
+                            },
+                        },
+                    },
                     mocks: {
                         $te: $te ?? ((key, l) => Boolean(messages[l ?? locale]?.[key])),
                         $t: $t ?? ((key, l) => messages[l ?? locale]?.[key] ?? key),
@@ -1075,6 +1083,7 @@ describe('components/data-grid/sw-data-grid', () => {
                         },
                         acl: { can: () => true },
                     },
+                    stubs,
                 },
                 props: defaultProps,
             });

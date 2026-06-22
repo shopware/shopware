@@ -12,6 +12,8 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
@@ -19,6 +21,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerial
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
+use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
+use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -60,6 +64,48 @@ class PersistedLayoutMutatorTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
 
         $mutator->mutate($id, '2020-01-01T00:00:00.000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('rejects an unparseable expected version token without writing')]
+    public function testRejectsUnparseableVersionTokenWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, self::VERSION));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
+
+        $mutator->mutate($id, 'not-a-date', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('accepts a token that matches updatedAt to the millisecond, ignoring sub-millisecond noise')]
+    public function testAcceptsTokenMatchingToTheMillisecond(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
+        $repository->expects($this->once())->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+
+        static::assertSame(['block-b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result->layout));
+    }
+
+    #[TestDox('rejects a token that differs from updatedAt at the millisecond without writing')]
+    public function testRejectsTokenDifferingAtTheMillisecondWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123000+00:00'));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
+
+        $mutator->mutate($id, '2026-06-22T10:00:00.456000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
     }
 
     #[TestDox('accepts a null expected version for a never-updated layout')]
@@ -140,6 +186,39 @@ class PersistedLayoutMutatorTest extends TestCase
         $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
     }
 
+    #[TestDox('merges diagnostics across bindings: intrinsic once, binding violations unioned by key, resolutions from the last binding')]
+    public function testMergesDiagnosticsAcrossBindings(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+        $repository->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $enumerator = static::createStub(LayoutBindingEnumerator::class);
+        $enumerator->method('enumerate')->willReturn([new SourceBinding('product', []), new SourceBinding('category', [])]);
+
+        $intrinsic = new Violation(ViolationCode::UnregisteredComponent, 'el', null, 'unregistered');
+        $sharedFirst = new Violation(ViolationCode::UnresolvedRequired, 'el', 'shared', 'from-first-binding');
+        $sharedLast = new Violation(ViolationCode::UnresolvedRequired, 'el', 'shared', 'from-last-binding');
+        $onlyProduct = new Violation(ViolationCode::UnresolvedRequired, 'el', 'a', 'missing-for-product');
+        $onlyCategory = new Violation(ViolationCode::UnresolvedRequired, 'el', 'b', 'missing-for-category');
+
+        $fromFirst = new PropertyResolution('first', PropertyKind::Primitive, false);
+        $fromLast = new PropertyResolution('last', PropertyKind::Primitive, false);
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnOnConsecutiveCalls(
+            new LayoutAnalysis(new DiagnosticsReport([$intrinsic, $sharedFirst, $onlyProduct]), ['el' => [$fromFirst]]),
+            new LayoutAnalysis(new DiagnosticsReport([$intrinsic, $sharedLast, $onlyCategory]), ['el' => [$fromLast]]),
+        );
+
+        $mutator = new PersistedLayoutMutator($repository, $this->elementSerializer(), [$enumerator], $diagnostics);
+
+        $result = $mutator->mutate($id, null, $this->affectingMutation(['el']), Context::createDefaultContext());
+
+        static::assertSame([$intrinsic, $sharedLast, $onlyProduct, $onlyCategory], $result->diagnostics->violations);
+        static::assertSame(['el' => [$fromLast]], $result->resolutions);
+    }
+
     /**
      * @return EntityRepository<ContentLayoutCollection>&MockObject
      */
@@ -207,6 +286,41 @@ class PersistedLayoutMutatorTest extends TestCase
             public function orphaned(): array
             {
                 return [new ContentElement($this->orphanId, 'Sw:Block')];
+            }
+
+            public function droppedWiring(): array
+            {
+                return [];
+            }
+        };
+    }
+
+    /**
+     * @param list<string> $affected
+     */
+    private function affectingMutation(array $affected): LayoutMutation
+    {
+        return new class($affected) implements LayoutMutation {
+            /**
+             * @param list<string> $affected
+             */
+            public function __construct(private readonly array $affected)
+            {
+            }
+
+            public function apply(array $tree): array
+            {
+                return $tree;
+            }
+
+            public function affected(): array
+            {
+                return $this->affected;
+            }
+
+            public function orphaned(): array
+            {
+                return [];
             }
 
             public function droppedWiring(): array

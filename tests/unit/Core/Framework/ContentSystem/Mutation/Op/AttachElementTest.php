@@ -77,6 +77,18 @@ class AttachElementTest extends TestCase
         static::assertSame('first', $children[1]->getId());
     }
 
+    #[TestDox('clamps an out-of-range index, appending the supplied subtree to the end of the target list')]
+    public function testAttachClampsOutOfRangeIndex(): void
+    {
+        $tree = [new ContentElement('block-a', 'Sw:Card'), new ContentElement('block-b', 'Sw:Card')];
+
+        $result = (new AttachElement(new ContentElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
+
+        static::assertCount(3, $result);
+        static::assertSame(['block-a', 'block-b'], [$result[0]->getId(), $result[1]->getId()]);
+        static::assertNotSame('incoming', $result[2]->getId());
+    }
+
     #[TestDox('rejects attaching into a parent absent from the tree with a 400')]
     public function testAttachIntoMissingParentRejected(): void
     {

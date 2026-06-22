@@ -30,6 +30,28 @@ class DraftLayoutDecoderTest extends TestCase
         static::assertSame([$element], $tree);
     }
 
+    #[TestDox('decodeOne returns the single decoded element for a structurally valid element')]
+    public function testDecodeOneReturnsElement(): void
+    {
+        $element = new ContentElement('el-1', 'Sw:Block');
+        $decoder = new DraftLayoutDecoder($this->serializerDecoding($element));
+
+        static::assertSame($element, $decoder->decodeOne(['id' => 'el-1', 'component' => 'Sw:Block']));
+    }
+
+    #[TestDox('decodeOne throws invalidLayoutStructure for a malformed element instead of a serializer error')]
+    public function testDecodeOneRejectsMalformedElement(): void
+    {
+        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+
+        try {
+            $decoder->decodeOne(['component' => 'Sw:Block']);
+            static::fail('Expected a ContentSystemException for the malformed element.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+        }
+    }
+
     #[TestDox('decode throws invalidLayoutStructure for an element that is not an array')]
     public function testDecodeRejectsNonArrayElement(): void
     {

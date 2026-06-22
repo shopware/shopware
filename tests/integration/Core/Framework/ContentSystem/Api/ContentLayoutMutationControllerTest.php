@@ -125,6 +125,31 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertNotContains('incoming', $this->layoutIds($layoutId));
     }
 
+    #[TestDox('re-attaches an orphan returned by a persisted replace, recovering the detached subtree')]
+    public function testReplaceOrphanCanBeReattached(): void
+    {
+        $parent = $this->element('parent', TestElementTypeLoader::RESOLVABLE);
+        $parent['slots'] = ['content' => [$this->element('kid', TestElementTypeLoader::RESOLVABLE)]];
+        $layoutId = $this->createLayout([$parent]);
+
+        // a replace into a type without that slot detaches the child and hands it back as an orphan
+        $replaced = $this->mutate('replace-element', $layoutId, [
+            'elementId' => 'parent',
+            'newType' => TestElementTypeLoader::RESOLVABLE,
+            'expectedVersion' => null,
+        ]);
+        static::assertCount(1, $replaced['orphaned']);
+
+        // feed the returned orphan straight back to attach (with the bumped token) to recover it at the root
+        $reattached = $this->mutate('attach-element', $layoutId, [
+            'element' => $replaced['orphaned'][0],
+            'expectedVersion' => $this->apiUpdatedAt($layoutId),
+        ]);
+
+        static::assertCount(2, $reattached['layout']);
+        static::assertCount(2, $this->reload($layoutId)->getLayout());
+    }
+
     #[TestDox('returns 404 for a mutation targeting an unknown layout id')]
     public function testUnknownLayoutReturnsNotFound(): void
     {

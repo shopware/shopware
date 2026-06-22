@@ -139,9 +139,10 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
      */
     private function resolveInterval(int $microseconds): int
     {
-        return max(
+        return clamp(
+            $microseconds,
             self::MIN_POLL_INTERVAL_MICROSECONDS,
-            min(self::DEFAULT_POLL_INTERVAL_MICROSECONDS, $microseconds),
+            self::DEFAULT_POLL_INTERVAL_MICROSECONDS,
         );
     }
 

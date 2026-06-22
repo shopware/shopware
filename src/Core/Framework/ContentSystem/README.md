@@ -56,12 +56,12 @@ The reasoning behind how classes in this module are named (the subjects, role-su
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven draft mutation actions, the seven persisted mutation actions, plus the type-introspection routes the Administration consumes) are documented in `ADMINISTRATION.md`.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the eight draft mutation actions, the eight persisted mutation actions, plus the type-introspection routes the Administration consumes) are documented in `ADMINISTRATION.md`.
 
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, the seven draft mutation actions, and the seven persisted mutation actions)
+- **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, the eight draft mutation actions, and the eight persisted mutation actions)
 - **Binding/** - Source-binding enumeration for the resolvability gate (`LayoutBindingEnumerator` extension point)
 - **Cache/** - HTTP cache integration and invalidation
 - **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report

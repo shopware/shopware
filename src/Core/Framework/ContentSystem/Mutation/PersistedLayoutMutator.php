@@ -91,8 +91,12 @@ class PersistedLayoutMutator
             return false;
         }
 
+        // Compare at the storage precision: content_layout.updated_at is DATETIME(3) (millisecond) and the Admin
+        // API serializes updatedAt at millisecond precision too, so comparing seconds + milliseconds (not
+        // microseconds) keeps the token robust to sub-millisecond noise from either side. getTimestamp() is
+        // timezone-independent, so the comparison holds across timezone representations of the same instant.
         return $expected->getTimestamp() === $updatedAt->getTimestamp()
-            && $expected->format('u') === $updatedAt->format('u');
+            && $expected->format('v') === $updatedAt->format('v');
     }
 
     /**

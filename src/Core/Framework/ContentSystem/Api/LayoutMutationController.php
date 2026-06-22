@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Exposes the seven layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
+ * Exposes the eight layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
  * runs it through {@see MutationPipeline}, returning the re-resolved layout plus diagnostics without persisting.
  *
  * @internal

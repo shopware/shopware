@@ -1,6 +1,6 @@
 # Mutation
 
-Server-side structural edits to a draft layout tree. Each operation takes a whole draft tree, applies exactly one structural change, re-resolves the result, and returns the new tree plus a diagnostics report, without persisting. This is the "assemble" step performed server-side: the admin editor (or an agentic layout builder) sends the current draft and one edit, and gets back the edited, freshly diagnosed layout.
+Server-side structural edits to a layout tree. Each operation takes a whole tree, applies exactly one structural change, re-resolves the result, and returns the new tree plus a diagnostics report. This is the "assemble" step performed server-side: the admin editor (or an agentic layout builder) sends the current draft and one edit, and gets back the edited, freshly diagnosed layout. The operations run two ways: statelessly over a request draft (`MutationPipeline`, no persistence) and against a stored `content_layout` that the edit is committed to (`PersistedLayoutMutator`).
 
 ## Stateless Whole-Tree Model
 
@@ -55,7 +55,8 @@ All seven live in `Op/` and extend `AbstractLayoutMutation`:
 
 - `LayoutMutation` - The operation contract: `apply()` returns the new tree; `affected()`, `orphaned()`, `droppedWiring()` report what changed. Single-use, `apply()` runs before any reporter is read.
 - `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
-- `MutationPipeline` - Apply, diagnose, assemble. The shared runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream).
+- `MutationPipeline` - Apply, diagnose, assemble. The shared stateless runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream). Never persists.
+- `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, rejects a mutation that would detach content (400, since the commit cannot keep it and no operation re-attaches an existing subtree), and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the layout's real source bindings, consistent with what the gate enforces. Dropped wiring is persisted and reported, not rejected.
 - `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring.
 - `ElementLocation` / `ParentSlot` - Where an element sits: the node, its index in its containing list, and its parent slot coordinates (`null` parent for a root element).
 

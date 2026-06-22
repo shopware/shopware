@@ -56,12 +56,12 @@ The reasoning behind how classes in this module are named (the subjects, role-su
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven layout mutation actions, plus the type-introspection routes the Administration consumes) are documented in `ADMINISTRATION.md`.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven draft mutation actions, the seven persisted mutation actions, plus the type-introspection routes the Administration consumes) are documented in `ADMINISTRATION.md`.
 
 ## Subdirectories
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, and the seven layout mutation actions)
+- **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, the seven draft mutation actions, and the seven persisted mutation actions)
 - **Binding/** - Source-binding enumeration for the resolvability gate (`LayoutBindingEnumerator` extension point)
 - **Cache/** - HTTP cache integration and invalidation
 - **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
@@ -70,7 +70,7 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the seven layout m
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
 - **Layout/** - Element tree, entities, field types, scaffolding, element type system
-- **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap), each re-resolved through the diagnostics pass
+- **Mutation/** - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
 - **Output/** - Response formatting and partial rendering
 - **Resolution/** - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - Store API endpoints

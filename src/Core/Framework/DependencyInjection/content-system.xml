@@ -382,5 +382,20 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
         </service>
+
+        <!-- Persisted Layout Mutation (load by id, mutate, commit through the gates) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator">
+            <argument type="service" id="content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
+        </service>
+
+        <!-- Persisted Layout Mutation Actions (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+        </service>
     </services>
 </container>

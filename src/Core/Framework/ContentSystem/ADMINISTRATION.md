@@ -1,6 +1,6 @@
 # Administration Integration
 
-Admin API surface the Administration (and admin API clients such as AI-assisted layout generators) use to build content layouts. Four endpoint families: **introspection** (what building blocks exist), **mutation** (apply one structural edit to a draft server-side and get back the re-resolved layout with diagnostics), **resolve-and-diagnose** (what is structurally broken or still unresolved in a draft, without rendering it), and **preview** (how a draft layout renders against real data before it is saved).
+Admin API surface the Administration (and admin API clients such as AI-assisted layout generators) use to build content layouts. Five endpoint families: **introspection** (what building blocks exist), **mutation** (apply one structural edit to a draft server-side and get back the re-resolved layout with diagnostics), **persisted mutation** (apply one structural edit to a stored layout and commit it through the resolvability gates), **resolve-and-diagnose** (what is structurally broken or still unresolved in a draft, without rendering it), and **preview** (how a draft layout renders against real data before it is saved).
 
 **Scope:** Admin API only (`/api/...`). Store API rendering routes (`/store-api/content*`) are covered in [USAGE.md](USAGE.md) and [SalesChannel/README.md](SalesChannel/README.md). Registering new building blocks (element types, data loaders, specification sources) is covered in [EXTENSION.md](EXTENSION.md).
 
@@ -399,6 +399,58 @@ A resolvability problem (an unresolved required property, a broken context chain
 | `type` / `newType` / `containerType` is not a registered element type | `mutationUnknownType` |
 | Layout element missing a non-empty string `id`/`component`, or an element config that is a client defect | `invalidLayoutStructure` |
 | `entityType` matches no source, or `section` is invalid / has no source | `unknownEntityType` / `noSourceForSection` |
+
+## Persisted Mutation Endpoints
+
+```
+POST /api/_action/content-system/layout/{layoutId}/insert-element
+POST /api/_action/content-system/layout/{layoutId}/remove-element
+POST /api/_action/content-system/layout/{layoutId}/move-element
+POST /api/_action/content-system/layout/{layoutId}/replace-element
+POST /api/_action/content-system/layout/{layoutId}/duplicate-element
+POST /api/_action/content-system/layout/{layoutId}/wrap-elements
+POST /api/_action/content-system/layout/{layoutId}/unwrap-element
+```
+
+The persisted counterpart to the mutation endpoints above, for agents and automation operating on a **stored** layout. Each applies exactly one structural edit to the `content_layout` named in the path and **commits** the result, returning the same re-resolved layout plus diagnostics. The committing write runs the resolvability gates, so a persisted edit that breaks resolvability for a bound source is rejected and nothing is written. Served by `Api/ContentLayoutMutationController`; route names follow `api.action.content_system.layout.persisted_<op>`.
+
+Unlike the stateless mutation endpoints, these load the tree from storage (so there is no `layout` field in the body) and derive binding-scope diagnostics from the layout's **real** source bindings (so there is no `entityType` / `section` hint).
+
+### Request
+
+The layout is named in the path. Every body carries the operation's fields (identical to the stateless endpoints, minus the shared envelope) plus `expectedVersion`.
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `expectedVersion` | yes (nullable) | Optimistic-concurrency token: the layout's `updatedAt` as last read. `null` for a never-updated layout. A mismatch is a `409` and nothing is written. |
+| operation fields | per op | `insert-element`: `type` (+ `parentElementId`, `slot`, `index`); `remove-element`: `elementId`; `move-element`: `elementId` (+ `newParentId`, `newSlot`, `index`); `replace-element`: `elementId`, `newType`; `duplicate-element`: `elementId` (+ `index`); `wrap-elements`: `elementIds`, `containerType`, `slot`; `unwrap-element`: `containerElementId`. |
+
+Example (`replace-element`):
+
+```json
+{
+  "elementId": "block-uuid",
+  "newType": "Sw:Content:Text",
+  "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+}
+```
+
+### Response
+
+`200 OK` with the same `{ layout, resolutions, diagnostics, affectedElementIds, orphaned, droppedWiring }` shape as the stateless endpoints — but the layout is now committed. `orphaned` is always empty (an edit that would detach content is rejected up front, see Errors). `diagnostics` reflects the layout's real bindings: a layout bound to several sources has every binding-scope violation unioned into the one report.
+
+### Errors
+
+In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `#[MapRequestPayload]` validation):
+
+| Condition | HTTP | Factory / source |
+|-----------|------|------------------|
+| `{layoutId}` names no stored layout | 404 | `contentLayoutNotFound` |
+| `expectedVersion` does not match the layout's current `updatedAt` | 409 | `layoutVersionConflict` (no write) |
+| A `replace` would detach the children of a slot the new type does not have | 400 | `mutationDetachesContent` (no write — relocate the children first; the commit cannot keep detached content) |
+| The committed edit breaks resolvability for a bound source, or is not well-formed | 400 | `ContentLayoutWriteValidator` rejects the `content_layout` write (`WriteException`); the binding-scope violations ride in the error payload |
+
+Dropped wiring (a `replace` to a type that cannot hold a reference) is **committed and reported** in `droppedWiring`, not rejected: the new type structurally has no home for it, and no operation edits a surviving element's wiring.
 
 ## Related
 

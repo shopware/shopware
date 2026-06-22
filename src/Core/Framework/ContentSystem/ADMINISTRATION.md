@@ -421,7 +421,9 @@ The persisted counterpart to the mutation endpoints above, for agents and automa
 
 Unlike the stateless mutation endpoints, these load the tree from storage (so there is no `layout` field in the body) and derive binding-scope diagnostics from the layout's **real** source bindings (so there is no `entityType` / `section` hint).
 
-> **TODO (versioning):** `expectedVersion` is a pragmatic interim token built on the row's `updatedAt`. It detects a stale-read client but does not guard against two concurrent writers within the same millisecond. A real layout versioning system (draft/published revisions with explicit version identifiers) is planned and will supersede this token.
+> **TODO (versioning):** `expectedVersion` is a pragmatic interim token built on the row's `updatedAt`, compared at millisecond precision (the storage precision). It detects a stale-read client but does not guard against two concurrent writers within the same millisecond. A real layout versioning system (draft/published revisions with explicit version identifiers) is planned and will supersede this token.
+>
+> **TODO (binding-scope diagnostics vs the draft seam):** the echoed `diagnostics` union violations from *all* of a layout's source bindings, whereas the write gate skips bindings exempted by `LayoutGate::isBindingEnforced()`. These agree today (the seam defaults to enforcing every binding). Once that exemption seam is used — by the same future draft/versioning system — `PersistedLayoutMutator::diagnose()` must honor it too, or the response will over-report binding violations relative to what was actually committed.
 
 ### Request
 

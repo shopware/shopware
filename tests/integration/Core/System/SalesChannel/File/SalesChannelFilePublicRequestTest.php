@@ -115,7 +115,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
 
         $catalog = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($catalog);
-        static::assertSame('urn:ai:test:resource:app-template', $catalog['entries'][0]['identifier'] ?? null);
+        static::assertSame('urn:air:test:resource:app-template', $catalog['entries'][0]['identifier'] ?? null);
     }
 
     /**
@@ -138,7 +138,7 @@ class SalesChannelFilePublicRequestTest extends TestCase
 
                     {% block agentic_ai_catalog_entries %}
                         {% set entries = entries|merge([{
-                            identifier: 'urn:ai:test:resource:app-template',
+                            identifier: 'urn:air:test:resource:app-template',
                             displayName: 'App template entry',
                             type: 'text/plain',
                             url: '/app-template-entry',

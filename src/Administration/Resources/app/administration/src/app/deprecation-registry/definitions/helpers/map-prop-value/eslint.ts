@@ -20,15 +20,16 @@ function reportMapPropValue(api: ComponentUsageRuleApi, usageConfig: Deprecation
         return;
     }
 
+    const transform = api.getTransformResult(usageConfig, api.node, attribute);
+
     api.reportWithDuplicateReplacementGuard({
         node: attribute,
-        message: componentUsageMessage(api, usageConfig, usageConfig.prop),
+        message: componentUsageMessage(api, usageConfig, usageConfig.prop, transform?.message),
         fix(fixer: Record<string, any>) {
             if (!usageFixesAutomatically(api, usageConfig)) {
                 return null;
             }
 
-            const transform = api.getTransformResult(usageConfig, api.node, attribute);
             const fixes = [
                 fixer.replaceText(attribute.value, `"${usageConfig.to}"`),
             ];

@@ -20,15 +20,15 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
         return;
     }
 
+    const transform = api.getTransformResult(usageConfig, api.node, attribute);
+
     api.reportWithDuplicateReplacementGuard({
         node: attribute,
-        message: componentUsageMessage(api, usageConfig, usageConfig.prop),
+        message: componentUsageMessage(api, usageConfig, usageConfig.prop, transform?.message),
         fix(fixer: Record<string, any>) {
             if (!usageFixesAutomatically(api, usageConfig)) {
                 return null;
             }
-
-            const transform = api.getTransformResult(usageConfig, api.node, attribute);
 
             if (transform?.fix === 'manual') {
                 return null;

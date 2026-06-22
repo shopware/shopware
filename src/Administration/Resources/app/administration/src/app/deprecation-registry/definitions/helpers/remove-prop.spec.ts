@@ -24,4 +24,23 @@ describe('removeProp', () => {
         expect(api.reports[0].message).toContain('"legacy-prop" API is deprecated');
         expect(fix).toEqual({ method: 'remove', target: attribute });
     });
+
+    it('reports transform safety messages and skips manual fixes', () => {
+        const usage = removeProp({ prop: 'legacy-prop' });
+        const attribute = createAttribute('legacy-prop');
+        const api = createRuleApi({
+            usage,
+            attribute,
+            transform: {
+                kind: 'router-link-to-click',
+                fix: 'manual',
+                message: 'Object v-bind can hide router-link usage.',
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-bind can hide router-link usage.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

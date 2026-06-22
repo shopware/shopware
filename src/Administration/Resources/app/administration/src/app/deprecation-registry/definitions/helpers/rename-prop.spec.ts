@@ -52,4 +52,28 @@ describe('renameProp', () => {
             message: 'Expression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
         });
     });
+
+    it('reports transform safety messages and skips manual fixes', () => {
+        const usage = renameProp({
+            from: 'small',
+            to: 'size',
+            transform: replaceWithStaticValueTransform({ value: '16px' }),
+        });
+        const attribute = createDirectiveAttribute('bind', 'small');
+        const api = createRuleApi({
+            usage,
+            attribute,
+            transform: {
+                kind: 'replace-with-static-value',
+                fix: 'manual',
+                value: '16px',
+                message: 'Expression-bound prop values can be false at runtime.',
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Expression-bound prop values can be false at runtime.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

@@ -110,12 +110,14 @@ export function componentUsageMessage(
     api: ComponentUsageRuleApi,
     usageConfig: DeprecationUsage,
     apiName: unknown,
+    additionalMessage?: string,
 ): string {
     const replacement = usageConfig.to ? ` Use "${usageConfig.to}" instead.` : '';
     const defaultMessage = `[${api.node.name}] The "${apiName}" API is deprecated.${replacement}`;
+    const message = typeof usageConfig.message === 'string' ? `[${api.node.name}] ${usageConfig.message}` : defaultMessage;
 
     return api.appendRegistryContext(
-        typeof usageConfig.message === 'string' ? `[${api.node.name}] ${usageConfig.message}` : defaultMessage,
+        additionalMessage ? `${message}\n${additionalMessage}` : message,
         api.migration,
     );
 }

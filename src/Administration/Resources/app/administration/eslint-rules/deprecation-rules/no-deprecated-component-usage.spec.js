@@ -2,21 +2,33 @@ const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-deprecated-component-usage');
 const { loadRegistry } = require('./registry/load-registry');
 const { mtIconValidTests, mtIconInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-icon.fixtures');
-const { mtButtonValidChecks, mtButtonInvalidChecks } = require('./no-deprecated-component-usage-fixtures/mt-button.fixtures');
+const {
+    mtButtonValidChecks,
+    mtButtonInvalidChecks,
+} = require('./no-deprecated-component-usage-fixtures/mt-button.fixtures');
 const { mtCardValidTests, mtCardInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-card.fixtures');
 const {
     mtTextFieldValidTests,
     mtTextFieldInvalidTests,
 } = require('./no-deprecated-component-usage-fixtures/mt-text-field.fixtures');
-const { mtSwitchValidChecks, mtSwitchInvalidChecks } = require('./no-deprecated-component-usage-fixtures/mt-switch.fixtures');
+const {
+    mtSwitchValidChecks,
+    mtSwitchInvalidChecks,
+} = require('./no-deprecated-component-usage-fixtures/mt-switch.fixtures');
 const {
     mtNumberFieldValidTests,
     mtNumberFieldInvalidTests,
 } = require('./no-deprecated-component-usage-fixtures/mt-number-field.fixtures');
-const { mtCheckboxValidTests, mtCheckboxInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-checkbox.fixtures');
+const {
+    mtCheckboxValidTests,
+    mtCheckboxInvalidTests,
+} = require('./no-deprecated-component-usage-fixtures/mt-checkbox.fixtures');
 const { mtTabsValidTests, mtTabsInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-tabs.fixtures');
 const { mtSelectValidTests, mtSelectInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-select.fixtures');
-const { mtTextareaValidTests, mtTextareaInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-textarea.fixtures');
+const {
+    mtTextareaValidTests,
+    mtTextareaInvalidTests,
+} = require('./no-deprecated-component-usage-fixtures/mt-textarea.fixtures');
 const { mtBannerValidTests, mtBannerInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-banner.fixtures');
 const {
     mtDatepickerInvalidTests,
@@ -367,6 +379,17 @@ const objectVBindInvalidTests = [
         errors: [
             {
                 message: '[mt-card] The "ai-badge" API is deprecated.',
+            },
+        ],
+    },
+    {
+        name: 'does not fix removed props when object v-bind can hide card props',
+        filename: 'test.html.twig',
+        code: '<template><mt-card v-bind="cardProps" content-padding /></template>',
+        output: null,
+        errors: [
+            {
+                message: '[mt-card] The "content-padding" API is deprecated.',
             },
         ],
     },

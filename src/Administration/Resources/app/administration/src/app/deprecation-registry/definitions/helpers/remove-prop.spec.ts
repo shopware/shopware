@@ -1,5 +1,5 @@
 import { removeProp } from './remove-prop';
-import { createAttribute, createFixer, createRuleApi } from './test-utils';
+import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('removeProp', () => {
     it('owns defaults and runtime detection', () => {
@@ -41,6 +41,40 @@ describe('removeProp', () => {
         usage.eslint?.report(api);
 
         expect(api.reports[0].message).toContain('Object v-bind can hide router-link usage.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
+
+    it('skips fixes when object v-bind can hide the removed prop', () => {
+        const usage = removeProp({ prop: 'legacy-prop' });
+        const attribute = createAttribute('legacy-prop');
+        const objectVBind = createDirectiveAttribute('bind');
+        const api = createRuleApi({
+            usage,
+            attribute,
+            node: {
+                name: 'mt-test',
+                startTag: {
+                    range: [
+                        0,
+                        10,
+                    ],
+                    loc: {
+                        start: {
+                            column: 0,
+                        },
+                    },
+                    attributes: [
+                        objectVBind,
+                        attribute,
+                    ],
+                },
+                children: [],
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-bind can hide this prop.');
         expect(api.reports[0].fix(createFixer())).toBeNull();
     });
 });

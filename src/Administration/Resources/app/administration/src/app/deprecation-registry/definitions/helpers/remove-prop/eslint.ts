@@ -18,16 +18,24 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
     }
 
     const transform = api.getTransformResult(usageConfig, api.node, attribute);
+    const hasObjectVBind = api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
+        return (
+            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
+        );
+    });
+    const objectVBindMessage = hasObjectVBind
+        ? `Object v-bind can hide this prop. Review the bound object and remove "${usageConfig.prop}" manually if needed.`
+        : undefined;
 
     api.reportWithDuplicateReplacementGuard({
         node: attribute,
-        message: componentUsageMessage(api, usageConfig, usageConfig.prop, transform?.message),
+        message: componentUsageMessage(api, usageConfig, usageConfig.prop, transform?.message ?? objectVBindMessage),
         fix(fixer: Record<string, any>) {
             if (!usageFixesAutomatically(api, usageConfig)) {
                 return null;
             }
 
-            if (transform?.fix === 'manual') {
+            if (transform?.fix === 'manual' || hasObjectVBind) {
                 return null;
             }
 

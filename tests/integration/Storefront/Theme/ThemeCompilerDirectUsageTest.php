@@ -37,6 +37,8 @@ class ThemeCompilerDirectUsageTest extends TestCase
 
     private Filesystem $tempFilesystem;
 
+    private Filesystem $assetFilesystem;
+
     private EventDispatcherInterface $eventDispatcher;
 
     private string $mockSalesChannelId;
@@ -47,12 +49,14 @@ class ThemeCompilerDirectUsageTest extends TestCase
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->assetFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->themeCompiler = new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
+            $this->assetFilesystem,
             new CopyBatchInputFactory(),
             static::getContainer()->get(ThemeFileResolver::class),
             true,

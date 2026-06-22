@@ -266,7 +266,7 @@
           },
           "helpText": {
             "ariaLabel": "This text will be read out by screen readers as link text.",
-            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "minHeight": "Enter the minimum height. A plain number is treated as pixels. For example, \"200\" becomes \"200px\".",
             "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
             "useFetchPriorityOnFirstItem": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."

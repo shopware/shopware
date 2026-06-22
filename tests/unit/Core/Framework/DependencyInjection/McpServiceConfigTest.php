@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Handler\McpLifecycleHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
+use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -90,6 +92,12 @@ class McpServiceConfigTest extends TestCase
     public function testControllerIsPublic(): void
     {
         static::assertTrue($this->container->getDefinition(McpServerController::class)->isPublic());
+        static::assertTrue($this->container->getDefinition(StoreApiMcpServerController::class)->isPublic());
+    }
+
+    public function testStoreApiToolServiceIsTagged(): void
+    {
+        static::assertTrue($this->container->getDefinition(StoreApiContextTool::class)->hasTag('shopware.store_api_mcp.tool'));
     }
 
     /**
@@ -99,6 +107,7 @@ class McpServiceConfigTest extends TestCase
     {
         yield McpLifecycleHandler::class => [McpLifecycleHandler::class];
         yield McpServerController::class => [McpServerController::class];
+        yield StoreApiMcpServerController::class => [StoreApiMcpServerController::class];
         yield EntitySchemaTool::class => [EntitySchemaTool::class];
         yield EntitySearchTool::class => [EntitySearchTool::class];
         yield EntityAggregateTool::class => [EntityAggregateTool::class];
@@ -109,6 +118,7 @@ class McpServiceConfigTest extends TestCase
         yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
         yield OrderStateTool::class => [OrderStateTool::class];
         yield MediaUploadTool::class => [MediaUploadTool::class];
+        yield StoreApiContextTool::class => [StoreApiContextTool::class];
         yield ShopwareContextPrompt::class => [ShopwareContextPrompt::class];
         yield EntityListResource::class => [EntityListResource::class];
         yield BusinessEventsResource::class => [BusinessEventsResource::class];

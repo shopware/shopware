@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -24,7 +25,6 @@ class ConfigExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('config', $this->config(...), ['needs_context' => true]),
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
             new TwigFunction('import_map', $this->importMap(...), ['needs_context' => true]),
@@ -33,13 +33,23 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the Twig config() function in templates or SystemConfigService in PHP code instead.
+     *
      * @param array<string, mixed> $context
      *
      * @return string|bool|array<mixed>|float|int|null
      */
     public function config(array $context, string $key)
     {
-        return $this->config->config($key, $this->getSalesChannelId($context));
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'SystemConfigService')
+        );
+
+        return Feature::silent(
+            'v6.8.0.0',
+            fn (): mixed => $this->config->config($key, $this->getSalesChannelId($context))
+        );
     }
 
     /**
@@ -88,6 +98,16 @@ class ConfigExtension extends AbstractExtension
     /**
      * @param array<string, mixed> $context
      */
+    private function getThemeId(array $context): ?string
+    {
+        $themeId = $context['themeId'] ?? null;
+
+        return \is_string($themeId) ? $themeId : null;
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
     private function getSalesChannelId(array $context): ?string
     {
         $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
@@ -95,24 +115,12 @@ class ConfigExtension extends AbstractExtension
             return $salesChannelContext->getSalesChannelId();
         }
 
-        if (isset($context['salesChannel'])) {
-            $salesChannel = $context['salesChannel'];
-            if ($salesChannel instanceof SalesChannelEntity) {
-                return $salesChannel->getId();
-            }
+        $salesChannel = $context['salesChannel'] ?? null;
+        if ($salesChannel instanceof SalesChannelEntity) {
+            return $salesChannel->getId();
         }
 
         return null;
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    private function getThemeId(array $context): ?string
-    {
-        $themeId = $context['themeId'] ?? null;
-
-        return \is_string($themeId) ? $themeId : null;
     }
 
     /**

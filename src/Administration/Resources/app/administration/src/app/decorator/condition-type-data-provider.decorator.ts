@@ -452,6 +452,13 @@ export const CONDITIONS: ConditionDefinition[] = [
         group: GROUPS.ITEM,
     },
     {
+        type: 'cartLineItemPerItemQuantity',
+        component: COMPONENTS.GENERIC_LINE_ITEM,
+        label: 'global.sw-condition.condition.lineItemPerItemQuantityRule',
+        scopes: [SCOPES.LINE_ITEM],
+        group: GROUPS.ITEM,
+    },
+    {
         type: 'cartHasDeliveryFreeItem',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.hasDeliveryFreeItemRule',

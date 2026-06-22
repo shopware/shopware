@@ -75,19 +75,6 @@ export function normalizeFixLevel(value: unknown, fallback: FixLevel): FixLevel 
     return fallback;
 }
 
-export function withRuntimeProp(config: Record<string, unknown>): Record<string, unknown> {
-    const propName = config.runtimeProp ?? config.prop ?? config.from;
-
-    if (typeof propName !== 'string') {
-        return config;
-    }
-
-    return {
-        ...config,
-        runtimeProp: attributeNameToPropName(propName),
-    };
-}
-
 export function runtimePropWasUsed(runtimeProp: unknown, usedProps: Record<string, unknown>): boolean {
     if (typeof runtimeProp !== 'string') {
         return false;

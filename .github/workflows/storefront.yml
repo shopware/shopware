@@ -63,6 +63,10 @@ jobs:
       - name: Lint
         run: composer eslint:storefront:admin-modules
 
+      - name: Format
+        working-directory: src/Storefront/Resources/app/administration
+        run: npm run format
+
   twig-lint-storefront:
     name: Twig Lint (Storefront)
     runs-on: ubuntu-latest

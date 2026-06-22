@@ -268,8 +268,8 @@
         "eslint:storefront:fix": "Codestyle checks all Storefront JS/TS files and fixes them if possible",
         "eslint:storefront:admin-modules": "Codestyle checks the Storefront's admin-modules JS files",
         "eslint:storefront:admin-modules:fix": "Codestyle checks the Storefront's admin-modules JS files and fixes them if possible",
-        "format:admin": "Dry run Prettier for the Administration",
-        "format:admin:fix": "Format the Administration with Prettier",
+        "format:admin": "Dry run Prettier for all Administration workspaces",
+        "format:admin:fix": "Format all Administration workspaces with Prettier",
         "framework:schema:dump": " ",
         "hook:pre-commit": " ",
         "hook:pre-commit:install": " ",
@@ -395,8 +395,14 @@
         "eslint:storefront:fix": "@npm:storefront run lint:js:fix",
         "eslint:storefront:admin-modules": "@npm:storefront:admin-modules run lint",
         "eslint:storefront:admin-modules:fix": "@npm:storefront:admin-modules run lint:fix",
-        "format:admin": "@npm:admin run format",
-        "format:admin:fix": "@npm:admin run format:fix",
+        "format:admin": [
+            "@npm:admin run format",
+            "@npm:storefront:admin-modules run format"
+        ],
+        "format:admin:fix": [
+            "@npm:admin run format:fix",
+            "@npm:storefront:admin-modules run format:fix"
+        ],
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration\Structs;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -99,63 +98,5 @@ class MailCreationState
     public function setGermanLanguageByteIds(array $germanLanguageByteIds): void
     {
         $this->germanLanguageByteIds = $germanLanguageByteIds;
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed without replacement
-     */
-    public function hasEnLanguageByteId(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'hasEnLanguageByteId() is deprecated.');
-
-        return $this->englishLanguageByteIds !== [];
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Use getEnglishLanguageByteIds() instead.
-     */
-    public function getEnLanguageByteId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'getEnLanguageByteId() is deprecated. Use getEnglishLanguageByteIds() instead.');
-
-        return $this->englishLanguageByteIds[0] ?? null;
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Use setEnglishLanguageByteIds() instead.
-     */
-    public function setEnLanguageByteId(?string $enLanguageByteId): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'setEnLanguageByteId() is deprecated. Use setEnglishLanguageByteIds() instead.');
-        $this->englishLanguageByteIds = $enLanguageByteId !== null ? [$enLanguageByteId] : [];
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed without replacement
-     */
-    public function hasDeLanguageByteId(): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'hasDeLanguageByteId() is deprecated.');
-
-        return $this->germanLanguageByteIds !== [];
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Use getGermanLanguageByteIds() instead.
-     */
-    public function getDeLanguageByteId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'getDeLanguageByteId() is deprecated. Use getGermanLanguageByteIds() instead.');
-
-        return $this->germanLanguageByteIds[0] ?? null;
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Use setGermanLanguageByteIds() instead.
-     */
-    public function setDeLanguageByteId(?string $deLanguageByteId): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'setDeLanguageByteId() is deprecated. Use setGermanLanguageByteIds() instead.');
-        $this->germanLanguageByteIds = $deLanguageByteId !== null ? [$deLanguageByteId] : [];
     }
 }

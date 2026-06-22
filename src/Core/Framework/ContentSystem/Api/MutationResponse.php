@@ -5,13 +5,12 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * The wire response shared by all sixteen (draft + persisted) layout mutation routes. Single definition of the
  * response shape and of which fields are JSON maps (object, {} when empty) versus lists (array, [] when empty).
  *
- * Output-only: this struct is serialized to JSON for the HTTP response and discarded. It is never cached, never
+ * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
  * The transforming jsonSerialize() (empty maps cast to {}, no extensions/apiAlias) is safe only on that path; a future
  * requirement that caches or reconstructs this object must revisit it (make jsonSerialize() lossless, or type the map
@@ -20,7 +19,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @final
  */
 #[Package('framework')]
-class MutationResponse extends Struct
+class MutationResponse implements \JsonSerializable
 {
     /**
      * @param list<array<string, mixed>> $layout serialized element tree (list -> [])

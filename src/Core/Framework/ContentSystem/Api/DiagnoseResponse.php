@@ -5,13 +5,12 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * The wire response for the resolve-and-diagnose route ({ resolutions, diagnostics }). Single definition of its
  * shape and of the resolutions map encoding ({} when empty), the sibling of {@see MutationResponse}.
  *
- * Output-only: this struct is serialized to JSON for the HTTP response and discarded. It is never cached, never
+ * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
  * The transforming jsonSerialize() (empty map cast to {}, no extensions/apiAlias) is safe only on that path; a future
  * requirement that caches or reconstructs this object must revisit it.
@@ -19,7 +18,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @final
  */
 #[Package('framework')]
-class DiagnoseResponse extends Struct
+class DiagnoseResponse implements \JsonSerializable
 {
     /**
      * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions (map -> {})

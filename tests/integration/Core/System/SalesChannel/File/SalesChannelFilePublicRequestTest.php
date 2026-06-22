@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -92,6 +93,8 @@ class SalesChannelFilePublicRequestTest extends TestCase
             ->get('files/agentic/.well-known/ai-catalog.json.twig');
 
         $this->createAiCatalogAppTemplate();
+        // The test mutates app templates after warming TemplateFinder in the same kernel.
+        static::getContainer()->get(TemplateFinder::class)->reset();
 
         $this->getSalesChannelFileRepository()->upsert([
             [

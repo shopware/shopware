@@ -259,7 +259,7 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
     });
 
-    it('[component] should not warn for registry-backed deprecated components', async () => {
+    it('[component] should use registry metadata for registry-backed deprecated components', async () => {
         component = createComponent({
             customComponent: {
                 name: 'sw-button',
@@ -270,7 +270,12 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        expect(global.console.warn).not.toHaveBeenCalled();
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[sw-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('legacy sw-button component is replaced by mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('Use "mt-button" instead.'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
     });
 
     it('[registry prop] should warn when a registry-deprecated prop is provided', async () => {

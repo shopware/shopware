@@ -2,6 +2,7 @@ import { getCurrentInstance } from 'vue';
 import type { App, ComponentPublicInstance } from 'vue';
 import {
     formatComponentUsageWarning,
+    formatComponentReplacementWarning,
     getComponentApiMigration,
     getComponentUsageMigration,
     getRuntimeDeprecatedProps,
@@ -447,6 +448,18 @@ class DeprecationPlugin {
         const migration = getComponentApiMigration(componentName);
 
         if (migration) {
+            let warningText = formatComponentReplacementWarning(componentName);
+
+            if (migration.references?.length) {
+                const references = migration.references
+                    .map((reference) => `${reference.type}: ${reference.target}`)
+                    .join('\n');
+
+                warningText += `\n\nReferences:\n${references}`;
+            }
+
+            warn(componentName, warningText);
+            warn(componentName, this.getComponentTrace(component));
             return;
         }
 

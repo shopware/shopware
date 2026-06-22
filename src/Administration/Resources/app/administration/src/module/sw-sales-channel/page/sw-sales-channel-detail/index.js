@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-detail.html.twig';
+import './sw-sales-channel-detail.scss';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -23,6 +24,7 @@ export default {
 
     provide() {
         return {
+            /** @deprecated tag:v6.8.0 - Will be removed */
             swSalesChannelDetailGetAgenticCommerceExportConfig: () => this.agenticCommerceExportConfig,
         };
     },
@@ -53,6 +55,7 @@ export default {
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
+            /** @deprecated tag:v6.8.0 - Will be removed */
             agenticCommerceExportConfig: [],
         };
     },
@@ -108,12 +111,23 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
             }
 
             return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        hasSwagAgenticCommercePlugin() {
+            return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        showAgenticCommerceDeprecationBanner() {
+            return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
         },
 
         isProductExportChannel() {
@@ -163,6 +177,7 @@ export default {
             return this.acl.can('sales_channel.editor');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         defaultAgenticCommerceExportConfig() {
             return [
                 {
@@ -192,6 +207,16 @@ export default {
     },
 
     methods: {
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        onClickInstallAgenticCommercePlugin() {
+            if (this.$router.hasRoute('sw.extension.store.detail')) {
+                this.$router.push({ name: 'sw.extension.store.detail', params: { id: '21761' } });
+                return;
+            }
+
+            this.$router.push({ name: 'sw.extension.store.landing-page' });
+        },
+
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-sales-channel-detail__salesChannel',
@@ -252,9 +277,9 @@ export default {
         getLoadSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('paymentMethods');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('countries');
+            criteria.getAssociation('paymentMethods').addSorting(Criteria.sort('distinguishableName', 'ASC'));
+            criteria.getAssociation('shippingMethods').addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('countries').addSorting(Criteria.sort('name', 'ASC'));
             criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria
@@ -262,6 +287,7 @@ export default {
                 .addSorting(Criteria.sort('name', 'ASC'))
                 .addFilter(Criteria.equals('active', true));
             criteria.addAssociation('analytics');
+            criteria.addAssociation('salesChannelFiles');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
@@ -439,6 +465,7 @@ export default {
             this.loadEntityData();
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         validateAgenticCommerceExportConfig() {
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
             const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
@@ -458,6 +485,7 @@ export default {
             return isValid;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         async loadAgenticCommerceExportConfig() {
             this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
@@ -501,6 +529,7 @@ export default {
             );
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         async saveAgenticCommerceExportConfig() {
             if (!this.isAgenticCommerce || !this.salesChannel?.id) {
                 return true;

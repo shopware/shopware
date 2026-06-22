@@ -1,0 +1,133 @@
+/**
+ * @sw-package discovery
+ */
+
+.sw-sales-channel-detail-agentic-files {
+    overflow: hidden;
+
+    .sw-data-grid__table {
+        table-layout: fixed;
+    }
+
+    .sw-data-grid__cell--actions {
+        width: 44px;
+        min-width: 44px;
+        max-width: 44px;
+
+        .sw-data-grid__cell-content {
+            justify-content: center;
+            padding-right: var(--scale-size-8);
+            padding-left: var(--scale-size-8);
+        }
+    }
+
+    .sw-data-grid__cell-spacer {
+        display: none;
+    }
+
+    .sw-data-grid__cell--fileName .sw-data-grid__cell-content {
+        padding-top: var(--scale-size-12);
+        padding-bottom: var(--scale-size-12);
+    }
+
+    .sw-label.sw-label--neutral,
+    .sw-label.sw-label--success {
+        color: var(--color-text-primary-default);
+    }
+
+    &__title {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-8);
+    }
+
+    &__headline {
+        margin: 0;
+        font-size: var(--font-size-l, 20px);
+        line-height: var(--font-line-height-m, 28px);
+        font-weight: var(--font-weight-semi-bold);
+    }
+
+    &__description {
+        margin: 0;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s, 16px);
+        line-height: var(--font-line-height-xs, 22px);
+    }
+
+    &__file-link {
+        display: block;
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        color: inherit;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: none;
+
+            .sw-sales-channel-detail-agentic-files__file-name {
+                color: var(--color-shopware-brand-600);
+                text-decoration: underline;
+            }
+
+            .sw-sales-channel-detail-agentic-files__public-path {
+                color: var(--color-text-primary-default);
+                text-decoration: none;
+            }
+        }
+    }
+
+    .sw-data-grid__cell-content &__file-link {
+        &:hover,
+        &:focus-visible {
+            text-decoration: none;
+        }
+    }
+
+    &__file-text {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--scale-size-2);
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        position: relative;
+        z-index: 1;
+    }
+
+    &__file-name {
+        min-width: 0;
+        overflow: hidden;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semi-bold);
+        line-height: 18px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__public-path {
+        display: block;
+        overflow: hidden;
+        color: var(--color-text-primary-default);
+        line-height: 18px;
+        position: relative;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        z-index: 0;
+    }
+
+    &__description-cell {
+        display: block;
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        line-height: var(--font-line-height-xs, 22px);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

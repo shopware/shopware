@@ -287,7 +287,7 @@ class SqlQueryParserTest extends TestCase
         static::assertEqualsCanonicalizing([
             $ids->get('product-with-other-manufacturer'),
             $ids->get('product-without-manufacturer'),
-        ], $foundIds);
+        ], array_values($foundIds));
     }
 
     /**

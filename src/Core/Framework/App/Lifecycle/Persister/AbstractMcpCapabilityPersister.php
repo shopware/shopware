@@ -61,16 +61,14 @@ abstract class AbstractMcpCapabilityPersister
     abstract protected function fetchExisting(string $appId, Context $context): EntityCollection;
 
     /**
-     * @param EntityRepository<TEntityCollection> $repository
-     *
      * @return TEntityCollection
      */
-    protected function searchByAppId(EntityRepository $repository, string $appId, Context $context): EntityCollection
+    protected function searchByAppId(string $appId, Context $context): EntityCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        return $repository->search($criteria, $context)->getEntities();
+        return $this->getRepository()->search($criteria, $context)->getEntities();
     }
 
     /**

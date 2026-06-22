@@ -38,6 +38,7 @@
             "buttonShowDetails": "Show details",
             "buttonBack": "Back",
             "titleDescription": "Information",
+            "messageAgenticCommerce": "In order to create agentic commerce sales channels, please install the Agentic Commerce extension from the Shopware Store.",
             "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
         },
         "detail": {
@@ -53,6 +54,7 @@
             "tabAnalytics": "Analytics",
             "tabProductComparison": "Template",
             "tabProducts": "Products",
+            "tabAgenticFiles": "Agentic files",
             "titleProductComparisonTemplate": "Template",
             "titleProductComparisonPreview": "Preview",
             "titleProductComparisonPreviewErrors": "Errors during generation",
@@ -238,6 +240,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce is moving to an extension",
+                    "message": "The built-in Agentic Commerce feature will be removed in Shopware 6.8. Your Sales Channel keeps working for now. Install the \"Agentic Commerce\" extension to make sure nothing breaks.",
+                    "installPlugin": "Install extension"
+                },
                 "openAiSettingsTitle": "OpenAI settings",
                 "googleSettingsTitle": "Google settings",
                 "buttonResetTemplate": "Reset to default",
@@ -269,6 +276,58 @@
                             },
                             "stepByStep": "<li>Create a Merchant Center account at <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> and verify your online store URL</li><li>In Merchant Center, open <em>Settings &rsaquo; Data sources</em> and click <em>Add product source</em></li><li>Choose <em>File</em>, then <em>Add a scheduled fetch from a URL</em>, and paste the export URL (below) as the file URL</li><li>Make sure the export URL is publicly reachable (no authentication required)</li><li>Review the <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google product data specification</a> and adjust attributes if needed</li>"
                         }
+                    }
+                }
+            },
+            "agenticFiles": {
+                "cardTitle": "Agentic files",
+                "description": "Manage AI-readable files served publicly for this Sales Channel, such as llms.txt and agents.md. They give assistants a concise overview of your shop and guidance for using public content.",
+                "columnFileName": "File",
+                "columnEnabled": "Status",
+                "columnDescription": "Description",
+                "emptyState": "No agentic files found",
+                "messageLoadError": "Could not load agentic files.",
+                "actionEdit": "Edit",
+                "actionEnable": "Enable",
+                "actionDisable": "Disable",
+                "enabledState": {
+                    "enabled": "Enabled",
+                    "disabled": "Disabled",
+                    "custom": "Customized"
+                },
+                "detail": {
+                    "backToList": "Back to agentic files",
+                    "previewTitle": "Generated preview",
+                    "previewDescription": "This is the content currently served for this Sales Channel, including saved customizations.",
+                    "templatesTitle": "Content sources",
+                    "templatesDescription": "Shows which templates contribute to the generated file and whether a template has been customized. Advanced users can override individual templates when Custom Notes are not enough.",
+                    "showContentSources": "Show sources",
+                    "hideContentSources": "Hide sources",
+                    "customNotesTitle": "Custom Notes",
+                    "customNotesDescription": "Add custom notes to the end of this file without replacing the default content provided by Shopware or extensions.",
+                    "customNotesPlaceholder": "Add additional guidance for AI agents...",
+                    "labelPublicPath": "Public path",
+                    "labelContentType": "Content type",
+                    "actionPreviewPublicPath": "Preview",
+                    "actionEnablePublicPathPreview": "Enable this file first to preview the public path.",
+                    "columnTemplate": "Template",
+                    "columnSourceRole": "Role",
+                    "actionEditOverride": "Edit override",
+                    "overrideModalTitle": "Edit {source}",
+                    "overrideModalDescription": "Adjust the content contributed by this template for this Sales Channel. The change is stored as a customization and can be reset to the default template content at any time.",
+                    "overrideModalFieldLabel": "Content",
+                    "overrideModalReset": "Reset to default",
+                    "overrideModalApply": "Apply override",
+                    "roleBase": "Base template",
+                    "roleExtension": "Extension",
+                    "previewEmpty": "No preview content generated.",
+                    "emptyState": "Agentic file not found",
+                    "messagePreviewError": "Could not generate the preview."
+                },
+                "descriptions": {
+                    "agentic": {
+                        "llms.txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
+                        "agents.md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
                     }
                 }
             },

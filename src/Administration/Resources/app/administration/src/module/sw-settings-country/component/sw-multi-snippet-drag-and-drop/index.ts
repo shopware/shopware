@@ -11,6 +11,11 @@ interface DragItem {
     snippet: string[];
 }
 
+interface DropIndicator {
+    index: number;
+    position: 'before' | 'after';
+}
+
 const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
@@ -95,6 +100,7 @@ export default Component.wrapComponentConfig({
 
     data(): {
         defaultConfig: DragConfig<DragItem>;
+        dropIndicator: DropIndicator | null;
     } {
         return {
             defaultConfig: {
@@ -104,6 +110,7 @@ export default Component.wrapComponentConfig({
                 preventEvent: true,
                 disabled: this.disabled,
             } as DragConfig<DragItem>,
+            dropIndicator: null,
         };
     },
 
@@ -119,6 +126,8 @@ export default Component.wrapComponentConfig({
                 onDragStart: this.onDragStart,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDragEnter: this.onDragEnter,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragLeave: this.onDragLeave,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onDrop,
                 ...this.dragConfig,
@@ -151,10 +160,23 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
+            if (dragData.linePosition === dropData.linePosition) {
+                this.dropIndicator = {
+                    index: dropData.index,
+                    position: dragData.index < dropData.index ? 'after' : 'before',
+                };
+            }
+
             this.$emit('drag-enter', { dragData, dropData });
         },
 
+        onDragLeave() {
+            this.dropIndicator = null;
+        },
+
         onDrop(dragData: DragItem, dropData: DragItem) {
+            this.dropIndicator = null;
+
             if (!dragData || !dropData) {
                 return;
             }
@@ -171,6 +193,13 @@ export default Component.wrapComponentConfig({
             }
 
             this.$emit('drop-end', this.linePosition, { dragData, dropData });
+        },
+
+        getDropIndicatorClass(index: number): Record<string, boolean> {
+            return {
+                'is--drop-before': this.dropIndicator?.index === index && this.dropIndicator.position === 'before',
+                'is--drop-after': this.dropIndicator?.index === index && this.dropIndicator.position === 'after',
+            };
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {

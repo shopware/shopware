@@ -207,6 +207,36 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         ]);
     });
 
+    it('should show the drop indicator next to the insert position', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+        );
+
+        expect(wrapper.vm.getDropIndicatorClass(2)).toEqual({
+            'is--drop-before': false,
+            'is--drop-after': true,
+        });
+
+        await wrapper.vm.onDragLeave();
+
+        expect(wrapper.vm.getDropIndicatorClass(2)).toEqual({
+            'is--drop-before': false,
+            'is--drop-after': false,
+        });
+    });
+
     it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
 

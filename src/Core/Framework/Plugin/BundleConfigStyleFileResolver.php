@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 interface BundleConfigStyleFileResolver
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function resolveStyleFiles(string $technicalName, string $basePath): array;
 }

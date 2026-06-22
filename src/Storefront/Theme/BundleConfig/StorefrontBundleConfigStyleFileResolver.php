@@ -22,9 +22,9 @@ final class StorefrontBundleConfigStyleFileResolver implements BundleConfigStyle
             return [];
         }
 
-        return array_map(
+        return array_values(array_map(
             static fn (string $path) => Path::join($basePath, 'Resources', $path),
             $config->getStyleFiles()->getFilepaths()
-        );
+        ));
     }
 }

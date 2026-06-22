@@ -164,7 +164,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {

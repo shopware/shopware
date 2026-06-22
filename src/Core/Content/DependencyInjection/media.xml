@@ -451,7 +451,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber">

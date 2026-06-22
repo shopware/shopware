@@ -352,15 +352,30 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
-            mcp:
+            mcp_admin_api:
+                # Trusted automation (integrations / admin users), keyed per OAuth token, so a
+                # generous limit is acceptable. Kept higher than the Store API on purpose.
                 enabled: true
                 policy: 'time_backoff'
                 reset: '1 hours'
                 limits:
-                    - limit: 60
+                    - limit: 300
                       interval: '60 seconds'
+                    - limit: 1000
+                      interval: '10 minutes'
+            mcp_store_api:
+                # Tighter than the Admin API: this endpoint is customer/sales-channel facing and
+                # the rate-limit key (sales-channel context token) is cheap to rotate, so the
+                # effective protection is closer to per-IP. Still generous enough for an AI agent
+                # to browse, search and build a cart in a single session.
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hours'
+                limits:
                     - limit: 120
-                      interval: '120 seconds'
+                      interval: '60 seconds'
+                    - limit: 600
+                      interval: '10 minutes'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'

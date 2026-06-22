@@ -272,7 +272,7 @@
           "downloadFileName": "bulk-edit-dokumentenerstellung-ergebnis",
           "documentTypes": {
             "invoice": "Rechnung",
-            "storno": "Stornorechnung",
+            "cancellationInvoice": "Stornorechnung",
             "creditNote": "Gutschrift",
             "deliveryNote": "Lieferschein"
           }

@@ -131,7 +131,7 @@ export default {
             const labels = {
                 [DOCUMENT_TYPES.INVOICE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice'),
                 [DOCUMENT_TYPES.CANCELLATION_INVOICE]: this.$t(
-                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.storno',
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.cancellationInvoice',
                 ),
                 [DOCUMENT_TYPES.CREDIT_NOTE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote'),
                 [DOCUMENT_TYPES.DELIVERY_NOTE]: this.$t(

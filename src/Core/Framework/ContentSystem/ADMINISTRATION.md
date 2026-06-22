@@ -196,8 +196,8 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 |----------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
 | Missing/invalid envelope field                                                                                 | 400       | `#[MapRequestPayload]` validation (forced to 400)                                                                     |
 | `entityType` matches no specification source                                                                   | 400       | `unknownEntityType`                                                                                                   |
-| Layout element missing a non-empty string `id`/`component`, or an element config that is a client defect       | 400       | `invalidLayoutStructure`                                                                                              |
-| Layout has an intrinsic error: unregistered `component` or duplicate element `id`                              | 400       | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
+| Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
+| Layout has an intrinsic error the structural decode does not catch: an unregistered `component`, or an element config a bound source rejects (`invalid_config`) | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`) |
 | Target entity not found / unresolvable data requirement                                                        | 500       | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`)                            |
 | Invalid sales channel id                                                                                       | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`)                                                              |
 
@@ -403,7 +403,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Inserting into a parent, moving under a different parent, or wrapping, without naming the target slot    | `mutationSlotRequired`                            |
 | Wrap targets are empty, or not in one container (must be siblings in a single slot, or all root-level)   | `mutationInvalidWrapTargets`                      |
 | `type` / `newType` / `containerType` is not a registered element type                                    | `mutationUnknownType`                             |
-| Layout element missing a non-empty string `id`/`component`, or an element config that is a client defect | `invalidLayoutStructure`                          |
+| Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | `invalidLayoutStructure`                          |
 | `entityType` matches no source, or `section` is invalid / has no source                                  | `unknownEntityType` / `noSourceForSection`        |
 
 ## Persisted Mutation Endpoints

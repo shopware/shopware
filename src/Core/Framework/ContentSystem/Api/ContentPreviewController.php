@@ -45,7 +45,7 @@ class ContentPreviewController
     ) {
     }
 
-    #[Route(path: '/api/_action/content-system/preview/entity', name: 'api.action.content_system.preview.entity', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/preview/entity', name: 'api.action.content_system.preview.entity', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function preview(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentPreviewRequest $payload,

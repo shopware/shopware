@@ -48,7 +48,7 @@ class LayoutMutationController
     ) {
     }
 
-    #[Route(path: '/api/_action/content-system/layout/insert-element', name: 'api.action.content_system.layout.insert_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/insert-element', name: 'api.action.content_system.layout.insert_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function insert(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         InsertElementRequest $payload,
@@ -59,7 +59,7 @@ class LayoutMutationController
         return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/remove-element', name: 'api.action.content_system.layout.remove_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/remove-element', name: 'api.action.content_system.layout.remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function remove(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         RemoveElementRequest $payload,
@@ -68,7 +68,7 @@ class LayoutMutationController
         return $this->respond(new RemoveElement($payload->elementId), $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/move-element', name: 'api.action.content_system.layout.move_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/move-element', name: 'api.action.content_system.layout.move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function move(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         MoveElementRequest $payload,
@@ -79,7 +79,7 @@ class LayoutMutationController
         return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/replace-element', name: 'api.action.content_system.layout.replace_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/replace-element', name: 'api.action.content_system.layout.replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function replace(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ReplaceElementRequest $payload,
@@ -90,7 +90,7 @@ class LayoutMutationController
         return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/duplicate-element', name: 'api.action.content_system.layout.duplicate_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/duplicate-element', name: 'api.action.content_system.layout.duplicate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function duplicate(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         DuplicateElementRequest $payload,
@@ -99,7 +99,7 @@ class LayoutMutationController
         return $this->respond(new DuplicateElement($payload->elementId, $payload->index), $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/wrap-elements', name: 'api.action.content_system.layout.wrap_elements', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/wrap-elements', name: 'api.action.content_system.layout.wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function wrap(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         WrapElementsRequest $payload,
@@ -110,7 +110,7 @@ class LayoutMutationController
         return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/unwrap-element', name: 'api.action.content_system.layout.unwrap_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/unwrap-element', name: 'api.action.content_system.layout.unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function unwrap(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         UnwrapElementRequest $payload,
@@ -119,7 +119,7 @@ class LayoutMutationController
         return $this->respond(new UnwrapElement($payload->containerElementId), $payload->layout, $payload->entityType, $payload->section, $context);
     }
 
-    #[Route(path: '/api/_action/content-system/layout/attach-element', name: 'api.action.content_system.layout.attach_element', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/layout/attach-element', name: 'api.action.content_system.layout.attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function attach(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         AttachElementRequest $payload,

@@ -243,6 +243,24 @@ tester.run('no-deprecated-components', rule, {
             ],
         },
         {
+            name: '"sw-button" usage with object v-on leaves dynamic listener warning',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-button v-on="buttonListeners">Hello</sw-button>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly. Dynamic v-on listeners may still contain deprecated event usage and need manual review. -->
+    <mt-button v-on="buttonListeners">Hello</mt-button>
+</template>`,
+            errors: [
+                {
+                    message: '"sw-button" is deprecated. Please use "mt-button" instead.',
+                },
+            ],
+        },
+        {
             name: '"sw-button" usage is not allowed when in the activatedComponents list',
             filename: 'test.html.twig',
             options: [

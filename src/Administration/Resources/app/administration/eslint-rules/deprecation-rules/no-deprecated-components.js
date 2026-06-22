@@ -35,12 +35,26 @@ function hasObjectVBind(node) {
     });
 }
 
-function getCodemodComment(componentName, hasDynamicProps) {
+function hasObjectVOn(node) {
+    return node.startTag.attributes.some((attribute) => {
+        return (
+            attribute.type === 'VAttribute' &&
+            attribute.directive === true &&
+            attribute.key?.name?.name === 'on' &&
+            !attribute.key.argument
+        );
+    });
+}
+
+function getCodemodComment(componentName, hasDynamicProps, hasDynamicListeners) {
     const vBindWarning = hasDynamicProps
         ? '. Dynamic v-bind props may still contain deprecated API usage and need manual review.'
         : '';
+    const vOnWarning = hasDynamicListeners
+        ? '. Dynamic v-on listeners may still contain deprecated event usage and need manual review.'
+        : '';
 
-    return `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly${vBindWarning} -->`;
+    return `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly${vBindWarning}${vOnWarning} -->`;
 }
 
 function usageFixesAutomatically(usage) {
@@ -117,7 +131,11 @@ module.exports = {
                                 if (!enableFix || !usageFixesAutomatically(renameUsage)) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
-                                const codemodComment = getCodemodComment(componentName, hasObjectVBind(node));
+                                const codemodComment = getCodemodComment(
+                                    componentName,
+                                    hasObjectVBind(node),
+                                    hasObjectVOn(node),
+                                );
 
                                 // Handle self-closing tags
                                 if (isSelfClosing) {

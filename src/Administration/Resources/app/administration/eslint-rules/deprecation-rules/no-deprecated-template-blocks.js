@@ -31,7 +31,8 @@ function buildMessage(migration, usage) {
 function collectBlockMatches(sourceText) {
     const matches = [];
     const twigBlockPattern = /\{%\s*block\s+([A-Za-z0-9_]+)\s*%}/g;
-    const swBlockPattern = /<sw-block\b[^>]*\s(?:name|extends)=(["'])([^"']+)\1/g;
+    const swBlockPattern = /<sw-block\b[^>]*>/g;
+    const swBlockAttributePattern = /\s(?:name|extends)=(["'])([^"']+)\1/g;
 
     let match = twigBlockPattern.exec(sourceText);
     while (match) {
@@ -46,14 +47,20 @@ function collectBlockMatches(sourceText) {
 
     match = swBlockPattern.exec(sourceText);
     while (match) {
-        const blockName = match[2];
-        const blockNameStart = match.index + match[0].lastIndexOf(blockName);
+        let attributeMatch = swBlockAttributePattern.exec(match[0]);
 
-        matches.push({
-            name: blockName,
-            start: blockNameStart,
-            end: blockNameStart + blockName.length,
-        });
+        while (attributeMatch) {
+            const blockName = attributeMatch[2];
+            const blockNameStart = match.index + attributeMatch.index + attributeMatch[0].lastIndexOf(blockName);
+
+            matches.push({
+                name: blockName,
+                start: blockNameStart,
+                end: blockNameStart + blockName.length,
+            });
+
+            attributeMatch = swBlockAttributePattern.exec(match[0]);
+        }
 
         match = swBlockPattern.exec(sourceText);
     }

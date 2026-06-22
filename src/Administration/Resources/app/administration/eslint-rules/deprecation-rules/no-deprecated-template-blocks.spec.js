@@ -67,6 +67,20 @@ tester.run('no-deprecated-template-blocks', rule, {
             ],
         },
         {
+            name: 'renames deprecated sw-block name and extends on the same tag',
+            filename: 'test.html.twig',
+            code: '<template><sw-block name="sw_cms_detail_stage_empty_stade_content" extends="sw_condiiton_date_range_field_to_date"><div /></sw-block></template>',
+            output: '<template><sw-block name="sw_cms_detail_stage_empty_stage_content" extends="sw_condition_date_range_field_to_date"><div /></sw-block></template>',
+            errors: [
+                {
+                    message: /Use "sw_cms_detail_stage_empty_stage_content" instead/,
+                },
+                {
+                    message: /Use "sw_condition_date_range_field_to_date" instead/,
+                },
+            ],
+        },
+        {
             name: 'reports removed block without fixer',
             filename: 'test.html.twig',
             code: '<template>{% block sw_import_export_language_switch %}<div />{% endblock %}</template>',

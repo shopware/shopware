@@ -494,7 +494,7 @@ class SyncControllerTest extends TestCase
             return $index !== ProductIndexer::SEARCH_KEYWORD_UPDATER;
         });
 
-        static::assertEqualsCanonicalizing($allProductIndexerMinusSearchKeyword, $skip);
+        static::assertEqualsCanonicalizing(array_values($allProductIndexerMinusSearchKeyword), array_values($skip));
     }
 
     public static function invalidOperationProvider(): \Generator

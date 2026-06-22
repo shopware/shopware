@@ -619,7 +619,7 @@ class CrossSellingRouteTest extends TestCase
         $element = $result->first();
         static::assertNotNull($element);
         static::assertEqualsCanonicalizing(
-            $initialProductIds,
+            array_values($initialProductIds),
             array_values($element->getProducts()->getIds()),
         );
 
@@ -640,7 +640,7 @@ class CrossSellingRouteTest extends TestCase
         $element = $result->first();
         static::assertNotNull($element);
         static::assertEqualsCanonicalizing(
-            $replacementProductIds,
+            array_values($replacementProductIds),
             array_values($element->getProducts()->getIds()),
             'Cross-selling must reflect updated product_stream_filter value even when the parent product_stream is untouched.',
         );

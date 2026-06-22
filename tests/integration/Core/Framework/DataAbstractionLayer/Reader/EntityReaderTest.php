@@ -2424,7 +2424,7 @@ class EntityReaderTest extends TestCase
 
         $foundIds = [];
         foreach ($result as $entity) {
-            $foundIds[] = $entity->getUniqueIdentifier();
+            $foundIds[$entity->getUniqueIdentifier()] = $entity->getUniqueIdentifier();
             if ($entity->getUniqueIdentifier() === $id3) {
                 static::assertSame($id3, $entity->get('nonPk'));
             } else {
@@ -2432,7 +2432,7 @@ class EntityReaderTest extends TestCase
             }
         }
 
-        static::assertEqualsCanonicalizing([$id1, $id2, $id3], $foundIds);
+        static::assertEqualsCanonicalizing([$id1, $id2, $id3], array_values($foundIds));
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void

@@ -5,6 +5,10 @@ namespace Shopware\Core\Service\Requirement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Evaluates a service's requirements for a given {@see Gate}: are all of that gate's requirements
+ * currently met? The Installation gate decides whether a service may exist (install/uninstall); the
+ * Privileges gate decides whether an installed service may run (privileges granted/revoked).
+ *
  * @internal
  */
 #[Package('framework')]
@@ -24,35 +28,22 @@ class RequirementsValidator
     }
 
     /**
-     * @param list<string> $requirements
-     */
-    public function isValidSet(array $requirements): bool
-    {
-        foreach ($requirements as $requirement) {
-            if (!isset($this->requirements[$requirement])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns true only if all requirements for the given service are satisfied.
-     *
-     * Unknown requirements are treated as unsatisfied; however, we already check that in ServiceLifecycle::install/update
-     * so this code path should never execute.
+     * True only if every requirement of the given gate among the names is satisfied. An unknown
+     * requirement name is treated as unsatisfied (a service declaring something we don't model never
+     * passes any gate).
      *
      * @param list<string> $requirementNames
      */
-    public function isSatisfied(array $requirementNames): bool
+    public function isSatisfied(array $requirementNames, Gate $gate): bool
     {
         foreach ($requirementNames as $name) {
-            if (!isset($this->requirements[$name])) {
+            $requirement = $this->requirements[$name] ?? null;
+
+            if ($requirement === null) {
                 return false;
             }
 
-            if (!$this->requirements[$name]->isSatisfied()) {
+            if ($requirement->getGate() === $gate && !$requirement->isSatisfied()) {
                 return false;
             }
         }

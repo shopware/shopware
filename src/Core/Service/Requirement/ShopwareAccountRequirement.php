@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * This requirement gates the privilege granting step. When a shopware account is not logged in, privileges are not granted.
  */
 #[Package('framework')]
 class ShopwareAccountRequirement implements ServiceRequirement
@@ -21,6 +23,11 @@ class ShopwareAccountRequirement implements ServiceRequirement
     public static function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getGate(): Gate
+    {
+        return Gate::PRIVILEGES;
     }
 
     public function isSatisfied(): bool

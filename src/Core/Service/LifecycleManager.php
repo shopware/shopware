@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -14,11 +15,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * This class is responsible for managing the full lifecycle of self-managed services (apps).
  *
- * Services (As a unit) can have two states:
- * Disabled: No Service is usable, or installed.
- * Enabled: All the applications backing the services are installed.
+ * ENABLE_SERVICES controls whether services are installed. The persisted disabled state is handled through the
+ * services_enabled requirement and is evaluated per service.
  *
- * Then, if enabled, each service can have two states:
+ * If its requirements are met, each service can have two states:
  * Started: The service is running. The underlying application backing the service has all the required permissions.
  * Stopped: The service is not running. The underlying application backing the service is in a Pending Permission state.
  *
@@ -46,7 +46,7 @@ class LifecycleManager
     }
 
     /**
-     * This method installs all services, only if Services (as a unit) are enabled.
+     * This method installs all services, only if ENABLE_SERVICES allows installation.
      *
      * @return array<string> The newly installed services
      */
@@ -74,20 +74,11 @@ class LifecycleManager
         $this->syncPrivileges($service, $context);
     }
 
-    public function syncPrivileges(Service $service, Context $context): void
-    {
-        if ($this->requirementsValidator->isSatisfied($service->requirements)) {
-            $this->privileges->acceptAllForApps([$service->id], $context);
-        } else {
-            $this->privileges->revokeAllForApps([$service->id], $context);
-        }
-    }
-
     /**
      * Re-evaluate all services that list the given requirement.
      * Called when a requirement's state changes.
      */
-    public function syncRequirement(string $requirementName, Context $context): void
+    public function reevaluateRequirement(string $requirementName, Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
             if (\in_array($requirementName, $service->requirements, true)) {
@@ -97,8 +88,7 @@ class LifecycleManager
     }
 
     /**
-     * This method enables the services (as aa unit), allowing them to be installed and later used.
-     * It also schedules the installation of all services.
+     * This method clears the persisted disabled state and schedules the installation of all services.
      */
     public function enable(): void
     {
@@ -108,21 +98,29 @@ class LifecycleManager
     }
 
     /**
-     * This method disables the services (as a unit), preventing any service from being installed or used.
+     * Disables services as a unit: persists the disabled flag, syncs the installed services, and revokes
+     * their permissions.
      */
     public function disable(Context $context): void
     {
-        foreach ($this->serviceStorage->findAll($context) as $service) {
-            $this->serviceLifecycle->uninstall($service->name, $context);
-        }
-
-        $this->permissionsService->revoke($context);
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
+
+        $this->serviceLifecycle->reevaluateInstalled($context);
+        $this->permissionsService->revoke($context);
     }
 
     public function enabled(): bool
     {
-        return !$this->areDisabledFromEnv() && !$this->areDisabledFromConfig();
+        return !$this->areDisabledFromEnv();
+    }
+
+    private function syncPrivileges(Service $service, Context $context): void
+    {
+        if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
+            $this->privileges->acceptAllForApps([$service->id], $context);
+        } else {
+            $this->privileges->revokeAllForApps([$service->id], $context);
+        }
     }
 
     /**
@@ -159,10 +157,5 @@ class LifecycleManager
         }
 
         return !$enabled;
-    }
-
-    private function areDisabledFromConfig(): bool
-    {
-        return $this->systemConfigService->getBool(self::CONFIG_KEY_SERVICES_DISABLED);
     }
 }

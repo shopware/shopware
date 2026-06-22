@@ -37,7 +37,7 @@ class ShopwareAccountSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
         $this->subscriber->syncAccountRequirement($event);
@@ -49,7 +49,7 @@ class ShopwareAccountSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
         $this->subscriber->syncAccountRequirement($event);

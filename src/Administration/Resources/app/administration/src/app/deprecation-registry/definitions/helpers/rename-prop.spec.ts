@@ -41,4 +41,15 @@ describe('renameProp', () => {
 
         expect(fix).toEqual({ method: 'replaceText', target: attribute, text: 'size="16px"' });
     });
+
+    it('marks expression-bound static value transforms as manual', () => {
+        const transform = replaceWithStaticValueTransform({ value: '16px' });
+
+        expect(transform({ valueKind: 'expression' })).toEqual({
+            kind: 'replace-with-static-value',
+            fix: 'manual',
+            value: '16px',
+            message: 'Expression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
+        });
+    });
 });

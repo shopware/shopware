@@ -280,6 +280,12 @@ function getPropAttributeValueKind(attribute) {
     }
 
     if (getDirectiveName(attribute) === 'bind') {
+        const expression = attribute.value?.expression;
+
+        if (expression?.type === 'Literal' && expression.value === true) {
+            return 'static';
+        }
+
         return 'expression';
     }
 

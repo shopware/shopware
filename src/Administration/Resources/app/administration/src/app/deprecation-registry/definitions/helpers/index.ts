@@ -271,6 +271,15 @@ export function addBooleanPropTransform({ prop }: { prop: string }): MigrationTr
 
 export function replaceWithStaticValueTransform({ value }: { value: string }): MigrationTransform {
     return (context = {}) => {
+        if (context.valueKind === 'expression') {
+            return {
+                kind: 'replace-with-static-value',
+                fix: 'manual',
+                value,
+                message: `Expression-bound prop values can be false at runtime. Review the expression and replace it with "${value}" manually if needed.`,
+            };
+        }
+
         if (usesObjectVBind(context)) {
             return {
                 kind: 'replace-with-static-value',

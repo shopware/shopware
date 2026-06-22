@@ -144,6 +144,20 @@ const mtIconInvalidTests = [
         ],
     },
     {
+        name: '"mt-icon" wrong dynamic "small" prop expression should be reported without auto-fix',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-icon name="regular-times-s" :small="isSmall" />
+            </template>`,
+        output: null,
+        errors: [
+            {
+                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+            },
+        ],
+    },
+    {
         name: '"mt-icon" wrong "small" prop with value inside (e.g. "true") usage should be removed when size prop already exists',
         filename: 'test.html.twig',
         code: `

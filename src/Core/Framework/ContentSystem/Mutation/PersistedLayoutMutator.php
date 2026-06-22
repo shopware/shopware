@@ -74,6 +74,9 @@ class PersistedLayoutMutator
 
             $analysis = $this->diagnose($layoutId, $mutated, $context);
 
+            // This MutationResult assembly is intentionally duplicated in MutationPipeline::run() (see the note
+            // there): sharing it would couple Mutation/ to a Diagnostics/LayoutAnalysis-shaped helper or require
+            // a banned static helper.
             return new MutationResult(
                 $mutated,
                 array_intersect_key($analysis->resolutions, array_flip($affected)),

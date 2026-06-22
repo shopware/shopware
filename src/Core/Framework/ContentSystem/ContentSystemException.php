@@ -147,6 +147,8 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // Distinct from contentLayoutNotFound() on purpose: this is the Store-API render-time 500 (a missing layout
+    // here is a configuration error), while contentLayoutNotFound() is the Admin mutation 404 for an unknown {layoutId}.
     public static function layoutNotFound(string $layoutId): self
     {
         return new self(
@@ -484,6 +486,8 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // Distinct from layoutNotFound() on purpose: this is the Admin mutation 404 for an unknown {layoutId}, while
+    // layoutNotFound() is the Store-API render-time 500 for a layout that should exist but does not.
     public static function contentLayoutNotFound(string $layoutId): self
     {
         return new self(

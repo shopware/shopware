@@ -81,6 +81,8 @@ class DraftLayoutDecoder
      */
     public function decodeOne(array $rawElement): ContentElement
     {
+        // decode() returns exactly one element for one gate-passing input, so [0] is always set; the `?? throw`
+        // is a defensive guard kept against a future change to decode()'s contract, not a branch reachable today.
         return $this->decode([$rawElement])[0] ?? throw ContentSystemException::invalidLayoutStructure(new ConstraintViolationList());
     }
 

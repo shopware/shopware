@@ -32,6 +32,11 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             padding-left: 20px;
         }
 
+        .sw-block-field__block {
+            min-height: 48px;
+            height: auto;
+        }
+
         .sw-select__selection {
             cursor: initial;
         }

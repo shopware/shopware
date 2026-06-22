@@ -160,6 +160,13 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         ]);
     });
 
+    it('should render the selection input inside the expected wrapper', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-selection-list__input-wrapper .sw-select-selection-list__input').exists()).toBe(true);
+    });
+
     it('should emit `change` when swap on the same line on dragging', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

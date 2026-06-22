@@ -90,6 +90,10 @@ function normalizeSource(text) {
     return text.replace(/\s+/g, ' ').trim();
 }
 
+function normalizeComparableSource(text) {
+    return normalizeSource(text).replace(/"/g, "'");
+}
+
 function usageFixesAutomatically(usage) {
     return usage.fix !== 'manual';
 }
@@ -195,7 +199,7 @@ module.exports = {
                 const sourceText = context.sourceCode.getText(node);
                 const replaceApiMatch = replaceApiUsages.find(({ usage }) => {
                     return usage.from.includes('(')
-                        ? normalizeSource(usage.from) === normalizeSource(sourceText)
+                        ? normalizeComparableSource(usage.from) === normalizeComparableSource(sourceText)
                         : usage.from === calleeName;
                 });
 

@@ -41,6 +41,28 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             cursor: initial;
         }
 
+        .sw-select-selection-list {
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            width: calc(100% - 30px);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sw-select-selection-list__item-holder {
+            max-width: 220px;
+            line-height: 0;
+            margin: 8px 6px 0 0;
+        }
+
+        .sw-select-selection-list__input-wrapper {
+            flex: 1 1 0;
+            min-width: 0;
+            position: relative;
+        }
+
         .sw-label__dismiss .mt-icon {
             top: 10px;
             left: -5px;

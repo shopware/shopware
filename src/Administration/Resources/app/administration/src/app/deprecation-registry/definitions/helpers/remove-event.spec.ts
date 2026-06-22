@@ -15,4 +15,39 @@ describe('removeEvent', () => {
         expect(api.reports[0].message).toContain('"legacy-event" API is deprecated');
         expect(fix).toEqual({ method: 'remove', target: eventAttribute });
     });
+
+    it('skips fixes when object v-on can hide the removed event', () => {
+        const usage = removeEvent({ event: 'legacy-event' });
+        const eventAttribute = createDirectiveAttribute('on', 'legacy-event');
+        const objectVOn = createDirectiveAttribute('on');
+        eventAttribute.matchName = 'legacy-event';
+        const api = createRuleApi({
+            usage,
+            eventAttribute,
+            node: {
+                name: 'mt-test',
+                startTag: {
+                    range: [
+                        0,
+                        10,
+                    ],
+                    loc: {
+                        start: {
+                            column: 0,
+                        },
+                    },
+                    attributes: [
+                        objectVOn,
+                        eventAttribute,
+                    ],
+                },
+                children: [],
+            },
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].message).toContain('Object v-on can hide this event.');
+        expect(api.reports[0].fix(createFixer())).toBeNull();
+    });
 });

@@ -91,7 +91,7 @@
                 "tags": ["Content System"],
                 "summary": "Move an element within a draft layout",
                 "operationId": "contentSystemLayoutMoveElement",
-                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Moves `elementId` under `newParentId`/`newSlot` (root when `newParentId` is omitted) at the optional `index`. Requires the `content_layout:read` privilege. Moving an element into itself or a descendant (`mutationCycle`), or omitting a required slot (`mutationSlotRequired`), is rejected with `400`.",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Moves `elementId` under `newParentId`/`newSlot` (root when `newParentId` is omitted) at the optional `index`, which counts the sibling list after the moved element is removed. Requires the `content_layout:read` privilege. Moving an element into itself or a descendant (`mutationCycle`), or omitting a required slot (`mutationSlotRequired`), is rejected with `400`.",
                 "requestBody": {
                     "required": true,
                     "content": {

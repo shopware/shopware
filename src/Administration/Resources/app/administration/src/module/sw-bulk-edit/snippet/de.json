@@ -269,10 +269,9 @@
           "columnDocumentType": "Dokumenttyp",
           "downloadResult": "Ergebnis herunterladen",
           "downloadHeadline": "Fehlgeschlagene Dokumente",
-          "downloadFileName": "bulk-edit-dokumentenerstellung-ergebnis",
           "documentTypes": {
             "invoice": "Rechnung",
-            "storno": "Stornorechnung",
+            "cancellationInvoice": "Stornorechnung",
             "creditNote": "Gutschrift",
             "deliveryNote": "Lieferschein"
           }

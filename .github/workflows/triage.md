@@ -10,14 +10,6 @@ on:
         description: "Issue number to triage (manual dispatch only)"
         required: false
         type: number
-  label_command:
-    name: qi/triage             # PLACEHOLDER — swap for the real trigger label when wiring triage into the wider pipeline
-    events: [issues]
-    remove_label: false
-  slash_command:
-    name: triage                # `/triage` on an issue
-    events: [issue_comment]
-  reaction: none
   status-comment:
     issues: true
     pull-requests: false

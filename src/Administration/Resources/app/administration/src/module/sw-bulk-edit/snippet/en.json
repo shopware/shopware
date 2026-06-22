@@ -269,10 +269,9 @@
           "columnDocumentType": "Document type",
           "downloadResult": "Download result",
           "downloadHeadline": "Failed documents",
-          "downloadFileName": "bulk-edit-document-generation-result",
           "documentTypes": {
             "invoice": "Invoice",
-            "storno": "Cancellation invoice",
+            "cancellationInvoice": "Cancellation invoice",
             "creditNote": "Credit note",
             "deliveryNote": "Delivery note"
           }

@@ -59,6 +59,17 @@ fixtures — the report is public.
      logged-in user" — it followed NONE of the steps and checked an arguably-correct server
      response, not the reported client-side injection. Reproduce such bugs in the browser,
      following the steps, asserting the reported DOM result.
+   - **Is the bug behind an OPT-IN feature that ships OFF by default? Then you MUST declare
+     `system_config`.** A default install does not enable every feature, so a faithful repro of
+     a gated feature renders a DEAD page (empty content, missing controls) and dies at
+     `PRECONDITION_NOT_FOUND` — a false negative, not a real result. The notable one: the
+     **wishlist** (`core.cart.wishlistEnabled`) is disabled by default (a migration turned it
+     off), so EVERY guest/account-wishlist repro must declare
+     `"system_config": { "core.cart.wishlistEnabled": true }` or its storefront pages stay
+     empty (hit live on #33: "remove button not visible — seeded product not rendered in guest
+     wishlist", because wishlist was never enabled). If the issue concerns a feature you know to
+     be opt-in (wishlist, and any other feature a migration/flag gates), set the enabling key in
+     `system_config` (see SCHEMA `system_config`) — seed.sh applies it before the executor runs.
    - **`storefront-ui` is NOT automatically playwright — split it by symptom FIRST.** If the
      symptom is in the **server-rendered HTML** (snippet/translation text, Twig logic, a
      server-rendered CMS block, price/markup in the listing — anything present in the page's

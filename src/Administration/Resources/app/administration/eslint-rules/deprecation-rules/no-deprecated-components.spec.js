@@ -203,16 +203,6 @@ tester.run('no-deprecated-components', rule, {
 <template>
     <sw-button>Hello</sw-button>
 </template>`,
-            output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
-    <mt-button>Hello</mt-button>
-</template>`,
-            errors: [
-                {
-                    message: '"sw-button" is deprecated. Please use "mt-button" instead.',
-                },
-            ],
         },
     ],
     invalid: withRegistryMessageContext([

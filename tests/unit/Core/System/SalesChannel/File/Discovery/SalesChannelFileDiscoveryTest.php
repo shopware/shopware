@@ -84,8 +84,12 @@ class SalesChannelFileDiscoveryTest extends TestCase
     public function testItCachesDiscoveredFileCatalogueAcrossInstances(): void
     {
         $cache = new ArrayAdapter();
-        $templateFinder = $this->createTemplateFinder([
+        $firstTemplateFinder = $this->createTemplateFinder([
             '@Framework/files/agentic/llms.txt.twig' => '',
+        ]);
+        $secondTemplateFinder = $this->createTemplateFinder([
+            '@Framework/files/agentic/llms.txt.twig' => '',
+            '@Ucp/files/agentic/llms.txt.twig' => '',
         ]);
 
         $firstTemplateIterator = $this->createMock(TemplatePathIteratorInterface::class);
@@ -100,11 +104,17 @@ class SalesChannelFileDiscoveryTest extends TestCase
             ->expects($this->never())
             ->method('getTemplatePathsForSubPath');
 
-        $firstDiscovery = new SalesChannelFileDiscovery($firstTemplateIterator, $templateFinder, $cache);
-        $secondDiscovery = new SalesChannelFileDiscovery($secondTemplateIterator, $templateFinder, $cache);
+        $firstDiscovery = new SalesChannelFileDiscovery($firstTemplateIterator, $firstTemplateFinder, $cache);
+        $secondDiscovery = new SalesChannelFileDiscovery($secondTemplateIterator, $secondTemplateFinder, $cache);
 
         static::assertArrayHasKey('llms.txt', $firstDiscovery->discover('agentic'));
-        static::assertArrayHasKey('llms.txt', $secondDiscovery->discover('agentic'));
+        static::assertSame(
+            [
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+            ],
+            $secondDiscovery->discover('agentic')['llms.txt']->templates
+        );
     }
 
     /**

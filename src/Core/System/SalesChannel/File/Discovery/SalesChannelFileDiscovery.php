@@ -29,17 +29,17 @@ class SalesChannelFileDiscovery
      */
     public function discover(string $fileFamily = SalesChannelFile::DEFAULT_FILE_FAMILY): array
     {
-        // This catalogue is checked for every unresolved 404 before any sales_channel_file
-        // row is loaded. Cache it across requests so unrelated missing URLs do not repeatedly
-        // walk registered Twig templates; shipped-template changes are deployed with a cache clear.
-        return $this->cache->get(
-            'sales-channel-file-discovery-' . Hasher::hash($fileFamily),
-            function (ItemInterface $item) use ($fileFamily): array {
-                $item->expiresAfter(null);
+        $files = [];
 
-                return $this->discoverUncached($fileFamily);
+        foreach ($this->catalogueRegisteredFilesCached($fileFamily) as $fileName => $templatePath) {
+            $file = $this->createFile($fileFamily, $fileName, $templatePath);
+
+            if ($file !== null) {
+                $files[$fileName] = $file;
             }
-        );
+        }
+
+        return $files;
     }
 
     public function get(string $templatePath): ?SalesChannelFile
@@ -54,33 +54,47 @@ class SalesChannelFileDiscovery
             return null;
         }
 
-        return $this->discover($fileFamily)[$fileName] ?? null;
+        $templatePath = $this->catalogueRegisteredFilesCached($fileFamily)[$fileName] ?? null;
+        if ($templatePath === null) {
+            return null;
+        }
+
+        return $this->createFile($fileFamily, $fileName, $templatePath);
+    }
+
+    private function createFile(string $fileFamily, string $fileName, string $templatePath): ?SalesChannelFile
+    {
+        $templates = $this->resolveTemplateChainForFile($templatePath);
+
+        if ($templates === []) {
+            return null;
+        }
+
+        return new SalesChannelFile(
+            $fileFamily,
+            $fileName,
+            $templatePath,
+            $this->resolveContentType($fileName),
+            $templatePath,
+            $templates,
+        );
     }
 
     /**
-     * @return array<string, SalesChannelFile>
+     * @return array<string, string>
      */
-    private function discoverUncached(string $fileFamily): array
+    private function catalogueRegisteredFilesCached(string $fileFamily): array
     {
-        $files = [];
-        foreach ($this->catalogueRegisteredFiles($fileFamily) as $fileName => $templatePath) {
-            $templates = $this->resolveTemplateChainForFile($templatePath);
+        // Only the root file catalogue is cross-request stable. The resolved Twig chain
+        // depends on the current namespace hierarchy, so it is rebuilt per call.
+        return $this->cache->get(
+            'sales-channel-file-discovery-' . Hasher::hash($fileFamily),
+            function (ItemInterface $item) use ($fileFamily): array {
+                $item->expiresAfter(null);
 
-            if ($templates === []) {
-                continue;
+                return $this->catalogueRegisteredFiles($fileFamily);
             }
-
-            $files[$fileName] = new SalesChannelFile(
-                $fileFamily,
-                $fileName,
-                $templatePath,
-                $this->resolveContentType($fileName),
-                $templatePath,
-                $templates,
-            );
-        }
-
-        return $files;
+        );
     }
 
     /**

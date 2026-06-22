@@ -4,7 +4,7 @@
 
 import { mount, flushPromises } from '@vue/test-utils';
 
-const createWrapper = async (attrs = {}) => {
+const createWrapper = async (attrs: Record<string, string> = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-field-deprecated', { sync: true }), {
         attrs,
         global: {

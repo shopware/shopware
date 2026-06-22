@@ -33,6 +33,10 @@ Content can be provided in two ways:
 
 The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
 
+### Use Bootstrap variable for headings spacing
+
+The hard-coded CSS `margin-bottom` was removed from HTML headlines H1-H6. The bootstrap variable `$headings-margin-bottom` can now be used to set the bottom spacing of headlines.
+
 ### Storefront XHR login failures now keep HTTP 403
 
 Storefront requests that require a logged-in customer no longer redirect to the login page for XMLHttpRequests when the customer session is no longer valid.
@@ -282,6 +286,10 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### `cache:watch:delayed` shuts down gracefully
+
+The `cache:watch:delayed` command now stops cleanly on `SIGINT`/`SIGTERM` instead of being killed mid-loop, and exposes a configurable `--interval` option (microseconds) for the poll frequency.
+
 ### New `sha256` Twig filter
 
 A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
@@ -299,7 +307,25 @@ This reduced loading is **enabled for fresh installations** and **disabled for e
 
 A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
+### Agentic Commerce product export and tracking classes deprecated
+
+The following classes related to Agentic Commerce product exports, providers, and sales channel tracking are deprecated and will be removed in Shopware 6.8.0:
+
+- `Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry`
+- `Shopware\Core\Content\ProductExport\Provider\GoogleProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider`
+- `Shopware\Core\Content\ProductExport\Validator\JsonlRowParser`
+- `Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator`
+- `Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator`
+
+This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
+
 ## Administration
+
+### `sw-select-field` forwards `aria-label` to the native select
+
+The deprecated `sw-select-field` now passes through `aria-label` and `aria-labelledby` attributes to the underlying native `<select>` element. Previously these attributes were applied to the wrapping field component but never reached the form control, leaving selects without an accessible name (e.g. the range picker of `sw-chart-card`). Plugins that render a `sw-select-field` without a visible `<label>` can now give it an accessible name by passing `aria-label` / `aria-labelledby`.
 
 ### Cache-relevant extension configuration fields
 
@@ -397,6 +423,43 @@ Administration dropdowns now identify outside clicks correctly when the browser 
 ### Resolving download errors by renaming media
 
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
+
+### Agentic Commerce Administration components deprecated
+
+The following Administration component, methods, and computed properties are deprecated and will be removed in Shopware 6.8:
+
+**`sw-agentic-commerce-tracking-config`** — entire component deprecated.
+
+**`sw-sales-channel-modal-grid`:**
+- computed `salesChannelRepository`
+- method `isAgenticCommerceSalesChannelType()`
+- method `showAgenticCommerceType()`
+
+**`sw-sales-channel-detail`:**
+- provide `swSalesChannelDetailGetAgenticCommerceExportConfig`
+- data `agenticCommerceExportConfig`
+- computed `isAgenticCommerce`
+- computed `defaultAgenticCommerceExportConfig`
+- method `validateAgenticCommerceExportConfig()`
+- method `loadAgenticCommerceExportConfig()`
+- method `saveAgenticCommerceExportConfig()`
+
+**`sw-sales-channel-create-base`:**
+- method `prefillAgenticCommerceDefaults()`
+
+**`sw-sales-channel-detail-base`:**
+- inject `swSalesChannelDetailGetAgenticCommerceExportConfig`
+- computed `isAgenticCommerce`
+- computed `resolvedAgenticCommerceExportConfig`
+- method `getAgenticCommerceExportElementBind()`
+- method `getAgenticCommerceExportCardTitle()`
+- method `getAgenticCommerceExportCardPositionIdentifier()`
+- method `onAgenticCommerceExportFieldUpdate()`
+
+**`sw-sales-channel-detail-product-comparison`:**
+- computed `isAgenticCommerce`
+
+This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
 ## App System
 

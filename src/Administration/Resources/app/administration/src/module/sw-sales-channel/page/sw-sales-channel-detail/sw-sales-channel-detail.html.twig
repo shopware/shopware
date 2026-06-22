@@ -50,6 +50,26 @@
             />
             {% endblock %}
 
+            {% block sw_sales_channel_detail_agentic_commerce_deprecation_banner %}
+            {# @deprecated tag:v6.8.0 - Will be removed #}
+            <mt-banner
+                v-if="showAgenticCommerceDeprecationBanner"
+                class="sw-sales-channel-detail__agentic-commerce-deprecation-banner"
+                variant="attention"
+                :title="$t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.title')"
+            >
+                <div>{{ $t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.message') }}</div>
+
+                <mt-button
+                    variant="secondary"
+                    size="small"
+                    @click="onClickInstallAgenticCommercePlugin"
+                >
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.installPlugin') }}
+                </mt-button>
+            </mt-banner>
+            {% endblock %}
+
             {% block sw_sales_channel_detail_content_tabs %}
             <sw-tabs
                 class="sw-sales-channel-detail-__tabs"

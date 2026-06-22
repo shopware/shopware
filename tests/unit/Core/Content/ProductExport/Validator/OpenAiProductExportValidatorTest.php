@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
 use Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(OpenAiProductExportValidator::class)]
 class OpenAiProductExportValidatorTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNothingForOtherProviders(): void
     {
         $entity = $this->createProductExportEntity();
@@ -31,6 +33,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenFileFormatIsNotJsonl(): void
     {
         $entity = $this->createProductExportEntity();
@@ -47,6 +50,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('file_format', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMissingRequiredUrlField(): void
     {
         $entity = $this->createProductExportEntity();
@@ -82,6 +86,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('return_policy', $firstError->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForBlankRequiredStringField(): void
     {
         $entity = $this->createProductExportEntity();
@@ -98,6 +103,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('The field "seller_name" must be a non-empty string.', $error->getParameters()['error']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsJsonlValidationErrorForMalformedJsonl(): void
     {
         $entity = $this->createProductExportEntity();
@@ -112,6 +118,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame(1, $error->getParameters()['line']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNotAddErrorsForValidOpenAiFeed(): void
     {
         $entity = $this->createProductExportEntity();
@@ -143,6 +150,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorsForInvalidOptionalAndDerivedFieldFormats(): void
     {
         $entity = $this->createProductExportEntity();
@@ -195,6 +203,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidTargetCountryCode(): void
     {
         $entity = $this->createProductExportEntity();
@@ -211,6 +220,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('Each target country must be a 2-letter upper-case ISO country code.', $error->getParameters()['error']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenTargetCountriesAreEmpty(): void
     {
         $entity = $this->createProductExportEntity();
@@ -227,6 +237,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('The field "target_countries" must be a non-empty array of ISO country codes.', $error->getParameters()['error']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenAvailabilityDateIsMissingForPreOrder(): void
     {
         $entity = $this->createProductExportEntity();
@@ -242,6 +253,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('availability_date', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenAvailabilityDateIsInvalidForPreOrder(): void
     {
         $entity = $this->createProductExportEntity();
@@ -261,6 +273,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertSame('The field "availability_date" must be a valid date string.', $error->getParameters()['error']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAllowsValidAvailabilityDateForPreOrder(): void
     {
         $entity = $this->createProductExportEntity();
@@ -276,6 +289,7 @@ class OpenAiProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForDuplicateItemIds(): void
     {
         $entity = $this->createProductExportEntity();

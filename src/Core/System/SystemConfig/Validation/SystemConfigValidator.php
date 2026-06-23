@@ -45,7 +45,7 @@ class SystemConfigValidator
 
             $allKeys = array_keys($inputValues);
 
-            $domains = array_map(self::getSystemConfigDomain(...), $allKeys);
+            $domains = array_map($this->getSystemConfigDomain(...), $allKeys);
             $domains = array_unique($domains);
 
             $subDefinition = new DataValidationDefinition('systemConfig.update.' . $saleChannelId);
@@ -140,7 +140,7 @@ class SystemConfigValidator
         }
     }
 
-    private static function getSystemConfigDomain(string $key): string
+    private function getSystemConfigDomain(string $key): string
     {
         $parts = explode('.', $key);
 

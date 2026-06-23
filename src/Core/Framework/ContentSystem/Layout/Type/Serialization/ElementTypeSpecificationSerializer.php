@@ -166,8 +166,6 @@ class ElementTypeSpecificationSerializer
     }
 
     /**
-     * @param mixed $type
-     *
      * @return string|list<string>
      */
     private function normalizeType(mixed $type): string|array
@@ -187,8 +185,6 @@ class ElementTypeSpecificationSerializer
     }
 
     /**
-     * @param mixed $rawProperties
-     *
      * @return array<string, PropertySpecificationDto>|null
      */
     private function denormalizeProperties(mixed $rawProperties): ?array

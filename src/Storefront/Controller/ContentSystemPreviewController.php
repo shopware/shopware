@@ -58,7 +58,7 @@ class ContentSystemPreviewController extends StorefrontController
         ]);
 
         $frameAncestor = $this->resolveFrameAncestor($request);
-        $response->headers->set('Content-Security-Policy', \sprintf("frame-ancestors 'self' %s;", $frameAncestor));
+        $response->headers->set('Content-Security-Policy', \sprintf('frame-ancestors \'self\' %s;', $frameAncestor));
         // CoreSubscriber defaults to "deny" if this header is missing.
         // We set a non-enforcing value and control embedding via frame-ancestors CSP above.
         $response->headers->set(PlatformRequest::HEADER_FRAME_OPTIONS, 'ALLOWALL');

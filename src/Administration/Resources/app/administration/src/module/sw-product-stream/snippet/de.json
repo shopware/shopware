@@ -146,7 +146,8 @@
         "action": "Mehr dazu in unserer Dokumentation"
       },
       "buttonOpenPreview": "Vorschau",
-      "productStatesFilterWarning": "Diese dynamische Produktgruppe verwendet noch den veralteten Produktzustandsfilter. Er wird mit v6.8 entfernt – bitte nutze stattdessen den Produkttyp-Filter."
+      "deprecatedFilterWarning": "Der Filter \"{label}\" ist veraltet und wird in {version} entfernt. Bitte nutze stattdessen \"{replacement}\".",
+      "deprecatedFilterWarningNoReplacement": "Der Filter \"{label}\" ist veraltet und wird in {version} entfernt."
     },
     "previewModal": {
       "title": "Vorschau",

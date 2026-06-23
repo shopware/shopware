@@ -2,41 +2,33 @@
 
 namespace Shopware\Core\Service\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[Package('framework')]
 #[AsCommand(
     name: 'services:install',
     description: 'Install all services'
 )]
-class Install extends Command
+class Install
 {
     /**
      * @internal
      */
     public function __construct(private readonly LifecycleManager $manager)
     {
-        parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addOption('reinstall', null, InputOption::VALUE_NONE, 'Uninstall all services before installing them again');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new ShopwareStyle($input, $output);
-        $reinstall = (bool) $input->getOption('reinstall');
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'Uninstall all services before installing them again')]
+        bool $reinstall = false,
+    ): int {
         $io->title($reinstall ? 'Reinstalling services...' : 'Installing services...');
 
         if (!$this->manager->enabled()) {

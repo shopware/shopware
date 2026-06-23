@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\Command\Install;
 use Shopware\Core\Service\LifecycleManager;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -39,7 +40,7 @@ class InstallTest extends TestCase
         $tester = new CommandTester($command);
         $exitCode = $tester->execute([]);
 
-        static::assertSame(Install::FAILURE, $exitCode);
+        static::assertSame(Command::FAILURE, $exitCode);
         static::assertStringContainsString('Services are disabled. Please enable them to install services.', $tester->getDisplay());
     }
 

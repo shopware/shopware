@@ -314,6 +314,10 @@ export default Component.wrapComponentConfig({
             return this.rowDragPreview?.targetIndex === this.addressFormat.length;
         },
 
+        getRowRenderKey(index: number): string {
+            return this.shouldShowRowPlaceholderBefore(index) ? `row-placeholder-${index}` : `row-${index}`;
+        },
+
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
             this.snippetDragPreview = null;
             this.snippetDragItem = null;

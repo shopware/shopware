@@ -897,7 +897,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/department',
         ]);
         expect(addressHandlingWrapper.vm.rowDragPreview).toBeNull();
-        expect(wrapper.findAll('.sw-multi-snippet-drag-and-drop')).toHaveLength(5);
+
+        const rowsAfterDrop = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
+
+        expect(rowsAfterDrop).toHaveLength(5);
+        rowsAfterDrop.forEach((row) => {
+            expect(row.classes()).not.toContain('is--row-placeholder');
+            expect(row.classes()).not.toContain('is--row-drag-preview-source');
+        });
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

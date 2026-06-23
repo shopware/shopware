@@ -114,6 +114,17 @@ class LifecycleManager
         return !$this->areDisabledFromEnv();
     }
 
+    private function areDisabledFromEnv(): bool
+    {
+        if ($this->enabled === self::AUTO_ENABLED) {
+            $enabled = $this->appEnv === 'prod';
+        } else {
+            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return !$enabled;
+    }
+
     private function syncPrivileges(Service $service, Context $context): void
     {
         if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
@@ -146,16 +157,5 @@ class LifecycleManager
                 $this->serviceLifecycle->uninstall($service->name, $context);
             }
         }
-    }
-
-    private function areDisabledFromEnv(): bool
-    {
-        if ($this->enabled === self::AUTO_ENABLED) {
-            $enabled = $this->appEnv === 'prod';
-        } else {
-            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
-        }
-
-        return !$enabled;
     }
 }

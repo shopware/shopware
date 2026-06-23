@@ -117,6 +117,8 @@
             </div>
 
             <div class="sw-settings-country-address-handling__address-preview">
+                <hr class="sw-settings-country-address-handling__preview-separator">
+
                 <div class="sw-card__title">
                     {{ $t('sw-settings-country.detail.previewTitle') }}
                 </div>
@@ -134,6 +136,7 @@
                 />
 
                 <sw-settings-country-preview-template
+                    v-if="customer"
                     :formatting-address="formattingAddress"
                     :is-loading="isPreviewLoading"
                 />

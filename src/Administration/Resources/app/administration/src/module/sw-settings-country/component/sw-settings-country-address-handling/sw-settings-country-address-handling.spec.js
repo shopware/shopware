@@ -1138,9 +1138,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        let previewTemplate = wrapper.get('.sw-settings-country-preview-template__content');
-
-        expect(previewTemplate.html()).toBe('<div class="sw-settings-country-preview-template__content"></div>');
+        expect(wrapper.find('.sw-settings-country-preview-template__content').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-country-address-handling__preview-separator').exists()).toBe(true);
 
         const selection = wrapper.get('.sw-entity-single-select');
 
@@ -1154,7 +1153,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        previewTemplate = wrapper.get('.sw-settings-country-preview-template__content');
+        const previewTemplate = wrapper.get('.sw-settings-country-preview-template__content');
 
         expect(previewTemplate.html()).toBe(
             '<div class="sw-settings-country-preview-template__content">Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>',

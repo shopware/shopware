@@ -85,6 +85,7 @@
                         v-if="item.childCount === 0"
                         class="sw-settings-country-new-snippet-modal__tree-item-button sw-tree-item__label"
                         type="button"
+                        @mousedown.prevent
                         @click="addElement(item.data)"
                     >
                         {{ getName(item) }}

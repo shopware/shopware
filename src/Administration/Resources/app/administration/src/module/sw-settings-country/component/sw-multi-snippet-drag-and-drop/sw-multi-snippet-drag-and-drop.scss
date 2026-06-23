@@ -119,10 +119,6 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         box-shadow: 0 0 0 1px var(--color-border-brand-selected);
     }
 
-    &.is--row-drag-preview-source {
-        display: none;
-    }
-
     &.is--drag-previewing .sw-label.sw-label--dismissable:hover {
         color: var(--color-text-primary-default);
         border-color: var(--color-border-primary-default);

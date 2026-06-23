@@ -764,6 +764,12 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         );
 
         expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
+
+        await addressHandlingWrapper.vm.onDrop();
+
+        expect(addressHandlingWrapper.vm.draggedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.droppedItem).toBeNull();
+        expect(addressHandlingWrapper.vm.rowDragPreview).toBeNull();
     });
 
     it('should be able to save config when drag ends', async () => {
@@ -870,10 +876,36 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const rowsWhileDragging = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(rowsWhileDragging).toHaveLength(6);
-        expect(rowsWhileDragging[0].classes()).toContain('is--row-drag-preview-source');
-        expect(rowsWhileDragging[4].classes()).toContain('is--row-placeholder');
+        expect(rowsWhileDragging).toHaveLength(5);
+        expect(rowsWhileDragging[3].classes()).toContain('is--row-placeholder');
 
+        await addressHandlingWrapper.vm.onDragEnter(
+            {
+                index: 0,
+                snippet: wrapper.vm.country.addressFormat[0],
+            },
+            {
+                index: 1,
+                snippet: wrapper.vm.country.addressFormat[1],
+            },
+        );
+        await flushPromises();
+
+        const rowsAfterReversingDrag = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
+
+        expect(rowsAfterReversingDrag).toHaveLength(5);
+        expect(rowsAfterReversingDrag[0].classes()).toContain('is--row-placeholder');
+
+        await addressHandlingWrapper.vm.onDrop();
+        await flushPromises();
+
+        expect(wrapper.vm.country.addressFormat[0]).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/department',
+        ]);
+
+        await dragRow(0, 3);
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
 
@@ -900,7 +932,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(rowsAfterDrop).toHaveLength(5);
         rowsAfterDrop.forEach((row) => {
             expect(row.classes()).not.toContain('is--row-placeholder');
-            expect(row.classes()).not.toContain('is--row-drag-preview-source');
         });
 
         await dragRow(3, 0);
@@ -917,9 +948,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const rowsDuringThirdDrag = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(rowsDuringThirdDrag).toHaveLength(6);
-        expect(rowsDuringThirdDrag[0].classes()).toContain('is--row-drag-preview-source');
-        expect(rowsDuringThirdDrag[3].classes()).toContain('is--row-placeholder');
+        expect(rowsDuringThirdDrag).toHaveLength(5);
+        expect(rowsDuringThirdDrag[2].classes()).toContain('is--row-placeholder');
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

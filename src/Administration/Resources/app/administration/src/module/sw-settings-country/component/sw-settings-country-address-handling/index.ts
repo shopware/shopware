@@ -34,6 +34,13 @@ interface RowDragPreview {
     targetIndex: number;
 }
 
+interface AddressFormatRow {
+    index: number;
+    isPlaceholder: boolean;
+    key: string;
+    snippet: string[];
+}
+
 const DefaultAddressFormat = [
     [
         'address/company',
@@ -142,12 +149,36 @@ export default Component.wrapComponentConfig({
             return this.country.addressFormat as Array<string[]>;
         },
 
-        rowDragPreviewSnippet(): string[] {
+        addressFormatRows(): AddressFormatRow[] {
+            const rows = this.addressFormat.map((snippet, index) => {
+                return {
+                    index,
+                    isPlaceholder: false,
+                    key: this.getRowKey(snippet),
+                    snippet,
+                };
+            });
+
             if (!this.rowDragPreview) {
-                return [];
+                return rows;
             }
 
-            return this.addressFormat[this.rowDragPreview.dragIndex] ?? [];
+            const sourceIndex = rows.findIndex((row) => row.index === this.rowDragPreview?.dragIndex);
+            const sourceRow = rows[sourceIndex];
+
+            if (!sourceRow) {
+                return rows;
+            }
+
+            rows.splice(sourceIndex, 1);
+            rows.splice(this.getRowDropIndex(this.rowDragPreview.dragIndex, this.rowDragPreview.targetIndex), 0, {
+                index: this.rowDragPreview.targetIndex,
+                isPlaceholder: true,
+                key: `row-placeholder-${sourceRow.key}`,
+                snippet: sourceRow.snippet,
+            });
+
+            return rows;
         },
 
         hasDefaultPostalCodePattern(): boolean {
@@ -249,7 +280,7 @@ export default Component.wrapComponentConfig({
             this.droppedItem = dropData;
             this.rowDragPreview = {
                 dragIndex: dragData.index,
-                targetIndex: this.getRowTargetIndex(dragData.index, dropData.index),
+                targetIndex: this.getRowTargetIndex(dropData.index),
             };
         },
 
@@ -257,33 +288,37 @@ export default Component.wrapComponentConfig({
         onDrop(dragData: DragItem, dropData: DragItem): void {
             this.snippetDragPreview = null;
             this.snippetDragItem = null;
+            const draggedItem = this.draggedItem;
+            const droppedItem = this.droppedItem;
             const rowDragPreview = this.rowDragPreview;
+            this.draggedItem = null;
+            this.droppedItem = null;
             this.rowDragPreview = null;
 
-            if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
+            if (!this.addressFormat?.length || !droppedItem || !draggedItem) {
                 return;
             }
 
             if (
                 ![
-                    this.draggedItem?.index,
-                    this.droppedItem?.index,
+                    draggedItem.index,
+                    droppedItem.index,
                 ].every((position) => typeof position === 'number')
             ) {
                 return;
             }
 
-            const draggedSnippet = this.addressFormat[this.draggedItem.index];
+            const draggedSnippet = this.addressFormat[draggedItem.index];
 
             if (!draggedSnippet) {
                 return;
             }
 
             const newAddressFormat = this.swapPosition(
-                this.draggedItem.index,
+                draggedItem.index,
                 this.getRowDropIndex(
-                    this.draggedItem.index,
-                    rowDragPreview?.targetIndex ?? this.getRowTargetIndex(this.draggedItem.index, this.droppedItem.index),
+                    draggedItem.index,
+                    rowDragPreview?.targetIndex ?? this.getRowTargetIndex(droppedItem.index),
                 ),
                 [
                     draggedSnippet,
@@ -293,29 +328,16 @@ export default Component.wrapComponentConfig({
             if (newAddressFormat) {
                 this.updateCountry('addressFormat', newAddressFormat);
             }
-
-            this.draggedItem = null;
-            this.droppedItem = null;
         },
 
-        getRowTargetIndex(dragIndex: number, dropIndex: number): number {
-            return dropIndex < dragIndex ? dropIndex : dropIndex + 1;
+        getRowTargetIndex(dropIndex: number): number {
+            const currentTargetIndex = this.rowDragPreview?.targetIndex ?? this.draggedItem?.index ?? dropIndex;
+
+            return dropIndex < currentTargetIndex ? dropIndex : dropIndex + 1;
         },
 
         getRowDropIndex(dragIndex: number, targetIndex: number): number {
             return targetIndex > dragIndex ? targetIndex - 1 : targetIndex;
-        },
-
-        isRowDragPreviewSource(index: number): boolean {
-            return this.rowDragPreview?.dragIndex === index;
-        },
-
-        shouldShowRowPlaceholderBefore(index: number): boolean {
-            return this.rowDragPreview?.targetIndex === index;
-        },
-
-        shouldShowRowPlaceholderAfterLast(): boolean {
-            return this.rowDragPreview?.targetIndex === this.addressFormat.length;
         },
 
         getRowKey(snippet: string[]): string {
@@ -328,12 +350,6 @@ export default Component.wrapComponentConfig({
             }
 
             return key;
-        },
-
-        getRowRenderKey(snippet: string[], index: number): string {
-            const rowKey = this.getRowKey(snippet);
-
-            return this.shouldShowRowPlaceholderBefore(index) ? `row-placeholder-${rowKey}` : rowKey;
         },
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {

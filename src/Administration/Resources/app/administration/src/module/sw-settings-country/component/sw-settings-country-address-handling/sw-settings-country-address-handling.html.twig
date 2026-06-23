@@ -78,28 +78,28 @@
         <sw-container class="sw-settings-country-address-handling__options-container">
             <div class="sw-settings-country-address-handling__address-markup">
                 <template
-                    v-for="(snippet, index) in addressFormat"
-                    :key="getRowRenderKey(snippet, index)"
+                    v-for="row in addressFormatRows"
+                    :key="row.key"
                 >
                     <sw-multi-snippet-drag-and-drop
-                        v-if="shouldShowRowPlaceholderBefore(index)"
+                        v-if="row.isPlaceholder"
                         class="is--row-placeholder"
-                        :value="rowDragPreviewSnippet"
-                        :line-position="index"
+                        :value="row.snippet"
+                        :line-position="row.index"
                         :get-label-property="getLabelProperty"
                         :total-lines="addressFormat.length"
                         disabled
                     />
 
                     <sw-multi-snippet-drag-and-drop
-                        v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
-                        v-draggable="{ ...dragConf, data: { snippet, index }}"
+                        v-else
+                        v-droppable="{ data: { snippet: row.snippet, index: row.index }, dragGroup: 'sw-multi-snippet' }"
+                        v-draggable="{ ...dragConf, data: { snippet: row.snippet, index: row.index }}"
                         :class="{
                             'is--row-dragging': !!rowDragPreview,
-                            'is--row-drag-preview-source': isRowDragPreviewSource(index),
                         }"
-                        :value="snippet"
-                        :line-position="index"
+                        :value="row.snippet"
+                        :line-position="row.index"
                         :get-label-property="getLabelProperty"
                         :total-lines="addressFormat.length"
                         :external-drag-preview="snippetDragPreview"
@@ -113,17 +113,6 @@
                         @open-snippet-modal="openSnippetModal"
                     />
                 </template>
-
-                <sw-multi-snippet-drag-and-drop
-                    v-if="shouldShowRowPlaceholderAfterLast()"
-                    :key="`row-placeholder-last-${getRowKey(rowDragPreviewSnippet)}`"
-                    class="is--row-placeholder"
-                    :value="rowDragPreviewSnippet"
-                    :line-position="addressFormat.length"
-                    :get-label-property="getLabelProperty"
-                    :total-lines="addressFormat.length"
-                    disabled
-                />
             </div>
 
             <div class="sw-settings-country-address-handling__address-preview">

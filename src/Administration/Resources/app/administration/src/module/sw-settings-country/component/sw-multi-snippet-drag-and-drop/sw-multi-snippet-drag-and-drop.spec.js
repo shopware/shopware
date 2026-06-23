@@ -467,22 +467,11 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
     it('should emit event `drag-start` when starting drag', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
         await flushPromises();
-        const dragElement = document.createElement('span');
 
-        await wrapper.vm.onDragStart({
-            data: {
-                snippet: 'address/company',
-            },
-        }, document.createElement('span'), dragElement);
+        await wrapper.vm.onDragStart();
         await flushPromises();
 
         expect(wrapper.emitted()['drag-start']).toBeTruthy();
-        expect(dragElement.classList.contains('sw-multi-snippet-drag-and-drop__snippet-drag-clone')).toBe(true);
-        expect(dragElement.classList.contains('sw-label--dismissable')).toBe(false);
-        expect(dragElement.style.display).toBe('inline-flex');
-        expect(dragElement.style.width).toBe('max-content');
-        expect(dragElement.style.overflow).toBe('visible');
-        expect(dragElement.innerHTML).toBe('<span class="sw-label__caption">address/company</span>');
     });
 
     it('should emit event `drag-enter` when ending drag', async () => {

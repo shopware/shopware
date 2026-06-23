@@ -200,37 +200,8 @@ export default Component.wrapComponentConfig({
     methods: {
         onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
             this.isDragging = true;
-            this.renderSnippetDragClone(config, dragElement);
 
             this.$emit('drag-start', { config, element, dragElement });
-        },
-
-        renderSnippetDragClone(config: DragConfig<DragItem>, dragElement: HTMLElement): void {
-            const snippet = config.data?.snippet as unknown;
-
-            if (typeof snippet !== 'string') {
-                return;
-            }
-
-            const getLabelProperty = this.getLabelProperty as (value: string) => string;
-            const caption = document.createElement('span');
-
-            caption.className = 'sw-label__caption';
-            caption.textContent = getLabelProperty(snippet);
-
-            dragElement.replaceChildren(caption);
-            dragElement.classList.add(
-                'sw-label',
-                'sw-label--size-default',
-                'sw-multi-snippet-drag-and-drop__snippet-drag-clone',
-            );
-            dragElement.classList.remove('sw-label--dismissable');
-            dragElement.style.display = 'inline-flex';
-            dragElement.style.width = 'max-content';
-            dragElement.style.height = 'var(--scale-size-32)';
-            dragElement.style.overflow = 'visible';
-            dragElement.style.opacity = '1';
-            dragElement.style.visibility = 'visible';
         },
 
         onDragEnter(dragData: DragItem | null, dropData: DragItem | null) {

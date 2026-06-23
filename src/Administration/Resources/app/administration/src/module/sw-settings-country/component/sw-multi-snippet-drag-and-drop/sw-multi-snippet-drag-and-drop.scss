@@ -200,12 +200,3 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         box-shadow: 0 0 5px 1px var(--color-border-brand-selected);
     }
 }
-
-.sw-multi-snippet-drag-and-drop__snippet-drag-clone {
-    display: inline-flex;
-    align-items: center;
-    color: var(--color-text-primary-default);
-    border-color: var(--color-border-primary-default);
-    background: var(--color-background-secondary-default);
-    box-shadow: 0 0 5px 1px var(--color-border-brand-selected);
-}

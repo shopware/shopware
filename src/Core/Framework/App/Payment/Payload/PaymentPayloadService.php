@@ -50,15 +50,15 @@ class PaymentPayloadService
             ],
         );
 
+        $response = $this->client->request('POST', $url, $optionRequest->jsonSerialize());
+        $content = $response->getBody()->getContents();
+
         try {
-            $response = $this->client->request('POST', $url, $optionRequest->jsonSerialize());
-
-            $content = $response->getBody()->getContents();
             $decoded = Json::decodeToArray($content);
-
-            return $responseClass::create($decoded);
         } catch (JsonDecodingException $e) {
             throw AppException::paymentGatewayRequestFailed($app->getName(), $e);
         }
+
+        return $responseClass::create($decoded);
     }
 }

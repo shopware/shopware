@@ -2,14 +2,15 @@
 
 namespace Shopware\Storefront\Framework\Store\Subscriber;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Event\AppExtensionLoadedEvent;
-use Shopware\Core\Framework\Store\Event\PluginExtensionLoadedEvent;
+use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -41,33 +42,45 @@ class ExtensionThemeDetectionSubscriber implements EventSubscriberInterface, Res
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginExtensionLoadedEvent::class => 'detectPluginTheme',
-            AppExtensionLoadedEvent::class => 'detectAppTheme',
+            ExtensionLoadedEvent::class => 'detectTheme',
         ];
     }
 
-    public function detectPluginTheme(PluginExtensionLoadedEvent $event): void
+    public function detectTheme(ExtensionLoadedEvent $event): void
     {
-        $baseClass = $event->plugin->getBaseClass();
-        if (!class_exists($baseClass)) {
+        $source = $event->source;
+
+        if ($source instanceof PluginEntity) {
+            if ($this->isPluginTheme($source)) {
+                $event->extension->setIsTheme(true);
+            }
+
             return;
         }
 
-        $implementedInterfaces = class_implements($baseClass) ?: [];
-
-        if (\array_key_exists(ThemeInterface::class, $implementedInterfaces)) {
-            $event->isTheme = true;
+        if ($this->isAppTheme($source, $event->context)) {
+            $event->extension->setIsTheme(true);
         }
-    }
-
-    public function detectAppTheme(AppExtensionLoadedEvent $event): void
-    {
-        $event->isTheme = \in_array($event->app->getName(), $this->getInstalledThemeNames($event->context), true);
     }
 
     public function reset(): void
     {
         $this->installedThemeNames = null;
+    }
+
+    private function isPluginTheme(PluginEntity $plugin): bool
+    {
+        $baseClass = $plugin->getBaseClass();
+        if (!class_exists($baseClass)) {
+            return false;
+        }
+
+        return \array_key_exists(ThemeInterface::class, class_implements($baseClass) ?: []);
+    }
+
+    private function isAppTheme(AppEntity $app, Context $context): bool
+    {
+        return \in_array($app->getName(), $this->getInstalledThemeNames($context), true);
     }
 
     /**

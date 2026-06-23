@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Store\Event\AppExtensionLoadedEvent;
-use Shopware\Core\Framework\Store\Event\PluginExtensionLoadedEvent;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
+use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
@@ -27,45 +27,44 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
 #[CoversClass(ExtensionThemeDetectionSubscriber::class)]
 class ExtensionThemeDetectionSubscriberTest extends TestCase
 {
-    #[TestDox('Subscribes to both plugin- and app-loaded events')]
+    #[TestDox('Subscribes to the single extension-loaded event')]
     public function testGetSubscribedEvents(): void
     {
         static::assertSame(
             [
-                PluginExtensionLoadedEvent::class => 'detectPluginTheme',
-                AppExtensionLoadedEvent::class => 'detectAppTheme',
+                ExtensionLoadedEvent::class => 'detectTheme',
             ],
             ExtensionThemeDetectionSubscriber::getSubscribedEvents(),
         );
     }
 
-    #[TestDox('Plugin theme detection marks event when base class implements ThemeInterface')]
-    public function testDetectPluginThemeFlipsIsThemeForThemePlugin(): void
+    #[TestDox('A plugin whose base class implements ThemeInterface is flagged as theme')]
+    public function testDetectThemeFlagsThemePlugin(): void
     {
         $subscriber = new ExtensionThemeDetectionSubscriber(static::createStub(EntityRepository::class));
 
         $plugin = new PluginEntity();
         $plugin->assign(['baseClass' => MockStorefront::class]);
 
-        $event = new PluginExtensionLoadedEvent($plugin, Context::createDefaultContext());
-        $subscriber->detectPluginTheme($event);
+        $extension = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($plugin, $extension, Context::createDefaultContext()));
 
-        static::assertTrue($event->isTheme);
+        static::assertTrue($extension->isTheme());
     }
 
-    #[TestDox('Plugin theme detection leaves isTheme false: $_dataName')]
+    #[TestDox('A plugin leaves isTheme false: $_dataName')]
     #[DataProvider('nonThemePluginBaseClassProvider')]
-    public function testDetectPluginThemeLeavesNonThemeUntouched(string $baseClass): void
+    public function testDetectThemeLeavesNonThemePluginUntouched(string $baseClass): void
     {
         $subscriber = new ExtensionThemeDetectionSubscriber(static::createStub(EntityRepository::class));
 
         $plugin = new PluginEntity();
         $plugin->assign(['baseClass' => $baseClass]);
 
-        $event = new PluginExtensionLoadedEvent($plugin, Context::createDefaultContext());
-        $subscriber->detectPluginTheme($event);
+        $extension = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($plugin, $extension, Context::createDefaultContext()));
 
-        static::assertFalse($event->isTheme);
+        static::assertFalse($extension->isTheme());
     }
 
     /**
@@ -77,30 +76,30 @@ class ExtensionThemeDetectionSubscriberTest extends TestCase
         yield 'existing class that does not implement ThemeInterface' => [\stdClass::class];
     }
 
-    #[TestDox('App theme detection marks event when app name is among installed themes')]
-    public function testDetectAppThemeFlipsIsThemeForInstalledTheme(): void
+    #[TestDox('An app whose name is among the installed themes is flagged as theme')]
+    public function testDetectThemeFlagsInstalledThemeApp(): void
     {
         $subscriber = new ExtensionThemeDetectionSubscriber(
             $this->buildThemeRepositoryReturning(['MyTheme', 'OtherTheme'])
         );
 
-        $event = new AppExtensionLoadedEvent($this->buildApp('MyTheme'), Context::createDefaultContext());
-        $subscriber->detectAppTheme($event);
+        $extension = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('MyTheme'), $extension, Context::createDefaultContext()));
 
-        static::assertTrue($event->isTheme);
+        static::assertTrue($extension->isTheme());
     }
 
-    #[TestDox('App theme detection leaves isTheme false when app name is not among installed themes')]
-    public function testDetectAppThemeLeavesNonThemeUntouched(): void
+    #[TestDox('An app leaves isTheme false when its name is not among the installed themes')]
+    public function testDetectThemeLeavesNonThemeAppUntouched(): void
     {
         $subscriber = new ExtensionThemeDetectionSubscriber(
             $this->buildThemeRepositoryReturning(['SomeOtherTheme'])
         );
 
-        $event = new AppExtensionLoadedEvent($this->buildApp('NotATheme'), Context::createDefaultContext());
-        $subscriber->detectAppTheme($event);
+        $extension = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('NotATheme'), $extension, Context::createDefaultContext()));
 
-        static::assertFalse($event->isTheme);
+        static::assertFalse($extension->isTheme());
     }
 
     #[TestDox('Installed theme names are cached across calls and re-fetched after reset()')]
@@ -116,20 +115,20 @@ class ExtensionThemeDetectionSubscriberTest extends TestCase
         $subscriber = new ExtensionThemeDetectionSubscriber($repository);
         $context = Context::createDefaultContext();
 
-        $first = new AppExtensionLoadedEvent($this->buildApp('MyTheme'), $context);
-        $second = new AppExtensionLoadedEvent($this->buildApp('MyTheme'), $context);
-        $subscriber->detectAppTheme($first);
-        $subscriber->detectAppTheme($second);
+        $first = new ExtensionStruct();
+        $second = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('MyTheme'), $first, $context));
+        $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('MyTheme'), $second, $context));
 
-        static::assertTrue($first->isTheme);
-        static::assertTrue($second->isTheme);
+        static::assertTrue($first->isTheme());
+        static::assertTrue($second->isTheme());
 
         $subscriber->reset();
 
-        $third = new AppExtensionLoadedEvent($this->buildApp('MyTheme'), $context);
-        $subscriber->detectAppTheme($third);
+        $third = new ExtensionStruct();
+        $subscriber->detectTheme(new ExtensionLoadedEvent($this->buildApp('MyTheme'), $third, $context));
 
-        static::assertTrue($third->isTheme);
+        static::assertTrue($third->isTheme());
     }
 
     /**

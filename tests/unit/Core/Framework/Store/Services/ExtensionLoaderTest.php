@@ -15,8 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
-use Shopware\Core\Framework\Store\Event\AppExtensionLoadedEvent;
-use Shopware\Core\Framework\Store\Event\PluginExtensionLoadedEvent;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\Services\ExtensionLoader;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
@@ -109,7 +108,7 @@ class ExtensionLoaderTest extends TestCase
         }
     }
 
-    #[TestDox('loadFromPluginCollection dispatches PluginExtensionLoadedEvent carrying the plugin and context')]
+    #[TestDox('loadFromPluginCollection dispatches ExtensionLoadedEvent carrying the plugin source, struct and context')]
     public function testLoadFromPluginDispatchesEventWithPluginAndContext(): void
     {
         $captured = null;
@@ -117,8 +116,8 @@ class ExtensionLoaderTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            PluginExtensionLoadedEvent::class,
-            static function (PluginExtensionLoadedEvent $event) use (&$captured): void {
+            ExtensionLoadedEvent::class,
+            static function (ExtensionLoadedEvent $event) use (&$captured): void {
                 $captured = $event;
             }
         );
@@ -128,18 +127,20 @@ class ExtensionLoaderTest extends TestCase
             new PluginCollection([$this->createPlugin('SomePlugin')])
         );
 
-        static::assertInstanceOf(PluginExtensionLoadedEvent::class, $captured);
-        static::assertSame('SomePlugin', $captured->plugin->getName());
+        static::assertInstanceOf(ExtensionLoadedEvent::class, $captured);
+        static::assertInstanceOf(PluginEntity::class, $captured->source);
+        static::assertSame('SomePlugin', $captured->source->getName());
+        static::assertSame('SomePlugin', $captured->extension->getName());
         static::assertSame($context, $captured->context);
     }
 
-    #[TestDox('A plugin is flagged as theme when a PluginExtensionLoadedEvent listener sets it')]
+    #[TestDox('A plugin is flagged as theme when an ExtensionLoadedEvent listener sets it on the struct')]
     public function testLoadFromPluginMarksThemeWhenListenerFlagsIt(): void
     {
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            PluginExtensionLoadedEvent::class,
-            static fn (PluginExtensionLoadedEvent $event) => $event->isTheme = true
+            ExtensionLoadedEvent::class,
+            static fn (ExtensionLoadedEvent $event) => $event->extension->setIsTheme(true)
         );
 
         $extensions = $this->createLoader($dispatcher)->loadFromPluginCollection(
@@ -165,13 +166,13 @@ class ExtensionLoaderTest extends TestCase
         static::assertFalse($extension->isTheme());
     }
 
-    #[TestDox('An app is flagged as theme when an AppExtensionLoadedEvent listener sets it')]
+    #[TestDox('An app is flagged as theme when an ExtensionLoadedEvent listener sets it on the struct')]
     public function testLoadFromAppMarksThemeWhenListenerFlagsIt(): void
     {
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            AppExtensionLoadedEvent::class,
-            static fn (AppExtensionLoadedEvent $event) => $event->isTheme = true
+            ExtensionLoadedEvent::class,
+            static fn (ExtensionLoadedEvent $event) => $event->extension->setIsTheme(true)
         );
 
         $extensions = $this->createLoader($dispatcher)->loadFromAppCollection(
@@ -182,6 +183,32 @@ class ExtensionLoaderTest extends TestCase
         $extension = $extensions->get('ThemeApp');
         static::assertNotNull($extension);
         static::assertTrue($extension->isTheme());
+    }
+
+    #[TestDox('The app event exposes the app source and its struct')]
+    public function testLoadFromAppDispatchesEventWithAppAndContext(): void
+    {
+        $captured = null;
+        $context = Context::createDefaultContext();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ExtensionLoadedEvent::class,
+            static function (ExtensionLoadedEvent $event) use (&$captured): void {
+                $captured = $event;
+            }
+        );
+
+        $this->createLoader($dispatcher)->loadFromAppCollection(
+            $context,
+            new AppCollection([$this->createApp('SomeApp')])
+        );
+
+        static::assertInstanceOf(ExtensionLoadedEvent::class, $captured);
+        static::assertInstanceOf(AppEntity::class, $captured->source);
+        static::assertSame('SomeApp', $captured->source->getName());
+        static::assertSame('SomeApp', $captured->extension->getName());
+        static::assertSame($context, $captured->context);
     }
 
     #[TestDox('An app is not a theme when no listener flags the event')]

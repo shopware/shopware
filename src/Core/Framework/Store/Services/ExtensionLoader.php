@@ -14,8 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
-use Shopware\Core\Framework\Store\Event\AppExtensionLoadedEvent;
-use Shopware\Core\Framework\Store\Event\PluginExtensionLoadedEvent;
+use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
@@ -93,6 +92,13 @@ class ExtensionLoader
 
         $registeredApps = $this->loadFromListingArray($context, $data);
 
+        foreach ($collection as $app) {
+            $extension = $registeredApps->get($app->getName());
+            if ($extension !== null) {
+                $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($app, $extension, $context));
+            }
+        }
+
         // Enrich apps from filesystem
         $localApps = $this->loadLocalAppsCollection($context);
 
@@ -166,8 +172,6 @@ class ExtensionLoader
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
     {
-        $event = $this->eventDispatcher->dispatch(new PluginExtensionLoadedEvent($plugin, $context));
-
         $data = [
             'localId' => $plugin->getId(),
             'description' => $plugin->getTranslation('description'),
@@ -181,7 +185,7 @@ class ExtensionLoader
             'installedAt' => $plugin->getInstalledAt(),
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
-            'isTheme' => $event->isTheme,
+            'isTheme' => false,
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
@@ -190,7 +194,11 @@ class ExtensionLoader
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
-        return ExtensionStruct::fromArray($this->replaceCollections($data));
+        $extension = ExtensionStruct::fromArray($this->replaceCollections($data));
+
+        $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($plugin, $extension, $context));
+
+        return $extension;
     }
 
     private function loadLocalAppsCollection(Context $context): ExtensionCollection
@@ -253,8 +261,6 @@ class ExtensionLoader
      */
     private function prepareAppData(Context $context, AppEntity $app): array
     {
-        $event = $this->eventDispatcher->dispatch(new AppExtensionLoadedEvent($app, $context));
-
         $data = [
             'localId' => $app->getId(),
             'description' => $app->getTranslation('description'),
@@ -271,7 +277,7 @@ class ExtensionLoader
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
-            'isTheme' => $event->isTheme,
+            'isTheme' => false,
             'configurable' => $app->isConfigurable(),
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),

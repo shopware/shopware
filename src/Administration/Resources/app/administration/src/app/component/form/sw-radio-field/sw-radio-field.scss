@@ -17,7 +17,7 @@
         }
 
         label {
-            font-weight: normal;
+            font-weight: var(--font-weight-regular);
             font-size: var(--font-size-xs);
             color: var(--color-text-primary-default);
 
@@ -35,6 +35,10 @@
         &.is--disabled:hover > * {
             cursor: not-allowed;
         }
+    }
+
+    .sw-field__radio-option:has(.sw-field__radio-option-description) label {
+        padding-left: var(--scale-size-8);
     }
 
     &.sw-field--radio-bordered .sw-field__radio-group {
@@ -117,26 +121,25 @@
     }
 
     .sw-field__radio-option-label {
-        display: flex;
-        align-items: center;
-
         &.error--selection {
             color: var(--color-text-critical-default);
         }
     }
 
-    .sw-field__radio-option-description {
-        margin-top: var(--scale-size-8);
-        color: var(--color-text-secondary-default);
+    .sw-field__radio-option-description,
+    .sw-field__radio-description {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
+    }
+
+    .sw-field__radio-option-description {
+        display: block;
+        color: var(--color-text-secondary-default);
         font-weight: var(--font-weight-regular);
     }
 
     .sw-field__radio-description {
         color: var(--color-text-primary-default);
-        font-size: var(--font-size-xs);
-        line-height: var(--font-line-height-xs);
         padding-top: var(--scale-size-8);
     }
 
@@ -160,14 +163,11 @@
         }
 
         .sw-field__radio-option label {
-            font-size: var(--font-size-xs);
-            font-weight: var(--font-weight-medium);
             line-height: var(--font-line-height-xs);
-            padding-left: var(--scale-size-12);
         }
 
-        .sw-field__radio-input {
-            margin-top: var(--scale-size-4);
+        .sw-field__radio-option:has(.sw-field__radio-option-description) label {
+            font-weight: var(--font-weight-medium);
         }
 
         .sw-field__radio-option.sw-field__radio-option-checked:not(.is--disabled) {

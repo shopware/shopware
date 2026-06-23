@@ -105,7 +105,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should keep minHeight value when changing display mode', async () => {
+    it('should clear the minHeight value when changing display mode away from cover', async () => {
         const wrapper = await createWrapper();
 
         await selectMtSelectOptionByText(
@@ -114,6 +114,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
+        // minHeight is only relevant in cover mode and stays untouched while in cover
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
         await selectMtSelectOptionByText(
@@ -122,8 +123,8 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
-        // Should still have the previous value
-        expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+        // Leaving cover mode clears the value so no min-height is persisted/sent through the API
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
     });
 
     it('should append px to a unitless min height value', async () => {

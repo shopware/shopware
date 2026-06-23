@@ -132,6 +132,12 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
+### Image CMS element no longer emits a default `min-height` outside cover mode
+
+The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
+
+For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
+
 ## Core
 
 ### Dynamic product groups can keep matching variants ungrouped

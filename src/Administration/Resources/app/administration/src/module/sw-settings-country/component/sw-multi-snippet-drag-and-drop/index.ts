@@ -313,6 +313,10 @@ export default Component.wrapComponentConfig({
         },
 
         openModal() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('open-snippet-modal', this.linePosition);
         },
     },

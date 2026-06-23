@@ -112,13 +112,17 @@
                 <li
                     v-droppable="{ ...mergedDropConfig, data: { index: value.length, linePosition, targetIndex: value.length }}"
                     class="sw-select-selection-list__input-wrapper"
+                    @click="openModal"
                 >
                     <slot name="input">
                         <input
                             class="sw-select-selection-list__input"
                             type="text"
+                            readonly
                             :aria-label="$t('sw-settings-country.detail.placeholderSearchSnippet')"
                             :disabled="disabled"
+                            @keydown.enter.prevent="openModal"
+                            @keydown.space.prevent="openModal"
                         >
                     </slot>
                 </li>

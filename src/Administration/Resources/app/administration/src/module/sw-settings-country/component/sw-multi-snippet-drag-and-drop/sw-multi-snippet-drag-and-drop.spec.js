@@ -173,10 +173,21 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await flushPromises();
 
         const inputWrapper = wrapper.find('.sw-select-selection-list__input-wrapper');
+        const input = inputWrapper.find('.sw-select-selection-list__input');
 
-        expect(inputWrapper.find('.sw-select-selection-list__input').exists()).toBe(true);
+        expect(input.exists()).toBe(true);
+        expect(input.attributes('readonly')).toBeDefined();
         expect(inputWrapper.attributes('data-drop-target-index')).toBe('3');
         expect(wrapper.classes()).toContain('is--dragging-snippet');
+    });
+
+    it('should emit `open-snippet-modal` when clicking the selection input row', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-select-selection-list__input-wrapper').trigger('click');
+
+        expect(wrapper.emitted('open-snippet-modal')).toEqual([[0]]);
     });
 
     it('should render a snippet placeholder for an empty row', async () => {

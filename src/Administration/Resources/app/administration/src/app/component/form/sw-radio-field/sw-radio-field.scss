@@ -13,6 +13,7 @@
 
         &.is--disabled {
             background-color: var(--color-background-tertiary-default);
+            border-radius: var(--border-radius-round);
         }
 
         label {

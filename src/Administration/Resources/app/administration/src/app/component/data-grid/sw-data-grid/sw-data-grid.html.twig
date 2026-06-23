@@ -115,6 +115,7 @@
                                     v-if="column.iconLabel && column.iconTooltip"
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
+                                    :size="column.iconSize"
                                 >
                                     {{ getColumnLabel(column) }}
                                 </mt-icon>
@@ -122,6 +123,7 @@
                                 <mt-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
+                                    :size="column.iconSize"
                                 >
                                     {{ getColumnLabel(column) }}
                                 </mt-icon>

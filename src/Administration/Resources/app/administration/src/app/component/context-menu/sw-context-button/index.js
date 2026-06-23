@@ -151,10 +151,14 @@ export default {
     },
 
     beforeUnmount() {
-        this.removeClickEventListeners();
+        this.beforeUnmountComponent();
     },
 
     methods: {
+        beforeUnmountComponent() {
+            this.removeClickEventListeners();
+        },
+
         onClickButton() {
             if (this.disabled) {
                 return;

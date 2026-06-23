@@ -82,18 +82,27 @@ export type TestRouter = {
     push: jest.Mock;
 };
 
-export type TestUserConfigEntity = {
+export type TestUserConfigEntityInput = {
     id?: string;
     key?: string;
     userId?: string;
     value?: unknown;
+    _isNew?: boolean;
 };
+
+export type TestUserConfigEntity = TestUserConfigEntityInput & {
+    _isNew: boolean;
+    isNew: () => boolean;
+};
+
+export type TestUserConfigSaveOperation = 'create' | 'update';
 
 export type TestUserConfigRepository = {
     search: jest.Mock<Promise<TestUserConfigEntity[]>, [CriteriaType, ApiContext]>;
     save: jest.Mock<Promise<void>, [TestUserConfigEntity, ApiContext]>;
     create: jest.Mock<TestUserConfigEntity, [ApiContext]>;
     getStoredEntity: () => TestUserConfigEntity | null;
+    getSaveOperations: () => TestUserConfigSaveOperation[];
 };
 
 export const columns: TestColumn[] = [
@@ -131,6 +140,12 @@ export const records: TestRecord[] = [
         id: 'record-2',
         name: 'Second record',
     },
+];
+
+export const allUserConfigPrivileges = [
+    'user_config:read',
+    'user_config:create',
+    'user_config:update',
 ];
 
 export function createSearchResult(
@@ -174,29 +189,47 @@ export function createRepositoryMockWithSearch(search: TestSearchMock): TestRepo
     } as unknown as TestRepository;
 }
 
-export function createUserConfigRepositoryMock(initialEntity: TestUserConfigEntity | null = null): TestUserConfigRepository {
-    let storedEntity = initialEntity;
+function createUserConfigEntityMock(entity: TestUserConfigEntityInput = {}, isNew = false): TestUserConfigEntity {
+    const userConfigEntity = {
+        id: isNew ? 'created-user-config-id' : 'user-config-id',
+        _isNew: isNew,
+        ...entity,
+    } as TestUserConfigEntity;
+
+    userConfigEntity.isNew = () => userConfigEntity._isNew;
+
+    return userConfigEntity;
+}
+
+export function createUserConfigRepositoryMock(
+    initialEntity: TestUserConfigEntityInput | null = null,
+): TestUserConfigRepository {
+    let storedEntity = initialEntity ? createUserConfigEntityMock(initialEntity, initialEntity._isNew ?? false) : null;
+    const saveOperations: TestUserConfigSaveOperation[] = [];
     const search = jest.fn<Promise<TestUserConfigEntity[]>, [CriteriaType, ApiContext]>(() =>
         Promise.resolve(storedEntity ? [storedEntity] : []),
     );
     const save = jest.fn<Promise<void>, [TestUserConfigEntity, ApiContext]>((entity) => {
+        saveOperations.push(entity.isNew() ? 'create' : 'update');
         storedEntity = entity;
 
         return Promise.resolve();
     });
-    const create = jest.fn<TestUserConfigEntity, [ApiContext]>(() => ({
-        id: 'created-user-config-id',
-    }));
+    const create = jest.fn<TestUserConfigEntity, [ApiContext]>(() => createUserConfigEntityMock({}, true));
 
     return {
         search,
         save,
         create,
         getStoredEntity: () => storedEntity,
+        getSaveOperations: () => saveOperations,
     };
 }
 
-export function mockUserConfigRepository(userConfigRepository: TestUserConfigRepository): void {
+export function mockUserConfigRepository(
+    userConfigRepository: TestUserConfigRepository,
+    allowedPrivileges = allUserConfigPrivileges,
+): void {
     const aclService = Shopware.Service('acl') as {
         can: (privilege: string) => boolean;
     };
@@ -204,7 +237,7 @@ export function mockUserConfigRepository(userConfigRepository: TestUserConfigRep
         create: (entityName: keyof EntitySchema.Entities) => Repository<keyof EntitySchema.Entities>;
     };
 
-    jest.spyOn(aclService, 'can').mockReturnValue(true);
+    jest.spyOn(aclService, 'can').mockImplementation((privilege) => allowedPrivileges.includes(privilege));
     jest.spyOn(repositoryFactory, 'create').mockImplementation((entityName) => {
         if (entityName === 'user_config') {
             return userConfigRepository as unknown as Repository<keyof EntitySchema.Entities>;
@@ -214,17 +247,13 @@ export function mockUserConfigRepository(userConfigRepository: TestUserConfigRep
     });
 }
 
-export function setCurrentUserWithUserConfigPrivileges(): void {
+export function setCurrentUserWithUserConfigPrivileges(privileges = allUserConfigPrivileges): void {
     Shopware.Store.get('session').setCurrentUser({
         id: 'current-user-id',
         admin: true,
         aclRoles: [
             {
-                privileges: [
-                    'user_config:read',
-                    'user_config:create',
-                    'user_config:update',
-                ],
+                privileges,
             },
         ],
     } as EntitySchema.user);

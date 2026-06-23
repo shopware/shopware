@@ -190,4 +190,101 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/user-settings', (
         );
         expect(userConfigRepository.save).not.toHaveBeenCalled();
     });
+
+    it('saves a changed existing table setting with update-only permission', async () => {
+        const privileges = [
+            'user_config:read',
+            'user_config:update',
+        ];
+        setCurrentUserWithUserConfigPrivileges(privileges);
+
+        const userConfigRepository = createUserConfigRepositoryMock({
+            id: 'user-config-id',
+            key: 'grid.setting.sw-manufacturer-list',
+            userId: 'current-user-id',
+            value: {
+                columns: [],
+                showOutlines: true,
+            },
+        });
+        mockUserConfigRepository(userConfigRepository, privileges);
+
+        const wrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        await nextTick();
+        userConfigRepository.save.mockClear();
+
+        await wrapper.find('.mt-data-table-stub__show-outlines').trigger('click');
+        await flushPromises();
+
+        expect(userConfigRepository.create).not.toHaveBeenCalled();
+        expect(userConfigRepository.save).toHaveBeenCalledTimes(1);
+        expect(userConfigRepository.getSaveOperations()).toEqual(['update']);
+    });
+
+    it('saves a first table setting with create-only permission', async () => {
+        const privileges = ['user_config:create'];
+        setCurrentUserWithUserConfigPrivileges(privileges);
+
+        const userConfigRepository = createUserConfigRepositoryMock();
+        mockUserConfigRepository(userConfigRepository, privileges);
+
+        const wrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__show-outlines').trigger('click');
+        await flushPromises();
+
+        expect(userConfigRepository.create).toHaveBeenCalledTimes(1);
+        expect(userConfigRepository.save).toHaveBeenCalledTimes(1);
+        expect(userConfigRepository.getSaveOperations()).toEqual(['create']);
+        expect(userConfigRepository.getStoredEntity()).toEqual(
+            expect.objectContaining({
+                key: 'grid.setting.sw-manufacturer-list',
+                userId: 'current-user-id',
+            }),
+        );
+    });
+
+    it('does not create the same table setting twice after a successful first save', async () => {
+        const privileges = [
+            'user_config:create',
+            'user_config:update',
+        ];
+        setCurrentUserWithUserConfigPrivileges(privileges);
+
+        const userConfigRepository = createUserConfigRepositoryMock();
+        mockUserConfigRepository(userConfigRepository, privileges);
+
+        const wrapper = createWrapper({
+            props: {
+                identifier: 'sw-manufacturer-list',
+                columns: persistedSettingsColumns,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__show-outlines').trigger('click');
+        await flushPromises();
+        await wrapper.find('.mt-data-table-stub__row-numbering').trigger('click');
+        await flushPromises();
+
+        expect(userConfigRepository.create).toHaveBeenCalledTimes(1);
+        expect(userConfigRepository.save).toHaveBeenCalledTimes(2);
+        expect(userConfigRepository.getSaveOperations()).toEqual([
+            'create',
+            'update',
+        ]);
+    });
 });

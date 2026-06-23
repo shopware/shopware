@@ -94,6 +94,21 @@ export function useMeteorTableUserSettings(options: UseMeteorTableUserSettingsOp
         return getAclService().can(permission);
     }
 
+    function isNewUserTableSetting(userTableSetting: SwMeteorEntityDataTableUserConfigEntity | null): boolean {
+        return !userTableSetting || userTableSetting.isNew();
+    }
+
+    function hasUserTableSettingsWritePermission(userTableSetting: SwMeteorEntityDataTableUserConfigEntity | null): boolean {
+        return hasUserConfigPermission(
+            isNewUserTableSetting(userTableSetting) ? 'user_config:create' : 'user_config:update',
+        );
+    }
+
+    function markUserTableSettingAsPersisted(userTableSetting: SwMeteorEntityDataTableUserConfigEntity): void {
+        // The SDK exposes markAsNew(), but no public inverse. Repository save routing reads this flag.
+        userTableSetting._isNew = false;
+    }
+
     async function loadUserTableSettings(): Promise<void> {
         const key = getUserTableSettingsKey();
 
@@ -119,13 +134,15 @@ export function useMeteorTableUserSettings(options: UseMeteorTableUserSettingsOp
 
     async function saveUserTableSettings(): Promise<void> {
         const key = getUserTableSettingsKey();
+        const currentSetting = currentUserTableSetting.value;
 
-        if (!key || !hasUserConfigPermission('user_config:create') || !hasUserConfigPermission('user_config:update')) {
+        if (!key || !hasUserTableSettingsWritePermission(currentSetting)) {
             return;
         }
 
         const userConfigRepository = getUserConfigRepository();
-        const userTableSetting = currentUserTableSetting.value ?? userConfigRepository.create(Shopware.Context.api);
+        const userTableSetting = currentSetting ?? userConfigRepository.create(Shopware.Context.api);
+        const wasNewUserTableSetting = isNewUserTableSetting(userTableSetting);
 
         Object.assign(userTableSetting, {
             key,
@@ -136,6 +153,22 @@ export function useMeteorTableUserSettings(options: UseMeteorTableUserSettingsOp
         currentUserTableSetting.value = userTableSetting;
 
         await userConfigRepository.save(userTableSetting, Shopware.Context.api);
+
+        if (!wasNewUserTableSetting) {
+            return;
+        }
+
+        markUserTableSettingAsPersisted(userTableSetting);
+
+        if (!hasUserConfigPermission('user_config:read')) {
+            return;
+        }
+
+        await loadUserTableSettings();
+
+        if (!currentUserTableSetting.value) {
+            currentUserTableSetting.value = userTableSetting;
+        }
     }
 
     function saveUserTableSettingsSilently(): void {

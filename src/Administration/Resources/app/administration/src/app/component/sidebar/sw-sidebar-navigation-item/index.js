@@ -1,4 +1,3 @@
-import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 import template from './sw-sidebar-navigation-item.html.twig';
 import './sw-sidebar-navigation-item.scss';
 
@@ -9,10 +8,6 @@ import './sw-sidebar-navigation-item.scss';
  */
 export default {
     template,
-
-    components: {
-        MtTooltip,
-    },
 
     emits: ['item-click'],
 

@@ -36,7 +36,7 @@ export default {
             total: 0,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            filterSidebarIsOpen: false,
+            filterSidebarItem: null,
             languageFilters: [],
             languageFilterValue: [],
             salesChannelFilters: [],
@@ -220,21 +220,16 @@ export default {
             await this.getList();
         },
 
-        closeContent() {
-            if (this.filterSidebarIsOpen) {
-                this.$refs.filterSideBar.closeContent();
-                this.filterSidebarIsOpen = false;
-
-                return;
-            }
-
-            this.$refs.filterSideBar.openContent();
-            this.filterSidebarIsOpen = true;
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
         },
 
         openFilterSidebar() {
-            this.$refs.filterSideBar.openContent();
-            this.filterSidebarIsOpen = true;
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
         },
 
         getColumns() {

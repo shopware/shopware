@@ -190,7 +190,7 @@
 
     {% block sw_newsletter_recipient_list_sidebar %}
     <template #sidebar>
-        <sw-sidebar>
+        <sw-sidebar @item-register="registerFilterSidebarItem">
             {% block sw_newsletter_recipient_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
@@ -201,12 +201,9 @@
 
             {% block sw_newsletter_recipient_list_sidebar_filter %}
             <sw-sidebar-item
-                ref="filterSideBar"
                 icon="regular-filter"
                 :title="$t('sw-newsletter-recipient.list.titleSidebarItemFilter')"
                 :tooltip-shortcut="['O', 'F']"
-                @close-content="closeContent"
-                @click="closeContent"
             >
                 {% block sw_newsletter_recipient_list_sidebar_filter_status %}
                 <sw-sidebar-collapse>

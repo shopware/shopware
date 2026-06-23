@@ -3,11 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
-let openContentMock;
+const deviceMock = {
+    onResize: jest.fn(),
+    removeResizeListener: jest.fn(),
+};
 
-async function createWrapper(privileges = []) {
-    openContentMock = jest.fn();
-
+async function createWrapper(privileges = [], customStubs = {}) {
     return mount(
         await wrapTestComponent('sw-settings-language-list', {
             sync: true,
@@ -16,6 +17,7 @@ async function createWrapper(privileges = []) {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
+                    $device: deviceMock,
                     $route: {
                         params: {
                             sortBy: 'sortBy',
@@ -63,6 +65,9 @@ async function createWrapper(privileges = []) {
                             return term && term.trim().length >= 1;
                         },
                     },
+
+                    setSwPageSidebarOffset: () => {},
+                    removeSwPageSidebarOffset: () => {},
                 },
                 stubs: {
                     'sw-page': {
@@ -83,18 +88,10 @@ async function createWrapper(privileges = []) {
 
                     'sw-search-bar': true,
                     'sw-language-switch': true,
-                    'sw-sidebar': {
-                        emits: ['item-register'],
-                        template: '<div><slot></slot></div>',
-                        mounted() {
-                            this.$emit('item-register', {
-                                openContent: openContentMock,
-                            });
-                        },
-                    },
-                    'sw-sidebar-item': {
-                        template: '<div><slot></slot></div>',
-                    },
+                    'sw-sidebar': await wrapTestComponent('sw-sidebar', { sync: true }),
+                    'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
+                    'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
+                    'mt-tooltip': true,
                     'sw-collapse': true,
                     'sw-context-menu-item': true,
                     'sw-entity-listing': {
@@ -127,6 +124,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-card': true,
                     'sw-label': true,
+                    ...customStubs,
                 },
             },
         },
@@ -140,12 +138,16 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
     });
 
-    it('should open the filter sidebar', async () => {
+    it('should open the filter sidebar via the open-filters shortcut', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).not.toContain('is--opened');
 
         wrapper.vm.openFilterSidebar();
+        await flushPromises();
 
-        expect(openContentMock).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-sidebar').classes()).toContain('is--opened');
     });
 
     it('should be able to create a new language', async () => {

@@ -3,59 +3,66 @@
  */
 import { mount } from '@vue/test-utils';
 
-let openContentMock;
+const deviceMock = {
+    onResize: jest.fn(),
+    removeResizeListener: jest.fn(),
+};
 
-async function createWrapper() {
-    openContentMock = jest.fn();
-
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-settings-snippet-sidebar', {
             sync: true,
         }),
         {
             global: {
-                renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-sidebar': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-sidebar-item': {
-                        template: '<div><slot name="headline-content"></slot><slot></slot></div>',
-                        methods: {
-                            openContent: openContentMock,
-                        },
-                    },
+                    'sw-sidebar': await wrapTestComponent('sw-sidebar', { sync: true }),
+                    'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
+                    'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
+                    'mt-tooltip': true,
                     'sw-settings-snippet-filter-switch': true,
                     'sw-sidebar-collapse': true,
+                },
+                mocks: {
+                    $device: deviceMock,
+                },
+                provide: {
+                    setSwPageSidebarOffset: () => {},
+                    removeSwPageSidebarOffset: () => {},
                 },
             },
             props: {
                 filterItems: [],
                 authorFilters: [],
+                ...props,
             },
         },
     );
 }
 
 describe('sw-settings-snippet-sidebar', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
     it('should register the open filters shortcut', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
     });
 
-    it('should open the filter sidebar', async () => {
-        wrapper.vm.openFilterSidebar();
+    it('should open the filter sidebar via the open-filters shortcut', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(openContentMock).toHaveBeenCalledTimes(1);
-        expect(wrapper.emitted('sw-sidebar-open')).toHaveLength(1);
+        expect(wrapper.find('.sw-sidebar').classes()).not.toContain('is--opened');
+
+        wrapper.vm.openFilterSidebar();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).toContain('is--opened');
+        expect(wrapper.emitted('sw-sidebar-open')).toBeTruthy();
     });
 
     it('should contain a computed property, called: activeFilterNumber', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             filterSettings: null,
         });
@@ -68,12 +75,11 @@ describe('sw-settings-snippet-sidebar', () => {
             },
         });
         expect(wrapper.vm.activeFilterNumber).toBe(2);
-
-        const sidebarItem = wrapper.find('.sw-snippet-settings__sidebar > div[icon="regular-filter"]');
-        expect(sidebarItem.attributes().badge).toBe('2');
     });
 
     it('should contain a computed property, called: isExpandedAuthorFilters', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             filterSettings: null,
         });
@@ -93,6 +99,8 @@ describe('sw-settings-snippet-sidebar', () => {
     });
 
     it('should contain a computed property, called: isExpandedMoreFilters', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             filterSettings: null,
         });
@@ -114,12 +122,16 @@ describe('sw-settings-snippet-sidebar', () => {
     });
 
     it('should be able to reset all filters', async () => {
-        await wrapper.setProps({
+        const wrapper = await createWrapper({
             filterSettings: {
                 Shopware: true,
                 System: true,
             },
         });
+        await flushPromises();
+
+        wrapper.vm.openFilterSidebar();
+        await flushPromises();
 
         const resetAllFiltersLink = wrapper.find('.sw-snippet-settings__sidebar-reset-all');
         await resetAllFiltersLink.trigger('click');

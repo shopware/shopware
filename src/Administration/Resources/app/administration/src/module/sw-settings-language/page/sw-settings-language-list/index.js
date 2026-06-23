@@ -129,7 +129,11 @@ export default {
         },
 
         openFilterSidebar() {
-            this.filterSidebarItem?.openContent?.();
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
         },
 
         getList() {

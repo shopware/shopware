@@ -40,7 +40,7 @@ export default {
 
     data() {
         return {
-            filterSidebarIsOpen: false,
+            filterSidebarItem: null,
         };
     },
 
@@ -79,28 +79,33 @@ export default {
     },
 
     methods: {
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
+
         closeContent() {
-            if (this.filterSidebarIsOpen) {
-                this.$refs.filterSideBar.closeContent();
-                this.filterSidebarIsOpen = false;
-                this.$emit('sw-sidebar-close');
+            if (this.filterSidebarItem?.isActive) {
+                this.$emit('sw-sidebar-open');
                 return;
             }
 
-            this.$refs.filterSideBar?.openContent?.();
-            this.filterSidebarIsOpen = true;
+            if (this.filterSidebarItem?.closeContent) {
+                this.filterSidebarItem.closeContent();
+            }
 
-            this.$emit('sw-sidebar-open');
+            this.$emit('sw-sidebar-close');
         },
 
         openFilterSidebar() {
-            if (this.filterSidebarIsOpen) {
+            if (this.filterSidebarItem?.isActive) {
                 return;
             }
 
-            this.$refs.filterSideBar?.openContent?.();
-            this.filterSidebarIsOpen = true;
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
 
+            this.filterSidebarItem.openContent();
             this.$emit('sw-sidebar-open');
         },
 

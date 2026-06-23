@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
@@ -111,7 +113,10 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        static::assertStringContainsString('not deterministically resolvable', (string) $response->getContent());
+
+        // assert the stable violation code (the wire contract), not the human-readable message text
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
         static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->getComponent());
     }
 
@@ -178,6 +183,116 @@ class ContentLayoutMutationControllerTest extends TestCase
         $this->request('remove-element', Uuid::randomHex(), ['elementId' => 'block-a', 'expectedVersion' => null]);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    #[TestDox('reorders two stored root elements via a persisted move and commits the new order')]
+    public function testMoveElementPersistsToStorage(): void
+    {
+        $layoutId = $this->createLayout([
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]);
+
+        $body = $this->mutate('move-element', $layoutId, ['elementId' => 'block-b', 'index' => 0, 'expectedVersion' => null]);
+
+        static::assertSame(['block-b', 'block-a'], array_column($body['layout'], 'id'));
+        static::assertSame(['block-b', 'block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('duplicates a stored element with a server-minted id and commits the clone')]
+    public function testDuplicateElementPersistsToStorage(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $body = $this->mutate('duplicate-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertCount(2, $this->reload($layoutId)->getLayout());
+        static::assertCount(1, $body['affectedElementIds']);
+        static::assertNotSame('block-a', $body['affectedElementIds'][0]);
+    }
+
+    #[TestDox('wraps two stored sibling roots into a freshly minted container and commits it')]
+    public function testWrapElementsPersistsToStorage(): void
+    {
+        $layoutId = $this->createLayout([
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]);
+
+        $body = $this->mutate('wrap-elements', $layoutId, [
+            'elementIds' => ['block-a', 'block-b'],
+            'containerType' => TestElementTypeLoader::RESOLVABLE,
+            'slot' => 'content',
+            'expectedVersion' => null,
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertCount(1, $this->reload($layoutId)->getLayout());
+        static::assertContains('block-a', $body['affectedElementIds']);
+        static::assertContains('block-b', $body['affectedElementIds']);
+        // the two roots are nested inside the new container's slot, not silently dropped or orphaned
+        static::assertSame([], $body['orphaned']);
+        static::assertSame(['block-a', 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('unwraps a stored container, hoists its children to the root, and reports nothing dropped')]
+    public function testUnwrapElementPersistsToStorage(): void
+    {
+        $container = $this->element('container', TestElementTypeLoader::RESOLVABLE);
+        $container['slots'] = ['content' => [
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]];
+        $layoutId = $this->createLayout([$container]);
+
+        $body = $this->mutate('unwrap-element', $layoutId, ['containerElementId' => 'container', 'expectedVersion' => null]);
+
+        static::assertSame(['block-a', 'block-b'], array_column($body['layout'], 'id'));
+        static::assertSame(['block-a', 'block-b'], $this->layoutIds($layoutId));
+        // the property-free, wiring-free container holds nothing the hoisted children cannot keep
+        static::assertSame([], $body['droppedWiring']);
+        static::assertSame([], $body['droppedProperties']);
+    }
+
+    #[TestDox('rejects an unparseable version token with a 400 once the layout has been updated, without writing')]
+    public function testInvalidVersionTokenReturnsBadRequest(): void
+    {
+        $layoutId = $this->createLayout([
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]);
+
+        // A never-updated layout short-circuits any non-null token to a 409 before the token is parsed; bump
+        // updatedAt with a first mutation so the unparseable-token branch (400 invalidVersionToken) is the one under test.
+        $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
+        $committed = $this->layoutIds($layoutId);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => 'not-a-valid-token']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        // confirm this is the unparseable-token 400, not some other 400 (e.g. a payload-binding failure)
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_VERSION_TOKEN, array_column($body['errors'], 'code'));
+        static::assertSame($committed, $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects a structurally impossible persisted op (unknown element id) with a 400 without writing')]
+    public function testStructuralImpossibilityReturnsBadRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'ghost', 'expectedVersion' => null]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        // confirm this is the structural-impossibility 400 (unknown target), not a payload-binding 400
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
     /**

@@ -29,6 +29,11 @@ interface SnippetDragPreview {
     snippet: string[];
 }
 
+interface RowDragPreview {
+    dragIndex: number;
+    targetIndex: number;
+}
+
 const DefaultAddressFormat = [
     [
         'address/company',
@@ -84,6 +89,7 @@ export default Component.wrapComponentConfig({
         formattingAddress: string;
         snippetDragPreview: SnippetDragPreview | null;
         snippetDragItem: DragItem | null;
+        rowDragPreview: RowDragPreview | null;
     } {
         return {
             advancedPostalCodePattern: null,
@@ -97,6 +103,7 @@ export default Component.wrapComponentConfig({
             formattingAddress: '',
             snippetDragPreview: null,
             snippetDragItem: null,
+            rowDragPreview: null,
         };
     },
 
@@ -206,6 +213,12 @@ export default Component.wrapComponentConfig({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onDragStart(dragConfig: DragConfig<DragItem>, draggedElement: Element, dragElement: Element): void {
             this.draggedItem = dragConfig.data;
+            this.rowDragPreview = typeof dragConfig.data?.index === 'number'
+                ? {
+                      dragIndex: dragConfig.data.index,
+                      targetIndex: dragConfig.data.index,
+                  }
+                : null;
         },
 
         onSnippetDragStart({ config }: { config: DragConfig<DragItem> }): void {
@@ -222,12 +235,18 @@ export default Component.wrapComponentConfig({
             }
 
             this.droppedItem = dropData;
+            this.rowDragPreview = {
+                dragIndex: dragData.index,
+                targetIndex: this.getRowTargetIndex(dragData.index, dropData.index),
+            };
         },
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onDrop(dragData: DragItem, dropData: DragItem): void {
             this.snippetDragPreview = null;
             this.snippetDragItem = null;
+            const rowDragPreview = this.rowDragPreview;
+            this.rowDragPreview = null;
 
             if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
                 return;
@@ -242,17 +261,57 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            this.country.addressFormat = Object.assign([], this.country.addressFormat, {
-                // @ts-expect-error - value exists
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                [this.draggedItem.index]: this.country.addressFormat[this.droppedItem.index],
-                // @ts-expect-error - value exists
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                [this.droppedItem.index]: this.country.addressFormat[this.draggedItem.index],
-            });
+            const draggedSnippet = this.addressFormat[this.draggedItem.index];
+
+            if (!draggedSnippet) {
+                return;
+            }
+
+            const newAddressFormat = this.swapPosition(
+                this.draggedItem.index,
+                this.getRowDropIndex(
+                    this.draggedItem.index,
+                    rowDragPreview?.targetIndex ?? this.getRowTargetIndex(this.draggedItem.index, this.droppedItem.index),
+                ),
+                [
+                    draggedSnippet,
+                ],
+            );
+
+            if (newAddressFormat) {
+                this.updateCountry('addressFormat', newAddressFormat);
+            }
 
             this.draggedItem = null;
             this.droppedItem = null;
+        },
+
+        getRowTargetIndex(dragIndex: number, dropIndex: number): number {
+            return dropIndex < dragIndex ? dropIndex : dropIndex + 1;
+        },
+
+        getRowDropIndex(dragIndex: number, targetIndex: number): number {
+            return targetIndex > dragIndex ? targetIndex - 1 : targetIndex;
+        },
+
+        isRowDropPreviewVisible(): boolean {
+            if (!this.rowDragPreview) {
+                return false;
+            }
+
+            return this.getRowDropIndex(this.rowDragPreview.dragIndex, this.rowDragPreview.targetIndex) !== this.rowDragPreview.dragIndex;
+        },
+
+        shouldShowRowDropBefore(index: number): boolean {
+            return this.isRowDropPreviewVisible() && this.rowDragPreview?.targetIndex === index;
+        },
+
+        shouldShowRowDropAfter(index: number): boolean {
+            return (
+                this.isRowDropPreviewVisible() &&
+                this.rowDragPreview?.targetIndex === this.addressFormat.length &&
+                index === this.addressFormat.length - 1
+            );
         },
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {

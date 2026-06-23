@@ -825,7 +825,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         });
     });
 
-    it('should be able to sort the list on dragging', async () => {
+    it('should be able to move a row on dragging', async () => {
         wrapper = await createWrapper([
             'country.editor',
         ]);
@@ -842,22 +842,36 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
-        addressHandlingWrapper.vm.draggedItem = {
-            index: 1,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
-        };
-        addressHandlingWrapper.vm.droppedItem = {
-            index: 0,
-            snippet: [
-                'address/company',
-                'symbol/dash',
-                'address/department',
-            ],
-        };
+        await addressHandlingWrapper.vm.onDragStart({
+            data: {
+                index: 0,
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+            },
+        });
+        await addressHandlingWrapper.vm.onDragEnter(
+            {
+                index: 0,
+                snippet: [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+            },
+            {
+                index: 3,
+                snippet: [
+                    'address/zipcode',
+                    'address/city',
+                ],
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-multi-snippet-drag-and-drop')[4].classes()).toContain('is--row-drop-before');
 
         await addressHandlingWrapper.vm.onDrop();
 
@@ -866,10 +880,18 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/last_name',
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
+            'address/street',
+        ]);
+        expect(wrapper.vm.country.addressFormat[2]).toEqual([
+            'address/zipcode',
+            'address/city',
+        ]);
+        expect(wrapper.vm.country.addressFormat[3]).toEqual([
             'address/company',
             'symbol/dash',
             'address/department',
         ]);
+        expect(addressHandlingWrapper.vm.rowDragPreview).toBeNull();
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

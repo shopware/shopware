@@ -82,6 +82,11 @@
                     :key="index"
                     v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
                     v-draggable="{ ...dragConf, data: { snippet, index }}"
+                    :class="{
+                        'is--row-dragging': !!rowDragPreview,
+                        'is--row-drop-before': shouldShowRowDropBefore(index),
+                        'is--row-drop-after': shouldShowRowDropAfter(index),
+                    }"
                     :value="snippet"
                     :line-position="index"
                     :get-label-property="getLabelProperty"

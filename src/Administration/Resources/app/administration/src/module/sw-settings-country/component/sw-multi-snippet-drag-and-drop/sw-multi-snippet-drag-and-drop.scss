@@ -13,6 +13,7 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         top: 18px;
         left: 8px;
         z-index: 1;
+        cursor: grab;
     }
 
     &__context-button {
@@ -113,9 +114,29 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         right: 0;
     }
 
-    &.is--valid-drop:not(.is--dragging-snippet) .sw-multi-snippet-select .sw-block-field__block {
+    &.is--valid-drop:not(.is--dragging-snippet, .is--row-dragging) .sw-multi-snippet-select .sw-block-field__block {
         border-color: var(--color-border-brand-selected);
         box-shadow: 0 0 0 1px var(--color-border-brand-selected);
+    }
+
+    &.is--row-drop-before::before,
+    &.is--row-drop-after::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--color-border-brand-selected);
+    }
+
+    &.is--row-drop-before::before {
+        top: -7px;
+    }
+
+    &.is--row-drop-after::after {
+        bottom: -7px;
     }
 
     &.is--drag-previewing .sw-label.sw-label--dismissable:hover {

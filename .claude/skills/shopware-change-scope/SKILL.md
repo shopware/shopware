@@ -1,6 +1,7 @@
 ---
 name: shopware-change-scope
 description: Scope Shopware bug fixes, cleanups, and behavioral changes. Use when fixing an issue, applying review feedback, deciding whether to broaden a cleanup, or checking that the change addresses the root cause instead of one symptom.
+license: MIT
 ---
 
 # Shopware Change Scope

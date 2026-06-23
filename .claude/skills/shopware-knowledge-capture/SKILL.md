@@ -1,6 +1,7 @@
 ---
 name: shopware-knowledge-capture
 description: Preserve Shopware knowledge for later. Use when the user asks to save, remember, preserve, document, or store information, rules, lessons learned, workflow knowledge, coding guidance, or agent instructions for future humans or agents.
+license: MIT
 ---
 
 # Shopware Knowledge Capture

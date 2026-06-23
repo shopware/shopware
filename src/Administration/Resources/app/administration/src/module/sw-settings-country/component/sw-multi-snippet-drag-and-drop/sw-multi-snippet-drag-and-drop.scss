@@ -94,7 +94,8 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         display: none;
     }
 
-    &.is--dragging-snippet &__drop-zone {
+    &.is--dragging-snippet &__drop-zone,
+    &.is--valid-drop &__drop-zone {
         display: block;
         position: absolute;
         top: 0;

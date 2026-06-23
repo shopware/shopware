@@ -76,8 +76,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
             $throwCommand,
         ]);
 
-        static::expectException(CheckoutGatewayException::class);
-        static::expectExceptionMessage('Handler not found for command "this-one-throws"');
+        $this->expectExceptionObject(CheckoutGatewayException::handlerNotFound('this-one-throws'));
 
         $executor->execute($commands, $response, Generator::generateSalesChannelContext());
     }

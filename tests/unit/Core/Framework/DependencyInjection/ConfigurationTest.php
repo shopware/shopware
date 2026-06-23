@@ -352,8 +352,7 @@ class ConfigurationTest extends TestCase
 
     public function testInvalidSystemConfigKeys(): void
     {
-        static::expectException(InvalidConfigurationException::class);
-        static::expectExceptionMessage('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID');
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));
 
         $configuration = new Configuration();
 

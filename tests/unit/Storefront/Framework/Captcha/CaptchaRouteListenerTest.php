@@ -69,7 +69,7 @@ class CaptchaRouteListenerTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -111,7 +111,7 @@ class CaptchaRouteListenerTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -177,7 +177,7 @@ class CaptchaRouteListenerTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -234,7 +234,7 @@ class CaptchaRouteListenerTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
             ->willReturn(true);
@@ -306,7 +306,7 @@ class CaptchaRouteListenerTest extends TestCase
      */
     private function getCaptchas(bool $supports, bool $isValid): array
     {
-        $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captcha = $this->createMock(AbstractCaptcha::class);
 
         $captcha->expects($this->once())
             ->method('supports')

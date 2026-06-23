@@ -43,6 +43,6 @@ class McpPromptPersister extends AbstractMcpCapabilityPersister
      */
     protected function fetchExisting(string $appId, Context $context): EntityCollection
     {
-        return $this->searchByAppId($this->mcpPromptRepository, $appId, $context);
+        return $this->searchByAppId($appId, $context);
     }
 }

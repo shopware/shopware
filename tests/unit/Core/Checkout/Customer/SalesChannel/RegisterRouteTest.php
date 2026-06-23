@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
@@ -699,6 +700,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -714,7 +718,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
-            new NativeClock()
+            $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -806,6 +811,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -821,7 +829,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
-            new NativeClock()
+            $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -926,7 +935,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
-            new NativeClock()
+            $this->createMock(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1163,35 +1173,35 @@ class RegisterRouteTest extends TestCase
             new RequestDataBag($this->createRegistrationData([
                 'guest' => true,
                 'title' => '  Dr.  ',
-                'firstName' => '  Max  ',
-                'lastName' => '  Mustermann  ',
+                'firstName' => "\nMax\t",
+                'lastName' => "\rMustermann ",
                 'billingAddress' => [
                     'countryId' => Uuid::randomHex(),
-                    'street' => '  Main Street 1  ',
+                    'street' => "\t Main Street 1 \n",
                     'zipcode' => '  12345  ',
-                    'city' => '  Berlin  ',
-                    'company' => '  Shopware  ',
-                    'department' => '  Core  ',
-                    'phoneNumber' => '  123456  ',
-                    'additionalAddressLine1' => '  Line 1  ',
-                    'additionalAddressLine2' => '  Line 2  ',
+                    'city' => "\rBerlin\n",
+                    'company' => "\tShopware ",
+                    'department' => "\nCore        ",
+                    'phoneNumber' => "\t123456\n",
+                    'additionalAddressLine1' => "\nLine 1 ",
+                    'additionalAddressLine2' => "\tLine 2\r",
                     'customFields' => [
                         'note' => '  keep custom field whitespace  ',
                     ],
                 ],
                 'shippingAddress' => [
-                    'title' => '  Ms.  ',
-                    'firstName' => '  Jane  ',
-                    'lastName' => '  Doe  ',
+                    'title' => "\nMs.\t",
+                    'firstName' => "\tJane ",
+                    'lastName' => "          Doe\n",
                     'countryId' => Uuid::randomHex(),
-                    'street' => '  Side Street 2  ',
-                    'zipcode' => '  54321  ',
-                    'city' => '  Hamburg  ',
-                    'company' => '  Shopware Storefront  ',
-                    'department' => '  Design  ',
-                    'phoneNumber' => '  654321  ',
-                    'additionalAddressLine1' => '  Shipping Line 1  ',
-                    'additionalAddressLine2' => '  Shipping Line 2  ',
+                    'street' => "\nSide Street 2           ",
+                    'zipcode' => "\t54321\n",
+                    'city' => "\nHamburg\r",
+                    'company' => "\tShopware Storefront\n",
+                    'department' => '    Design    ',
+                    'phoneNumber' => "\n654321 ",
+                    'additionalAddressLine1' => " Shipping Line 1\n",
+                    'additionalAddressLine2' => "\rShipping Line 2 ",
                 ],
             ])),
             Generator::generateSalesChannelContext(),
@@ -1248,6 +1258,9 @@ class RegisterRouteTest extends TestCase
         ]);
         $customerRepository ??= $this->createCustomerRepository();
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         return new RegisterRoute(
             $eventDispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -1262,8 +1275,9 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            $passwordValidationFactory,
-            new NativeClock()
+            $this->createMock(DataValidationFactoryInterface::class),
+            $doubleOptInService,
+            new NativeClock(),
         );
     }
 

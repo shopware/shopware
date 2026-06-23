@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
@@ -347,7 +348,7 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forAccessKey')->willReturn(['tools' => null, 'resources' => null, 'prompts' => null]);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: null));
 
         $tester = new CommandTester($this->makeCommand($registry, allowlistProvider: $allowlistProvider));
         $tester->execute(['--integration' => 'SWIA-test-key']);
@@ -366,7 +367,7 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forAccessKey')->willReturn(['tools' => ['tool-a'], 'resources' => null, 'prompts' => null]);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
 
         $tester = new CommandTester($this->makeCommand($registry, allowlistProvider: $allowlistProvider));
         $tester->execute(['--integration' => 'SWIA-restricted']);
@@ -384,7 +385,7 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forAccessKey')->willReturn(['tools' => [], 'resources' => null, 'prompts' => null]);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
 
         $tester = new CommandTester($this->makeCommand($registry, allowlistProvider: $allowlistProvider));
         $tester->execute(['--integration' => 'SWIA-empty']);
@@ -535,6 +536,47 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('No capability found with name \'does-not-exist\'', $tester->getDisplay());
     }
 
+    public function testDetailViewSkipsNonArrayPropertyDefinitions(): void
+    {
+        $schema = [
+            'type' => 'object',
+            'properties' => [
+                'valid-param' => ['type' => 'string', 'description' => 'A valid param'],
+                'bad-param' => 'not-an-array',
+            ],
+            'required' => ['valid-param'],
+        ];
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('schema-tool', null, $schema, 'Does things', null),
+            'Acme\\SchemaTool',
+            true,
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute(['name' => 'schema-tool']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('valid-param', $output);
+        static::assertStringNotContainsString('bad-param', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testArrayHandlerWithObjectInstanceShowsClassName(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('object-tool', null, self::inputSchema(), null, null),
+            [new \stdClass(), 'handle'],
+            true,
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute([]);
+
+        static::assertStringContainsString('stdClass::handle', $tester->getDisplay());
+    }
+
     private function makeCommand(
         Registry $registry,
         ?McpAllowlistProvider $allowlistProvider = null,
@@ -544,7 +586,7 @@ class DebugMcpCommandTest extends TestCase
 
         if ($allowlistProvider === null) {
             $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-            $allowlistProvider->method('forAccessKey')->willReturn(['tools' => null, 'resources' => null, 'prompts' => null]);
+            $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: null));
         }
 
         $catalog ??= new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());

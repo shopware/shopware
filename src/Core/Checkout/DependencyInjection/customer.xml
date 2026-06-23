@@ -48,6 +48,15 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
@@ -68,8 +77,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker"/>
 
             <tag name="validator.constraint_validator"/>
         </service>
@@ -261,6 +275,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
             <argument type="service" id="salutation.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
@@ -441,6 +456,13 @@
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber">
             <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

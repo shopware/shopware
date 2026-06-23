@@ -39,7 +39,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
         $fileSystemOperator = $this->createMock(Filesystem::class);
-        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(static function ($path) {
+        $fileSystemOperator->method('publicUrl')->willReturnCallback(static function ($path) {
             return 'http://foo.text:8000/' . $path;
         });
 
@@ -86,7 +86,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
     public function testReplace(string $content, string $expected): void
     {
         $result = $this->createMock(Result::class);
-        $result->expects($this->any())->method('fetchAllAssociative')->willReturn([
+        $result->method('fetchAllAssociative')->willReturn([
             [
                 'id' => Uuid::fromHexToBytes(self::MEDIA1_ID),
                 'path' => 'media/12/34/cat.pdf',

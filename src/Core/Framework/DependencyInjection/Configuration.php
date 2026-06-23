@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -609,8 +610,16 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('redis_prefix')->end()
-                ->booleanNode('cache_compression')->defaultTrue()->end()
-                ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('cache_compression')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead.')
+                ->end()
+                ->booleanNode('compress')->defaultTrue()->end()
+                ->scalarNode('cache_compression_method')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead.')
+                ->end()
+                ->scalarNode('compression_method')->defaultValue('gzip')->end()
                 ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
@@ -1393,9 +1402,18 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('metrics')
                 ->children()
                     ->scalarNode('namespace')->end()
-                    ->booleanNode('allow_unknown_labels')->defaultFalse()->end()
-                    ->booleanNode('allow_unknown_label_values')->defaultFalse()->end()
-                    ->booleanNode('enable_internal_metrics')->defaultFalse()->end()
+                    ->booleanNode('allow_unknown_labels')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Unknown label names are now always validated.')
+                        ->defaultFalse()
+                    ->end()
+                    ->booleanNode('allow_unknown_label_values')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Use per-label "policy" in metric definitions instead.')
+                        ->defaultFalse()
+                    ->end()
+                    ->booleanNode('enable_internal_metrics')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Use per-metric "enabled" instead.')
+                        ->defaultFalse()
+                    ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
                     ->arrayNode('definitions')
@@ -1416,10 +1434,29 @@ class Configuration implements ConfigurationInterface
                                 ->arrayNode('labels')
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
+                                        ->validate()
+                                            ->ifTrue(static function (array $label): bool {
+                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
+                                                $hasPolicy = isset($label['policy']);
+
+                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
+                                                    return true;
+                                                }
+                                                if (!$hasAllowedValues && !$hasPolicy) {
+                                                    return true;
+                                                }
+
+                                                return false;
+                                            })
+                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                        ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
-                                                ->scalarPrototype()
+                                                ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
                                             ->end()
+                                            ->enumNode('policy')
+                                                ->values(LabelPolicy::values())
                                             ->end()
                                         ->end()
                                     ->end()

@@ -248,14 +248,15 @@ test.describe('Product Analytics - Consent Modal Validation',
 
         await test.step('Setup user which can not change store consent but user data consent', async () => {
 
-           const permissions = [
-                    'language:read',
-                    'locale:read',
-                    'log_entry:create',
-                    'message_queue_stats:read',
-                    'system_config:read',
-                    'user.update_profile', 'user:read', 'user_change_me', 'user_config:create', 'user_config:read', 'user_config:update',
-                ];
+            const permissions = [
+                'system_config:read',
+                'user.update_profile',
+                'user:read',
+                'user_change_me',
+                'user_config:create',
+                'user_config:read',
+                'user_config:update',
+            ];
 
             const onlyChangeUserProfilePermissions = await TestDataService.createAclRole({ privileges: permissions });
             await TestDataService.assignAclRoleUser(onlyChangeUserProfilePermissions.id, user.id);

@@ -13,6 +13,7 @@ use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
@@ -36,7 +37,7 @@ class AppMcpToolLoaderTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->executor = $this->createMock(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpToolLoader($this->connection, $this->executor);
+        $this->loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger());
     }
 
     public function testLoadWithDBALExceptionRegistersNoTools(): void
@@ -187,7 +188,7 @@ class AppMcpToolLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())->method('registerTool');
 
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, []);
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), []);
         $loader->load($registry);
     }
 
@@ -217,7 +218,7 @@ class AppMcpToolLoaderTest extends TestCase
                 true,
             );
 
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, ['my-app-sync-orders']);
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['my-app-sync-orders']);
         $loader->load($registry);
     }
 
@@ -382,7 +383,7 @@ class AppMcpToolLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->never())->method('registerTool');
 
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, ['other-tool-only']);
+        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['other-tool-only']);
         $loader->load($registry);
     }
 

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -155,16 +157,6 @@ const mockMailTemplates = [
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice_mail',
-            templateData: {
-                order: {
-                    ...mockOrderWithoutCustomerName,
-                    orderCustomer: {
-                        email: 'personal@ema.il',
-                        firstName: 'Personal',
-                        lastName: 'Data',
-                    },
-                },
-            },
         },
         contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
         subject: 'Personal data from order',

@@ -170,8 +170,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $refundId . '.');
+        $this->expectExceptionObject(PaymentException::unknownRefundHandler($refundId));
 
         $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
     }

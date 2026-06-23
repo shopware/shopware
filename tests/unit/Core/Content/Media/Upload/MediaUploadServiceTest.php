@@ -551,8 +551,7 @@ class MediaUploadServiceTest extends TestCase
 
     public function testValidateExternalUrlThrowsForInvalidFormat(): void
     {
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Provided URL "not-a-valid-url" is invalid.');
+        $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
 
         $this->mediaUploadService->assertValidExternalUrl('not-a-valid-url');
     }
@@ -573,8 +572,7 @@ class MediaUploadServiceTest extends TestCase
             $validator,
         );
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Provided URL "http://10.0.0.1/image.jpg" is not allowed.');
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/image.jpg'));
 
         $service->assertValidExternalUrl('http://10.0.0.1/image.jpg');
     }
@@ -586,8 +584,7 @@ class MediaUploadServiceTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Provided URL "not-a-valid-url" is invalid.');
+        $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
 
         MediaUploadService::validateExternalUrl('not-a-valid-url');
     }
@@ -610,8 +607,7 @@ class MediaUploadServiceTest extends TestCase
 
         $this->httpClient->expects($this->never())->method('request');
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Provided URL "http://10.0.0.1/image.jpg" is not allowed.');
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/image.jpg'));
 
         $params = new MediaUploadParameters();
         $params->mimeType = 'image/jpeg';
@@ -692,8 +688,7 @@ class MediaUploadServiceTest extends TestCase
             new ExternalThumbnailData('http://10.0.0.1/thumb.jpg', 100, 100),
         ]);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Provided URL "http://10.0.0.1/thumb.jpg" is not allowed.');
+        $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/thumb.jpg'));
 
         $service->addExternalThumbnailsToMedia(Uuid::randomHex(), $thumbnails, $this->context);
     }

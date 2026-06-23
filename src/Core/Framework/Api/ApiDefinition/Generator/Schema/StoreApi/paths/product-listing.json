@@ -118,6 +118,9 @@
                     },
                     {
                         "x-parameter-group": "productListingFlags"
+                    },
+                    {
+                        "$ref": "#/components/parameters/CompressedCriteria"
                     }
                 ],
                 "responses": {

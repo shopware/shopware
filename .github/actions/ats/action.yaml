@@ -124,7 +124,6 @@ runs:
               install-admin: true
               install-storefront: true
               env: prod
-              composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
               php-version: ${{ inputs.php-version }}
 
         - name: Build js
@@ -148,7 +147,7 @@ runs:
               SYMFONY_ALLOW_ALL_IP: "1"
           run: symfony server:start
 
-        - uses: actions/setup-node@v4
+        - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
           with:
               node-version: 22
 
@@ -157,7 +156,7 @@ runs:
           run: npm install -g npm@11.8.0
 
         - name: Cache npm packages
-          uses: actions/cache@v4
+          uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
           with:
               path: |
                   ${{ inputs.directory }}/node_modules
@@ -167,9 +166,10 @@ runs:
                   ${{ runner.os }}-${{ inputs.directory }}
 
         - name: Install dependencies
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npm ci
+          # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
+          uses: ./.github/actions/npm-ci-retry
+          with:
+              working-directory: ${{ inputs.directory }}
 
         - name: Refresh Package List
           shell: bash
@@ -191,7 +191,7 @@ runs:
           run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
@@ -215,7 +215,7 @@ runs:
 
         - name: Configure AWS credentials
           if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
-          uses: aws-actions/configure-aws-credentials@v4
+          uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
           with:
             aws-region: eu-central-1
             role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
@@ -269,7 +269,7 @@ runs:
 
         - name: Create Pull Request
           if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
-          uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+          uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
           with:
               token: ${{ steps.create-pr-token.outputs.token }}
               add-paths: |

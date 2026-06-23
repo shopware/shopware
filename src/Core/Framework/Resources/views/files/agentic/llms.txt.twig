@@ -1,0 +1,96 @@
+{% block agentic_llms_txt %}{% apply remove_leading_spaces %}
+    {% set isStorefrontSalesChannel = salesChannel.typeId == constant('Shopware\\Core\\Defaults::SALES_CHANNEL_TYPE_STOREFRONT') %}
+
+    {% block agentic_llms_header %}
+        # {{ salesChannel.translated.name|default(salesChannel.name) }}
+    {% endblock %}
+
+    {% block agentic_llms_summary %}
+        > This is a Shopware-powered online shop. This file provides AI assistants with a concise entry point to public sales channel information.
+        > Only public shop information is described here; account, order, payment, and checkout actions require explicit user interaction and normal authentication.
+    {% endblock %}
+
+    {% block agentic_llms_resources %}
+        ## Public resources
+
+{% if isStorefrontSalesChannel -%}
+        - [Home]({{ seoUrl('frontend.home.page') }}): Start page for this storefront.
+        - [Search]({{ seoUrl('frontend.search.page') }}): Search the public product catalogue.
+        - [Sitemap]({{ seoUrl('frontend.sitemap.xml') }}): Public sitemap for discoverable pages.
+{% set imprintPageId = config('core.basicInformation.imprintPage') -%}
+{% if imprintPageId -%}
+        - [Imprint]({{ path('frontend.cms.page.full', { id: imprintPageId }) }})
+{% endif -%}
+{% set privacyPageId = config('core.basicInformation.privacyPage') -%}
+{% if privacyPageId -%}
+        - [Privacy policy]({{ path('frontend.cms.page.full', { id: privacyPageId }) }})
+{% endif -%}
+{% set tosPageId = config('core.basicInformation.tosPage') -%}
+{% if tosPageId -%}
+        - [Terms]({{ path('frontend.cms.page.full', { id: tosPageId }) }})
+{% endif -%}
+{% set shippingPaymentInfoPageId = config('core.basicInformation.shippingPaymentInfoPage') -%}
+{% if shippingPaymentInfoPageId -%}
+        - [Shipping/payment information]({{ path('frontend.cms.page.full', { id: shippingPaymentInfoPageId }) }})
+{% endif -%}
+{% set revocationPageId = config('core.basicInformation.revocationPage') -%}
+{% if revocationPageId -%}
+        - [Revocation/cancellation policy]({{ path('frontend.cms.page.full', { id: revocationPageId }) }})
+{% endif -%}
+{% else -%}
+        - [Sales channel context]({{ path('store-api.context') }}): Public context information for this sales channel.
+        - [Product search]({{ path('store-api.search') }}): Search public product data through the Store API.
+        - [Sitemap]({{ path('store-api.sitemap') }}): Store API sitemap listing for discoverable resources.
+{% endif -%}
+        - [Robots policy](/robots.txt): Crawling and access rules.
+        - [Agent instructions](/agents.md): Guidance for AI agents interacting with this shop.
+    {% endblock %}
+
+    {% block agentic_llms_localization %}
+        {%- set supportedLanguages = [] -%}
+        {%- for language in salesChannel.languages -%}
+            {%- set languageCode = language.translationCode.code|default(language.name) -%}
+            {%- set languageName = language.translationCode.translated.name|default(language.name) -%}
+            {%- set languageTerritory = language.translationCode.translated.territory|default(null) -%}
+            {%- set supportedLanguage = languageCode -%}
+            {%- if languageName -%}
+                {%- set supportedLanguage = supportedLanguage ~ ' (' ~ languageName ~ (languageTerritory ? ', ' ~ languageTerritory : '') ~ ')' -%}
+            {%- endif -%}
+            {%- set supportedLanguages = supportedLanguages|merge([supportedLanguage]) -%}
+        {%- endfor -%}
+        {%- set supportedCurrencies = [] -%}
+        {%- for currency in salesChannel.currencies -%}
+            {%- set currencyName = currency.translated.name|default(currency.name) -%}
+            {%- set supportedCurrency = currency.isoCode ~ (currencyName ? ' (' ~ currencyName ~ ')' : '') -%}
+            {%- set supportedCurrencies = supportedCurrencies|merge([supportedCurrency]) -%}
+        {%- endfor -%}
+        {%- set currentCurrencyName = context.currency.translated.name|default(context.currency.name) -%}
+        {%- set localizationLines = [
+            '## Localization',
+            '',
+            '- Current language: ' ~ context.languageInfo.name ~ ' (' ~ context.languageInfo.localeCode ~ ')',
+            '- Current currency: ' ~ context.currency.isoCode ~ (currentCurrencyName ? ' (' ~ currentCurrencyName ~ ')' : ''),
+        ] -%}
+        {%- if supportedLanguages|length > 0 -%}
+            {%- set localizationLines = localizationLines|merge(['- Supported languages: ' ~ supportedLanguages|join(', ')]) -%}
+        {%- endif -%}
+        {%- if supportedCurrencies|length > 0 -%}
+            {%- set localizationLines = localizationLines|merge(['- Supported currencies: ' ~ supportedCurrencies|join(', ')]) -%}
+        {%- endif -%}
+
+        {{ localizationLines|join("\n") }}
+    {% endblock %}
+
+    {% block agentic_llms_guidance %}
+        ## Guidance
+
+        - Use public sales channel resources as the source of truth.
+        - Verify product prices, availability, delivery information, taxes, and legal information on the live sales channel before presenting them as current.
+        - Prefer canonical storefront URLs or documented Store API routes when linking to products, categories, content pages, or policies.
+        - Respect `robots.txt`, rate limits, and normal checkout boundaries.
+    {% endblock %}
+
+    {% block agentic_llms_extensions %}{% endblock %}
+
+    {% block user_provided_content %}{% endblock %}
+{% endapply %}{% endblock %}

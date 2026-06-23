@@ -62,10 +62,9 @@ Task-specific guidance lives in skills instead of this always-loaded file:
 
 ## Subtree Guidance
 
-- PHP/server code: read `src/Core/AGENTS.md`.
-- Administration code: read `src/Administration/AGENTS.md`; detailed Admin JS/TS/Vue guidance starts at `src/Administration/Resources/app/administration/AGENTS.md`.
-- Storefront code: read `src/Storefront/AGENTS.md`.
-- Tests: read `tests/AGENTS.md`.
+- PHP/server code: use the `shopware-php-code` skill when the task touches PHP architecture, API schema, migrations, deprecations, or BC-sensitive code.
+- Administration JS/TS/Vue code: detailed guidance starts at `src/Administration/Resources/app/administration/AGENTS.md`; use the `shopware-admin-js` skill for Admin coding rules.
+- PHPUnit tests: use the `shopware-phpunit-tests` skill.
 - More specific nested `AGENTS.md` files add local rules for their subtree.
 
 ## Coding Guidelines

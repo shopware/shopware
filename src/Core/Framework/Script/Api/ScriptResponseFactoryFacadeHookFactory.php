@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -18,26 +18,28 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(
         private readonly RouterInterface $router,
-        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade
     {
-        $salesChannelContext = null;
-        if ($hook instanceof SalesChannelContextAware) {
-            $salesChannelContext = $hook->getSalesChannelContext();
-        }
-
         return new ScriptResponseFactoryFacade(
             $this->router,
-            $this->eventDispatcher,
-            $salesChannelContext
+            $this->resolveSalesChannelContext($hook)
         );
     }
 
     public function getName(): string
     {
         return 'response';
+    }
+
+    protected function resolveSalesChannelContext(Hook $hook): ?SalesChannelContext
+    {
+        if ($hook instanceof SalesChannelContextAware) {
+            return $hook->getSalesChannelContext();
+        }
+
+        return null;
     }
 }

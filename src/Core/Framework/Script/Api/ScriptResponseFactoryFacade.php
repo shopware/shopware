@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Event\RenderStorefrontForScriptEvent;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The `response` service allows you to create HTTP-Responses.
@@ -24,8 +23,7 @@ class ScriptResponseFactoryFacade
      */
     public function __construct(
         private readonly RouterInterface $router,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ?SalesChannelContext $salesChannelContext,
+        protected readonly ?SalesChannelContext $salesChannelContext,
     ) {
     }
 
@@ -77,6 +75,8 @@ class ScriptResponseFactoryFacade
      * Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)
      * or if the Storefront-bundle is not installed.
      *
+     * @deprecated tag:v6.8.0 - Rendering Storefront templates is moving to the Storefront bundle. The `render()` method will only be available on the `response` service when the Storefront bundle is installed; guard usage in app scripts with `{% if response.render is defined %}`.
+     *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
      * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
      *
@@ -86,18 +86,13 @@ class ScriptResponseFactoryFacade
      */
     public function render(string $view, array $parameters = []): ScriptResponse
     {
-        if ($this->salesChannelContext === null) {
-            throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
-        }
-
-        $event = $this->eventDispatcher->dispatch(
-            new RenderStorefrontForScriptEvent($view, $parameters, $this->salesChannelContext)
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Rendering Storefront templates via the script `response` service requires the Storefront bundle. The `render()` method will only be available on the `response` service when the Storefront bundle is installed.'
         );
 
-        if ($event->response === null) {
-            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
-        }
-
-        return new ScriptResponse($event->response, $event->response->getStatusCode());
+        // The Storefront bundle decorates this service with a subclass that overrides render(); reaching this
+        // implementation means the Storefront bundle is not installed, so rendering is not supported.
+        throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
     }
 }

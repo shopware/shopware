@@ -63,10 +63,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Script\Subscriber\ScriptResponseRenderSubscriber">
+        <service id="Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacadeHookFactory"
+                 decorates="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory"
+                 public="true">
+            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ScriptController"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">

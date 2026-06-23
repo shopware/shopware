@@ -76,6 +76,20 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'router-view': true,
                 'sw-skeleton': true,
+                'mt-banner': {
+                    template: '<div class="mt-banner"><slot /></div>',
+                    props: [
+                        'variant',
+                        'title',
+                    ],
+                },
+                'mt-button': {
+                    template: '<button class="mt-button"><slot /></button>',
+                    props: [
+                        'variant',
+                        'size',
+                    ],
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -619,6 +633,114 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(mockSave).not.toHaveBeenCalled();
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    describe('deprecation banner for agentic commerce channels', () => {
+        let originalBundles;
+
+        beforeEach(() => {
+            originalBundles = Shopware.Context.app.config.bundles;
+        });
+
+        afterEach(() => {
+            Shopware.Context.app.config.bundles = originalBundles;
+        });
+
+        it('shows the banner for agentic commerce channels when SwagAgenticCommerce is not installed', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(false);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(true);
+            expect(wrapper.find('.mt-banner').exists()).toBe(true);
+        });
+
+        it('hides the banner when SwagAgenticCommerce plugin is installed', async () => {
+            Shopware.Context.app.config.bundles = { SwagAgenticCommerce: { css: [], js: [] } };
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(true);
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.find('.mt-banner').exists()).toBe(false);
+        });
+
+        it('hides the banner for non-agentic sales channel types', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+                },
+            });
+
+            await flushPromises();
+
+            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.find('.mt-banner').exists()).toBe(false);
+        });
+
+        it('navigates to the extension store landing page when the detail route does not exist', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            const mockPush = jest.fn().mockResolvedValue(undefined);
+            wrapper.vm.$router = {
+                hasRoute: jest.fn().mockReturnValue(false),
+                push: mockPush,
+            };
+
+            await flushPromises();
+
+            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            await flushPromises();
+
+            expect(mockPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
+        });
+
+        it('navigates to the extension store when the route exists', async () => {
+            Shopware.Context.app.config.bundles = {};
+
+            const wrapper = await createWrapper({
+                salesChannelResponse: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            });
+
+            const mockPush = jest.fn().mockResolvedValue(undefined);
+            wrapper.vm.$router = {
+                hasRoute: jest.fn().mockReturnValue(true),
+                push: mockPush,
+            };
+
+            await flushPromises();
+
+            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            await flushPromises();
+
+            expect(mockPush).toHaveBeenCalledWith({
+                name: 'sw.extension.store.detail',
+                params: { id: '21761' },
+            });
+        });
     });
 
     it('should ignore required fields of inactive providers when validating agentic commerce config', async () => {

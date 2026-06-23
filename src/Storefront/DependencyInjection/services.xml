@@ -98,6 +98,11 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber">
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
@@ -165,8 +170,6 @@
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\System\Salutation\AbstractSalutationsSorter" class="Shopware\Core\System\Salutation\SalutationSorter"/>
-
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
@@ -213,7 +216,7 @@
 
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
             <argument type="service" id="http_kernel"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -544,6 +547,7 @@
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">

@@ -15,6 +15,7 @@ use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -40,7 +41,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\DataAbstractionLayer\TestEntityDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -111,8 +111,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexPerformsOnSearchOfCurrency(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $controller = $this->createAdministrationController();
 
@@ -170,8 +170,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexSetsCacheHeaders(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $controller = $this->createAdministrationController();
 
@@ -217,8 +217,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testIndexOmitsStaleWhileRevalidateWhenFrwIsActive(): void
     {
-        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
-        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
 
         $frwService = $this->createMock(FirstRunWizardService::class);
         $frwService->method('frwShouldRun')->willReturn(true);
@@ -278,7 +278,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidWithBoundSalesChannelIdValid(): void
     {
-        $controller = $this->createAdministrationController(new CustomerCollection(), true);
+        $controller = $this->createAdministrationController(new CustomerCollection());
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => Uuid::randomHex()]);
 
         $response = $controller->checkCustomerEmailValid($request, $this->context);
@@ -315,7 +315,7 @@ class AdministrationControllerTest extends TestCase
     {
         $this->expectException(RoutingException::class);
 
-        $controller = $this->createAdministrationController(new CustomerCollection(), true);
+        $controller = $this->createAdministrationController(new CustomerCollection());
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => true]);
 
         $controller->checkCustomerEmailValid($request, $this->context);
@@ -332,7 +332,7 @@ class AdministrationControllerTest extends TestCase
 
         $customer->setBoundSalesChannel($salesChannel);
 
-        $controller = $this->createAdministrationController(new CustomerCollection([$customer]), true);
+        $controller = $this->createAdministrationController(new CustomerCollection([$customer]));
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => $salesChannel->getId()]);
 
         $controller->checkCustomerEmailValid($request, $this->context);
@@ -344,7 +344,7 @@ class AdministrationControllerTest extends TestCase
 
         $customer = $this->buildCustomerEntity();
 
-        $controller = $this->createAdministrationController(new CustomerCollection([$customer]), true);
+        $controller = $this->createAdministrationController(new CustomerCollection([$customer]));
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => Uuid::randomHex()]);
 
         $controller->checkCustomerEmailValid($request, $this->context);
@@ -466,7 +466,7 @@ class AdministrationControllerTest extends TestCase
         $excludedTerms = $this->getExcludedTerms($sourceLanguage);
         $searchConfigId = Uuid::randomHex();
 
-        $this->connection->expects($this->any())->method('fetchOne')
+        $this->connection->method('fetchOne')
             ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
 
         if ($sourceLanguage === null) {
@@ -629,7 +629,7 @@ class AdministrationControllerTest extends TestCase
                 new Criteria(),
                 $context,
             ));
-        $controller = $this->createAdministrationController(null, false, $languageRepository);
+        $controller = $this->createAdministrationController(null, $languageRepository);
 
         $jsonResponse = $controller->getLocales(new Request(), $context);
         static::assertInstanceOf(JsonResponse::class, $jsonResponse);
@@ -673,7 +673,6 @@ class AdministrationControllerTest extends TestCase
      */
     protected function createAdministrationController(
         ?CustomerCollection $collection = null,
-        bool $isCustomerBoundToSalesChannel = false,
         ?EntityRepository $languageRepository = null,
         (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
         (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
@@ -683,6 +682,10 @@ class AdministrationControllerTest extends TestCase
 
         /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([$collection]);
+        $customerEmailUniqueChecker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $customerEmailUniqueChecker
+            ->method('findConflictingCustomerId')
+            ->willReturn($collection->first()?->getId());
 
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
@@ -698,14 +701,12 @@ class AdministrationControllerTest extends TestCase
             $this->htmlSanitizer,
             $this->definitionRegistry,
             $this->parameterBag,
-            new StaticSystemConfigService([
-                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
-            ]),
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
             $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
             $this->analyticsGatewayUrl,
+            $customerEmailUniqueChecker,
             $this->refreshTokenTtl,
         );
     }
@@ -745,7 +746,6 @@ class AdministrationControllerTest extends TestCase
 
         return $this->createAdministrationController(
             null,
-            false,
             null,
             $snippetFinder,
             $tokenValidator,

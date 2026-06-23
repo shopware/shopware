@@ -19,6 +19,7 @@ use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -48,7 +49,8 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             $this->themeFileResolver,
             $this->pluginRegistry,
             $this->mergedConfigBuilder,
-            $this->storage
+            $this->storage,
+            new NativeClock()
         );
     }
 

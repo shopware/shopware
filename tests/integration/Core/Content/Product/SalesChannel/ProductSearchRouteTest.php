@@ -39,6 +39,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -410,7 +411,8 @@ class ProductSearchRouteTest extends TestCase
             static::getContainer()->get(Connection::class),
             $languageRepository,
             $productRepository,
-            $analyzer
+            $analyzer,
+            new MockClock()
         );
 
         $this->enableParentNameSearch();

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775460999AddParentNameToProductSearchConfig;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -205,7 +206,8 @@ class SearchKeywordUpdaterTest extends TestCase
             $this->connection,
             $languageRepository,
             $this->productRepository,
-            $analyzer
+            $analyzer,
+            new MockClock()
         );
 
         $originalParentNameSearchState = $this->enableParentNameSearch();

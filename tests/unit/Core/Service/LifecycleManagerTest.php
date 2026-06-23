@@ -107,7 +107,7 @@ class LifecycleManagerTest extends TestCase
         ]);
 
         $this->appLifecycle->expects($this->exactly($services->count()))
-            ->method('delete')
+            ->method('uninstall')
             ->willReturnCallback(function ($name, $options, $context) use ($services): void {
                 static::assertContains($name, $services->map(static fn (AppEntity $service) => $service->getName()));
                 static::assertArrayHasKey('id', $options);
@@ -132,7 +132,7 @@ class LifecycleManagerTest extends TestCase
         $services = new AppCollection([]);
 
         $this->appLifecycle->expects($this->never())
-            ->method('delete');
+            ->method('uninstall');
 
         $this->permissionsService->expects($this->once())
             ->method('revoke')
@@ -279,7 +279,7 @@ class LifecycleManagerTest extends TestCase
             ]);
 
         $this->appLifecycle->expects($this->once())
-            ->method('delete')
+            ->method('uninstall')
             ->with('OrphanedService', ['id' => 'service3'], $this->context);
 
         $manager = $this->createManager($this->createAppRepository($services));

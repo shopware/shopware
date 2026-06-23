@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Code Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
 
       - name: 'Codeowners Plus'
-        uses: multimediallc/codeowners-plus@v1.7.0
+        uses: multimediallc/codeowners-plus@44c6f1355e06e1e606161468b91a70ebab7ce730 # v1.9.1
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           pr: '${{ github.event.pull_request.number }}'

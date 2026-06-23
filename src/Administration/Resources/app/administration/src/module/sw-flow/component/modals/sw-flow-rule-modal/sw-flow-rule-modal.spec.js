@@ -16,6 +16,14 @@ function createRuleMock(isNew) {
     };
 }
 
+const ruleConditionDataProviderServiceMock = {
+    getModuleTypes: () => [],
+    addScriptConditions: () => {},
+    getAwarenessConfigurationByAssignmentName: () => ({}),
+    getDeprecationsInTree: jest.fn(() => []),
+    getFlowOnlyTypesInTree: jest.fn(() => []),
+};
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-flow-rule-modal', {
@@ -36,13 +44,7 @@ async function createWrapper() {
                             };
                         },
                     },
-
-                    ruleConditionDataProviderService: {
-                        getModuleTypes: () => [],
-                        addScriptConditions: () => {},
-                        getAwarenessConfigurationByAssignmentName: () => ({}),
-                    },
-
+                    ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                     ruleConditionsConfigApiService: {
                         load: () => Promise.resolve(),
                     },
@@ -123,18 +125,32 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     });
 
     it('should show deprecation warning when legacy product states condition exists', async () => {
+        ruleConditionDataProviderServiceMock.getDeprecationsInTree.mockReturnValue([
+            {
+                type: 'cartLineItemProductStates',
+                label: 'Cart line item product states',
+                version: 'v6.8.0',
+                replacement: {
+                    type: 'cartLineItemProductType',
+                    label: 'Cart line item product type',
+                },
+            },
+        ]);
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.conditions = [
-            {
-                type: 'cartLineItemProductStates',
-            },
-        ];
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            conditions: [
+                {
+                    type: 'cartLineItemProductStates',
+                },
+            ],
+        });
+        await flushPromises();
 
-        const banner = wrapper.find('mt-banner-stub.sw-flow-rule-modal__product-type-warning');
-        expect(wrapper.vm.showProductStateConditionWarning).toBe(true);
+        const banner = wrapper.find('.sw-flow-rule-modal__product-type-warning');
+
         expect(banner.exists()).toBe(true);
         expect(banner.attributes('variant')).toBe('attention');
     });

@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -686,19 +685,6 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading,
         bool $isPartialLoading,
     ): void {
-        $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
-
-        // inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
-        $sorting = array_merge(
-            [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
-            $fieldCriteria->getSorting()
-        );
-
-        $fieldCriteria->resetSorting();
-        $fieldCriteria->addSorting(...$sorting);
-
-        $ids = array_values($collection->getIds());
-
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
@@ -706,15 +692,18 @@ class EntityReader implements EntityReaderInterface
             $fieldsForPartialLoading[$association->getPropertyName()] = [];
         }
 
-        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
+        $ids = array_values($collection->getIds());
 
+        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
         if ($isInheritanceAware) {
             $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
 
-        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
+        $fieldCriteria->addFilter(
+            new EqualsAnyFilter($this->buildOneToManyPropertyAccessor($definition, $association), $ids)
+        );
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -1082,9 +1071,6 @@ class EntityReader implements EntityReaderInterface
     ): array {
         $sortings = $fieldCriteria->getSorting();
 
-        // Remove first entry
-        array_shift($sortings);
-
         $query = new QueryBuilder($this->connection);
         $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
@@ -1109,9 +1095,16 @@ class EntityReader implements EntityReaderInterface
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
+        $orderByParts = $query->getOrderByParts();
+
+        $windowOrderBy = $orderByParts !== [] ? implode(', ', $orderByParts) : $sqlAccessor;
+
+        // ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) guarantees that rows are numbered in the declared sort
+        // order within each parent entity, regardless of how the database engine executes the surrounding query, which
+        // is essential when the sort references a joined table: a declarative window function always sees the fully
+        // joined and sorted rowset, so id_count = 1 reliably identifies the top-ranked child.
         $query->select(
-            // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
-            '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
+            "ROW_NUMBER() OVER (PARTITION BY {$sqlAccessor} ORDER BY {$windowOrderBy}) as id_count",
 
             // add select for foreign key for join condition
             $sqlAccessor,
@@ -1120,13 +1113,7 @@ class EntityReader implements EntityReaderInterface
             EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
         );
 
-        foreach ($query->getOrderByParts() as $i => $sorting) {
-            // The first order is the primary key
-            if ($i === 0) {
-                continue;
-            }
-            --$i;
-
+        foreach ($orderByParts as $i => $sorting) {
             // Strip the ASC/DESC at the end of the sort
             $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
@@ -1181,9 +1168,6 @@ class EntityReader implements EntityReaderInterface
             $type = $query->getParameterType($key);
             $wrapper->setParameter($key, $value, $type);
         }
-
-        // initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
-        $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
         $rows = $wrapper->executeQuery()->fetchAllAssociative();
 

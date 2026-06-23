@@ -200,6 +200,7 @@ export default Component.wrapComponentConfig({
     methods: {
         onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
             this.isDragging = true;
+            dragElement.classList.add('sw-multi-snippet-drag-and-drop__label-drag-clone');
 
             this.$emit('drag-start', { config, element, dragElement });
         },

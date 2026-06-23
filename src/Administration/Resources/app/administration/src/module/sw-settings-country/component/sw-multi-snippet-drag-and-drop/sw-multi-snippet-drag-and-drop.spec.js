@@ -467,11 +467,13 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
     it('should emit event `drag-start` when starting drag', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
         await flushPromises();
+        const dragElement = document.createElement('span');
 
-        await wrapper.vm.onDragStart();
+        await wrapper.vm.onDragStart({}, document.createElement('span'), dragElement);
         await flushPromises();
 
         expect(wrapper.emitted()['drag-start']).toBeTruthy();
+        expect(dragElement.classList.contains('sw-multi-snippet-drag-and-drop__label-drag-clone')).toBe(true);
     });
 
     it('should emit event `drag-enter` when ending drag', async () => {

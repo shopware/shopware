@@ -512,7 +512,6 @@
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",
-      "descriptionTitle": "Essential Characteristics",
       "descriptionBody": "Use Essential Characteristics to show important product details in the cart and checkout.",
       "configInformation": "Create {0} templates, then select one for this product.",
       "linkFeatureSetsConfig": "Essential Characteristics",

@@ -512,7 +512,6 @@
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",
-      "descriptionTitle": "Wesentliche Merkmale",
       "descriptionBody": "Mit wesentlichen Merkmalen zeigst Du wichtige Produktdetails im Warenkorb und Checkout.",
       "configInformation": "Lege Templates für {0} an und wähle dann eines für dieses Produkt aus.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",

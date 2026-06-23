@@ -35,3 +35,9 @@ Tests should read like executable examples.
 - Do not use `yield from` with inline arrays.
 - Name cases by the rule or boundary being proven, not raw input values.
 - Delete only exact semantic duplicates.
+
+## Detailed Guidelines
+
+- Read `coding-guidelines/core/unit-tests.md` when writing or restructuring PHP unit tests.
+- Read `coding-guidelines/core/writing-code-for-static-analysis.md` when test code interacts with PHPStan-sensitive types, assertions, or generics.
+- Read `coding-guidelines/core/feature-flags.md` when testing feature-flagged current or legacy behavior.

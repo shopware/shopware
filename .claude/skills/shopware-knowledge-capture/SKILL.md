@@ -31,6 +31,7 @@ Put knowledge in the smallest durable home where future readers will naturally f
 - Use `coding-guidelines/` for durable normative detail, examples, and rationale that should stay useful for humans and agents.
 - Link from a skill to coding guidelines only when the linked guideline adds task-relevant detail.
 - Make those links conditional: say when to read each guideline instead of adding passive "see also" lists.
+- When adding a coding guideline, check whether an existing skill should link to it so agents can discover it for matching tasks.
 - Do not copy guideline content into skills unless agents repeatedly miss the linked rule in practice.
 
 ## Guardrails

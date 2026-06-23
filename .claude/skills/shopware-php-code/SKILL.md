@@ -35,3 +35,10 @@ Prefer the existing Shopware extension point over a new abstraction.
 
 - Use the exact current Unix timestamp for new migration class names, file names, and `getCreationTimestamp()`.
 - Do not test empty `updateDestructive()` methods.
+
+## Detailed Guidelines
+
+- Read `coding-guidelines/core/internal.md` and `coding-guidelines/core/final-and-internal.md` when marking PHP API surface as internal, final, or supported for extension.
+- Read `coding-guidelines/core/extendability.md` and `coding-guidelines/core/decorator-pattern.md` when adding or changing extension points.
+- Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
+- Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.

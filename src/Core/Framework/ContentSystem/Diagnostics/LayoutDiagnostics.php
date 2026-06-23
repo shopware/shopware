@@ -215,8 +215,9 @@ class LayoutDiagnostics
     {
         if ($resolution->kind === PropertyKind::Primitive) {
             // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
-            // value renders. The type default is a creation-time seed (scaffold + the write-boundary materializer),
-            // not a render-time fallback, and so is not consulted here.
+            // value renders. The type default is a creation-time seed (scaffold + the write-boundary seeder),
+            // not a render-time fallback, and so is not consulted here. A stored explicit null counts as no value
+            // (it renders empty), so a required primitive authored as null is reported unresolved.
             if ($resolution->required && $element->getProperty($resolution->key) === null) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,

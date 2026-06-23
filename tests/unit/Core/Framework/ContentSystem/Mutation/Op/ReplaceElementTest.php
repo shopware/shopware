@@ -122,14 +122,22 @@ class ReplaceElementTest extends TestCase
         static::assertSame('Authored', $result[0]->getProperty('headline'));
     }
 
-    #[TestDox('reports a type-incompatible old value as dropped and seeds the new type default for that key')]
-    public function testReplaceDropsIncompatibleValueAndSeedsDefault(): void
+    #[TestDox('reports a type-incompatible old value as dropped')]
+    public function testReplaceReportsTypeIncompatibleValueAsDropped(): void
     {
         $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New');
 
-        $result = $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
+        $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
 
         static::assertSame(['count' => 'not-an-int'], $replace->droppedProperties());
+    }
+
+    #[TestDox('seeds the new type default for a key whose old value was dropped as type-incompatible')]
+    public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
+    {
+        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New'))
+            ->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
+
         static::assertSame(7, $result[0]->getProperty('count'));
     }
 

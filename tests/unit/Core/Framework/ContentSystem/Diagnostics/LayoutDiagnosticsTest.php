@@ -209,19 +209,27 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('reports a replacement that seeds its new type primitive default as resolvable and carrying the value')]
-    public function testReplacementSeedingNewTypeDefaultIsDiagnosedResolvable(): void
+    #[TestDox('reports a required primitive whose stored value is an explicit null as unresolved_required')]
+    public function testRequiredPrimitiveStoredAsNullIsUnresolved(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', [], ['headline' => null])];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('diagnoses a replacement that stored its new type primitive default as resolvable')]
+    public function testReplacementWithSeededDefaultIsDiagnosedResolvable(): void
     {
         $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
 
-        // ReplaceElement seeds the new type's default (Change B) and the strict primitive rule credits that stored
-        // value (Change A): the two compose to close Defect 2, so diagnose-resolvable implies the value renders.
+        // ReplaceElement seeds the new type's default (covered in ReplaceElementTest); here we assert only that the
+        // strict primitive rule credits the resulting stored value, so the replaced tree diagnoses as resolvable.
         $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New'))->apply([new ContentElement('el', 'Sw:Old')]);
 
-        $report = $this->diagnostics($specs)->analyze($replaced, [])->report;
-
-        static::assertSame('Default headline', $replaced[0]->getProperty('headline'));
-        static::assertSame([], $report->bindingErrors());
+        static::assertSame([], $this->diagnostics($specs)->analyze($replaced, [])->report->bindingErrors());
     }
 
     #[TestDox('produces a broken_required_chain binding error for a required accepts_context with no provider')]

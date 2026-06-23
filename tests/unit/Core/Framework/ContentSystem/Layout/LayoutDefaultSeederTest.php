@@ -121,6 +121,14 @@ class LayoutDefaultSeederTest extends TestCase
         static::assertSame($forest, $this->seeder()->seed($forest));
     }
 
+    #[TestDox('leaves a raw slot whose value is not a list untouched')]
+    public function testSeedRawArrayLeavesNonListSlotValueUntouched(): void
+    {
+        $forest = [['id' => 'el', 'component' => 'Sw:NoDefaults', 'slots' => ['content' => 'not-a-list']]];
+
+        static::assertSame($forest, $this->seeder()->seed($forest));
+    }
+
     private function seeder(): LayoutDefaultSeeder
     {
         $specs = [

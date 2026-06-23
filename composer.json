@@ -249,6 +249,8 @@
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
+        "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -335,6 +337,8 @@
         "admin:generate-position-identifier-list": [
             "@npm:admin run generate-position-identifier-list"
         ],
+        "admin:lint:snippets": "@npm:admin run lint:snippets",
+        "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",

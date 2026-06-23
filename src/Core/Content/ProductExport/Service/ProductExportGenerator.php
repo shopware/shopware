@@ -335,6 +335,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function renderProductBody(
         ProductExportEntity $productExport,
         SalesChannelContext $context,

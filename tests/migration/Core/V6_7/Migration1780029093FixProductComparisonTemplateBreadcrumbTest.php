@@ -115,7 +115,10 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
             WHERE id = ?
         SQL;
 
-        return $this->connection->fetchAssociative($sql, [$id]);
+        /** @var array{body: string, updatedAt: ?string}|false $row */
+        $row = $this->connection->fetchAssociative($sql, [$id]);
+
+        return $row;
     }
 
     private function prepareOldDatabaseEntry(string $body): string

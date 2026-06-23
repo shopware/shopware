@@ -47,7 +47,7 @@ All eight live in `Op/` and extend `AbstractLayoutMutation`:
 - **InsertElement** - inserts a fresh element of a given type (primitive defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
 - **RemoveElement** - deletes an element and its whole subtree.
 - **MoveElement** - relocates an element and its subtree under a new parent slot (or to the root), rejecting a move onto itself or a descendant as a cycle.
-- **ReplaceElement** - swaps an element's component to a new type, keeping the same id and carrying over matching properties, wiring, and slot children; anything the new type cannot hold is surfaced via `orphaned`/`droppedWiring`/`droppedProperties`.
+- **ReplaceElement** - swaps an element's component to a new type, keeping the same id and carrying over matching properties, wiring, and slot children, then seeding the new type's primitive defaults for any keys it does not carry (a carried or authored value wins); anything the new type cannot hold is surfaced via `orphaned`/`droppedWiring`/`droppedProperties`.
 - **DuplicateElement** - deep-clones a subtree with freshly minted ids and splices the clone as the next sibling.
 - **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
 - **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position. The removed container's own static property values and consumed wiring (its data requirements and accepted context) come back through `droppedProperties` / `droppedWiring`, so nothing the container held is lost.

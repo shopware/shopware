@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -186,6 +187,43 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
+    #[TestDox('treats a required primitive carrying an authored value and no default as resolvable')]
+    public function testRequiredPrimitiveWithAuthoredValueResolves(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', [], ['headline' => 'Authored headline'])];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
+    public function testRequiredPrimitiveWithDefaultButNoValueIsUnresolved(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Default headline')->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('reports a replacement that seeds its new type primitive default as resolvable and carrying the value')]
+    public function testReplacementSeedingNewTypeDefaultIsDiagnosedResolvable(): void
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
+
+        // ReplaceElement seeds the new type's default (Change B) and the strict primitive rule credits that stored
+        // value (Change A): the two compose to close Defect 2, so diagnose-resolvable implies the value renders.
+        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New'))->apply([new ContentElement('el', 'Sw:Old')]);
+
+        $report = $this->diagnostics($specs)->analyze($replaced, [])->report;
+
+        static::assertSame('Default headline', $replaced[0]->getProperty('headline'));
+        static::assertSame([], $report->bindingErrors());
+    }
+
     #[TestDox('produces a broken_required_chain binding error for a required accepts_context with no provider')]
     public function testBrokenRequiredChain(): void
     {
@@ -293,15 +331,25 @@ class LayoutDiagnosticsTest extends TestCase
     /**
      * @param array<string, ContentSystemElementTypeSpecification> $specs
      */
+    private function registry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
     private function diagnostics(
         array $specs,
         ?ContentSystemDataLoaderTypeMap $map = null,
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
     ): LayoutDiagnostics {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
-        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+        $registry = $this->registry($specs);
 
         $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));

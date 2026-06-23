@@ -10,10 +10,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Registers two deterministic element types for the resolvability-gate tests, independent of the shipped
- * type definitions: a property-free component that is resolvable against every binding, and a component
- * with a required reference to {@see UnresolvableContextTarget} that is resolvable against none. Wired only
- * in the test environment via the content_system.type_loader tag in services_test.xml.
+ * Registers three deterministic element types for the resolvability-gate and default-materialization tests,
+ * independent of the shipped type definitions: a property-free component that is resolvable against every binding,
+ * a component with a required reference to {@see UnresolvableContextTarget} that is resolvable against none, and a
+ * component with a required primitive carrying a type default (used to prove the write-boundary default seeding).
+ * Wired only in the test environment via the content_system.type_loader tag in services_test.xml.
  *
  * @internal
  *
@@ -25,6 +26,8 @@ class TestElementTypeLoader extends AbstractContentSystemElementTypeLoader
     public const RESOLVABLE = 'Sw:Test:Resolvable';
 
     public const UNRESOLVABLE = 'Sw:Test:RequiresEntity';
+
+    public const DEFAULTED_PRIMITIVE = 'Sw:Test:DefaultedPrimitive';
 
     public const SOURCE = 'test';
 
@@ -53,6 +56,26 @@ class TestElementTypeLoader extends AbstractContentSystemElementTypeLoader
                     'target' => new PropertySpecification(
                         'target',
                         new PropertyType(UnresolvableContextTarget::class, false, null, null),
+                        true,
+                        '',
+                        '',
+                        null,
+                    ),
+                ],
+                [],
+                self::SOURCE,
+            ),
+            new ContentSystemElementTypeSpecification(
+                self::DEFAULTED_PRIMITIVE,
+                'Defaulted primitive test element',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                [
+                    'headline' => new PropertySpecification(
+                        'headline',
+                        new PropertyType('string', false, null, 'Seeded headline'),
                         true,
                         '',
                         '',

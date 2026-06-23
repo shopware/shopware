@@ -23,6 +23,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
  * @internal
@@ -99,6 +100,37 @@ class ReplaceElementTest extends TestCase
         $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'second-run'])]);
 
         static::assertSame(['count' => 'second-run'], $replace->droppedProperties());
+    }
+
+    #[TestDox('seeds the new type primitive default for a key the old element lacked')]
+    public function testReplaceSeedsNewTypeDefaultForAbsentKey(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old')];
+
+        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New'))->apply($tree);
+
+        static::assertSame('Default tagline', $result[0]->getProperty('tagline'));
+    }
+
+    #[TestDox('does not overwrite a carried-over authored value with the new type default')]
+    public function testReplaceKeepsAuthoredValueOverNewTypeDefault(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old', [], ['headline' => 'Authored'])];
+
+        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New'))->apply($tree);
+
+        static::assertSame('Authored', $result[0]->getProperty('headline'));
+    }
+
+    #[TestDox('reports a type-incompatible old value as dropped and seeds the new type default for that key')]
+    public function testReplaceDropsIncompatibleValueAndSeedsDefault(): void
+    {
+        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New');
+
+        $result = $replace->apply([new ContentElement('el', 'Sw:Old', [], ['count' => 'not-an-int'])]);
+
+        static::assertSame(['count' => 'not-an-int'], $replace->droppedProperties());
+        static::assertSame(7, $result[0]->getProperty('count'));
     }
 
     #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
@@ -246,6 +278,21 @@ class ReplaceElementTest extends TestCase
             [new SlotSpecification('content', null, [], '')],
         );
         $specs = ['Sw:New' => $spec];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
+    private function registryWithDefaults(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->primitive('headline', 'string', required: true, default: 'Default headline')
+            ->primitive('count', 'integer', required: true, default: 7)
+            ->primitive('tagline', 'string', required: true, default: 'Default tagline')
+            ->build()];
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));

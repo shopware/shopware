@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -211,25 +212,19 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      */
     protected function scaffoldElement(AbstractContentSystemElementTypeRegistry $registry, string $type, array $slots = []): ContentElement
     {
-        $properties = [];
+        return new ContentElement(Uuid::randomHex(), $type, [], $this->primitiveDefaults($registry, $type), $slots);
+    }
 
-        foreach ($registry->get($type)->properties() as $key => $property) {
-            $propertyType = $property->type();
-
-            if (!$propertyType->isPrimitive()) {
-                continue;
-            }
-
-            $default = $propertyType->default();
-
-            if ($default === null) {
-                continue;
-            }
-
-            $properties[$key] = $default;
-        }
-
-        return new ContentElement(Uuid::randomHex(), $type, [], $properties, $slots);
+    /**
+     * The type's primitive property defaults to seed into a stored element, keyed by property key. The single rule
+     * lives in {@see PrimitiveDefaults}, shared with the write-boundary materializer so a type's defaults are
+     * defined once.
+     *
+     * @return array<string, string|int|float|bool>
+     */
+    protected function primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
+    {
+        return (new PrimitiveDefaults())->forType($registry, $type);
     }
 
     protected function requireRegistered(AbstractContentSystemElementTypeRegistry $registry, string $type): void

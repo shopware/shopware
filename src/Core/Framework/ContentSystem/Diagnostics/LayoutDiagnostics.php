@@ -201,7 +201,7 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($resolutions as $resolution) {
-            $violation = $this->propertyBindingViolation($element->getId(), $resolution);
+            $violation = $this->propertyBindingViolation($element, $resolution);
 
             if ($violation !== null) {
                 $violations[] = $violation;
@@ -211,13 +211,16 @@ class LayoutDiagnostics
         return [...$violations, ...$this->brokenChainViolations($element, $available)];
     }
 
-    private function propertyBindingViolation(string $elementId, PropertyResolution $resolution): ?Violation
+    private function propertyBindingViolation(ContentElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
-            if ($resolution->required && $resolution->default === null) {
+            // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
+            // value renders. The type default is a creation-time seed (scaffold + the write-boundary materializer),
+            // not a render-time fallback, and so is not consulted here.
+            if ($resolution->required && $element->getProperty($resolution->key) === null) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,
-                    $elementId,
+                    $element->getId(),
                     $resolution->key,
                     \sprintf('Required property "%s" has no value.', $resolution->key),
                 );
@@ -235,7 +238,7 @@ class LayoutDiagnostics
 
             return new Violation(
                 $code,
-                $elementId,
+                $element->getId(),
                 $resolution->key,
                 \sprintf('Required property "%s" is not deterministically resolvable.', $resolution->key),
                 $resolution->candidates,
@@ -245,7 +248,7 @@ class LayoutDiagnostics
         if ($resolution->candidates === []) {
             return new Violation(
                 ViolationCode::UnresolvedOptional,
-                $elementId,
+                $element->getId(),
                 $resolution->key,
                 \sprintf('Optional property "%s" has no source.', $resolution->key),
             );

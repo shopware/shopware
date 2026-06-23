@@ -11,6 +11,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -19,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -41,6 +45,8 @@ class ContentElementListFieldSerializerTest extends TestCase
      */
     private ContentElementFieldSerializer $elementSerializer;
 
+    private LayoutDefaultMaterializer $defaultMaterializer;
+
     private EntityExistence $existence;
 
     private WriteParameterBag $parameters;
@@ -54,7 +60,11 @@ class ContentElementListFieldSerializerTest extends TestCase
         // buildConstraints must return at least one valid constraint so that new All([...]) does not throw
         $this->elementSerializer->method('buildConstraints')->willReturn([new Type('array')]);
 
-        $this->serializer = new ContentElementListFieldSerializer($validator, $definitionRegistry, $this->elementSerializer);
+        // The encode/decode/constraint tests never call normalize, so a stub materializer suffices here; the
+        // normalize tests below build a serializer with a real materializer.
+        $this->defaultMaterializer = static::createStub(LayoutDefaultMaterializer::class);
+
+        $this->serializer = new ContentElementListFieldSerializer($validator, $definitionRegistry, $this->elementSerializer, $this->defaultMaterializer);
 
         // Passthrough validator never raises violations — used when encoding ContentElement objects
         // (the Type('array') constraint would otherwise reject them before serializer conversion)
@@ -64,11 +74,45 @@ class ContentElementListFieldSerializerTest extends TestCase
         $this->serializerWithPassthroughValidator = new ContentElementListFieldSerializer(
             $passthroughValidator,
             $definitionRegistry,
-            $this->elementSerializer
+            $this->elementSerializer,
+            $this->defaultMaterializer
         );
 
         $this->existence = new EntityExistence('content_layout', ['id' => 'test'], true, false, false, []);
         $this->parameters = static::createStub(WriteParameterBag::class);
+    }
+
+    #[TestDox('normalize seeds the type primitive defaults into a raw layout payload before encode')]
+    public function testNormalizeSeedsPrimitiveDefaultsIntoRawPayload(): void
+    {
+        $field = $this->createContentElementListField();
+        $data = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+
+        $result = $this->serializerWithRealMaterializer()->normalize($field, $data, $this->parameters);
+
+        static::assertSame([['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Hi']]], $result['elements']);
+    }
+
+    #[TestDox('normalize wraps a single ContentElement value into a list and seeds it')]
+    public function testNormalizeWrapsAndSeedsSingleContentElement(): void
+    {
+        $field = $this->createContentElementListField();
+        $element = new ContentElement('el', 'Sw:Block');
+
+        $result = $this->serializerWithRealMaterializer()->normalize($field, ['elements' => $element], $this->parameters);
+
+        static::assertSame([$element], $result['elements']);
+        static::assertSame('Hi', $element->getProperty('headline'));
+    }
+
+    #[TestDox('normalize leaves a non-list layout value untouched')]
+    public function testNormalizeLeavesNonListValueUntouched(): void
+    {
+        $field = $this->createContentElementListField();
+
+        $result = $this->serializerWithRealMaterializer()->normalize($field, ['elements' => 'not-a-list'], $this->parameters);
+
+        static::assertSame(['elements' => 'not-a-list'], $result);
     }
 
     #[TestDox('encodes single ContentElement wrapped to array as JSON string')]
@@ -351,6 +395,22 @@ class ContentElementListFieldSerializerTest extends TestCase
         $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         return $field;
+    }
+
+    private function serializerWithRealMaterializer(): ContentElementListFieldSerializer
+    {
+        $specs = ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->primitive('headline', 'string', default: 'Hi')->build()];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return new ContentElementListFieldSerializer(
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->elementSerializer,
+            new LayoutDefaultMaterializer($registry),
+        );
     }
 
     private function createContentElementListFieldWithRequired(): ContentElementListField

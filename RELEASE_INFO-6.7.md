@@ -343,6 +343,65 @@ This functionality will be available in the **Agentic Commerce extension (SwagAg
 
 ## Administration
 
+### Block additions and renamings
+
+Due to missing blocks and inappropriate block names, the following templates have received new blocks and/or contain blocks which have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+Added:
+
+* `sw_cms_element_product_box_config_product_selection_label`
+* `sw_cms_element_product_box_config_product_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+Added:
+
+* `sw_cms_element_product_slider_config_content_products_selection_label`
+* `sw_cms_element_product_slider_config_content_products_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+Added:
+
+* `sw_product_cross_selling_assignment_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
+
 ### `sw-select-field` forwards `aria-label` to the native select
 
 The deprecated `sw-select-field` now passes through `aria-label` and `aria-labelledby` attributes to the underlying native `<select>` element. Previously these attributes were applied to the wrapping field component but never reached the form control, leaving selects without an accessible name (e.g. the range picker of `sw-chart-card`). Plugins that render a `sw-select-field` without a visible `<label>` can now give it an accessible name by passing `aria-label` / `aria-labelledby`.

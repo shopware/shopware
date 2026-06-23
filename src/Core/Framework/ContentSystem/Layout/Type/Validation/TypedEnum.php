@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class TypedEnum extends Constraint
 {
-    public string $typeMessage = 'enum is only valid with primitive types (string, integer, boolean, number)';
+    public string $typeMessage = 'enum is only valid when exactly one primitive type is declared (string, integer, boolean, number)';
 
     public string $listMessage = 'enum must be a list';
 

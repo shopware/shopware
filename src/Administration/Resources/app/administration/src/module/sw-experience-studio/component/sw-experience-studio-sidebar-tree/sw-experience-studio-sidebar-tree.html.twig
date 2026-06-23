@@ -13,7 +13,7 @@
             type="button"
             :disabled="!allowEdit || undefined"
             :aria-label="$t('sw-experience-studio.detail.sidebarTree.addElement')"
-            @click="onAddRootElement"
+            @click="onAddRootElement($event)"
         >
             <mt-icon
                 name="regular-plus-xs"

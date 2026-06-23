@@ -22,6 +22,8 @@
         "viewportMobile": "Mobil",
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
+        "previewEntity": "Entität",
+        "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
         "save": "Layout speichern"
@@ -30,17 +32,34 @@
         "title": "Struktur",
         "emptyState": "Dieses Layout enthält noch keine Elemente.",
         "addElement": "Element hinzufügen",
+        "addElementNoTypeAvailable": "Es ist kein registrierter Elementtyp zum Einfügen verfügbar.",
+        "addElementNotAllowed": "Dieses Element kann nicht in den ausgewählten Slot eingefügt werden.",
         "configureElement": "Element konfigurieren",
         "duplicateElement": "Element duplizieren",
         "deleteElement": "Element löschen"
       },
       "preview": {
         "title": "Vorschau",
-        "placeholder": "Die Storefront-Vorschau wird hier angezeigt."
+        "placeholder": "Die Storefront-Vorschau wird hier angezeigt.",
+        "missingSalesChannel": "Wähle einen Verkaufskanal aus, um die Vorschau zu laden.",
+        "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
+        "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
+        "emptySlot": "Dieser Slot enthält keine Elemente.",
+        "errorLoad": "Die Vorschau konnte nicht geladen werden."
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
-        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten."
+        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
+        "loading": "Element-Einstellungen werden geladen ...",
+        "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
+        "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
+        "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
+        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
+        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
+      },
+      "elementPicker": {
+        "title": "Element hinzufügen",
+        "noElements": "Für diese Position sind keine Elementtypen verfügbar."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert."
     }

@@ -8,9 +8,9 @@
 
 <header {{ attributes.defaults(attributeDefaults) }}>
     <twig:Sw:Grid:Container
+        mode="max-content"
         justifyContent="end"
         align="end"
-        autoColumns="max-content"
         gap="15"
     >
         <twig:Sw:Grid:Column :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }">
@@ -50,11 +50,10 @@
 
         <twig:Sw:Grid:Column justify="end">
             <twig:Sw:Grid:Container
-                columns="auto"
+                mode="max-content"
                 gap="0"
                 justifyContent="end"
                 :centered="false"
-                autoColumns="max-content"
             >
 
                 <twig:Sw:Header:WishlistWidget />

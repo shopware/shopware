@@ -13,12 +13,8 @@
         margin-right: auto;
     }
 
-    &.auto-columns {
+    &.max-content {
         grid-auto-flow: column;
-        grid-auto-columns: 1fr;
-    }
-
-    &.auto-columns-max-content {
         grid-auto-columns: max-content;
     }
 
@@ -32,31 +28,19 @@
         }
     }
 
-    @include media-breakpoint-down(xl) {
+    @include media-breakpoint-up(sm) {
         @for $i from 1 through 12 {
-            &.columns-xl-#{$i} {
+            &.columns-sm-#{$i} {
                 grid-template-columns: repeat(#{$i}, 1fr);
             }
 
-            &.rows-xl-#{$i} {
+            &.rows-sm-#{$i} {
                 grid-template-rows: repeat(#{$i}, 1fr);
             }
         }
     }
 
-    @include media-breakpoint-down(lg) {
-        @for $i from 1 through 12 {
-            &.columns-lg-#{$i} {
-                grid-template-columns: repeat(#{$i}, 1fr);
-            }
-
-            &.rows-lg-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-down(md) {
+    @include media-breakpoint-up(md) {
         @for $i from 1 through 12 {
             &.columns-md-#{$i} {
                 grid-template-columns: repeat(#{$i}, 1fr);
@@ -68,13 +52,25 @@
         }
     }
 
-    @include media-breakpoint-down(sm) {
+    @include media-breakpoint-up(lg) {
         @for $i from 1 through 12 {
-            &.columns-sm-#{$i} {
+            &.columns-lg-#{$i} {
                 grid-template-columns: repeat(#{$i}, 1fr);
             }
 
-            &.rows-sm-#{$i} {
+            &.rows-lg-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-up(xl) {
+        @for $i from 1 through 12 {
+            &.columns-xl-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-xl-#{$i} {
                 grid-template-rows: repeat(#{$i}, 1fr);
             }
         }

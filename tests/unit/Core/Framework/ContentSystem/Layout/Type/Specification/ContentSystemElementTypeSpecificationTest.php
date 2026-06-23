@@ -102,7 +102,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             [
                 'product' => new PropertySpecification(
                     'product',
-                    new PropertyType('Shopware\Core\Content\Product\ProductEntity', false, null, null),
+                    new PropertyType('Shopware\Core\Content\Product\ProductEntity', false, null, null, null),
                     true,
                     'Product',
                     'The product.',
@@ -110,7 +110,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
                 ),
                 'layout' => new PropertySpecification(
                     'layout',
-                    new PropertyType('string', false, ['box', 'list'], 'box'),
+                    new PropertyType('string', false, ['box', 'list'], 'box', null),
                     false,
                     'Layout',
                     'Layout variant.',

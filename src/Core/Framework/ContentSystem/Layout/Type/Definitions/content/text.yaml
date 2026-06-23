@@ -1,0 +1,26 @@
+meta:
+  label: "Text"
+  description: "Sanitized rich text content."
+  icon: "regular-align-left"
+  category: "content"
+  copilot:
+    summary: "Text content element."
+    hints:
+      - "Supports HTML content (sanitized at render time)."
+      - "Can be rendered inline."
+
+properties:
+  text:
+    type: string
+    translatable: true
+    title: "Text"
+    description: "HTML text content."
+    adminUI:
+      component: "text-editor"
+
+  inline:
+    type: boolean
+    title: "Inline"
+    description: "Render as inline text block."
+    default: false
+

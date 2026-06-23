@@ -75,8 +75,18 @@
                                                             "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
                                                             "properties": {
                                                                 "type": {
-                                                                    "type": "string",
-                                                                    "description": "Primitive type name or FQCN."
+                                                                    "oneOf": [
+                                                                        {
+                                                                            "type": "string"
+                                                                        },
+                                                                        {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "description": "Primitive type name, FQCN, object, or a list of those for union declarations."
                                                                 },
                                                                 "translatable": {
                                                                     "type": "boolean"
@@ -89,6 +99,13 @@
                                                                 },
                                                                 "default": {
                                                                     "type": ["string", "integer", "number", "boolean", "null"]
+                                                                },
+                                                                "properties": {
+                                                                    "type": ["object", "null"],
+                                                                    "description": "Nested schema for object-typed properties.",
+                                                                    "additionalProperties": {
+                                                                        "type": "object"
+                                                                    }
                                                                 },
                                                                 "required": {
                                                                     "type": "boolean"

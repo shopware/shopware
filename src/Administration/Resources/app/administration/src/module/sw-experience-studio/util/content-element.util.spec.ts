@@ -5,6 +5,7 @@ import {
     findElementLocation,
     removeElementFromLayout,
     sanitizeContentElementLayoutForWrite,
+    updateElementPropertiesInLayout,
 } from './content-element.util';
 
 const { cloneDeep } = Shopware.Utils.object;
@@ -167,5 +168,32 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
 
         expect(removeElementFromLayout(testLayout, 'missing')).toBe(false);
         expect(testLayout).toHaveLength(2);
+    });
+
+    it('updates nested element properties in place', () => {
+        const testLayout = cloneDeep(layout);
+
+        const updated = updateElementPropertiesInLayout(testLayout, 'child-1', {
+            text: 'Updated text',
+            visibility: 'public',
+        });
+
+        expect(updated).toBe(true);
+        expect(testLayout[0].slots!.content[0].properties).toEqual({
+            text: 'Updated text',
+            visibility: 'public',
+        });
+    });
+
+    it('returns false when updating properties for a missing element', () => {
+        const testLayout = cloneDeep(layout);
+        const updated = updateElementPropertiesInLayout(testLayout, 'missing', {
+            text: 'Updated text',
+        });
+
+        expect(updated).toBe(false);
+        expect(testLayout[0].slots!.content[0].properties).toEqual({
+            text: 'Hello',
+        });
     });
 });

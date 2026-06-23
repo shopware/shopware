@@ -3,37 +3,66 @@
 {# @internal #}
 
 {% props
-    columns = 'auto',
-    columnsSm = null,
-    columnsMd = null,
-    columnsLg = null,
-    columnsXl = null,
+    mode = null,
+    itemMinWidth = "400px",
+    columns = null,
     rows = null,
-    rowsSm = null,
-    rowsMd = null,
-    rowsLg = null,
-    rowsXl = null,
     gap = 24,
     align = 'start',
     alignContent = 'start',
     justify = 'start',
     justifyContent = 'start',
     centered = true,
-    slots = [],
-    autoColumns = null,
     border = null,
     borderVariant = null,
     borderSubtle = false,
+    slots = [],
 %}
+
+{% if columns is not null and mode is null %}
+    {% set mode = 'explicit' %}
+{% elseif mode is null %}
+    {% set mode = 'auto-fit' %}
+{% endif %}
+
+{% if columns is object or columns is iterable %}
+    {% set columnsXs = columns.xs ?? null %}
+    {% set columnsSm = columns.sm ?? null %}
+    {% set columnsMd = columns.md ?? null %}
+    {% set columnsLg = columns.lg ?? null %}
+    {% set columnsXl = columns.xl ?? null %}
+{% else %}
+    {% set columnsXs = columns ?? null %}
+    {% set columnsSm = columns ?? null %}
+    {% set columnsMd = columns ?? null %}
+    {% set columnsLg = columns ?? null %}
+    {% set columnsXl = columns ?? null %}
+{% endif %}
+
+{% if rows is object or rows is iterable %}
+    {% set rowsXs = rows.xs ?? null %}
+    {% set rowsSm = rows.sm ?? null %}
+    {% set rowsMd = rows.md ?? null %}
+    {% set rowsLg = rows.lg ?? null %}
+    {% set rowsXl = rows.xl ?? null %}
+{% else %}
+    {% set rowsXs = rows ?? null %}
+    {% set rowsSm = rows ?? null %}
+    {% set rowsMd = rows ?? null %}
+    {% set rowsLg = rows ?? null %}
+    {% set rowsXl = rows ?? null %}
+{% endif %}
 
 {% set gridCVA = cva({
     base: 'grid-container',
-    defaultVariants: {
-        columns: 'auto',
-    },
     variants: {
-        columns: {
-            auto: 'auto-columns',
+        mode: {
+            'max-content': 'max-content',
+            'auto-fit': 'auto-fit',
+            'auto-fill': 'auto-fill',
+            'explicit': 'explicit',
+        },
+        columnsXs: {
             '1': 'columns-1',
             '2': 'columns-2',
             '3': 'columns-3',
@@ -206,9 +235,6 @@
         centered: {
             true: 'centered',
         },
-        autoColumns: {
-            'max-content': 'auto-columns-max-content',
-        },
         border: {
             true: 'border',
             top: 'border-top',
@@ -226,22 +252,22 @@
 
 {% set attributeDefaults = {
     class: gridCVA.apply({
+        mode,
+        columnsXs,
+        columnsSm,
+        columnsMd,
+        columnsLg,
+        columnsXl,
+        rowsXs,
+        rowsSm,
+        rowsMd,
+        rowsLg,
+        rowsXl,
         align,
         alignContent,
         justify,
         justifyContent,
         centered,
-        columns,
-        columnsSm,
-        columnsMd,
-        columnsLg,
-        columnsXl,
-        rows,
-        rowsSm,
-        rowsMd,
-        rowsLg,
-        rowsXl,
-        autoColumns,
         border,
         borderVariant,
         borderSubtle,
@@ -255,18 +281,22 @@
 {% set rowCvaValues = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] %}
 
 {# It is possible to pass custom values which will be assigned to the grid-template-columns property. #}
-{% if columns not in columnCvaValues %}
+{% if columns is string and columns not in columnCvaValues %}
     {% set columnSetting = columns %}
 {% endif %}
 
 {# It is possible to pass custom values which will be assigned to the grid-template-rows property. #}
-{% if rows not in rowCvaValues %}
+{% if rows is string and rows not in rowCvaValues %}
     {% set rowSetting = rows %}
 {% endif %}
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
+
+{% if mode == 'auto-fit' or mode == 'auto-fill' %}
+    {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(' ~ itemMinWidth ~ ', 1fr));' %}
+{% endif %}
 
 <div
     {{ attributes.defaults(attributeDefaults) }}

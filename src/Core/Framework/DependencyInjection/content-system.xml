@@ -354,14 +354,23 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
         </service>
 
-        <!-- Preview Action (Admin API) -->
-        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController" public="true">
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentPipeline"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore">
+            <argument type="service" id="cache.system"/>
+        </service>
+
+        <!-- Preview Action (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore"/>
         </service>
     </services>
 </container>

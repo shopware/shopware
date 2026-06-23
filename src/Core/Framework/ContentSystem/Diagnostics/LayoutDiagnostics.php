@@ -199,7 +199,7 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($resolutions as $resolution) {
-            $violation = $this->propertyBindingViolation($element->getId(), $resolution);
+            $violation = $this->propertyBindingViolation($element, $resolution);
 
             if ($violation !== null) {
                 $violations[] = $violation;
@@ -209,13 +209,15 @@ class LayoutDiagnostics
         return [...$violations, ...$this->brokenChainViolations($element, $available)];
     }
 
-    private function propertyBindingViolation(string $elementId, PropertyResolution $resolution): ?Violation
+    private function propertyBindingViolation(ContentElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
-            if ($resolution->required && $resolution->default === null) {
+            $configuredValue = $element->getProperty($resolution->key);
+
+            if ($resolution->required && $configuredValue === null && $resolution->default === null) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,
-                    $elementId,
+                    $element->getId(),
                     $resolution->key,
                     \sprintf('Required property "%s" has no value.', $resolution->key),
                 );
@@ -233,7 +235,7 @@ class LayoutDiagnostics
 
             return new Violation(
                 $code,
-                $elementId,
+                $element->getId(),
                 $resolution->key,
                 \sprintf('Required property "%s" is not deterministically resolvable.', $resolution->key),
                 $resolution->candidates,
@@ -243,7 +245,7 @@ class LayoutDiagnostics
         if ($resolution->candidates === []) {
             return new Violation(
                 ViolationCode::UnresolvedOptional,
-                $elementId,
+                $element->getId(),
                 $resolution->key,
                 \sprintf('Optional property "%s" has no source.', $resolution->key),
             );

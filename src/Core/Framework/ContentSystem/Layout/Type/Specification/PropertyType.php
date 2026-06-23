@@ -7,22 +7,32 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * $type accepts primitives (`string`, `integer`, `boolean`, `number`) and class-string<Struct> FQCNs.
+ * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
+ * class-string<Struct> FQCNs, and lists for union-like declarations.
  * `enum` and `translatable` are ignored for non-primitive types. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
  *
- * @phpstan-type PropertyTypeSchema = array{type: string, translatable: bool, enum: list<string|int|float|bool>|null, default: string|int|float|bool|null}
+ * @phpstan-type PropertyTypeSchema = array{
+ *     type: string|list<string>,
+ *     translatable: bool,
+ *     enum: list<string|int|float|bool>|null,
+ *     default: string|int|float|bool|null,
+ *     properties: array<string, array<string, mixed>>|null
+ * }
  */
 #[Package('framework')]
 final readonly class PropertyType
 {
     /**
+     * @param string|list<string> $type
      * @param list<string|int|float|bool>|null $enum
+     * @param array<string, PropertySpecification>|null $properties
      */
     public function __construct(
-        private string $type,
+        private string|array $type,
         private bool $translatable,
         private ?array $enum,
         private string|int|float|bool|null $default,
+        private ?array $properties = null,
     ) {
     }
 
@@ -31,15 +41,28 @@ final readonly class PropertyType
      */
     public function toSchema(): array
     {
+        $properties = null;
+
+        if ($this->properties !== null) {
+            $properties = array_map(
+                static fn (PropertySpecification $property): array => $property->toSchema(),
+                $this->properties
+            );
+        }
+
         return [
             'type' => $this->type,
             'translatable' => $this->translatable,
             'enum' => $this->enum,
             'default' => $this->default,
+            'properties' => $properties,
         ];
     }
 
-    public function type(): string
+    /**
+     * @return string|list<string>
+     */
+    public function type(): string|array
     {
         return $this->type;
     }

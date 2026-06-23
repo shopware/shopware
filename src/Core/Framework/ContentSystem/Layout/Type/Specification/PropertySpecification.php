@@ -7,7 +7,17 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @phpstan-type PropertySchema = array{type: string, translatable: bool, enum: list<string|int|float|bool>|null, default: string|int|float|bool|null, required: bool, title: string, description: string, adminUI: array<string, mixed>|null}
+ * @phpstan-type PropertySchema = array{
+ *     type: string|list<string>,
+ *     translatable: bool,
+ *     enum: list<string|int|float|bool>|null,
+ *     default: string|int|float|bool|null,
+ *     properties: array<string, array<string, mixed>>|null,
+ *     required: bool,
+ *     title: string,
+ *     description: string,
+ *     adminUI: array<string, mixed>|null
+ * }
  */
 #[Package('framework')]
 final readonly class PropertySpecification

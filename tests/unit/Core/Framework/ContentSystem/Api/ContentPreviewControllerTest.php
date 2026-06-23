@@ -5,29 +5,16 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
-use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentPipeline;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\ContentSystem\RenderableLayout;
-use Shopware\Core\Framework\ContentSystem\RenderingMode;
-use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -35,189 +22,81 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewController::class)]
 class ContentPreviewControllerTest extends TestCase
 {
-    #[TestDox('orchestrates decode, validation and pipeline, returning the full-format response')]
-    public function testPreviewRendersDecodedLayoutThroughThePipeline(): void
+    #[TestDox('preview delegates to the page builder and wraps its content page in the factory response')]
+    public function testPreviewWrapsPageBuilderResultInFactoryResponse(): void
     {
-        $decodedElement = ContentElementBuilder::create('Sw:Content:Heading', 'e1')->build();
-        $specification = $this->specification();
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $contentPage = new ContentPage('preview-layout', [$decodedElement], 'preview', null);
+        $payload = $this->request();
+        $context = Context::createDefaultContext();
+        $contentPage = new ContentPage('preview-layout', [], 'preview', null);
+        $response = new ContentRouteResponse($contentPage);
 
-        $contextService = static::createStub(SalesChannelContextServiceInterface::class);
-        $contextService->method('get')->willReturn($salesChannelContext);
+        $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
+        $pageBuilder->expects($this->once())
+            ->method('build')
+            ->with(static::identicalTo($payload), static::identicalTo($context))
+            ->willReturn(['contentPage' => $contentPage, 'salesChannelContext' => Generator::generateSalesChannelContext()]);
 
-        $resolver = static::createStub(RenderingSpecificationResolver::class);
-        $resolver->method('resolveWithoutLayout')->willReturn($specification);
-
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willReturn($decodedElement);
-
-        $pipeline = static::createMock(ContentPipeline::class);
-        $pipeline->expects($this->atLeastOnce())
-            ->method('load')
-            ->with(
-                static::callback(static fn (RenderableLayout $layout): bool => $layout->elements === [$decodedElement]
-                    && $layout->reference->name === 'preview'
-                    && $layout->reference->version === null),
-                static::identicalTo($specification),
-                static::isInstanceOf(RenderingCacheContext::class),
-                RenderingMode::FULL,
-                static::identicalTo($salesChannelContext),
-            )
-            ->willReturn($contentPage);
+        $responseFactory = static::createMock(AbstractResponseFactory::class);
+        $responseFactory->expects($this->once())
+            ->method('createResponse')
+            ->with(static::identicalTo($contentPage))
+            ->willReturn($response);
 
         $controller = new ContentPreviewController(
-            $contextService,
-            $resolver,
-            $serializer,
-            $this->checker(registered: true),
-            $pipeline,
-            new FullResponseFactory(),
+            $pageBuilder,
+            $responseFactory,
+            static::createStub(ContentPreviewPayloadStore::class),
         );
 
-        $response = $controller->preview($this->request(), Context::createDefaultContext());
-
-        static::assertInstanceOf(ContentRouteResponse::class, $response);
-        static::assertSame($contentPage, $response->getContentPage());
+        static::assertSame($response, $controller->preview($payload, $context));
     }
 
-    #[TestDox('throws invalidLayoutStructure for an element missing a non-empty string id')]
-    public function testPreviewThrowsForStructurallyInvalidElement(): void
+    #[TestDox('previewUrl stores the serialized payload and returns a URL embedding the minted token')]
+    public function testPreviewUrlReturnsUrlForStoredToken(): void
     {
-        $controller = new ContentPreviewController(
-            $this->contextService(Generator::generateSalesChannelContext()),
-            $this->resolverReturning($this->specification()),
-            static::createStub(ContentElementFieldSerializer::class),
-            $this->checker(registered: true),
-            static::createStub(ContentPipeline::class),
-            new FullResponseFactory(),
-        );
+        $payload = $this->request();
 
-        $request = $this->request(layout: [['component' => 'Sw:Content:Heading']]);
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
+        $payloadStore = static::createMock(ContentPreviewPayloadStore::class);
+        $payloadStore->expects($this->once())
+            ->method('store')
+            ->with([
+                'layout' => [['id' => 'e1', 'component' => 'Sw:Content:Heading']],
+                'entityType' => 'product',
+                'entityId' => 'prod-1',
+                'salesChannelId' => 'sc-1',
+                'languageId' => null,
+                'currencyId' => null,
+                'domainId' => null,
+                'customerId' => null,
+                'queryParameters' => [],
             ])
-        ));
-
-        $controller->preview($request, Context::createDefaultContext());
-    }
-
-    #[TestDox('propagates unknownEntityType when the resolver cannot match the entity type')]
-    public function testPreviewPropagatesUnknownEntityType(): void
-    {
-        $resolver = static::createStub(RenderingSpecificationResolver::class);
-        $resolver->method('resolveWithoutLayout')
-            ->willThrowException(ContentSystemException::unknownEntityType('mystery'));
+            ->willReturn('preview-token-123');
 
         $controller = new ContentPreviewController(
-            $this->contextService(Generator::generateSalesChannelContext()),
-            $resolver,
-            static::createStub(ContentElementFieldSerializer::class),
-            $this->checker(registered: true),
-            static::createStub(ContentPipeline::class),
-            new FullResponseFactory(),
+            static::createStub(ContentPreviewPageBuilder::class),
+            static::createStub(AbstractResponseFactory::class),
+            $payloadStore,
         );
 
-        $this->expectExceptionObject(ContentSystemException::unknownEntityType('mystery'));
+        $request = Request::create('https://admin.example.com/api/_action/content-system/preview/entity/url');
 
-        $controller->preview($this->request(), Context::createDefaultContext());
-    }
+        $response = $controller->previewUrl($payload, $request);
 
-    #[TestDox('throws elementTypesInvalid when a component is not a registered element type')]
-    public function testPreviewThrowsForUnregisteredComponent(): void
-    {
-        $decodedElement = ContentElementBuilder::create('Sw:Unknown:Widget', 'e1')->build();
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willReturn($decodedElement);
-
-        $controller = new ContentPreviewController(
-            $this->contextService(Generator::generateSalesChannelContext()),
-            $this->resolverReturning($this->specification()),
-            $serializer,
-            $this->checker(registered: false),
-            static::createStub(ContentPipeline::class),
-            new FullResponseFactory(),
+        static::assertSame(
+            ['url' => 'https://admin.example.com/content-system/preview/preview-token-123'],
+            $body,
         );
-
-        $this->expectExceptionObject(ContentSystemException::elementTypesInvalid(
-            new ConstraintViolationList([
-                new ConstraintViolation('Component "Sw:Unknown:Widget" is not a registered element type.', null, [], null, 'e1', null),
-            ])
-        ));
-
-        $controller->preview($this->request(), Context::createDefaultContext());
     }
 
-    #[TestDox('propagates sales channel context synthesis failures')]
-    public function testPreviewPropagatesContextSynthesisFailure(): void
-    {
-        $failure = new \RuntimeException('invalid sales channel');
-
-        $contextService = static::createStub(SalesChannelContextServiceInterface::class);
-        $contextService->method('get')->willThrowException($failure);
-
-        $controller = new ContentPreviewController(
-            $contextService,
-            static::createStub(RenderingSpecificationResolver::class),
-            static::createStub(ContentElementFieldSerializer::class),
-            $this->checker(registered: true),
-            static::createStub(ContentPipeline::class),
-            new FullResponseFactory(),
-        );
-
-        $this->expectExceptionObject($failure);
-
-        $controller->preview($this->request(), Context::createDefaultContext());
-    }
-
-    /**
-     * @param list<array<string, mixed>> $layout
-     */
-    private function request(array $layout = [['id' => 'e1', 'component' => 'Sw:Content:Heading']]): ContentPreviewRequest
+    private function request(): ContentPreviewRequest
     {
         return new ContentPreviewRequest(
-            layout: $layout,
+            layout: [['id' => 'e1', 'component' => 'Sw:Content:Heading']],
             entityType: 'product',
             entityId: 'prod-1',
             salesChannelId: 'sc-1',
         );
-    }
-
-    private function specification(): RenderingSpecification
-    {
-        return new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-    }
-
-    private function contextService(SalesChannelContext $context): SalesChannelContextServiceInterface
-    {
-        $service = static::createStub(SalesChannelContextServiceInterface::class);
-        $service->method('get')->willReturn($context);
-
-        return $service;
-    }
-
-    private function resolverReturning(RenderingSpecification $specification): RenderingSpecificationResolver
-    {
-        $resolver = static::createStub(RenderingSpecificationResolver::class);
-        $resolver->method('resolveWithoutLayout')->willReturn($specification);
-
-        return $resolver;
-    }
-
-    private function checker(bool $registered): DraftLayoutChecker
-    {
-        $violations = new ConstraintViolationList();
-
-        if (!$registered) {
-            $violations->add(new ConstraintViolation('Component "Sw:Unknown:Widget" is not a registered element type.', null, [], null, 'e1', null));
-        }
-
-        $checker = static::createStub(DraftLayoutChecker::class);
-        $checker->method('check')->willReturn($violations);
-
-        return $checker;
     }
 }

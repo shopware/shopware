@@ -72,7 +72,7 @@ final class StructuredPropertyTypeValidator extends ConstraintValidator
     }
 
     /**
-     * @param string|list<string> $type
+     * @param string|array<mixed> $type
      *
      * @return list<string>
      */

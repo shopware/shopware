@@ -61,6 +61,37 @@
                     "400": { "$ref": "#/components/responses/400" }
                 }
             }
+        },
+        "/_action/content-system/preview/entity/url": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Create a shareable preview URL for a draft layout",
+                "operationId": "contentSystemPreviewEntityUrl",
+                "description": "Stores an externally supplied draft-layout preview payload behind a short-lived token and returns a URL that renders it. Same envelope as the entity preview action. Requires the `content_layout:read` privilege.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentPreviewEntityRequest" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "A URL that renders the stored draft layout preview.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": { "url": { "type": "string" } },
+                                    "required": ["url"]
+                                }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
         }
     }
 }

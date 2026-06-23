@@ -85,15 +85,17 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $slider = new ProductSliderStruct();
         $slot->setData($slider);
 
+        $config = $slot->getFieldConfig();
+        $randomize = $config->get('productStreamSorting')?->getStringValue() === 'random';
+
         $slider->setProducts(
             $this->handleProductStream(
                 $streamResult,
                 $resolverContext->getSalesChannelContext(),
-                $entitySearchResult->getCriteria()
+                $entitySearchResult->getCriteria(),
+                $randomize
             )
         );
-
-        $config = $slot->getFieldConfig();
 
         $productConfig = $config->get('products');
         \assert($productConfig instanceof FieldConfig);
@@ -133,9 +135,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $this->addGrouping($criteria);
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
 
-        if ($sorting === 'random') {
-            $this->addRandomSort($criteria);
-        } else {
+        if ($sorting !== 'random') {
             $sorting = explode(':', $sorting);
             $field = $sorting[0];
             $direction = $sorting[1];
@@ -149,11 +149,16 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     private function handleProductStream(
         ProductCollection $streamResult,
         SalesChannelContext $context,
-        Criteria $originCriteria
+        Criteria $originCriteria,
+        bool $randomize = false
     ): ProductCollection {
         $finalProductIds = $this->collectFinalProductIds($streamResult);
         if ($finalProductIds === []) {
             return new ProductCollection();
+        }
+
+        if ($randomize) {
+            shuffle($finalProductIds);
         }
 
         $criteria = $originCriteria->cloneForRead($finalProductIds);
@@ -191,27 +196,5 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     {
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
-    }
-
-    private function addRandomSort(Criteria $criteria): void
-    {
-        // these fields should be compatible with Elasticsearch mapped fields for sorting, see: \Shopware\Elasticsearch\Product\ElasticsearchProductDefinition::getMapping
-        $fields = [
-            'id',
-            'stock',
-            'releaseDate',
-            'manufacturerId',
-            'deliveryTimeId',
-            'taxId',
-            'coverId',
-        ];
-        shuffle($fields);
-        $fields = \array_slice($fields, 0, 2);
-        $direction = [FieldSorting::ASCENDING, FieldSorting::DESCENDING];
-        $direction = $direction[random_int(0, 1)];
-
-        foreach ($fields as $field) {
-            $criteria->addSorting(new FieldSorting($field, $direction));
-        }
     }
 }

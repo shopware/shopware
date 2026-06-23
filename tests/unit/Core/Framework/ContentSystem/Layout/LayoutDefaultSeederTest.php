@@ -89,12 +89,47 @@ class LayoutDefaultSeederTest extends TestCase
         static::assertSame($expected, $this->seeder()->seed($forest));
     }
 
+    #[TestDox('leaves a malformed scalar properties value untouched (no silent transform)')]
+    public function testSeedRawArrayLeavesScalarPropertiesUntouched(): void
+    {
+        $forest = [['id' => 'el', 'component' => 'Sw:Block', 'properties' => 'oops']];
+
+        static::assertSame($forest, $this->seeder()->seed($forest));
+    }
+
+    #[TestDox('leaves a malformed list-shaped properties value untouched rather than mixing key types')]
+    public function testSeedRawArrayLeavesListShapedPropertiesUntouched(): void
+    {
+        $forest = [['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['first', 'second']]];
+
+        static::assertSame($forest, $this->seeder()->seed($forest));
+    }
+
+    #[TestDox('leaves a raw node without a string component untouched')]
+    public function testSeedRawArrayLeavesNonStringComponentUntouched(): void
+    {
+        $forest = [['id' => 'el', 'slots' => []]];
+
+        static::assertSame($forest, $this->seeder()->seed($forest));
+    }
+
+    #[TestDox('does not add a properties key to a registered component that has no primitive defaults')]
+    public function testSeedRawArrayAddsNoPropertiesKeyWhenTypeHasNoDefaults(): void
+    {
+        $forest = [['id' => 'el', 'component' => 'Sw:NoDefaults']];
+
+        static::assertSame($forest, $this->seeder()->seed($forest));
+    }
+
     private function seeder(): LayoutDefaultSeeder
     {
         $specs = [
             'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')
                 ->primitive('headline', 'string', default: 'Default headline')
                 ->reference('product', SalesChannelProductEntity::class)
+                ->build(),
+            'Sw:NoDefaults' => ContentSystemElementTypeSpecificationBuilder::create('Sw:NoDefaults')
+                ->primitive('label', 'string')
                 ->build(),
         ];
 

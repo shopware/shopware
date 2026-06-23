@@ -77,9 +77,19 @@ class LayoutDefaultSeeder
         $component = $node['component'] ?? null;
 
         if (\is_string($component)) {
-            $properties = $node['properties'] ?? [];
-            // PHP's `+` keeps every authored key and fills only the keys the node does not carry.
-            $node['properties'] = (\is_array($properties) ? $properties : []) + $this->defaultsFor($component);
+            $defaults = $this->defaultsFor($component);
+
+            if ($defaults !== []) {
+                $properties = $node['properties'] ?? [];
+
+                // Seed only into a well-formed property map (string-keyed, or empty). A malformed `properties`
+                // (a scalar, or a non-empty list) is left untouched for the write gate to reject, rather than
+                // silently discarded or merged into a mixed-key array. PHP's `+` keeps every authored key and
+                // fills only the keys the node does not carry.
+                if (\is_array($properties) && (!\array_is_list($properties) || $properties === [])) {
+                    $node['properties'] = $properties + $defaults;
+                }
+            }
         }
 
         $slots = $node['slots'] ?? null;

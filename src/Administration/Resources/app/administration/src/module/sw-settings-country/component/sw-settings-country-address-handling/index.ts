@@ -90,6 +90,8 @@ export default Component.wrapComponentConfig({
         snippetDragPreview: SnippetDragPreview | null;
         snippetDragItem: DragItem | null;
         rowDragPreview: RowDragPreview | null;
+        rowKeys: WeakMap<string[], string>;
+        rowKeyCounter: number;
     } {
         return {
             advancedPostalCodePattern: null,
@@ -104,6 +106,8 @@ export default Component.wrapComponentConfig({
             snippetDragPreview: null,
             snippetDragItem: null,
             rowDragPreview: null,
+            rowKeys: new WeakMap<string[], string>(),
+            rowKeyCounter: 0,
         };
     },
 
@@ -314,8 +318,22 @@ export default Component.wrapComponentConfig({
             return this.rowDragPreview?.targetIndex === this.addressFormat.length;
         },
 
-        getRowRenderKey(index: number): string {
-            return this.shouldShowRowPlaceholderBefore(index) ? `row-placeholder-${index}` : `row-${index}`;
+        getRowKey(snippet: string[]): string {
+            let key = this.rowKeys.get(snippet);
+
+            if (!key) {
+                this.rowKeyCounter += 1;
+                key = `row-${this.rowKeyCounter}`;
+                this.rowKeys.set(snippet, key);
+            }
+
+            return key;
+        },
+
+        getRowRenderKey(snippet: string[], index: number): string {
+            const rowKey = this.getRowKey(snippet);
+
+            return this.shouldShowRowPlaceholderBefore(index) ? `row-placeholder-${rowKey}` : rowKey;
         },
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {

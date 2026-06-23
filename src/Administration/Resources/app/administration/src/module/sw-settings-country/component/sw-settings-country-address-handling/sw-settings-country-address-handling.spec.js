@@ -842,34 +842,31 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
-        await addressHandlingWrapper.vm.onDragStart({
-            data: {
-                index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
-            },
-        });
-        await addressHandlingWrapper.vm.onDragEnter(
-            {
-                index: 0,
-                snippet: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
-            },
-            {
-                index: 3,
-                snippet: [
-                    'address/zipcode',
-                    'address/city',
-                ],
-            },
-        );
-        await flushPromises();
+
+        const dragRow = async (dragIndex, dropIndex) => {
+            const dragSnippet = wrapper.vm.country.addressFormat[dragIndex];
+            const dropSnippet = wrapper.vm.country.addressFormat[dropIndex];
+
+            await addressHandlingWrapper.vm.onDragStart({
+                data: {
+                    index: dragIndex,
+                    snippet: dragSnippet,
+                },
+            });
+            await addressHandlingWrapper.vm.onDragEnter(
+                {
+                    index: dragIndex,
+                    snippet: dragSnippet,
+                },
+                {
+                    index: dropIndex,
+                    snippet: dropSnippet,
+                },
+            );
+            await flushPromises();
+        };
+
+        await dragRow(0, 3);
 
         const rowsWhileDragging = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
@@ -905,6 +902,24 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             expect(row.classes()).not.toContain('is--row-placeholder');
             expect(row.classes()).not.toContain('is--row-drag-preview-source');
         });
+
+        await dragRow(3, 0);
+        await addressHandlingWrapper.vm.onDrop();
+        await flushPromises();
+
+        expect(wrapper.vm.country.addressFormat[0]).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/department',
+        ]);
+
+        await dragRow(0, 2);
+
+        const rowsDuringThirdDrag = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
+
+        expect(rowsDuringThirdDrag).toHaveLength(6);
+        expect(rowsDuringThirdDrag[0].classes()).toContain('is--row-drag-preview-source');
+        expect(rowsDuringThirdDrag[3].classes()).toContain('is--row-placeholder');
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

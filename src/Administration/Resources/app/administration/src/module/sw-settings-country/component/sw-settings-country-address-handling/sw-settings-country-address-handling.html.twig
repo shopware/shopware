@@ -79,7 +79,7 @@
             <div class="sw-settings-country-address-handling__address-markup">
                 <template
                     v-for="(snippet, index) in addressFormat"
-                    :key="getRowRenderKey(index)"
+                    :key="getRowRenderKey(snippet, index)"
                 >
                     <sw-multi-snippet-drag-and-drop
                         v-if="shouldShowRowPlaceholderBefore(index)"
@@ -116,7 +116,7 @@
 
                 <sw-multi-snippet-drag-and-drop
                     v-if="shouldShowRowPlaceholderAfterLast()"
-                    key="row-placeholder-last"
+                    :key="`row-placeholder-last-${getRowKey(rowDragPreviewSnippet)}`"
                     class="is--row-placeholder"
                     :value="rowDragPreviewSnippet"
                     :line-position="addressFormat.length"

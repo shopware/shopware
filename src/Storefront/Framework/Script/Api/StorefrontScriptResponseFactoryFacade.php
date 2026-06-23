@@ -15,8 +15,6 @@ use Symfony\Component\Routing\RouterInterface;
  * It adds the `render()` method on top of the core `response` service so storefront scripts can render Twig views.
  *
  * @internal
- *
- * @script-service custom_endpoint
  */
 #[Package('framework')]
 class StorefrontScriptResponseFactoryFacade extends ScriptResponseFactoryFacade

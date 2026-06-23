@@ -197,6 +197,9 @@ Shopware.Module.register('sw-extension', {
         'store.landing-page': {
             path: 'store/landing-page',
             component: 'sw-extension-store-landing-page',
+            meta: {
+                parentPath: 'sw.extension.store',
+            },
         },
 
         module: {

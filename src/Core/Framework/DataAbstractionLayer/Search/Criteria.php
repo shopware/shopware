@@ -119,6 +119,11 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
+     * @var list<string>
+     */
+    protected array $excludedFields = [];
+
+    /**
      * @param array<IDStructure>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
@@ -511,6 +516,7 @@ class Criteria extends Struct implements \Stringable
 
         $self->associations = $associations;
         $self->fields = $this->fields;
+        $self->excludedFields = $this->excludedFields;
 
         return $self;
     }
@@ -622,6 +628,10 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
+        if ($this->excludedFields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;
@@ -633,6 +643,34 @@ class Criteria extends Struct implements \Stringable
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * Loads the full, typed entity but omits the given storage fields from the read — a denylist
+     * counterpart to {@see addFields()} (an allowlist). Because the result stays a full entity
+     * (excluded properties keep their default), it must not be combined with addFields(), and only
+     * fields whose entity property is nullable or has a default may be excluded; the reader rejects
+     * excluding a non-nullable, no-default field.
+     *
+     * @param list<string> $fields
+     */
+    public function excludeFields(array $fields): self
+    {
+        if ($this->fields !== []) {
+            throw DataAbstractionLayerException::criteriaFieldsAndExcludedFieldsAreMutuallyExclusive();
+        }
+
+        $this->excludedFields = array_merge($this->excludedFields, $fields);
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getExcludedFields(): array
+    {
+        return $this->excludedFields;
     }
 
     /**

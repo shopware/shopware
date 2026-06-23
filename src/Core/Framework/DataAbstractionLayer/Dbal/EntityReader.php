@@ -86,12 +86,17 @@ class EntityReader implements EntityReaderInterface
 
         $fieldsForPartialLoading = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
+        $basicFields = $definition->getFields()->getBasicFields();
+        if ($criteria->getExcludedFields() !== []) {
+            $basicFields = $this->removeExcludedFields($basicFields, $definition, $criteria->getExcludedFields());
+        }
+
         return $this->_read(
             $criteria,
             $definition,
             $context,
             new $collectionClass(),
-            $definition->getFields()->getBasicFields(),
+            $basicFields,
             true,
             $fieldsForPartialLoading,
             $fieldsForPartialLoading !== [],
@@ -101,6 +106,36 @@ class EntityReader implements EntityReaderInterface
     protected function getParser(): SqlQueryParser
     {
         return $this->parser;
+    }
+
+    /**
+     * Removes the excluded storage fields from a full read (see {@see Criteria::excludeFields()}).
+     * Primary keys are always kept. Only nullable/defaulted properties may be excluded — otherwise
+     * the loaded typed entity would have an uninitialized property — so excluding others throws.
+     *
+     * @param list<string> $excludedFields
+     */
+    private function removeExcludedFields(FieldCollection $fields, EntityDefinition $definition, array $excludedFields): FieldCollection
+    {
+        $reflection = new \ReflectionClass($definition->getEntityClass());
+
+        foreach ($excludedFields as $propertyName) {
+            if (!$reflection->hasProperty($propertyName)) {
+                continue;
+            }
+
+            $property = $reflection->getProperty($propertyName);
+            $type = $property->getType();
+
+            if ($type !== null && !$type->allowsNull() && !$property->hasDefaultValue()) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName());
+            }
+        }
+
+        return $fields->filter(
+            static fn (Field $field): bool => $field->getFlag(PrimaryKey::class) !== null
+                || !\in_array($field->getPropertyName(), $excludedFields, true)
+        );
     }
 
     /**

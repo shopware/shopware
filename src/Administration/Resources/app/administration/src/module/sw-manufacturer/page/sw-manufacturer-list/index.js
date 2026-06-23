@@ -30,6 +30,7 @@ export default {
             sortDirection: 'ASC',
             total: 0,
             searchConfigEntity: 'product_manufacturer',
+            skipNextMeteorTableReload: false,
         };
     },
 
@@ -97,6 +98,14 @@ export default {
         },
     },
 
+    watch: {
+        page: 'markNextMeteorTableReloadAsHandledByPropSync',
+        limit: 'markNextMeteorTableReloadAsHandledByPropSync',
+        term: 'markNextMeteorTableReloadAsHandledByPropSync',
+        sortBy: 'markNextMeteorTableReloadAsHandledByPropSync',
+        sortDirection: 'markNextMeteorTableReloadAsHandledByPropSync',
+    },
+
     methods: {
         onChangeLanguage() {
             this.getList();
@@ -130,13 +139,26 @@ export default {
 
         async getList() {
             this.isLoading = true;
-            this.entitySearchable = true;
 
             if (this.$refs.manufacturerTable) {
+                let skipTableReload = this.skipNextMeteorTableReload || this.meteorTableStateDiffersFromListingState();
+
                 await this.$nextTick();
+
+                skipTableReload =
+                    skipTableReload || this.skipNextMeteorTableReload || this.meteorTableStateDiffersFromListingState();
+                this.skipNextMeteorTableReload = false;
+
+                if (skipTableReload) {
+                    return;
+                }
+
+                this.entitySearchable = true;
 
                 return this.$refs.manufacturerTable.reload();
             }
+
+            this.entitySearchable = true;
 
             await this.$nextTick();
 
@@ -196,6 +218,7 @@ export default {
                 return;
             }
 
+            this.skipNextMeteorTableReload = true;
             this.updateRoute({
                 page: this.page,
                 limit: this.limit,
@@ -203,6 +226,30 @@ export default {
                 sortBy: this.sortBy,
                 sortDirection: this.sortDirection,
             });
+        },
+
+        meteorTableStateDiffersFromListingState() {
+            const tableState = this.$refs.manufacturerTable?.state;
+
+            if (!tableState) {
+                return false;
+            }
+
+            return (
+                tableState.page !== this.page ||
+                tableState.limit !== this.limit ||
+                (tableState.searchTerm ?? '') !== (this.term ?? '') ||
+                tableState.sort?.property !== this.sortBy ||
+                tableState.sort?.direction !== this.sortDirection
+            );
+        },
+
+        markNextMeteorTableReloadAsHandledByPropSync() {
+            if (!this.$refs.manufacturerTable) {
+                return;
+            }
+
+            this.skipNextMeteorTableReload = true;
         },
     },
 };

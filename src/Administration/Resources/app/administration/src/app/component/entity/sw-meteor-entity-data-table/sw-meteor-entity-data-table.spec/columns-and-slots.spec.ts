@@ -100,6 +100,35 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
         expect(forwardedSlotScopes[0]?.isInlineEdit).toBe(false);
     });
 
+    it('keeps custom slots for editable columns while the row is being edited', async () => {
+        const forwardedSlotScopes: Record<string, unknown>[] = [];
+        const wrapper = createWrapper({
+            props: {
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+            slots: {
+                'column-name': (slotProps: Record<string, unknown>) => {
+                    forwardedSlotScopes.push(slotProps);
+
+                    return h(
+                        'span',
+                        { class: 'inline-column-name-slot' },
+                        `${(slotProps.item as TestRecord).id}:${String(slotProps.isInlineEdit)}`,
+                    );
+                },
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await flushPromises();
+
+        expect(wrapper.find('[data-record-id="record-1"] .inline-column-name-slot').text()).toBe('record-1:true');
+        expect(forwardedSlotScopes.some((slotScope) => slotScope.isInlineEdit === true)).toBe(true);
+        expect(wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').exists()).toBe(true);
+    });
+
     it('renders legacy preview slots before editable column content', async () => {
         let forwardedSlotScope: Record<string, unknown> | undefined;
         const repository = createRepositoryMock(

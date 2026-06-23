@@ -327,7 +327,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/state-and-loading
         );
     });
 
-    it('syncs changed initial state props without emitting a table state change', async () => {
+    it('syncs changed initial state props and reloads without emitting a table state change', async () => {
         const repository = createRepositoryMock();
         const wrapper = createWrapper({
             props: {
@@ -354,7 +354,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/state-and-loading
                 direction: 'DESC',
             },
         });
-        await nextTick();
+        await flushPromises();
 
         expect(getTable(wrapper).props()).toEqual(
             expect.objectContaining({
@@ -365,7 +365,21 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/state-and-loading
                 sortDirection: 'DESC',
             }),
         );
-        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
+        expect(getLastSearchCriteria(repository).parse()).toEqual(
+            expect.objectContaining({
+                page: 4,
+                limit: 50,
+                term: 'jacket',
+                sort: [
+                    {
+                        field: 'name',
+                        order: 'DESC',
+                        naturalSorting: false,
+                    },
+                ],
+            }),
+        );
         expect(wrapper.emitted('state-change')).toBeUndefined();
     });
 

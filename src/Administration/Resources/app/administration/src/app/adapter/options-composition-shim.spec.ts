@@ -166,6 +166,28 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             consoleWarn.mockRestore();
         });
+
+        it('should return true for unsupported-only Options API override keys', () => {
+            expect(
+                shouldActivateShim({
+                    components: {
+                        'sw-example-child': {},
+                    },
+                } as any),
+            ).toBe(true);
+            expect(
+                shouldActivateShim({
+                    provide: {
+                        example: 'value',
+                    },
+                } as any),
+            ).toBe(true);
+            expect(
+                shouldActivateShim({
+                    inheritAttrs: false,
+                } as any),
+            ).toBe(true);
+        });
     });
 
     describe('convertData():', () => {

@@ -599,7 +599,9 @@ export default defineComponent({
                             setupProps.initialSort?.direction,
                         ] as const,
                     () => {
-                        syncStateFromProps();
+                        if (syncStateFromProps()) {
+                            void load();
+                        }
                     },
                 );
 

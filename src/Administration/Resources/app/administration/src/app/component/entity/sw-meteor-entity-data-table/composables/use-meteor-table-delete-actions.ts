@@ -67,6 +67,10 @@ export function useMeteorTableDeleteActions(options: UseMeteorTableDeleteActions
     }
 
     async function deleteSelectedRecords(): Promise<void> {
+        if (bulkDeleting.value) {
+            return;
+        }
+
         const ids = [
             ...options.selectedIds.value,
         ];
@@ -111,6 +115,10 @@ export function useMeteorTableDeleteActions(options: UseMeteorTableDeleteActions
     }
 
     async function deleteRecord(): Promise<void> {
+        if (deleting.value) {
+            return;
+        }
+
         const record = itemToDelete.value;
 
         if (!record) {

@@ -6,6 +6,7 @@ import {
     createRepositoryMock,
     createSearchResult,
     createWrapper,
+    createDeferred,
     flushPromises,
     getSaveMock,
     getSearchMock,
@@ -91,6 +92,40 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/inline-edit', () 
 
         expect(getSearchMock(repository)).toHaveBeenCalledTimes(2);
         expect(wrapper.find('.sw-data-grid-inline-edit-stub').exists()).toBe(false);
+    });
+
+    it('ignores duplicate inline save triggers while a save is pending', async () => {
+        const editableRecords = [
+            {
+                id: 'record-1',
+                name: 'First record',
+            },
+        ];
+        const repository = createRepositoryMock(createSearchResult(editableRecords));
+        const saveDeferred = createDeferred<void>();
+
+        getSaveMock(repository).mockReturnValueOnce(saveDeferred.promise);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: inlineEditColumns,
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-cell').trigger('dblclick');
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__inline-edit-save').trigger('click');
+
+        expect(getSaveMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.emitted('inline-edit-save')).toHaveLength(1);
+
+        saveDeferred.resolve();
+        await flushPromises();
+
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(2);
     });
 
     it('keeps inline edit mode active when saving fails', async () => {

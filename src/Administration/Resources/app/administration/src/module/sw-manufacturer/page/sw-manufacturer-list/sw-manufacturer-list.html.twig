@@ -99,7 +99,11 @@
                 @load-error="onMeteorTableLoadError"
                 @state-change="onMeteorTableStateChange"
             >
-                {% block sw_manufacturer_list_grid_columns_name_preview %}{% endblock %}
+                {% block sw_manufacturer_list_grid_columns_name_preview %}
+                <template #preview-name="{ item }">
+                    <sw-media-preview-v2 :source="item.mediaId" />
+                </template>
+                {% endblock %}
             </sw-meteor-entity-data-table>
             {% endblock %}
 

@@ -4,12 +4,13 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
+import { h, nextTick, ref } from 'vue';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
-import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+import { createExtendableSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 const renderBackedComponentName = 'sw-meteor-entity-data-table';
 const renderBackedTemplateOverrideWarning = `The component "${renderBackedComponentName}" is render-backed and does not support Twig template overrides. Use documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`;
@@ -372,6 +373,51 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_options_template')).toEqual([]);
 
             templateOverrideSpy.mockRestore();
+            warnSpy.mockRestore();
+        });
+
+        it('converts pending Options API overrides only once across multiple mounts', async () => {
+            const componentName = 'render-backed-options-shim-dedupe';
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+            Shopware.Component.register(componentName, {
+                name: componentName,
+                setup(props, context) {
+                    return createExtendableSetup({ name: componentName, props, context }, () => ({
+                        public: {
+                            label: ref('base'),
+                        },
+                    }));
+                },
+                render() {
+                    return h('div', { class: 'label' }, this.label);
+                },
+            });
+            Shopware.Component.override(componentName, {
+                data() {
+                    return {
+                        label: 'override',
+                    };
+                },
+            });
+
+            const builtComponent = await ComponentFactory.build(componentName);
+            const firstWrapper = mount(builtComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(firstWrapper.find('.label').text()).toBe('override');
+            expect(_overridesMap[componentName]).toHaveLength(1);
+
+            const secondWrapper = mount(builtComponent);
+
+            await flushPromises();
+            await nextTick();
+
+            expect(secondWrapper.find('.label').text()).toBe('override');
+            expect(_overridesMap[componentName]).toHaveLength(1);
+
             warnSpy.mockRestore();
         });
 

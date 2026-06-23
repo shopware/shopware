@@ -87,6 +87,8 @@ export const _overridesMap: {
     [componentName: string]: Array<OverrideFn>;
 } = reactive({});
 
+const processedOptionsApiOverrideRegistryEntries = new WeakSet<object>();
+
 /**
  * @private
  * Function to check if the new structure contains at least all keys of the old structure (nested)
@@ -256,6 +258,11 @@ export function createExtendableSetup<
                 const pendingOverrides = overrideRegistry.get(options.name as string)!;
                 await Promise.all(
                     pendingOverrides.map(async (pendingOverride) => {
+                        if (processedOptionsApiOverrideRegistryEntries.has(pendingOverride)) {
+                            return;
+                        }
+
+                        processedOptionsApiOverrideRegistryEntries.add(pendingOverride);
                         const resolvedConfig = await pendingOverride.config();
                         if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
                             const compositionOverride = convertOptionsApiOverrideToCompositionApi(

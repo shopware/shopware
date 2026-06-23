@@ -5,7 +5,13 @@
         @dblclick="$emit('start-inline-edit')"
     >
         <template v-if="isInlineEditing">
+            <slot
+                v-if="hasColumnSlot"
+                name="column"
+            />
+
             <sw-data-grid-inline-edit
+                v-else
                 class="sw-meteor-entity-data-table__inline-edit-field"
                 :value="value"
                 :column="column"

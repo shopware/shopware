@@ -23,7 +23,7 @@ type UseMeteorTableStateOptions = {
 export function useMeteorTableState(options: UseMeteorTableStateOptions): {
     state: Ref<SwMeteorEntityDataTableState>;
     buildStateFromProps: () => SwMeteorEntityDataTableState;
-    syncStateFromProps: () => void;
+    syncStateFromProps: () => boolean;
     cloneState: () => SwMeteorEntityDataTableState;
     setPage: (page: number) => Promise<void>;
     setLimit: (limit: number) => Promise<void>;
@@ -49,14 +49,16 @@ export function useMeteorTableState(options: UseMeteorTableStateOptions): {
 
     const state = ref<SwMeteorEntityDataTableState>(buildStateFromProps());
 
-    function syncStateFromProps(): void {
+    function syncStateFromProps(): boolean {
         const nextState = buildStateFromProps();
 
         if (areStatesEqual(state.value, nextState)) {
-            return;
+            return false;
         }
 
         state.value = nextState;
+
+        return true;
     }
 
     function cloneState(): SwMeteorEntityDataTableState {

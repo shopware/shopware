@@ -101,7 +101,7 @@ export function useMeteorTableInlineEdit(options: UseMeteorTableInlineEditOption
     }
 
     function saveInlineEdit(record: SwMeteorEntityDataTableRecord | null): Promise<void> {
-        if (!record || !isInlineEditing(record)) {
+        if (!record || !isInlineEditing(record) || savingInlineEdit.value) {
             return Promise.resolve();
         }
 

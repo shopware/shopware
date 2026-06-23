@@ -780,7 +780,7 @@ $this->mediaUploadService->assertValidExternalUrl($url);
 
 ## Migrating Options API overrides to the Composition API Extension System
 
-Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.
+Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps supported `Shopware.Component.override()` Options API patterns working — but logs a deprecation warning. Pure template or render overrides on render-backed components are ignored and should be migrated to documented Vue slots, matching `<sw-block>` bridge points, or `Shopware.Component.overrideComponentSetup()`.
 
 This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
 

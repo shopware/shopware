@@ -220,6 +220,12 @@ async function createWrapperWithRealMeteorTable(repositorySearchResult = [], com
             'mt-data-table': sortableMtDataTableStub,
             'sw-modal': true,
             'sw-data-grid-inline-edit': true,
+            'sw-media-preview-v2': {
+                props: [
+                    'source',
+                ],
+                template: '<span class="sw-media-preview-v2-stub">{{ source }}</span>',
+            },
             'mt-icon': true,
         },
     });
@@ -394,6 +400,24 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
         expect(wrapper.find('.manufacturer-preview-slot').text()).toBe('ACME:name:false');
         expect(wrapper.find('.sw-meteor-entity-data-table__text-renderer').text()).toBe('ACME');
+        expect(wrapper.find('.sw-meteor-entity-data-table__preview-image-renderer').exists()).toBe(false);
+    });
+
+    it('should render the default manufacturer preview slot', async () => {
+        const wrapper = await createWrapperWithRealMeteorTable([
+            {
+                id: 'manufacturer-1',
+                mediaId: 'manufacturer-media-id',
+                name: 'ACME',
+                media: {
+                    url: '/media/manufacturer-logo.png',
+                },
+            },
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-preview-v2-stub').text()).toBe('manufacturer-media-id');
         expect(wrapper.find('.sw-meteor-entity-data-table__preview-image-renderer').exists()).toBe(false);
     });
 

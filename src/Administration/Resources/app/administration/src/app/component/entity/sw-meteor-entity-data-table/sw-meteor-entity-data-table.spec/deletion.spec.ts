@@ -4,6 +4,7 @@
 
 import {
     createRepositoryMock,
+    createDeferred,
     createWrapper,
     flushPromises,
     getDeleteMock,
@@ -61,6 +62,38 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/deletion', () => 
                 },
             ],
         ]);
+    });
+
+    it('ignores duplicate bulk delete confirms while a delete is pending', async () => {
+        const repository = createRepositoryMock();
+        const bulkDeleteDeferred = createDeferred<void>();
+
+        getSyncDeletedMock(repository).mockReturnValueOnce(bulkDeleteDeferred.promise);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                selectable: true,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__select-all').trigger('click');
+        await wrapper.find('.mt-data-table-stub__bulk-delete').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__bulk-delete-confirm').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__bulk-delete-confirm').trigger('click');
+
+        expect(getSyncDeletedMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.emitted('bulk-delete-finish')).toBeUndefined();
+
+        bulkDeleteDeferred.resolve();
+        await flushPromises();
+
+        expect(wrapper.emitted('bulk-delete-finish')).toHaveLength(1);
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
     });
 
     it('emits bulk-delete-failed and keeps the modal open when bulk deletion fails', async () => {
@@ -151,6 +184,36 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/deletion', () => 
                 },
             ],
         ]);
+    });
+
+    it('ignores duplicate single delete confirms while a delete is pending', async () => {
+        const repository = createRepositoryMock();
+        const deleteDeferred = createDeferred<unknown>();
+
+        getDeleteMock(repository).mockReturnValueOnce(deleteDeferred.promise);
+
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                allowDelete: true,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__delete').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__delete-confirm').trigger('click');
+        await wrapper.find('.sw-meteor-entity-data-table__delete-confirm').trigger('click');
+
+        expect(getDeleteMock(repository)).toHaveBeenCalledTimes(1);
+        expect(wrapper.emitted('delete-finish')).toBeUndefined();
+
+        deleteDeferred.resolve({});
+        await flushPromises();
+
+        expect(wrapper.emitted('delete-finish')).toHaveLength(1);
+        expect(getSearchMock(repository)).toHaveBeenCalledTimes(1);
     });
 
     it('emits delete-failed and keeps the modal open when deletion fails', async () => {

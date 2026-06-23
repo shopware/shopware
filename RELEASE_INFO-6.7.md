@@ -147,6 +147,13 @@ Because the field is removed during JSON serialization, the change applies to ex
 The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
 
 For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
+### DAL write event listeners no longer expand API ACL requirements
+
+DAL post-write events such as `EntityWrittenContainerEvent` and entity-specific `.written` events are now dispatched in system scope after Admin API and Sync API writes, while preserving the original context source.
+This prevents extension listeners from requiring API users to also have privileges for extension-owned entities that are only touched as a side effect of the listener.
+
+Extensions can still inspect the original source via `$event->getContext()->getSource()`.
+API consumers only need the privileges required for the submitted write payload.
 
 ## Core
 

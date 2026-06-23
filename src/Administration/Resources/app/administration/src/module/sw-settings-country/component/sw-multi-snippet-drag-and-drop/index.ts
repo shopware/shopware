@@ -202,6 +202,9 @@ export default Component.wrapComponentConfig({
             this.isDragging = true;
             dragElement.classList.add('sw-multi-snippet-drag-and-drop__label-drag-clone');
             dragElement.style.display = 'inline-flex';
+            dragElement.style.width = 'auto';
+            dragElement.style.height = 'auto';
+            dragElement.style.overflow = 'visible';
             dragElement.style.opacity = '1';
             dragElement.style.visibility = 'visible';
 

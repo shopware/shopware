@@ -479,6 +479,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted()['drag-start']).toBeTruthy();
         expect(dragElement.classList.contains('sw-multi-snippet-drag-and-drop__label-drag-clone')).toBe(true);
         expect(dragElement.style.display).toBe('inline-flex');
+        expect(dragElement.style.width).toBe('auto');
+        expect(dragElement.style.overflow).toBe('visible');
         expect(dragElement.textContent).toBe('address/company');
     });
 

@@ -74,6 +74,9 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         }
 
         .sw-label .sw-label__caption {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             text-align: center;
         }
 
@@ -110,6 +113,12 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
 
     &__drop-zone--after {
         right: 0;
+    }
+
+    &__snippet-drag-icon {
+        flex: 0 0 auto;
+        color: var(--color-icon-secondary-default);
+        cursor: grab;
     }
 
     &.is--valid-drop:not(.is--dragging-snippet) .sw-multi-snippet-select .sw-block-field__block {

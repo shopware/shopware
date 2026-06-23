@@ -4,6 +4,7 @@
 
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
+import './sw-sales-channel-detail.scss';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -135,6 +136,16 @@ export default {
             return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        hasSwagAgenticCommercePlugin() {
+            return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        showAgenticCommerceDeprecationBanner() {
+            return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
+        },
+
         isProductExportChannel() {
             return this.isProductComparison || this.isAgenticCommerce;
         },
@@ -219,6 +230,16 @@ export default {
     },
 
     methods: {
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        onClickInstallAgenticCommercePlugin() {
+            if (this.$router.hasRoute('sw.extension.store.detail')) {
+                this.$router.push({ name: 'sw.extension.store.detail', params: { id: '21761' } });
+                return;
+            }
+
+            this.$router.push({ name: 'sw.extension.store.landing-page' });
+        },
+
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-sales-channel-detail__salesChannel',
@@ -289,6 +310,7 @@ export default {
                 .addSorting(Criteria.sort('name', 'ASC'))
                 .addFilter(Criteria.equals('active', true));
             criteria.addAssociation('analytics');
+            criteria.addAssociation('salesChannelFiles');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');

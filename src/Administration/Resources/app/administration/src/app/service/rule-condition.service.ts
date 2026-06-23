@@ -65,6 +65,7 @@ type CustomFieldConditionConfig = {
     type: string;
     componentName: string;
     customFieldType?: string;
+    disabled?: boolean;
 };
 
 /**
@@ -405,6 +406,11 @@ export default class RuleConditionService {
         }
 
         const transformedConfig = { ...config };
+
+        // Custom fields flagged `disabled: true` are read-only on detail pages, but the
+        // rule builder's value selector must stay editable. Strip it so it isn't spread
+        // onto `sw-form-field-renderer` as a prop.
+        delete transformedConfig.disabled;
 
         if (
             [

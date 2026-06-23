@@ -95,8 +95,8 @@ class ContextTest extends TestCase
         static::assertInstanceOf(Context::class, $deserialized);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
-        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
-        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertEquals($context->getSource(), $deserialized->getSource());
+        static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
         static::assertSame($context->getVersionId(), $deserialized->getVersionId());
         static::assertSame($context->getScope(), $deserialized->getScope());
@@ -117,8 +117,8 @@ class ContextTest extends TestCase
         $deserialized = Serialization::assertRoundTrip($context);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
-        static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());
-        static::assertEqualsCanonicalizing($context->getRounding(), $deserialized->getRounding());
+        static::assertEquals($context->getSource(), $deserialized->getSource());
+        static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
         static::assertSame($context->getVersionId(), $deserialized->getVersionId());
         static::assertSame($context->getScope(), $deserialized->getScope());

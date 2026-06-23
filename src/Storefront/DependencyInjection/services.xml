@@ -63,6 +63,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber">
+            <argument type="service" id="theme.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\CachedDomainLoader.inner"/>
             <argument type="service" id="cache.object"/>
@@ -216,7 +223,7 @@
 
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
             <argument type="service" id="http_kernel"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

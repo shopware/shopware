@@ -86,6 +86,7 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $ids = $categoryEvent->getIds();
+        $parentIds = [];
         $idsWithChangedParentIds = [];
         $runAllUpdaters = false;
         $parentIdChanged = false;
@@ -104,14 +105,22 @@ class CategoryIndexer extends EntityIndexer
             }
             $state = $result->getExistence()->getState();
 
-            if (isset($state['parent_id'])) {
-                $ids[] = Uuid::fromBytesToHex($state['parent_id']);
+            $parentChildCountAffected = $operation === EntityWriteResult::OPERATION_INSERT
+                || $operation === EntityWriteResult::OPERATION_DELETE
+                || \array_key_exists('parentId', $payload);
+
+            // The previous parent only needs its child count recomputed when the
+            // category is inserted, deleted, or moved. A pure field update (e.g.
+            // name) must not pull the parent in, otherwise its whole subtree of
+            // siblings gets re-indexed. See issue #11442.
+            if (isset($state['parent_id']) && $parentChildCountAffected) {
+                $parentIds[] = Uuid::fromBytesToHex($state['parent_id']);
             }
 
             if (\array_key_exists('parentId', $payload)) {
                 $parentIdChanged = true;
                 if ($payload['parentId'] !== null) {
-                    $ids[] = $payload['parentId'];
+                    $parentIds[] = $payload['parentId'];
                 }
                 $idsWithChangedParentIds[] = $payload['id'];
             }
@@ -142,7 +151,10 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
-        $ids = array_unique(array_merge($ids, $children));
+
+        // Parents are only added for child-count recomputation; they must not be
+        // expanded via fetchChildren, otherwise unrelated siblings are re-indexed.
+        $ids = array_unique(array_merge($ids, $children, $parentIds));
 
         $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
         $idsForReturnedMessage = array_shift($chunks);

@@ -6,11 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -54,18 +54,15 @@ class ScriptResponseFactoryFacadeTest extends TestCase
 
     #[TestDox('render() on the core facade is deprecated and throws because rendering needs the Storefront bundle')]
     #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRenderThrowsStorefrontBundleMissing(): void
     {
-        // Fake the deprecation period (v6.8.0.0 inactive) so render() takes the deprecation-notice path and throws,
-        // rather than the deprecation itself throwing when the major flag is active.
-        Feature::fake([], function (): void {
-            $facade = $this->buildFacade(salesChannelContext: static::createStub(SalesChannelContext::class));
+        $facade = $this->buildFacade(salesChannelContext: static::createStub(SalesChannelContext::class));
 
-            $this->expectException(ScriptException::class);
-            $this->expectExceptionMessageMatches('/storefront.*bundle/i');
+        $this->expectException(ScriptException::class);
+        $this->expectExceptionMessageMatches('/storefront.*bundle/i');
 
-            $facade->render('@Storefront/foo.html.twig');
-        });
+        $facade->render('@Storefront/foo.html.twig');
     }
 
     private function buildFacade(

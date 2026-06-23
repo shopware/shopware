@@ -16,10 +16,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @internal
+ */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class ContentSystemPreviewController extends StorefrontController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly ContentPreviewPayloadStore $payloadStore,
         private readonly ContentPreviewPageBuilder $previewPageBuilder,

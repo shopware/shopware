@@ -7,13 +7,40 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = []) {
+    const manufacturerRepository = {
+        search: jest.fn(() => Promise.resolve([])),
+    };
+
     return mount(await wrapTestComponent('sw-manufacturer-list', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
                     template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                 },
-                'sw-entity-listing': true,
+                'sw-meteor-entity-data-table': {
+                    props: [
+                        'repository',
+                        'columns',
+                        'criteriaResolver',
+                        'initialPage',
+                        'initialLimit',
+                        'initialSearchTerm',
+                        'initialSortBy',
+                        'initialSortDirection',
+                        'initialNaturalSorting',
+                        'allowEdit',
+                        'allowInlineEdit',
+                        'allowDelete',
+                        'showSelections',
+                        'detailRoute',
+                        'disableSearch',
+                    ],
+                    template:
+                        '<div class="sw-meteor-entity-data-table"><slot name="preview-name" :item="{ mediaId: \'media-id\' }"></slot></div>',
+                    methods: {
+                        reload: jest.fn(),
+                    },
+                },
                 'sw-loader': true,
                 'router-link': true,
                 'sw-search-bar': true,
@@ -26,7 +53,7 @@ async function createWrapper(privileges = []) {
                 },
                 stateStyleDataProviderService: {},
                 repositoryFactory: {
-                    create: () => ({ search: () => Promise.resolve([]) }),
+                    create: () => manufacturerRepository,
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
@@ -44,11 +71,20 @@ async function createWrapper(privileges = []) {
             },
             mocks: {
                 $route: {
+                    name: 'sw.manufacturer.index',
+                    params: {},
+                    query: {},
                     meta: {
                         $module: {
                             icon: 'solid-content',
+                            description: 'Manufacturer module description',
                         },
                     },
+                },
+                $router: {
+                    push: jest.fn(),
+                    replace: jest.fn(),
+                    resolve: jest.fn(() => ({ href: '/search-preferences' })),
                 },
             },
         },
@@ -75,18 +111,16 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         ]);
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-manufacturer-list__grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes('allow-inline-edit')).toBe('true');
+        const entityListing = wrapper.getComponent('.sw-manufacturer-list__grid');
+        expect(entityListing.props('allowInlineEdit')).toBe(true);
     });
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-manufacturer-list__grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes('allow-inline-edit')).toBeFalsy();
+        const entityListing = wrapper.getComponent('.sw-manufacturer-list__grid');
+        expect(entityListing.props('allowInlineEdit')).toBe(false);
     });
 
     it('should be able to inline delete', async () => {
@@ -95,18 +129,36 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         ]);
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-manufacturer-list__grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes('allow-delete')).toBe('true');
+        const entityListing = wrapper.getComponent('.sw-manufacturer-list__grid');
+        expect(entityListing.props('allowDelete')).toBe(true);
     });
 
     it('should not be able to inline delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const entityListing = wrapper.find('.sw-manufacturer-list__grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes('allow-delete')).toBeFalsy();
+        const entityListing = wrapper.getComponent('.sw-manufacturer-list__grid');
+        expect(entityListing.props('allowDelete')).toBe(false);
+    });
+
+    it('should use the meteor entity table wrapper without the listing mixin', async () => {
+        const wrapper = await createWrapper([
+            'product_manufacturer.editor',
+            'product_manufacturer.deleter',
+        ]);
+        const entityListing = wrapper.getComponent('.sw-manufacturer-list__grid');
+
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
+        expect(wrapper.vm.$options.mixins).toBeUndefined();
+        expect(entityListing.props('repository')).toBe(wrapper.vm.manufacturerRepository);
+        expect(entityListing.props('columns')).toEqual(wrapper.vm.manufacturerColumns);
+        expect(entityListing.props('criteriaResolver')).toBe(wrapper.vm.resolveManufacturerCriteria);
+        expect(entityListing.props('initialPage')).toBe(1);
+        expect(entityListing.props('initialLimit')).toBe(25);
+        expect(entityListing.props('initialSortBy')).toBe('name');
+        expect(entityListing.props('initialSortDirection')).toBe('ASC');
+        expect(entityListing.props('detailRoute')).toBe('sw.manufacturer.detail');
+        expect(entityListing.props('disableSearch')).toBe(true);
     });
 
     it('should add query score to the criteria', async () => {
@@ -123,7 +175,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return { name: 500 };
         });
 
-        await wrapper.vm.getList();
+        await wrapper.vm.resolveManufacturerCriteria(wrapper.vm.manufacturerCriteria);
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
@@ -143,7 +195,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return {};
         });
 
-        await wrapper.vm.getList();
+        await wrapper.vm.resolveManufacturerCriteria(wrapper.vm.manufacturerCriteria);
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(0);
@@ -167,7 +219,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             return {};
         });
 
-        await wrapper.vm.getList();
+        await wrapper.vm.resolveManufacturerCriteria(wrapper.vm.manufacturerCriteria);
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
@@ -185,14 +237,49 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });
-        await wrapper.vm.getList();
+        await wrapper.vm.resolveManufacturerCriteria(wrapper.vm.manufacturerCriteria);
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(wrapper.find('.mt-empty-state')).toBeTruthy();
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-meteor-entity-data-table').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should update total and loading state from wrapper load success', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent('.sw-manufacturer-list__grid').vm.$emit('load-success', {
+            total: 7,
+        });
+
+        expect(wrapper.vm.total).toBe(7);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should synchronize route query explicitly on page changes', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.onPageChange({
+            page: 3,
+            limit: 50,
+        });
+
+        expect(wrapper.vm.page).toBe(3);
+        expect(wrapper.vm.limit).toBe(50);
+        expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({
+            name: 'sw.manufacturer.index',
+            params: {},
+            query: {
+                limit: 50,
+                page: 3,
+                term: undefined,
+                sortBy: 'name',
+                sortDirection: 'ASC',
+                naturalSorting: false,
+            },
+        });
     });
 });

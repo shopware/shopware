@@ -54,7 +54,7 @@ engine:
 
 permissions: read-all        # read-only agent; the only output is a run artifact
 network: defaults
-timeout-minutes: 8
+timeout-minutes: 15          # wall-clock budget; max-turns (30) bounds runaway loops.
 
 tools:
   github:

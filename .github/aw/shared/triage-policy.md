@@ -58,7 +58,11 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
 
 2. **Identify the code area** (`rg`, `find`). Pick 2–4 likely code
    identifiers (class names, methods, error strings, UI labels) and `rg`
-   them in `src/`. For the **primary domain label**, grep the package marker
+   them in `src/`. Always search with `rg` scoped to `src/` — it is fast and
+   skips `node_modules`/vendor by default. Never run `find … | xargs grep`
+   across the repo or into `node_modules`/vendor: those scans are slow and
+   are the main way a run burns its wall-clock budget. For the **primary
+   domain label**, grep the package marker
    on the affected file — `#[Package('<key>')]` on PHP or `@sw-package <key>`
    on JS/TS — and map the key via references/DOMAINS.md. The marker is
    authoritative; the top-level directory is only a fallback when no marker

@@ -40,7 +40,6 @@ import { CreateDocument } from '@tasks/ShopAdmin/Orders/CreateDocumentViaAPI';
  * Rules
  */
 import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
-import { CreateRuleNewsletterRecipient } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleNewsletterRecipient';
 
 /**
  * Flows
@@ -58,7 +57,6 @@ export const test = mergeTests(
     AddCreditItem,
     CreateDocument,
     CreateRuleBillingCountry,
-    CreateRuleNewsletterRecipient,
     CreateFlowForValidation,
     WaitForFlowValidationSideEffects,
     AddPromotionWithConditionRule,

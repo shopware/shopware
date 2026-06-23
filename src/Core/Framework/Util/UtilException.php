@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelperException;
 use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,6 +17,7 @@ class UtilException extends HttpException
 {
     public const INVALID_JSON = 'UTIL_INVALID_JSON';
     public const INVALID_JSON_NOT_LIST = 'UTIL_INVALID_JSON_NOT_LIST';
+    public const INVALID_JSON_NOT_ARRAY = 'UTIL_INVALID_JSON_NOT_ARRAY';
     public const XML_PARSE_ERROR = 'UTIL__XML_PARSE_ERROR';
     public const XML_ELEMENT_NOT_FOUND = 'UTIL__XML_ELEMENT_NOT_FOUND';
     public const FILESYSTEM_FILE_NOT_FOUND = 'UTIL__FILESYSTEM_FILE_NOT_FOUND';
@@ -26,9 +28,9 @@ class UtilException extends HttpException
     public const BASE64_DECODING_FAILED = 'UTIL__BASE64_DECODING_FAILED';
     public const DB_TABLE_HELPER_EXCEPTION = 'UTIL__DB_TABLE_HELPER_EXCEPTION';
 
-    public static function invalidJson(\JsonException $e): self
+    public static function invalidJson(\JsonException $e): JsonDecodingException
     {
-        return new self(
+        return new JsonDecodingException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_JSON,
             'JSON is invalid',
@@ -37,12 +39,21 @@ class UtilException extends HttpException
         );
     }
 
-    public static function invalidJsonNotList(): self
+    public static function invalidJsonNotList(): JsonDecodingException
     {
-        return new self(
+        return new JsonDecodingException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_JSON_NOT_LIST,
             'JSON cannot be decoded to a list'
+        );
+    }
+
+    public static function invalidJsonNotArray(): JsonDecodingException
+    {
+        return new JsonDecodingException(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_JSON_NOT_ARRAY,
+            'JSON cannot be decoded to an array'
         );
     }
 

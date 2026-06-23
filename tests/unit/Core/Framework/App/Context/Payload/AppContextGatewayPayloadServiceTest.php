@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 
@@ -98,6 +99,44 @@ class AppContextGatewayPayloadServiceTest extends TestCase
         $this->expectExceptionObject(AppException::gatewayRequestFailed('TestApp', 'context', $e));
 
         $service->request('https://example.com', $payload, $app);
+    }
+
+    public function testRequestWithMalformedJsonThrowsGatewayRequestFailed(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $cart = Generator::createCart();
+        $customData = new RequestDataBag(['foo' => 'bar']);
+
+        $app = new AppEntity();
+        $app->setName('TestApp');
+        $app->setVersion('1.0.0');
+        $app->setAppSecret('devsecret');
+
+        $payload = new ContextGatewayPayloadStruct($cart, $context, $customData);
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn($this->buildTestPayload($context->getContext(), '[]'));
+
+        $handler = new MockHandler();
+        $handler->append(new Response(200, [], '{'));
+
+        $service = new AppContextGatewayPayloadService(
+            $helper,
+            new Client(['handler' => $handler]),
+        );
+
+        try {
+            $service->request('https://example.com', $payload, $app);
+            static::fail('Expected malformed context gateway JSON to be wrapped.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
+            $previous = $e->getPrevious();
+            static::assertInstanceOf(JsonDecodingException::class, $previous);
+            static::assertInstanceOf(\JsonException::class, $previous->getPrevious());
+        }
     }
 
     /**

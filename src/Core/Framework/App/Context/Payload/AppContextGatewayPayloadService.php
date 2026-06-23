@@ -3,13 +3,15 @@
 namespace Shopware\Core\Framework\App\Context\Payload;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGatewayResponse;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal only for use by the app-system
@@ -35,8 +37,8 @@ class AppContextGatewayPayloadService
             $response = $this->client->post($url, $optionRequest->jsonSerialize());
             $content = $response->getBody()->getContents();
 
-            return new AppContextGatewayResponse(\json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
-        } catch (RequestException $e) {
+            return new AppContextGatewayResponse(Json::decodeToList($content, false));
+        } catch (GuzzleException|JsonDecodingException $e) {
             throw AppException::gatewayRequestFailed($app->getName(), 'context', $e);
         }
     }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App;
 
-use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
@@ -43,9 +42,11 @@ class AppException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
     final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
     final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
+    final public const APP_PAYMENT_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_PAYMENT_GATEWAY_REQUEST_FAILED';
     public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
     public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const APP_TAX_PROVIDER_RESPONSE_INVALID = 'FRAMEWORK__APP_TAX_PROVIDER_RESPONSE_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
@@ -287,6 +288,26 @@ class AppException extends HttpException
         );
     }
 
+    public static function paymentGatewayRequestFailed(string $appName, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_GATEWAY_REQUEST_FAILED,
+            'Request from app "{{ appName }}" to payment gateway failed.',
+            ['appName' => $appName],
+            $previous
+        );
+    }
+
+    public static function invalidTaxProviderResponse(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_TAX_PROVIDER_RESPONSE_INVALID,
+            'Tax provider response contains malformed tax data.'
+        );
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement in next major version as it is unused
      */
@@ -442,14 +463,14 @@ class AppException extends HttpException
         );
     }
 
-    public static function gatewayRequestFailed(string $appName, string $gateway, ?RequestException $requestException = null): self
+    public static function gatewayRequestFailed(string $appName, string $gateway, ?\Throwable $previous = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::APP_GATEWAY_REQUEST_FAILED,
             'Request from app "{{ appName }}" to gateway "{{ gateway }}" failed.',
             ['appName' => $appName, 'gateway' => $gateway],
-            $requestException
+            $previous
         );
     }
 

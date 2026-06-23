@@ -100,24 +100,49 @@ export const MtDataTableStub = {
         const getCurrentRecords = () => {
             return props.dataSource && props.dataSource.length > 0 ? props.dataSource : fallbackRecords;
         };
-        const getNameColumn = () => {
-            return props.columns?.find((column) => column.property === 'name') ?? fallbackColumns[0];
+        const getCurrentColumns = () => {
+            return props.columns && props.columns.length > 0 ? props.columns : fallbackColumns;
+        };
+        const renderColumnSlots = () => {
+            const slotNodes: Array<ReturnType<typeof h>> = [];
+
+            getCurrentRecords().forEach((record) => {
+                getCurrentColumns().forEach((column) => {
+                    const slotName = `column-${column.property}`;
+                    const columnSlot = slots[slotName];
+
+                    if (!columnSlot) {
+                        return;
+                    }
+
+                    slotNodes.push(
+                        h(
+                            'div',
+                            {
+                                class: [
+                                    'mt-data-table-stub__column',
+                                    `mt-data-table-stub__column-${column.property}`,
+                                ],
+                                'data-column': column.property,
+                                'data-record-id': record.id,
+                            },
+                            columnSlot({
+                                data: record,
+                                columnDefinition: column,
+                            }),
+                        ),
+                    );
+                });
+            });
+
+            return slotNodes;
         };
 
         return () =>
             h('div', { class: 'mt-data-table-stub' }, [
                 slots.toolbar ? h('div', { class: 'mt-data-table-stub__toolbar' }, slots.toolbar()) : null,
                 slots['empty-state'] ? h('div', { class: 'mt-data-table-stub__empty-state' }, slots['empty-state']()) : null,
-                slots['column-name']
-                    ? h(
-                          'div',
-                          { class: 'mt-data-table-stub__column-name' },
-                          slots['column-name']({
-                              data: getCurrentRecords()[0],
-                              columnDefinition: getNameColumn(),
-                          }),
-                      )
-                    : null,
+                ...renderColumnSlots(),
                 h(
                     'button',
                     {

@@ -75,7 +75,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
     });
 
     it('renders custom slots for editable columns while the row is not being edited', async () => {
-        let forwardedSlotScope: Record<string, unknown> | undefined;
+        const forwardedSlotScopes: Record<string, unknown>[] = [];
         const wrapper = createWrapper({
             props: {
                 columns: inlineEditColumns,
@@ -83,7 +83,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
             },
             slots: {
                 'column-name': (slotProps: Record<string, unknown>) => {
-                    forwardedSlotScope = slotProps;
+                    forwardedSlotScopes.push(slotProps);
 
                     return h('span', { class: 'inline-column-name-slot' }, (slotProps.item as TestRecord).name);
                 },
@@ -93,11 +93,11 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
         await flushPromises();
 
         expect(wrapper.find('.inline-column-name-slot').text()).toBe('First record');
-        expect(forwardedSlotScope?.data).toEqual(records[0]);
-        expect(forwardedSlotScope?.item).toEqual(records[0]);
-        expect(forwardedSlotScope?.columnDefinition).toEqual(expect.objectContaining(inlineEditColumns[0]));
-        expect(forwardedSlotScope?.column).toEqual(expect.objectContaining(inlineEditColumns[0]));
-        expect(forwardedSlotScope?.isInlineEdit).toBe(false);
+        expect(forwardedSlotScopes[0]?.data).toEqual(records[0]);
+        expect(forwardedSlotScopes[0]?.item).toEqual(records[0]);
+        expect(forwardedSlotScopes[0]?.columnDefinition).toEqual(expect.objectContaining(inlineEditColumns[0]));
+        expect(forwardedSlotScopes[0]?.column).toEqual(expect.objectContaining(inlineEditColumns[0]));
+        expect(forwardedSlotScopes[0]?.isInlineEdit).toBe(false);
     });
 
     it('renders legacy preview slots before editable column content', async () => {
@@ -167,11 +167,11 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
     });
 
     it('forwards custom table column slots with Meteor scope and compatibility aliases', () => {
-        let forwardedSlotScope: Record<string, unknown> | undefined;
+        const forwardedSlotScopes: Record<string, unknown>[] = [];
         const wrapper = createWrapper({
             slots: {
                 'column-name': (slotProps: Record<string, unknown>) => {
-                    forwardedSlotScope = slotProps;
+                    forwardedSlotScopes.push(slotProps);
 
                     return h('span', { class: 'column-name-slot' }, (slotProps.item as TestRecord).name);
                 },
@@ -179,9 +179,75 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/columns-and-slots
         });
 
         expect(wrapper.find('.column-name-slot').text()).toBe('First record');
-        expect(forwardedSlotScope?.data).toEqual(records[0]);
-        expect(forwardedSlotScope?.item).toEqual(records[0]);
-        expect(forwardedSlotScope?.columnDefinition).toEqual(expect.objectContaining(columns[0]));
-        expect(forwardedSlotScope?.column).toEqual(expect.objectContaining(columns[0]));
+        expect(forwardedSlotScopes[0]?.data).toEqual(records[0]);
+        expect(forwardedSlotScopes[0]?.item).toEqual(records[0]);
+        expect(forwardedSlotScopes[0]?.columnDefinition).toEqual(expect.objectContaining(columns[0]));
+        expect(forwardedSlotScopes[0]?.column).toEqual(expect.objectContaining(columns[0]));
+    });
+
+    it('renders empty number cells for empty or non-numeric values in editable number columns', async () => {
+        const repository = createRepositoryMock(
+            createSearchResult([
+                {
+                    id: 'record-1',
+                    name: 'Zero record',
+                    quantity: 0,
+                },
+                {
+                    id: 'record-2',
+                    name: 'Null record',
+                    quantity: null,
+                },
+                {
+                    id: 'record-3',
+                    name: 'Undefined record',
+                    quantity: undefined,
+                },
+                {
+                    id: 'record-4',
+                    name: 'Empty record',
+                    quantity: '',
+                },
+                {
+                    id: 'record-5',
+                    name: 'Whitespace record',
+                    quantity: '   ',
+                },
+                {
+                    id: 'record-6',
+                    name: 'Non-numeric record',
+                    quantity: 'not-a-number',
+                },
+            ]),
+        );
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                columns: [
+                    {
+                        label: 'Quantity',
+                        property: 'quantity',
+                        renderer: 'number',
+                        inlineEdit: 'number',
+                    },
+                ],
+                allowInlineEdit: true,
+            },
+        });
+
+        await flushPromises();
+
+        const numberValues = wrapper
+            .findAll('.sw-meteor-entity-data-table__number-renderer')
+            .map((numberRenderer) => numberRenderer.text());
+
+        expect(numberValues).toEqual([
+            '0',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ]);
     });
 });

@@ -69,7 +69,19 @@ export function useMeteorTableInlineEdit(options: UseMeteorTableInlineEditOption
     }
 
     function renderNumberRecordValue(record: SwMeteorEntityDataTableRecord | null, property: string): string {
-        return String(Number(getRecordValue(record, property)));
+        const value = getRecordValue(record, property);
+
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        if (typeof value === 'string' && value.trim() === '') {
+            return '';
+        }
+
+        const numberValue = Number(value);
+
+        return Number.isNaN(numberValue) ? '' : String(numberValue);
     }
 
     function isInlineEditing(record: SwMeteorEntityDataTableRecord | null): boolean {

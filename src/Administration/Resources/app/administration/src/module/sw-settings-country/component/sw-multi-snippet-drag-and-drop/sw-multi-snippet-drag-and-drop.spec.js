@@ -172,6 +172,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         const wrapper = await createWrapper({ isSnippetDragging: true });
         await flushPromises();
 
+        expect(wrapper.find('.sw-label').classes()).toContain('sw-multi-snippet-drag-and-drop__snippet');
+
         const inputWrapper = wrapper.find('.sw-select-selection-list__input-wrapper');
         const input = inputWrapper.find('.sw-select-selection-list__input');
 

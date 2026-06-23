@@ -170,6 +170,26 @@
         background: transparent;
     }
 
+    &__snippet.is--drag-element {
+        display: inline-block;
+        position: absolute;
+        width: auto;
+        height: var(--scale-size-32);
+        background: var(--color-elevation-surface-raised);
+        border-color: var(--color-border-brand-selected);
+        color: var(--color-text-primary-default);
+        box-shadow: 0 1px 3px 0 var(--color-elevation-shadow-default);
+        opacity: 1;
+
+        .sw-label__caption {
+            width: 100%;
+        }
+
+        .sw-label__dismiss {
+            display: none;
+        }
+    }
+
     &.is--row-placeholder {
         pointer-events: none;
 

@@ -2,6 +2,7 @@
     <mt-data-table
         class="sw-meteor-entity-data-table"
         :columns="resolvedColumns"
+        :column-changes="columnChanges"
         :data-source="records"
         :current-page="state.page"
         :pagination-limit="state.limit"
@@ -184,6 +185,7 @@ import {
     defineComponent,
     getCurrentInstance,
     onMounted,
+    reactive,
     ref,
     watch,
 } from 'vue';
@@ -208,6 +210,15 @@ import type {
     MeteorEntityTableRepository,
 } from './sw-meteor-entity-data-table.types';
 import './sw-meteor-entity-data-table.types';
+
+type SwMeteorEntityDataTableColumnChanges = Record<
+    string,
+    {
+        position?: number;
+        width?: number;
+        visible?: boolean;
+    }
+>;
 
 type SwMeteorEntityDataTableProps = {
     repository: MeteorEntityTableRepository;
@@ -463,6 +474,7 @@ export default defineComponent({
                     hasInternalColumnSlot: isInlineEditableColumn,
                     isInlineEdit: tableInlineEdit.isInlineEditing,
                 });
+                const columnChanges = reactive<SwMeteorEntityDataTableColumnChanges>({});
 
                 const openRecordDetail = (record: MeteorEntityTableRecord) => {
                     emit('open-detail', {
@@ -644,6 +656,7 @@ export default defineComponent({
                         columnsWithSlots: tableSlots.columnsWithSlots,
                         hasColumnSlot: tableSlots.hasColumnSlot,
                         hasPreviewSlot: tableSlots.hasPreviewSlot,
+                        columnChanges,
                         normalizeSlotScope: tableSlots.normalizeSlotScope,
                         getColumnValue: tableSlots.getColumnValue,
                         itemToDelete: tableDelete.itemToDelete,

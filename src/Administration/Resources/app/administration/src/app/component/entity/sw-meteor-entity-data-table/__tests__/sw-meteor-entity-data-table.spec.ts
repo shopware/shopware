@@ -192,6 +192,38 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         ]);
     });
 
+    it('passes mutable column changes to mt-data-table settings', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                {
+                    property: 'name',
+                    label: 'Name',
+                    primary: true,
+                },
+                {
+                    property: 'link',
+                    label: 'Link',
+                },
+            ],
+        });
+
+        const columnChanges = mountedTable(wrapper).props('columnChanges') as Record<string, { visible?: boolean }>;
+
+        expect(columnChanges).toEqual({});
+
+        columnChanges.link = {
+            visible: false,
+        };
+
+        await wrapper.vm.$nextTick();
+
+        expect(mountedTable(wrapper).props('columnChanges')).toEqual({
+            link: {
+                visible: false,
+            },
+        });
+    });
+
     it('assigns deterministic position values when legacy columns have none', async () => {
         const wrapper = await createWrapper({
             columns: [

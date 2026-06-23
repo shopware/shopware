@@ -145,6 +145,7 @@ export async function createWrapper(
                         'disableEdit',
                         'disableDelete',
                         'additionalContextButtons',
+                        'columnChanges',
                     ],
                     emits: [
                         'pagination-current-page-change',

@@ -20,6 +20,8 @@
 
     .sw-tree .sw-tree__content .sw-tree-item__element {
         grid-template-columns: 30px 0 20px minmax(0, 1fr) 0;
+        font-size: var(--font-size-s);
+        line-height: var(--line-height-s);
     }
 
     .sw-tree .sw-tree__content .sw-tree-item__children .sw-tree-item__element {

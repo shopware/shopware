@@ -40,7 +40,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             sync: true,
         }),
         'mt-card': {
-            template: '<div class="mt-card"><slot></slot></div>',
+            template: '<div class="mt-card"><slot name="headerRight"></slot><slot></slot></div>',
         },
         'sw-container': true,
         'sw-ignore-class': true,

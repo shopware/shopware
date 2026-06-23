@@ -75,6 +75,18 @@
         :title="$t('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
     >
+        <template #headerRight>
+            <mt-button
+                class="sw-settings-country-address-handling__button-reset"
+                variant="critical"
+                ghost
+                size="small"
+                @click="resetMarkup"
+            >
+                {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
+            </mt-button>
+        </template>
+
         <sw-container class="sw-settings-country-address-handling__options-container">
             <div class="sw-settings-country-address-handling__address-markup">
                 <template
@@ -140,15 +152,6 @@
                     :formatting-address="formattingAddress"
                     :is-loading="isPreviewLoading"
                 />
-
-                <mt-button
-                    class="sw-settings-country-address-handling__button-reset"
-                    variant="critical"
-                    ghost
-                    @click="resetMarkup"
-                >
-                    {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
-                </mt-button>
             </div>
         </sw-container>
     </mt-card>

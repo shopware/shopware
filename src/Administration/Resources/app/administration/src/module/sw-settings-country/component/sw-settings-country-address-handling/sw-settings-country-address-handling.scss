@@ -26,9 +26,6 @@
     }
 
     &__address-preview {
-        display: flex;
-        flex-direction: column;
-
         .sw-card__title {
             padding: 32px 0 28px;
         }
@@ -39,11 +36,6 @@
         margin: 32px 0 0;
         border: 0;
         border-top: 1px solid var(--color-border-primary-default);
-    }
-
-    &__button-reset.mt-button {
-        align-self: flex-end;
-        margin: 38px 0 28px;
     }
 
     .advanced-postal-code {

@@ -7,8 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The wire response shared by all sixteen (draft + persisted) layout mutation routes. Single definition of the
- * response shape and of which fields are JSON maps (object, {} when empty) versus lists (array, [] when empty).
+ * The wire response shared by the draft and persisted layout mutation routes, and the single definition of their
+ * response shape and of which fields encode as JSON maps versus lists.
  *
  * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
@@ -22,13 +22,13 @@ use Shopware\Core\Framework\Log\Package;
 class MutationResponse implements \JsonSerializable
 {
     /**
-     * @param list<array<string, mixed>> $layout serialized element tree (list -> [])
-     * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions (map -> {})
+     * @param list<array<string, mixed>> $layout serialized element tree
+     * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions
      * @param array<string, mixed> $diagnostics normalized diagnostics report
-     * @param list<string> $affectedElementIds list -> []
-     * @param list<array<string, mixed>> $orphaned serialized detached subtrees (list -> [])
-     * @param list<string> $droppedWiring list -> []
-     * @param array<string, mixed> $droppedProperties dropped property values (map -> {})
+     * @param list<string> $affectedElementIds
+     * @param list<array<string, mixed>> $orphaned serialized detached subtrees
+     * @param list<string> $droppedWiring
+     * @param array<string, mixed> $droppedProperties dropped property values
      */
     private function __construct(
         public array $layout,

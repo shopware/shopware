@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Swaps $elementId's component to $newType, keeping the same id. Carryover (policy 1 — never silently rewire):
+ * Swaps $elementId's component to $newType, keeping the same id. Carryover (never silently rewire):
  * primitive properties whose key and type match a $newType property are kept; wiring (data requirements and
  * context definitions) whose key matches a $newType reference property is kept; children of slots that exist
  * in $newType are kept. Children of slots absent from $newType are detached into {@see orphaned()}, wiring

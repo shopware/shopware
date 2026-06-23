@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Deletes $elementId and its whole subtree. Surviving elements' wiring is left untouched (policy 1), and no
+ * Deletes $elementId and its whole subtree. Surviving elements' wiring is left untouched, and no
  * surviving element is affected.
  *
  * @internal

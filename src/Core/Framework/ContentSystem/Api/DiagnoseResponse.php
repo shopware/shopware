@@ -7,8 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The wire response for the resolve-and-diagnose route ({ resolutions, diagnostics }). Single definition of its
- * shape and of the resolutions map encoding ({} when empty), the sibling of {@see MutationResponse}.
+ * The wire response for the resolve-and-diagnose route, and the single definition of its shape and resolutions
+ * map encoding. The sibling of {@see MutationResponse}.
  *
  * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 class DiagnoseResponse implements \JsonSerializable
 {
     /**
-     * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions (map -> {})
+     * @param array<string, list<array<string, mixed>>> $resolutions per-element resolutions
      * @param array<string, mixed> $diagnostics normalized diagnostics report
      */
     private function __construct(

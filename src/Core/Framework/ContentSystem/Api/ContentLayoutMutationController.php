@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Exposes the eight persisted layout mutation actions. Each loads the stored content_layout named in the path,
+ * Exposes the persisted layout mutation actions. Each loads the stored content_layout named in the path,
  * builds one {@see LayoutMutation}, and commits it through {@see PersistedLayoutMutator}, returning the
  * re-resolved layout plus diagnostics. The persisted counterpart to {@see LayoutMutationController}, which
  * mutates a stateless draft tree without touching storage.

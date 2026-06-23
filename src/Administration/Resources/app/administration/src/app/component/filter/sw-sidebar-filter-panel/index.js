@@ -48,7 +48,11 @@ export default {
         },
 
         openFilterPanel() {
-            this.filterSidebarItem?.openContent?.();
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
         },
 
         resetAll() {

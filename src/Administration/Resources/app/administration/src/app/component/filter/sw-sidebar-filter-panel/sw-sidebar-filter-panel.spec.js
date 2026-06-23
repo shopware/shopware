@@ -5,46 +5,16 @@
 import { mount } from '@vue/test-utils';
 
 describe('components/sw-sidebar-filter-panel', () => {
-    let openContentMock;
-    let resetAllMock;
-
     async function createWrapper(activeFilterNumber = 0) {
-        openContentMock = jest.fn();
-        resetAllMock = jest.fn();
-
         return mount(await wrapTestComponent('sw-sidebar-filter-panel', { sync: true }), {
             props: {
                 activeFilterNumber,
             },
             global: {
                 stubs: {
-                    'sw-sidebar-item': {
-                        inject: ['registerSidebarItem'],
-                        props: ['tooltipShortcut'],
-                        template: `
-                            <div
-                                class="sw-sidebar-item-stub"
-                                :data-tooltip-shortcut="tooltipShortcut.join(' ')"
-                            >
-                                <slot name="headline-content"></slot>
-                                <slot></slot>
-                            </div>
-                        `,
-                        methods: {
-                            openContent: openContentMock,
-                        },
-                        created() {
-                            this.registerSidebarItem({
-                                openContent: openContentMock,
-                            });
-                        },
-                    },
-                    'sw-filter-panel': {
-                        template: '<div></div>',
-                        methods: {
-                            resetAll: resetAllMock,
-                        },
-                    },
+                    'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
+                    'sw-filter-panel': true,
+                    'mt-icon': true,
                 },
             },
         });
@@ -56,25 +26,39 @@ describe('components/sw-sidebar-filter-panel', () => {
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterPanel');
     });
 
-    it('should show the open filters shortcut in the sidebar tooltip', async () => {
+    it('should show the open filters shortcut in the sidebar item', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-sidebar-item-stub').attributes('data-tooltip-shortcut')).toBe('O F');
+        expect(wrapper.vm.filterSidebarItem?.tooltipShortcut).toEqual([
+            'O',
+            'F',
+        ]);
     });
 
     it('should open the filter panel', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.filterSidebarItem).not.toBeNull();
+        const openContentSpy = jest.spyOn(wrapper.vm.filterSidebarItem, 'openContent');
 
         wrapper.vm.openFilterPanel();
 
-        expect(openContentMock).toHaveBeenCalledTimes(1);
+        expect(openContentSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should reset all active filters', async () => {
         const wrapper = await createWrapper(1);
+        await flushPromises();
+
+        wrapper.vm.filterSidebarItem.isActive = true;
+        await wrapper.vm.$nextTick();
+
+        const resetAllSpy = jest.fn();
+        wrapper.vm.$refs.filterPanel.resetAll = resetAllSpy;
 
         await wrapper.find('a').trigger('click');
 
-        expect(resetAllMock).toHaveBeenCalledTimes(1);
+        expect(resetAllSpy).toHaveBeenCalledTimes(1);
     });
 });

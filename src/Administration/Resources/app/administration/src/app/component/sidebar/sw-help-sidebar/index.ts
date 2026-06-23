@@ -155,7 +155,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getHelpSidebarContainer(): HTMLElement | null {
-            return (this.$el as HTMLElement).querySelector('.sw-help-sidebar__container');
+            return (this.$refs.container as HTMLElement) ?? null;
         },
 
         setFocusToSidebar(): void {

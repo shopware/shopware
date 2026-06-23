@@ -18,6 +18,7 @@ async function createWrapper() {
                     template: '<div class="sw-shortcut-overview-stub"></div>',
                 },
                 'sw-extension-component-section': true,
+                'mt-icon': true,
             },
         },
     });
@@ -56,11 +57,13 @@ describe('src/app/asyncComponent/utils/sw-help-center', () => {
 
         Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         await wrapper.vm.$nextTick();
+
         expect(wrapper.find('.sw-shortcut-overview-stub').exists()).toBeTruthy();
         expect(wrapper.findComponent({ name: 'sw-shortcut-overview' }).props('showModal')).toBe(true);
 
         Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
         await wrapper.vm.$nextTick();
+
         expect(wrapper.find('.sw-shortcut-overview-stub').exists()).toBeTruthy();
         expect(wrapper.findComponent({ name: 'sw-help-sidebar' }).props('focusTrigger')).toBe(1);
     });

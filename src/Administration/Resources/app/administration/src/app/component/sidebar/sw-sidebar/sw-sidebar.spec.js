@@ -1,4 +1,3 @@
-import { h } from 'vue';
 import { mount } from '@vue/test-utils';
 
 let resizeListener;
@@ -27,40 +26,6 @@ async function createWrapper() {
                 stubs: {
                     'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
                     'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
-                    'mt-tooltip': {
-                        props: {
-                            content: {
-                                type: String,
-                                required: true,
-                            },
-                            placement: {
-                                type: String,
-                                required: true,
-                            },
-                        },
-                        setup(props, { slots }) {
-                            return () =>
-                                h(
-                                    'div',
-                                    {
-                                        class: 'mt-tooltip-stub',
-                                        'data-content': props.content,
-                                        'data-placement': props.placement,
-                                    },
-                                    slots.default?.({
-                                        id: 'mt-tooltip-stub-trigger',
-                                        onFocus: () => {},
-                                        onBlur: () => {},
-                                        onKeydown: () => {},
-                                        onMouseover: () => {},
-                                        onMouseleave: () => {},
-                                        onMousedown: () => {},
-                                        onMouseup: () => {},
-                                        'aria-describedby': 'mt-tooltip-stub-content',
-                                    }),
-                                );
-                        },
-                    },
                 },
                 mocks: {
                     $device: deviceMock,
@@ -154,29 +119,23 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         expect(resizedSidebarNavigationItem.classes()).toContain('is--active');
     });
 
-    it('should render the navigation item with a Meteor tooltip', async () => {
-        const tooltip = wrapper.find('.mt-tooltip-stub');
-        const firstSidebarNavigationItem = wrapper.find(
-            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
-        );
+    it('should render the navigation item with a tooltip', async () => {
+        const button = wrapper.find('button.sw-sidebar-navigation-item[aria-label="First sidebar item"]');
 
-        expect(tooltip.attributes('data-content')).toBe('First sidebar item');
-        expect(tooltip.attributes('data-placement')).toBe('left');
-        expect(firstSidebarNavigationItem.attributes('aria-describedby')).toBe('mt-tooltip-stub-content');
-        expect(firstSidebarNavigationItem.attributes('title')).toBeUndefined();
+        expect(button.attributes('tooltip-mock-id')).toBeDefined();
+        expect(button.attributes('tooltip-mock-message')).toBe('First sidebar item');
+        expect(button.attributes('title')).toBeUndefined();
     });
 
     it('should render shortcut keys in the tooltip content', async () => {
-        const tooltip = wrapper.findAll('.mt-tooltip-stub').find((tooltipWrapper) => {
-            return tooltipWrapper.attributes('data-content').includes('Filter sidebar item');
-        });
+        const filterButton = wrapper.find('button.sw-sidebar-navigation-item[aria-label="Filter sidebar item"]');
 
-        expect(tooltip.attributes('data-content')).toContain('sw-sidebar-navigation-item__tooltip-title');
-        expect(tooltip.attributes('data-content')).toContain('Filter sidebar item');
-        expect(tooltip.attributes('data-content')).toContain('sw-sidebar-navigation-item__tooltip-shortcut-key');
-        expect(tooltip.attributes('data-content')).toContain('aria-label="O"');
-        expect(tooltip.attributes('data-content')).toContain('aria-label="F"');
-        expect(tooltip.attributes('data-content')).toContain('O');
-        expect(tooltip.attributes('data-content')).toContain('F');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('sw-sidebar-navigation-item__tooltip-title');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('Filter sidebar item');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain(
+            'sw-sidebar-navigation-item__tooltip-shortcut-key',
+        );
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('aria-label="O"');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('aria-label="F"');
     });
 });

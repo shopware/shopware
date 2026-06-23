@@ -782,6 +782,18 @@ The following exception classes were removed and replaced by domain exceptions:
 
 Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+## `render()` removed from the core script `response` service
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` has been removed. Rendering Storefront templates from scripts is only available in Storefront script hooks (the `/storefront/script/{hook}` endpoint), where the `response` service is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`. In admin-api and store-api script hooks the `response` service no longer offers `render()`.
+
+App scripts that may run outside a Storefront context should guard their usage:
+
+```twig
+{% if response.render is defined %}
+    {% set rendered = response.render('@Storefront/...') %}
+{% endif %}
+```
+
 </details>
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed

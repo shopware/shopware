@@ -100,7 +100,7 @@ class AppContextGatewayPayloadServiceTest extends TestCase
         $service->request('https://example.com', $payload, $app);
     }
 
-    public function testRequestWithMalformedJsonThrowsGatewayRequestFailed(): void
+    public function testRequestWithMalformedJsonThrows(): void
     {
         $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();

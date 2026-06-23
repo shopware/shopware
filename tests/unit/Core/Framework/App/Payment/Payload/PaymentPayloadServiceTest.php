@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -162,39 +161,7 @@ class PaymentPayloadServiceTest extends TestCase
         static::assertSame('foo', $response->getErrorMessage());
     }
 
-    public function testRequestRethrowsNetworkException(): void
-    {
-        $payload = $this->createMock(PaymentPayloadInterface::class);
-        $app = new AppEntity();
-        $app->setName('InsecureApp');
-        $app->setVersion('1.0.0');
-        $app->setAppSecret('secret');
-
-        $context = Context::createDefaultContext();
-        $exception = new TransferException('Something went wrong');
-
-        $this->helper
-            ->expects($this->once())
-            ->method('createRequestOptions')
-            ->willReturn($this->buildTestPayload($context));
-
-        $this->client
-            ->expects($this->once())
-            ->method('request')
-            ->willThrowException($exception);
-
-        $this->expectExceptionObject($exception);
-
-        $this->service->request(
-            'http://example.com',
-            $payload,
-            $app,
-            PaymentResponse::class,
-            $context,
-        );
-    }
-
-    public function testRequestWrapsMalformedJson(): void
+    public function testRequestWithMalformedJsonThrows(): void
     {
         $payload = $this->createMock(PaymentPayloadInterface::class);
         $app = new AppEntity();

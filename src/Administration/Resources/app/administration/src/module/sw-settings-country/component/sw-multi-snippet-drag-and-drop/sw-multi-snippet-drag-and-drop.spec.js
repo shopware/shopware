@@ -458,7 +458,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDragEnter(null, null);
         expect(wrapper.emitted()['drag-enter']).toBeFalsy();
 
-        await wrapper.vm.onDrop(
+        await wrapper.vm.onDragEnter(
             {
                 index: 0,
                 linePosition: 1,
@@ -468,9 +468,20 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 1,
                 linePosition: 0,
                 snippet: 'symbol/dash',
+                targetIndex: 1,
             },
         );
 
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 1,
+                snippet: 'address/company',
+            },
+            null,
+        );
+
         expect(wrapper.emitted()['drop-end']).toBeTruthy();
+        expect(wrapper.emitted()['drop-end'][0][1].dropData.targetIndex).toBe(1);
     });
 });

@@ -17,6 +17,12 @@ interface DragPreview {
     targetIndex: number;
 }
 
+interface ExternalDragPreview extends DragPreview {
+    linePosition: number;
+    sourceLinePosition: number;
+    snippet: string[];
+}
+
 const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
@@ -97,11 +103,18 @@ export default Component.wrapComponentConfig({
             required: false,
             default: (value: string) => value,
         },
+
+        externalDragPreview: {
+            type: Object as PropType<ExternalDragPreview | null>,
+            required: false,
+            default: null,
+        },
     },
 
     data(): {
         defaultConfig: DragConfig<DragItem>;
         dragPreview: DragPreview | null;
+        dropPreviewData: DragItem | null;
         isDragging: boolean;
     } {
         return {
@@ -113,6 +126,7 @@ export default Component.wrapComponentConfig({
                 disabled: this.disabled,
             } as DragConfig<DragItem>,
             dragPreview: null,
+            dropPreviewData: null,
             isDragging: false,
         };
     },
@@ -150,16 +164,26 @@ export default Component.wrapComponentConfig({
             return this.totalLines <= DEFAULT_MIN_LINES;
         },
 
+        activeDragPreview(): DragPreview | null {
+            if (this.dragPreview) {
+                return this.dragPreview;
+            }
+
+            return this.externalDragPreview?.linePosition === this.linePosition ? this.externalDragPreview : null;
+        },
+
         hasDragPreview(): boolean {
-            return !!this.dragPreview;
+            return !!this.activeDragPreview;
         },
 
         dragPreviewSnippet(): string[] | null {
-            if (!this.dragPreview) {
+            if (!this.activeDragPreview) {
                 return null;
             }
 
-            return this.value[this.dragPreview.dragIndex] ?? null;
+            return this.dragPreview
+                ? (this.value[this.dragPreview.dragIndex] ?? null)
+                : (this.externalDragPreview?.snippet ?? null);
         },
     },
 
@@ -175,6 +199,8 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
+            this.dropPreviewData = dropData;
+
             if (dragData.linePosition === dropData.linePosition && typeof dropData.targetIndex === 'number') {
                 this.dragPreview = {
                     dragIndex: dragData.index,
@@ -189,20 +215,28 @@ export default Component.wrapComponentConfig({
 
         onDrop(dragData: DragItem | null, dropData: DragItem | null) {
             const dragPreview = this.dragPreview as DragPreview | null;
+            const dropPreviewData = this.dropPreviewData as DragItem | null;
+            const currentDropData =
+                !dropData || (typeof dropData.targetIndex !== 'number' && typeof dropPreviewData?.targetIndex === 'number')
+                    ? dropPreviewData
+                    : dropData;
 
             this.dragPreview = null;
+            this.dropPreviewData = null;
             this.isDragging = false;
 
-            if (!dragData || (!dropData && !dragPreview)) {
+            if (!dragData || (!currentDropData && !dragPreview)) {
                 return;
             }
 
-            if (!dropData || dragData.linePosition === dropData.linePosition) {
+            if (!currentDropData || dragData.linePosition === currentDropData.linePosition) {
                 const newValue = [...this.value];
                 const [snippet] = newValue.splice(dragData.index, 1);
                 const fallbackTargetIndex =
-                    dropData && dragData.index < dropData.index ? dropData.index + 1 : (dropData?.index ?? dragData.index);
-                const targetIndex = dropData?.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
+                    currentDropData && dragData.index < currentDropData.index
+                        ? currentDropData.index + 1
+                        : (currentDropData?.index ?? dragData.index);
+                const targetIndex = currentDropData?.targetIndex ?? dragPreview?.targetIndex ?? fallbackTargetIndex;
                 const insertIndex = targetIndex > dragData.index ? targetIndex - 1 : targetIndex;
 
                 newValue.splice(insertIndex, 0, snippet);
@@ -212,19 +246,27 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            this.$emit('drop-end', this.linePosition, { dragData, dropData });
+            this.$emit('drop-end', this.linePosition, { dragData, dropData: currentDropData });
         },
 
         shouldShowPlaceholderBefore(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.targetIndex === index;
+            return !!this.activeDragPreview && this.activeDragPreview.targetIndex === index;
         },
 
         shouldShowPlaceholderAfter(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.targetIndex === this.value.length && index === this.value.length - 1;
+            return (
+                !!this.activeDragPreview &&
+                this.activeDragPreview.targetIndex === this.value.length &&
+                index === this.value.length - 1
+            );
         },
 
         isDragPreviewSource(index: number): boolean {
-            return !!this.dragPreview && this.dragPreview.dragIndex === index;
+            return (
+                (!!this.dragPreview && this.dragPreview.dragIndex === index) ||
+                (this.externalDragPreview?.sourceLinePosition === this.linePosition &&
+                    this.externalDragPreview.dragIndex === index)
+            );
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {

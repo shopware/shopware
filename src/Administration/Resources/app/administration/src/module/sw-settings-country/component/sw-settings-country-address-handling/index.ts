@@ -18,6 +18,15 @@ interface DragItem {
     index: number;
     linePosition?: number | null;
     snippet: string[];
+    targetIndex?: number;
+}
+
+interface SnippetDragPreview {
+    dragIndex: number;
+    sourceLinePosition: number;
+    linePosition: number;
+    targetIndex: number;
+    snippet: string[];
 }
 
 const DefaultAddressFormat = [
@@ -73,6 +82,7 @@ export default Component.wrapComponentConfig({
         isOpenModal: boolean;
         currentPosition: number | null;
         formattingAddress: string;
+        snippetDragPreview: SnippetDragPreview | null;
     } {
         return {
             advancedPostalCodePattern: null,
@@ -84,6 +94,7 @@ export default Component.wrapComponentConfig({
             isOpenModal: false,
             currentPosition: null,
             formattingAddress: '',
+            snippetDragPreview: null,
         };
     },
 
@@ -209,6 +220,8 @@ export default Component.wrapComponentConfig({
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onDrop(dragData: DragItem, dropData: DragItem): void {
+            this.snippetDragPreview = null;
+
             if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
                 return;
             }
@@ -236,6 +249,29 @@ export default Component.wrapComponentConfig({
         },
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
+            this.snippetDragPreview = null;
+
+            if (
+                typeof dropData?.targetIndex === 'number' &&
+                typeof dropData.linePosition === 'number' &&
+                typeof dragData?.linePosition === 'number' &&
+                dragData.linePosition !== dropData.linePosition
+            ) {
+                const sourceLine = [...(this.addressFormat[dragData.linePosition] ?? [])];
+                const targetLine = [...(this.addressFormat[dropData.linePosition] ?? [])];
+                const [snippet] = sourceLine.splice(dragData.index, 1);
+
+                if (!snippet) {
+                    return;
+                }
+
+                targetLine.splice(dropData.targetIndex, 0, snippet);
+
+                this.updateCountry(`addressFormat[${dropData.linePosition}]`, targetLine);
+                this.updateCountry(`addressFormat[${dragData.linePosition}]`, sourceLine);
+                return;
+            }
+
             // swap positions in different lines
             if (
                 typeof dropData?.linePosition === 'number' &&
@@ -261,6 +297,31 @@ export default Component.wrapComponentConfig({
 
             // @ts-expect-error - value exists
             this.updateCountry(`addressFormat[${dragPosition}]`, this.country.addressFormat[dragPosition]);
+        },
+
+        onSnippetDragEnter({ dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
+            this.snippetDragPreview = null;
+
+            if (
+                typeof dragData?.linePosition !== 'number' ||
+                !dropData ||
+                dragData.linePosition === dropData.linePosition
+            ) {
+                return;
+            }
+
+            const linePosition = typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
+            const targetLine = this.addressFormat[linePosition] ?? [];
+            const targetIndex =
+                typeof dropData.targetIndex === 'number' ? dropData.targetIndex : targetLine.length;
+
+            this.snippetDragPreview = {
+                dragIndex: dragData.index,
+                sourceLinePosition: dragData.linePosition,
+                linePosition,
+                targetIndex,
+                snippet: dragData.snippet,
+            };
         },
 
         moveToNewPosition(source: number, dest: number | null): void {

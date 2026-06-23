@@ -917,6 +917,69 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
     });
 
+    it('should preview and move a snippet to the target position in another line', async () => {
+        wrapper = await createWrapper([
+            'country.editor',
+        ], {
+            addressFormat: [
+                [
+                    'address/company',
+                    'symbol/dash',
+                    'address/department',
+                ],
+                [
+                    'address/first_name',
+                    'address/last_name',
+                ],
+            ],
+        });
+        await flushPromises();
+
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        await addressHandlingWrapper.vm.onSnippetDragEnter({
+            dragData: {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+            dropData: {
+                index: 1,
+                linePosition: 1,
+                snippet: 'address/last_name',
+                targetIndex: 1,
+            },
+        });
+        await flushPromises();
+
+        const targetRowItems = wrapper.findAll('.sw-multi-snippet-drag-and-drop')[1].findAll('.sw-select-selection-list > li');
+
+        expect(targetRowItems[1].classes()).toContain('sw-multi-snippet-drag-and-drop__placeholder');
+
+        await addressHandlingWrapper.vm.onDropEnd(0, {
+            dragData: {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+            dropData: {
+                index: 1,
+                linePosition: 1,
+                snippet: 'address/last_name',
+                targetIndex: 1,
+            },
+        });
+
+        expect(wrapper.vm.country.addressFormat[0]).toEqual([
+            'address/company',
+            'symbol/dash',
+        ]);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual([
+            'address/first_name',
+            'address/department',
+            'address/last_name',
+        ]);
+    });
+
     it('should be able to swap positions in different lines', async () => {
         wrapper = await createWrapper([
             'country.editor',

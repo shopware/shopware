@@ -3,60 +3,39 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package framework
  */
+async function createWrapper(platform = 'Linux x86_64', shortcutServiceOverride = {}) {
+    const shortcutService = {
+        isShortcutsDisabled: jest.fn(() => false),
+        setShortcutsDisabled: jest.fn(),
+        ...shortcutServiceOverride,
+    };
 
-describe('app/component/utils/sw-shortcut-overview', () => {
-    let wrapper;
-    let shortcutService;
-
-    async function createWrapper(platform = 'Linux x86_64', shortcutServiceOverride = {}) {
-        shortcutService = {
-            isShortcutsDisabled: jest.fn(() => false),
-            setShortcutsDisabled: jest.fn(),
-            ...shortcutServiceOverride,
-        };
-
-        wrapper = mount(await wrapTestComponent('sw-shortcut-overview', { sync: true }), {
-            global: {
-                renderStubDefaultSlot: true,
-                mocks: {
-                    $device: {
-                        getPlatform: () => platform,
-                    },
-                },
-                provide: {
-                    shortcutService,
-                },
-                stubs: {
-                    'sw-modal': {
-                        template: '<div class="sw-modal-stub"><slot></slot><slot name="modal-footer"></slot></div>',
-                    },
-                    'sw-shortcut-overview-item': true,
-                    'mt-switch': {
-                        name: 'mt-switch',
-                        props: [
-                            'modelValue',
-                            'label',
-                        ],
-                        template: '<div class="mt-switch-stub">{{ label }}</div>',
-                    },
-                    'mt-button': {
-                        name: 'mt-button',
-                        props: [
-                            'variant',
-                        ],
-                        emits: ['click'],
-                        template: '<button class="mt-button-stub" @click="$emit(\'click\')"><slot></slot></button>',
-                    },
+    const wrapper = mount(await wrapTestComponent('sw-shortcut-overview', { sync: true }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $device: {
+                    getPlatform: () => platform,
                 },
             },
-        });
-    }
-
-    beforeEach(async () => {
-        await createWrapper();
+            provide: {
+                shortcutService,
+            },
+            stubs: {
+                'sw-shortcut-overview-item': true,
+                'mt-switch': true,
+                'mt-button': true,
+            },
+        },
     });
 
+    return { wrapper, shortcutService };
+}
+
+describe('app/component/utils/sw-shortcut-overview', () => {
     it('should add the privilege attribute to some shortcut-overview-items', async () => {
+        const { wrapper } = await createWrapper();
+
         await wrapper.setData({
             showShortcutOverviewModal: true,
         });
@@ -73,7 +52,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should only show shortcuts for the current platform', async () => {
-        await createWrapper('MacIntel');
+        const { wrapper } = await createWrapper('MacIntel');
+
         await wrapper.setData({
             showShortcutOverviewModal: true,
         });
@@ -105,6 +85,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should show general shortcuts as the first section', async () => {
+        const { wrapper } = await createWrapper();
+
         await wrapper.setData({
             showShortcutOverviewModal: true,
         });
@@ -146,6 +128,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should show accessibility shortcuts in a separate section', async () => {
+        const { wrapper } = await createWrapper();
+
         await wrapper.setData({
             showShortcutOverviewModal: true,
         });
@@ -194,16 +178,17 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should show the footer actions', async () => {
+        const { wrapper } = await createWrapper();
+
         await wrapper.setData({
             showShortcutOverviewModal: true,
         });
 
-        const disableShortcutsToggle = wrapper.findComponent({ name: 'mt-switch' });
-        const closeButton = wrapper.findComponent({ name: 'mt-button' });
+        const disableShortcutsToggle = wrapper.find('mt-switch-stub');
+        const closeButton = wrapper.find('mt-button-stub');
 
-        expect(disableShortcutsToggle.props('modelValue')).toBe(false);
-        expect(disableShortcutsToggle.props('label')).toBe('sw-shortcut-overview.disableShortcuts');
-        expect(closeButton.props('variant')).toBe('secondary');
+        expect(disableShortcutsToggle.attributes('label')).toBe('sw-shortcut-overview.disableShortcuts');
+        expect(closeButton.attributes('variant')).toBe('secondary');
         expect(closeButton.text()).toBe('global.default.close');
 
         await closeButton.trigger('click');
@@ -212,6 +197,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should toggle keyboard shortcuts through the shortcut service', async () => {
+        const { wrapper, shortcutService } = await createWrapper();
+
         expect(wrapper.vm.shortcutsDisabled).toBe(false);
         expect(shortcutService.isShortcutsDisabled).toHaveBeenCalled();
 
@@ -222,7 +209,7 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     });
 
     it('should initialize the disabled shortcut state from the shortcut service', async () => {
-        await createWrapper('Linux x86_64', {
+        const { wrapper } = await createWrapper('Linux x86_64', {
             isShortcutsDisabled: jest.fn(() => true),
         });
 

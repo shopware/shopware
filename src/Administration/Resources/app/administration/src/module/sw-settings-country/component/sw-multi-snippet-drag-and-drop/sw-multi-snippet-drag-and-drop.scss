@@ -74,14 +74,12 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         }
 
         .sw-label .sw-label__caption {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
             text-align: center;
         }
 
         .sw-label {
             position: relative;
+            cursor: grab;
         }
 
         .sw-label.is--valid-drop,
@@ -116,9 +114,16 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
     }
 
     &__snippet-drag-icon {
-        flex: 0 0 auto;
+        display: none;
+        position: absolute;
+        top: 9px;
+        left: 4px;
+        pointer-events: none;
         color: var(--color-icon-secondary-default);
-        cursor: grab;
+    }
+
+    .sw-label:hover &__snippet-drag-icon {
+        display: block;
     }
 
     &.is--valid-drop:not(.is--dragging-snippet) .sw-multi-snippet-select .sw-block-field__block {

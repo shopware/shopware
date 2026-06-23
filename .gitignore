@@ -210,7 +210,4 @@ danger.phar
 # gh aw run snapshots — personal scratch, do not commit. Track the README
 # inside the directory as a marker.
 .github/aw/logs/*
-!.github/aw/logs/AGENTS.md
-!.github/aw/logs/CLAUDE.md
-!.github/aw/logs/GEMINI.md
 !.github/aw/logs/README.md

@@ -2,8 +2,6 @@
 
 Automatically converts Shopware Administration components from the Options API (`index.js` + `.html.twig`) to Vue 3 Single File Components (`<script setup>`).
 
-For the codemod decision context, see [Vue 2 Options API to Vue 3 Composition API Conversion Codemod](../../../../../../../../adr/2024-10-02-vue-2-options-api-to-vue-3-composition-api-conversion-codemod.md).
-
 ## Requirements
 
 - Node.js 20+

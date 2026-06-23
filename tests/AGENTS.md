@@ -25,7 +25,3 @@ Read the repository root `AGENTS.md` first.
 - Do not use `yield from` with an inline array for providers. Prefer one explicit `yield 'human readable case description' => [...]` per scenario.
 - Provider case names should explain the scenario and expected behavior, not mechanically restate raw input values. Good names mention the rule being proven, such as priority, normalization, timezone conversion, or boundary handling.
 - Be conservative when deleting "duplicate" provider cases. Remove only exact semantic duplicates that add no coverage, and keep similar-looking cases when they cover distinct edge behavior.
-
-More specific test subtree guidance:
-- `acceptance/AGENTS.md`
-- `performance/bench/AGENTS.md`

@@ -4,8 +4,6 @@
 
 The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/intro).
 
-For the decision behind this suite, see [New acceptance test suite](../../adr/2023-12-12-acceptance-test-suite.md).
-
 ## Prerequisites
 - Node.js 18-22
 

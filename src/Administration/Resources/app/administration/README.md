@@ -2,61 +2,6 @@
 
 > Shopware Administration
 
-## Working Here
-
-See `technical-docs/` for detailed architecture guides. More specific working guidance lives in the README files under `src/core/`, `src/app/`, and `src/module/`.
-
-### File Structure
-
-```
-technical-docs/     # Full technical documentation
-src/
-├── core/           # Vue-independent framework code, repositories, services
-├── app/            # Vue-specific UI, components, stores
-└── module/         # Business modules
-```
-
-### Technologies
-
-- TypeScript for new code
-- Vue 3 components compiled at runtime
-- Twig.JS for extensible Vue component templates
-- Pinia and legacy Vuex for state
-- Vue Router, Axios, Vite, Jest
-
-### Shopware-Specific Patterns
-
-- The Administration uses a component factory instead of regular local Vue component imports so plugins can extend and override components.
-- The boot sequence initializes state, config, feature flags, core modules, services, and plugins before mounting Vue.
-- The global `Shopware` object is the central access point for services, factories, and dependency injection.
-
-### Coding Guidelines
-
-- [Administration architecture](../../../../../coding-guidelines/administration/architecture.md)
-- [Administration testing](../../../../../coding-guidelines/administration/testing.md)
-- [Administration feature flags and deprecations](../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md)
-
-Admin UI changes that read or persist DAL entities or associations must update matching ACL privilege mappings and migrations for existing roles when needed.
-
-### Related ADRs
-
-- [Co-locate Administration Technical Documentation with Source Code](../../../../../adr/2025-10-14-colocate-administration-technical-docs.md)
-- [Administration Pull Request Guidelines](../../../../../adr/2026-05-13-administration-pr-guidelines.md)
-
-### Composer Wrappers
-
-```bash
-composer eslint:admin
-composer eslint:admin:fix
-composer stylelint:admin
-composer stylelint:admin:fix
-composer format:admin
-composer format:admin:fix
-composer admin:unit
-composer admin:unit:watch
-composer build:js:admin
-```
-
 ## Build Setup
 
 ``` bash

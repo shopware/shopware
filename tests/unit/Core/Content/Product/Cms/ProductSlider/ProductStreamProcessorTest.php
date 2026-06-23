@@ -188,7 +188,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertSame([], $criteria->getSorting());
     }
 
-    public function testEnrichRandomizesProductOrder(): void
+    public function testEnrichHandlesRandomSorting(): void
     {
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
@@ -212,6 +212,7 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame('product-stream-1', $slider->getStreamId());
+        static::assertInstanceOf(ProductCollection::class, $slider->getProducts());
         static::assertCount(2, $slider->getProducts());
     }
 

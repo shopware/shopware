@@ -31,3 +31,9 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
 .top-bar-list-item-currency-symbol {
     min-width: 1.7rem;
 }
+
+// Prevent unintended button focus in Safari when clicking a button containg an icon.
+.top-bar-nav-text,
+.top-bar-list-icon {
+    pointer-events: none;
+}

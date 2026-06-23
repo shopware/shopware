@@ -980,7 +980,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
     });
 
-    it('should be able to swap positions in different lines', async () => {
+    it('should move snippets before the target snippet in different lines', async () => {
         wrapper = await createWrapper([
             'country.editor',
         ]);
@@ -1002,9 +1002,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         });
         await flushPromises();
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/department');
-        expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/last_name');
-
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
         await addressHandlingWrapper.vm.onDropEnd(1, {
             dragData: {
@@ -1019,8 +1016,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
         });
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/last_name');
-        expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/department');
+        expect(wrapper.vm.country.addressFormat[0]).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/last_name',
+            'address/department',
+        ]);
+        expect(wrapper.vm.country.addressFormat[1]).toEqual([
+            'address/first_name',
+        ]);
     });
 
     it('should be able to preview formatting with the customer', async () => {

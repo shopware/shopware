@@ -83,6 +83,7 @@ export default Component.wrapComponentConfig({
         currentPosition: number | null;
         formattingAddress: string;
         snippetDragPreview: SnippetDragPreview | null;
+        snippetDragItem: DragItem | null;
     } {
         return {
             advancedPostalCodePattern: null,
@@ -95,6 +96,7 @@ export default Component.wrapComponentConfig({
             currentPosition: null,
             formattingAddress: '',
             snippetDragPreview: null,
+            snippetDragItem: null,
         };
     },
 
@@ -206,6 +208,10 @@ export default Component.wrapComponentConfig({
             this.draggedItem = dragConfig.data;
         },
 
+        onSnippetDragStart({ config }: { config: DragConfig<DragItem> }): void {
+            this.snippetDragItem = config.data;
+        },
+
         onDragEnter(dragData: DragItem, dropData: DragItem): void {
             if (!this.draggedItem) {
                 return;
@@ -221,6 +227,7 @@ export default Component.wrapComponentConfig({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onDrop(dragData: DragItem, dropData: DragItem): void {
             this.snippetDragPreview = null;
+            this.snippetDragItem = null;
 
             if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
                 return;
@@ -250,37 +257,33 @@ export default Component.wrapComponentConfig({
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
             this.snippetDragPreview = null;
+            this.snippetDragItem = null;
 
-            if (
-                typeof dropData?.targetIndex === 'number' &&
-                typeof dropData.linePosition === 'number' &&
-                typeof dragData?.linePosition === 'number' &&
-                dragData.linePosition !== dropData.linePosition
-            ) {
+            if (typeof dragData?.linePosition === 'number' && dropData) {
+                const targetLinePosition = typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
+                const targetLine = [...(this.addressFormat[targetLinePosition] ?? [])];
                 const sourceLine = [...(this.addressFormat[dragData.linePosition] ?? [])];
-                const targetLine = [...(this.addressFormat[dropData.linePosition] ?? [])];
+                const targetIndex =
+                    typeof dropData.targetIndex === 'number'
+                        ? dropData.targetIndex
+                        : typeof dropData.linePosition === 'number'
+                          ? dropData.index
+                          : targetLine.length;
+
+                if (dragData.linePosition === targetLinePosition) {
+                    return;
+                }
+
                 const [snippet] = sourceLine.splice(dragData.index, 1);
 
                 if (!snippet) {
                     return;
                 }
 
-                targetLine.splice(dropData.targetIndex, 0, snippet);
+                targetLine.splice(targetIndex, 0, snippet);
 
-                this.updateCountry(`addressFormat[${dropData.linePosition}]`, targetLine);
+                this.updateCountry(`addressFormat[${targetLinePosition}]`, targetLine);
                 this.updateCountry(`addressFormat[${dragData.linePosition}]`, sourceLine);
-                return;
-            }
-
-            // swap positions in different lines
-            if (
-                typeof dropData?.linePosition === 'number' &&
-                typeof dragData?.linePosition === 'number' &&
-                dragData.linePosition !== dropData.linePosition
-            ) {
-                this.$emit('update:country', `addressFormat[${dragData.linePosition}][${dragData.index}]`, dropData.snippet);
-
-                this.$emit('update:country', `addressFormat[${dropData.linePosition}][${dropData.index}]`, dragData.snippet);
                 return;
             }
 
@@ -376,6 +379,9 @@ export default Component.wrapComponentConfig({
         },
 
         change(index: number, newSnippet?: string): void {
+            this.snippetDragPreview = null;
+            this.snippetDragItem = null;
+
             if (!newSnippet) {
                 this.updateCountry(
                     'addressFormat',

@@ -161,10 +161,11 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
     });
 
     it('should render the selection input inside the expected wrapper', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({ isSnippetDragging: true });
         await flushPromises();
 
         expect(wrapper.find('.sw-select-selection-list__input-wrapper .sw-select-selection-list__input').exists()).toBe(true);
+        expect(wrapper.classes()).toContain('is--dragging-snippet');
     });
 
     it('should move snippets on the same line when dragging', async () => {

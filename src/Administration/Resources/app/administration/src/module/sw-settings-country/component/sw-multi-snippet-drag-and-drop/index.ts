@@ -109,6 +109,12 @@ export default Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+
+        isSnippetDragging: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data(): {
@@ -170,6 +176,10 @@ export default Component.wrapComponentConfig({
             }
 
             return this.externalDragPreview?.linePosition === this.linePosition ? this.externalDragPreview : null;
+        },
+
+        isSnippetDragActive(): boolean {
+            return this.isDragging || this.isSnippetDragging;
         },
 
         hasDragPreview(): boolean {

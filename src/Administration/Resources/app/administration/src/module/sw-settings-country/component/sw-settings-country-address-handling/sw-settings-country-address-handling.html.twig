@@ -97,6 +97,7 @@
                         v-draggable="{ ...dragConf, data: { snippet: row.snippet, index: row.index }}"
                         :class="{
                             'is--row-dragging': !!rowDragPreview,
+                            'is--row-drag-preview-source': row.isSource,
                         }"
                         :value="row.snippet"
                         :line-position="row.index"

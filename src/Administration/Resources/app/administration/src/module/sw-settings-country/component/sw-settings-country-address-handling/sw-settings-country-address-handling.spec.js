@@ -876,8 +876,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const rowsWhileDragging = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(rowsWhileDragging).toHaveLength(5);
-        expect(rowsWhileDragging[3].classes()).toContain('is--row-placeholder');
+        expect(rowsWhileDragging).toHaveLength(6);
+        expect(rowsWhileDragging[0].classes()).toContain('is--row-drag-preview-source');
+        expect(rowsWhileDragging[4].classes()).toContain('is--row-placeholder');
 
         await addressHandlingWrapper.vm.onDragEnter(
             {
@@ -893,8 +894,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const rowsAfterReversingDrag = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(rowsAfterReversingDrag).toHaveLength(5);
-        expect(rowsAfterReversingDrag[0].classes()).toContain('is--row-placeholder');
+        expect(rowsAfterReversingDrag).toHaveLength(6);
+        expect(rowsAfterReversingDrag[0].classes()).toContain('is--row-drag-preview-source');
+        expect(rowsAfterReversingDrag[1].classes()).toContain('is--row-placeholder');
 
         await addressHandlingWrapper.vm.onDrop();
         await flushPromises();
@@ -932,6 +934,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(rowsAfterDrop).toHaveLength(5);
         rowsAfterDrop.forEach((row) => {
             expect(row.classes()).not.toContain('is--row-placeholder');
+            expect(row.classes()).not.toContain('is--row-drag-preview-source');
         });
 
         await dragRow(3, 0);
@@ -948,8 +951,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         const rowsDuringThirdDrag = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(rowsDuringThirdDrag).toHaveLength(5);
-        expect(rowsDuringThirdDrag[2].classes()).toContain('is--row-placeholder');
+        expect(rowsDuringThirdDrag).toHaveLength(6);
+        expect(rowsDuringThirdDrag[0].classes()).toContain('is--row-drag-preview-source');
+        expect(rowsDuringThirdDrag[3].classes()).toContain('is--row-placeholder');
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

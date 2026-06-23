@@ -37,6 +37,7 @@ interface RowDragPreview {
 interface AddressFormatRow {
     index: number;
     isPlaceholder: boolean;
+    isSource: boolean;
     key: string;
     snippet: string[];
 }
@@ -154,6 +155,7 @@ export default Component.wrapComponentConfig({
                 return {
                     index,
                     isPlaceholder: false,
+                    isSource: false,
                     key: this.getRowKey(snippet),
                     snippet,
                 };
@@ -170,10 +172,11 @@ export default Component.wrapComponentConfig({
                 return rows;
             }
 
-            rows.splice(sourceIndex, 1);
-            rows.splice(this.getRowDropIndex(this.rowDragPreview.dragIndex, this.rowDragPreview.targetIndex), 0, {
+            sourceRow.isSource = true;
+            rows.splice(this.rowDragPreview.targetIndex, 0, {
                 index: this.rowDragPreview.targetIndex,
                 isPlaceholder: true,
+                isSource: false,
                 key: `row-placeholder-${sourceRow.key}`,
                 snippet: sourceRow.snippet,
             });

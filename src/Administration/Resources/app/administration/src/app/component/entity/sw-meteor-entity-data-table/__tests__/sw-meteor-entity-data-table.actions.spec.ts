@@ -716,6 +716,34 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         });
     });
 
+    it('keeps template handlers in the private createExtendableSetup state', async () => {
+        const wrapper = await createWrapper();
+        let privateStateKeys: string[] = [];
+
+        overrideComponentSetup()('sw-meteor-entity-data-table', (previousState) => {
+            const privateState = (previousState as unknown as { _private: Record<string, unknown> })._private;
+            privateStateKeys = Object.keys(privateState);
+
+            return {
+                load: previousState.load,
+            };
+        });
+        await flushPromises();
+
+        expect(privateStateKeys).toEqual(
+            expect.arrayContaining([
+                'handlePaginationCurrentPageChange',
+                'handlePaginationLimitChange',
+                'handleSortChange',
+                'handleSearchValueChange',
+                'handleSelectionChange',
+                'handleMultipleSelectionChange',
+                'handleContextSelect',
+            ]),
+        );
+        expect(wrapper.vm.handlePaginationCurrentPageChange).toBeDefined();
+    });
+
     it('overrideComponentSetup can override a public command', async () => {
         const wrapper = await createWrapper();
         const loadOverride = jest.fn(() => Promise.resolve([]));

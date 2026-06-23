@@ -136,7 +136,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
             new All([
                 new Collection(
                     fields: [
-                        'type' => [new NotBlank(), new Choice(ContextType::values())],
+                        'type' => [new NotBlank(), new Choice(choices: ContextType::values())],
                         'required' => [new Type('bool')],
                         'redistribute' => new Optional([new Type('bool')]),
                         'consumer_alias' => new Optional([new Type('string')]),

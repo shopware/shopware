@@ -92,6 +92,29 @@ class AttachElementTest extends TestCase
         static::assertNotSame('incoming', $result[2]->getId());
     }
 
+    #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
+    public function testAttachDetachesNothing(): void
+    {
+        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'));
+        $attach->apply([]);
+
+        static::assertSame([], $attach->orphaned());
+        static::assertSame([], $attach->droppedWiring());
+    }
+
+    #[TestDox('does not mutate the input tree in place')]
+    public function testAttachDoesNotMutateInput(): void
+    {
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
+            'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
+        ])];
+        $before = $this->snapshotTree($tree);
+
+        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply($tree);
+
+        $this->assertInputTreeUnmutated($before, $tree);
+    }
+
     #[TestDox('rejects an unregistered root component with a 400')]
     public function testAttachUnregisteredComponentRejected(): void
     {
@@ -117,29 +140,6 @@ class AttachElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
         $attach->apply([new ContentElement('parent', 'Sw:Block')]);
-    }
-
-    #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
-    public function testAttachDetachesNothing(): void
-    {
-        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'));
-        $attach->apply([]);
-
-        static::assertSame([], $attach->orphaned());
-        static::assertSame([], $attach->droppedWiring());
-    }
-
-    #[TestDox('does not mutate the input tree in place')]
-    public function testAttachDoesNotMutateInput(): void
-    {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
-            'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
-        ])];
-        $before = $this->snapshotTree($tree);
-
-        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

@@ -21,21 +21,8 @@ class WrapElementsTest extends TestCase
 {
     use AssertsImmutableInput;
 
-    #[TestDox('wraps root siblings into a freshly minted container slot')]
+    #[TestDox('wraps root siblings into a freshly minted container at the first target position, preserving slot order and reporting the container and wrapped ids as affected')]
     public function testWrapMovesSiblingsIntoContainer(): void
-    {
-        $tree = [new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')];
-
-        $result = (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'content'))->apply($tree);
-
-        static::assertCount(1, $result);
-        static::assertSame('Sw:Container', $result[0]->getComponent());
-        $wrapped = array_values($result[0]->getSlots()['content']->getElements());
-        static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $wrapped));
-    }
-
-    #[TestDox('places the container at the first target position')]
-    public function testWrapPlacesContainerAtFirstTargetPosition(): void
     {
         $tree = [
             new ContentElement('x', 'Sw:Block'),
@@ -44,28 +31,23 @@ class WrapElementsTest extends TestCase
             new ContentElement('y', 'Sw:Block'),
         ];
 
-        $result = (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'content'))->apply($tree);
-
-        static::assertSame(['x', 'Sw:Container', 'y'], [$result[0]->getId(), $result[1]->getComponent(), $result[2]->getId()]);
-    }
-
-    #[TestDox('reports the container and the wrapped elements as affected')]
-    public function testWrapAffectedAreContainerAndWrapped(): void
-    {
-        $tree = [new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')];
-
-        $wrap = new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'content');
+        $wrap = new WrapElements($this->registry('Sw:Container'), ['b', 'a'], 'Sw:Container', 'content');
         $result = $wrap->apply($tree);
 
-        static::assertSame([$result[0]->getId(), 'a', 'b'], $wrap->affected());
+        static::assertCount(3, $result);
+        static::assertSame(['x', 'Sw:Container', 'y'], [$result[0]->getId(), $result[1]->getComponent(), $result[2]->getId()]);
+        $wrapped = array_values($result[1]->getSlots()['content']->getElements());
+        static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $wrapped));
+        static::assertSame([$result[1]->getId(), 'b', 'a'], $wrap->affected());
     }
 
-    #[TestDox('wraps nested siblings inside their parent slot')]
+    #[TestDox('wraps nested siblings inside their parent slot without mutating the input tree')]
     public function testWrapNestedSiblings(): void
     {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], [], [
+        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
         ])];
+        $before = $this->snapshotTree($tree);
 
         $result = (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'items'))->apply($tree);
 
@@ -74,17 +56,7 @@ class WrapElementsTest extends TestCase
         static::assertSame('Sw:Container', $parentChildren[0]->getComponent());
         $wrapped = array_values($parentChildren[0]->getSlots()['items']->getElements());
         static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $wrapped));
-    }
-
-    #[TestDox('preserves the original slot order regardless of the elementIds order')]
-    public function testWrapPreservesSlotOrder(): void
-    {
-        $tree = [new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')];
-
-        $result = (new WrapElements($this->registry('Sw:Container'), ['b', 'a'], 'Sw:Container', 'content'))->apply($tree);
-
-        $wrapped = array_values($result[0]->getSlots()['content']->getElements());
-        static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $wrapped));
+        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     #[TestDox('rejects wrapping non-sibling elements with a 400')]
@@ -166,19 +138,6 @@ class WrapElementsTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationInvalidWrapTargets('they must be distinct'));
         $wrap->apply([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]);
-    }
-
-    #[TestDox('does not mutate the input parent in place when wrapping nested siblings')]
-    public function testWrapDoesNotMutateInput(): void
-    {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
-        ])];
-        $before = $this->snapshotTree($tree);
-
-        (new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'items'))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(string $type): AbstractContentSystemElementTypeRegistry

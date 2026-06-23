@@ -56,57 +56,12 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertArrayHasKey('el-1', $body['resolutions']);
     }
 
-    #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
-    public function testEmptyResolutionsEncodeAsJsonObject(): void
-    {
-        $controller = $this->controller($this->mutatorReturning(new MutationResult([], [], new DiagnosticsReport([]), [])));
-
-        $response = $controller->remove('layout-1', new ContentLayoutRemoveRequest('el', null), Context::createDefaultContext());
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertStringContainsString('"resolutions":{}', $content);
-    }
-
-    #[TestDox('serializes orphaned subtrees in the persisted response')]
-    public function testReplaceSerializesOrphaned(): void
-    {
-        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]);
-        $controller = $this->controller($this->mutatorReturning($result));
-
-        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
-
-        static::assertSame('orphan', $this->decode($response)['orphaned'][0]['id']);
-    }
-
-    #[TestDox('reports dropped wiring keys in the persisted response')]
-    public function testReplaceReportsDroppedWiring(): void
-    {
-        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], ['legacy']);
-        $controller = $this->controller($this->mutatorReturning($result));
-
-        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
-
-        static::assertSame(['legacy'], $this->decode($response)['droppedWiring']);
-    }
-
-    #[TestDox('reports dropped property values in the persisted response')]
-    public function testReplaceReportsDroppedProperties(): void
-    {
-        $result = new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']);
-        $controller = $this->controller($this->mutatorReturning($result));
-
-        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
-
-        static::assertSame('Old headline', $this->decode($response)['droppedProperties']['headline']);
-    }
-
     #[TestDox('passes the path layout id and expected version token through to the mutator')]
     public function testPassesLayoutIdAndExpectedVersionToMutator(): void
     {
         $capturedId = null;
         $capturedVersion = false;
-        $mutator = $this->createMock(PersistedLayoutMutator::class);
+        $mutator = static::createStub(PersistedLayoutMutator::class);
         $mutator->method('mutate')->willReturnCallback(
             function (string $layoutId, ?string $expectedVersion) use (&$capturedId, &$capturedVersion): MutationResult {
                 $capturedId = $layoutId;
@@ -126,12 +81,12 @@ class ContentLayoutMutationControllerTest extends TestCase
      * @param \Closure(ContentLayoutMutationController): Response $invoke
      * @param class-string<LayoutMutation> $expectedOp
      */
+    #[DataProvider('routeDispatchProvider')]
     #[TestDox('dispatches each route to the matching mutation op')]
-    #[DataProvider('routeDispatch')]
     public function testRouteDispatchesExpectedOp(\Closure $invoke, string $expectedOp): void
     {
         $captured = null;
-        $mutator = $this->createMock(PersistedLayoutMutator::class);
+        $mutator = static::createStub(PersistedLayoutMutator::class);
         $mutator->method('mutate')->willReturnCallback(
             function (string $layoutId, ?string $expectedVersion, LayoutMutation $mutation) use (&$captured): MutationResult {
                 $captured = $mutation;
@@ -148,7 +103,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     /**
      * @return iterable<string, array{\Closure(ContentLayoutMutationController): Response, class-string<LayoutMutation>}>
      */
-    public static function routeDispatch(): iterable
+    public static function routeDispatchProvider(): iterable
     {
         $context = Context::createDefaultContext();
 
@@ -160,6 +115,59 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (ContentLayoutMutationController $c): Response => $c->wrap('l', new ContentLayoutWrapElementsRequest(['a'], 'Sw:Container', null), $context), WrapElements::class];
         yield 'unwrap' => [static fn (ContentLayoutMutationController $c): Response => $c->unwrap('l', new ContentLayoutUnwrapRequest('el', null), $context), UnwrapElement::class];
         yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
+    }
+
+    /**
+     * @param \Closure(array<string, mixed>): void $assert
+     */
+    #[DataProvider('replaceOptionalFieldsProvider')]
+    #[TestDox('serializes the populated optional replace fields in the persisted response')]
+    public function testReplaceSerializesOptionalFields(MutationResult $result, \Closure $assert): void
+    {
+        $controller = $this->controller($this->mutatorReturning($result));
+
+        $response = $controller->replace('layout-1', new ContentLayoutReplaceRequest('el', 'Sw:New', null), Context::createDefaultContext());
+
+        $assert($this->decode($response));
+    }
+
+    /**
+     * @return iterable<string, array{MutationResult, \Closure(array<string, mixed>): void}>
+     */
+    public static function replaceOptionalFieldsProvider(): iterable
+    {
+        yield 'orphaned subtrees surface for re-attachment' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]),
+            static function (array $body): void {
+                static::assertSame('orphan', $body['orphaned'][0]['id']);
+            },
+        ];
+
+        yield 'dropped wiring keys are reported' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
+            static function (array $body): void {
+                static::assertSame(['legacy'], $body['droppedWiring']);
+            },
+        ];
+
+        yield 'dropped property values are reported' => [
+            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']),
+            static function (array $body): void {
+                static::assertSame('Old headline', $body['droppedProperties']['headline']);
+            },
+        ];
+    }
+
+    #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
+    public function testEmptyResolutionsEncodeAsJsonObject(): void
+    {
+        $controller = $this->controller($this->mutatorReturning(new MutationResult([], [], new DiagnosticsReport([]), [])));
+
+        $response = $controller->remove('layout-1', new ContentLayoutRemoveRequest('el', null), Context::createDefaultContext());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('"resolutions":{}', $content);
     }
 
     private function controller(PersistedLayoutMutator $mutator): ContentLayoutMutationController

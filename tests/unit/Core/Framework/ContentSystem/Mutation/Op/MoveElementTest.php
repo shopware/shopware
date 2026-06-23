@@ -23,7 +23,7 @@ class MoveElementTest extends TestCase
 {
     use AssertsImmutableInput;
 
-    #[TestDox('relocates the element and its subtree into the new parent slot')]
+    #[TestDox('relocates the element and its subtree into the new parent slot and reports the whole moved subtree as affected')]
     public function testMoveRelocatesSubtreeToNewParent(): void
     {
         $tree = [
@@ -33,28 +33,14 @@ class MoveElementTest extends TestCase
             new ContentElement('target', 'Sw:Block'),
         ];
 
-        $result = (new MoveElement('movable', 'target', 'content'))->apply($tree);
+        $move = new MoveElement('movable', 'target', 'content');
+        $result = $move->apply($tree);
 
         static::assertCount(1, $result);
         static::assertSame('target', $result[0]->getId());
         $moved = array_values($result[0]->getSlots()['content']->getElements());
         static::assertSame('movable', $moved[0]->getId());
         static::assertSame('child', array_values($moved[0]->getSlots()['content']->getElements())[0]->getId());
-    }
-
-    #[TestDox('reports the whole moved subtree as affected when the parent changes')]
-    public function testMoveToNewParentReportsMovedSubtreeAffected(): void
-    {
-        $tree = [
-            new ContentElement('movable', 'Sw:Block', [], [], [
-                'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
-            ]),
-            new ContentElement('target', 'Sw:Block'),
-        ];
-
-        $move = new MoveElement('movable', 'target', 'content');
-        $move->apply($tree);
-
         static::assertSame(['movable', 'child'], $move->affected());
     }
 
@@ -129,8 +115,8 @@ class MoveElementTest extends TestCase
     /**
      * @param non-empty-string $newParentId
      */
+    #[DataProvider('rejectsCycleTargetProvider')]
     #[TestDox('rejects moving an element onto itself or one of its descendants')]
-    #[DataProvider('cycleTargets')]
     public function testMoveOntoSelfOrDescendantRejected(string $newParentId): void
     {
         $tree = [
@@ -148,7 +134,7 @@ class MoveElementTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function cycleTargets(): iterable
+    public static function rejectsCycleTargetProvider(): iterable
     {
         yield 'onto itself' => ['movable'];
         yield 'onto a descendant' => ['child'];

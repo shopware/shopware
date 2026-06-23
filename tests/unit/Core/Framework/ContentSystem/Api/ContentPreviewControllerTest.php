@@ -36,8 +36,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewController::class)]
 class ContentPreviewControllerTest extends TestCase
 {
-    #[TestDox('orchestrates decode, validation and pipeline, returning the full-format response')]
-    public function testPreviewRendersDecodedLayoutThroughThePipeline(): void
+    #[TestDox('returns the full-format response for a valid draft layout')]
+    public function testPreviewReturnsFullFormatResponseForValidDraftLayout(): void
     {
         $decodedElement = ContentElementBuilder::create('Sw:Content:Heading', 'e1')->build();
         $specification = $this->specification();
@@ -53,7 +53,7 @@ class ContentPreviewControllerTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willReturn($decodedElement);
 
-        $pipeline = static::createMock(ContentPipeline::class);
+        $pipeline = $this->createMock(ContentPipeline::class);
         $pipeline->expects($this->atLeastOnce())
             ->method('load')
             ->with(

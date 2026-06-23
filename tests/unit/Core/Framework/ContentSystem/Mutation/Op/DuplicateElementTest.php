@@ -111,15 +111,6 @@ class DuplicateElementTest extends TestCase
         static::assertSame('other', $result[2]->getId());
     }
 
-    #[TestDox('rejects duplicating an element absent from the tree with a 400')]
-    public function testDuplicateMissingElementRejected(): void
-    {
-        $duplicate = new DuplicateElement('ghost');
-
-        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
-        $duplicate->apply([new ContentElement('other', 'Sw:Block')]);
-    }
-
     #[TestDox('does not mutate the input parent in place when duplicating a nested child')]
     public function testDuplicateDoesNotMutateInput(): void
     {
@@ -135,5 +126,14 @@ class DuplicateElementTest extends TestCase
         (new DuplicateElement('original'))->apply($tree);
 
         $this->assertInputTreeUnmutated($before, $tree);
+    }
+
+    #[TestDox('rejects duplicating an element absent from the tree with a 400')]
+    public function testDuplicateMissingElementRejected(): void
+    {
+        $duplicate = new DuplicateElement('ghost');
+
+        $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
+        $duplicate->apply([new ContentElement('other', 'Sw:Block')]);
     }
 }

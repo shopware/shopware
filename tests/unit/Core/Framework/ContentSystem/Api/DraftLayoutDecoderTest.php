@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
@@ -52,86 +53,85 @@ class DraftLayoutDecoderTest extends TestCase
         }
     }
 
-    #[TestDox('decode rejects a non-array top-level element with a precise structural violation')]
-    public function testDecodeRejectsNonArrayElement(): void
+    /**
+     * @param array<int|string, mixed> $rawLayout
+     */
+    #[DataProvider('invalidLayoutProvider')]
+    #[TestDox('decode rejects a structurally invalid layout with a precise violation list')]
+    public function testDecodeRejectsInvalidLayout(array $rawLayout, ConstraintViolationList $expectedViolations): void
     {
         $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
 
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure($expectedViolations));
+
+        $decoder->decode($rawLayout);
+    }
+
+    /**
+     * @return iterable<string, array{array<int|string, mixed>, ConstraintViolationList}>
+     */
+    public static function invalidLayoutProvider(): iterable
+    {
+        yield 'non-array top-level element' => [
+            ['not-an-array'],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout element must be an array.', null, [], null, '[0]', 'not-an-array'),
             ]),
-        ));
+        ];
 
-        $decoder->decode(['not-an-array']);
-    }
-
-    #[TestDox('decode aggregates both the id and component violations when an element is missing both')]
-    public function testDecodeRejectsElementMissingBothIdAndComponent(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+        yield 'element missing both id and component aggregates both violations' => [
+            [[]],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
                 new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
             ]),
-        ));
+        ];
 
-        $decoder->decode([[]]);
-    }
-
-    #[TestDox('decode rejects a duplicate element id before any mutation runs')]
-    public function testDecodeRejectsDuplicateElementId(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+        yield 'duplicate element id rejected before any mutation runs' => [
+            [
+                ['id' => 'dup', 'component' => 'Sw:Block'],
+                ['id' => 'dup', 'component' => 'Sw:Other'],
+            ],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout element id "dup" is not unique across the layout.', null, [], null, '[1].id', 'dup'),
             ]),
-        ));
+        ];
 
-        $decoder->decode([
-            ['id' => 'dup', 'component' => 'Sw:Block'],
-            ['id' => 'dup', 'component' => 'Sw:Other'],
-        ]);
-    }
-
-    #[TestDox('decode rejects a nested child that is not an array instead of letting it be silently dropped')]
-    public function testDecodeRejectsNonArrayNestedChild(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+        yield 'non-array nested child rejected instead of silently dropped' => [
+            [[
+                'id' => 'root',
+                'component' => 'Sw:Block',
+                'slots' => ['content' => ['not-an-array']],
+            ]],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout element must be an array.', null, [], null, '[0].slots.content[0]', 'not-an-array'),
             ]),
-        ));
+        ];
 
-        $decoder->decode([[
-            'id' => 'root',
-            'component' => 'Sw:Block',
-            'slots' => ['content' => ['not-an-array']],
-        ]]);
-    }
-
-    #[TestDox('decode rejects a non-array slot children container instead of silently dropping it')]
-    public function testDecodeRejectsNonArraySlotValue(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
+        yield 'non-array slot children container rejected instead of silently dropped' => [
+            [[
+                'id' => 'root',
+                'component' => 'Sw:Block',
+                'slots' => ['main' => 'garbage'],
+            ]],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout slot must be an array of elements.', null, [], null, '[0].slots.main', 'garbage'),
             ]),
-        ));
+        ];
 
-        $decoder->decode([[
-            'id' => 'root',
-            'component' => 'Sw:Block',
-            'slots' => ['main' => 'garbage'],
-        ]]);
+        yield 'element missing only the id' => [
+            [['component' => 'Sw:Block']],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
+            ]),
+        ];
+
+        yield 'element missing only the component' => [
+            [['id' => 'el-1']],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
+            ]),
+        ];
     }
 
     #[TestDox('decode rejects a tree nested past the maximum depth')]
@@ -151,34 +151,6 @@ class DraftLayoutDecoderTest extends TestCase
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
             static::assertStringContainsString('maximum depth', $exception->getMessage());
         }
-    }
-
-    #[TestDox('decode throws a per-field invalidLayoutStructure violation for an element missing a non-empty string id')]
-    public function testDecodeRejectsMissingId(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
-            ]),
-        ));
-
-        $decoder->decode([['component' => 'Sw:Block']]);
-    }
-
-    #[TestDox('decode throws a per-field invalidLayoutStructure violation for an element missing a non-empty string component')]
-    public function testDecodeRejectsMissingComponent(): void
-    {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
-
-        $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure(
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
-            ]),
-        ));
-
-        $decoder->decode([['id' => 'el-1']]);
     }
 
     #[TestDox('decode aggregates a client-defect decode failure into a 400 invalidLayoutStructure')]

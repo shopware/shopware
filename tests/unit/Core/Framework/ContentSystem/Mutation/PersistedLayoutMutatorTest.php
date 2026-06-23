@@ -41,103 +41,6 @@ class PersistedLayoutMutatorTest extends TestCase
 {
     private const VERSION = '2026-06-22T10:00:00.000+00:00';
 
-    #[TestDox('throws layoutNotFound and never writes when the layout does not exist')]
-    public function testThrowsWhenLayoutDoesNotExist(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository(null);
-        $repository->expects($this->never())->method('update');
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject(ContentSystemException::contentLayoutNotFound($id));
-
-        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
-    }
-
-    #[TestDox('throws layoutVersionConflict and never writes when the expected version does not match updatedAt')]
-    public function testRejectsStaleVersionWithoutWriting(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, self::VERSION));
-        $repository->expects($this->never())->method('update');
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
-
-        $mutator->mutate($id, '2020-01-01T00:00:00.000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
-    }
-
-    #[TestDox('rejects an unparseable expected version token with a 400 without writing')]
-    public function testRejectsUnparseableVersionTokenWithoutWriting(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, self::VERSION));
-        $repository->expects($this->never())->method('update');
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject(ContentSystemException::invalidVersionToken('not-a-date'));
-
-        $mutator->mutate($id, 'not-a-date', new RemoveElement('block-a'), Context::createDefaultContext());
-    }
-
-    #[TestDox('accepts a token that matches updatedAt to the millisecond, ignoring sub-millisecond noise')]
-    public function testAcceptsTokenMatchingToTheMillisecond(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
-        $repository->expects($this->once())->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
-
-        static::assertSame(['block-b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result->layout));
-    }
-
-    #[TestDox('rejects a token that differs from updatedAt at the millisecond without writing')]
-    public function testRejectsTokenDifferingAtTheMillisecondWithoutWriting(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123000+00:00'));
-        $repository->expects($this->never())->method('update');
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
-
-        $mutator->mutate($id, '2026-06-22T10:00:00.456000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
-    }
-
-    #[TestDox('accepts a null expected version for a never-updated layout')]
-    public function testAcceptsNullVersionForNeverUpdatedLayout(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, null));
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
-
-        static::assertSame(['block-b'], array_column(array_map(static fn (ContentElement $e): array => ['id' => $e->getId()], $result->layout), 'id'));
-    }
-
-    #[TestDox('rejects a non-null token for a never-updated layout with a 409 without writing')]
-    public function testRejectsNonNullVersionForNeverUpdatedLayoutWithoutWriting(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, null));
-        $repository->expects($this->never())->method('update');
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
-
-        $mutator->mutate($id, '2026-01-01T00:00:00.000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
-    }
-
     #[TestDox('persists an orphaning mutation and reports the detached subtree for re-attachment')]
     public function testPersistsOrphaningMutationAndReportsOrphans(): void
     {
@@ -240,7 +143,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $fromFirst = new PropertyResolution('first', PropertyKind::Primitive, false);
         $fromLast = new PropertyResolution('last', PropertyKind::Primitive, false);
 
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
         $diagnostics->method('analyze')->willReturnOnConsecutiveCalls(
             new LayoutAnalysis(new DiagnosticsReport([$intrinsic, $sharedFirst, $onlyProduct]), ['el' => [$fromFirst]]),
             new LayoutAnalysis(new DiagnosticsReport([$intrinsic, $sharedLast, $onlyCategory]), ['el' => [$fromLast]]),
@@ -252,22 +155,6 @@ class PersistedLayoutMutatorTest extends TestCase
 
         static::assertSame([$intrinsic, $sharedLast, $onlyProduct, $onlyCategory], $result->diagnostics->violations);
         static::assertSame(['el' => [$fromLast]], $result->resolutions);
-    }
-
-    #[TestDox('propagates a WriteException from the committing write without swallowing it')]
-    public function testPropagatesWriteGateRejection(): void
-    {
-        $id = Uuid::randomHex();
-        $repository = $this->repository($this->entity($id, null));
-
-        $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
-        $repository->expects($this->once())->method('update')->willThrowException($writeException);
-
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
-
-        $this->expectExceptionObject($writeException);
-
-        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
     }
 
     #[TestDox('collects bindings across every enumerator when diagnosing the committed tree')]
@@ -285,7 +172,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $fromProduct = new Violation(ViolationCode::UnresolvedRequired, 'el', 'a', 'missing-for-product');
         $fromCategory = new Violation(ViolationCode::UnresolvedRequired, 'el', 'b', 'missing-for-category');
 
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
         $diagnostics->method('analyze')->willReturnOnConsecutiveCalls(
             new LayoutAnalysis(new DiagnosticsReport([$fromProduct]), []),
             new LayoutAnalysis(new DiagnosticsReport([$fromCategory]), []),
@@ -296,6 +183,119 @@ class PersistedLayoutMutatorTest extends TestCase
         $result = $mutator->mutate($id, null, $this->affectingMutation(['el']), Context::createDefaultContext());
 
         static::assertSame([$fromProduct, $fromCategory], $result->diagnostics->violations);
+    }
+
+    #[TestDox('accepts a token that matches updatedAt to the millisecond, ignoring sub-millisecond noise')]
+    public function testAcceptsTokenMatchingToTheMillisecond(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
+        $repository->expects($this->once())->method('update')->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+
+        static::assertSame(['block-b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result->layout));
+    }
+
+    #[TestDox('accepts a null expected version for a never-updated layout')]
+    public function testAcceptsNullVersionForNeverUpdatedLayout(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+
+        static::assertSame(['block-b'], array_column(array_map(static fn (ContentElement $e): array => ['id' => $e->getId()], $result->layout), 'id'));
+    }
+
+    #[TestDox('throws layoutNotFound and never writes when the layout does not exist')]
+    public function testThrowsWhenLayoutDoesNotExist(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository(null);
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::contentLayoutNotFound($id));
+
+        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('throws layoutVersionConflict and never writes when the expected version does not match updatedAt')]
+    public function testRejectsStaleVersionWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, self::VERSION));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
+
+        $mutator->mutate($id, '2020-01-01T00:00:00.000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('rejects an unparseable expected version token with a 400 without writing')]
+    public function testRejectsUnparseableVersionTokenWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, self::VERSION));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::invalidVersionToken('not-a-date'));
+
+        $mutator->mutate($id, 'not-a-date', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('rejects a token that differs from updatedAt at the millisecond without writing')]
+    public function testRejectsTokenDifferingAtTheMillisecondWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, '2026-06-22T10:00:00.123000+00:00'));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
+
+        $mutator->mutate($id, '2026-06-22T10:00:00.456000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('rejects a non-null token for a never-updated layout with a 409 without writing')]
+    public function testRejectsNonNullVersionForNeverUpdatedLayoutWithoutWriting(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+        $repository->expects($this->never())->method('update');
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject(ContentSystemException::layoutVersionConflict($id));
+
+        $mutator->mutate($id, '2026-01-01T00:00:00.000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
+    }
+
+    #[TestDox('propagates a WriteException from the committing write without swallowing it')]
+    public function testPropagatesWriteGateRejection(): void
+    {
+        $id = Uuid::randomHex();
+        $repository = $this->repository($this->entity($id, null));
+
+        $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
+        $repository->expects($this->once())->method('update')->willThrowException($writeException);
+
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->elementSerializer(), [], $this->diagnostics());
+
+        $this->expectExceptionObject($writeException);
+
+        $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
     }
 
     /**

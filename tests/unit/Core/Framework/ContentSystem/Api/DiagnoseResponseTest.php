@@ -18,26 +18,6 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 #[CoversClass(DiagnoseResponse::class)]
 class DiagnoseResponseTest extends TestCase
 {
-    #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
-    public function testEmptyResolutionsEncodeAsJsonObject(): void
-    {
-        $response = DiagnoseResponse::fromReport([], new DiagnosticsReport([]));
-
-        static::assertStringContainsString('"resolutions":{}', json_encode($response, \JSON_THROW_ON_ERROR));
-    }
-
-    #[TestDox('serializes exactly the two wire keys without leaking apiAlias or extensions')]
-    public function testSerializesExactlyTheTwoWireKeys(): void
-    {
-        $response = DiagnoseResponse::fromReport([], new DiagnosticsReport([]));
-
-        $decoded = json_decode((string) json_encode($response, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(['resolutions', 'diagnostics'], array_keys($decoded));
-        static::assertArrayNotHasKey('apiAlias', $decoded);
-        static::assertArrayNotHasKey('extensions', $decoded);
-    }
-
     #[TestDox('normalizes the raw resolutions and the merged report through the factory')]
     public function testNormalizesRawResolutionsAndReport(): void
     {
@@ -51,5 +31,19 @@ class DiagnoseResponseTest extends TestCase
         static::assertSame('headline', $decoded['resolutions']['el-1'][0]['key']);
         static::assertFalse($decoded['diagnostics']['wellFormed']);
         static::assertSame(ViolationCode::DuplicateElementId->value, $decoded['diagnostics']['violations'][0]['code']);
+    }
+
+    #[TestDox('serializes empty resolutions as a JSON object exposing exactly the two wire keys without leaking apiAlias or extensions')]
+    public function testSerializesEmptyResolutionsWithExactlyTheTwoWireKeys(): void
+    {
+        $response = DiagnoseResponse::fromReport([], new DiagnosticsReport([]));
+
+        $json = (string) json_encode($response, \JSON_THROW_ON_ERROR);
+        $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertStringContainsString('"resolutions":{}', $json);
+        static::assertSame(['resolutions', 'diagnostics'], array_keys($decoded));
+        static::assertArrayNotHasKey('apiAlias', $decoded);
+        static::assertArrayNotHasKey('extensions', $decoded);
     }
 }

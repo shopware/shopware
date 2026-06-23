@@ -47,8 +47,8 @@ class ReplaceElementTest extends TestCase
      * @param array<string, mixed> $oldProperties
      * @param array<string, mixed> $expectedKept
      */
+    #[DataProvider('carriesOverPropertiesProvider')]
     #[TestDox('carries over only primitive properties whose key and type match the new type')]
-    #[DataProvider('propertyCarryover')]
     public function testReplacePropertyCarryover(array $oldProperties, array $expectedKept): void
     {
         $tree = [new ContentElement('el', 'Sw:Old', [], $oldProperties)];
@@ -61,7 +61,7 @@ class ReplaceElementTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
      */
-    public static function propertyCarryover(): iterable
+    public static function carriesOverPropertiesProvider(): iterable
     {
         yield 'matching string kept' => [['headline' => 'Hi'], ['headline' => 'Hi']];
         yield 'matching integer kept' => [['count' => 5], ['count' => 5]];
@@ -101,15 +101,17 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['count' => 'second-run'], $replace->droppedProperties());
     }
 
-    #[TestDox('keeps wiring whose key matches a new-type reference property')]
+    #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
     public function testReplaceKeepsMatchingWiring(): void
     {
         $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = [new ContentElement('el', 'Sw:Old', ['product' => $requirement])];
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply($tree);
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New');
+        $result = $replace->apply($tree);
 
         static::assertSame(['product' => $requirement], $result[0]->getDataRequirements());
+        static::assertSame([], $replace->droppedWiring());
     }
 
     #[TestDox('drops wiring whose key is absent from the new type and reports it without re-mapping')]
@@ -138,18 +140,6 @@ class ReplaceElementTest extends TestCase
         $replace->apply($tree);
 
         static::assertSame(['legacyProvider', 'legacyConsumer'], $replace->droppedWiring());
-    }
-
-    #[TestDox('does not report wiring that was kept')]
-    public function testReplaceDoesNotReportKeptWiring(): void
-    {
-        $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
-        $tree = [new ContentElement('el', 'Sw:Old', ['product' => $requirement])];
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New');
-        $replace->apply($tree);
-
-        static::assertSame([], $replace->droppedWiring());
     }
 
     #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
@@ -206,6 +196,19 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['el', 'child'], $replace->affected());
     }
 
+    #[TestDox('does not mutate the input tree')]
+    public function testReplaceDoesNotMutateInput(): void
+    {
+        $tree = [new ContentElement('el', 'Sw:Old', [], ['headline' => 'Hi'], [
+            'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
+        ])];
+        $before = $this->snapshotTree($tree);
+
+        (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply($tree);
+
+        $this->assertInputTreeUnmutated($before, $tree);
+    }
+
     #[TestDox('rejects an unregistered new type with a 400')]
     public function testReplaceUnknownNewTypeRejected(): void
     {
@@ -222,19 +225,6 @@ class ReplaceElementTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $replace->apply([new ContentElement('el', 'Sw:Old')]);
-    }
-
-    #[TestDox('does not mutate the input tree')]
-    public function testReplaceDoesNotMutateInput(): void
-    {
-        $tree = [new ContentElement('el', 'Sw:Old', [], ['headline' => 'Hi'], [
-            'content' => new SlotContent([new ContentElement('child', 'Sw:Block')]),
-        ])];
-        $before = $this->snapshotTree($tree);
-
-        (new ReplaceElement($this->registry(), 'el', 'Sw:New'))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

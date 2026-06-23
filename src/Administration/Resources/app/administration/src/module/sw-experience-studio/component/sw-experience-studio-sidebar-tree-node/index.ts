@@ -67,8 +67,8 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
-        hasChildren(): boolean {
-            return this.slotEntries.some((slot) => slot.elements.length > 0);
+        hasSlots(): boolean {
+            return this.slotEntries.length > 0;
         },
 
         isSelected(): boolean {
@@ -86,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onToggleExpand(): void {
-            if (!this.hasChildren) {
+            if (!this.hasSlots) {
                 return;
             }
 
@@ -97,10 +97,15 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('select-element', this.contentElement.id);
         },
 
-        onAddElement(slotName: string): void {
+        onAddElement(slotName: string, event: MouseEvent): void {
+            const trigger = event.currentTarget as HTMLElement | null;
+            const bounds = trigger?.getBoundingClientRect();
+
             this.$emit('add-element', {
                 parentElementId: this.contentElement.id,
                 slotName,
+                anchorTop: bounds?.top ?? 0,
+                anchorLeft: bounds ? bounds.right : 0,
             });
         },
 

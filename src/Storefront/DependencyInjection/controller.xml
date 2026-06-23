@@ -352,5 +352,14 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Storefront\Controller\ContentSystemPreviewController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

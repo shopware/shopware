@@ -39,6 +39,16 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        previewEntityType: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        previewEntityId: {
+            type: String,
+            required: false,
+            default: null,
+        },
         canUndo: {
             type: Boolean,
             required: false,
@@ -56,6 +66,7 @@ export default Shopware.Component.wrapComponentConfig({
         'viewport-change',
         'save',
         'preview-sales-channel-change',
+        'preview-entity-id-change',
         'undo',
         'redo',
     ],
@@ -83,6 +94,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onPreviewSalesChannelChange(salesChannelId: string | null): void {
             this.$emit('preview-sales-channel-change', salesChannelId);
+        },
+
+        onPreviewEntityIdChange(entityId: string | null): void {
+            this.$emit('preview-entity-id-change', entityId);
         },
 
         onSave(): void {

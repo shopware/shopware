@@ -22,6 +22,8 @@
         "viewportMobile": "Mobile",
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
+        "previewEntity": "Entity",
+        "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
         "save": "Save layout"
@@ -30,17 +32,34 @@
         "title": "Structure",
         "emptyState": "No elements in this layout yet.",
         "addElement": "Add element",
+        "addElementNoTypeAvailable": "No registered element type is available for insertion.",
+        "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
         "configureElement": "Configure element",
         "duplicateElement": "Duplicate element",
         "deleteElement": "Delete element"
       },
       "preview": {
         "title": "Preview",
-        "placeholder": "Storefront preview will be shown here."
+        "placeholder": "Storefront preview will be shown here.",
+        "missingSalesChannel": "Select a sales channel to load the preview.",
+        "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
+        "noElements": "The preview loaded, but no root elements were returned.",
+        "emptySlot": "No elements in this slot.",
+        "errorLoad": "Preview could not be loaded."
       },
       "elementSettings": {
         "title": "Element settings",
-        "emptyState": "Select an element to edit its settings."
+        "emptyState": "Select an element to edit its settings.",
+        "loading": "Loading element settings...",
+        "typeLoadError": "Element settings could not be loaded.",
+        "typeMissing": "No registered element type was found for this component yet.",
+        "noEditableProperties": "This element does not provide editable primitive properties.",
+        "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
+        "inlineTextEditingActive": "Inline editing is currently active in the preview."
+      },
+      "elementPicker": {
+        "title": "Add element",
+        "noElements": "No element types are available for this position."
       },
       "messageSaved": "Content layout saved successfully."
     }

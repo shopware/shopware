@@ -30,7 +30,9 @@ final class TypedDefaultValidator extends ConstraintValidator
             return;
         }
 
-        if (!\in_array($value->type, self::PRIMITIVE_TYPES, true)) {
+        $primitiveType = $this->getSinglePrimitiveType($value->type);
+
+        if ($primitiveType === null) {
             $this->context->buildViolation($constraint->nonPrimitiveMessage)
                 ->atPath('default')
                 ->addViolation();
@@ -38,9 +40,9 @@ final class TypedDefaultValidator extends ConstraintValidator
             return;
         }
 
-        if (!$this->matchesType($value->default, $value->type)) {
+        if (!$this->matchesType($value->default, $primitiveType)) {
             $this->context->buildViolation($constraint->typeMessage)
-                ->setParameter('{{ type }}', $value->type)
+                ->setParameter('{{ type }}', $primitiveType)
                 ->atPath('default')
                 ->addViolation();
         }
@@ -55,5 +57,25 @@ final class TypedDefaultValidator extends ConstraintValidator
             'number' => \is_int($value) || \is_float($value),
             default => false,
         };
+    }
+
+    /**
+     * @param string|list<string> $type
+     */
+    private function getSinglePrimitiveType(string|array $type): ?string
+    {
+        $types = \is_string($type) ? [$type] : array_values($type);
+
+        if (\count($types) !== 1) {
+            return null;
+        }
+
+        $resolvedType = $types[0];
+
+        if (!\in_array($resolvedType, self::PRIMITIVE_TYPES, true)) {
+            return null;
+        }
+
+        return $resolvedType;
     }
 }

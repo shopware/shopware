@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
-use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -36,8 +35,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewController::class)]
 class ContentPreviewControllerTest extends TestCase
 {
-    #[TestDox('returns the full-format response for a valid draft layout')]
-    public function testPreviewReturnsFullFormatResponseForValidDraftLayout(): void
+    #[TestDox('orchestrates decode, validation and pipeline, returning the full-format response')]
+    public function testPreviewRendersDecodedLayoutThroughThePipeline(): void
     {
         $decodedElement = ContentElementBuilder::create('Sw:Content:Heading', 'e1')->build();
         $specification = $this->specification();
@@ -53,7 +52,7 @@ class ContentPreviewControllerTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willReturn($decodedElement);
 
-        $pipeline = $this->createMock(ContentPipeline::class);
+        $pipeline = static::createMock(ContentPipeline::class);
         $pipeline->expects($this->atLeastOnce())
             ->method('load')
             ->with(
@@ -70,7 +69,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $contextService,
             $resolver,
-            new DraftLayoutDecoder($serializer),
+            $serializer,
             $this->checker(registered: true),
             $pipeline,
             new FullResponseFactory(),
@@ -88,7 +87,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
+            static::createStub(ContentElementFieldSerializer::class),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -115,7 +114,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $resolver,
-            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
+            static::createStub(ContentElementFieldSerializer::class),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -137,7 +136,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            new DraftLayoutDecoder($serializer),
+            $serializer,
             $this->checker(registered: false),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),
@@ -163,7 +162,7 @@ class ContentPreviewControllerTest extends TestCase
         $controller = new ContentPreviewController(
             $contextService,
             static::createStub(RenderingSpecificationResolver::class),
-            new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class)),
+            static::createStub(ContentElementFieldSerializer::class),
             $this->checker(registered: true),
             static::createStub(ContentPipeline::class),
             new FullResponseFactory(),

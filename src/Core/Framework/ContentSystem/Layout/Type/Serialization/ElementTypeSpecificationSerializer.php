@@ -34,17 +34,11 @@ class ElementTypeSpecificationSerializer
 
         $properties = [];
         foreach ($data['properties'] ?? [] as $propertyName => $propertyData) {
-            $properties[$propertyName] = new PropertySpecificationDto(
-                name: (string) $propertyName,
-                type: $propertyData['type'] ?? '',
-                required: $propertyData['required'] ?? false,
-                translatable: $propertyData['translatable'] ?? false,
-                title: $propertyData['title'] ?? '',
-                description: $propertyData['description'] ?? '',
-                enum: $propertyData['enum'] ?? null,
-                default: $propertyData['default'] ?? null,
-                adminUI: $propertyData['adminUI'] ?? null,
-            );
+            if (!\is_array($propertyData)) {
+                continue;
+            }
+
+            $properties[$propertyName] = $this->denormalizeProperty((string) $propertyName, $propertyData);
         }
 
         $slots = [];
@@ -123,6 +117,9 @@ class ElementTypeSpecificationSerializer
                 if ($prop->adminUI !== null) {
                     $propData['adminUI'] = $prop->adminUI;
                 }
+                if ($prop->properties !== null) {
+                    $propData['properties'] = $this->normalizeProperties($prop->properties);
+                }
                 $properties[$key] = $propData;
             }
             $result['properties'] = $properties;
@@ -147,5 +144,119 @@ class ElementTypeSpecificationSerializer
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $propertyData
+     */
+    private function denormalizeProperty(string $propertyName, array $propertyData): PropertySpecificationDto
+    {
+        return new PropertySpecificationDto(
+            name: $propertyName,
+            type: $this->normalizeType($propertyData['type'] ?? ''),
+            required: $propertyData['required'] ?? false,
+            translatable: $propertyData['translatable'] ?? false,
+            title: $propertyData['title'] ?? '',
+            description: $propertyData['description'] ?? '',
+            enum: $propertyData['enum'] ?? null,
+            default: $propertyData['default'] ?? null,
+            adminUI: $propertyData['adminUI'] ?? null,
+            properties: $this->denormalizeProperties($propertyData['properties'] ?? null),
+        );
+    }
+
+    /**
+     * @param mixed $type
+     *
+     * @return string|list<string>
+     */
+    private function normalizeType(mixed $type): string|array
+    {
+        if (\is_string($type)) {
+            return $type;
+        }
+
+        if (!\is_array($type)) {
+            return '';
+        }
+
+        return array_values(array_map(
+            static fn (mixed $entry): string => \is_string($entry) ? $entry : (string) $entry,
+            $type
+        ));
+    }
+
+    /**
+     * @param mixed $rawProperties
+     *
+     * @return array<string, PropertySpecificationDto>|null
+     */
+    private function denormalizeProperties(mixed $rawProperties): ?array
+    {
+        if (!\is_array($rawProperties)) {
+            return null;
+        }
+
+        $properties = [];
+
+        foreach ($rawProperties as $propertyName => $propertyData) {
+            if (!\is_array($propertyData)) {
+                continue;
+            }
+
+            $properties[(string) $propertyName] = $this->denormalizeProperty((string) $propertyName, $propertyData);
+        }
+
+        return $properties;
+    }
+
+    /**
+     * @param array<string, PropertySpecificationDto> $properties
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function normalizeProperties(array $properties): array
+    {
+        $normalized = [];
+
+        foreach ($properties as $key => $prop) {
+            $propData = ['type' => $prop->type];
+
+            if ($prop->required) {
+                $propData['required'] = true;
+            }
+
+            if ($prop->translatable) {
+                $propData['translatable'] = true;
+            }
+
+            if ($prop->title !== '') {
+                $propData['title'] = $prop->title;
+            }
+
+            if ($prop->description !== '') {
+                $propData['description'] = $prop->description;
+            }
+
+            if ($prop->enum !== null) {
+                $propData['enum'] = $prop->enum;
+            }
+
+            if ($prop->default !== null) {
+                $propData['default'] = $prop->default;
+            }
+
+            if ($prop->adminUI !== null) {
+                $propData['adminUI'] = $prop->adminUI;
+            }
+
+            if ($prop->properties !== null) {
+                $propData['properties'] = $this->normalizeProperties($prop->properties);
+            }
+
+            $normalized[$key] = $propData;
+        }
+
+        return $normalized;
     }
 }

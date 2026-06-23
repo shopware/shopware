@@ -73,6 +73,7 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertTrue($dto->properties['product']->required);
         static::assertSame(['box', 'list'], $dto->properties['layout']->enum);
         static::assertSame('box', $dto->properties['layout']->default);
+        static::assertNull($dto->properties['layout']->properties);
     }
 
     #[TestDox('populates slot fields from input')]
@@ -156,6 +157,42 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertNull($prop->enum);
         static::assertNull($prop->default);
         static::assertNull($prop->adminUI);
+        static::assertNull($prop->properties);
+    }
+
+    #[TestDox('denormalizes and normalizes nested object property schemas')]
+    public function testRoundTripsNestedObjectPropertySchema(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'columns' => [
+                    'type' => ['integer', 'object'],
+                    'title' => 'Columns',
+                    'description' => 'Columns configuration.',
+                    'properties' => [
+                        'xs' => [
+                            'type' => 'integer',
+                            'title' => 'XS',
+                            'description' => 'Columns on extra small screens.',
+                            'default' => 1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+
+        static::assertSame(['integer', 'object'], $dto->properties['columns']->type);
+        static::assertArrayHasKey('xs', $dto->properties['columns']->properties ?? []);
+        static::assertSame(1, $dto->properties['columns']->properties['xs']->default);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertSame(['integer', 'object'], $normalized['properties']['columns']['type']);
+        static::assertSame('integer', $normalized['properties']['columns']['properties']['xs']['type']);
+        static::assertSame(1, $normalized['properties']['columns']['properties']['xs']['default']);
     }
 
     #[TestDox('sets optional meta fields to null when absent')]

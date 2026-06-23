@@ -2,23 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
-use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
-use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentPipeline;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
-use Shopware\Core\Framework\ContentSystem\RenderableLayout;
-use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -37,12 +26,9 @@ class ContentPreviewController
      * @internal
      */
     public function __construct(
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly RenderingSpecificationResolver $specificationResolver,
-        private readonly DraftLayoutDecoder $decoder,
-        private readonly DraftLayoutChecker $draftChecker,
-        private readonly ContentPipeline $contentPipeline,
+        private readonly ContentPreviewPageBuilder $previewPageBuilder,
         private readonly AbstractResponseFactory $responseFactory,
+        private readonly ContentPreviewPayloadStore $payloadStore,
     ) {
     }
 
@@ -52,47 +38,43 @@ class ContentPreviewController
         ContentPreviewRequest $payload,
         Context $context,
     ): Response {
-        $salesChannelContext = $this->salesChannelContextService->get(
-            new SalesChannelContextServiceParameters(
-                $payload->salesChannelId,
-                Random::getAlphanumericString(32),
-                $payload->languageId,
-                $payload->currencyId,
-                $payload->domainId,
-                $context,
-                $payload->customerId,
-            )
+        return $this->responseFactory->createResponse($this->previewPageBuilder->build($payload, $context)['contentPage']);
+    }
+
+    #[Route(path: '/api/_action/content-system/preview/entity/url', name: 'api.action.content_system.preview.entity.url', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function previewUrl(
+        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentPreviewRequest $payload,
+        Request $request,
+    ): JsonResponse {
+        $token = $this->payloadStore->store($this->serializePayload($payload));
+        $url = \sprintf(
+            '%s%s/content-system/preview/%s',
+            $request->getSchemeAndHttpHost(),
+            rtrim($request->getBaseUrl(), '/'),
+            $token,
         );
 
-        $request = new Request($payload->queryParameters);
+        return new JsonResponse([
+            'url' => $url,
+        ]);
+    }
 
-        $specification = $this->specificationResolver->resolveWithoutLayout(
-            $payload->entityType,
-            $payload->entityId,
-            $request,
-            $salesChannelContext,
-        );
-
-        $elements = $this->decoder->decode($payload->layout);
-
-        $violations = $this->draftChecker->check($elements);
-        if ($violations->count() > 0) {
-            throw ContentSystemException::elementTypesInvalid($violations);
-        }
-
-        $renderableLayout = RenderableLayout::create(
-            LayoutReference::create(Uuid::randomHex(), 'preview', null),
-            $elements,
-        );
-
-        $contentPage = $this->contentPipeline->load(
-            $renderableLayout,
-            $specification,
-            new RenderingCacheContext(),
-            RenderingMode::FULL,
-            $salesChannelContext,
-        );
-
-        return $this->responseFactory->createResponse($contentPage);
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializePayload(ContentPreviewRequest $payload): array
+    {
+        return [
+            'layout' => $payload->layout,
+            'entityType' => $payload->entityType,
+            'entityId' => $payload->entityId,
+            'salesChannelId' => $payload->salesChannelId,
+            'languageId' => $payload->languageId,
+            'currencyId' => $payload->currencyId,
+            'domainId' => $payload->domainId,
+            'customerId' => $payload->customerId,
+            'queryParameters' => $payload->queryParameters,
+        ];
     }
 }

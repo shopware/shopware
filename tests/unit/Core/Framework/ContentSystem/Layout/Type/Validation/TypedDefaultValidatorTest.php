@@ -91,6 +91,11 @@ class TypedDefaultValidatorTest extends TestCase
             new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, false, 'Product', 'A product.', null, 'value', null),
             'default',
         ];
+
+        yield 'default on union type' => [
+            new PropertySpecificationDto('size', ['integer', 'object'], false, false, 'Size', 'Flexible size.', null, 1, null),
+            'default',
+        ];
     }
 
     #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]

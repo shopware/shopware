@@ -14,11 +14,14 @@
                 :current-viewport="currentViewport"
                 :allow-save="allowSave"
                 :preview-sales-channel-id="previewSalesChannelId"
+                :preview-entity-type="previewEntityType"
+                :preview-entity-id="previewEntityId"
                 :can-undo="canUndo"
                 :can-redo="canRedo"
                 @back="onClickBack"
                 @viewport-change="onViewportChange"
                 @preview-sales-channel-change="onPreviewSalesChannelChange"
+                @preview-entity-id-change="onPreviewEntityIdChange"
                 @save="onSave"
                 @undo="onUndo"
                 @redo="onRedo"
@@ -45,6 +48,14 @@
                     :layout="layout"
                     :viewport="currentViewport"
                     :sales-channel-id="previewSalesChannelId"
+                    :entity-type="previewEntityType"
+                    :entity-id="previewEntityId"
+                    :suspend-auto-reload="isInlineEditing"
+                    @select-element="onSelectElement"
+                    @inline-edit-start="onInlineEditStart"
+                    @inline-edit-change="onInlineEditChange"
+                    @inline-edit-commit="onInlineEditCommit"
+                    @inline-edit-cancel="onInlineEditCancel"
                 />
                 {% endblock %}
 
@@ -53,10 +64,27 @@
                     class="sw-experience-studio-detail__element-settings"
                     :layout="layout"
                     :selected-element-id="selectedElementId"
+                    :selected-element="selectedElement"
+                    :selected-element-type="selectedElementType"
+                    :is-loading-types="elementTypeStore.isLoading"
+                    :type-load-error="elementTypeStore.loadError"
+                    :allow-edit="allowSave"
+                    :is-inline-editing-active="isInlineEditing"
+                    @update-properties="onElementSettingsChange"
                 />
                 {% endblock %}
             </div>
             {% endblock %}
+
+            <sw-experience-studio-element-picker
+                :open="isElementPickerOpen"
+                :title="$t('sw-experience-studio.detail.elementPicker.title')"
+                :elements="availablePickerElements"
+                :top="pickerTop"
+                :left="pickerLeft"
+                @close="onCloseElementPicker"
+                @select="onSelectElementType"
+            />
 
             <sw-loader v-if="isLoading" />
         </div>

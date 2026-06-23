@@ -21,6 +21,10 @@
         overflow: hidden;
     }
 
+    &__preview {
+        display: flex;
+    }
+
     &__sidebar-tree {
         border-right: 1px solid var(--color-border-primary-default);
     }

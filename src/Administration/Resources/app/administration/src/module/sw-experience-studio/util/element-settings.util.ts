@@ -1,0 +1,215 @@
+import type {
+    ContentSystemElementAdminUiVisibleWhenCondition,
+    ContentSystemElementTypeProperty,
+} from 'src/core/service/api/content-system-element-type.api.service';
+
+export type ElementPropertyControlType =
+    | 'switch'
+    | 'number'
+    | 'select'
+    | 'radio-panel'
+    | 'entity'
+    | 'media'
+    | 'richtext'
+    | 'text'
+    | 'responsive-number';
+
+const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType> = {
+    // Meteor/basic
+    'mt-switch': 'switch',
+    'mt-number-field': 'number',
+    'mt-select': 'select',
+    'radio-panel': 'radio-panel',
+    'mt-text-editor': 'richtext',
+    'mt-text-field': 'text',
+    // Shopware/base wrappers
+    'select': 'select',
+    'text-editor': 'richtext',
+    'entity-single-select': 'entity',
+    'sw-entity-single-select': 'entity',
+    'media-field': 'media',
+    'sw-media-field': 'media',
+    'responsive-number': 'responsive-number',
+};
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function getPropertyControlType(property: ContentSystemElementTypeProperty): ElementPropertyControlType | null {
+    const adminUiComponent = property.adminUI?.component;
+    if (typeof adminUiComponent === 'string' && ADMIN_UI_COMPONENT_CONTROL_MAP[adminUiComponent]) {
+        return ADMIN_UI_COMPONENT_CONTROL_MAP[adminUiComponent];
+    }
+
+    if (propertyHasType(property, 'boolean')) {
+        return 'switch';
+    }
+
+    if (propertyHasType(property, 'integer') || propertyHasType(property, 'number')) {
+        return 'number';
+    }
+
+    if (propertyHasType(property, 'string')) {
+        if (adminUiComponent === 'text-editor' || adminUiComponent === 'mt-text-editor') {
+            return 'richtext';
+        }
+
+        if (Array.isArray(property.enum) && property.enum.length > 0) {
+            return 'select';
+        }
+
+        if (adminUiComponent === 'select') {
+            return 'select';
+        }
+
+        return 'text';
+    }
+
+    return null;
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function getAdminUiProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
+    const props = property.adminUI?.props;
+
+    return typeof props === 'object' && props !== null ? (props as Record<string, unknown>) : {};
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function isPropertyVisible(
+    property: ContentSystemElementTypeProperty,
+    propertyValues: Record<string, unknown>,
+): boolean {
+    const visibleWhen = property.adminUI?.visibleWhen;
+
+    if (!visibleWhen) {
+        return true;
+    }
+
+    if (Array.isArray(visibleWhen)) {
+        if (visibleWhen.length === 0 || !visibleWhen.every(isVisibleWhenCondition)) {
+            return true;
+        }
+
+        return visibleWhen.every((condition) => matchesVisibleWhenCondition(condition, propertyValues));
+    }
+
+    if (!isVisibleWhenCondition(visibleWhen)) {
+        return true;
+    }
+
+    return matchesVisibleWhenCondition(visibleWhen, propertyValues);
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export function getInitialPropertyValue(
+    property: ContentSystemElementTypeProperty,
+    currentValue: unknown,
+): string | number | boolean | null {
+    if (currentValue !== undefined) {
+        return currentValue as string | number | boolean | null;
+    }
+
+    if (property.default !== null && property.default !== undefined) {
+        return property.default;
+    }
+
+    if (propertyHasType(property, 'boolean')) {
+        return false;
+    }
+
+    if (propertyHasType(property, 'integer') || propertyHasType(property, 'number')) {
+        return null;
+    }
+
+    if (propertyHasType(property, 'string')) {
+        return '';
+    }
+
+    return null;
+}
+
+function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {
+    if (Array.isArray(property.type)) {
+        return property.type.includes(type);
+    }
+
+    return property.type === type;
+}
+
+function matchesVisibleWhenCondition(
+    condition: ContentSystemElementAdminUiVisibleWhenCondition,
+    propertyValues: Record<string, unknown>,
+): boolean {
+    if (typeof condition.field !== 'string' || condition.field.length === 0) {
+        return true;
+    }
+
+    const operator = getVisibleWhenOperator(condition);
+
+    if (!operator) {
+        return true;
+    }
+
+    const value = propertyValues[condition.field];
+
+    switch (operator) {
+        case 'equals':
+            return value === condition.equals;
+        case 'notEquals':
+            return value !== condition.notEquals;
+        case 'in':
+            return Array.isArray(condition.in) && condition.in.includes(value as string | number | boolean | null);
+        case 'notIn':
+            return Array.isArray(condition.notIn) && !condition.notIn.includes(value as string | number | boolean | null);
+        case 'isEmpty':
+            return condition.isEmpty === true ? isEmptyValue(value) : true;
+        case 'isNotEmpty':
+            return condition.isNotEmpty === true ? !isEmptyValue(value) : true;
+        default:
+            return true;
+    }
+}
+
+function isVisibleWhenCondition(value: unknown): value is ContentSystemElementAdminUiVisibleWhenCondition {
+    return typeof value === 'object' && value !== null;
+}
+
+function getVisibleWhenOperator(
+    condition: ContentSystemElementAdminUiVisibleWhenCondition,
+): 'equals' | 'notEquals' | 'in' | 'notIn' | 'isEmpty' | 'isNotEmpty' | null {
+    const operators: Array<'equals' | 'notEquals' | 'in' | 'notIn' | 'isEmpty' | 'isNotEmpty'> = [
+        'equals',
+        'notEquals',
+        'in',
+        'notIn',
+        'isEmpty',
+        'isNotEmpty',
+    ];
+
+    const usedOperators = operators.filter((operator) => condition[operator] !== undefined);
+
+    return usedOperators.length === 1 ? usedOperators[0] : null;
+}
+
+function isEmptyValue(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+        return true;
+    }
+
+    if (Array.isArray(value)) {
+        return value.length === 0;
+    }
+
+    return false;
+}

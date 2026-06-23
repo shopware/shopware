@@ -1,0 +1,238 @@
+meta:
+  label: "Grid Container"
+  description: "Responsive grid container with configurable columns, rows, spacing, and alignment."
+  icon: "regular-view-grid"
+  category: "layout"
+  copilot:
+    summary: "Responsive grid container."
+    hints:
+      - "Use for structured multi-column content."
+      - "Configure breakpoint-specific columns and rows."
+
+properties:
+  mode:
+    type: string
+    title: "Mode"
+    description: "Grid layout mode."
+    default: "auto-fit"
+    enum:
+      - "max-content"
+      - "auto-fit"
+      - "auto-fill"
+      - "explicit"
+    adminUI:
+      component: "radio-panel"
+      props:
+        options:
+          - value: "auto-fit"
+            label: "Auto fit"
+            icon: "regular-view-grid"
+            description: "Automatically fits as many columns as possible."
+          - value: "max-content"
+            label: "Max content"
+            icon: "regular-line-column-xs"
+            description: "Size columns based on their maximum content size."
+          - value: "explicit"
+            label: "Explicit"
+            icon: "regular-table"
+            description: "Use explicit columns and rows configuration."
+
+  itemMinWidth:
+    type: string
+    title: "Item Min Width"
+    description: "Minimum item width used in auto-fit and auto-fill mode."
+    default: "400px"
+    adminUI:
+      component: "text"
+      visibleWhen:
+        field: "mode"
+        in: ["auto-fit", "auto-fill"]
+
+  columns:
+    type:
+      - "integer"
+      - "object"
+    title: "Columns"
+    description: "Column count as a single integer or responsive object with breakpoint keys."
+    adminUI:
+      component: "responsive-number"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Columns (XS)"
+        description: "Column count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Columns (SM)"
+        description: "Column count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Columns (MD)"
+        description: "Column count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Columns (LG)"
+        description: "Column count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Columns (XL)"
+        description: "Column count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+  rows:
+    type:
+      - "integer"
+      - "object"
+    title: "Rows"
+    description: "Row count as a single integer or responsive object with breakpoint keys."
+    adminUI:
+      component: "responsive-number"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Rows (XS)"
+        description: "Row count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Rows (SM)"
+        description: "Row count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Rows (MD)"
+        description: "Row count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Rows (LG)"
+        description: "Row count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Rows (XL)"
+        description: "Row count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+  gap:
+    type: integer
+    title: "Gap"
+    description: "Gap size in px."
+    default: 24
+    adminUI:
+      component: "number"
+
+  align:
+    type: string
+    title: "Align Items"
+    description: "Align items on cross-axis."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+    adminUI:
+      component: "select"
+
+  alignContent:
+    type: string
+    title: "Align Content"
+    description: "Align content distribution."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+      - "spaceAround"
+      - "spaceBetween"
+      - "spaceEvenly"
+    adminUI:
+      component: "select"
+
+  justify:
+    type: string
+    title: "Justify Items"
+    description: "Justify items on main axis."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+    adminUI:
+      component: "select"
+
+  justifyContent:
+    type: string
+    title: "Justify Content"
+    description: "Justify content distribution."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+      - "spaceAround"
+      - "spaceBetween"
+      - "spaceEvenly"
+    adminUI:
+      component: "select"
+
+  centered:
+    type: boolean
+    title: "Centered"
+    description: "Center container in available width."
+    default: true
+
+  border:
+    type: string
+    title: "Border"
+    description: "Border position."
+    enum:
+      - "top"
+      - "end"
+      - "bottom"
+      - "start"
+    adminUI:
+      component: "select"
+
+  borderVariant:
+    type: string
+    title: "Border Variant"
+    description: "Border color variant."
+    enum:
+      - "primary"
+      - "secondary"
+      - "secondarySubtle"
+    adminUI:
+      component: "select"
+
+  borderSubtle:
+    type: boolean
+    title: "Border Subtle"
+    description: "Use subtle border style."
+    default: false
+
+slots:
+  - name: content
+    description: "Child elements rendered inside the grid container."

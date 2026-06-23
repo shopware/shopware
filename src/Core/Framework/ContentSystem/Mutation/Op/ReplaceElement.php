@@ -95,8 +95,9 @@ final class ReplaceElement extends AbstractLayoutMutation
             }
 
             $type = $newTypeProperties[$key]->type();
+            $declaredType = $type->type();
 
-            if (!$type->isPrimitive() || !$this->primitiveMatches($value, $type->type())) {
+            if (!$type->isPrimitive() || !\is_string($declaredType) || !$this->primitiveMatches($value, $declaredType)) {
                 $this->droppedProperties[$key] = $value;
 
                 continue;

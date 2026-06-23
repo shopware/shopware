@@ -85,9 +85,28 @@
 
     {% block sw_experience_studio_toolbar_right %}
     <div class="sw-experience-studio-toolbar__right">
+        {% block sw_experience_studio_toolbar_entity_select %}
+        <div class="sw-experience-studio-toolbar__entity-field">
+            <label class="sw-experience-studio-toolbar__field-label">
+                {{ $t('sw-experience-studio.detail.toolbar.previewEntity') }}
+            </label>
+
+            <sw-entity-single-select
+                class="sw-experience-studio-toolbar__entity-select"
+                :entity="previewEntityType"
+                size="small"
+                :value="previewEntityId"
+                :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
+                :show-clearable-button="false"
+                :disabled="isLoading || !previewEntityType || undefined"
+                @update:value="onPreviewEntityIdChange"
+            />
+        </div>
+        {% endblock %}
+
         {% block sw_experience_studio_toolbar_sales_channel_select %}
         <div class="sw-experience-studio-toolbar__sales-channel-field">
-            <label class="sw-experience-studio-toolbar__sales-channel-label">
+            <label class="sw-experience-studio-toolbar__field-label">
                 {{ $t('sw-experience-studio.detail.toolbar.previewSalesChannel') }}
             </label>
 

@@ -612,5 +612,9 @@
             <tag name="shopware.route_scope_whitelist"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\ContentSystemPreviewToolbarSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
     </services>
 </container>

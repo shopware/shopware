@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -175,6 +177,26 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(inputWrapper.find('.sw-select-selection-list__input').exists()).toBe(true);
         expect(inputWrapper.attributes('data-drop-target-index')).toBe('3');
         expect(wrapper.classes()).toContain('is--dragging-snippet');
+    });
+
+    it('should render a snippet placeholder for an empty row', async () => {
+        const wrapper = await createWrapper({
+            value: [],
+            externalDragPreview: {
+                dragIndex: 0,
+                sourceLinePosition: 0,
+                linePosition: 1,
+                targetIndex: 0,
+                snippet: 'address/company',
+            },
+            linePosition: 1,
+        });
+        await flushPromises();
+
+        const rowItems = wrapper.findAll('.sw-select-selection-list > li');
+
+        expect(rowItems[0].classes()).toContain('sw-multi-snippet-drag-and-drop__placeholder');
+        expect(rowItems[1].classes()).toContain('sw-select-selection-list__input-wrapper');
     });
 
     it('should move snippets on the same line when dragging', async () => {

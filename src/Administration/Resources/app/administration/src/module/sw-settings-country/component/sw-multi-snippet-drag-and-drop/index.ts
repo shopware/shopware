@@ -271,6 +271,10 @@ export default Component.wrapComponentConfig({
             );
         },
 
+        shouldShowEmptyPlaceholder(): boolean {
+            return !!this.activeDragPreview && this.value.length === 0 && this.activeDragPreview.targetIndex === 0;
+        },
+
         isDragPreviewSource(index: number): boolean {
             return (
                 (!!this.dragPreview && this.dragPreview.dragIndex === index) ||

@@ -108,6 +108,14 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
+### DAL write event listeners no longer expand API ACL requirements
+
+DAL post-write events such as `EntityWrittenContainerEvent` and entity-specific `.written` events are now dispatched in system scope after Admin API and Sync API writes, while preserving the original context source.
+This prevents extension listeners from requiring API users to also have privileges for extension-owned entities that are only touched as a side effect of the listener.
+
+Extensions can still inspect the original source via `$event->getContext()->getSource()`.
+API consumers only need the privileges required for the submitted write payload.
+
 ## Core
 
 ### Dynamic product groups can keep matching variants ungrouped

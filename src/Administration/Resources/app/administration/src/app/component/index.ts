@@ -392,6 +392,10 @@ export default () => {
     );
     Shopware.Component.register('sw-data-grid', () => import('src/app/component/data-grid/sw-data-grid/index'));
     Shopware.Component.register(
+        'sw-meteor-entity-data-table',
+        () => import('src/app/component/entity/sw-meteor-entity-data-table/sw-meteor-entity-data-table.vue'),
+    );
+    Shopware.Component.register(
         'sw-context-menu-item',
         () => import('src/app/component/context-menu/sw-context-menu-item/index'),
     );

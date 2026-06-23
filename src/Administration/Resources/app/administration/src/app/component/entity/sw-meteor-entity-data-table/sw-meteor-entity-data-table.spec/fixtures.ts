@@ -13,7 +13,6 @@ import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/d
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import { isNativeShopwareComponentName } from 'src/app/component/native-shopware-components';
 import SwMeteorEntityDataTable from '../sw-meteor-entity-data-table.vue';
 import type {
     SwMeteorEntityDataTableColumn,
@@ -394,7 +393,6 @@ export {
     SwMeteorEntityDataTable,
     flushPromises,
     h,
-    isNativeShopwareComponentName,
     mount,
     MtDataTableStub,
     nextTick,

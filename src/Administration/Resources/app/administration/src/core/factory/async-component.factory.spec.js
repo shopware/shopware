@@ -10,11 +10,9 @@ import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
-import { isNativeShopwareComponentName, nativeShopwareComponentNames } from 'src/app/component/native-shopware-components';
 
-const nativeShopwareComponentName = 'sw-meteor-entity-data-table';
-const nativeComponentWarning = `The component "${nativeShopwareComponentName}" is a native Shopware component and cannot be registered or extended through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`;
-const nativeTemplateOverrideWarning = `The component "${nativeShopwareComponentName}" is a native Shopware component. Template overrides registered through Shopware.Component.override() are ignored for native components. Use the native component's documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`;
+const renderBackedComponentName = 'sw-meteor-entity-data-table';
+const renderBackedTemplateOverrideWarning = `The component "${renderBackedComponentName}" is render-backed and does not support Twig template overrides. Use documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`;
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -287,171 +285,151 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
-    describe('native Shopware component name guard', () => {
-        it('uses the shared native component registry', () => {
-            expect(nativeShopwareComponentNames.has(nativeShopwareComponentName)).toBe(true);
-            expect(isNativeShopwareComponentName(nativeShopwareComponentName)).toBe(true);
+    describe('render-backed component registration and template override handling', () => {
+        it('accepts an async render-backed component and stores it in the component registry', async () => {
+            const render = jest.fn();
+
+            const component = Shopware.Component.register(renderBackedComponentName, async () => ({ render }));
+            const registry = ComponentFactory.getComponentRegistry();
+
+            expect(typeof component).toBe('function');
+            expect(registry.has(renderBackedComponentName)).toBe(true);
+            await expect(component()).resolves.toMatchObject({
+                name: renderBackedComponentName,
+                render,
+            });
         });
 
-        it('rejects register calls for native components without populating the component registry', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
-            const componentConfig = { template: '<div>Shadowed native component</div>' };
-
-            const component = Shopware.Component.register(nativeShopwareComponentName, componentConfig);
-
-            expect(component).toBe(false);
-            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
-            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-
-            spy.mockRestore();
-        });
-
-        it('rejects extend calls from native components without populating the component registry', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
-            const componentConfig = { template: '<div>Extended native component</div>' };
-
-            const component = Shopware.Component.extend(
-                'sw-meteor-entity-data-table-extension',
-                nativeShopwareComponentName,
-                componentConfig,
-            );
-
-            expect(component).toBe(false);
-            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
-            expect(ComponentFactory.getComponentRegistry().has('sw-meteor-entity-data-table-extension')).toBe(false);
-            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(TemplateFactory.getTemplateRegistry().has('sw-meteor-entity-data-table-extension')).toBe(false);
-
-            spy.mockRestore();
-        });
-
-        it('warns for pure template override calls for native components without populating template or block state', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
+        it('warns and ignores a pure template override on a render-backed target', async () => {
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+            const templateOverrideSpy = jest.spyOn(TemplateFactory, 'registerTemplateOverride');
+            const render = jest.fn();
             const componentConfig = {
                 template: '{% block sw_meteor_entity_data_table_pure_template %}<div>Override</div>{% endblock %}',
             };
 
-            const component = Shopware.Component.override(nativeShopwareComponentName, componentConfig);
+            Shopware.Component.register(renderBackedComponentName, async () => ({ render }));
+            const component = Shopware.Component.override(renderBackedComponentName, componentConfig);
 
             expect(typeof component).toBe('function');
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeTemplateOverrideWarning, componentConfig);
-            expect(ComponentFactory.getOverrideRegistry().has(nativeShopwareComponentName)).toBe(true);
-            expect(ComponentFactory.getOverrideRegistry().get(nativeShopwareComponentName)).toHaveLength(1);
-            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(warnSpy).not.toHaveBeenCalled();
             expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_pure_template')).toEqual([]);
 
+            const builtComponent = await ComponentFactory.build(renderBackedComponentName);
             const resolvedConfig = await component();
-            const secondResolvedConfig = await component();
 
-            expect(resolvedConfig).toMatchObject({
-                name: nativeShopwareComponentName,
-                template: componentConfig.template,
+            expect(builtComponent).toMatchObject({
+                name: renderBackedComponentName,
+                render,
             });
-            expect(secondResolvedConfig).toBe(resolvedConfig);
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[ComponentFactory]',
+                renderBackedTemplateOverrideWarning,
+                expect.objectContaining({
+                    template: '{% block sw_meteor_entity_data_table_pure_template %}<div>Override</div>{% endblock %}',
+                }),
+            );
+            expect(resolvedConfig.template).toBeUndefined();
+            expect(templateOverrideSpy).not.toHaveBeenCalled();
             expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_pure_template')).toEqual([]);
 
-            spy.mockRestore();
+            await ComponentFactory.build(renderBackedComponentName);
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+
+            templateOverrideSpy.mockRestore();
+            warnSpy.mockRestore();
         });
 
-        it('warns for async pure template override calls for native components after resolving the config', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
-            const componentConfig = {
-                template: '{% block sw_meteor_entity_data_table_async_template %}<div>Override</div>{% endblock %}',
-            };
-
-            const component = Shopware.Component.override(nativeShopwareComponentName, async () => componentConfig);
-
-            expect(typeof component).toBe('function');
-            expect(spy).not.toHaveBeenCalled();
-            expect(ComponentFactory.getOverrideRegistry().has(nativeShopwareComponentName)).toBe(true);
-            expect(ComponentFactory.getOverrideRegistry().get(nativeShopwareComponentName)).toHaveLength(1);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_async_template')).toEqual([]);
-
-            const resolvedConfig = await component();
-            const secondResolvedConfig = await component();
-
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeTemplateOverrideWarning, componentConfig);
-            expect(resolvedConfig).toMatchObject({
-                name: nativeShopwareComponentName,
-                template: componentConfig.template,
-            });
-            expect(secondResolvedConfig).toBe(resolvedConfig);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_async_template')).toEqual([]);
-
-            spy.mockRestore();
-        });
-
-        it('warns for pure template native override configs resolved from ES module defaults', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
-            const componentConfig = {
-                template: '{% block sw_meteor_entity_data_table_default_template %}<div>Override</div>{% endblock %}',
-            };
-
-            const component = Shopware.Component.override(nativeShopwareComponentName, async () => ({
-                default: componentConfig,
-            }));
-
-            expect(typeof component).toBe('function');
-            expect(spy).not.toHaveBeenCalled();
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_default_template')).toEqual([]);
-
-            const resolvedConfig = await component();
-            const secondResolvedConfig = await component();
-
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeTemplateOverrideWarning, componentConfig);
-            expect(resolvedConfig).toMatchObject({
-                name: nativeShopwareComponentName,
-                template: componentConfig.template,
-            });
-            expect(secondResolvedConfig).toBe(resolvedConfig);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_default_template')).toEqual([]);
-
-            spy.mockRestore();
-        });
-
-        it('queues override calls for native components without populating template or block state', async () => {
-            const spy = jest.spyOn(console, 'warn').mockImplementation();
-            const componentConfig = {
-                template: '{% block sw_meteor_entity_data_table_test %}<div>Override</div>{% endblock %}',
-                methods: {
-                    testMethod() {
-                        return 'override';
-                    },
+        it('strips only the template from render-backed target overrides with Options API content', async () => {
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+            const templateOverrideSpy = jest.spyOn(TemplateFactory, 'registerTemplateOverride');
+            const render = jest.fn();
+            const methods = {
+                testMethod() {
+                    return 'override';
                 },
             };
+            const componentConfig = {
+                template: '{% block sw_meteor_entity_data_table_options_template %}<div>Override</div>{% endblock %}',
+                methods,
+            };
 
-            const component = Shopware.Component.override(nativeShopwareComponentName, componentConfig);
+            Shopware.Component.register(renderBackedComponentName, async () => ({ render }));
+            const component = Shopware.Component.override(renderBackedComponentName, componentConfig);
 
-            expect(typeof component).toBe('function');
-            expect(spy).not.toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
-            expect(ComponentFactory.getOverrideRegistry().has(nativeShopwareComponentName)).toBe(true);
-            expect(ComponentFactory.getOverrideRegistry().get(nativeShopwareComponentName)).toHaveLength(1);
-            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_test')).toEqual([]);
-
+            await ComponentFactory.build(renderBackedComponentName);
             const resolvedConfig = await component();
 
+            expect(warnSpy).toHaveBeenCalledTimes(1);
             expect(resolvedConfig).toMatchObject({
-                name: nativeShopwareComponentName,
-                template: componentConfig.template,
-                methods: componentConfig.methods,
+                name: renderBackedComponentName,
+                methods,
             });
-            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
-            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_test')).toEqual([]);
+            expect(resolvedConfig.template).toBeUndefined();
+            expect(resolvedConfig.methods.testMethod()).toBe('override');
+            expect(templateOverrideSpy).not.toHaveBeenCalled();
+            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_options_template')).toEqual([]);
 
-            spy.mockRestore();
+            templateOverrideSpy.mockRestore();
+            warnSpy.mockRestore();
+        });
+
+        it('keeps Twig template overrides for legacy template-backed targets', async () => {
+            const templateOverrideSpy = jest.spyOn(TemplateFactory, 'registerTemplateOverride');
+            const overrideTemplate = '{% block legacy_content %}<div>Override</div>{% endblock %}';
+
+            Shopware.Component.register('legacy-template-target', {
+                template: '{% block legacy_content %}<div>Base</div>{% endblock %}',
+            });
+            Shopware.Component.override(
+                'legacy-template-target',
+                {
+                    template: overrideTemplate,
+                },
+                10,
+            );
+
+            expect(twigBlockIndex.getBlockEntries('legacy_content')).toEqual([]);
+
+            const builtComponent = await ComponentFactory.build('legacy-template-target');
+
+            expect(builtComponent.template).toBe('<div>Override</div>');
+            expect(templateOverrideSpy).toHaveBeenCalledWith('legacy-template-target', overrideTemplate, 10);
+            expect(twigBlockIndex.getBlockEntries('legacy_content')).toEqual([
+                {
+                    componentName: 'legacy-template-target',
+                    innerTemplate: '<div>Override</div>',
+                },
+            ]);
+
+            templateOverrideSpy.mockRestore();
+        });
+
+        it('preserves overrideIndex ordering when template overrides are registered during build', async () => {
+            const templateOverrideSpy = jest.spyOn(TemplateFactory, 'registerTemplateOverride');
+            const laterTemplate = '{% block ordered_content %}<div>Later</div>{% endblock %}';
+            const earlierTemplate = '{% block ordered_content %}<div>Earlier</div>{% endblock %}';
+
+            Shopware.Component.register('ordered-template-target', {
+                template: '{% block ordered_content %}<div>Base</div>{% endblock %}',
+            });
+            Shopware.Component.override('ordered-template-target', { template: laterTemplate }, 20);
+            Shopware.Component.override('ordered-template-target', { template: earlierTemplate }, 10);
+
+            const builtComponent = await ComponentFactory.build('ordered-template-target');
+
+            expect(builtComponent.template).toBe('<div>Later</div>');
+            expect(templateOverrideSpy.mock.calls.map((call) => call[2])).toEqual([
+                10,
+                20,
+            ]);
+            expect(templateOverrideSpy.mock.calls.map((call) => call[1])).toEqual([
+                earlierTemplate,
+                laterTemplate,
+            ]);
+
+            templateOverrideSpy.mockRestore();
         });
     });
 
@@ -2589,7 +2567,7 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
-    it('indexes sync Twig override templates before async override resolution starts', async () => {
+    it('indexes Twig override templates after the target component is resolved', async () => {
         let resolveAsyncOverride;
         const asyncOverride = jest.fn(
             () =>
@@ -2598,33 +2576,25 @@ describe('core/factory/async-component.factory.ts', () => {
                 }),
         );
 
+        ComponentFactory.register('component', {
+            template: '{% block test %}Base{% endblock %}',
+        });
         ComponentFactory.override('component', {
             template: '{% block test %}Sync override{% endblock %}',
         });
-        const asyncOverrideRegistration = ComponentFactory.override('component', asyncOverride);
+        ComponentFactory.override('component', asyncOverride);
 
         expect(asyncOverride).not.toHaveBeenCalled();
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
-            {
-                componentName: 'component',
-                innerTemplate: 'Sync override',
-            },
-        ]);
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([]);
 
-        const asyncOverridePromise = asyncOverrideRegistration();
-
-        expect(asyncOverride).toHaveBeenCalledTimes(1);
-        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
-            {
-                componentName: 'component',
-                innerTemplate: 'Sync override',
-            },
-        ]);
+        const buildPromise = ComponentFactory.build('component');
+        await flushPromises();
 
         resolveAsyncOverride({
             template: '{% block test %}Async override{% endblock %}',
         });
-        await asyncOverridePromise;
+
+        await buildPromise;
 
         expect(twigBlockIndex.getBlockEntries('test')).toEqual([
             {

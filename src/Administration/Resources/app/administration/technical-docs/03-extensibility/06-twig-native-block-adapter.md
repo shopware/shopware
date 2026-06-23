@@ -39,13 +39,13 @@ When `sw-product-detail` migrates its template from `{% block sw_product_detail_
 When migrating a component template, a core developer only replaces `{% block foo %}...{% endblock %}` with `<sw-block name="foo" :data="$dataScope">...</sw-block>`. Nothing else. The adapter detects the legacy override automatically.
 
 **2. Zero touch for plugin developers**
-Existing `Shopware.Component.override()` calls with Twig block templates continue to work when the migrated component exposes matching `<sw-block>` bridge points. A `console.warn` tells the developer what to migrate and to which native syntax. Pure native Vue SFCs without matching `<sw-block>` bridge points are not covered by this adapter; use the component's documented Vue slots or `Shopware.Component.overrideComponentSetup()` instead.
+Existing `Shopware.Component.override()` calls with Twig block templates continue to work when the migrated component exposes matching `<sw-block>` bridge points. A `console.warn` tells the developer what to migrate and to which native syntax. Render-backed Vue SFCs without matching `<sw-block>` bridge points are not covered by this adapter; use the component's documented Vue slots or `Shopware.Component.overrideComponentSetup()` instead.
 
 **3. Factory-independent**
-The adapter hooks into `<sw-block>` itself, not the component factory. This means it works whether the parent component is registered through `Shopware.Component.register()` or is a pure Vue SFC, as long as the `<sw-block>` tag is present in the template and mounts.
+The adapter hooks into `<sw-block>` itself, not the component factory. This means it works for components registered through `Shopware.Component.register()`, as long as the `<sw-block>` tag is present in the template and mounts.
 
 **4. Minimal overhead at render time**
-The block index is fully built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` resolves entries from the prebuilt index instead of reparsing Twig templates. The setup phase (which can also run post-boot, e.g. when a `v-if` condition turns true) iterates over the registered extend instances for that block name — in practice a very small set, bounded by the number of active plugin overrides for a single block.
+The block index is fully built during component build/template resolution, after the target component config is known and before any Vue component mounts. At render time, `<sw-block>` resolves entries from the prebuilt index instead of reparsing Twig templates. The setup phase (which can also run post-boot, e.g. when a `v-if` condition turns true) iterates over the registered extend instances for that block name — in practice a very small set, bounded by the number of active plugin overrides for a single block.
 
 **5. No TwigJS rendering**
 TwigJS is used only as an AST parser to extract the block structure. The inner content is reconstructed verbatim from the token tree and compiled by Vue's own runtime template compiler — giving full Vue reactivity, including `v-if`, `v-for`, `{{ }}` interpolation, and event handlers.
@@ -125,7 +125,7 @@ Runtime (first mount of a given block name)
 
 ### 1. Block Index — `src/core/factory/twig-block-index.ts`
 
-Built at override registration time. At mount time, `sw-block` resolves entries from the prebuilt index instead of reparsing Twig templates.
+Built during component build/template resolution. At mount time, `sw-block` resolves entries from the prebuilt index instead of reparsing Twig templates.
 
 ```ts
 import Twig from 'twig';
@@ -233,33 +233,22 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
 
 ### 4. Hook into `async-component.factory.ts`
 
-Two indexing paths are added to the `override()` function to handle both synchronous (direct object) and asynchronous (lazy-loaded function) config shapes:
+`override()` only queues direct object and asynchronous config shapes. During `build()` and `getComponentTemplate()`, the factory resolves the target component config first, then resolves queued overrides and handles Twig templates based on that target:
 
 ```ts
-// Synchronous indexing for direct-object configs (the common case)
-let alreadyIndexed = false;
-if (typeof componentConfiguration !== 'function') {
-    const { template: tpl } = componentConfiguration;
-    if (typeof tpl === 'string') {
-        indexTwigBlocksFromTemplate(componentName, tpl);
-        alreadyIndexed = true;
+const targetIsRenderBacked = typeof targetConfig.render === 'function';
+const resolvedConfig = await overrideEntry.config();
+
+if (typeof resolvedConfig.template === 'string') {
+    if (targetIsRenderBacked) {
+        warnRenderBackedTemplateOverride(componentName, resolvedConfig);
+        delete resolvedConfig.template;
+    } else {
+        indexTwigBlocksFromTemplate(componentName, resolvedConfig.template);
+        TemplateFactory.registerTemplateOverride(componentName, resolvedConfig.template, overrideEntry.index);
+        delete resolvedConfig.template;
     }
 }
-
-const configResolveMethod = async (): Promise<ComponentConfig> => {
-    // ... resolve config ...
-
-    if (config.template) {
-        // Async path: index here for lazy-loaded plugin overrides
-        if (!alreadyIndexed) {
-            indexTwigBlocksFromTemplate(componentName, config.template as string);
-        }
-
-        TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
-        delete config.template;
-    }
-    // ...
-};
 ```
 
 ### 5. Hook into `sw-block/index.ts`
@@ -286,10 +275,10 @@ Shim slots are not registered in the global `blockContext` so that multiple simu
 
 | File | Type | Purpose |
 |------|------|---------|
-| `core/factory/twig-block-index.ts` | New | Block name index (Map), built at registration time |
+| `core/factory/twig-block-index.ts` | New | Block name index (Map), built during target-aware component resolution |
 | `core/factory/reconstruct-twig-template.ts` | New | TwigJS token tree → Vue template string |
 | `shim/create-shim-slot.ts` | New | Slot function factory, Proxy-based setup context |
-| `core/factory/async-component.factory.ts` | Modified | +16 lines: sync + async `indexTwigBlocksFromTemplate` calls |
+| `core/factory/async-component.factory.ts` | Modified | Target-aware Twig override registration and render-backed template warnings |
 | `sw-block/index.ts` | Modified | +25 lines: shim bridge in `setup()` |
 
 ---
@@ -349,21 +338,21 @@ An **async function config** is when you pass a function to `Shopware.Component.
 instead of a plain object:
 
 ```js
-// Direct-object config (synchronous) — block index populated immediately at registration time
+// Direct-object config (synchronous) — queued, then indexed during build/template resolution
 Shopware.Component.override('sw-product-detail', {
     template: `{% block sw_product_detail_content %}...{% endblock %}`,
 });
 
-// Async function config (lazy-loaded) — block index populated later when configResolveMethod is awaited
+// Async function config (lazy-loaded) — queued, then indexed when the config is resolved
 Shopware.Component.override('sw-product-detail', async () => ({
     template: `{% block sw_product_detail_content %}...{% endblock %}`,
 }));
 ```
 
-For async function configs, the block index is populated inside `configResolveMethod` when it is
-awaited by `initComponent()`. Shopware's boot sequence awaits all registered component configs
-before Vue mounts any component tree, so async overrides are always indexed before the first
-`<sw-block name="...">` executes.
+For async function configs, the block index is populated when `build()` or `getComponentTemplate()`
+resolves queued overrides after the target component config is known. Shopware's boot sequence
+awaits all registered component configs before Vue mounts any component tree, so async overrides are
+indexed before the first `<sw-block name="...">` executes.
 
 **Failure mode if this invariant is violated:** If `app.mount()` runs before all async configs
 have been awaited (e.g. a plugin registers a lazy override outside the normal Shopware boot flow),

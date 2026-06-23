@@ -8,7 +8,6 @@ import {
     flushPromises,
     getSetupState,
     getTable,
-    isNativeShopwareComponentName,
     nextTick,
     overrideComponentSetup,
     ref,
@@ -91,8 +90,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table/extensibility', (
 
     it('converts legacy Options API overrides queued through Shopware.Component.override', async () => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-        expect(isNativeShopwareComponentName(componentName)).toBe(true);
 
         Shopware.Component.override(componentName, {
             methods: {

@@ -7,8 +7,6 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
-import { isNativeShopwareComponentName } from 'src/core/factory/native-component.registry';
-import { hasConvertibleOptionsApiOverrideContent } from 'src/core/factory/component-override.utils';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -69,6 +67,10 @@ export interface ComponentConfig extends ComponentOptions {
     name?: string;
 }
 
+type ComponentConfigWithTemplateString = ComponentConfig & {
+    template: string;
+};
+
 /**
  * Registry which holds all components
  * @private
@@ -98,17 +100,11 @@ const componentHelper: ComponentHelper = {} as ComponentHelper;
  */
 const syncComponents = new Set<string>();
 
-function rejectNativeShopwareComponentName(componentName: string, componentConfiguration: unknown): false {
-    warn(
-        'ComponentFactory',
-        `The component "${componentName}" is a native Shopware component and cannot be registered or extended through Shopware.Component. Use the native component's documented Vue slots or overrideComponentSetup extension points instead.`,
-        componentConfiguration,
-    );
-
-    return false;
+function isRenderBackedComponent(config: ComponentConfig): boolean {
+    return typeof config.render === 'function';
 }
 
-function isComponentConfigWithTemplateString(componentConfiguration: unknown): componentConfiguration is ComponentConfig {
+function hasTemplateString(componentConfiguration: unknown): componentConfiguration is ComponentConfigWithTemplateString {
     return (
         componentConfiguration !== null &&
         typeof componentConfiguration === 'object' &&
@@ -116,22 +112,12 @@ function isComponentConfigWithTemplateString(componentConfiguration: unknown): c
     );
 }
 
-function shouldWarnNativeTemplateOverride(
-    componentConfiguration: unknown,
-    isNativeComponentOverride: boolean,
-): componentConfiguration is ComponentConfig {
-    return (
-        isNativeComponentOverride &&
-        isComponentConfigWithTemplateString(componentConfiguration) &&
-        !hasConvertibleOptionsApiOverrideContent(componentConfiguration)
-    );
-}
-
-function warnNativeTemplateOverride(componentName: string, componentConfiguration: ComponentConfig): void {
+function warnRenderBackedTemplateOverride(componentName: string, componentConfiguration: ComponentConfig): void {
     warn(
         'ComponentFactory',
-        `The component "${componentName}" is a native Shopware component. Template overrides registered through Shopware.Component.override() are ignored for native components. Use the native component's documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`,
-        componentConfiguration,
+        `The component "${componentName}" is render-backed and does not support Twig template overrides. ` +
+            `Use documented Vue slots or Shopware.Component.overrideComponentSetup() instead.`,
+        { ...componentConfiguration },
     );
 }
 
@@ -519,10 +505,6 @@ function register(componentName: string, componentConfiguration: unknown): unkno
         return false;
     }
 
-    if (isNativeShopwareComponentName(componentName)) {
-        return rejectNativeShopwareComponentName(componentName, componentConfiguration);
-    }
-
     if (componentRegistry.has(componentName)) {
         warn(
             'ComponentFactory',
@@ -593,13 +575,6 @@ function extend(
     extendComponentName: string,
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
 ): false | (() => Promise<ComponentConfig>) {
-    if (isNativeShopwareComponentName(componentName) || isNativeShopwareComponentName(extendComponentName)) {
-        return rejectNativeShopwareComponentName(
-            isNativeShopwareComponentName(componentName) ? componentName : extendComponentName,
-            componentConfiguration,
-        );
-    }
-
     let config: ComponentConfig;
 
     const configurationResolveMethod = async (): Promise<ComponentConfig> => {
@@ -661,38 +636,6 @@ function override(
     overrideIndex: number | null = null,
 ): false | (() => Promise<ComponentConfig>) {
     let config: ComponentConfig;
-    const isNativeComponentOverride = isNativeShopwareComponentName(componentName);
-    let didWarnNativeTemplateOverride = false;
-
-    const warnNativeTemplateOverrideOnce = (resolvedConfig: ComponentConfig): void => {
-        if (didWarnNativeTemplateOverride) {
-            return;
-        }
-
-        didWarnNativeTemplateOverride = true;
-        warnNativeTemplateOverride(componentName, resolvedConfig);
-    };
-
-    if (shouldWarnNativeTemplateOverride(componentConfiguration, isNativeComponentOverride)) {
-        warnNativeTemplateOverrideOnce(componentConfiguration);
-    }
-
-    /**
-     * For sync object configs the block index is populated here, before any
-     * `<sw-block>` mounts. For async function configs it is populated inside
-     * `configResolveMethod` when awaited — this relies on `initComponent()` being
-     * called for all components before Vue mounts anything. If that boot order
-     * changes, async Twig overrides will silently produce no output.
-     */
-    const isSyncWithTemplate =
-        !isNativeComponentOverride &&
-        componentConfiguration !== null &&
-        typeof componentConfiguration !== 'function' &&
-        typeof componentConfiguration.template === 'string';
-
-    if (isSyncWithTemplate) {
-        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
-    }
 
     const configResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
@@ -715,25 +658,7 @@ function override(
             config = config.default;
         }
 
-        if (shouldWarnNativeTemplateOverride(config, isNativeComponentOverride)) {
-            warnNativeTemplateOverrideOnce(config);
-        }
-
         config.name = componentName;
-
-        if (config.template && !isNativeComponentOverride) {
-            // Async-only path: direct-object configs were already indexed synchronously
-            // above so the block index is ready before any <sw-block> setup() runs.
-            if (!isSyncWithTemplate) {
-                indexTwigBlocksFromTemplate(componentName, config.template as string);
-            }
-
-            TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
-
-            // The merged template (default + all overrides) is compiled later by
-            // TemplateFactory, so the raw string on the config object is no longer needed.
-            delete config.template;
-        }
 
         return config;
     };
@@ -754,22 +679,80 @@ function override(
  * @private
  */
 async function getComponentTemplate(componentName: string): Promise<string | null> {
-    await initComponent(componentName);
+    const targetConfig = await resolveRegisteredComponentConfig(componentName);
+    const targetIsRenderBacked = targetConfig !== false && isRenderBackedComponent(targetConfig);
+
+    await resolveOverrideConfigs(componentName, targetIsRenderBacked);
 
     return TemplateFactory.getRenderedTemplate(componentName);
 }
 
-async function initComponent(componentName: string): Promise<void> {
+async function resolveRegisteredComponentConfig(componentName: string): Promise<ComponentConfig | false> {
     const asyncComponent = componentRegistry.get(componentName);
-    const asyncOverrideComponent = overrideRegistry.get(componentName);
 
-    if (asyncComponent) {
-        await asyncComponent();
+    if (!asyncComponent) {
+        return false;
     }
 
-    if (asyncOverrideComponent) {
-        await Promise.all(asyncOverrideComponent.map((c) => c.config()));
+    const resolvedConfig = await asyncComponent();
+
+    if (typeof resolvedConfig === 'boolean') {
+        return false;
     }
+
+    return resolvedConfig;
+}
+
+type ResolvedIndexedComponentConfig = {
+    index: number;
+    config: ComponentConfig;
+};
+
+function applyTemplateOverrideHandling(
+    componentName: string,
+    componentConfiguration: ComponentConfig,
+    overrideIndex: number,
+    targetIsRenderBacked: boolean,
+): void {
+    if (!hasTemplateString(componentConfiguration)) {
+        return;
+    }
+
+    if (targetIsRenderBacked) {
+        warnRenderBackedTemplateOverride(componentName, componentConfiguration);
+        delete (componentConfiguration as ComponentConfig).template;
+
+        return;
+    }
+
+    indexTwigBlocksFromTemplate(componentName, componentConfiguration.template);
+    TemplateFactory.registerTemplateOverride(componentName, componentConfiguration.template, overrideIndex);
+
+    delete (componentConfiguration as ComponentConfig).template;
+}
+
+async function resolveOverrideConfigs(
+    componentName: string,
+    targetIsRenderBacked: boolean,
+): Promise<ResolvedIndexedComponentConfig[]> {
+    if (!overrideRegistry.has(componentName)) {
+        return [];
+    }
+
+    const overrides = cloneDeep(overrideRegistry.get(componentName));
+
+    return Promise.all(
+        overrides!.map(async (overrideEntry) => {
+            const resolvedConfig = (await overrideEntry.config()) as ComponentConfig;
+
+            applyTemplateOverrideHandling(componentName, resolvedConfig, overrideEntry.index, targetIsRenderBacked);
+
+            return {
+                index: overrideEntry.index,
+                config: resolvedConfig,
+            };
+        }),
+    );
 }
 
 /**
@@ -815,19 +798,17 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         }
     }
 
+    const targetIsRenderBacked = isRenderBackedComponent(config);
+
     if (overrideRegistry.has(componentName)) {
-        // clone the override configuration to prevent side-effects to the config
-        const overrides = cloneDeep(overrideRegistry.get(componentName));
+        const resolvedEntries = await resolveOverrideConfigs(componentName, targetIsRenderBacked);
 
-        // Resolve all override configs in parallel, then separate by type
-        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
-
-        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
-            (resolvedConfig) => () => Promise.resolve(resolvedConfig),
-        );
+        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map((entry) => {
+            return () => Promise.resolve(entry.config);
+        });
 
         // Continue with standard Options API overrides
-        if (standardOverrideConfigs.length > 0) {
+        if (!targetIsRenderBacked && standardOverrideConfigs.length > 0) {
             const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
 
             convertedOverrides.forEach((overrideComp) => {
@@ -855,7 +836,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     /**
      * if config has a render function it will ignore template
      */
-    if (typeof config?.render === 'function') {
+    if (targetIsRenderBacked || typeof config?.render === 'function') {
         delete config.template;
         return config;
     }

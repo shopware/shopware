@@ -6,7 +6,6 @@
 
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
-import { nativeShopwareComponents } from 'src/app/component/native-shopware-components';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import Bottle from 'bottlejs';
 import ApplicationBootstrapper from 'src/core/application';
@@ -902,18 +901,22 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         });
 
-        it('should register native Shopware SFC components as lazy Vue components', async () => {
-            Object.keys(nativeShopwareComponents).forEach((componentName) => {
-                const nativeComponent = rootComponent._context.components[componentName];
+        it('should register sw-meteor-entity-data-table through the normal component registry', async () => {
+            const componentName = 'sw-meteor-entity-data-table';
 
-                expect(nativeComponent).toBeDefined();
-                expect(nativeComponent.__asyncLoader).toEqual(expect.any(Function));
-                expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(false);
-            });
+            Shopware.Component.register(componentName, async () => ({
+                render() {
+                    return null;
+                },
+            }));
+            await vueAdapter.initComponents();
 
-            const nativeComponent = rootComponent._context.components['sw-meteor-entity-data-table'];
+            const component = rootComponent._context.components[componentName];
 
-            await expect(nativeComponent.__asyncLoader()).resolves.toHaveProperty('name', 'SwMeteorEntityDataTable');
+            expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(true);
+            expect(component).toBeDefined();
+            expect(component.__asyncLoader).toEqual(expect.any(Function));
+            await expect(component.__asyncLoader()).resolves.toHaveProperty('name', componentName);
         });
 
         it('should add the router to the rootComponent', () => {

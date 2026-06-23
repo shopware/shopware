@@ -7,12 +7,30 @@
 >
     {% block sw_customer_card_header_right %}
     <template #headerRight>
+        <div class="sw-customer-card__header">
+        {% block sw_customer_card_convert_guest %}
+            <sw-customer-convert-guest-modal
+                v-if="showConvertCustomerModal"
+                :customer="customer"
+                @modal-close="onCloseConvertCustomerModal"
+            />
+        {% endblock %}
         {% block sw_customer_card_imitate_customer_modal %}
-        <sw-customer-imitate-customer-modal
-            v-if="showImitateCustomerModal"
-            :customer="customer"
-            @modal-close="onCloseImitateCustomerModal"
-        />
+            <sw-customer-imitate-customer-modal
+                v-if="showImitateCustomerModal"
+                :customer="customer"
+                @modal-close="onCloseImitateCustomerModal"
+            />
+        {% endblock %}
+
+        {% block sw_customer_card_convert_customer_modal %}
+            <mt-button
+                v-if="canUseConvertCustomer"
+                variant="action"
+                @click="onOpenConvertCustomerModal"
+            >
+                {{ $t('sw-customer.card.buttonConvertCustomer') }}
+            </mt-button>
         {% endblock %}
 
         {% block sw_customer_card_action_customer_impersonation %}
@@ -45,6 +63,7 @@
             </template>
         </mt-button>
         {% endblock %}
+        </div>
     </template>
     {% endblock %}
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -48,6 +49,7 @@ class ConvertGuestControllerTest extends TestCase
             $this->getContainer()->get(SalesChannelContextService::class),
             $this->getContainer()->get(ConvertGuestRoute::class),
             $this->getContainer()->get(SendPasswordRecoveryMailRoute::class),
+            $this->getContainer()->get(Connection::class),
         );
     }
 

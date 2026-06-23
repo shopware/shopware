@@ -333,6 +333,14 @@
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Api\ConvertGuestController" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_group.repository" />

@@ -132,6 +132,14 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
+### Purchase prices removed from Store API order line item payloads
+
+Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.
+Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
+Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
+At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
+Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
+
 ### Image CMS element no longer emits a default `min-height` outside cover mode
 
 The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.

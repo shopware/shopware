@@ -405,7 +405,6 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(mockSave).not.toHaveBeenCalled();
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'global.default.error',
             message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
         });
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
@@ -441,7 +440,6 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(mockSave).not.toHaveBeenCalled();
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'global.default.error',
             message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
         });
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();

@@ -619,7 +619,6 @@ export default {
             missingFields.forEach((fieldName) => this.addRequiredSalesChannelFieldError(fieldName));
 
             this.createNotificationError({
-                title: this.$t('global.default.error'),
                 message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
 

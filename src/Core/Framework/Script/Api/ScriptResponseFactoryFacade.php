@@ -75,7 +75,7 @@ class ScriptResponseFactoryFacade
      * Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)
      * or if the Storefront-bundle is not installed.
      *
-     * @deprecated tag:v6.8.0 - Rendering Storefront templates is moving to the Storefront bundle. The `render()` method will only be available on the `response` service when the Storefront bundle is installed; guard usage in app scripts with `{% if response.render is defined %}`.
+     * @deprecated tag:v6.8.0 - Rendering Storefront templates is moving to the Storefront bundle. The `render()` method will only be available on the `response` service in Storefront script hooks; guard usage in app scripts with `{% if response.render is defined %}`.
      *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
      * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
@@ -88,11 +88,11 @@ class ScriptResponseFactoryFacade
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            'Rendering Storefront templates via the script `response` service requires the Storefront bundle. The `render()` method will only be available on the `response` service when the Storefront bundle is installed.'
+            'Rendering Storefront templates via the script `response` service is only supported in Storefront script hooks. The `render()` method will be removed from the core `response` service.'
         );
 
-        // The Storefront bundle decorates this service with a subclass that overrides render(); reaching this
-        // implementation means the Storefront bundle is not installed, so rendering is not supported.
+        // Only the Storefront script hook wires the render-capable subclass; reaching this base implementation
+        // means rendering is not supported in the current script context (e.g. admin-api / store-api).
         throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
     }
 }

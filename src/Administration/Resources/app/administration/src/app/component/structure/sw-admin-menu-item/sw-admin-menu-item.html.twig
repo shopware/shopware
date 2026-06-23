@@ -24,7 +24,7 @@
                     v-if="displayIcon"
                     :size="iconSize"
                     class="sw-admin-menu__navigation-link-icon"
-                    :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                    :name="navigationIconName"
                 />
                 {% endblock %}
 
@@ -64,7 +64,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
             {% endblock %}
 
@@ -141,7 +141,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
             {% endblock %}
 
@@ -172,7 +172,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
             {% endblock %}
 
@@ -201,7 +201,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
             {% endblock %}
 
@@ -273,7 +273,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
 
             <span
@@ -298,7 +298,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
 
             <span
@@ -321,7 +321,7 @@
                 v-if="displayIcon"
                 :size="iconSize"
                 class="sw-admin-menu__navigation-link-icon"
-                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+                :name="navigationIconName"
             />
 
             <span

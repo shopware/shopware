@@ -242,6 +242,12 @@ export default {
             ];
         },
 
+        navigationIconName() {
+            const isActive = this.subIsActive(this.entry.path || this.entry.id, this.entry.id) || this.childRouteActive;
+
+            return this.getIconName(this.entry.icon, isActive);
+        },
+
         childRouteActive() {
             if (this.children.length === 0 || !this.submenuVisuallyOpen) {
                 return false;

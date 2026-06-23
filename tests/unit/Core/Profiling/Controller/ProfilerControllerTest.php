@@ -101,8 +101,7 @@ class ProfilerControllerTest extends TestCase
         $profiler = $this->createMock(Profiler::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $controller = new ProfilerController($twig, $profiler, $connection);

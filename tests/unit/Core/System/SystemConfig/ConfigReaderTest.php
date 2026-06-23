@@ -97,6 +97,7 @@ class ConfigReaderTest extends TestCase
                     ],
                     [
                         'type' => 'bool',
+                        'cacheRelevant' => true,
                         'name' => 'bool',
                         'defaultValue' => true,
                     ],
@@ -148,6 +149,7 @@ class ConfigReaderTest extends TestCase
                     ],
                     [
                         'componentName' => 'sw-select',
+                        'cacheRelevant' => true,
                         'name' => 'mailMethodComponent',
                         'disabled' => true,
                         'options' => [

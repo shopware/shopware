@@ -150,6 +150,38 @@ class BundleConfigGeneratorTest extends TestCase
         );
     }
 
+    public function testGetConfigDelegatesAppStyleFilesToResolver(): void
+    {
+        $appName = 'SwagDemoApp';
+        $appPath = 'extensions/apps/SwagDemoApp';
+
+        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader->method('getActiveApps')->willReturn([
+            ['name' => $appName, 'path' => $appPath],
+        ]);
+
+        $resolver = $this->createMock(BundleConfigStyleFileResolver::class);
+        $resolver->expects($this->once())
+            ->method('resolveStyleFiles')
+            ->with($appName, $appPath)
+            ->willReturn([
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/overrides.scss',
+            ]);
+
+        $kernel = $this->createKernelWithBundles([]);
+        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, $resolver);
+        $config = $generator->getConfig();
+
+        static::assertSame(
+            [
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/overrides.scss',
+            ],
+            $config[$appName]['storefront']['styleFiles']
+        );
+    }
+
     public function testHasStorefrontComponentAssetsIgnoresNonBuildableFiles(): void
     {
         $bundlePath = $this->projectDir . '/extensions/plugins/IgnoredAssets';
@@ -180,7 +212,7 @@ class BundleConfigGeneratorTest extends TestCase
     private function createKernelWithBundles(array $bundles, array $activePlugins = []): Kernel
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->method('getParameter')->with('kernel.project_dir')->willReturn($this->projectDir);
+        $container->expects($this->once())->method('getParameter')->with('kernel.project_dir')->willReturn($this->projectDir);
 
         $pluginInstances = [];
         foreach ($activePlugins as $plugin) {

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Shopware Guidance Files"
-  short_description: "Maintain Shopware guidance files without duplicating rules."
-  default_prompt: "Update Shopware repository guidance for this change."

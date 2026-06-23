@@ -52,7 +52,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 Task-specific guidance lives in skills instead of this always-loaded file:
 
-- `shopware-guidance-files` for repository guidance, ADR, README, and coding-guideline updates.
+- `shopware-knowledge-capture` for saving durable knowledge and routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
 - `shopware-change-scope` for root-cause analysis, boyscouting, and cleanup scope.
 - `shopware-release-docs` for release notes, upgrade notes, and developer-facing changelog decisions.
 - `shopware-pr-hygiene` for PR templates, conventional titles, and review follow-up commits.

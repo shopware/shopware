@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationTem
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -51,6 +52,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertEquals([
@@ -94,6 +96,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertEquals(new SalesChannelFileAdministrationDetail(
@@ -146,6 +149,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertNull($reader->detail('agentic', 'missing.txt', Uuid::randomHex(), $context));
@@ -185,5 +189,15 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
             '@Framework/files/agentic/llms.txt.twig' => 'Core template',
         ]));
+    }
+
+    private function createTemplateResolver(): SalesChannelFileTemplateResolver
+    {
+        $resolver = $this->createMock(SalesChannelFileTemplateResolver::class);
+        $resolver
+            ->method('getBaseTemplateName')
+            ->willReturn('@Framework/files/agentic/llms.txt.twig');
+
+        return $resolver;
     }
 }

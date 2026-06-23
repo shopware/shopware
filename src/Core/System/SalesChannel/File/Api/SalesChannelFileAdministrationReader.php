@@ -8,6 +8,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFil
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 
@@ -23,6 +24,7 @@ class SalesChannelFileAdministrationReader
         private readonly SalesChannelFileDiscovery $discovery,
         private readonly SalesChannelFileConfigurationLoader $configurationLoader,
         private readonly Environment $twig,
+        private readonly SalesChannelFileTemplateResolver $templateResolver,
     ) {
     }
 
@@ -83,7 +85,7 @@ class SalesChannelFileAdministrationReader
     private function serializeTemplates(SalesChannelFile $file): array
     {
         $serialized = [];
-        $baseTemplateName = $this->getBaseTemplateName($file);
+        $baseTemplateName = $this->templateResolver->getBaseTemplateName($file);
 
         foreach ($file->templates as $twigNamespace => $templateName) {
             $serialized[] = new SalesChannelFileAdministrationTemplate(
@@ -95,17 +97,6 @@ class SalesChannelFileAdministrationReader
         }
 
         return $serialized;
-    }
-
-    private function getBaseTemplateName(SalesChannelFile $file): string
-    {
-        foreach ($file->templates as $templateName) {
-            if (!$this->templateExtendsAnotherTemplate($templateName)) {
-                return $templateName;
-            }
-        }
-
-        return $file->baseTemplateName;
     }
 
     private function loadTemplateContent(string $templateName): string
@@ -131,11 +122,5 @@ class SalesChannelFileAdministrationReader
         }
 
         return false;
-    }
-
-    private function templateExtendsAnotherTemplate(string $templateName): bool
-    {
-        // Only detect inheritance markers; Twig still resolves the actual template chain.
-        return preg_match('/{%-?\s*(?:sw_)?extends\b/', $this->loadTemplateContent($templateName)) === 1;
     }
 }

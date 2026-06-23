@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\File\Rendering;
 
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -12,11 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Twig\Environment;
-use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -33,7 +32,7 @@ class SalesChannelFileRenderer
      */
     public function __construct(
         private readonly Environment $twig,
-        private readonly TemplateFinder $templateFinder,
+        private readonly SalesChannelFileTemplateResolver $templateResolver,
         private readonly SalesChannelFileTemplateOverrideLoader $templateOverrideLoader,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly EntityRepository $salesChannelRepository,
@@ -67,30 +66,7 @@ class SalesChannelFileRenderer
 
     private function getRenderTemplateName(SalesChannelFile $file): string
     {
-        return $this->templateFinder->find($this->getBaseTemplateName($file));
-    }
-
-    private function getBaseTemplateName(SalesChannelFile $file): string
-    {
-        foreach ($file->templates as $templateName) {
-            if (!$this->templateExtendsAnotherTemplate($templateName)) {
-                return $templateName;
-            }
-        }
-
-        return $file->baseTemplateName;
-    }
-
-    private function templateExtendsAnotherTemplate(string $templateName): bool
-    {
-        try {
-            $source = $this->twig->getLoader()->getSourceContext($templateName)->getCode();
-        } catch (LoaderError) {
-            return false;
-        }
-
-        // Only detect inheritance markers; Twig still resolves the actual template chain.
-        return preg_match('/{%-?\s*(?:sw_)?extends\b/', $source) === 1;
+        return $this->templateResolver->getRenderTemplateName($file);
     }
 
     /**

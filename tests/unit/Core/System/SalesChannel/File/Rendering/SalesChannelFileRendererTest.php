@@ -28,6 +28,7 @@ use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -67,7 +68,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -112,7 +113,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -149,7 +150,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -195,7 +196,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -255,7 +256,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -320,7 +321,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $salesChannelRepository,
@@ -365,7 +366,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository($reloadedSalesChannel),
@@ -413,7 +414,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
+            new SalesChannelFileTemplateResolver($templateFinder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),

@@ -244,45 +244,6 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
-## Product stream builder API changes
-
-The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
-Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
-
-The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
-Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
-
-### Before
-
-```php
-public function __construct(
-    private readonly ProductStreamBuilderInterface $productStreamBuilder,
-) {
-}
-
-$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
-$criteria->addFilter(...$filters);
-```
-
-### After
-
-```php
-public function __construct(
-    private readonly AbstractProductStreamBuilder $productStreamBuilder,
-) {
-}
-
-$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
-```
-
-## Product streams can disable variant grouping
-
-Product streams no longer always imply grouped variant results.
-When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
-
-The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
-If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
-
 ## Removal of `$options` parameter in custom validator's constraints
 
 The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
@@ -859,6 +820,39 @@ $this->mediaUploadService->assertValidExternalUrl($url);
 # Administration
 
 <details>
+
+### Block removals
+
+Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 ## Migrating Options API overrides to the Composition API Extension System
 

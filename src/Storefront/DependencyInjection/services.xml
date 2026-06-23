@@ -63,6 +63,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber">
+            <argument type="service" id="theme.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\CachedDomainLoader.inner"/>
             <argument type="service" id="cache.object"/>

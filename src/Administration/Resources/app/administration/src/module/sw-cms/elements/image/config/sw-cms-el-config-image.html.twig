@@ -79,7 +79,7 @@
                 :help-text="$t('sw-cms.elements.general.config.helpText.displayMode')"
                 :options="displayModeOptions"
                 :disabled="isInherited"
-                @update:model-value="emitUpdate"
+                @update:model-value="onChangeDisplayMode"
             />
         </template>
     </sw-cms-inherit-wrapper>

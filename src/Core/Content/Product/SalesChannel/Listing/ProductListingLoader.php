@@ -15,7 +15,6 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -327,15 +326,11 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $displayAsGroup = $this->isDisplayAsGroupEnabled($criteria);
-
-        if ($displayAsGroup) {
-            $this->addGrouping($criteria);
-        }
+        $this->addGrouping($criteria);
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
+        if ($isSearchRoute && $this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
@@ -366,9 +361,10 @@ class ProductListingLoader
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
         $mapping = array_combine($keys, $keys);
+
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->isDisplayAsGroupEnabled($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -415,10 +411,5 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
-    }
-
-    private function isDisplayAsGroupEnabled(Criteria $criteria): bool
-    {
-        return !$criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
     }
 }

@@ -114,12 +114,19 @@
                     class="sw-select-selection-list__input-wrapper"
                     @click="openModal"
                 >
+                    <mt-icon
+                        class="sw-multi-snippet-drag-and-drop__add-icon"
+                        name="regular-plus-circle-s"
+                        size="14"
+                    />
+
                     <slot name="input">
                         <input
                             class="sw-select-selection-list__input"
                             type="text"
                             readonly
-                            :aria-label="$t('sw-settings-country.detail.placeholderSearchSnippet')"
+                            :aria-label="$t('sw-settings-country.general.actions.newSnippet')"
+                            :placeholder="$t('sw-settings-country.general.actions.newSnippet')"
                             :disabled="disabled"
                             @keydown.enter.prevent="openModal"
                             @keydown.space.prevent="openModal"

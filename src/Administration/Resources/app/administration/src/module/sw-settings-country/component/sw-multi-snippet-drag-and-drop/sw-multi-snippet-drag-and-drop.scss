@@ -66,6 +66,14 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
             flex: 1 1 0;
             min-width: 0;
             position: relative;
+            cursor: pointer;
+        }
+
+        .sw-select-selection-list__input {
+            padding-left: 28px;
+            cursor: pointer;
+            caret-color: transparent;
+            user-select: none;
         }
 
         .sw-label__dismiss .mt-icon {
@@ -112,6 +120,15 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
 
     &__drop-zone--after {
         right: 0;
+    }
+
+    &__add-icon {
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        color: var(--color-text-secondary-default);
+        pointer-events: none;
+        transform: translateY(-50%);
     }
 
     &.is--valid-drop:not(.is--dragging-snippet, .is--row-dragging) .sw-multi-snippet-select .sw-block-field__block {

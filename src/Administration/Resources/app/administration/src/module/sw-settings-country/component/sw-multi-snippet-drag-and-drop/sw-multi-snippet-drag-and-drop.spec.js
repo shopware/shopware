@@ -177,6 +177,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         expect(input.exists()).toBe(true);
         expect(input.attributes('readonly')).toBeDefined();
+        expect(input.attributes('placeholder')).toBe('sw-settings-country.general.actions.newSnippet');
+        expect(inputWrapper.find('.sw-multi-snippet-drag-and-drop__add-icon').exists()).toBe(true);
         expect(inputWrapper.attributes('data-drop-target-index')).toBe('3');
         expect(wrapper.classes()).toContain('is--dragging-snippet');
     });

@@ -42,7 +42,11 @@ class ContentLayoutDefaultSeedingTest extends TestCase
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         $tree = $layout->getLayout();
+        static::assertCount(1, $tree);
         static::assertSame('Seeded headline', $tree[0]->getProperty('headline'));
+
+        // Pass [] (a bound source contributing no root context), not null: a null root context skips the
+        // binding-scope checks, so isResolvable() would hold trivially. [] runs them against the seeded primitive.
         static::assertTrue($this->diagnostics()->analyze($tree, [])->report->isResolvable());
     }
 

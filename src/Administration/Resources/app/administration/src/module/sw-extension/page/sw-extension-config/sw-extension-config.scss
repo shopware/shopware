@@ -8,14 +8,14 @@
     /* stylelint-disable-next-line max-line-length */
     .sw-meteor-page__smart-bar .sw-meteor-page__smart-bar-module-info .sw-meteor-page__smart-bar-header .sw-meteor-page__smart-bar-title {
         line-height: 36px;
-        font-size: $font-size-l;
+        font-size: var(--font-size-l);
     }
 
     .sw-meteor-page__smart-bar-content {
         margin-bottom: 24px;
 
         .sw-meteor-page__smart-bar-meta {
-            font-size: $font-size-xxs;
+            font-size: var(--font-size-2xs);
             color: var(--color-text-secondary-default);
             line-height: 12px;
         }
@@ -25,11 +25,11 @@
         width: 72px;
         height: 72px;
         border-radius: $border-radius-lg;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
     }
 
     &__producer-link {
         text-decoration: none;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
     }
 }

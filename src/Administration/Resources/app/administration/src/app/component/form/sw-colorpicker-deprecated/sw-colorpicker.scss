@@ -1,6 +1,5 @@
 /* stylelint-disable */
 @import '~scss/variables';
-@import '~scss/mixins';
 
 .sw-colorpicker {
     position: relative;
@@ -61,8 +60,8 @@
 
             &-label {
                 text-align: center;
-                color: $color-darkgray-200;
-                font-size: $font-size-xs;
+                color: var(--color-text-primary-default);
+                font-size: var(--font-size-xs);
                 margin-top: 2px;
                 user-select: none;
                 -moz-user-select: none;
@@ -93,10 +92,10 @@
     &__colorpicker {
         width: 260px;
         padding: 10px;
-        border: 1px solid $color-gray-300;
-        background-color: $color-white;
+        border: 1px solid var(--color-border-secondary-default);
+        background-color: var(--color-elevation-surface-raised);
         border-radius: $border-radius-default;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.5);
+        box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
 
         &::before {
             content: '';
@@ -105,10 +104,10 @@
             height: 12px;
             top: -6px;
             left: 20px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-secondary-default);
             border-bottom: none;
             border-right: none;
-            background: $color-white;
+            background: var(--color-elevation-surface-raised);
             transform: rotate(45deg);
         }
 
@@ -127,7 +126,7 @@
             display: block;
             width: 238px;
             height: 150px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $border-radius-default;
             background-image: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0) 50%),
                 linear-gradient(0deg, #000, rgba(0, 0, 0, 0) 50%),
@@ -141,7 +140,7 @@
             height: 18px;
             border: 3px solid #fff;
             border-radius: 50%;
-            box-shadow: 0 0 5px $color-shopware-brand-500;
+            box-shadow: 0 0 5px var(--color-border-brand-default);
             cursor: grab;
 
             &:active {
@@ -171,7 +170,7 @@
             height: 26px;
             width: 8px;
             border-radius: $border-radius-default;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             background: #fff;
             -webkit-appearance: none;
             cursor: pointer;
@@ -181,7 +180,7 @@
             height: 26px;
             width: 8px;
             border-radius: $border-radius-default;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             background: #fff;
             cursor: pointer;
         }
@@ -215,7 +214,7 @@
             display: inline-block;
             width: 58px;
             height: 58px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-secondary-default);
             border-radius: $border-radius-default;
         }
 
@@ -224,7 +223,7 @@
             display: inline-block;
             width: 58px;
             height: 58px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-secondary-default);
             border-radius: $border-radius-default;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90' width='100%25' height='100%25'%3E%3Crect width='30' height='30' x='00' y='00' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='30' y='30' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='60' y='00' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='60' y='60' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='00' y='60' fill='%23cdd5db' /%3E%3C/svg%3E");
 
@@ -244,10 +243,10 @@
             min-width: 0;
             height: 32px;
             padding: 0 5px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $border-radius-default;
-            font-size: $font-size-xs;
-            color: $color-darkgray-200;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-primary-default);
             outline: none;
 
             &[type='number'] {
@@ -268,7 +267,7 @@
             }
 
             &:focus {
-                border-color: $color-shopware-brand-500;
+                border-color: var(--color-border-brand-default);
             }
         }
     }
@@ -277,7 +276,7 @@
         width: 100%;
         height: 20px;
         margin-top: 10px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
         background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' width='100%25' height='100%25'%3E%3Crect width='10' height='10' x='00' y='00' fill='%23cdd5db' /%3E%3Crect width='10' height='10' x='10' y='10' fill='%23cdd5db' /%3E%3C/svg%3E");
         outline: none;
@@ -287,7 +286,7 @@
             height: 26px;
             width: 8px;
             border-radius: $border-radius-default;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             background: #fff;
             -webkit-appearance: none;
             cursor: pointer;
@@ -296,7 +295,7 @@
         &::-moz-range-thumb {
             height: 26px;
             width: 8px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $border-radius-default;
             background: #fff;
             cursor: pointer;

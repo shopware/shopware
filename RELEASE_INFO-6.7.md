@@ -148,6 +148,12 @@ For the Storefront this is purely a rendering fix. Headless and Composable Front
 
 ## Core
 
+### OneToMany association limit now respects sort order across joined tables
+
+When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
+
+No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
+
 ### Dynamic product groups can keep matching variants ungrouped
 
 Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.

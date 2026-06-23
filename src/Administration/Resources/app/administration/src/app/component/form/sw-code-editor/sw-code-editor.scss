@@ -69,7 +69,7 @@
 
     &.is--disabled {
         .sw-code-editor__editor {
-            background-color: var(--color-gray-100);
+            background-color: var(--color-background-tertiary-default);
 
             &::after {
                 content: "";

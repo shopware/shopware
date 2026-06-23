@@ -119,24 +119,8 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         box-shadow: 0 0 0 1px var(--color-border-brand-selected);
     }
 
-    &.is--row-drop-before::before,
-    &.is--row-drop-after::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        z-index: 2;
-        height: 2px;
-        border-radius: 2px;
-        background: var(--color-border-brand-selected);
-    }
-
-    &.is--row-drop-before::before {
-        top: -7px;
-    }
-
-    &.is--row-drop-after::after {
-        bottom: -7px;
+    &.is--row-drag-preview-source {
+        display: none;
     }
 
     &.is--drag-previewing .sw-label.sw-label--dismissable:hover {
@@ -157,6 +141,34 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         color: transparent;
         border-style: dashed;
         background: transparent;
+    }
+
+    &.is--row-placeholder {
+        pointer-events: none;
+
+        .sw-multi-snippet-drag-and-drop__action,
+        .sw-multi-snippet-drag-and-drop__context-button {
+            display: none;
+        }
+
+        .sw-multi-snippet-select > div {
+            padding-left: 0;
+        }
+
+        .sw-multi-snippet-select .sw-block-field__block {
+            border-style: dashed;
+            background: transparent;
+        }
+
+        .sw-label {
+            color: transparent;
+            border-style: dashed;
+            background: transparent;
+        }
+
+        .sw-label__dismiss {
+            display: none;
+        }
     }
 
     .sw-context-button {

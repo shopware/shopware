@@ -871,9 +871,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         );
         await flushPromises();
 
-        expect(wrapper.findAll('.sw-multi-snippet-drag-and-drop')[4].classes()).toContain('is--row-drop-before');
+        const rowsWhileDragging = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
+
+        expect(rowsWhileDragging).toHaveLength(6);
+        expect(rowsWhileDragging[0].classes()).toContain('is--row-drag-preview-source');
+        expect(rowsWhileDragging[4].classes()).toContain('is--row-placeholder');
 
         await addressHandlingWrapper.vm.onDrop();
+        await flushPromises();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
             'address/first_name',
@@ -892,6 +897,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'address/department',
         ]);
         expect(addressHandlingWrapper.vm.rowDragPreview).toBeNull();
+        expect(wrapper.findAll('.sw-multi-snippet-drag-and-drop')).toHaveLength(5);
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {

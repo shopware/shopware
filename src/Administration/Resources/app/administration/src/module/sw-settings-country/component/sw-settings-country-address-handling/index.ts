@@ -138,6 +138,14 @@ export default Component.wrapComponentConfig({
             return this.country.addressFormat as Array<string[]>;
         },
 
+        rowDragPreviewSnippet(): string[] {
+            if (!this.rowDragPreview) {
+                return [];
+            }
+
+            return this.addressFormat[this.rowDragPreview.dragIndex] ?? [];
+        },
+
         hasDefaultPostalCodePattern(): boolean {
             return !!this.country.defaultPostalCodePattern;
         },
@@ -294,24 +302,16 @@ export default Component.wrapComponentConfig({
             return targetIndex > dragIndex ? targetIndex - 1 : targetIndex;
         },
 
-        isRowDropPreviewVisible(): boolean {
-            if (!this.rowDragPreview) {
-                return false;
-            }
-
-            return this.getRowDropIndex(this.rowDragPreview.dragIndex, this.rowDragPreview.targetIndex) !== this.rowDragPreview.dragIndex;
+        isRowDragPreviewSource(index: number): boolean {
+            return this.rowDragPreview?.dragIndex === index;
         },
 
-        shouldShowRowDropBefore(index: number): boolean {
-            return this.isRowDropPreviewVisible() && this.rowDragPreview?.targetIndex === index;
+        shouldShowRowPlaceholderBefore(index: number): boolean {
+            return this.rowDragPreview?.targetIndex === index;
         },
 
-        shouldShowRowDropAfter(index: number): boolean {
-            return (
-                this.isRowDropPreviewVisible() &&
-                this.rowDragPreview?.targetIndex === this.addressFormat.length &&
-                index === this.addressFormat.length - 1
-            );
+        shouldShowRowPlaceholderAfterLast(): boolean {
+            return this.rowDragPreview?.targetIndex === this.addressFormat.length;
         },
 
         onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {

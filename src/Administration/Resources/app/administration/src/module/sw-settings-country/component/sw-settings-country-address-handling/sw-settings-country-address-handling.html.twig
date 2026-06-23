@@ -77,29 +77,51 @@
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
             <div class="sw-settings-country-address-handling__address-markup">
-                <sw-multi-snippet-drag-and-drop
+                <template
                     v-for="(snippet, index) in addressFormat"
                     :key="index"
-                    v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
-                    v-draggable="{ ...dragConf, data: { snippet, index }}"
-                    :class="{
-                        'is--row-dragging': !!rowDragPreview,
-                        'is--row-drop-before': shouldShowRowDropBefore(index),
-                        'is--row-drop-after': shouldShowRowDropAfter(index),
-                    }"
-                    :value="snippet"
-                    :line-position="index"
+                >
+                    <sw-multi-snippet-drag-and-drop
+                        v-if="shouldShowRowPlaceholderBefore(index)"
+                        class="is--row-placeholder"
+                        :value="rowDragPreviewSnippet"
+                        :line-position="index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        disabled
+                    />
+
+                    <sw-multi-snippet-drag-and-drop
+                        v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
+                        v-draggable="{ ...dragConf, data: { snippet, index }}"
+                        :class="{
+                            'is--row-dragging': !!rowDragPreview,
+                            'is--row-drag-preview-source': isRowDragPreviewSource(index),
+                        }"
+                        :value="snippet"
+                        :line-position="index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        :external-drag-preview="snippetDragPreview"
+                        :is-snippet-dragging="!!snippetDragItem"
+                        @update:value="change"
+                        @drag-start="onSnippetDragStart"
+                        @drag-enter="onSnippetDragEnter"
+                        @drop-end="onDropEnd"
+                        @position-move="moveToNewPosition"
+                        @add-new-line="addNewLineAt"
+                        @open-snippet-modal="openSnippetModal"
+                    />
+                </template>
+
+                <sw-multi-snippet-drag-and-drop
+                    v-if="shouldShowRowPlaceholderAfterLast()"
+                    class="is--row-placeholder"
+                    :value="rowDragPreviewSnippet"
+                    :line-position="addressFormat.length"
                     :get-label-property="getLabelProperty"
                     :total-lines="addressFormat.length"
-                    :external-drag-preview="snippetDragPreview"
-                    :is-snippet-dragging="!!snippetDragItem"
-                    @update:value="change"
-                    @drag-start="onSnippetDragStart"
-                    @drag-enter="onSnippetDragEnter"
-                    @drop-end="onDropEnd"
-                    @position-move="moveToNewPosition"
-                    @add-new-line="addNewLineAt"
-                    @open-snippet-modal="openSnippetModal"
+                    disabled
                 />
             </div>
 

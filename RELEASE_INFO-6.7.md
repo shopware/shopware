@@ -1,3 +1,5 @@
+# 6.7.13.0 (upcoming)
+
 # 6.7.12.0 (upcoming)
 
 ## Features
@@ -147,6 +149,12 @@ The `min-height` of the image CMS element (`cms_slot` of type `image`) is now on
 For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
 
 ## Core
+
+### OneToMany association limit now respects sort order across joined tables
+
+When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
+
+No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
 
 ### Dynamic product groups can keep matching variants ungrouped
 

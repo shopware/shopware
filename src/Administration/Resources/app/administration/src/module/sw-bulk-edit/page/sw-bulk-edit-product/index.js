@@ -125,7 +125,8 @@ export default {
 
             criteria.getAssociation('properties').addSorting(Criteria.sort('name', 'ASC', true));
 
-            criteria.getAssociation('prices')
+            criteria
+                .getAssociation('prices')
                 .addSorting(Criteria.sort('quantityStart', 'ASC', true))
                 .addAssociation('rule');
 

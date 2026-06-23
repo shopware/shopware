@@ -52,18 +52,20 @@ class ScriptResponseFactoryFacadeTest extends TestCase
         static::assertSame(Response::HTTP_FOUND, $response->getCode());
     }
 
-    #[TestDox('render() on the core facade throws because rendering needs the Storefront bundle')]
+    #[TestDox('render() on the core facade is deprecated and throws because rendering needs the Storefront bundle')]
     #[IgnoreDeprecations]
     public function testRenderThrowsStorefrontBundleMissing(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        // Fake the deprecation period (v6.8.0.0 inactive) so render() takes the deprecation-notice path and throws,
+        // rather than the deprecation itself throwing when the major flag is active.
+        Feature::fake([], function (): void {
+            $facade = $this->buildFacade(salesChannelContext: static::createStub(SalesChannelContext::class));
 
-        $facade = $this->buildFacade(salesChannelContext: static::createStub(SalesChannelContext::class));
+            $this->expectException(ScriptException::class);
+            $this->expectExceptionMessageMatches('/storefront.*bundle/i');
 
-        $this->expectException(ScriptException::class);
-        $this->expectExceptionMessageMatches('/storefront.*bundle/i');
-
-        $facade->render('@Storefront/foo.html.twig');
+            $facade->render('@Storefront/foo.html.twig');
+        });
     }
 
     private function buildFacade(

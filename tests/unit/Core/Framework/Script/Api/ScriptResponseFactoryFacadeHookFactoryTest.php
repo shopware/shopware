@@ -3,15 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\Script\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\ScriptException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -26,12 +24,9 @@ class ScriptResponseFactoryFacadeHookFactoryTest extends TestCase
         static::assertSame('response', $this->buildFactory()->getName());
     }
 
-    #[TestDox('factory() builds the core response facade whose render() requires the Storefront bundle')]
-    #[IgnoreDeprecations]
-    public function testFactoryBuildsCoreFacadeWithoutRenderSupport(): void
+    #[TestDox('factory() builds a usable core response facade for a hook without a SalesChannelContext')]
+    public function testFactoryBuildsCoreResponseFacade(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $hook = new class(Context::createDefaultContext()) extends Hook {
             public function getName(): string
             {
@@ -46,10 +41,9 @@ class ScriptResponseFactoryFacadeHookFactoryTest extends TestCase
 
         $facade = $this->buildFactory()->factory($hook, static::createStub(Script::class));
 
-        $this->expectException(ScriptException::class);
-        $this->expectExceptionMessageMatches('/storefront.*bundle/i');
-
-        $facade->render('@Storefront/foo.html.twig');
+        $response = $facade->json(['ok' => true], Response::HTTP_CREATED);
+        static::assertSame(['ok' => true], $response->getBody()->all());
+        static::assertSame(Response::HTTP_CREATED, $response->getCode());
     }
 
     private function buildFactory(): ScriptResponseFactoryFacadeHookFactory

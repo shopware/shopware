@@ -71,11 +71,8 @@ class ExtensionThemeDetectionSubscriber implements EventSubscriberInterface, Res
     private function isPluginTheme(PluginEntity $plugin): bool
     {
         $baseClass = $plugin->getBaseClass();
-        if (!class_exists($baseClass)) {
-            return false;
-        }
 
-        return \array_key_exists(ThemeInterface::class, class_implements($baseClass) ?: []);
+        return class_exists($baseClass) && is_subclass_of($baseClass, ThemeInterface::class);
     }
 
     private function isAppTheme(AppEntity $app, Context $context): bool

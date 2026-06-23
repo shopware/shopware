@@ -408,4 +408,17 @@ class LineItemTest extends TestCase
 
         static::assertSame($expectedArray, $parent->getHashContent());
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getSerializedPayload(LineItem $lineItem): array
+    {
+        $data = $lineItem->jsonSerialize();
+
+        static::assertArrayHasKey('payload', $data);
+        static::assertIsArray($data['payload']);
+
+        return $data['payload'];
+    }
 }

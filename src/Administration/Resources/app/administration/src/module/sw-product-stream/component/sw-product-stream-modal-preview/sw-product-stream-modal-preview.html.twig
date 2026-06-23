@@ -9,58 +9,62 @@
     {% block sw_product_stream_modal_preview_content %}
     <div class="sw-product-stream-modal-preview__content">
         {% block sw_product_stream_modal_preview_content_header %}
-        <sw-container class="sw-product-stream-modal-preview__content-header">
+        <div class="sw-product-stream-modal-preview__content-header">
             {% block sw_product_stream_modal_preview_search_field_label %}
-            <sw-label class="sw-product-stream-modal-preview__search-field-label">
+            <div class="sw-product-stream-modal-preview__search-field-label">
                 {% block sw_product_stream_modal_preview_search_field %}
                 <sw-simple-search-field
                     class="sw-product-stream-modal-preview__search-field"
                     variant="form"
                     :value="searchTerm"
                     :delay="750"
+                    size="small"
                     @search-term-change="onSearchTermChange"
                 />
                 {% endblock %}
-            </sw-label>
+            </div>
             {% endblock %}
+
             {% block sw_product_stream_modal_preview_sales_channel_field_label %}
-            <sw-label class="sw-product-stream-modal-preview__sales-channel-field-label">
+            <div class="sw-product-stream-modal-preview__sales-channel-field-label">
                 {% block sw_product_stream_modal_preview_sales_channel_field %}
                 <sw-entity-single-select
                     v-model:value="selectedSalesChannel"
                     entity="sales_channel"
                     class="sw-product-stream-modal-preview__sales-channel-field"
                     name="sw-field--selectedSalesChannel"
+                    size="small"
                     :criteria="previewSelectionCriteria"
                     :disabled="isLoading"
-                    :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
                     @update:value="onSalesChannelChange"
                 />
                 {% endblock %}
-            </sw-label>
+            </div>
             {% endblock %}
-        </sw-container>
+        </div>
         {% endblock %}
 
         {% block sw_product_stream_modal_preview_grid %}
         <sw-data-grid
             v-if="total"
+            class="sw-product-stream-modal-preview__data-grid"
             :data-source="products"
             :columns="productColumns"
             :show-selection="false"
             :show-actions="false"
             :show-previews="true"
             :is-loading="isLoading"
-            full-page
         >
-
             <template #column-name="{ item, column }">
                 {% block sw_product_stream_modal_preview_grid_column_name %}
-                <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
-                    <sw-product-variant-info :variations="item.variation">
+                <mt-link :to="{ name: column.routerLink, params: { id: item.id } }">
+                    <sw-product-variant-info
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                    >
                         {{ item.name || item.translated.name }}
                     </sw-product-variant-info>
-                </router-link>
+                </mt-link>
                 {% endblock %}
             </template>
 
@@ -82,6 +86,7 @@
             <template #column-stock="{ item }">
                 {% block sw_product_stream_modal_preview_grid_column_stock %}
                 {{ item.stock }}
+
                 <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 {% endblock %}
             </template>

@@ -1,5 +1,11 @@
 # 6.7.12.0
 
+## `sw-product-stream-filter` now reuses `sw-condition-base` styling
+
+The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.
+
+The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
+
 ## Deprecation of `sw_integration_list_introduction` twig block
 
 The block `sw_integration_list_introduction` in `src/Administration/Resources/app/administration/src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig` has been deprecated and will be removed in v6.8.0.

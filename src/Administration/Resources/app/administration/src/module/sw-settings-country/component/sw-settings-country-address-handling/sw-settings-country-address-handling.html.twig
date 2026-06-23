@@ -133,7 +133,10 @@
                     @update:value="onChangeCustomer"
                 />
 
-                <sw-settings-country-preview-template :formatting-address="formattingAddress" />
+                <sw-settings-country-preview-template
+                    :formatting-address="formattingAddress"
+                    :is-loading="isPreviewLoading"
+                />
 
                 <mt-button
                     class="sw-settings-country-address-handling__button-reset"

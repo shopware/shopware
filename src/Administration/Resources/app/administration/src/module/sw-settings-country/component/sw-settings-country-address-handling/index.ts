@@ -95,6 +95,8 @@ export default Component.wrapComponentConfig({
         isOpenModal: boolean;
         currentPosition: number | null;
         formattingAddress: string;
+        isPreviewLoading: boolean;
+        previewRenderToken: number;
         snippetDragPreview: SnippetDragPreview | null;
         snippetDragItem: DragItem | null;
         rowDragPreview: RowDragPreview | null;
@@ -111,6 +113,8 @@ export default Component.wrapComponentConfig({
             isOpenModal: false,
             currentPosition: null,
             formattingAddress: '',
+            isPreviewLoading: false,
+            previewRenderToken: 0,
             snippetDragPreview: null,
             snippetDragItem: null,
             rowDragPreview: null,
@@ -236,12 +240,15 @@ export default Component.wrapComponentConfig({
             this.updateCountry('advancedPostalCodePattern', null);
         },
 
-        'country.addressFormat'(address) {
-            if (!address) {
-                return;
-            }
+        'country.addressFormat': {
+            deep: true,
+            handler(address) {
+                if (!address) {
+                    return;
+                }
 
-            void this.renderFormattingAddress(this.customer?.defaultBillingAddress);
+                void this.renderFormattingAddress(this.customer?.defaultBillingAddress);
+            },
         },
     },
 
@@ -550,10 +557,16 @@ export default Component.wrapComponentConfig({
         },
 
         renderFormattingAddress(address?: EntitySchema.Entities['customer_address']): Promise<unknown> {
+            this.previewRenderToken += 1;
+            const previewRenderToken = this.previewRenderToken;
+
             if (!address) {
                 this.formattingAddress = '';
+                this.isPreviewLoading = false;
                 return Promise.resolve();
             }
+
+            this.isPreviewLoading = true;
 
             return (
                 this.customSnippetApiService
@@ -562,7 +575,16 @@ export default Component.wrapComponentConfig({
                     .then((res) => {
                         const { rendered } = res as { rendered: string };
 
+                        if (previewRenderToken !== this.previewRenderToken) {
+                            return;
+                        }
+
                         this.formattingAddress = rendered;
+                    })
+                    .finally(() => {
+                        if (previewRenderToken === this.previewRenderToken) {
+                            this.isPreviewLoading = false;
+                        }
                     })
             );
         },

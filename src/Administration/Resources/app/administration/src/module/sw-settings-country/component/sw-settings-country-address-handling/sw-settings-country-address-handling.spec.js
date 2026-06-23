@@ -25,8 +25,16 @@ const addressFormat = [
 ];
 
 let stubs = {};
+let renderMock;
 
 async function createWrapper(privileges = [], customPropsData = {}) {
+    renderMock = jest.fn(() =>
+        Promise.resolve({
+            rendered:
+                'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+        }),
+    );
+
     stubs = {
         'sw-settings-country-address-handling': await wrapTestComponent('sw-settings-country-address-handling', {
             sync: true,
@@ -170,11 +178,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                             });
                         },
 
-                        render: () =>
-                            Promise.resolve({
-                                rendered:
-                                    'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-                            }),
+                        render: renderMock,
                     },
                     countryApiService: {
                         defaultCountryAddressFormat: () =>
@@ -1134,9 +1138,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ]);
         await flushPromises();
 
-        let previewTemplate = wrapper.get('.sw-settings-country-preview-template > div');
+        let previewTemplate = wrapper.get('.sw-settings-country-preview-template__content');
 
-        expect(previewTemplate.html()).toBe('<div></div>');
+        expect(previewTemplate.html()).toBe('<div class="sw-settings-country-preview-template__content"></div>');
 
         const selection = wrapper.get('.sw-entity-single-select');
 
@@ -1150,10 +1154,38 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        previewTemplate = wrapper.get('.sw-settings-country-preview-template > div');
+        previewTemplate = wrapper.get('.sw-settings-country-preview-template__content');
 
         expect(previewTemplate.html()).toBe(
-            '<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>',
+            '<div class="sw-settings-country-preview-template__content">Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>',
+        );
+    });
+
+    it('should update the preview when the address markup changes after selecting a customer', async () => {
+        wrapper = await createWrapper([
+            'country.editor',
+        ]);
+        await flushPromises();
+
+        await wrapper.get('.sw-entity-single-select input').trigger('click');
+        await flushPromises();
+
+        await wrapper.get('.sw-select-result-list-popover-wrapper').findAll('li')[0].trigger('click');
+        await flushPromises();
+
+        renderMock.mockResolvedValueOnce({
+            rendered: 'Updated preview',
+        });
+
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+
+        addressHandlingWrapper.vm.change(0, ['address/country']);
+        await flushPromises();
+
+        expect(renderMock).toHaveBeenCalledTimes(2);
+        expect(renderMock.mock.calls.at(-1)[1][0]).toEqual(['address/country']);
+        expect(wrapper.get('.sw-settings-country-preview-template__content').html()).toBe(
+            '<div class="sw-settings-country-preview-template__content">Updated preview</div>',
         );
     });
 

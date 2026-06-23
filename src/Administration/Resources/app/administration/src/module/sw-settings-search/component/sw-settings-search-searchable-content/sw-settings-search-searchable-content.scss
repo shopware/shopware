@@ -1,16 +1,16 @@
-.sw-settings-search__searchable-content {
+.sw-settings-search-searchable-content {
     &.mt-card .mt-card__content {
         padding: 0;
     }
 
-    &-title {
+    .sw-settings-search__searchable-content-title {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         padding: 0 var(--scale-size-24);
         margin: var(--scale-size-24) 0 var(--scale-size-18);
     }
 
-    &-actions {
+    .sw-settings-search__searchable-content-actions {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -19,12 +19,12 @@
         gap: var(--scale-size-12);
     }
 
-    &-button-group {
+    .sw-settings-search__searchable-content-button-group {
         display: flex;
         gap: var(--scale-size-12);
     }
 
-    &-tabs {
+    .sw-settings-search__searchable-content-tabs {
         margin: 0 !important;
 
         .sw-tabs__custom-content {

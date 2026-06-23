@@ -63,10 +63,16 @@
 
                                     {# Check footer navigation #}
                                     {% if footer.navigation and footer.navigation.tree %}
-                                        {% for footerItem in footer.navigation.tree %}
-                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
-                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == contactCmsPageId and root.category.seoUrl %}
+                                                {% set contactUrl = root.category.seoUrl %}
                                             {% endif %}
+
+                                            {% for footerItem in root.children %}
+                                                {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set contactUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endfor %}
                                     {% endif %}
 
@@ -74,39 +80,45 @@
                                         '%url%': contactUrl
                                     })|raw }}
                                 </div>
+                            </div>
 
-                                {% block layout_footer_navigation_revocation_button %}
-                                    {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
-                                    {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
-                                    {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
+                            {% block layout_footer_navigation_revocation_button %}
+                                {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
+                                {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
+                                {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
 
-                                    {% if revocationRequestCmsPageId and showRevocationButton %}
-                                        {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
+                                {% if revocationRequestCmsPageId and showRevocationButton %}
+                                    {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
 
-                                        {# Check for seoUrl and use it if present #}
-                                        {% for serviceMenuItem in footer.serviceMenu %}
-                                            {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == revocationRequestCmsPageId and root.category.seoUrl %}
+                                                {% set revocationRequestUrl = root.category.seoUrl %}
                                             {% endif %}
-                                        {% endfor %}
 
-                                        {# Check footer navigation #}
-                                        {% if footer.navigation and footer.navigation.tree %}
-                                            {% for footerItem in footer.navigation.tree %}
+                                            {% for footerItem in root.children %}
                                                 {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
                                                     {% set revocationRequestUrl = footerItem.category.seoUrl %}
                                                 {% endif %}
                                             {% endfor %}
-                                        {% endif %}
-
-                                        <div class="footer-revocation-button mt-4">
-                                            {{ revocationRequestSnippetKey|trans({
-                                                '%url%': revocationRequestUrl
-                                            })|raw }}
-                                        </div>
+                                        {% endfor %}
                                     {% endif %}
-                                {% endblock %}
-                            </div>
+
+                                    <div class="footer-revocation-button mt-4">
+                                        {{ revocationRequestSnippetKey|trans({
+                                            '%url%': revocationRequestUrl
+                                        })|raw }}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -285,10 +297,16 @@
 
                         {# Check footer navigation #}
                         {% if footer.navigation and footer.navigation.tree %}
-                            {% for footerItem in footer.navigation.tree %}
-                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
-                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                            {% for root in footer.navigation.tree %}
+                                {% if root.category.cmsPageId == shippingCmsPageId and root.category.seoUrl %}
+                                    {% set shippingUrl = root.category.seoUrl %}
                                 {% endif %}
+
+                                {% for footerItem in root.children %}
+                                    {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                        {% set shippingUrl = footerItem.category.seoUrl %}
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                         {% endif %}
 

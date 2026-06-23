@@ -208,11 +208,12 @@ class AvailableContextResolver
         }
 
         $type = $properties[$contextKey]->type();
+        $declaredType = $type->type();
 
-        if ($type->isPrimitive()) {
+        if ($type->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
             return null;
         }
 
-        return $type->type();
+        return $declaredType;
     }
 }

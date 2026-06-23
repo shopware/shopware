@@ -59,7 +59,10 @@ final readonly class PropertyType
         ];
     }
 
-    public function type(): string
+    /**
+     * @return string|list<string>
+     */
+    public function type(): string|array
     {
         return $this->type;
     }

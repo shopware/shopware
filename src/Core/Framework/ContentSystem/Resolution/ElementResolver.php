@@ -43,20 +43,21 @@ class ElementResolver
 
         foreach ($this->registry->get($type)->properties() as $key => $property) {
             $propertyType = $property->type();
+            $declaredType = $propertyType->type();
 
-            if ($propertyType->isPrimitive()) {
+            if ($propertyType->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
                 $resolutions[] = new PropertyResolution(
                     key: $key,
                     kind: PropertyKind::Primitive,
                     required: $property->required(),
-                    type: $propertyType->type(),
+                    type: \is_string($declaredType) ? $declaredType : null,
                     default: $propertyType->default(),
                 );
 
                 continue;
             }
 
-            $resolutions[] = $this->resolveReference($key, $propertyType->type(), $property->required(), $context);
+            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context);
         }
 
         return $resolutions;

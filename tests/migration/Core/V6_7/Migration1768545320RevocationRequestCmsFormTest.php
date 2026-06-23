@@ -132,13 +132,54 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
             $migration->update($this->connection);
 
             $cmsPageResult = $this->getCmsPage();
-            static::assertCount(1, $cmsPageResult['translations']);
+            static::assertCount(2, $cmsPageResult['translations']);
 
             $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
             $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
             $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
 
-            static::assertCount(1, $cmsSlotResult['translations']);
+            static::assertCount(2, $cmsSlotResult['translations']);
+        } finally {
+            $this->connection->rollBack();
+        }
+    }
+
+    public function testUpdateUsesLanguageLocalePrefixForRegionalLanguages(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+            $deChLanguageByteId = $this->createLanguage('de-CH');
+            $enUsLanguageByteId = $this->createLanguage('en-US');
+            $frChLanguageByteId = $this->createLanguage('fr-CH', 'de-LI');
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            $pageTranslations = $cmsPageResult['translations'];
+            static::assertIsArray($pageTranslations);
+
+            $deChPageTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['de_name'], $deChPageTranslation['name']);
+
+            $enUsPageTranslation = $this->findTranslationByLanguageId($enUsLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'], $enUsPageTranslation['name']);
+
+            $frChPageTranslation = $this->findTranslationByLanguageId($frChLanguageByteId, $pageTranslations);
+            static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'], $frChPageTranslation['name']);
+
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+            $slotTranslations = $cmsSlotResult['translations'];
+            static::assertIsArray($slotTranslations);
+
+            $this->findTranslationByLanguageId($deChLanguageByteId, $slotTranslations);
+            $this->findTranslationByLanguageId($enUsLanguageByteId, $slotTranslations);
+            $this->findTranslationByLanguageId($frChLanguageByteId, $slotTranslations);
         } finally {
             $this->connection->rollBack();
         }
@@ -315,6 +356,61 @@ SQL;
             ['code' => $localeCode],
             ['id' => $localeByteId]
         );
+    }
+
+    /**
+     * @param array<array<string, mixed>> $translations
+     *
+     * @return array<string, mixed>
+     */
+    private function findTranslationByLanguageId(string $languageByteId, array $translations): array
+    {
+        foreach ($translations as $translation) {
+            if ($translation['language_id'] === $languageByteId) {
+                return $translation;
+            }
+        }
+
+        static::fail('Could not find translation for language ' . Uuid::fromBytesToHex($languageByteId));
+    }
+
+    private function createLanguage(string $localeCode, ?string $translationCode = null): string
+    {
+        $localeByteId = $this->getOrCreateLocale($localeCode);
+        $translationCodeByteId = $translationCode === null ? $localeByteId : $this->getOrCreateLocale($translationCode);
+        $languageByteId = Uuid::randomBytes();
+
+        $this->connection->insert('language', [
+            'id' => $languageByteId,
+            'name' => $localeCode,
+            'locale_id' => $localeByteId,
+            'translation_code_id' => $translationCodeByteId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $languageByteId;
+    }
+
+    private function getOrCreateLocale(string $localeCode): string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `id` FROM `locale` WHERE `code` = :code LIMIT 1',
+            ['code' => $localeCode]
+        );
+
+        if (\is_string($localeByteId)) {
+            return $localeByteId;
+        }
+
+        $localeByteId = Uuid::randomBytes();
+
+        $this->connection->insert('locale', [
+            'id' => $localeByteId,
+            'code' => $localeCode,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $localeByteId;
     }
 
     private function insertUnrelatedCmsBlockWithSameName(): string

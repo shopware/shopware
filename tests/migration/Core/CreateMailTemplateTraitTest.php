@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -69,9 +70,9 @@ class CreateMailTemplateTraitTest extends TestCase
 
     public function testCreateMail(): void
     {
-        $enLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'en-GB');
+        $enLanguageByteId = $this->getLanguageIdByLocale('en-GB');
         static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'de-DE');
+        $deLanguageByteId = $this->getLanguageIdByLocale('de-DE');
         static::assertIsString($deLanguageByteId);
 
         // create new mail template
@@ -150,9 +151,9 @@ class CreateMailTemplateTraitTest extends TestCase
             $this->targetDirectory . '/de-plain.txt.twig',
         ]);
 
-        $enLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'en-GB');
+        $enLanguageByteId = $this->getLanguageIdByLocale('en-GB');
         static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale($this->connection, 'de-DE');
+        $deLanguageByteId = $this->getLanguageIdByLocale('de-DE');
         static::assertIsString($deLanguageByteId);
 
         // create new mail template
@@ -210,6 +211,61 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertSame($this->filesystem->readFile($this->targetDirectory . '/de-plain.html.twig'), $deMailTranslation['content_plain']);
     }
 
+    public function testCreateMailUsesLanguageLocalePrefixForRegionalLanguages(): void
+    {
+        $deChLanguageByteId = $this->createLanguage('de-CH');
+        $enUsLanguageByteId = $this->createLanguage('en-US');
+        $frChLanguageByteId = $this->createLanguage('fr-CH', 'de-LI');
+
+        $mailTemplateType = new MailTemplateTypeCreateStruct(
+            self::TEST_TECHNICAL_NAME,
+            'EN test name',
+            'DE Test Name',
+        );
+
+        $mailTemplate = new MailTemplateCreateStruct(
+            $this->testDirectoryName,
+            'EN test name',
+            'DE Test Name',
+            'Test description',
+            'Test Beschreibung',
+            '{{ salesChannel.name }}',
+            '{{ salesChannel.name }}',
+        );
+
+        $this->createMail($this->connection, $mailTemplateType, $mailTemplate);
+        $this->createMail($this->connection, $mailTemplateType, $mailTemplate);
+
+        $mailTemplateTypes = $this->getMailTemplateTypes();
+        static::assertCount(1, $mailTemplateTypes);
+
+        $mailTemplateTypeTranslations = $mailTemplateTypes[0]['translations'];
+        $deChTypeTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $mailTemplateTypeTranslations);
+        static::assertSame($mailTemplateType->getDeName(), $deChTypeTranslation['name']);
+
+        $enUsTypeTranslation = $this->findTranslationByLanguageId($enUsLanguageByteId, $mailTemplateTypeTranslations);
+        static::assertSame($mailTemplateType->getEnName(), $enUsTypeTranslation['name']);
+
+        $frChTypeTranslation = $this->findTranslationByLanguageId($frChLanguageByteId, $mailTemplateTypeTranslations);
+        static::assertSame($mailTemplateType->getEnName(), $frChTypeTranslation['name']);
+
+        $mailTemplates = $this->getMailTemplates($mailTemplateTypes[0]['id']);
+        static::assertCount(1, $mailTemplates);
+
+        $mailTemplateTranslations = $mailTemplates[0]['translations'];
+        $deChMailTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $mailTemplateTranslations);
+        static::assertSame($mailTemplate->getDeSubject(), $deChMailTranslation['subject']);
+        static::assertSame($mailTemplate->getDeHtml(), $deChMailTranslation['content_html']);
+
+        $enUsMailTranslation = $this->findTranslationByLanguageId($enUsLanguageByteId, $mailTemplateTranslations);
+        static::assertSame($mailTemplate->getEnSubject(), $enUsMailTranslation['subject']);
+        static::assertSame($mailTemplate->getEnHtml(), $enUsMailTranslation['content_html']);
+
+        $frChMailTranslation = $this->findTranslationByLanguageId($frChLanguageByteId, $mailTemplateTranslations);
+        static::assertSame($mailTemplate->getEnSubject(), $frChMailTranslation['subject']);
+        static::assertSame($mailTemplate->getEnHtml(), $frChMailTranslation['content_html']);
+    }
+
     /**
      * @param array<array<string, mixed>> $translations
      *
@@ -264,5 +320,58 @@ class CreateMailTemplateTraitTest extends TestCase
         }
 
         return $mailTemplateTypes;
+    }
+
+    private function getLanguageIdByLocale(string $locale): ?string
+    {
+        $languageId = $this->connection->fetchOne(
+            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id` WHERE `locale`.`code` = :code LIMIT 1',
+            ['code' => $locale]
+        );
+
+        if (!\is_string($languageId)) {
+            return null;
+        }
+
+        return $languageId;
+    }
+
+    private function createLanguage(string $localeCode, ?string $translationCode = null): string
+    {
+        $localeByteId = $this->getOrCreateLocale($localeCode);
+        $translationCodeByteId = $translationCode === null ? $localeByteId : $this->getOrCreateLocale($translationCode);
+        $languageByteId = Uuid::randomBytes();
+
+        $this->connection->insert('language', [
+            'id' => $languageByteId,
+            'name' => $localeCode,
+            'locale_id' => $localeByteId,
+            'translation_code_id' => $translationCodeByteId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $languageByteId;
+    }
+
+    private function getOrCreateLocale(string $localeCode): string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `id` FROM `locale` WHERE `code` = :code LIMIT 1',
+            ['code' => $localeCode]
+        );
+
+        if (\is_string($localeByteId)) {
+            return $localeByteId;
+        }
+
+        $localeByteId = Uuid::randomBytes();
+
+        $this->connection->insert('locale', [
+            'id' => $localeByteId,
+            'code' => $localeCode,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $localeByteId;
     }
 }

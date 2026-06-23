@@ -137,10 +137,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
-
-            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService">

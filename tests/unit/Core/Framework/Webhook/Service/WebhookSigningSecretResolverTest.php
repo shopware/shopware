@@ -6,14 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -24,24 +21,18 @@ class WebhookSigningSecretResolverTest extends TestCase
 {
     public function testUsesTheCurrentSecretNotTheOneCapturedWhenQueued(): void
     {
-        $appId = Uuid::randomHex();
-        $resolver = new WebhookSigningSecretResolver(
-            $this->appRepository(new AppCollection([$this->app($appId, 'new-secret')])),
-            $this->deletedAppsGateway(false),
-        );
+        // Rotation regression: the message carries the OLD secret; the app has rotated to NEW.
+        $resolver = $this->resolver(appSecret: 'new-secret', deletedSecret: false);
 
         static::assertSame(
             'new-secret',
-            $resolver->resolve($this->message($appId, carried: 'old-secret', appName: 'TestApp'))
+            $resolver->resolve($this->message(Uuid::randomHex(), carried: 'old-secret', appName: 'TestApp'))
         );
     }
 
     public function testFallsBackToTheDeletedAppsSecretWhenTheAppIsGone(): void
     {
-        $resolver = new WebhookSigningSecretResolver(
-            $this->appRepository(new AppCollection([])),
-            $this->deletedAppsGateway('retained-secret'),
-        );
+        $resolver = $this->resolver(appSecret: false, deletedSecret: 'retained-secret');
 
         static::assertSame(
             'retained-secret',
@@ -51,10 +42,7 @@ class WebhookSigningSecretResolverTest extends TestCase
 
     public function testFallsBackToTheCarriedSecretWhenNoLiveOrDeletedSecretExists(): void
     {
-        $resolver = new WebhookSigningSecretResolver(
-            $this->appRepository(new AppCollection([])),
-            $this->deletedAppsGateway(false),
-        );
+        $resolver = $this->resolver(appSecret: false, deletedSecret: false);
 
         static::assertSame(
             'carried-secret',
@@ -62,12 +50,11 @@ class WebhookSigningSecretResolverTest extends TestCase
         );
     }
 
-    public function testNonAppWebhookKeepsItsCarriedSecret(): void
+    public function testNonAppWebhookKeepsItsCarriedSecretWithoutAnyLookup(): void
     {
-        $resolver = new WebhookSigningSecretResolver(
-            $this->appRepository(new AppCollection([])),
-            $this->deletedAppsGateway(false),
-        );
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchOne');
+        $resolver = new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));
 
         static::assertSame(
             'carried-secret',
@@ -75,53 +62,14 @@ class WebhookSigningSecretResolverTest extends TestCase
         );
     }
 
-    public function testMemoizesTheSecretPerRunAndResetLooksItUpAgain(): void
-    {
-        $appId = Uuid::randomHex();
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
-            new AppCollection([$this->app($appId, 'first')]),
-            new AppCollection([$this->app($appId, 'second')]),
-        ]);
-        $resolver = new WebhookSigningSecretResolver($appRepository, $this->deletedAppsGateway(false));
-        $message = $this->message($appId, carried: 'carried-secret', appName: 'TestApp');
-
-        static::assertSame('first', $resolver->resolve($message));
-        static::assertSame('first', $resolver->resolve($message), 'repeat lookups are served from the per-run cache');
-
-        $resolver->reset();
-
-        static::assertSame('second', $resolver->resolve($message), 'after reset the secret is looked up again');
-    }
-
-    /**
-     * @return StaticEntityRepository<AppCollection>
-     */
-    private function appRepository(AppCollection $result): StaticEntityRepository
-    {
-        /** @var StaticEntityRepository<AppCollection> $repository */
-        $repository = new StaticEntityRepository([$result]);
-
-        return $repository;
-    }
-
-    private function deletedAppsGateway(string|false $deletedSecret): DeletedAppsGateway
+    private function resolver(string|false $appSecret, string|false $deletedSecret): WebhookSigningSecretResolver
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturn($deletedSecret);
+        $connection->method('fetchOne')->willReturnCallback(
+            static fn (string $sql): string|false => str_contains($sql, 'deleted_apps') ? $deletedSecret : $appSecret
+        );
 
-        return new DeletedAppsGateway($connection);
-    }
-
-    private function app(string $id, ?string $secret): AppEntity
-    {
-        $app = new AppEntity();
-        $app->setUniqueIdentifier($id);
-        $app->setId($id);
-        $app->setName('TestApp');
-        $app->setAppSecret($secret);
-
-        return $app;
+        return new WebhookSigningSecretResolver($connection, new DeletedAppsGateway($connection));
     }
 
     private function message(?string $appId, ?string $carried, ?string $appName): WebhookEventMessage

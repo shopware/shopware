@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Shopware\Core\Framework\App\AppCollection;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Picks the secret an outgoing webhook is signed with, at the moment it is sent.
@@ -21,22 +18,10 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal
  */
 #[Package('framework')]
-class WebhookSigningSecretResolver implements ResetInterface
+class WebhookSigningSecretResolver
 {
-    /**
-     * Per-run cache, keyed by app id, of the secret looked up from the database. Cleared between
-     * worker messages / requests via reset(), so delivering a batch of webhooks for the same app
-     * does not query the secret once per message, while a later rotation is still picked up.
-     *
-     * @var array<string, ?string>
-     */
-    private array $appSecrets = [];
-
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
-        private readonly EntityRepository $appRepository,
+        private readonly Connection $connection,
         private readonly DeletedAppsGateway $deletedAppsGateway,
     ) {
     }
@@ -48,26 +33,20 @@ class WebhookSigningSecretResolver implements ResetInterface
             return $message->getSecret();
         }
 
-        if (!\array_key_exists($appId, $this->appSecrets)) {
-            $this->appSecrets[$appId] = $this->currentSecret($appId) ?? $this->deletedAppSecret($message->getAppName());
-        }
-
-        // Older queued messages still carry the secret; use it until the queue has drained.
-        return $this->appSecrets[$appId] ?? $message->getSecret();
-    }
-
-    public function reset(): void
-    {
-        $this->appSecrets = [];
+        return $this->currentSecret($appId)
+            ?? $this->deletedAppSecret($message->getAppName())
+            // Older queued messages still carry the secret; use it until the queue has drained.
+            ?? $message->getSecret();
     }
 
     private function currentSecret(string $appId): ?string
     {
-        $app = $this->appRepository->search(new Criteria([$appId]), Context::createDefaultContext())
-            ->getEntities()
-            ->first();
+        $secret = $this->connection->fetchOne(
+            'SELECT `app_secret` FROM `app` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($appId)]
+        );
 
-        return $this->emptyToNull($app?->getAppSecret());
+        return \is_string($secret) ? $this->emptyToNull($secret) : null;
     }
 
     // The app was uninstalled but still has webhooks in flight; its secret is kept in deleted_apps.

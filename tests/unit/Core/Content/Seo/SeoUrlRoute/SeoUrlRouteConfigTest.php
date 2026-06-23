@@ -22,12 +22,17 @@ class SeoUrlRouteConfigTest extends TestCase
             $entityDefinition,
             'foo_bar',
             '{{ foo.bar }}',
-            false
+            false,
+            ['fooId', 'barId']
         );
 
         static::assertSame($entityDefinition, $config->getDefinition());
         static::assertSame('foo_bar', $config->getRouteName());
         static::assertSame('{{ foo.bar }}', $config->getTemplate());
         static::assertFalse($config->getSkipInvalid());
+        static::assertSame(
+            ['fooId' => 'foo-value', 'barId' => 'bar-value'],
+            $config->getParameterKeyValuePairs(['foo-value', 'bar-value'])
+        );
     }
 }

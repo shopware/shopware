@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 #[Package('discovery')]
@@ -34,10 +33,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         }
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {
-            return $this->entityRouteResolver->generateSeoUrlPlaceholder(
-                CategoryDefinition::ENTITY_NAME,
-                new ArrayStruct(['navigationId' => $category->getId()])
-            );
+            return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, [$category->getId()]);
         }
 
         $linkType = $category->getTranslation('linkType');
@@ -49,22 +45,13 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 
         switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(
-                    ProductDefinition::ENTITY_NAME,
-                    new ArrayStruct(['productId' => $internalLink])
-                );
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, [$internalLink]);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(
-                    CategoryDefinition::ENTITY_NAME,
-                    new ArrayStruct(['navigationId' => $internalLink])
-                );
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, [$internalLink]);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(
-                    LandingPageDefinition::ENTITY_NAME,
-                    new ArrayStruct(['landingPageId' => $internalLink])
-                );
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, [$internalLink]);
 
             case CategoryDefinition::LINK_TYPE_EXTERNAL:
             default:

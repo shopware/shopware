@@ -15,7 +15,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -76,10 +75,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
-                $url->setLoc($this->entityRouteResolver->generateUrl(
-                    LandingPageDefinition::ENTITY_NAME,
-                    new ArrayStruct(['landingPageId' => $landingPage['id']])
-                ));
+                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, [$landingPage['id']]));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];

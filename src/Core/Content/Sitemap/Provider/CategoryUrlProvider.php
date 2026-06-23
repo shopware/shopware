@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -100,10 +99,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->entityRouteResolver->generateUrl(
-                    CategoryDefinition::ENTITY_NAME,
-                    new ArrayStruct(['navigationId' => $category['id']])
-                ));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(CategoryDefinition::ENTITY_NAME, [$category['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

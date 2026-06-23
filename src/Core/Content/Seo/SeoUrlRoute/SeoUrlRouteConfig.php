@@ -8,11 +8,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SeoUrlRouteConfig
 {
+    /**
+     * @param list<string> $parameterKeys
+     */
     public function __construct(
         private readonly EntityDefinition $definition,
         private readonly string $routeName,
         private string $template,
         private bool $skipInvalid = true,
+        private array $parameterKeys = [],
     ) {
     }
 
@@ -44,5 +48,15 @@ class SeoUrlRouteConfig
     public function setSkipInvalid(bool $skipInvalid): void
     {
         $this->skipInvalid = $skipInvalid;
+    }
+
+    /**
+     * @param list<string> $values
+     *
+     * @return array<string, string>
+     */
+    public function getParameterKeyValuePairs(array $values): array
+    {
+        return array_combine($this->parameterKeys, $values);
     }
 }

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -92,10 +91,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->entityRouteResolver->generateUrl(
-                    ProductDefinition::ENTITY_NAME,
-                    new ArrayStruct(['productId' => $product['id']])
-                ));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(ProductDefinition::ENTITY_NAME, [$product['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

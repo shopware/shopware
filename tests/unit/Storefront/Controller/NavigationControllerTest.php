@@ -17,7 +17,6 @@ use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -69,11 +68,11 @@ class NavigationControllerTest extends TestCase
 
         $entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $entityRouteResolver->method('generateSeoUrlPlaceholder')
-            ->willReturnCallback(static function (string $entityName, ArrayStruct $parameters) {
+            ->willReturnCallback(static function (string $entityName, array $values) {
                 return match ($entityName) {
-                    'product' => '/product/' . $parameters->get('productId'),
-                    'category' => '/navigation/' . $parameters->get('navigationId'),
-                    'landing_page' => '/landingPage/' . $parameters->get('landingPageId'),
+                    'product' => '/product/' . $values[0],
+                    'category' => '/navigation/' . $values[0],
+                    'landing_page' => '/landingPage/' . $values[0],
                     default => '/' . $entityName,
                 };
             });

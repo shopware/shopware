@@ -39,6 +39,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_VALIDATE_PREPARED_ERROR = 'CHECKOUT__VALIDATE_PREPARED_PAYMENT_ERROR';
     final public const PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME = 'CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME';
     final public const MISSING_REQUEST_PARAMETER_CODE = 'CHECKOUT__MISSING_REQUEST_PARAMETER';
+    final public const INVALID_FIELD_VALUE_TYPE = 'CHECKOUT__PAYMENT_INVALID_FIELD_VALUE_TYPE';
 
     public static function asyncFinalizeInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
@@ -323,5 +324,15 @@ class PaymentException extends HttpException
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
     {
         return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function invalidFieldValueType(string $fieldName, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_TYPE,
+            'Field {{ fieldName }} expected {{ expectedType }}, got {{ actualType }}',
+            ['fieldName' => $fieldName, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
     }
 }

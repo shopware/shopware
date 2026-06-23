@@ -549,6 +549,26 @@ class InfoControllerTest extends TestCase
         }
     }
 
+    public function testContentSystemEntityTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-entity-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('entityTypes', $data);
+        static::assertIsArray($data['entityTypes']);
+        static::assertContains('product', $data['entityTypes']);
+        static::assertContains('category', $data['entityTypes']);
+        static::assertContains('landing_page', $data['entityTypes']);
+    }
+
     public function testFetchMessageStats(): void
     {
         $statsService = $this->getContainer()->get(StatsService::class);

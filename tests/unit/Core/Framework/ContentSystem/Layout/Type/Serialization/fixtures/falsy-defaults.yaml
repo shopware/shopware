@@ -1,0 +1,15 @@
+meta:
+  label: "Toggle"
+  description: "A toggle element."
+
+properties:
+  enabled:
+    type: boolean
+    title: "Enabled"
+    description: "Whether enabled."
+    default: false
+  count:
+    type: integer
+    title: "Count"
+    description: "Item count."
+    default: 0

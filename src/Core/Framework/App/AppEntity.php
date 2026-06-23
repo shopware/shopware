@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
@@ -144,6 +145,8 @@ class AppEntity extends Entity
     protected ?AppFlowActionCollection $flowActions = null;
 
     protected ?AppFlowEventCollection $flowEvents = null;
+
+    protected ?AppContentSystemElementTypeCollection $contentElementTypes = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
@@ -625,6 +628,16 @@ class AppEntity extends Entity
     public function setFlowEvents(AppFlowEventCollection $flowEvents): void
     {
         $this->flowEvents = $flowEvents;
+    }
+
+    public function getContentElementTypes(): ?AppContentSystemElementTypeCollection
+    {
+        return $this->contentElementTypes;
+    }
+
+    public function setContentElementTypes(AppContentSystemElementTypeCollection $contentElementTypes): void
+    {
+        $this->contentElementTypes = $contentElementTypes;
     }
 
     /**

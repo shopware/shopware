@@ -14,6 +14,10 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -58,6 +62,9 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
+        private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
+        private readonly ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
     }
@@ -137,6 +144,18 @@ class InfoController extends AbstractController
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
         return new JsonResponse($data);
+    }
+
+    #[Route(path: '/api/_info/content-system-data-loader-types.json', name: 'api.info.content-system-data-loader-types', methods: ['GET'])]
+    public function contentSystemDataLoaderTypes(): JsonResponse
+    {
+        return new JsonResponse($this->dataLoaderTypeSchemaGenerator->getSchema());
+    }
+
+    #[Route(path: '/api/_info/content-system-entity-types.json', name: 'api.info.content-system-entity-types', methods: ['GET'])]
+    public function contentSystemEntityTypes(): JsonResponse
+    {
+        return new JsonResponse($this->entitySchemaGenerator->getSchema());
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
@@ -245,6 +264,17 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
+    }
+
+    #[Route(path: '/api/_info/content-system-element-types.json', name: 'api.info.content-system-element-types', methods: ['GET'])]
+    public function getContentSystemElementTypes(): JsonResponse
+    {
+        $types = array_map(
+            static fn (ContentSystemElementTypeSpecification $def) => $def->toSchema(),
+            array_values($this->elementTypeRegistry->all())
+        );
+
+        return new JsonResponse(['types' => $types]);
     }
 
     /**

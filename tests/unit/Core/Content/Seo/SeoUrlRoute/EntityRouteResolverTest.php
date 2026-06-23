@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo\SeoUrlRoute;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -53,7 +53,7 @@ class EntityRouteResolverTest extends TestCase
     {
         $resolver = new EntityRouteResolver(new SeoUrlRouteRegistry([]), $this->placeholderHandler, $this->router);
 
-        $this->expectException(SeoUrlRouteNotFoundException::class);
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigNotFoundForEntityName('product'));
 
         $resolver->getRouteNameForEntityName('product');
     }
@@ -95,6 +95,15 @@ class EntityRouteResolverTest extends TestCase
         $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', ['productId']);
 
         static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', ['abc123']));
+    }
+
+    public function testThrowsExceptionOnRouteParameterMismatch(): void
+    {
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeParametersMismatching(['productId'], []));
+
+        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', ['productId']);
+
+        $resolver->generateUrl('product', []);
     }
 
     /**

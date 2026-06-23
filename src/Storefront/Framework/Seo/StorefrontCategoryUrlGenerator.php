@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 #[Package('discovery')]
 class StorefrontCategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {

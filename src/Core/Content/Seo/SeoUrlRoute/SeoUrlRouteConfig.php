@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
@@ -57,6 +58,10 @@ class SeoUrlRouteConfig
      */
     public function getParameterKeyValuePairs(array $values): array
     {
-        return array_combine($this->parameterKeys, $values);
+        try {
+            return array_combine($this->parameterKeys, $values);
+        } catch (\ValueError) {
+            throw SeoUrlRouteConfigException::routeParametersMismatching($this->parameterKeys, $values);
+        }
     }
 }

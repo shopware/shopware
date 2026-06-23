@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
-use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\RouterInterface;
@@ -72,6 +72,6 @@ class EntityRouteResolver
             }
         }
 
-        throw SeoException::seoUrlRouteNotFound($entityName);
+        throw SeoUrlRouteConfigException::routeConfigNotFoundForEntityName($entityName);
     }
 }

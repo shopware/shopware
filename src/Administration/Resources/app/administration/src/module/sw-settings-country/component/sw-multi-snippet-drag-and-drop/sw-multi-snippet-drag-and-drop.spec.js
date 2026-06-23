@@ -477,11 +477,12 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await flushPromises();
 
         expect(wrapper.emitted()['drag-start']).toBeTruthy();
-        expect(dragElement.classList.contains('sw-multi-snippet-drag-and-drop__label-drag-clone')).toBe(true);
+        expect(dragElement.classList.contains('sw-multi-snippet-drag-and-drop__snippet-drag-clone')).toBe(true);
+        expect(dragElement.classList.contains('sw-label--dismissable')).toBe(false);
         expect(dragElement.style.display).toBe('inline-flex');
-        expect(dragElement.style.width).toBe('auto');
+        expect(dragElement.style.width).toBe('max-content');
         expect(dragElement.style.overflow).toBe('visible');
-        expect(dragElement.textContent).toBe('address/company');
+        expect(dragElement.innerHTML).toBe('<span class="sw-label__caption">address/company</span>');
     });
 
     it('should emit event `drag-enter` when ending drag', async () => {

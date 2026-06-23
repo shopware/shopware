@@ -56,7 +56,6 @@
                             <sw-label
                                 v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
                                 v-draggable="{ ...mergedDragConfig, data: { snippet, index, linePosition }}"
-                                class="sw-multi-snippet-drag-and-drop__label"
                                 :dismissable="!isSelectionDisabled(snippet)"
                                 :size="size"
                                 @dismiss="onClickDismiss(index)"

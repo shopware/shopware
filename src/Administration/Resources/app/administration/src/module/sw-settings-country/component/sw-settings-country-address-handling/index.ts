@@ -315,6 +315,12 @@ export default Component.wrapComponentConfig({
 
             const linePosition = typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
             const targetLine = this.addressFormat[linePosition] ?? [];
+            const isRowDrop = typeof dropData.linePosition !== 'number' && typeof dropData.targetIndex !== 'number';
+
+            if (isRowDrop && targetLine.length > 0) {
+                return;
+            }
+
             const targetIndex =
                 typeof dropData.targetIndex === 'number' ? dropData.targetIndex : targetLine.length;
 

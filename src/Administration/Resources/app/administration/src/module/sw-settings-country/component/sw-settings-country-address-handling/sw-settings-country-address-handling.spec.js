@@ -944,6 +944,23 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             dropData: {
                 index: 1,
+                snippet: [
+                    'address/first_name',
+                    'address/last_name',
+                ],
+            },
+        });
+
+        expect(addressHandlingWrapper.vm.snippetDragPreview).toBeNull();
+
+        await addressHandlingWrapper.vm.onSnippetDragEnter({
+            dragData: {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+            },
+            dropData: {
+                index: 1,
                 linePosition: 1,
                 snippet: 'address/last_name',
                 targetIndex: 1,

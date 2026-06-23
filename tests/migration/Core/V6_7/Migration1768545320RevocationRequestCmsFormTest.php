@@ -45,7 +45,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertSame('page', $cmsPageResult['type']);
         static::assertArrayHasKey('translations', $cmsPageResult);
         static::assertIsArray($cmsPageResult['translations']);
-        static::assertCount(2, $cmsPageResult['translations']);
+        $this->assertTranslationsForAllLanguages($cmsPageResult['translations']);
 
         $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
         static::assertArrayHasKey('id', $cmsSectionResult);
@@ -72,7 +72,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertSame('content', $cmsSlotResult['slot']);
         static::assertArrayHasKey('translations', $cmsSlotResult);
         static::assertIsArray($cmsSlotResult['translations']);
-        static::assertCount(2, $cmsSlotResult['translations']);
+        $this->assertTranslationsForAllLanguages($cmsSlotResult['translations']);
     }
 
     public function testUpdateDoesNotReuseBlockWithSameNameFromDifferentSection(): void
@@ -132,13 +132,13 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
             $migration->update($this->connection);
 
             $cmsPageResult = $this->getCmsPage();
-            static::assertCount(2, $cmsPageResult['translations']);
+            $this->assertTranslationsForAllLanguages($cmsPageResult['translations']);
 
             $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
             $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
             $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
 
-            static::assertCount(2, $cmsSlotResult['translations']);
+            $this->assertTranslationsForAllLanguages($cmsSlotResult['translations']);
         } finally {
             $this->connection->rollBack();
         }
@@ -161,6 +161,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
             $cmsPageResult = $this->getCmsPage();
             $pageTranslations = $cmsPageResult['translations'];
             static::assertIsArray($pageTranslations);
+            $this->assertTranslationsForAllLanguages($pageTranslations);
 
             $deChPageTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $pageTranslations);
             static::assertSame(Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['de_name'], $deChPageTranslation['name']);
@@ -176,6 +177,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
             $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
             $slotTranslations = $cmsSlotResult['translations'];
             static::assertIsArray($slotTranslations);
+            $this->assertTranslationsForAllLanguages($slotTranslations);
 
             $this->findTranslationByLanguageId($deChLanguageByteId, $slotTranslations);
             $this->findTranslationByLanguageId($enUsLanguageByteId, $slotTranslations);
@@ -372,6 +374,44 @@ SQL;
         }
 
         static::fail('Could not find translation for language ' . Uuid::fromBytesToHex($languageByteId));
+    }
+
+    /**
+     * @param array<array<string, mixed>> $translations
+     */
+    private function assertTranslationsForAllLanguages(array $translations): void
+    {
+        $expectedLanguageIds = $this->getLanguageHexIds();
+        $actualLanguageIds = [];
+
+        foreach ($translations as $translation) {
+            static::assertArrayHasKey('language_id', $translation);
+            static::assertIsString($translation['language_id']);
+
+            $actualLanguageIds[] = Uuid::fromBytesToHex($translation['language_id']);
+        }
+
+        \sort($expectedLanguageIds);
+        \sort($actualLanguageIds);
+
+        static::assertSame($expectedLanguageIds, $actualLanguageIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageHexIds(): array
+    {
+        $languageIds = $this->connection->fetchFirstColumn('SELECT `id` FROM `language`');
+        $languageHexIds = [];
+
+        foreach ($languageIds as $languageId) {
+            static::assertIsString($languageId);
+
+            $languageHexIds[] = Uuid::fromBytesToHex($languageId);
+        }
+
+        return $languageHexIds;
     }
 
     private function createLanguage(string $localeCode, ?string $translationCode = null): string

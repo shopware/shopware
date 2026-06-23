@@ -13,7 +13,6 @@ $sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-flyout-transition: 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-color-active: #172b4f;
 $sw-admin-menu-color-hover: #293f65;
-$sw-admin-menu-shop-status-ok: $color-emerald-500;
 $sw-admin-menu-background: #243758;
 $sw-admin-menu-background-hover: #293f65;
 $sw-admin-menu-divider: #344865;
@@ -150,8 +149,8 @@ $sw-admin-menu-active-text: $color-white;
         color: $sw-admin-menu-active-text;
         width: $sw-admin-menu-width-collapsed;
         transition: width $sw-admin-menu-transition;
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xs;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-xs);
         padding: 12px 30px;
         position: relative;
     }
@@ -214,11 +213,11 @@ $sw-admin-menu-active-text: $color-white;
         align-items: baseline;
         padding: 12px 30px;
         text-decoration: none;
-        font-size: $font-size-xs;
-        line-height: $line-height-md;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-m);
         cursor: pointer;
         position: relative;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         &:hover {
             color: #fff;
@@ -267,7 +266,7 @@ $sw-admin-menu-active-text: $color-white;
     .sw-admin-menu__sub-navigation-headline {
         color: $sw-admin-menu-color-text-primary;
         padding: 15px 30px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         font-weight: bold;
     }
 
@@ -276,8 +275,8 @@ $sw-admin-menu-active-text: $color-white;
         display: block;
         padding: 20px 32px;
         text-decoration: none;
-        font-size: $font-size-xs;
-        line-height: $line-height-md;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-m);
         width: 100%;
         cursor: pointer;
         white-space: nowrap;
@@ -365,15 +364,15 @@ $sw-admin-menu-active-text: $color-white;
 
     .sw-admin-menu__user-name {
         margin-top: 2px;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-bold;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
         color: $sw-admin-menu-active-text;
     }
 
     .sw-admin-menu__user-type {
-        color: $color-pumpkin-spice-500;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
+        color: var(--color-text-attention-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
         margin-top: 2px;
     }
 
@@ -397,8 +396,8 @@ $sw-admin-menu-active-text: $color-white;
     .sw-admin-menu__user-actions-label {
         @include truncate;
 
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xs;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-xs);
         padding: 0 30px;
         height: 48px;
         line-height: 48px;

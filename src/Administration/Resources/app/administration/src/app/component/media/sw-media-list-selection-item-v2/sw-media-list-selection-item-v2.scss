@@ -1,18 +1,14 @@
 @import "~scss/variables";
 
-$sw-media-list-selection-item-v2-color-white: $color-white;
-$sw-media-list-selection-item-v2-color-hover: $color-black;
-$sw-media-list-selection-item-v2-color-border: $color-gray-300;
 $sw-media-list-selection-item-v2-border-radius: $border-radius-default;
-$sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%);
 
 .sw-media-list-selection-item-v2 {
     position: relative;
     border-radius: $sw-media-list-selection-item-v2-border-radius;
-    border: 2px solid $sw-media-list-selection-item-v2-placeholder-color;
+    border: 2px solid var(--color-border-secondary-default);
 
     &.is--placeholder {
-        border: 2px dashed $sw-media-list-selection-item-v2-placeholder-color;
+        border: 2px dashed var(--color-border-secondary-default);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -44,7 +40,7 @@ $sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%)
     }
 
     &:hover {
-        background-color: $sw-media-list-selection-item-v2-color-hover;
+        background-color: var(--color-static-black);
 
         .sw-media-list-selection-item-v2__image {
             opacity: 0.7;
@@ -66,13 +62,13 @@ $sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%)
         visibility: hidden;
 
         .mt-icon {
-            color: $sw-media-list-selection-item-v2-color-white;
+            color: var(--color-static-white);
             height: 100%;
         }
     }
 
     .sw-media-list-selection-item-v2__placeholder-icon {
-        color: $sw-media-list-selection-item-v2-placeholder-color;
+        color: var(--color-icon-primary-default);
     }
 
     &.is--drag-element {

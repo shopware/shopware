@@ -201,6 +201,21 @@ export default Component.wrapComponentConfig({
         onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
             this.isDragging = true;
             dragElement.classList.add('sw-multi-snippet-drag-and-drop__label-drag-clone');
+            dragElement.style.display = 'inline-flex';
+            dragElement.style.opacity = '1';
+            dragElement.style.visibility = 'visible';
+
+            Array.from(dragElement.children).forEach((child) => {
+                (child as HTMLElement).style.opacity = '1';
+            });
+
+            const snippet = config.data?.snippet as unknown;
+
+            if (typeof snippet === 'string' && !dragElement.textContent?.trim()) {
+                const getLabelProperty = this.getLabelProperty as (value: string) => string;
+
+                dragElement.textContent = getLabelProperty(snippet);
+            }
 
             this.$emit('drag-start', { config, element, dragElement });
         },

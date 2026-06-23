@@ -102,7 +102,7 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertArrayHasKey('translations', $mailTemplateTypes[0]);
         $mailTemplateTypeTranslations = $mailTemplateTypes[0]['translations'];
 
-        static::assertCount(2, $mailTemplateTypeTranslations);
+        $this->assertTranslationsForAllLanguages($mailTemplateTypeTranslations);
 
         $enTypeTranslation = $this->findTranslationByLanguageId($enLanguageByteId, $mailTemplateTypeTranslations);
         static::assertArrayHasKey('name', $enTypeTranslation);
@@ -115,7 +115,7 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertCount(1, $mailTemplates);
         static::assertArrayHasKey('translations', $mailTemplates[0]);
         $mailTemplateTranslations = $mailTemplates[0]['translations'];
-        static::assertCount(2, $mailTemplateTranslations);
+        $this->assertTranslationsForAllLanguages($mailTemplateTranslations);
 
         $enMailTranslation = $this->findTranslationByLanguageId($enLanguageByteId, $mailTemplateTranslations);
         static::assertArrayHasKey('sender_name', $enMailTranslation);
@@ -183,6 +183,7 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertCount(1, $mailTemplates);
         static::assertArrayHasKey('translations', $mailTemplates[0]);
         $mailTemplateTranslations = $mailTemplates[0]['translations'];
+        $this->assertTranslationsForAllLanguages($mailTemplateTranslations);
 
         $enMailTranslation = $this->findTranslationByLanguageId($enLanguageByteId, $mailTemplateTranslations);
         static::assertArrayHasKey('sender_name', $enMailTranslation);
@@ -240,6 +241,8 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertCount(1, $mailTemplateTypes);
 
         $mailTemplateTypeTranslations = $mailTemplateTypes[0]['translations'];
+        $this->assertTranslationsForAllLanguages($mailTemplateTypeTranslations);
+
         $deChTypeTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $mailTemplateTypeTranslations);
         static::assertSame($mailTemplateType->getDeName(), $deChTypeTranslation['name']);
 
@@ -253,6 +256,8 @@ class CreateMailTemplateTraitTest extends TestCase
         static::assertCount(1, $mailTemplates);
 
         $mailTemplateTranslations = $mailTemplates[0]['translations'];
+        $this->assertTranslationsForAllLanguages($mailTemplateTranslations);
+
         $deChMailTranslation = $this->findTranslationByLanguageId($deChLanguageByteId, $mailTemplateTranslations);
         static::assertSame($mailTemplate->getDeSubject(), $deChMailTranslation['subject']);
         static::assertSame($mailTemplate->getDeHtml(), $deChMailTranslation['content_html']);
@@ -280,6 +285,44 @@ class CreateMailTemplateTraitTest extends TestCase
         }
 
         static::fail('Could not find translation for language ' . Uuid::fromBytesToHex($languageByteId));
+    }
+
+    /**
+     * @param array<array<string, mixed>> $translations
+     */
+    private function assertTranslationsForAllLanguages(array $translations): void
+    {
+        $expectedLanguageIds = $this->getLanguageHexIds();
+        $actualLanguageIds = [];
+
+        foreach ($translations as $translation) {
+            static::assertArrayHasKey('language_id', $translation);
+            static::assertIsString($translation['language_id']);
+
+            $actualLanguageIds[] = Uuid::fromBytesToHex($translation['language_id']);
+        }
+
+        \sort($expectedLanguageIds);
+        \sort($actualLanguageIds);
+
+        static::assertSame($expectedLanguageIds, $actualLanguageIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageHexIds(): array
+    {
+        $languageIds = $this->connection->fetchFirstColumn('SELECT `id` FROM `language`');
+        $languageHexIds = [];
+
+        foreach ($languageIds as $languageId) {
+            static::assertIsString($languageId);
+
+            $languageHexIds[] = Uuid::fromBytesToHex($languageId);
+        }
+
+        return $languageHexIds;
     }
 
     /**

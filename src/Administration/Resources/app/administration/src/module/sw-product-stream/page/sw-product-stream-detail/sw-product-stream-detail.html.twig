@@ -109,11 +109,31 @@
                 />
                 {% endblock %}
 
-                {% block sw_product_stream_detail_basic_info %}
-                <mt-card
-                    position-identifier="sw-product-stream-detail-basic-info"
-                    :large="true"
-                    :title="$t('sw-product-stream.detail.titleCard')"
+                {% block sw_product_basic_form_description_field %}
+                <mt-textarea
+                    v-model="productStream.description"
+                    v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                    name="sw-field--productStream-description"
+                    :label="$t('sw-product-stream.detail.labelDescription')"
+                    :placeholder="placeholder(productStream, 'description', $t('sw-product-stream.detail.placeholderDescription'))"
+                    :disabled="!acl.can('product_stream.editor')"
+                />
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_product_stream_detail_filter %}
+            <mt-card
+                :large="true"
+                position-identifier="sw-product-stream-detail-filter"
+                class="sw-product-stream-detail__condition_container"
+                :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
+                :title="$t('sw-product-stream.detail.titleFilter')"
+                :is-loading="isLoading"
+            >
+                <div
+                    v-if="!productStreamIndexingEnabled"
+                    class="sw-product-stream-detail__product-stream-warning"
                 >
                     {% block sw_product_basic_form_name_field %}
 

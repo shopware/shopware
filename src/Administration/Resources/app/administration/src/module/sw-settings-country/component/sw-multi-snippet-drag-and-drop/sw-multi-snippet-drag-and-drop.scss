@@ -175,8 +175,14 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         position: absolute;
     }
 
-    &.is--droppable.is--draggable.is--drag-element {
+    &.is--droppable.is--draggable.is--drag-element,
+    &.is--drag-element {
+        display: block;
         position: absolute;
+
+        > * {
+            opacity: 1;
+        }
     }
 
     .is--dragging {

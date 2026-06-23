@@ -8,6 +8,7 @@
     {% block sw_customer_imitate_customer_modal_alert %}
     <mt-banner
         v-if="hasSalesChannelDomains"
+        variant="attention"
     >
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
@@ -22,7 +23,7 @@
 
     <mt-banner
         v-else
-        variant="attention"
+        variant="info"
     >
         {{ $t('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
     </mt-banner>
@@ -38,39 +39,36 @@
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_body %}
-    <sw-container
+    <div
         v-if="hasSalesChannelDomains"
         class="imitate-customer-modal-container"
-        columns="1fr"
-        gap="8px 0px"
     >
         {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}
-        <sw-context-menu-item
+        <div
             v-for="salesChannelDomain of salesChannelDomains"
             :key="salesChannelDomain.id"
-            target="_blank"
+            class="imitate-customer-modal-item"
             @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)"
         >
+            <div class="imitate-customer-modal-item-content">
+                <div class="imitate-customer-modal-item-title">
+                    <div class="imitate-customer-modal-item-header">
+                        {{ salesChannelDomain.salesChannel.translated.name }}
+                    </div>
 
-            <div
-                class="imitate-customer-modal-item-content"
-                columns="1fr 1fr"
-                gap="10px 0px"
-            >
-                <div class="imitate-customer-modal-item-header">
-                    {{ salesChannelDomain.salesChannel.translated.name }}
+                    <div class="imitate-customer-modal-item-url">
+                        {{ salesChannelDomain.url }}
+                    </div>
                 </div>
-                <div class="imitate-customer-modal-item-url">
-                    {{ salesChannelDomain.url }}
-                </div>
+
                 <mt-icon
                     name="regular-external-link-s"
-                    size="16px"
+                    size="14px"
                 />
             </div>
-        </sw-context-menu-item>
+        </div>
         {% endblock %}
-    </sw-container>
+    </div>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_footer %}

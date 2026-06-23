@@ -146,7 +146,8 @@
         "action": "Learn more in our documentation"
       },
       "buttonOpenPreview": "Preview",
-      "productStatesFilterWarning": "This dynamic product group still uses the deprecated product states filter. It will be removed in v6.8 – please switch to the product type filter instead."
+      "deprecatedFilterWarning": "The filter \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+      "deprecatedFilterWarningNoReplacement": "The filter \"{label}\" is deprecated and will be removed in {version}."
     },
     "previewModal": {
       "title": "Preview",

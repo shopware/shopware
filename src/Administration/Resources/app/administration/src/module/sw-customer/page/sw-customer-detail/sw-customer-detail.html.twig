@@ -8,6 +8,7 @@
         <h2>
             {{ salutation(customer) }}
         </h2>
+
         <mt-badge
             v-if="customer?.createdById"
             class="sw-customer-detail__created-by-admin-label"
@@ -87,7 +88,10 @@
                     {% block sw_customer_detail_content_customer_group_registration_content %}
                     <div class="sw-customer-detail__customer-registration-alert-text">
                         {% block sw_customer_detail_content_customer_group_registration_message %}
-                        {{ $t('sw-customer.customerGroupRegistration.alert', {name: this.customer.requestedGroup.translated.name }, 0) }}
+                        <span>
+                            {{ $t('sw-customer.customerGroupRegistration.alert', {name: this.customer.requestedGroup.translated.name }, 0) }}
+                        </span>
+
                         <p
                             v-if="!customer.active"
                             class="sw-customer-detail__customer-registration-alert-hint"
@@ -96,11 +100,11 @@
                         </p>
                         {% endblock %}
                     </div>
+
                     <div class="sw-customer-detail__customer-registration-alert-actions">
                         {% block sw_customer_detail_content_customer_group_registration_actions %}
                         <mt-button
                             variant="critical"
-                            size="small"
                             @click="declineCustomerGroupRegistration"
                         >
                             {{ $t('sw-customer.customerGroupRegistration.decline') }}
@@ -108,7 +112,6 @@
 
                         <mt-button
                             variant="primary"
-                            size="small"
                             @click="acceptCustomerGroupRegistration"
                         >
                             {{ $t('sw-customer.customerGroupRegistration.accept') }}

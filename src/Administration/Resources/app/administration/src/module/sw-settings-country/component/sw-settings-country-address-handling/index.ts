@@ -59,6 +59,7 @@ const DefaultAddressFormat = [
     ],
     ['address/country'],
 ] as string[][];
+const PREVIEW_LOADING_HIDE_DELAY = 300 as number;
 
 /**
  * @sw-package fundamentals@discovery
@@ -582,9 +583,11 @@ export default Component.wrapComponentConfig({
                         this.formattingAddress = rendered;
                     })
                     .finally(() => {
-                        if (previewRenderToken === this.previewRenderToken) {
-                            this.isPreviewLoading = false;
-                        }
+                        window.setTimeout(() => {
+                            if (previewRenderToken === this.previewRenderToken) {
+                                this.isPreviewLoading = false;
+                            }
+                        }, PREVIEW_LOADING_HIDE_DELAY);
                     })
             );
         },

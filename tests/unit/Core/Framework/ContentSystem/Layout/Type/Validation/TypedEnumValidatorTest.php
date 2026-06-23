@@ -82,7 +82,7 @@ class TypedEnumValidatorTest extends TestCase
         ];
 
         yield 'enum on union type' => [
-            new PropertySpecificationDto('size', ['integer', 'object'], false, false, 'Size', 'Flexible size.', [1, 2], null, null),
+            new PropertySpecificationDto('size', ['integer', 'string'], false, false, 'Size', 'Flexible size.', [1, 2], null, null),
             'enum',
         ];
     }

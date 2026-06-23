@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
@@ -11,6 +12,9 @@ class ContentPreviewPayloadStore
 {
     private const CACHE_PREFIX = 'content-system.preview.';
 
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
     ) {
@@ -26,7 +30,7 @@ class ContentPreviewPayloadStore
         $item->set($payload);
         $item->expiresAfter(300);
         if ($this->cache->save($item) === false) {
-            throw new \RuntimeException('Could not store content preview payload.');
+            throw ContentSystemException::previewPayloadStoreFailed();
         }
 
         return $token;

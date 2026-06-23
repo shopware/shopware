@@ -93,7 +93,7 @@ class TypedDefaultValidatorTest extends TestCase
         ];
 
         yield 'default on union type' => [
-            new PropertySpecificationDto('size', ['integer', 'object'], false, false, 'Size', 'Flexible size.', null, 1, null),
+            new PropertySpecificationDto('size', ['integer', 'string'], false, false, 'Size', 'Flexible size.', null, 1, null),
             'default',
         ];
     }

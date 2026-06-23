@@ -16,10 +16,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @internal
+ */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class ContentSystemPreviewController extends StorefrontController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly ContentPreviewPayloadStore $payloadStore,
         private readonly ContentPreviewPageBuilder $previewPageBuilder,
@@ -58,7 +64,7 @@ class ContentSystemPreviewController extends StorefrontController
         ]);
 
         $frameAncestor = $this->resolveFrameAncestor($request);
-        $response->headers->set('Content-Security-Policy', \sprintf("frame-ancestors 'self' %s;", $frameAncestor));
+        $response->headers->set('Content-Security-Policy', \sprintf('frame-ancestors \'self\' %s;', $frameAncestor));
         // CoreSubscriber defaults to "deny" if this header is missing.
         // We set a non-enforcing value and control embedding via frame-ancestors CSP above.
         $response->headers->set(PlatformRequest::HEADER_FRAME_OPTIONS, 'ALLOWALL');

@@ -53,6 +53,7 @@ class ContentSystemException extends HttpException
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
+    public const PREVIEW_PAYLOAD_STORE_FAILED = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_STORE_FAILED';
 
     /**
      * Error codes that represent a defect in client-supplied layout input — a typo'd entity, an undecodable
@@ -495,6 +496,15 @@ class ContentSystemException extends HttpException
             self::CONTENT_LAYOUT_NOT_FOUND,
             'Content layout "{{ layoutId }}" was not found.',
             ['layoutId' => $layoutId]
+        );
+    }
+
+    public static function previewPayloadStoreFailed(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PREVIEW_PAYLOAD_STORE_FAILED,
+            'Could not store the content preview payload.'
         );
     }
 }

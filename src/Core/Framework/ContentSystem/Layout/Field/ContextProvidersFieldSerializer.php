@@ -167,8 +167,8 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
             new All([
                 new Collection(
                     fields: [
-                        'type' => [new NotBlank(), new Choice(ContextType::values())],
-                        'distribution' => [new NotBlank(), new Choice(DistributionStrategy::values())],
+                        'type' => [new NotBlank(), new Choice(choices: ContextType::values())],
+                        'distribution' => [new NotBlank(), new Choice(choices: DistributionStrategy::values())],
                     ],
                     allowExtraFields: true,
                     allowMissingFields: false

@@ -68,7 +68,7 @@ class TranslatableTypeValidatorTest extends TestCase
         ];
 
         yield 'translatable on union type' => [
-            new PropertySpecificationDto('label', ['string', 'object'], false, true, 'Label', 'A label.', null, null, null),
+            new PropertySpecificationDto('label', ['string', 'integer'], false, true, 'Label', 'A label.', null, null, null),
             'translatable',
         ];
     }

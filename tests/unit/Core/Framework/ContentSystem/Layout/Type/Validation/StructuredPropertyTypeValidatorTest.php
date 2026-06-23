@@ -92,7 +92,7 @@ class StructuredPropertyTypeValidatorTest extends TestCase
     public static function rejectsInvalidSpecificationProvider(): iterable
     {
         yield 'empty type list' => [
-            new PropertySpecificationDto('columns', [], false, false, 'Columns', 'Columns.', null, null, null), // @phpstan-ignore argument.type (intentionally invalid)
+            new PropertySpecificationDto('columns', [], false, false, 'Columns', 'Columns.', null, null, null),
             'type',
         ];
 

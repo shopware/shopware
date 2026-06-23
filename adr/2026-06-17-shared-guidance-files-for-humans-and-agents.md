@@ -33,6 +33,7 @@ We need a documentation model that:
 ## Initial Skills
 
 - `shopware-knowledge-capture` for saving durable knowledge and routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
+  This skill codifies the placement rules from this ADR so agents can reuse the decision model when users ask to preserve knowledge for later.
 - `shopware-change-scope` for root-cause analysis, boyscouting, and cleanup scope.
 - `shopware-release-docs` for release notes, upgrade notes, and developer-facing changelog decisions.
 - `shopware-pr-hygiene` for PR templates, conventional titles, and review follow-up commits.

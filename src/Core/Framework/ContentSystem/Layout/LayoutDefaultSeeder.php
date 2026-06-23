@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaults;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,20 +17,19 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Handles both shapes the layout field serializer carries: hydrated {@see ContentElement} objects (seeded in place)
  * and raw element arrays (Admin / Sync JSON, which the serializer does not recurse). Shares the per-type rule with
- * the layout mutations via {@see PrimitiveDefaults}.
+ * the layout mutations via {@see PrimitiveDefaultProvider}.
  *
  * @internal
  *
  * @final
  */
 #[Package('framework')]
-class LayoutDefaultMaterializer
+class LayoutDefaultSeeder
 {
-    private readonly PrimitiveDefaults $primitiveDefaults;
-
-    public function __construct(private readonly AbstractContentSystemElementTypeRegistry $registry)
-    {
-        $this->primitiveDefaults = new PrimitiveDefaults();
+    public function __construct(
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
+        private readonly PrimitiveDefaultProvider $primitiveDefaultProvider,
+    ) {
     }
 
     /**
@@ -38,7 +37,7 @@ class LayoutDefaultMaterializer
      *
      * @return list<mixed>
      */
-    public function materialize(array $forest): array
+    public function seed(array $forest): array
     {
         $seeded = [];
 
@@ -121,6 +120,6 @@ class LayoutDefaultMaterializer
             return [];
         }
 
-        return $this->primitiveDefaults->forType($this->registry, $component);
+        return $this->primitiveDefaultProvider->forType($this->registry, $component);
     }
 }

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -34,7 +34,7 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
         private readonly ContentElementFieldSerializer $contentElementSerializer,
-        private readonly LayoutDefaultMaterializer $defaultMaterializer
+        private readonly LayoutDefaultSeeder $defaultSeeder
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -57,7 +57,7 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
             return $data;
         }
 
-        $data[$key] = $this->defaultMaterializer->materialize($value);
+        $data[$key] = $this->defaultSeeder->seed($value);
 
         return $data;
     }

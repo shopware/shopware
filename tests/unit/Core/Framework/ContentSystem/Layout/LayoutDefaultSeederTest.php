@@ -8,7 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -16,15 +17,15 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 /**
  * @internal
  */
-#[CoversClass(LayoutDefaultMaterializer::class)]
-class LayoutDefaultMaterializerTest extends TestCase
+#[CoversClass(LayoutDefaultSeeder::class)]
+class LayoutDefaultSeederTest extends TestCase
 {
     #[TestDox('seeds a missing primitive default and ignores reference properties on a content element')]
     public function testSeedsPrimitiveDefaultIgnoringReferences(): void
     {
         $element = new ContentElement('el', 'Sw:Block');
 
-        $this->materializer()->materialize([$element]);
+        $this->seeder()->seed([$element]);
 
         static::assertSame(['headline' => 'Default headline'], $element->getProperties());
     }
@@ -34,7 +35,7 @@ class LayoutDefaultMaterializerTest extends TestCase
     {
         $element = new ContentElement('el', 'Sw:Block', [], ['headline' => 'Authored']);
 
-        $this->materializer()->materialize([$element]);
+        $this->seeder()->seed([$element]);
 
         static::assertSame('Authored', $element->getProperty('headline'));
     }
@@ -45,7 +46,7 @@ class LayoutDefaultMaterializerTest extends TestCase
         $child = new ContentElement('child', 'Sw:Block');
         $root = new ContentElement('root', 'Sw:Block', [], [], ['content' => new SlotContent([$child])]);
 
-        $this->materializer()->materialize([$root]);
+        $this->seeder()->seed([$root]);
 
         static::assertSame('Default headline', $child->getProperty('headline'));
     }
@@ -55,7 +56,7 @@ class LayoutDefaultMaterializerTest extends TestCase
     {
         $element = new ContentElement('el', 'Sw:Unregistered');
 
-        $this->materializer()->materialize([$element]);
+        $this->seeder()->seed([$element]);
 
         static::assertSame([], $element->getProperties());
     }
@@ -85,10 +86,10 @@ class LayoutDefaultMaterializerTest extends TestCase
             ],
         ]];
 
-        static::assertSame($expected, $this->materializer()->materialize($forest));
+        static::assertSame($expected, $this->seeder()->seed($forest));
     }
 
-    private function materializer(): LayoutDefaultMaterializer
+    private function seeder(): LayoutDefaultSeeder
     {
         $specs = [
             'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')
@@ -101,6 +102,6 @@ class LayoutDefaultMaterializerTest extends TestCase
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
-        return new LayoutDefaultMaterializer($registry);
+        return new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider());
     }
 }

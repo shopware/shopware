@@ -11,7 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -45,7 +46,7 @@ class ContentElementListFieldSerializerTest extends TestCase
      */
     private ContentElementFieldSerializer $elementSerializer;
 
-    private LayoutDefaultMaterializer $defaultMaterializer;
+    private LayoutDefaultSeeder $defaultSeeder;
 
     private EntityExistence $existence;
 
@@ -60,11 +61,11 @@ class ContentElementListFieldSerializerTest extends TestCase
         // buildConstraints must return at least one valid constraint so that new All([...]) does not throw
         $this->elementSerializer->method('buildConstraints')->willReturn([new Type('array')]);
 
-        // The encode/decode/constraint tests never call normalize, so a stub materializer suffices here; the
-        // normalize tests below build a serializer with a real materializer.
-        $this->defaultMaterializer = static::createStub(LayoutDefaultMaterializer::class);
+        // The encode/decode/constraint tests never call normalize, so a stub seeder suffices here; the
+        // normalize tests below build a serializer with a real seeder.
+        $this->defaultSeeder = static::createStub(LayoutDefaultSeeder::class);
 
-        $this->serializer = new ContentElementListFieldSerializer($validator, $definitionRegistry, $this->elementSerializer, $this->defaultMaterializer);
+        $this->serializer = new ContentElementListFieldSerializer($validator, $definitionRegistry, $this->elementSerializer, $this->defaultSeeder);
 
         // Passthrough validator never raises violations — used when encoding ContentElement objects
         // (the Type('array') constraint would otherwise reject them before serializer conversion)
@@ -75,7 +76,7 @@ class ContentElementListFieldSerializerTest extends TestCase
             $passthroughValidator,
             $definitionRegistry,
             $this->elementSerializer,
-            $this->defaultMaterializer
+            $this->defaultSeeder
         );
 
         $this->existence = new EntityExistence('content_layout', ['id' => 'test'], true, false, false, []);
@@ -88,7 +89,7 @@ class ContentElementListFieldSerializerTest extends TestCase
         $field = $this->createContentElementListField();
         $data = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
 
-        $result = $this->serializerWithRealMaterializer()->normalize($field, $data, $this->parameters);
+        $result = $this->serializerWithRealSeeder()->normalize($field, $data, $this->parameters);
 
         static::assertSame([['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Hi']]], $result['elements']);
     }
@@ -99,7 +100,7 @@ class ContentElementListFieldSerializerTest extends TestCase
         $field = $this->createContentElementListField();
         $element = new ContentElement('el', 'Sw:Block');
 
-        $result = $this->serializerWithRealMaterializer()->normalize($field, ['elements' => $element], $this->parameters);
+        $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => $element], $this->parameters);
 
         static::assertSame([$element], $result['elements']);
         static::assertSame('Hi', $element->getProperty('headline'));
@@ -110,7 +111,7 @@ class ContentElementListFieldSerializerTest extends TestCase
     {
         $field = $this->createContentElementListField();
 
-        $result = $this->serializerWithRealMaterializer()->normalize($field, ['elements' => 'not-a-list'], $this->parameters);
+        $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => 'not-a-list'], $this->parameters);
 
         static::assertSame(['elements' => 'not-a-list'], $result);
     }
@@ -397,7 +398,7 @@ class ContentElementListFieldSerializerTest extends TestCase
         return $field;
     }
 
-    private function serializerWithRealMaterializer(): ContentElementListFieldSerializer
+    private function serializerWithRealSeeder(): ContentElementListFieldSerializer
     {
         $specs = ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->primitive('headline', 'string', default: 'Hi')->build()];
 
@@ -409,7 +410,7 @@ class ContentElementListFieldSerializerTest extends TestCase
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer,
-            new LayoutDefaultMaterializer($registry),
+            new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()),
         );
     }
 

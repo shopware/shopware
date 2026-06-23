@@ -19,21 +19,21 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
  * @internal
  */
 #[Package('framework')]
-class ContentLayoutDefaultMaterializationTest extends TestCase
+class ContentLayoutDefaultSeedingTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    #[TestDox('materializes a type primitive default into a content layout written by a plain DAL create, so the stored tree is resolvable')]
-    public function testPlainDalCreateMaterializesPrimitiveDefaults(): void
+    #[TestDox('seeds a type primitive default into a content layout written by a plain DAL create, so the stored tree is resolvable')]
+    public function testPlainDalCreateSeedsPrimitiveDefaults(): void
     {
         $context = Context::createDefaultContext();
         $id = Uuid::randomHex();
 
         // A plain DAL create with the raw-array payload the Admin / Sync API and fixtures build, bypassing the
-        // mutation ops: the element carries no headline, so only the write-boundary materializer can seed it.
+        // mutation ops: the element carries no headline, so only the write-boundary seeder can seed it.
         $this->repository()->create([[
             'id' => $id,
-            'name' => 'materializer-test',
+            'name' => 'seeder-test',
             'version' => '1.0.0',
             'layout' => [['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE, 'properties' => []]],
         ]], $context);

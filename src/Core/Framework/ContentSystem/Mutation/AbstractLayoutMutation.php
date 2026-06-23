@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaults;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,6 +40,8 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      * @var array<string, mixed>
      */
     protected array $droppedProperties = [];
+
+    private ?PrimitiveDefaultProvider $primitiveDefaultProvider = null;
 
     public function affected(): array
     {
@@ -217,14 +219,15 @@ abstract class AbstractLayoutMutation implements LayoutMutation
 
     /**
      * The type's primitive property defaults to seed into a stored element, keyed by property key. The single rule
-     * lives in {@see PrimitiveDefaults}, shared with the write-boundary materializer so a type's defaults are
-     * defined once.
+     * lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary seeder so a type's defaults are
+     * defined once. The provider is stateless; a mutation is not a DI service, so it is instantiated once per
+     * mutation instance and memoized rather than injected.
      *
      * @return array<string, string|int|float|bool>
      */
     protected function primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
     {
-        return (new PrimitiveDefaults())->forType($registry, $type);
+        return ($this->primitiveDefaultProvider ??= new PrimitiveDefaultProvider())->forType($registry, $type);
     }
 
     protected function requireRegistered(AbstractContentSystemElementTypeRegistry $registry, string $type): void

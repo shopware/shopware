@@ -91,13 +91,16 @@
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <!-- Write-boundary default seeding (materializes type primitive defaults into every DAL write of the layout field) -->
-        <service id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultMaterializer">
+        <!-- Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider"/>
         </service>
 
         <!-- Content Data Loaders -->

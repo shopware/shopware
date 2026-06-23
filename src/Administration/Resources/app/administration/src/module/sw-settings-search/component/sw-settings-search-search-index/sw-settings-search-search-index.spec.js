@@ -170,10 +170,12 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         });
         await wrapper.vm.updateProgress();
 
-        expect(wrapper.vm.isRebuildSuccess).toBeTruthy();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.index.success',
         });
+
+        expect(wrapper.vm.isRebuildInProgress).toBe(false);
+        expect(wrapper.vm.progressBarValue).toBe(0);
     });
 
     it('should return early and not set latestIndex when result.total === 0', async () => {

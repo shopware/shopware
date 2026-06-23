@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Picks the secret an outgoing webhook is signed with, at the moment it is sent.
@@ -20,8 +21,17 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
  * @internal
  */
 #[Package('framework')]
-class WebhookSigningSecretResolver
+class WebhookSigningSecretResolver implements ResetInterface
 {
+    /**
+     * Per-run cache, keyed by app id, of the secret looked up from the database. Cleared between
+     * worker messages / requests via reset(), so delivering a batch of webhooks for the same app
+     * does not query the secret once per message, while a later rotation is still picked up.
+     *
+     * @var array<string, ?string>
+     */
+    private array $appSecrets = [];
+
     /**
      * @param EntityRepository<AppCollection> $appRepository
      */
@@ -33,14 +43,22 @@ class WebhookSigningSecretResolver
 
     public function resolve(WebhookEventMessage $message): ?string
     {
-        if ($message->getAppId() === null) {
+        $appId = $message->getAppId();
+        if ($appId === null) {
             return $message->getSecret();
         }
 
-        return $this->currentSecret($message->getAppId())
-            ?? $this->deletedAppSecret($message->getAppName())
-            // Older queued messages still carry the secret; use it until the queue has drained.
-            ?? $message->getSecret();
+        if (!\array_key_exists($appId, $this->appSecrets)) {
+            $this->appSecrets[$appId] = $this->currentSecret($appId) ?? $this->deletedAppSecret($message->getAppName());
+        }
+
+        // Older queued messages still carry the secret; use it until the queue has drained.
+        return $this->appSecrets[$appId] ?? $message->getSecret();
+    }
+
+    public function reset(): void
+    {
+        $this->appSecrets = [];
     }
 
     private function currentSecret(string $appId): ?string

@@ -75,6 +75,25 @@ class WebhookSigningSecretResolverTest extends TestCase
         );
     }
 
+    public function testMemoizesTheSecretPerRunAndResetLooksItUpAgain(): void
+    {
+        $appId = Uuid::randomHex();
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection([$this->app($appId, 'first')]),
+            new AppCollection([$this->app($appId, 'second')]),
+        ]);
+        $resolver = new WebhookSigningSecretResolver($appRepository, $this->deletedAppsGateway(false));
+        $message = $this->message($appId, carried: 'carried-secret', appName: 'TestApp');
+
+        static::assertSame('first', $resolver->resolve($message));
+        static::assertSame('first', $resolver->resolve($message), 'repeat lookups are served from the per-run cache');
+
+        $resolver->reset();
+
+        static::assertSame('second', $resolver->resolve($message), 'after reset the secret is looked up again');
+    }
+
     /**
      * @return StaticEntityRepository<AppCollection>
      */

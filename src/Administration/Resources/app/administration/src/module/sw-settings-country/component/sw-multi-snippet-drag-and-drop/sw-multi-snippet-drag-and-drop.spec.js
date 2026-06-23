@@ -12,7 +12,13 @@ async function createWrapper(customPropsData = {}) {
             global: {
                 directives: {
                     tooltip: {},
-                    droppable: {},
+                    droppable: {
+                        mounted(el, binding) {
+                            if (typeof binding.value?.data?.targetIndex === 'number') {
+                                el.dataset.dropTargetIndex = String(binding.value.data.targetIndex);
+                            }
+                        },
+                    },
                     draggable: {},
                 },
                 stubs: {
@@ -164,7 +170,10 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         const wrapper = await createWrapper({ isSnippetDragging: true });
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-selection-list__input-wrapper .sw-select-selection-list__input').exists()).toBe(true);
+        const inputWrapper = wrapper.find('.sw-select-selection-list__input-wrapper');
+
+        expect(inputWrapper.find('.sw-select-selection-list__input').exists()).toBe(true);
+        expect(inputWrapper.attributes('data-drop-target-index')).toBe('3');
         expect(wrapper.classes()).toContain('is--dragging-snippet');
     });
 

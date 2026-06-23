@@ -20,7 +20,6 @@ use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 
@@ -133,9 +132,7 @@ class AppContextGatewayPayloadServiceTest extends TestCase
             static::fail('Expected malformed context gateway JSON to be wrapped.');
         } catch (AppException $e) {
             static::assertSame(AppException::APP_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
-            $previous = $e->getPrevious();
-            static::assertInstanceOf(JsonDecodingException::class, $previous);
-            static::assertInstanceOf(\JsonException::class, $previous->getPrevious());
+            static::assertNull($e->getPrevious());
         }
     }
 

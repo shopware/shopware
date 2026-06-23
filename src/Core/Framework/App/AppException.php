@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
@@ -463,14 +464,14 @@ class AppException extends HttpException
         );
     }
 
-    public static function gatewayRequestFailed(string $appName, string $gateway, ?\Throwable $previous = null): self
+    public static function gatewayRequestFailed(string $appName, string $gateway, ?RequestException $requestException = null): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::APP_GATEWAY_REQUEST_FAILED,
             'Request from app "{{ appName }}" to gateway "{{ gateway }}" failed.',
             ['appName' => $appName, 'gateway' => $gateway],
-            $previous
+            $requestException
         );
     }
 

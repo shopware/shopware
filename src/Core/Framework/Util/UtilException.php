@@ -28,7 +28,7 @@ class UtilException extends HttpException
     public const BASE64_DECODING_FAILED = 'UTIL__BASE64_DECODING_FAILED';
     public const DB_TABLE_HELPER_EXCEPTION = 'UTIL__DB_TABLE_HELPER_EXCEPTION';
 
-    public static function invalidJson(\JsonException $e): JsonDecodingException
+    public static function invalidJson(\JsonException $e): self
     {
         return new JsonDecodingException(
             Response::HTTP_BAD_REQUEST,
@@ -39,7 +39,7 @@ class UtilException extends HttpException
         );
     }
 
-    public static function invalidJsonNotList(): JsonDecodingException
+    public static function invalidJsonNotList(): self
     {
         return new JsonDecodingException(
             Response::HTTP_BAD_REQUEST,

@@ -162,7 +162,7 @@ class PaymentPayloadServiceTest extends TestCase
         static::assertSame('foo', $response->getErrorMessage());
     }
 
-    public function testRequestWrapsNetworkException(): void
+    public function testRequestRethrowsNetworkException(): void
     {
         $payload = $this->createMock(PaymentPayloadInterface::class);
         $app = new AppEntity();
@@ -183,19 +183,15 @@ class PaymentPayloadServiceTest extends TestCase
             ->method('request')
             ->willThrowException($exception);
 
-        try {
-            $this->service->request(
-                'http://example.com',
-                $payload,
-                $app,
-                PaymentResponse::class,
-                $context,
-            );
-            static::fail('Expected payment gateway network failures to be wrapped.');
-        } catch (AppException $e) {
-            static::assertSame(AppException::APP_PAYMENT_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
-            static::assertSame($exception, $e->getPrevious());
-        }
+        $this->expectExceptionObject($exception);
+
+        $this->service->request(
+            'http://example.com',
+            $payload,
+            $app,
+            PaymentResponse::class,
+            $context,
+        );
     }
 
     public function testRequestWrapsMalformedJson(): void

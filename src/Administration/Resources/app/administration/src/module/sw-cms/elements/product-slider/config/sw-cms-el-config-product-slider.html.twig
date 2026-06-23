@@ -188,17 +188,23 @@
                             :disabled="isInherited"
                             @update:entity-collection="onProductsChange"
                         >
+                            {% block sw_cms_element_product_slider_config_content_products_selection_label %}
                             <template #selection-label-property="{ item }">
                                 <sw-product-variant-info :variations="item.variation">
                                     {{ item.translated.name || item.name }}
                                 </sw-product-variant-info>
                             </template>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_slider_config_content_products_select_result_item %}
                             <template #result-item="{ item, index }">
                                 <slot
                                     name="result-item"
                                     v-bind="{ item, index }"
                                 >
                                     <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
+                                        {% block sw_cms_element_product_slider_config_content_products_select_result_item_inner %}
+                                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_product_slider_config_content_products_select_result_item_inner` instead. #}
                                         {% block sw_entity_single_select_base_results_list_result_label %}
                                         <span class="sw-select-result__result-item-text">
                                             <sw-product-variant-info :variations="item.variation">
@@ -206,13 +212,14 @@
                                             </sw-product-variant-info>
                                         </span>
                                         {% endblock %}
+                                        {% endblock %}
                                     </sw-select-result>
                                 </slot>
                             </template>
+                            {% endblock %}
                         </sw-entity-multi-select>
                     </template>
                 </sw-cms-inherit-wrapper>
-
                 {% endblock %}
             </sw-container>
             {% endblock %}

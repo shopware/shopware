@@ -352,7 +352,7 @@ class SalesChannelProxyControllerTest extends TestCase
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertArrayHasKey('permissions', $payload);
-        static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
+        static::assertEquals(\array_fill_keys($permissions, true), $payload['permissions']);
     }
 
     public function testModifyShippingCostsWithoutChannelId(): void

@@ -1,0 +1,167 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentElement": {
+                "title": "Content element",
+                "type": "object",
+                "description": "A single node in a content layout tree. The same shape is accepted on input (the request `layout` and the attach `element`) and returned on output (the response `layout` and `orphaned`), serialized by `ContentElementFieldSerializer`. Nodes nest recursively through `slots`. On input, only `id` and `component` are mandatory; the remaining members default to empty. Optional members are omitted entirely from a response when empty rather than serialized as an empty container.",
+                "required": ["id", "component"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Element identifier, a 32-character lowercase hexadecimal string. Element ids are unique across every root of a layout. The mutation operations mint fresh ids server-side (for example `attach-element` re-mints every id in the spliced subtree); the minted ids are reported in the response `affectedElementIds`.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    },
+                    "component": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The registered element type this node is an instance of (the serialized `component` key). The set of valid values is registry-driven (core, plugins, and apps register types), so it is intentionally not enumerated here. Fetch the live list from `GET /api/_info/content-system-element-types.json` (the `name` of each entry).",
+                        "example": "shopware/product-heading"
+                    },
+                    "properties": {
+                        "type": "object",
+                        "description": "Static and configured property values keyed by property name, as declared by the element type. FQCN-typed (hydrated) properties are not present here; they are described by `data_requirements` and `accepts_context` and materialized only at render time. Defaults to `{}` when omitted on input; always present on output.",
+                        "additionalProperties": true,
+                        "example": { "tag": "h1" }
+                    },
+                    "data_requirements": {
+                        "type": "object",
+                        "description": "External data this element loads, keyed by the requirement key (which is also the property key the loaded value is written into). Omitted when the element has no data requirements.",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ContentElementDataRequirement"
+                        }
+                    },
+                    "slots": {
+                        "type": "object",
+                        "description": "Child element subtrees keyed by slot name. Each slot holds an ordered list of child elements, making the layout a recursive tree. Omitted when the element has no slots.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/ContentElement"
+                            }
+                        }
+                    },
+                    "provides_context": {
+                        "type": "object",
+                        "description": "Context this element exposes to its descendants, keyed by context key. Omitted when the element provides no context.",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ContentElementContextProvider"
+                        }
+                    },
+                    "accepts_context": {
+                        "type": "object",
+                        "description": "Context this element receives from its ancestors, keyed by context key. Omitted when the element consumes no context.",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ContentElementContextConsumer"
+                        }
+                    }
+                },
+                "example": {
+                    "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                    "component": "shopware/container",
+                    "properties": { "layout": "full-width" },
+                    "slots": {
+                        "content": [
+                            {
+                                "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                "component": "shopware/product-heading",
+                                "properties": { "tag": "h1" }
+                            }
+                        ]
+                    }
+                }
+            },
+            "ContentElementDataRequirement": {
+                "title": "Content element data requirement",
+                "type": "object",
+                "description": "One external data source bound to an element. The hydrator fetches the value through the named `source` loader using `config`, then writes the result into the element property named by the requirement key.",
+                "required": ["key", "source", "config"],
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "The requirement key, which is also the element property the loaded value is written into.",
+                        "example": "product"
+                    },
+                    "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The data loader source. The valid values are registry-driven; fetch the live list from `GET /api/_info/content-system-data-loader-types.json` (the keys of `sources`).",
+                        "example": "entity"
+                    },
+                    "config": {
+                        "type": "object",
+                        "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configTemplate` and `requiredConfigKeys`.",
+                        "additionalProperties": true,
+                        "example": { "entity": "product", "property": "product_id" }
+                    }
+                }
+            },
+            "ContentElementContextProvider": {
+                "title": "Content element context provider",
+                "type": "object",
+                "description": "Declares a context value an element exposes to its descendants and how that value is distributed to consumers. Distribution-specific members are present according to `distribution`.",
+                "required": ["type", "distribution"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["single", "collection"],
+                        "description": "Whether the provided context is a single value or a collection."
+                    },
+                    "distribution": {
+                        "type": "string",
+                        "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator"],
+                        "description": "How the provider's value is split across its consumers. `broadcast` gives every consumer the same value; `indexed` is position-based; `keyed` matches a consumer property against the provider data keys; `sliced` chunks a collection; `iterator` distributes round-robin."
+                    },
+                    "consumer_alias": {
+                        "type": ["string", "null"],
+                        "description": "Optional key under which the context is re-exposed to consumers. `null` keeps the provider's own context key."
+                    },
+                    "key_property": {
+                        "type": "string",
+                        "description": "Present only when `distribution` is `keyed`: the consumer property whose value selects the matching entry from the provider data.",
+                        "example": "data_key"
+                    },
+                    "slice_size": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Present only when `distribution` is `sliced`: the number of items handed to each consumer."
+                    }
+                }
+            },
+            "ContentElementContextConsumer": {
+                "title": "Content element context consumer",
+                "type": "object",
+                "description": "Declares a context value an element receives from its ancestors. The received value is written into the element property named by the context key (or `property_alias` when set).",
+                "required": ["type", "required"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["single", "collection"],
+                        "description": "Whether a single value or a collection is consumed."
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "description": "Whether the context must resolve. A required, unresolved context surfaces as an `unresolved_required` diagnostics violation."
+                    },
+                    "redistribute": {
+                        "type": "boolean",
+                        "description": "Present only when `true`: re-broadcasts the received context to this element's own descendants. Required for `consumer_alias` to take effect.",
+                        "example": true
+                    },
+                    "consumer_alias": {
+                        "type": ["string", "null"],
+                        "description": "Optional key under which the received context is re-exposed when `redistribute` is `true`."
+                    },
+                    "property_alias": {
+                        "type": ["string", "null"],
+                        "description": "Optional element property name the received value is stored under, instead of the context key. Must not contain a dot."
+                    }
+                }
+            }
+        }
+    }
+}

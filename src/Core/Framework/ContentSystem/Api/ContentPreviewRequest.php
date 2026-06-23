@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class ContentPreviewRequest
+final class ContentPreviewRequest
 {
     /**
      * @param array<int|string, mixed> $layout

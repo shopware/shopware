@@ -91,7 +91,16 @@
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder"/>
             <tag name="shopware.field_serializer"/>
+        </service>
+
+        <!-- Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider"/>
         </service>
 
         <!-- Content Data Loaders -->
@@ -342,6 +351,11 @@
             <argument type="tagged_locator" tag="content_system.specification_source" index-by="section"/>
         </service>
 
+        <!-- Shared draft-layout decode (structural gate) for the preview, diagnose and mutation routes -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+        </service>
+
         <!-- Layout Validation -->
         <service id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
@@ -349,15 +363,15 @@
 
         <!-- Resolve-and-diagnose Action (Admin API) -->
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\ContentPipeline"/>
         </service>
@@ -371,6 +385,37 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore"/>
+        </service>
+
+        <!-- Mutation Pipeline -->
+        <service id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
+        </service>
+
+        <!-- Layout Mutation Actions (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+        </service>
+
+        <!-- Persisted Layout Mutation (load by id, mutate, commit through the gates) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator">
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="content_layout.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
+        </service>
+
+        <!-- Persisted Layout Mutation Actions (Admin API) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
         </service>
     </services>
 </container>

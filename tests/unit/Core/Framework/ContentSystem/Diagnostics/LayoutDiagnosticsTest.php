@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Diagnostics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -67,6 +69,54 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, $rootContext)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('treats a required primitive carrying an authored value and no default as resolvable')]
+    public function testRequiredPrimitiveWithAuthoredValueResolves(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', [], ['headline' => 'Authored headline'])];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('diagnoses a replacement that stored its new type primitive default as resolvable')]
+    public function testReplacementWithSeededDefaultIsDiagnosedResolvable(): void
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
+
+        // ReplaceElement seeds the new type's default (covered in ReplaceElementTest); here we assert only that the
+        // strict primitive rule credits the resulting stored value, so the replaced tree diagnoses as resolvable.
+        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New'))->apply([new ContentElement('el', 'Sw:Old')]);
+
+        static::assertSame([], $this->diagnostics($specs)->analyze($replaced, [])->report->bindingErrors());
+    }
+
+    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
+    public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
+    {
+        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$root], $rootContext)->report;
 
         static::assertSame([], $report->bindingErrors());
     }
@@ -175,12 +225,36 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    #[TestDox('produces an unresolved_required binding error for a required primitive without a default')]
-    public function testRequiredPrimitiveWithoutDefault(): void
+    /**
+     * @param array<string, mixed> $properties
+     */
+    #[DataProvider('unresolvedRequiredPrimitiveProvider')]
+    #[TestDox('produces an unresolved_required binding error for a required primitive without a default and no usable value')]
+    public function testRequiredPrimitiveWithoutValueIsUnresolved(array $properties): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', [], $properties)];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unresolvedRequiredPrimitiveProvider(): iterable
+    {
+        yield 'no stored value' => [[]];
+        yield 'stored explicit null counts as no value' => [['headline' => null]];
+    }
+
+    #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
+    public function testRequiredPrimitiveWithDefaultButNoValueIsUnresolved(): void
     {
         $tree = [new ContentElement('el-1', 'Sw:Block')];
 
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Default headline')->build()])
             ->analyze($tree, [])->report;
 
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
@@ -227,31 +301,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('level-3', $error->elementId);
     }
 
-    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
-    public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
-    {
-        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
-            ->withConsumer('product', ContextType::Single, redistribute: true)
-            ->withSlot('content', [$level2])
-            ->build();
-
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
-            ->analyze([$root], $rootContext)->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
     #[TestDox('flags a descendant requiring a declared provider whose own property does not resolve on the providing element as broken_required_chain')]
     public function testUnbackedDeclaredProviderBreaksDescendantChain(): void
     {
@@ -293,15 +342,25 @@ class LayoutDiagnosticsTest extends TestCase
     /**
      * @param array<string, ContentSystemElementTypeSpecification> $specs
      */
+    private function registry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
     private function diagnostics(
         array $specs,
         ?ContentSystemDataLoaderTypeMap $map = null,
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
     ): LayoutDiagnostics {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
-        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+        $registry = $this->registry($specs);
 
         $typeResolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $typeResolver->method('resolve')->willReturn($map ?? new ContentSystemDataLoaderTypeMap([]));

@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * invalid_config violation, {@see LayoutBindingChecker} skips to the committed-store fallback).
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class LayoutTreeDecoder

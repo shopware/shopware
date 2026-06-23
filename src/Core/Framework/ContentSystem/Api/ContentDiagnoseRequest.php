@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-class ContentDiagnoseRequest
+final class ContentDiagnoseRequest
 {
     /**
      * @param array<int|string, mixed> $layout

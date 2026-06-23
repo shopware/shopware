@@ -1,0 +1,44 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "ContentLayoutVersionConflict": {
+                "description": "Conflict. The supplied optimistic-concurrency token (`expectedVersion`) no longer matches the stored layout's current version, so the layout was modified concurrently. Nothing was written. Reload the layout, take the `updatedAt` the read returned, and retry.",
+                "content": {
+                    "application/vnd.api+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/failure"
+                        },
+                        "example": {
+                            "errors": [
+                                {
+                                    "status": "409",
+                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                    "title": "Conflict",
+                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                }
+                            ]
+                        }
+                    },
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/failure"
+                        },
+                        "example": {
+                            "errors": [
+                                {
+                                    "status": "409",
+                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                    "title": "Conflict",
+                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
@@ -15,10 +16,13 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
+use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -67,23 +71,59 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('resolves the source binding from the entityType field')]
+    #[TestDox('threads the entityType source root context into the diagnostics analysis')]
     public function testDiagnoseResolvesEntityTypeSource(): void
     {
-        $source = static::createMock(AbstractSpecificationSource::class);
-        $source->expects($this->once())->method('providedRootContext')->willReturn([]);
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: ContentElement::class,
+            contextType: ContextType::Single,
+            providerElementId: null,
+            distribution: DistributionStrategy::Broadcast,
+        )];
 
-        $sourceLocator = static::createMock(SpecificationSourceLocator::class);
-        $sourceLocator->expects($this->once())->method('resolveByEntityType')->with('product')->willReturn($source);
+        $source = static::createStub(AbstractSpecificationSource::class);
+        $source->method('providedRootContext')->willReturn($rootContext);
+
+        $sourceLocator = static::createStub(SpecificationSourceLocator::class);
+        $sourceLocator->method('resolveByEntityType')->willReturn($source);
+
+        $threadedRootContext = false;
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnCallback(
+            function (array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): LayoutAnalysis {
+                $threadedRootContext = $analyzedRootContext;
+
+                return new LayoutAnalysis(new DiagnosticsReport([]), []);
+            }
+        );
 
         $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            diagnostics: $diagnostics,
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             sourceLocator: $sourceLocator,
         );
 
         $controller->diagnose(
             new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], entityType: 'product'),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame($rootContext, $threadedRootContext);
+    }
+
+    #[TestDox('rejects a section value with no matching ContentSection with a 400')]
+    public function testDiagnoseRejectsUnknownSection(): void
+    {
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::noSourceForSection('does-not-exist'));
+
+        $controller->diagnose(
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], section: 'does-not-exist'),
             Context::createDefaultContext(),
         );
     }
@@ -128,8 +168,8 @@ class ContentDiagnoseControllerTest extends TestCase
         ?SpecificationSourceLocator $sourceLocator = null,
     ): ContentDiagnoseController {
         return new ContentDiagnoseController(
+            new DraftLayoutDecoder($serializer),
             $diagnostics,
-            $serializer,
             $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
         );
     }

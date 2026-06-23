@@ -16,12 +16,15 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Previews how a draft content layout renders with real entity data, without persisting the layout.
  *
- * @internal
+ * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class ContentPreviewController
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly ContentPreviewPageBuilder $previewPageBuilder,
         private readonly AbstractResponseFactory $responseFactory,
@@ -29,7 +32,7 @@ class ContentPreviewController
     ) {
     }
 
-    #[Route(path: '/api/_action/content-system/preview/entity', name: 'api.action.content_system.preview.entity', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/preview/entity', name: 'api.action.content_system.preview.entity', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function preview(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentPreviewRequest $payload,
@@ -38,13 +41,12 @@ class ContentPreviewController
         return $this->responseFactory->createResponse($this->previewPageBuilder->build($payload, $context)['contentPage']);
     }
 
-    #[Route(path: '/api/_action/content-system/preview/entity/url', name: 'api.action.content_system.preview.entity.url', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/content-system/preview/entity/url', name: 'api.action.content_system.preview.entity.url', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function previewUrl(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentPreviewRequest $payload,
         Request $request,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $token = $this->payloadStore->store($this->serializePayload($payload));
         $url = \sprintf(
             '%s%s/content-system/preview/%s',

@@ -24,6 +24,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * make a live layout unresolvable and reach serving. An incomplete or unbound layout persists freely.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class ContentLayoutWriteValidator implements EventSubscriberInterface

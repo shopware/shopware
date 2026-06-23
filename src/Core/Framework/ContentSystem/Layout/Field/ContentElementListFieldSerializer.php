@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -31,9 +33,33 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private readonly ContentElementFieldSerializer $contentElementSerializer
+        private readonly ContentElementFieldSerializer $contentElementSerializer,
+        private readonly LayoutDefaultSeeder $defaultSeeder
     ) {
         parent::__construct($validator, $definitionRegistry);
+    }
+
+    /**
+     * Seeds each element's primitive type defaults into the write payload before the resolvability gate decodes it,
+     * so a tree reaching storage outside the layout mutations (direct DAL write, Sync API, import, fixtures) still
+     * carries its type defaults. Runs ahead of {@see PreWriteValidationEvent}.
+     */
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+
+        if ($value instanceof ContentElement) {
+            $value = [$value];
+        }
+
+        if (!\is_array($value) || !\array_is_list($value)) {
+            return $data;
+        }
+
+        $data[$key] = $this->defaultSeeder->seed($value);
+
+        return $data;
     }
 
     public function encode(

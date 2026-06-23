@@ -13,6 +13,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * path (/{elementId}/{key}), so a batch write reports every violation rather than short-circuiting on the first.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class ViolationConstraintMapper

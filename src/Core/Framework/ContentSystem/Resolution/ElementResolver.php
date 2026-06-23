@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * The per-element resolution kernel. For each declared property of the element's type it determines how the
  * property could be filled at its position: primitives carry a static value; references collect candidate
  * sources (ancestor/root providers plus data loaders) and a deterministic conservative default selection.
+ *
+ * @final
  */
 #[Package('framework')]
 class ElementResolver

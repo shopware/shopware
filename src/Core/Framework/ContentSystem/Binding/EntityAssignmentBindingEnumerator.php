@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * that has any row referencing the layout — bounded by distinct assigned types, not by assignment rows.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class EntityAssignmentBindingEnumerator implements LayoutBindingEnumerator

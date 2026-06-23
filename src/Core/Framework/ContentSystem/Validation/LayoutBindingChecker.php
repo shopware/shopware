@@ -27,6 +27,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * yet committed, is validated against its in-flight INSERT) and only then from the committed store.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
 class LayoutBindingChecker

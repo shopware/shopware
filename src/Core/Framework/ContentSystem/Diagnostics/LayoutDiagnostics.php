@@ -25,6 +25,8 @@ use Shopware\Core\Framework\Log\Package;
  * The binding-scope checks (required-property satisfaction, broken chains) run only when a bound source's
  * root context is supplied; with a null root context only the well-formedness subset runs. The analysis
  * never reads sales-channel state — a plain {@see Context} suffices.
+ *
+ * @final
  */
 #[Package('framework')]
 class LayoutDiagnostics
@@ -212,9 +214,11 @@ class LayoutDiagnostics
     private function propertyBindingViolation(ContentElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
-            $configuredValue = $element->getProperty($resolution->key);
-
-            if ($resolution->required && $configuredValue === null && $resolution->default === null) {
+            // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
+            // value renders. The type default is a creation-time seed (scaffold + the write-boundary seeder),
+            // not a render-time fallback, and so is not consulted here. A stored explicit null counts as no value
+            // (it renders empty), so a required primitive authored as null is reported unresolved.
+            if ($resolution->required && $element->getProperty($resolution->key) === null) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,
                     $element->getId(),

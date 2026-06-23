@@ -71,12 +71,6 @@
                                     v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition, targetIndex: index + 1 }}"
                                 ></span>
                                 <span class="sw-select-selection-list__item">
-                                    <mt-icon
-                                        class="sw-multi-snippet-drag-and-drop__snippet-drag-icon"
-                                        name="regular-grip-vertical"
-                                        size="12"
-                                    />
-
                                     <slot
                                         name="label-property"
                                         v-bind="{ item: snippet, index, getLabelProperty }"

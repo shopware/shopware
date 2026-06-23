@@ -113,20 +113,6 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         right: 0;
     }
 
-    &__snippet-drag-icon {
-        display: none;
-        position: absolute;
-        top: 9px;
-        left: 4px;
-        pointer-events: none;
-        background: inherit;
-        color: var(--color-icon-secondary-default);
-    }
-
-    .sw-label:hover &__snippet-drag-icon {
-        display: block;
-    }
-
     &.is--valid-drop:not(.is--dragging-snippet) .sw-multi-snippet-select .sw-block-field__block {
         border-color: var(--color-border-brand-selected);
         box-shadow: 0 0 0 1px var(--color-border-brand-selected);

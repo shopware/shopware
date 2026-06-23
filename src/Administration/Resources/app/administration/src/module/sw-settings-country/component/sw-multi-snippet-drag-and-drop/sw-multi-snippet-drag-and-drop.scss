@@ -111,6 +111,11 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         right: 0;
     }
 
+    &.is--valid-drop:not(.is--dragging-snippet) .sw-multi-snippet-select .sw-block-field__block {
+        border-color: var(--color-border-brand-selected);
+        box-shadow: 0 0 0 1px var(--color-border-brand-selected);
+    }
+
     &.is--drag-previewing .sw-label.sw-label--dismissable:hover {
         color: var(--color-text-primary-default);
         border-color: var(--color-border-primary-default);

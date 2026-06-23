@@ -43,58 +43,18 @@ class ProductListingLoader
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
     /**
-     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
-     * data required by the default storefront product boxes. Nested association fields (e.g.
-     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     * Heavy, off-page columns dropped from listings when `core.listing.partialDataLoading` is
+     * enabled. Reduced loading still returns full, typed product entities (and all associations) —
+     * only these columns are skipped via {@see Criteria::excludeFields()}. They are never rendered on
+     * a product card, and excluding them does not affect search (ranking happens during id
+     * resolution, not during hydration).
      *
      * @var list<string>
      */
-    final public const PARTIAL_LISTING_FIELDS = [
-        'id',
-        'versionId',
-        'parentId',
-        'productNumber',
-        'displayGroup',
-        'states',
-        'childCount',
-        'name',
-        'descriptionTeaser',
-        'available',
-        'availableStock',
-        'stock',
-        'isCloseout',
-        'minPurchase',
-        'maxPurchase',
-        'purchaseSteps',
-        'purchaseUnit',
-        'referenceUnit',
-        'unitId',
-        'taxId',
-        'price',
-        'prices.ruleId',
-        'prices.price',
-        'prices.quantityStart',
-        'prices.quantityEnd',
-        'cheapestPrice',
-        'variantListingConfig',
-        'variation',
-        'options.group',
-        'coverId',
-        'cover.media.url',
-        'cover.media.alt',
-        'cover.media.title',
-        'cover.media.mediaTypeRaw',
-        'cover.media.thumbnailsRo',
-        'manufacturerId',
-        'manufacturer.name',
-        'ratingAverage',
-        'releaseDate',
-        'markAsTopseller',
-        'deliveryTimeId',
-        'deliveryTime.name',
-        'deliveryTime.min',
-        'deliveryTime.max',
-        'deliveryTime.unit',
+    final public const PARTIAL_LISTING_EXCLUDED_FIELDS = [
+        'description',
+        'keywords',
+        'customSearchKeywords',
     ];
 
     /**
@@ -132,10 +92,10 @@ class ProductListingLoader
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+        $partialDataLoading = $this->systemConfigService->getBool('core.listing.partialDataLoading', $context->getSalesChannelId());
 
-        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
-            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        if ($criteria->getFields() === [] && $criteria->getExcludedFields() === [] && $partialDataLoading) {
+            $criteria->excludeFields(self::PARTIAL_LISTING_EXCLUDED_FIELDS);
         }
 
         $clone = clone $criteria;

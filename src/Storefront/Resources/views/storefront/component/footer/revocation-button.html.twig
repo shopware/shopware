@@ -1,19 +1,28 @@
-
-
-
 {% set revocationRequestUrl = path(cmsPath, { id: revocationRequestCmsPageId }) %}
 
 {% for serviceMenuItem in footer.serviceMenu %}
-    {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-        {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+    {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId %}
+        {% set revocationRequestUrl = category_url(serviceMenuItem) %}
     {% endif %}
+
+    {% for childItem in serviceMenuItem.children %}
+        {% if childItem.cmsPageId == revocationRequestCmsPageId %}
+            {% set revocationRequestUrl = category_url(childItem) %}
+        {% endif %}
+    {% endfor %}
 {% endfor %}
 
 {% if footer.navigation and footer.navigation.tree %}
     {% for footerItem in footer.navigation.tree %}
-        {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
-            {% set revocationRequestUrl = footerItem.category.seoUrl %}
+        {% if footerItem.category.cmsPageId == revocationRequestCmsPageId %}
+            {% set revocationRequestUrl = category_url(footerItem.category) %}
         {% endif %}
+
+        {% for childItem in footerItem.children %}
+            {% if childItem.category.cmsPageId == revocationRequestCmsPageId %}
+                {% set revocationRequestUrl = category_url(childItem.category) %}
+            {% endif %}
+        {% endfor %}
     {% endfor %}
 {% endif %}
 

@@ -19,18 +19,24 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(DefaultSeedingVisitor::class)]
 class DefaultSeedingVisitorTest extends TestCase
 {
-    #[TestDox('seeds a missing primitive default on enter and keeps an authored value')]
-    public function testEnterSeedsMissingDefaultAndKeepsAuthored(): void
+    #[TestDox('seeds a missing primitive default on enter')]
+    public function testEnterSeedsDefaultWhenPropertyIsMissing(): void
     {
-        $fresh = new ContentElement('fresh', 'Sw:Block');
-        $authored = new ContentElement('authored', 'Sw:Block', [], ['headline' => 'Authored']);
+        $element = new ContentElement('fresh', 'Sw:Block');
 
-        $visitor = $this->visitor();
-        $visitor->enter($fresh);
-        $visitor->enter($authored);
+        $this->visitor()->enter($element);
 
-        static::assertSame('Default headline', $fresh->getProperty('headline'));
-        static::assertSame('Authored', $authored->getProperty('headline'));
+        static::assertSame('Default headline', $element->getProperty('headline'));
+    }
+
+    #[TestDox('keeps an authored value on enter')]
+    public function testEnterKeepsAuthoredValueWhenPropertyIsPresent(): void
+    {
+        $element = new ContentElement('authored', 'Sw:Block', [], ['headline' => 'Authored']);
+
+        $this->visitor()->enter($element);
+
+        static::assertSame('Authored', $element->getProperty('headline'));
     }
 
     #[TestDox('leaves an unregistered component untouched on enter')]

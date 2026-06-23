@@ -59,8 +59,9 @@ class ScriptResponseFactoryFacadeTest extends TestCase
     {
         $facade = $this->buildFacade(salesChannelContext: static::createStub(SalesChannelContext::class));
 
-        $this->expectException(ScriptException::class);
-        $this->expectExceptionMessageMatches('/storefront.*bundle/i');
+        $this->expectExceptionObject(
+            ScriptException::storefrontBundleMissingForHookMethod(ScriptResponseFactoryFacade::class . '::render')
+        );
 
         $facade->render('@Storefront/foo.html.twig');
     }

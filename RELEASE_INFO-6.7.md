@@ -136,9 +136,7 @@ The Administration role editor also adds these privileges to newly generated rol
 
 ### OneToMany association limit now respects sort order across joined tables
 
-When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows. The row-numbering logic internally relied on MySQL user variables whose evaluation order is undefined inside a subquery, so the sort was effectively ignored when deciding which rows to keep.
-
-The implementation now uses a `ROW_NUMBER()` window function, which is evaluated declaratively over the fully joined and sorted rowset.
+When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
 
 No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
 

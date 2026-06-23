@@ -16,6 +16,10 @@ export default {
             type: Boolean,
             required: true,
         },
+        titleText: {
+            type: String,
+            required: true,
+        },
         confirmText: {
             type: String,
             required: true,
@@ -35,30 +39,60 @@ export default {
         'confirm',
     ],
 
+    methods: {
+        closeModal() {
+            this.$emit('close');
+        },
+
+        deleteItems() {
+            this.$emit('confirm');
+        },
+    },
+
     template: `
-        <div class="sw-meteor-entity-data-table-bulk-delete-modal">
-            <p class="sw-meteor-entity-data-table-bulk-delete-modal__text">
+        <sw-modal
+            class="sw-meteor-entity-data-table-bulk-delete-modal"
+            :title="titleText"
+            variant="small"
+            @modal-close="closeModal"
+        >
+            <p class="sw-data-grid__confirm-bulk-delete-text sw-meteor-entity-data-table-bulk-delete-modal__text">
                 <slot name="bulk-modal-delete-confirm-text" :selection-count="selectionCount">
                     {{ confirmText }}
                 </slot>
             </p>
 
-            <button
-                class="sw-meteor-entity-data-table-bulk-delete-modal__cancel"
-                type="button"
-                @click="$emit('close')"
-            >
-                {{ cancelText }}
-            </button>
+            <template #modal-footer>
+                <slot
+                    name="bulk-modal-cancel"
+                    :close-modal="closeModal"
+                >
+                    <mt-button
+                        class="sw-meteor-entity-data-table-bulk-delete-modal__cancel"
+                        size="small"
+                        variant="secondary"
+                        @click="closeModal"
+                    >
+                        {{ cancelText }}
+                    </mt-button>
+                </slot>
 
-            <button
-                class="sw-meteor-entity-data-table-bulk-delete-modal__confirm"
-                type="button"
-                :disabled="isDeleting || undefined"
-                @click="$emit('confirm')"
-            >
-                {{ deleteText }}
-            </button>
-        </div>
+                <slot
+                    name="bulk-modal-delete-items"
+                    :is-bulk-loading="isDeleting"
+                    :delete-items="deleteItems"
+                >
+                    <mt-button
+                        class="sw-meteor-entity-data-table-bulk-delete-modal__confirm"
+                        variant="critical"
+                        size="small"
+                        :is-loading="isDeleting"
+                        @click="deleteItems"
+                    >
+                        {{ deleteText }}
+                    </mt-button>
+                </slot>
+            </template>
+        </sw-modal>
     `,
 };

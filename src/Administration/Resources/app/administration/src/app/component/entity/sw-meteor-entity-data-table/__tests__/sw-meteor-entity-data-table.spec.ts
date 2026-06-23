@@ -32,6 +32,12 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(dataTable.props('paginationTotalItems')).toBe(42);
     });
 
+    it('renders mt-data-table with the full layout', async () => {
+        const wrapper = await createWrapper();
+
+        expect(mountedTable(wrapper).props('layout')).toBe('full');
+    });
+
     it('emits load-success with records, total, and state', async () => {
         const wrapper = await createWrapper();
 

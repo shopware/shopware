@@ -160,6 +160,16 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         });
     });
 
+    it('passes edit permission through so mt-data-table renders the visible edit link', async () => {
+        const wrapper = await createWrapper({
+            allowEdit: true,
+        });
+        const dataTable = mountedTable(wrapper);
+
+        expect(dataTable.props('disableEdit')).toBe(false);
+        expect(dataTable.props('additionalContextButtons')).toEqual([]);
+    });
+
     it('emits context-select for additional context buttons', async () => {
         const wrapper = await createWrapper({
             additionalContextButtons: [
@@ -194,6 +204,21 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
 
         expect(dataTable.props('disableEdit')).toBe(true);
         expect(dataTable.props('disableDelete')).toBe(true);
+        expect(dataTable.props('additionalContextButtons')).toEqual([]);
+    });
+
+    it('enables mt-data-table bulk delete only when selections and delete are allowed', async () => {
+        const enabledWrapper = await createWrapper({
+            allowDelete: true,
+            showSelections: true,
+        });
+        const disabledWrapper = await createWrapper({
+            allowDelete: true,
+            showSelections: false,
+        });
+
+        expect(mountedTable(enabledWrapper).props('allowBulkDelete')).toBe(true);
+        expect(mountedTable(disabledWrapper).props('allowBulkDelete')).toBe(false);
     });
 
     it('item-delete opens a delete modal', async () => {
@@ -206,6 +231,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(true);
+        expect(wrapper.get('.sw-modal-stub').attributes('data-title')).toBe('global.default.warning');
+        expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
     it('confirming single delete calls repository.delete, emits delete-item-finish, and reloads', async () => {
@@ -236,6 +263,68 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(repository.search).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.selectedIds).toEqual([]);
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(false);
+    });
+
+    it('delete modal uses legacy footer slots and critical Meteor button defaults', async () => {
+        const wrapper = mount(SwMeteorEntityDataTable, {
+            props: {
+                repository: {
+                    search: jest.fn(() =>
+                        Promise.resolve(
+                            createSearchResult([
+                                { id: 'manufacturer-1', name: 'Shopware' },
+                            ]),
+                        ),
+                    ),
+                },
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                    },
+                ],
+            },
+            slots: {
+                'delete-modal-footer':
+                    '<template #default="{ item }"><button class="delete-footer-slot">{{ item.name }}</button></template>',
+            },
+            global: {
+                stubs: {
+                    'mt-data-table': {
+                        template: '<div class="mt-data-table-stub"></div>',
+                    },
+                    'sw-modal': {
+                        props: [
+                            'title',
+                            'variant',
+                        ],
+                        template:
+                            '<div class="sw-modal-stub" :data-title="title" :data-variant="variant"><slot /><slot name="modal-footer" /></div>',
+                    },
+                    'mt-button': {
+                        props: [
+                            'size',
+                            'variant',
+                            'isLoading',
+                        ],
+                        template:
+                            '<button class="mt-button-stub" :class="`mt-button-stub--${variant}`" type="button"><slot /></button>',
+                    },
+                },
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        }) as TestWrapper;
+
+        await flushPromises();
+        await mountedTable(wrapper).vm.$emit('item-delete', {
+            id: 'manufacturer-1',
+            name: 'Shopware',
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.delete-footer-slot').text()).toBe('Shopware');
     });
 
     it('failed single delete emits delete-item-failed and keeps loading consistent', async () => {
@@ -324,6 +413,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(wrapper.get('.sw-meteor-entity-data-table-bulk-delete-modal').text()).toContain('2');
+        expect(wrapper.get('.sw-modal-stub').attributes('data-title')).toBe('global.default.warning');
+        expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
     it('confirming bulk delete calls repository.syncDeleted, emits items-delete-finish, clears selection, and reloads', async () => {
@@ -385,6 +476,67 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             selectedIds: ['manufacturer-1'],
             errorResponse: error,
         });
+    });
+
+    it('bulk delete modal exposes legacy footer slots', async () => {
+        const wrapper = mount(SwMeteorEntityDataTable, {
+            props: {
+                repository: {
+                    search: jest.fn(() =>
+                        Promise.resolve(
+                            createSearchResult([
+                                { id: 'manufacturer-1', name: 'Shopware' },
+                            ]),
+                        ),
+                    ),
+                },
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                    },
+                ],
+                showSelections: true,
+            },
+            slots: {
+                'bulk-modal-delete-items':
+                    '<template #default="{ deleteItems }"><button class="bulk-delete-slot" @click="deleteItems">Delete selected</button></template>',
+            },
+            global: {
+                stubs: {
+                    'mt-data-table': {
+                        template: '<div class="mt-data-table-stub"></div>',
+                    },
+                    'sw-modal': {
+                        props: [
+                            'title',
+                            'variant',
+                        ],
+                        template:
+                            '<div class="sw-modal-stub" :data-title="title" :data-variant="variant"><slot /><slot name="modal-footer" /></div>',
+                    },
+                    'mt-button': {
+                        props: [
+                            'size',
+                            'variant',
+                            'isLoading',
+                        ],
+                        template:
+                            '<button class="mt-button-stub" :class="`mt-button-stub--${variant}`" type="button"><slot /></button>',
+                    },
+                },
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        }) as TestWrapper;
+
+        await flushPromises();
+        wrapper.vm.setSelectedIds(['manufacturer-1']);
+        await mountedTable(wrapper).vm.$emit('bulk-delete');
+        await flushPromises();
+
+        expect(wrapper.get('.bulk-delete-slot').text()).toBe('Delete selected');
     });
 
     it('marks a row as inline editing', async () => {

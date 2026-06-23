@@ -11,7 +11,9 @@
         :sort-direction="state.sortDirection"
         :search-value="state.searchTerm"
         :allow-row-selection="showSelections"
+        :allow-bulk-delete="showSelections && allowDelete"
         :selected-rows="selectedIds"
+        layout="full"
         :disable-edit="!allowEdit"
         :disable-delete="!allowDelete"
         :disable-search="disableSearch"
@@ -80,16 +82,50 @@
         v-if="itemToDelete"
         :item="itemToDelete"
         :is-deleting="isDeleting"
-        confirm-text="Delete item?"
-        cancel-text="Cancel"
-        delete-text="Delete"
+        :title-text="$t('global.default.warning')"
+        :confirm-text="$t('global.entity-components.deleteMessage')"
+        :cancel-text="$t('global.default.cancel')"
+        :delete-text="$t('global.default.delete')"
         @close="closeDeleteModal"
         @confirm="confirmDelete"
     >
-        <template #delete-confirm-text="{ item }">
+        <template
+            v-if="$slots['delete-confirm-text']"
+            #delete-confirm-text="{ item }"
+        >
             <slot
                 name="delete-confirm-text"
                 :item="item"
+            />
+        </template>
+
+        <template
+            v-if="$slots['delete-modal-footer']"
+            #delete-modal-footer="scope"
+        >
+            <slot
+                name="delete-modal-footer"
+                v-bind="scope"
+            />
+        </template>
+
+        <template
+            v-if="$slots['delete-modal-cancel']"
+            #delete-modal-cancel="scope"
+        >
+            <slot
+                name="delete-modal-cancel"
+                v-bind="scope"
+            />
+        </template>
+
+        <template
+            v-if="$slots['delete-modal-delete-item']"
+            #delete-modal-delete-item="scope"
+        >
+            <slot
+                name="delete-modal-delete-item"
+                v-bind="scope"
             />
         </template>
     </sw-meteor-entity-data-table-delete-modal>
@@ -98,19 +134,41 @@
         v-if="bulkDeleteIds.length > 0"
         :selection-count="bulkDeleteIds.length"
         :is-deleting="isBulkDeleting"
-        :confirm-text="`${bulkDeleteIds.length} items selected`"
-        cancel-text="Cancel"
-        delete-text="Delete"
+        :title-text="$t('global.default.warning')"
+        :confirm-text="$t('global.entity-components.deleteMessage', { count: bulkDeleteIds.length }, bulkDeleteIds.length)"
+        :cancel-text="$t('global.default.cancel')"
+        :delete-text="$t('global.default.delete')"
         @close="closeBulkDeleteModal"
         @confirm="confirmBulkDelete"
     >
-        <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+        <template
+            v-if="$slots['bulk-modal-delete-confirm-text']"
+            #bulk-modal-delete-confirm-text="{ selectionCount }"
+        >
             <slot
                 name="bulk-modal-delete-confirm-text"
                 :selection-count="selectionCount"
-            >
-                {{ selectionCount }} items selected
-            </slot>
+            />
+        </template>
+
+        <template
+            v-if="$slots['bulk-modal-cancel']"
+            #bulk-modal-cancel="scope"
+        >
+            <slot
+                name="bulk-modal-cancel"
+                v-bind="scope"
+            />
+        </template>
+
+        <template
+            v-if="$slots['bulk-modal-delete-items']"
+            #bulk-modal-delete-items="scope"
+        >
+            <slot
+                name="bulk-modal-delete-items"
+                v-bind="scope"
+            />
         </template>
     </sw-meteor-entity-data-table-bulk-delete-modal>
 </template>

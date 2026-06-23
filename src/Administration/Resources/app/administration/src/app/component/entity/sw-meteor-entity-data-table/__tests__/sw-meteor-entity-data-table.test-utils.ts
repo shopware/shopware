@@ -97,7 +97,12 @@ export async function createWrapper(
         globalProperties?: Record<string, unknown>;
     } = {},
 ): Promise<TestWrapper> {
-    const translate = options.mocks?.$t ?? options.globalProperties?.$t ?? ((key: string) => key);
+    const translate =
+        options.mocks?.$t ??
+        options.globalProperties?.$t ??
+        ((key: string, values?: { count?: number }) => {
+            return values?.count ? `${key} ${values.count}` : key;
+        });
 
     const repository = props.repository ?? {
         search: jest.fn(() =>
@@ -135,6 +140,8 @@ export async function createWrapper(
                         'paginationTotalItems',
                         'currentPage',
                         'paginationLimit',
+                        'layout',
+                        'allowBulkDelete',
                         'disableEdit',
                         'disableDelete',
                         'additionalContextButtons',
@@ -161,6 +168,39 @@ export async function createWrapper(
                                 :column-definition="column"
                             />
                         </div>
+                    `,
+                },
+                'sw-modal': {
+                    props: [
+                        'title',
+                        'variant',
+                    ],
+                    emits: ['modal-close'],
+                    template: `
+                        <div class="sw-modal-stub" :data-title="title" :data-variant="variant">
+                            <slot />
+                            <slot name="modal-footer" />
+                        </div>
+                    `,
+                },
+                'mt-button': {
+                    props: [
+                        'size',
+                        'variant',
+                        'isLoading',
+                    ],
+                    emits: ['click'],
+                    template: `
+                        <button
+                            class="mt-button-stub"
+                            :class="'mt-button-stub--' + variant"
+                            :data-size="size"
+                            :disabled="isLoading || undefined"
+                            type="button"
+                            @click="$emit('click')"
+                        >
+                            <slot />
+                        </button>
                     `,
                 },
             },

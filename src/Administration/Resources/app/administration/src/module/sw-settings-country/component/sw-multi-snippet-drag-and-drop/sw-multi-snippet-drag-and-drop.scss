@@ -179,6 +179,7 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
     &.is--drag-element {
         display: block;
         position: absolute;
+        box-shadow: 0 0 5px 1px var(--color-border-brand-selected);
 
         > * {
             opacity: 1;

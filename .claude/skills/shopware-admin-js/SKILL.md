@@ -1,6 +1,6 @@
 ---
 name: shopware-admin-js
-description: Apply Shopware Administration JavaScript, TypeScript, Vue, Pinia, Twig.JS, Jest, linting, and module guidance. Use when editing files under src/Administration/Resources/app/administration or implementing Admin UI behavior.
+description: Apply Shopware Administration JS/TS/Vue coding rules. Use when editing Admin UI code, Jest specs, component behavior, or DAL-backed Admin UI that needs ACL privilege handling.
 ---
 
 # Shopware Admin JS

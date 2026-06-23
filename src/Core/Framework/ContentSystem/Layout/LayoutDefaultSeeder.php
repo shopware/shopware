@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\DefaultSeedingVisitor;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -26,10 +27,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class LayoutDefaultSeeder
 {
+    private readonly DefaultSeedingVisitor $seedingVisitor;
+
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly PrimitiveDefaultProvider $primitiveDefaultProvider,
     ) {
+        $this->seedingVisitor = new DefaultSeedingVisitor($registry, $primitiveDefaultProvider);
     }
 
     /**
@@ -51,28 +55,13 @@ class LayoutDefaultSeeder
     private function seedNode(mixed $node): mixed
     {
         if ($node instanceof ContentElement) {
-            return $this->seedElement($node);
+            $node->traverse($this->seedingVisitor);
+
+            return $node;
         }
 
         if (\is_array($node)) {
             return $this->seedArray($node);
-        }
-
-        return $node;
-    }
-
-    private function seedElement(ContentElement $node): ContentElement
-    {
-        foreach ($this->defaultsFor($node->getComponent()) as $key => $default) {
-            if (!$node->hasProperty($key)) {
-                $node->setProperty($key, $default);
-            }
-        }
-
-        foreach ($node->getSlots() as $slot) {
-            foreach ($slot->getElements() as $child) {
-                $this->seedElement($child);
-            }
         }
 
         return $node;

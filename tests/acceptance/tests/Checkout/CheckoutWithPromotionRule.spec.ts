@@ -4,7 +4,6 @@ test('Registered newsletter recipient should have corresponding promotion applie
     { tag: ['@Checkout', '@Storefront'] },
     async ({
         IdProvider,
-        ShopAdmin,
         DefaultSalesChannel,
         TestDataService,
         ShopCustomer,
@@ -14,7 +13,6 @@ test('Registered newsletter recipient should have corresponding promotion applie
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
         Login,
-        CreateRuleNewsletterRecipient,
         AddProductToCart,
         ProceedFromCartToCheckout,
         ConfirmTermsAndConditions,
@@ -22,20 +20,26 @@ test('Registered newsletter recipient should have corresponding promotion applie
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        const ruleConfig = { ruleId: IdProvider.getIdPair().uuid };
-        await ShopAdmin.attemptsTo(CreateRuleNewsletterRecipient(ruleConfig));
+        const ruleId = IdProvider.getIdPair().uuid;
+        const ruleConfig = {
+            id: ruleId,
+            name: `Test-Rule - ${ruleId}`,
+            description: 'This rule applied for newsletter recipients',
+        };
+        const ruleCondition = { type: 'customerIsNewsletterRecipient', value: { isNewsletterRecipient: true } };
+        await TestDataService.createBasicRule(ruleConfig, ruleCondition);
 
         // add promotion with discount percentage and condition "customer is newsletter recipient"
         const discountPercentage = 10, promotionName = 'Newsletter Recipient Promotion';
         const promotionConfig = {
             id: IdProvider.getIdPair().uuid,
-            name: `${promotionName} ${ruleConfig.ruleId}`,
+            name: `${promotionName} ${ruleConfig.id}`,
             useCode: false,
             discountValue: discountPercentage,
             discountScope: 'cart',
             discountType: 'percentage',
             salesChannelId: DefaultSalesChannel.salesChannel.id,
-            ruleId: ruleConfig.ruleId,
+            ruleId: ruleConfig.id,
         };
         await TestDataService.createPromotionWithConditionRule(promotionConfig);
 

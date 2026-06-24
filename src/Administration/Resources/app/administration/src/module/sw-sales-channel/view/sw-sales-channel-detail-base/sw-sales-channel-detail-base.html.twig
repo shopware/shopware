@@ -224,6 +224,19 @@
             :label-length-unit="$t('sw-sales-channel.detail.measurementSystem.labelDefaultLengthUnit')"
             :label-weight-unit="$t('sw-sales-channel.detail.measurementSystem.labelDefaultWeightUnit')"
         />
+
+        {% block sw_sales_channel_detail_base_general_input_business_time_zone %}
+        <sw-single-select
+            v-if="!isProductExportChannel"
+            v-model:value="salesChannel.businessTimeZone"
+            class="sw-sales-channel-detail__select-business-time-zone"
+            show-clearable-button
+            :label="$t('sw-sales-channel.detail.labelBusinessTimeZone')"
+            :help-text="$t('sw-sales-channel.detail.helpTextBusinessTimeZone')"
+            :options="businessTimeZoneOptions"
+            :disabled="!acl.can('sales_channel.editor') || undefined"
+        />
+        {% endblock %}
     </mt-card>
     {% endblock %}
 

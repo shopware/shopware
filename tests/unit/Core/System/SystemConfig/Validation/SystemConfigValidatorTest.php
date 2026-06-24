@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -101,6 +101,40 @@ class SystemConfigValidatorTest extends TestCase
         static::assertFalse($exceptionThrown);
     }
 
+    public function testValidateUsesConfigurationDomainForNestedKeys(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock
+            ->expects($this->once())
+            ->method('getConfiguration')
+            ->with('core.basicInformation', $context)
+            ->willReturn([
+                [
+                    'elements' => [
+                        [
+                            'name' => 'core.basicInformation.foo',
+                            'config' => [],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock
+            ->expects($this->once())
+            ->method('validate');
+
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+
+        $systemConfigValidation->validate([
+            'null' => [
+                'core.basicInformation.foo.bar.baz' => 'test-value',
+            ],
+        ], $context);
+    }
+
     public function testGetSystemConfigByDomainEmptyDomain(): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -121,7 +155,7 @@ class SystemConfigValidatorTest extends TestCase
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $configurationServiceMock->method('getConfiguration')
-            ->willThrowException($this->createMock(BundleConfigNotFoundException::class));
+            ->willThrowException(SystemConfigException::configurationNotFound('missing'));
 
         $dataValidatorMock = $this->createMock(DataValidator::class);
 

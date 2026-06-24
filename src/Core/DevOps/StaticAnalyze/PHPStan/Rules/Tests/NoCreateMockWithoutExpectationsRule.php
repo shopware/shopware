@@ -43,10 +43,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in others, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
 
     /**
-     * The rule is rolled out domain by domain: it only enforces in test namespaces that have already been
-     * swept clean. This avoids a PHPStan baseline (which would mute violations and make Danger nag on — and
-     * thereby discourage — any edit to a test file that still contains one). Add a namespace fragment here in
-     * the same branch that sweeps that domain to zero, so protection grows incrementally and is never muted.
+     * The rule is rolled out domain by domain for early adoption
      *
      * @var list<string>
      */
@@ -187,13 +184,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     /**
      * @param array<ClassMethod> $methods
      *
-     * @return list<array{Assign, string}>
+     * @return array<string, list<Assign>> createMock property assignments, keyed by property name
      */
-    private function findPropertyMockIssues(array $methods): array
+    private function collectPropertyMockAssignments(NodeFinder $finder, array $methods): array
     {
-        $finder = new NodeFinder();
-
-        /** @var array<string, list<Assign>> $assignments */
         $assignments = [];
         foreach ($methods as $method) {
             foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
@@ -204,6 +198,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
         }
 
+        return $assignments;
+    }
+
+    /**
+     * @param array<ClassMethod> $methods
+     *
+     * @return list<array{Assign, string}>
+     */
+    private function findPropertyMockIssues(array $methods): array
+    {
+        $finder = new NodeFinder();
+
+        $assignments = $this->collectPropertyMockAssignments($finder, $methods);
         if ($assignments === []) {
             return [];
         }

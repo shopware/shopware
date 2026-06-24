@@ -70,9 +70,6 @@
                                 },
                                 "readOnly": true
                             },
-                            "purchasePrices": {
-                                "type": "string"
-                            },
                             "releaseDate": {
                                 "type": "string",
                                 "format": "date-time"

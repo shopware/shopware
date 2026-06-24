@@ -26,7 +26,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
- * @phpstan-type Snippet array{value: string, origin: string, resetTo: string, translationKey: string, author: string, id: string|null, setId: string}
+ * @phpstan-type Snippet array{value: string, origin: string, resetTo: string, translationKey: string, author: string, id: string|null, setId: string, hasFileValue: bool}
  * @phpstan-type SnippetArray array<string, array{snippets: array<string, Snippet>}>
  * @phpstan-type SnippetFilter array{edited?: true, added?: true, empty?: true, author?: list<string>, namespace?: list<string>, term?: string}
  * @phpstan-type SnippetSort array{sortBy: string, sortDirection: string}|array{}
@@ -413,6 +413,7 @@ class SnippetService
                             'resetTo' => '',
                             'setId' => $currentSetId,
                             'id' => null,
+                            'hasFileValue' => false,
                         ];
                     }
                 }
@@ -491,8 +492,10 @@ class SnippetService
                 ])
             );
 
+            $fileEntry = $fileSnippets[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()] ?? null;
             $currentSnippet['origin'] = '';
-            $currentSnippet['resetTo'] = $fileSnippets[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()]['origin'] ?? $snippet->getValue();
+            $currentSnippet['resetTo'] = $fileEntry['origin'] ?? $snippet->getValue();
+            $currentSnippet['hasFileValue'] = $fileEntry !== null;
             $result[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()] = $currentSnippet;
         }
 
@@ -578,6 +581,7 @@ class SnippetService
                         'origin' => $value,
                         'resetTo' => $value,
                         'translationKey' => $newIndex,
+                        'hasFileValue' => true,
                     ], $additionalParameters);
 
                     continue;

@@ -9,7 +9,7 @@
     outline: none;
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: calc(var(--scale-size-2) * -1);
     }
 
@@ -37,7 +37,7 @@
         position: absolute;
         transform: translate(-30%, 70%);
         border-radius: var(--scale-size-18);
-        color: var(--color-text-static-default);
+        color: var(--color-static-white);
         font-size: var(--font-size-2xs);
         font-style: normal;
 

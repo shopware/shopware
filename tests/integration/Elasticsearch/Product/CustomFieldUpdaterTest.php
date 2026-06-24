@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -34,6 +33,13 @@ class CustomFieldUpdaterTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * The ES index is created once for the whole class by the first run of setUp() and shared across
+     * tests (this class has no transaction isolation). The first-test-creates-the-index pattern was
+     * replaced by guarded setUp so the suite no longer depends on test execution order.
+     */
+    private static bool $indexReady = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -42,6 +48,11 @@ class CustomFieldUpdaterTest extends TestCase
 
         $this->client = static::getContainer()->get(Client::class);
         $this->indexDetector = static::getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
+
+        if (!self::$indexReady) {
+            $this->createIndex();
+            self::$indexReady = true;
+        }
     }
 
     protected function tearDown(): void
@@ -55,25 +66,9 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCreateIndices(): void
     {
-        $this->clearElasticsearch();
-
-        $connection = static::getContainer()->get(Connection::class);
-
-        $connection->executeStatement('DELETE FROM custom_field');
-
-        $command = new ElasticsearchIndexingCommand(
-            static::getContainer()->get(ElasticsearchIndexer::class),
-            static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(CreateAliasTaskHandler::class),
-            true
-        );
-
-        $command->run(new ArrayInput([]), new NullOutput());
-
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }
 
-    #[Depends('testCreateIndices')]
     public function testCreateCustomFields(): void
     {
         $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
@@ -121,7 +116,6 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertSame('keyword', $properties['test_newly_created_field_text']['type']);
     }
 
-    #[Depends('testCreateCustomFields')]
     public function testRelationWillBeSetLaterOn(): void
     {
         $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
@@ -174,9 +168,6 @@ class CustomFieldUpdaterTest extends TestCase
 
         static::assertArrayHasKey('test_later_created_field_text', $properties);
         static::assertSame('keyword', $properties['test_later_created_field_text']['type']);
-
-        $this->clearElasticsearch();
-        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -186,5 +177,23 @@ class CustomFieldUpdaterTest extends TestCase
 
     protected function runWorker(): void
     {
+    }
+
+    private function createIndex(): void
+    {
+        $this->clearElasticsearch();
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        $connection->executeStatement('DELETE FROM custom_field');
+
+        $command = new ElasticsearchIndexingCommand(
+            static::getContainer()->get(ElasticsearchIndexer::class),
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get(CreateAliasTaskHandler::class),
+            true
+        );
+
+        $command->run(new ArrayInput([]), new NullOutput());
     }
 }

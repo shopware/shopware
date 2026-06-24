@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * so the Context is already resolved and attached to the request by ApiRequestContextResolver.
  */
 #[Package('framework')]
-class McpContextProvider
+class McpContextProvider implements McpContextProviderInterface
 {
     /**
      * @internal

@@ -13,6 +13,7 @@ class McpException extends HttpException
     private const MCP_UNSUPPORTED_KEY_TYPE = 'MCP__UNSUPPORTED_KEY_TYPE';
     private const MCP_INVALID_CREDENTIALS = 'MCP__INVALID_CREDENTIALS';
     private const MCP_THROTTLED = 'MCP__THROTTLED';
+    private const MCP_INVALID_SESSION_ID = 'MCP__INVALID_SESSION_ID';
 
     public static function unsupportedKeyType(): self
     {
@@ -40,6 +41,15 @@ class McpException extends HttpException
             'MCP endpoint throttled for {{ seconds }} seconds.',
             ['seconds' => $waitTime],
             $e,
+        );
+    }
+
+    public static function invalidSessionId(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MCP_INVALID_SESSION_ID,
+            'The mcp-session-id header is not a valid session ID.',
         );
     }
 

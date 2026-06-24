@@ -202,6 +202,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             privileges: [
                 'orders.create_discounts',
                 'system.clear_cache',
+                'language:read',
+                'currency:read',
                 'product:update',
                 'order:read',
             ],
@@ -237,6 +239,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(wrapper.vm.role.privileges).toContain('orders.create_discounts');
         expect(wrapper.vm.role.privileges).not.toContain('system:clear:cache');
         expect(wrapper.vm.role.privileges).not.toContain('order:create:discount');
+        expect(wrapper.vm.role.privileges).not.toContain('language:read');
+        expect(wrapper.vm.role.privileges).not.toContain('currency:read');
         expect(wrapper.vm.role.privileges).not.toContain('product:update');
         expect(wrapper.vm.role.privileges).not.toContain('order:read');
 
@@ -278,7 +282,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 privileges: [
                     'system.clear_cache',
                     'system:clear:cache',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,
@@ -333,7 +336,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,
@@ -389,7 +391,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                     'product:read',
                 ].sort(),
             },
@@ -448,7 +449,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'system:clear:cache',
                     'orders.create_discounts',
                     'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                     'product:read',
                     'currency:update',
                 ].sort(),
@@ -542,7 +542,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'rule:create',
                     'rule:read',
                     'rule:update',
-                    ...wrapper.vm.privileges.getRequiredPrivileges(),
                 ].sort(),
             },
             contextMock,

@@ -545,7 +545,7 @@ $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/CustomFieldTypeFactory.php',
+    'path' => __DIR__ . '/src/Core/System/CustomField/Xml/CustomFieldTypes/CustomFieldTypeFactory.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

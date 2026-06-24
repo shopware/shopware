@@ -54,7 +54,7 @@ class FeatureFlagProfilerTest extends TestCase
 
     public function testGetName(): void
     {
-        $featureFlagService = $this->createMock(FeatureFlagRegistry::class);
+        $featureFlagService = static::createStub(FeatureFlagRegistry::class);
         $profiler = new FeatureFlagProfiler($featureFlagService);
         static::assertSame('feature_flag', $profiler->getName());
     }

@@ -301,9 +301,12 @@
         "phpunit": "Launches the PHP unit test-suite",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
+        "rector": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
         "static-analyze": "Launches the PHP Stan static analysis tool",
+        "storefront:lint:snippets": "Checks that no storefront snippet duplicates a global.default translation in every locale.",
+        "storefront:lint:snippets:all": "Like storefront:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
         "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
@@ -489,6 +492,11 @@
         ],
         "static-analyze": [
             "@phpstan src/"
+        ],
+        "storefront:lint:snippets": "src/Storefront/Resources/app/storefront/node_modules/.bin/eslint --no-cache --no-error-on-unmatched-pattern --config src/Storefront/Resources/app/storefront/eslint.config.js \"src/Storefront/Resources/snippet/storefront.*.json\"",
+        "storefront:lint:snippets:all": [
+            "@putenv SNIPPET_ALLOW_LIST_DISABLED=1",
+            "@storefront:lint:snippets"
         ],
         "storefront:unit": [
             "@npm:storefront run unit"

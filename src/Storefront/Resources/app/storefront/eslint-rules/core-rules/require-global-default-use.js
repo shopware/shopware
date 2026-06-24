@@ -1,0 +1,176 @@
+/**
+ * @sw-package discovery
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const STOREFRONT_ROOT = path.resolve(__dirname, '..', '..');
+const SNIPPET_DIR = path.resolve(STOREFRONT_ROOT, '..', '..', 'snippet');
+
+const ALLOW_LIST_FILE = path.join(STOREFRONT_ROOT, 'snippet-global-default-allow-list.js');
+
+let duplicateCache = null;
+
+/**
+ * Reads the allow list of snippet keys that intentionally keep a global.default duplicate.
+ * Set SNIPPET_ALLOW_LIST_DISABLED to bypass it and surface every duplicate, including allowed ones.
+ */
+function loadAllowList() {
+    if (process.env.SNIPPET_ALLOW_LIST_DISABLED) {
+        return [];
+    }
+
+    try {
+        const list = require(ALLOW_LIST_FILE);
+        return Array.isArray(list) ? list : [];
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * An allow-list entry matches a snippet key either exactly or as a namespace prefix:
+ * `account` covers `account.profile.successLabel` and everything else below it.
+ */
+function isAllowed(key, allowList) {
+    return allowList.some(entry => key === entry || key.startsWith(`${entry}.`));
+}
+
+/**
+ * Flattens a nested snippet object into dotted keys, keeping string leaves only.
+ */
+function flatten(obj, prefix, out) {
+    for (const [key, value] of Object.entries(obj)) {
+        const dotted = prefix ? `${prefix}.${key}` : key;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            flatten(value, dotted, out);
+        } else if (typeof value === 'string') {
+            out[dotted] = value;
+        }
+    }
+    return out;
+}
+
+function readJson(absPath) {
+    try {
+        return JSON.parse(fs.readFileSync(absPath, 'utf8'));
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Builds — and caches — the map of duplicate snippet keys: keyed by the dotted snippet key and
+ * holding the matching `global.default` key. A key only counts as a duplicate when its value equals
+ * the `global.default` value in every locale.
+ */
+function getDuplicates() {
+    if (duplicateCache) {
+        return duplicateCache;
+    }
+
+    const map = new Map();
+
+    const globalDefaultByLocale = {};
+    const flattenedByLocale = {};
+    const locales = [];
+
+    for (const file of fs.existsSync(SNIPPET_DIR) ? fs.readdirSync(SNIPPET_DIR) : []) {
+        const match = /^storefront\.([a-zA-Z-]+)\.json$/.exec(file);
+        if (!match) {
+            continue;
+        }
+        const json = readJson(path.join(SNIPPET_DIR, file));
+        if (!json?.global?.default || typeof json.global.default !== 'object') {
+            continue;
+        }
+        const locale = match[1];
+        globalDefaultByLocale[locale] = json.global.default;
+        flattenedByLocale[locale] = flatten(json, '', {});
+        locales.push(locale);
+    }
+
+    if (!locales.length) {
+        duplicateCache = map;
+        return duplicateCache;
+    }
+
+    const baseLocale = locales[0];
+    const defaultKeys = Object.keys(globalDefaultByLocale[baseLocale]);
+    const allowList = loadAllowList();
+    const base = flattenedByLocale[baseLocale];
+
+    for (const [key, value] of Object.entries(base)) {
+        if (key.startsWith('global.default.') || map.has(key) || isAllowed(key, allowList)) {
+            continue;
+        }
+
+        const candidate = defaultKeys.find(defaultKey => globalDefaultByLocale[baseLocale][defaultKey] === value
+            && locales.every(locale => flattenedByLocale[locale]
+            && flattenedByLocale[locale][key] === globalDefaultByLocale[locale][defaultKey]));
+
+        if (candidate) {
+            map.set(key, candidate);
+        }
+    }
+
+    duplicateCache = map;
+    return duplicateCache;
+}
+
+module.exports = {
+    meta: {
+        type: 'suggestion',
+        docs: {
+            description: 'Disallow snippet values that are identical to a `global.default` translation in every locale; '
+                + 'reference the `global.default` snippet instead of redefining it.',
+            recommended: true,
+        },
+        schema: [],
+        messages: {
+            useGlobalDefault: 'Snippet Key `{{key}}` duplicates `global.default.{{defaultKey}}`. '
+                + 'Please remove it and use `global.default.{{defaultKey}}` instead ({{file}}).',
+        },
+    },
+
+    create(context) {
+        const map = getDuplicates();
+        if (!map.size) {
+            return {};
+        }
+
+        const filename = context.filename ?? context.getFilename();
+        const relativeFile = path.relative(STOREFRONT_ROOT, filename);
+        const keyPath = [];
+
+        return {
+            Member(node) {
+                keyPath.push(node.name.value);
+
+                if (node.value.type !== 'String') {
+                    return;
+                }
+
+                const dottedKey = keyPath.join('.');
+                const defaultKey = map.get(dottedKey);
+                if (!defaultKey) {
+                    return;
+                }
+
+                context.report({
+                    node,
+                    messageId: 'useGlobalDefault',
+                    data: {
+                        key: dottedKey,
+                        defaultKey,
+                        file: relativeFile,
+                    },
+                });
+            },
+            'Member:exit'() {
+                keyPath.pop();
+            },
+        };
+    },
+};

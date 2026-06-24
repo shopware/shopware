@@ -39,7 +39,7 @@ class SimpleExtendedDefinition extends EntityDefinition
                 new FkField('simple_id', 'simpleId', SimpleDefinition::class),
                 (new JsonField('extended_json_field', 'extendedJsonField'))->addFlags(new Extension()),
 
-                new OneToOneAssociationField('simpleIdField', 'simple_id', 'id_field', SimpleDefinition::class, false),
+                (new OneToOneAssociationField('simpleIdField', 'simple_id', 'id_field', SimpleDefinition::class, false))->addFlags(new Extension()),
             ]
         );
     }

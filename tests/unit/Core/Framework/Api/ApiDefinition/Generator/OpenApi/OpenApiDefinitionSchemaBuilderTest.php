@@ -123,6 +123,26 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+        static::assertSame(
+            '#/components/schemas/Simple',
+            $properties['extensions']['properties']['simpleIdField']['$ref']
+        );
+        static::assertArrayNotHasKey('data', $properties['extensions']['properties']['simpleIdField']);
+    }
+
+    public function testJsonApiExtensionConversionKeepsAssociationLinkage(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleExtendedDefinition::class),
+            '/simple-extended',
+            false
+        );
+        $properties = json_decode($schema['SimpleExtendedJsonApi']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['allOf'][1]['properties'];
+
+        static::assertArrayHasKey('extensions', $properties);
+        static::assertArrayHasKey('properties', $properties['extensions']);
+        static::assertArrayHasKey('simpleIdField', $properties['extensions']['properties']);
+        static::assertArrayHasKey('data', $properties['extensions']['properties']['simpleIdField']['properties']);
     }
 
     public function testAssociationDescriptions(): void

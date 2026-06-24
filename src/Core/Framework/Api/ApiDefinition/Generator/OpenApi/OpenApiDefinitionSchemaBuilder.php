@@ -178,14 +178,8 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $extensionRelationships[] = $extensionAttributes[$extension->getPropertyName()];
+                $extensionRelationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
             }
-
-            $attributes[] = new Property([
-                'property' => 'extensions',
-                'type' => 'object',
-                'properties' => $extensionAttributes,
-            ]);
         }
 
         if ($definition->getTranslationDefinition()) {
@@ -208,6 +202,16 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
+        $jsonApiAttributes = $attributes;
+
+        if ($extensionAttributes !== []) {
+            $jsonApiAttributes[] = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
+        }
+
         $requiredAttributes = array_values(array_unique($requiredAttributes));
 
         $since = $definition->since();
@@ -218,7 +222,7 @@ class OpenApiDefinitionSchemaBuilder
                     new Schema(['ref' => '#/components/schemas/resource']),
                     new Schema([
                         'type' => 'object',
-                        'properties' => $attributes,
+                        'properties' => $jsonApiAttributes,
                     ]),
                 ],
             ]);
@@ -244,7 +248,7 @@ class OpenApiDefinitionSchemaBuilder
             $attributes[] = $this->getRelationShipProperty($relationship);
         }
 
-        if ($extensionRelationships !== []) {
+        if ($extensionAttributes !== []) {
             $extensionRelationshipsProperty = new Property([
                 'property' => 'extensions',
                 'type' => 'object',

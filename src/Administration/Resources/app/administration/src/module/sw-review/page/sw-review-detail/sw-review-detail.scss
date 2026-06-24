@@ -51,7 +51,7 @@
 
         &-review-title {
             font-weight: var(--font-weight-semibold);
-            font-size: var(--font-weight-m);
+            font-size: var(--font-size-m);
             margin-bottom: var(--scale-size-4);
             word-break: break-word;
         }
@@ -63,7 +63,7 @@
 
     .sw-review-base-info {
         font-size: var(--font-size-xs);
-        line-height: var(--line-height-xs);
+        line-height: var(--font-line-height-xs);
         margin-bottom: var(--scale-size-16);
 
         .sw-review-base-info-columns {

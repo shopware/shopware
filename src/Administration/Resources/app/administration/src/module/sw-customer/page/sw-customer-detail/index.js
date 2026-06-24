@@ -176,8 +176,6 @@ export default {
 
     methods: {
         async loadCustomer() {
-            const defaultSalutationId = await this.getDefaultSalutation();
-
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
                 path: 'customer',
@@ -185,9 +183,26 @@ export default {
             });
             this.isLoading = true;
 
-            this.customerRepository.get(this.customerId, Shopware.Context.api, this.defaultCriteria).then((customer) => {
+            try {
+                const customer = await this.customerRepository.get(
+                    this.customerId,
+                    Shopware.Context.api,
+                    this.defaultCriteria,
+                );
                 this.customer = customer;
-                if (!this.customer?.salutationId) {
+
+                if (!this.customer) {
+                    this.createNotificationError({
+                        message: this.$t('sw-customer.detail.messageCustomerNotFound'),
+                    });
+                    void this.$router.push({ name: 'sw.customer.index' });
+
+                    return;
+                }
+
+                const defaultSalutationId = await this.getDefaultSalutation();
+
+                if (!this.customer.salutationId) {
                     this.customer.salutationId = defaultSalutationId;
                 }
 
@@ -198,9 +213,13 @@ export default {
 
                     return address;
                 });
-
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            } finally {
                 this.isLoading = false;
-            });
+            }
         },
 
         async createdComponent() {

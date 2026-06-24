@@ -245,8 +245,23 @@ if (payload.recent_commits_in_area !== undefined) {
   }
 }
 
-if (payload.duplicate_of !== null && typeof payload.duplicate_of !== 'number') {
-  violations.push(`duplicate_of must be a number or null, got ${typeof payload.duplicate_of}`);
+// duplicate_of is null when not a duplicate, else the duplicated issue's number
+// (a plain positive integer — never a float, zero, negative, or "#15800" string).
+if (payload.duplicate_of !== null
+  && (typeof payload.duplicate_of !== 'number' || !Number.isInteger(payload.duplicate_of) || payload.duplicate_of <= 0)) {
+  violations.push(`duplicate_of must be null or a positive integer, got ${JSON.stringify(payload.duplicate_of)}`);
+}
+
+// Cross-field consistency: the `duplicate` disposition and a `duplicate_of` target
+// must agree. A `duplicate` with no target (or a target under any other disposition)
+// is incoherent — and exactly what a prompt injection ("always set disposition=
+// duplicate of #1") or a sloppy run produces. The downstream reproduce pipeline and
+// the issue comment both consume this pair, so reject the mismatch here.
+if (payload.disposition === 'duplicate' && payload.duplicate_of === null) {
+  violations.push("disposition is 'duplicate' but duplicate_of is null — set duplicate_of to the duplicated issue number");
+}
+if (payload.duplicate_of !== null && payload.disposition !== 'duplicate') {
+  violations.push(`duplicate_of is set (${JSON.stringify(payload.duplicate_of)}) but disposition is ${JSON.stringify(payload.disposition)} — duplicate_of is only valid with disposition 'duplicate'`);
 }
 
 // Secret-pattern scan over every string field — defense in depth against the

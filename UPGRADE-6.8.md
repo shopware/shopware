@@ -44,6 +44,13 @@ The default CMS page ID is now automatically written to the database when a cate
 
 The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
 
+## Storefront template config PHP helpers removed
+
+The PHP methods `Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::config()` and `Shopware\Storefront\Framework\Twig\TemplateConfigAccessor::config()` were removed.
+Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code.
+
+Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -74,6 +81,12 @@ Affected commands:
 | `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
 | `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
 | `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
+## Agentic Commerce sales channel features removed
+
+The Agentic Commerce sales channel features — including product export providers, sales channel tracking, and related classes — have been removed from Shopware's core and are no longer available out of the box.
+
+> Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
 
 </details>
 
@@ -230,45 +243,6 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
-
-## Product stream builder API changes
-
-The `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` interface has been removed.
-Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder` instead.
-
-The `buildFilters()` method has been removed from both `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder`.
-Use `AbstractProductStreamBuilder::enrichCriteria()` instead so the builder can apply both the stream filters and additional criteria state.
-
-### Before
-
-```php
-public function __construct(
-    private readonly ProductStreamBuilderInterface $productStreamBuilder,
-) {
-}
-
-$filters = $this->productStreamBuilder->buildFilters($streamId, $context);
-$criteria->addFilter(...$filters);
-```
-
-### After
-
-```php
-public function __construct(
-    private readonly AbstractProductStreamBuilder $productStreamBuilder,
-) {
-}
-
-$this->productStreamBuilder->enrichCriteria($criteria, $streamId, $context);
-```
-
-## Product streams can disable variant grouping
-
-Product streams no longer always imply grouped variant results.
-When `product_stream.display_as_group` is disabled, category listings, product cross-sellings, and CMS product sliders keep matching variants as individual variants instead of grouping them by `displayGroup` or remapping them to preview/main variants.
-
-The new field defaults to `true`, so existing product streams keep the previous behavior after migration.
-If your extension decorates storefront product stream consumers or adds variant grouping manually, respect `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED` and skip grouping or preview remapping when that state is present on the `Criteria`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -808,6 +782,18 @@ The following exception classes were removed and replaced by domain exceptions:
 
 Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+## `render()` removed from the core script `response` service
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` has been removed. Rendering Storefront templates from scripts is only available in Storefront script hooks (the `/storefront/script/{hook}` endpoint), where the `response` service is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`. In admin-api and store-api script hooks the `response` service no longer offers `render()`.
+
+App scripts that may run outside a Storefront context should guard their usage:
+
+```twig
+{% if response.render is defined %}
+    {% set rendered = response.render('@Storefront/...') %}
+{% endif %}
+```
+
 </details>
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed
@@ -846,6 +832,39 @@ $this->mediaUploadService->assertValidExternalUrl($url);
 # Administration
 
 <details>
+
+### Block removals
+
+Due to inappropriate block names, the following deprecated blocks have been removed. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 ## Migrating Options API overrides to the Composition API Extension System
 

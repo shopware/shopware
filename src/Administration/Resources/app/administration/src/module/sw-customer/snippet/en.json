@@ -163,6 +163,8 @@
       "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {
+      "cardTitle": "Addresses",
+      "filterPlaceholder": "Search addresses...",
       "buttonAddAddress": "Add address",
       "buttonClose": "Close",
       "buttonDelete": "Delete",
@@ -246,6 +248,7 @@
       "buttonEdit": "Edit",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
+      "messageCustomerNotFound": "The customer could not be found. The customer may have been deleted.",
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Installer\Database\DatabaseMigrator;
 use Shopware\Core\Installer\Database\MigrationCollectionFactory;
+use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Symfony\Component\Clock\NativeClock;
@@ -25,6 +27,10 @@ class DatabaseMigratorTest extends TestCase
     private Connection&MockObject $connection;
 
     private MockObject&MigrationCollection $migrationCollection;
+
+    private MockObject&IniConfigReader $iniConfigReader;
+
+    private string $maxExecutionTime = '10';
 
     private DatabaseMigrator $databaseMigrator;
 
@@ -47,10 +53,17 @@ class DatabaseMigratorTest extends TestCase
             ->with($this->connection)
             ->willReturn($migrationLoader);
 
+        $this->iniConfigReader = $this->createMock(IniConfigReader::class);
+        $this->iniConfigReader
+            ->method('get')
+            ->with('max_execution_time')
+            ->willReturnCallback(fn (): string => $this->maxExecutionTime);
+
         $this->databaseMigrator = new DatabaseMigrator(
             $this->setupAdapter,
             $migrationCollectorFactory,
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->iniConfigReader,
             new NativeClock()
         );
     }
@@ -80,11 +93,7 @@ class DatabaseMigratorTest extends TestCase
             ->method('getExecutableDestructiveMigrations')
             ->willReturn(['migration']);
 
-        \ini_set('max_execution_time', '10');
-
         $result = $this->databaseMigrator->migrate(0, $this->connection);
-
-        \ini_restore('max_execution_time');
 
         static::assertSame([
             'offset' => 1,
@@ -126,11 +135,7 @@ class DatabaseMigratorTest extends TestCase
             ->method('getExecutableDestructiveMigrations')
             ->willReturn(['migration']);
 
-        \ini_set('max_execution_time', '10');
-
         $result = $this->databaseMigrator->migrate(1, $this->connection);
-
-        \ini_restore('max_execution_time');
 
         static::assertSame([
             'offset' => 3,
@@ -139,8 +144,11 @@ class DatabaseMigratorTest extends TestCase
         ], $result);
     }
 
-    public function testFinishedMigration(): void
+    #[DataProvider('maxExecutionTimeProvider')]
+    public function testFinishedMigration(string $maxExecutionTime): void
     {
+        $this->maxExecutionTime = $maxExecutionTime;
+
         $this->setupAdapter->expects($this->never())
             ->method('initializeShopwareDb')
             ->with($this->connection);
@@ -174,17 +182,20 @@ class DatabaseMigratorTest extends TestCase
             ->method('getExecutableDestructiveMigrations')
             ->willReturn([]);
 
-        \ini_set('max_execution_time', '10');
-
         $result = $this->databaseMigrator->migrate(6, $this->connection);
-
-        \ini_restore('max_execution_time');
 
         static::assertSame([
             'offset' => 10,
             'total' => 10,
             'isFinished' => true,
         ], $result);
+    }
+
+    public static function maxExecutionTimeProvider(): \Generator
+    {
+        yield 'configured above installer cap' => ['10'];
+        yield 'unlimited php runtime' => ['0'];
+        yield 'unlimited php runtime from cli option' => ['-1'];
     }
 
     /**

@@ -42,9 +42,13 @@ class McpExceptionListenerTest extends TestCase
         static::assertNotNull($response);
         static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
-        $body = json_decode((string) $response->getContent(), true);
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('invalid_client', $body['error']);
         static::assertStringContainsString('/api/_mcp', $body['error_description']);
+        static::assertStringContainsString('/store-api/_mcp', $body['error_description']);
     }
 
     #[TestDox('returns OAuth error for POST /register regardless of accept header')]
@@ -101,8 +105,37 @@ class McpExceptionListenerTest extends TestCase
         static::assertNotNull($response);
         static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
-        $body = json_decode((string) $response->getContent(), true);
-        static::assertSame(-32001, $body['error']['code']);
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
+    }
+
+    #[TestDox('converts HTTP exception on Store API MCP route to JSON-RPC error')]
+    public function testConvertsStoreApiHttpExceptionToJsonRpcError(): void
+    {
+        $listener = new McpExceptionListener();
+        $httpException = new class extends \RuntimeException {
+            public function getStatusCode(): int
+            {
+                return Response::HTTP_UNAUTHORIZED;
+            }
+        };
+
+        $event = $this->createExceptionEvent('/store-api/_mcp', 'store-api.mcp.endpoint', $httpException);
+
+        $listener->onException($event);
+
+        $response = $event->getResponse();
+        static::assertNotNull($response);
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
     }
 
     #[TestDox('converts generic exception on MCP route to 500 JSON-RPC error')]
@@ -117,7 +150,10 @@ class McpExceptionListenerTest extends TestCase
         static::assertNotNull($response);
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
 
-        $body = json_decode((string) $response->getContent(), true);
+        $content = $response->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Error::SERVER_ERROR, $body['error']['code']);
         static::assertSame('Something went wrong', $body['error']['message']);
     }
@@ -158,7 +194,10 @@ class McpExceptionListenerTest extends TestCase
 
         $listener->onException($event);
 
-        $body = json_decode((string) $event->getResponse()?->getContent(), true);
+        $content = $event->getResponse()?->getContent();
+        static::assertNotFalse($content);
+        static::assertNotNull($content);
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame($expectedCode, $body['error']['code']);
     }
 

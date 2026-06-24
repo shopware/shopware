@@ -25,6 +25,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
 use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader;
@@ -59,7 +60,7 @@ class SalesChannelFileRendererTest extends TestCase
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
-            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
+            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => 0, 'Framework' => -1]),
         ]);
         $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
 
@@ -68,7 +69,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -113,7 +114,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -135,6 +136,52 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('plugin + core', $renderer->render($file, $this->createSalesChannelContext()));
     }
 
+    public function testSalesChannelSpecificTemplateHierarchyIsResolvedBeforeRendering(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% endblock %}',
+                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $hierarchyBuilder = new SalesChannelFileRendererTestMutableHierarchyBuilder(['Framework' => 0]);
+        $templateFinder = $this->createTemplateFinder($twig, $loader, $hierarchyBuilder);
+        $context = $this->createSalesChannelContext();
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(SalesChannelFileTemplateResolveEvent::class, static function (SalesChannelFileTemplateResolveEvent $event) use ($context, $hierarchyBuilder): void {
+            static::assertSame($context->getSalesChannelId(), $event->salesChannelId);
+
+            $hierarchyBuilder->setHierarchy(['Ucp' => 0, 'Framework' => -1]);
+        });
+
+        $renderer = new SalesChannelFileRenderer(
+            $twig,
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder, $eventDispatcher),
+            $templateOverrideLoader,
+            $this->createSeoUrlPlaceholderHandler(),
+            $this->createSalesChannelRepository(),
+            $this->createExtensionDispatcher()
+        );
+
+        $file = new SalesChannelFile(
+            'agentic',
+            'llms.txt',
+            'files/agentic/llms.txt.twig',
+            'text/plain; charset=utf-8',
+            'files/agentic/llms.txt.twig',
+            [],
+        );
+
+        $content = $renderer->render($file, $context, [
+            'Ucp' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}merchant plugin + {{ parent() }}{% endblock %}',
+        ]);
+
+        static::assertSame('merchant plugin + core', $content);
+    }
+
     public function testExtensionProvidedBaseTemplateCanBeExtended(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
@@ -146,11 +193,12 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $templateFinder = $this->createTemplateFinder($twig, $loader, ['VendorBase' => -1, 'Ucp' => 0]);
+        $hierarchy = ['Ucp' => 0, 'VendorBase' => -1];
+        $templateFinder = $this->createTemplateFinder($twig, $loader, $hierarchy);
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchy),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -187,7 +235,7 @@ class SalesChannelFileRendererTest extends TestCase
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
-            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
+            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => 0, 'Framework' => -1]),
         ]);
         $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
 
@@ -196,7 +244,7 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -256,7 +304,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository(),
@@ -321,7 +369,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $salesChannelRepository,
@@ -366,7 +414,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, ['Framework' => 0]),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository($reloadedSalesChannel),
@@ -414,7 +462,7 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            new SalesChannelFileTemplateResolver($templateFinder),
+            $this->createTemplateResolver($templateFinder, $loader, ['Framework' => 0]),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $this->createSalesChannelRepository(),
@@ -448,8 +496,11 @@ class SalesChannelFileRendererTest extends TestCase
     /**
      * @param array<string, int> $hierarchy
      */
-    private function createTemplateFinder(Environment $twig, ChainLoader $loader, array $hierarchy = ['Framework' => -1, 'Ucp' => 0]): TemplateFinder
-    {
+    private function createTemplateFinder(
+        Environment $twig,
+        ChainLoader $loader,
+        array|TemplateNamespaceHierarchyBuilderInterface $hierarchy = ['Ucp' => 0, 'Framework' => -1]
+    ): TemplateFinder {
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
@@ -457,15 +508,44 @@ class SalesChannelFileRendererTest extends TestCase
             $twig,
             $loader,
             '',
-            new NamespaceHierarchyBuilder([
-                new SalesChannelFileRendererTestHierarchyBuilder($hierarchy),
-            ]),
+            $this->createNamespaceHierarchyBuilder($hierarchy),
             $scopeDetector,
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
 
         return $templateFinder;
+    }
+
+    /**
+     * @param array<string, int> $hierarchy
+     */
+    private function createTemplateResolver(
+        TemplateFinder $templateFinder,
+        ChainLoader $loader,
+        NamespaceHierarchyBuilder|array|TemplateNamespaceHierarchyBuilderInterface $hierarchy = ['Ucp' => 0, 'Framework' => -1],
+        ?EventDispatcher $eventDispatcher = null
+    ): SalesChannelFileTemplateResolver {
+        return new SalesChannelFileTemplateResolver(
+            $templateFinder,
+            $this->createNamespaceHierarchyBuilder($hierarchy),
+            $loader,
+            $eventDispatcher ?? new EventDispatcher(),
+        );
+    }
+
+    /**
+     * @param array<string, int> $hierarchy
+     */
+    private function createNamespaceHierarchyBuilder(NamespaceHierarchyBuilder|array|TemplateNamespaceHierarchyBuilderInterface $hierarchy): NamespaceHierarchyBuilder
+    {
+        if ($hierarchy instanceof NamespaceHierarchyBuilder) {
+            return $hierarchy;
+        }
+
+        return new NamespaceHierarchyBuilder([
+            \is_array($hierarchy) ? new SalesChannelFileRendererTestHierarchyBuilder($hierarchy) : $hierarchy,
+        ]);
     }
 
     private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&MockObject
@@ -577,6 +657,32 @@ final readonly class SalesChannelFileRendererTestHierarchyBuilder implements Tem
      */
     public function __construct(private array $hierarchy)
     {
+    }
+
+    public function buildNamespaceHierarchy(array $namespaceHierarchy): array
+    {
+        return $this->hierarchy + $namespaceHierarchy;
+    }
+}
+
+/**
+ * @internal
+ */
+final class SalesChannelFileRendererTestMutableHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
+{
+    /**
+     * @param array<string, int> $hierarchy
+     */
+    public function __construct(private array $hierarchy)
+    {
+    }
+
+    /**
+     * @param array<string, int> $hierarchy
+     */
+    public function setHierarchy(array $hierarchy): void
+    {
+        $this->hierarchy = $hierarchy;
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array

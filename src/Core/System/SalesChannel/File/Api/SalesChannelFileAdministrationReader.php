@@ -58,14 +58,15 @@ class SalesChannelFileAdministrationReader
         }
 
         $configuration = $this->configurationLoader->load($fileFamily, $fileName, $salesChannelId, $context);
+        $templates = $this->templateResolver->resolveTemplateChain($file, $salesChannelId);
 
         return new SalesChannelFileAdministrationDetail(
             $file->fileFamily,
             $file->fileName,
             $file->templatePath,
             $file->contentType,
-            $this->serializeTemplates($file),
-            $this->supportsUserProvidedContent($file->templates),
+            $this->serializeTemplates($templates, $file->baseTemplateName),
+            $this->supportsUserProvidedContent($templates),
             $configuration === null ? null : $this->serializeConfiguration($configuration),
         );
     }
@@ -80,14 +81,17 @@ class SalesChannelFileAdministrationReader
     }
 
     /**
+     * @param array<string, string> $templates Twig namespace mapped to resolved template name
+     *
      * @return list<SalesChannelFileAdministrationTemplate>
      */
-    private function serializeTemplates(SalesChannelFile $file): array
+    private function serializeTemplates(array $templates, string $baseTemplateName): array
     {
         $serialized = [];
-        $baseTemplateName = $this->templateResolver->getBaseTemplateName($file);
+        $key = array_key_last($templates);
+        $baseTemplateName = $key === null ? $baseTemplateName : $templates[$key];
 
-        foreach ($file->templates as $twigNamespace => $templateName) {
+        foreach ($templates as $twigNamespace => $templateName) {
             $serialized[] = new SalesChannelFileAdministrationTemplate(
                 $twigNamespace,
                 $templateName,

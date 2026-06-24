@@ -62,7 +62,6 @@
 
         <service id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery" public="true">
             <argument type="service" id="twig.template_iterator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="cache.object"/>
         </service>
 
@@ -72,6 +71,9 @@
 
         <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+            <argument type="service" id="twig.loader"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader">

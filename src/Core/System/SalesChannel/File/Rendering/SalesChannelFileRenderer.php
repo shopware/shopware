@@ -45,9 +45,10 @@ class SalesChannelFileRenderer
      */
     public function render(SalesChannelFile $file, SalesChannelContext $context, array $templateOverrides = []): string
     {
-        $overrideTemplates = $this->buildOverrideTemplates($file, $templateOverrides);
+        $templates = $this->templateResolver->resolveTemplateChain($file, $context->getSalesChannelId());
+        $overrideTemplates = $this->buildOverrideTemplates($templates, $templateOverrides);
         $parameters = $this->buildParameters($file, $context);
-        $templateName = $this->getRenderTemplateName($file);
+        $templateName = $this->getRenderTemplateName($file, $templates);
 
         $userProvidedContent = $this->getUserProvidedContent($templateOverrides);
         if ($userProvidedContent !== null) {
@@ -64,21 +65,27 @@ class SalesChannelFileRenderer
         return $this->seoUrlPlaceholderHandler->replace($content, '', $context);
     }
 
-    private function getRenderTemplateName(SalesChannelFile $file): string
+    /**
+     * @param array<string, string> $templates
+     */
+    private function getRenderTemplateName(SalesChannelFile $file, array $templates): string
     {
-        return $this->templateResolver->getRenderTemplateName($file);
+        $key = array_key_first($templates);
+
+        return $key === null ? $file->baseTemplateName : $templates[$key];
     }
 
     /**
+     * @param array<string, string> $templates
      * @param array<string, mixed> $templateOverrides
      *
      * @return array<string, string>
      */
-    private function buildOverrideTemplates(SalesChannelFile $file, array $templateOverrides): array
+    private function buildOverrideTemplates(array $templates, array $templateOverrides): array
     {
         $overrideTemplates = [];
 
-        foreach ($file->templates as $twigNamespace => $templateName) {
+        foreach ($templates as $twigNamespace => $templateName) {
             $override = $templateOverrides[$twigNamespace] ?? null;
 
             if (!\is_string($override)) {

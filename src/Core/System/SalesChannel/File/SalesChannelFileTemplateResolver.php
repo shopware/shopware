@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\File;
 
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
-use Twig\Error\LoaderError;
+use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Loader\LoaderInterface;
 
 /**
  * @internal
@@ -13,53 +16,53 @@ use Twig\Error\LoaderError;
 #[Package('framework')]
 class SalesChannelFileTemplateResolver
 {
-    public function __construct(private readonly TemplateFinder $templateFinder)
-    {
+    public function __construct(
+        private readonly TemplateFinder $templateFinder,
+        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
+        private readonly LoaderInterface $loader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
-    public function getRenderTemplateName(SalesChannelFile $file): string
+    public function getRenderTemplateName(SalesChannelFile $file, ?string $salesChannelId = null): string
     {
-        $templates = $this->resolveTemplateChain($file);
-        $key = array_key_last($templates);
-
-        return $key === null ? $file->baseTemplateName : $templates[$key];
-    }
-
-    public function getBaseTemplateName(SalesChannelFile $file): string
-    {
-        $templates = $this->resolveTemplateChain($file);
+        $templates = $this->resolveTemplateChain($file, $salesChannelId);
         $key = array_key_first($templates);
 
         return $key === null ? $file->baseTemplateName : $templates[$key];
     }
 
-    /**
-     * @return list<string>
-     */
-    private function resolveTemplateChain(SalesChannelFile $file): array
+    public function getBaseTemplateName(SalesChannelFile $file, ?string $salesChannelId = null): string
     {
-        $templates = [];
-        $seen = [];
-        $source = null;
+        $templates = $this->resolveTemplateChain($file, $salesChannelId);
+        $key = array_key_last($templates);
 
-        // Feed each match back as source so TemplateFinder walks the same namespace chain sw_extends would resolve.
-        // Stop if the hierarchy cycles back to a template we already visited.
-        while (true) {
-            try {
-                $templateName = $this->templateFinder->find($file->templatePath, false, $source);
-            } catch (LoaderError) {
-                break;
-            }
+        return $key === null ? $file->baseTemplateName : $templates[$key];
+    }
 
-            if (isset($seen[$templateName])) {
-                break;
-            }
-
-            $templates[] = $templateName;
-            $seen[$templateName] = true;
-            $source = $templateName;
+    /**
+     * @return array<string, string> Twig namespace mapped to resolved template name
+     */
+    public function resolveTemplateChain(SalesChannelFile $file, ?string $salesChannelId = null): array
+    {
+        if ($salesChannelId !== null) {
+            $this->eventDispatcher->dispatch(new SalesChannelFileTemplateResolveEvent($salesChannelId));
         }
 
-        return $templates ?: array_values($file->templates);
+        $this->templateFinder->reset();
+
+        $templates = [];
+
+        foreach (array_keys($this->namespaceHierarchyBuilder->buildHierarchy()) as $twigNamespace) {
+            $templateName = '@' . $twigNamespace . '/' . $file->templatePath;
+
+            if (!$this->loader->exists($templateName)) {
+                continue;
+            }
+
+            $templates[$twigNamespace] = $templateName;
+        }
+
+        return $templates ?: $file->templates;
     }
 }

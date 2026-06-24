@@ -106,16 +106,16 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'text/plain; charset=utf-8',
             [
                 new SalesChannelFileAdministrationTemplate(
-                    'Framework',
-                    '@Framework/files/agentic/llms.txt.twig',
-                    'Core template',
-                    'base',
-                ),
-                new SalesChannelFileAdministrationTemplate(
                     'Ucp',
                     '@Ucp/files/agentic/llms.txt.twig',
                     '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
                     'extension',
+                ),
+                new SalesChannelFileAdministrationTemplate(
+                    'Framework',
+                    '@Framework/files/agentic/llms.txt.twig',
+                    'Core template',
+                    'base',
                 ),
             ],
             true,
@@ -195,8 +195,11 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
     {
         $resolver = $this->createMock(SalesChannelFileTemplateResolver::class);
         $resolver
-            ->method('getBaseTemplateName')
-            ->willReturn('@Framework/files/agentic/llms.txt.twig');
+            ->method('resolveTemplateChain')
+            ->willReturn([
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+            ]);
 
         return $resolver;
     }

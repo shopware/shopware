@@ -126,23 +126,25 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('data', $properties['extensions']['properties']['simpleIdField']['properties']);
     }
 
-    public function testWriteExtensionConversionUsesDirectAssociationSchema(): void
+    public function testRequestExtensionConversionUsesDirectAssociationSchema(): void
     {
         $schema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(SimpleExtendedDefinition::class),
             '/simple-extended',
             false
         );
-        $properties = json_decode($schema['SimpleExtendedWrite']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+        $createProperties = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+        $updateProperties = json_decode($schema['SimpleExtendedUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
-        static::assertArrayHasKey('extensions', $properties);
-        static::assertArrayHasKey('properties', $properties['extensions']);
-        static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+        static::assertSame($createProperties, $updateProperties);
+        static::assertArrayHasKey('extensions', $createProperties);
+        static::assertArrayHasKey('properties', $createProperties['extensions']);
+        static::assertArrayHasKey('extendedJsonField', $createProperties['extensions']['properties']);
         static::assertSame(
             '#/components/schemas/Simple',
-            $properties['extensions']['properties']['simpleIdField']['$ref']
+            $createProperties['extensions']['properties']['simpleIdField']['$ref']
         );
-        static::assertArrayNotHasKey('data', $properties['extensions']['properties']['simpleIdField']);
+        static::assertArrayNotHasKey('data', $createProperties['extensions']['properties']['simpleIdField']);
     }
 
     public function testJsonApiExtensionConversionKeepsAssociationLinkage(): void

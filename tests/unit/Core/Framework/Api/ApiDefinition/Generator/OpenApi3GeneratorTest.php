@@ -77,8 +77,8 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('get', $paths['/simple/{id}']);
         static::assertArrayHasKey('patch', $paths['/simple/{id}']);
         static::assertArrayHasKey('delete', $paths['/simple/{id}']);
-        static::assertSame('#/components/schemas/SimpleWrite', $paths['/simple']['post']['requestBody']['content']['application/json']['schema']['$ref']);
-        static::assertSame('#/components/schemas/SimpleWrite', $paths['/simple/{id}']['patch']['requestBody']['content']['application/json']['schema']['$ref']);
+        static::assertSame('#/components/schemas/SimpleCreate', $paths['/simple']['post']['requestBody']['content']['application/json']['schema']['$ref']);
+        static::assertSame('#/components/schemas/SimpleUpdate', $paths['/simple/{id}']['patch']['requestBody']['content']['application/json']['schema']['$ref']);
 
         static::assertArrayHasKey('post', $paths['/_action/order_delivery/{orderDeliveryId}/state/{transition}']);
     }
@@ -93,7 +93,8 @@ class OpenApi3GeneratorTest extends TestCase
         );
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Simple', $entities);
-        static::assertArrayHasKey('SimpleWrite', $entities);
+        static::assertArrayHasKey('SimpleCreate', $entities);
+        static::assertArrayHasKey('SimpleUpdate', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 

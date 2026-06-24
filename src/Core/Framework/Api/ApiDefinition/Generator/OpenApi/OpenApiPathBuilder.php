@@ -204,7 +204,7 @@ class OpenApiPathBuilder
                 'content' => [
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/' . $schemaName . 'Write',
+                            '$ref' => '#/components/schemas/' . $schemaName . 'Create',
                         ],
                     ],
                 ],
@@ -238,7 +238,7 @@ class OpenApiPathBuilder
                 'content' => [
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/' . $schemaName . 'Write',
+                            '$ref' => '#/components/schemas/' . $schemaName . 'Update',
                         ],
                     ],
                 ],

@@ -169,7 +169,7 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
-        $extensionWriteAttributes = $extensionAttributes;
+        $extensionRequestAttributes = $extensionAttributes;
 
         if ($extensionAttributes !== []) {
             foreach ($extensions as $extension) {
@@ -177,7 +177,7 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $extensionWriteAttributes[$extension->getPropertyName()] = $this->getRelationShipProperty($extensionAttributes[$extension->getPropertyName()]);
+                $extensionRequestAttributes[$extension->getPropertyName()] = $this->getRelationShipProperty($extensionAttributes[$extension->getPropertyName()]);
             }
         }
 
@@ -201,7 +201,7 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
-        $writeAttributes = $attributes;
+        $requestAttributes = $attributes;
 
         if ($extensionAttributes !== []) {
             $attributes[] = new Property([
@@ -210,10 +210,10 @@ class OpenApiDefinitionSchemaBuilder
                 'properties' => $extensionAttributes,
             ]);
 
-            $writeAttributes[] = new Property([
+            $requestAttributes[] = new Property([
                 'property' => 'extensions',
                 'type' => 'object',
-                'properties' => $extensionWriteAttributes,
+                'properties' => $extensionRequestAttributes,
             ]);
         }
 
@@ -272,18 +272,26 @@ class OpenApiDefinitionSchemaBuilder
             $schema[$schemaName]->required = $requiredAttributes;
         }
 
-        $schema[$schemaName . 'Write'] = new Schema([
+        $schema[$schemaName . 'Create'] = new Schema([
             'type' => 'object',
-            'schema' => $schemaName . 'Write',
-            'properties' => $writeAttributes,
+            'schema' => $schemaName . 'Create',
+            'properties' => $requestAttributes,
+        ]);
+
+        $schema[$schemaName . 'Update'] = new Schema([
+            'type' => 'object',
+            'schema' => $schemaName . 'Update',
+            'properties' => $requestAttributes,
         ]);
 
         if ($since !== null && $since !== '') {
-            $schema[$schemaName . 'Write']->description = 'Added since version: ' . $since;
+            $schema[$schemaName . 'Create']->description = 'Added since version: ' . $since;
+            $schema[$schemaName . 'Update']->description = 'Added since version: ' . $since;
         }
 
         if ($requiredAttributes !== []) {
-            $schema[$schemaName . 'Write']->required = $requiredAttributes;
+            $schema[$schemaName . 'Create']->required = $requiredAttributes;
+            $schema[$schemaName . 'Update']->required = $requiredAttributes;
         }
 
         return $schema;

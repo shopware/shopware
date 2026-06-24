@@ -308,9 +308,15 @@
 
         .sw-admin-menu__user-actions-toggle {
             padding: 0;
+            margin-bottom: var(--scale-size-16);
             justify-content: center;
 
             &:hover:not(.is--active) {
+                background: transparent;
+            }
+
+            &.is--active,
+            &.is--active:hover {
                 background: transparent;
             }
         }

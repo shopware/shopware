@@ -140,7 +140,9 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const snippetButton = wrapper.find('.tree-items .sw-tree-item__children .sw-settings-country-new-snippet-modal__tree-item-button');
+        const snippetButton = wrapper.find(
+            '.tree-items .sw-tree-item__children .sw-settings-country-new-snippet-modal__tree-item-button',
+        );
 
         await snippetButton.trigger('click');
 

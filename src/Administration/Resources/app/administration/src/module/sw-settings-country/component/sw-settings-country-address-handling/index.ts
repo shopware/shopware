@@ -267,12 +267,13 @@ export default Component.wrapComponentConfig({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onDragStart(dragConfig: DragConfig<DragItem>, draggedElement: Element, dragElement: Element): void {
             this.draggedItem = dragConfig.data;
-            this.rowDragPreview = typeof dragConfig.data?.index === 'number'
-                ? {
-                      dragIndex: dragConfig.data.index,
-                      targetIndex: dragConfig.data.index,
-                  }
-                : null;
+            this.rowDragPreview =
+                typeof dragConfig.data?.index === 'number'
+                    ? {
+                          dragIndex: dragConfig.data.index,
+                          targetIndex: dragConfig.data.index,
+                      }
+                    : null;
         },
 
         onSnippetDragStart({ config }: { config: DragConfig<DragItem> }): void {
@@ -368,7 +369,8 @@ export default Component.wrapComponentConfig({
             this.snippetDragItem = null;
 
             if (typeof dragData?.linePosition === 'number' && dropData) {
-                const targetLinePosition = typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
+                const targetLinePosition =
+                    typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
                 const targetLine = [...(this.addressFormat[targetLinePosition] ?? [])];
                 const sourceLine = [...(this.addressFormat[dragData.linePosition] ?? [])];
                 const targetIndex =
@@ -413,11 +415,7 @@ export default Component.wrapComponentConfig({
         onSnippetDragEnter({ dragData, dropData }: { dragData: DragItem; dropData: DragItem }): void {
             this.snippetDragPreview = null;
 
-            if (
-                typeof dragData?.linePosition !== 'number' ||
-                !dropData ||
-                dragData.linePosition === dropData.linePosition
-            ) {
+            if (typeof dragData?.linePosition !== 'number' || !dropData || dragData.linePosition === dropData.linePosition) {
                 return;
             }
 
@@ -429,8 +427,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            const targetIndex =
-                typeof dropData.targetIndex === 'number' ? dropData.targetIndex : targetLine.length;
+            const targetIndex = typeof dropData.targetIndex === 'number' ? dropData.targetIndex : targetLine.length;
 
             this.snippetDragPreview = {
                 dragIndex: dragData.index,

@@ -1006,21 +1006,24 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should preview and move a snippet to the target position in another line', async () => {
-        wrapper = await createWrapper([
-            'country.editor',
-        ], {
-            addressFormat: [
-                [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
-                [
-                    'address/first_name',
-                    'address/last_name',
-                ],
+        wrapper = await createWrapper(
+            [
+                'country.editor',
             ],
-        });
+            {
+                addressFormat: [
+                    [
+                        'address/company',
+                        'symbol/dash',
+                        'address/department',
+                    ],
+                    [
+                        'address/first_name',
+                        'address/last_name',
+                    ],
+                ],
+            },
+        );
         await flushPromises();
 
         const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
@@ -1056,7 +1059,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         });
         await flushPromises();
 
-        const targetRowItems = wrapper.findAll('.sw-multi-snippet-drag-and-drop')[1].findAll('.sw-select-selection-list > li');
+        const targetRowItems = wrapper
+            .findAll('.sw-multi-snippet-drag-and-drop')[1]
+            .findAll('.sw-select-selection-list > li');
 
         expect(targetRowItems[1].classes()).toContain('sw-multi-snippet-drag-and-drop__placeholder');
 

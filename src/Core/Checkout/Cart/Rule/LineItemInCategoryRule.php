@@ -67,7 +67,7 @@ class LineItemInCategoryRule extends Rule
         return $constraints;
     }
 
-    public function getConfig(): RuleConfig
+    public function getConfig(): ?RuleConfig
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)

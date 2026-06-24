@@ -65,10 +65,12 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <!-- @deprecated tag:v6.8.0 - inline custom-fields will be removed, define them in a separate `Resources/config/custom-fields.xml` file instead -->
                 <xs:element name="custom-fields" type="custom-fields" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
                             Register custom-fields your app needs.
+                            Deprecated with Shopware 6.8: define custom-fields in a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
                         </xs:documentation>
                     </xs:annotation>
                     <xs:unique name="uniqueCustomFieldSetName">

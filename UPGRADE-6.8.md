@@ -1739,6 +1739,33 @@ State-based invalidation is not supported anymore.
 +{# No replacement #}
 ```
 
+## Inline `<custom-fields>` in `manifest.xml` removed
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
+Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
+
+```diff
+// manifest.xml
+- <custom-fields>
+-     <custom-field-set>
+-         <name>swag_example_set</name>
+-         ...
+-     </custom-field-set>
+- </custom-fields>
+```
+
+```xml
+<!-- Resources/config/custom-fields.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>swag_example_set</name>
+        ...
+    </custom-field-set>
+</custom-fields>
+```
+
 </details>
 
 # Hosting & Configuration

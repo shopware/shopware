@@ -214,7 +214,7 @@ $sw-admin-menu-active-text: $color-white;
         padding: 12px 30px;
         text-decoration: none;
         font-size: var(--font-size-xs);
-        line-height: var(--font-line-height-m);
+        line-height: var(--font-line-height-s);
         cursor: pointer;
         position: relative;
         font-weight: var(--font-weight-medium);
@@ -276,7 +276,7 @@ $sw-admin-menu-active-text: $color-white;
         padding: 20px 32px;
         text-decoration: none;
         font-size: var(--font-size-xs);
-        line-height: var(--font-line-height-m);
+        line-height: var(--font-line-height-s);
         width: 100%;
         cursor: pointer;
         white-space: nowrap;
@@ -293,7 +293,7 @@ $sw-admin-menu-active-text: $color-white;
             margin: 0 16px 0 0;
             vertical-align: middle;
             position: relative;
-            top: -2px;
+            top: -1px;
         }
 
         &:hover {
@@ -365,15 +365,14 @@ $sw-admin-menu-active-text: $color-white;
     .sw-admin-menu__user-name {
         margin-top: 2px;
         font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-bold);
+        font-weight: var(--font-weight-semibold);
         color: $sw-admin-menu-active-text;
     }
 
     .sw-admin-menu__user-type {
-        color: var(--color-text-attention-default);
-        font-size: var(--font-size-xs);
+        color: #ffd700;
+        font-size: var(--font-size-2xs);
         font-weight: var(--font-weight-medium);
-        margin-top: 2px;
     }
 
     .sw-admin-menu__user-actions {

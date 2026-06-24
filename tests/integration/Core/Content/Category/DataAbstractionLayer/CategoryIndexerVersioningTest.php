@@ -67,8 +67,9 @@ class CategoryIndexerVersioningTest extends TestCase
         $ids = $message->getData();
         static::assertIsArray($ids);
 
-        // Included from EntityExistence old parent_id, not via recursive draft descendant lookup
-        static::assertContains($rootCategoryId, $ids);
+        // The ancestor is not re-indexed on a pure name change: only the written
+        // category and its own version-scoped descendants are. See issue #11442.
+        static::assertNotContains($rootCategoryId, $ids);
 
         static::assertContains($childCategoryId, $ids);
         static::assertContains($childCategory4Id, $ids);

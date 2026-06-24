@@ -44,7 +44,7 @@ shopware/
 
 ## AI Skills
 
-This repo ships Agent Skills under `.claude/skills/` (catalogue: `.claude/skills/README.md`). Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
+This repo ships Agent Skills under `.claude/skills/`. Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
 
 ### Definition of Done — mandatory for every change
 
@@ -58,7 +58,7 @@ Before you commit or hand work back:
 
 When a task matches a skill, open `.claude/skills/<name>/SKILL.md` and follow it **before** implementing.
 
-### Skill catalogue
+### Guidance Skills
 
 - `shopware-knowledge-capture` — saving durable knowledge; routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
 - `shopware-change-scope` — root-cause analysis, boyscouting, and cleanup scope.

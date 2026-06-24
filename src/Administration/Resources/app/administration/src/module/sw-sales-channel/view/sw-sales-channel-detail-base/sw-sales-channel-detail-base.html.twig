@@ -184,7 +184,23 @@
             :variant="unservedLanguageVariant"
             :title="$t('global.default.' + unservedLanguageVariant)"
         >
-            <span v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"></span>
+            <div class="sw-sales-channel-detail-base__unserved-language-banner">
+                <span
+                    class="sw-sales-channel-detail-base__unserved-language-message"
+                    v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"
+                ></span>
+
+                <mt-button
+                    v-if="isDomainAware"
+                    class="sw-sales-channel-detail-base__unserved-language-domain-action"
+                    size="small"
+                    variant="secondary"
+                    :disabled="!acl.can('sales_channel.editor') || undefined"
+                    @click="onClickCreateDomainForUnservedLanguage"
+                >
+                    {{ $t('sw-sales-channel.detail.buttonAddDomain') }}
+                </mt-button>
+            </div>
         </mt-banner>
 
         {% block sw_sales_channel_detail_base_general_input_languages %}
@@ -340,6 +356,7 @@
     {% block sw_sales_channel_detail_base_options_domains %}
     <sw-sales-channel-detail-domains
         v-if="salesChannel && isDomainAware"
+        ref="salesChannelDomains"
         :sales-channel="salesChannel"
         :disable-edit="!acl.can('sales_channel.editor') || undefined"
         :is-loading="isLoading"

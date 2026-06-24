@@ -460,11 +460,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         getVariantFromOrderState(order: OrderEntity): string {
             const state = order.stateMachineState?.technicalName;
+
             if (!state) {
-                return '';
+                return 'neutral';
             }
 
-            return this.stateStyleDataProviderService.getStyle('order.state', state).variant;
+            return this.stateStyleDataProviderService.getStyle('order.state', state).meteorVariant;
         },
 
         parseDate(date: string): number {

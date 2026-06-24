@@ -201,7 +201,7 @@ export default {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('distinguishableName', 'ASC'));
 
             return criteria;
         },
@@ -209,7 +209,6 @@ export default {
         countryCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
@@ -218,6 +217,7 @@ export default {
         languageCriteria() {
             const criteria = new Criteria();
 
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
             criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
@@ -275,6 +275,14 @@ export default {
             return this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId)
                 ? 'attention'
                 : 'info';
+        },
+
+        primaryUnservedLanguage() {
+            return (
+                this.unservedLanguages.find((language) => language.id === this.salesChannel.languageId) ??
+                this.unservedLanguages[0] ??
+                null
+            );
         },
 
         storefrontDomainsLoaded() {
@@ -906,6 +914,24 @@ export default {
             };
 
             return this.$t(snippet, data, collection.length);
+        },
+
+        onClickCreateDomainForUnservedLanguage() {
+            if (typeof this.$refs.salesChannelDomains?.onClickOpenCreateDomainModal !== 'function') {
+                return;
+            }
+
+            this.$refs.salesChannelDomains.onClickOpenCreateDomainModal({
+                languageId: this.primaryUnservedLanguage?.id,
+                currencyId: this.salesChannel.currencyId,
+            });
+
+            this.$nextTick(() => {
+                this.$refs.salesChannelDomains?.$el?.scrollIntoView?.({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            });
         },
 
         isFavorite() {

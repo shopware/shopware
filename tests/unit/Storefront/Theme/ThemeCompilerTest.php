@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -825,6 +826,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
+            $this->createMock(FilesystemOperator::class),
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
             true,

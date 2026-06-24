@@ -135,29 +135,6 @@ export default Mixin.register(
                 return values;
             },
 
-            currentError() {
-                let error: unknown = null;
-
-                Object.values(this.config.fields).forEach((config) => {
-                    if (error) {
-                        return;
-                    }
-
-                    const errorProperty = Shopware.Store.get('error').getApiError(
-                        // @ts-expect-error
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        this.condition,
-                        `value.${config.name}`,
-                    ) as unknown;
-
-                    if (errorProperty) {
-                        error = errorProperty;
-                    }
-                });
-
-                return error;
-            },
-
             boolOptions() {
                 return [
                     {

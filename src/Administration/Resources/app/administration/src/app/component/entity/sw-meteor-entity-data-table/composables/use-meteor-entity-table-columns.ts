@@ -7,6 +7,18 @@
 import { computed } from 'vue';
 import type { MeteorEntityTableColumn, MeteorEntityTableColumnDefinition } from '../sw-meteor-entity-data-table.types';
 
+/**
+ * TODO:
+ * This file can be simplified a lot. We don't need to do things like this:
+ * ```
+ * if (column.cellWrap) {
+        meteorColumn.cellWrap = column.cellWrap;
+    }
+ ```
+
+   and also other things. So propose a solution to simplify this file
+ */
+
 const COLUMN_POSITION_STEP = 100;
 
 function getColumnPosition(column: MeteorEntityTableColumnDefinition, index: number): number {
@@ -48,6 +60,7 @@ export function useMeteorEntityTableColumns(
             }
 
             if (column.previewImage) {
+                // TODO: We need to have a fallback image here, because if the previewImage is not available, we need to show a placeholder image.
                 meteorColumn.previewImage = column.previewImage;
             }
 

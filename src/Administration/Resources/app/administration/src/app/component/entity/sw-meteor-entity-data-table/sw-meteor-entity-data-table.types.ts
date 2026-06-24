@@ -7,6 +7,8 @@
 import type { ComputedRef, Reactive, Ref } from 'vue';
 import type Criteria from 'src/core/data/criteria.data';
 
+// TODO: it would be great if we can use as many types as possible from the main "mt-data-table" component instead of defining our own types here. 
+
 export type MeteorEntityTableSortDirection = 'ASC' | 'DESC';
 
 export type MeteorEntityTableRecord = {

@@ -27,12 +27,18 @@ export default {
         return {
             manufacturers: null,
             isLoading: true,
+            // TODO: page is not needed anymore for "sw-meteor-entity-data-table" because it handles the page itself. The route query params should be also updated by the component itself.
             page: 1,
+            // TODO: limit is not needed anymore for "sw-meteor-entity-data-table" because it handles the limit itself. The route query params should be also updated by the component itself.
             limit: 25,
+            // TODO: sortBy is not needed anymore for "sw-meteor-entity-data-table" because it handles the sortBy itself. The route query params should be also updated by the component itself.
             sortBy: 'name',
+            // TODO: sortDirection is not needed anymore for "sw-meteor-entity-data-table" because it handles the sortDirection itself. The route query params should be also updated by the component itself.
             sortDirection: 'ASC',
+            // TODO: naturalSorting is not needed anymore for "sw-meteor-entity-data-table" because it handles the naturalSorting itself. The route query params should be also updated by the component itself.
             naturalSorting: false,
             term: undefined,
+            // TODO: total is not needed anymore for "sw-meteor-entity-data-table" because it handles the total itself. The route query params should be also updated by the component itself.
             total: 0,
             searchConfigEntity: 'product_manufacturer',
             entitySearchable: true,
@@ -50,6 +56,7 @@ export default {
     },
 
     computed: {
+        // TODO: not needed anymore for "sw-meteor-entity-data-table" because it handles the repository on his own. This would save code for repository creation in all modules.
         manufacturerRepository() {
             return this.repositoryFactory.create('product_manufacturer');
         },
@@ -77,6 +84,7 @@ export default {
 
             manufacturerCriteria.setTerm(this.term);
 
+            // TODO: sortBy, sortDirection and naturalSorting is not needed anymore for "sw-meteor-entity-data-table" because it handles the sorting itself. The route query params should be also updated by the component itself.
             if (this.sortBy) {
                 manufacturerCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             }
@@ -86,6 +94,7 @@ export default {
             return manufacturerCriteria;
         },
 
+        // TODO: not needed anymore for "sw-meteor-entity-data-table" because it handles the sorting itself. The route query params should be also updated by the component itself.
         currentSortBy() {
             return this.sortBy;
         },
@@ -100,6 +109,7 @@ export default {
     },
 
     watch: {
+        // TODO: the route handling should be moved to "sw-meteor-entity-data-table" because it handles the page, limit, sortBy, sortDirection and naturalSorting itself. The route query params should be also updated by the component itself.
         $route(newRoute, oldRoute) {
             if (oldRoute.name !== newRoute.name) {
                 return;
@@ -114,10 +124,12 @@ export default {
     },
 
     methods: {
+        // TODO: the "sw-meteor-entity-data-table" should watch the language change itself and reload the table.
         onChangeLanguage() {
             this.reloadTable();
         },
 
+        // TODO: This can also be done inside "sw-meteor-entity-data-table" because it handles the page, limit, sortBy, sortDirection and naturalSorting itself
         hydrateRouteState(query = this.$route.query) {
             const nextState = {
                 page: parseInt(query.page, 10) || this.page,
@@ -146,6 +158,7 @@ export default {
             return changed;
         },
 
+        // TODO: this is also not needed anymore
         parseBooleanQueryValue(value) {
             if (String(value).toLowerCase() === 'true') {
                 return true;
@@ -158,6 +171,7 @@ export default {
             return value === true;
         },
 
+        // TODO: also not needed, will be handled by "sw-meteor-entity-data-table" 
         updateRoute(customQuery) {
             const route = {
                 name: this.$route.name,
@@ -179,6 +193,7 @@ export default {
             return this.$router.push(route);
         },
 
+        // TODO: also not needed anymore
         onPageChange({ page, limit }) {
             this.page = page;
             this.limit = limit;
@@ -190,6 +205,7 @@ export default {
             });
         },
 
+        // TODO: also not needed anymore
         onSortColumn(column, sortDirection) {
             this.page = 1;
             this.sortBy = column.dataIndex || column.property;
@@ -205,6 +221,7 @@ export default {
             });
         },
 
+        // TODO: also not needed anymore
         onSearch(value) {
             this.term = value;
             this.page = 1;
@@ -220,12 +237,14 @@ export default {
             });
         },
 
+        // TODO: also not needed anymore
         reloadTable() {
             this.isLoading = true;
 
             return this.$refs.manufacturerTable?.reload?.();
         },
 
+        // TODO: we should have only one criteria for "sw-meteor-entity-data-table"
         async resolveManufacturerCriteria(criteria) {
             this.isLoading = true;
 
@@ -249,12 +268,14 @@ export default {
             return criteria;
         },
 
+        // TODO: this is also not needed anymore
         onTableLoadSuccess({ records, total }) {
             this.manufacturers = records;
             this.total = total;
             this.isLoading = false;
         },
 
+        // TODO: this is also not needed anymore
         onTableLoadError() {
             this.isLoading = false;
         },
@@ -263,6 +284,7 @@ export default {
             return this.searchRankingService.isValidTerm(term);
         },
 
+        // TODO: I am not sure how we handle this now with the new "sw-meteor-entity-data-table" component. We should look for good solution to handle this in a generic way for all modules. 
         async addQueryScores(term, originalCriteria) {
             this.entitySearchable = true;
 

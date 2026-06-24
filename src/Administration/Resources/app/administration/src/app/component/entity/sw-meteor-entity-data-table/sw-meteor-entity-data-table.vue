@@ -1,4 +1,7 @@
 <template>
+    <!-- TODO:
+        - `layout="full"` should be a prop, so that we can use the component in a card layout as well
+    -->
     <mt-data-table
         class="sw-meteor-entity-data-table"
         :columns="resolvedColumns"
@@ -49,52 +52,9 @@
             #[`column-${column.property}`]="scope"
         >
             <slot
-                v-if="hasColumnSlot(column.property)"
                 :name="`column-${column.property}`"
                 v-bind="scope"
             />
-
-            <template v-else>
-                <div class="sw-meteor-entity-data-table__cell">
-                    <span
-                        v-if="hasPreviewSlot(column.property)"
-                        class="sw-meteor-entity-data-table__preview"
-                    >
-                        <slot
-                            :name="`preview-${column.property}`"
-                            v-bind="scope"
-                        />
-                    </span>
-
-                    <sw-meteor-entity-data-table-inline-edit-cell
-                        v-if="scope.data?.id && isColumnInlineEditable(column.property)"
-                        :model-value="getInlineEditValue(scope.data, column.property)"
-                        :is-editing="isInlineEditing(scope.data)"
-                        :is-clickable="isColumnClickable(column)"
-                        @update:model-value="updateInlineEditValue(scope.data, column.property, $event)"
-                        @open-detail="openDetail(scope.data)"
-                        @start="startInlineEdit(scope.data)"
-                        @save="saveInlineEdit(scope.data, column.property)"
-                        @cancel="cancelInlineEdit"
-                    />
-
-                    <a
-                        v-else-if="scope.data?.id && isColumnClickable(column)"
-                        class="sw-meteor-entity-data-table__column-value sw-meteor-entity-data-table__column-value-link"
-                        href="#"
-                        @click.prevent="openDetail(scope.data)"
-                    >
-                        {{ getColumnValue(scope) }}
-                    </a>
-
-                    <span
-                        v-else
-                        class="sw-meteor-entity-data-table__column-value"
-                    >
-                        {{ getColumnValue(scope) }}
-                    </span>
-                </div>
-            </template>
         </template>
     </mt-data-table>
 
@@ -198,6 +158,10 @@
  * @sw-package framework
  */
 
+// TODO: we should avoid any eslint-disable comments in this component. So we need to find solutions for the following issues:
+// 1. filename-rules/match
+// 2. sw-deprecation-rules/private-feature-declarations
+
 /* eslint-disable filename-rules/match, sw-deprecation-rules/private-feature-declarations */
 
 import {
@@ -213,6 +177,7 @@ import type Criteria from 'src/core/data/criteria.data';
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import SwMeteorEntityDataTableBulkDeleteModal from './components/sw-meteor-entity-data-table-bulk-delete-modal';
 import SwMeteorEntityDataTableDeleteModal from './components/sw-meteor-entity-data-table-delete-modal';
+// TODO: remove inline editing completely from this component
 import SwMeteorEntityDataTableInlineEditCell from './components/sw-meteor-entity-data-table-inline-edit-cell';
 import { useMeteorEntityTableColumns } from './composables/use-meteor-entity-table-columns';
 import { useMeteorEntityTableCriteria } from './composables/use-meteor-entity-table-criteria';
@@ -230,6 +195,7 @@ import type {
 } from './sw-meteor-entity-data-table.types';
 import './sw-meteor-entity-data-table.types';
 
+// TODO: investigate if we can better use existing types from the main mt-data-table component instead of defining our own types here
 type SwMeteorEntityDataTableColumnChanges = Record<
     string,
     {
@@ -249,6 +215,7 @@ type SwMeteorEntityDataTableViewSettings = {
 type SwMeteorEntityDataTableProps = {
     repository: MeteorEntityTableRepository;
     columns: MeteorEntityTableColumnDefinition[];
+    // TODO: I would prefer to have only one criteria prop. This component creates then a new computed criteria based on the given criteria and updates it when it changes from the outside
     criteria?: Criteria | null;
     criteriaResolver?: MeteorEntityTableCriteriaResolver | null;
     context?: unknown;
@@ -305,7 +272,6 @@ export default defineComponent({
     components: {
         SwMeteorEntityDataTableBulkDeleteModal,
         SwMeteorEntityDataTableDeleteModal,
-        SwMeteorEntityDataTableInlineEditCell,
     },
 
     props: {
@@ -444,8 +410,10 @@ export default defineComponent({
                     (key) => translator.value(key),
                 );
 
+                // TODO: I would prefer a computed criteria which merges the given criteria with the criteria from the table state. This would allow to have only one criteria prop and all page, limit, etc. changes would be reflected in the criteria automatically. This would also allow to have a better control over the criteria and avoid issues with the criteria being out of sync with the table state.
                 let buildTableCriteria: () => Promise<Criteria | null> = () => Promise.resolve(null);
 
+                // TODO: The table state need to be synced with the criteria. With a computed criteria it get updated automatically.
                 const tableState = useMeteorEntityTableState({
                     repository: props.repository,
                     context: props.context,
@@ -495,9 +463,6 @@ export default defineComponent({
                             return column.property === property && !!column.inlineEdit;
                         })
                     );
-                };
-                const isColumnClickable = (column: MeteorEntityTableColumnDefinition) => {
-                    return column.clickable === true;
                 };
                 const tableSlots = useMeteorEntityTableSlots(() => resolvedTableColumns.value, slots, {
                     hasInternalColumnSlot: isInlineEditableColumn,
@@ -637,6 +602,7 @@ export default defineComponent({
                     }
                 });
 
+                // TODO: This is not needed with a computed criteria.
                 watch(
                     () =>
                         [
@@ -681,6 +647,8 @@ export default defineComponent({
                     },
                 );
 
+                // TODO: We need to sync the current page, limit, etc. inside the route query params, so that we can restore the state when navigating back to the table. This is especially important for the detail view, where we want to restore the table state when navigating back to the list view.
+
                 return {
                     public: {
                         records: tableState.records,
@@ -709,7 +677,6 @@ export default defineComponent({
                         columnChanges,
                         viewSettings,
                         getColumnValue: tableSlots.getColumnValue,
-                        isColumnClickable,
                         itemToDelete: tableDelete.itemToDelete,
                         isDeleting: tableDelete.isDeleting,
                         bulkDeleteIds: tableDelete.bulkDeleteIds,

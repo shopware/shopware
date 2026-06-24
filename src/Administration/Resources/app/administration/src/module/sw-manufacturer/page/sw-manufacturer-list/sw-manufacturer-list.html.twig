@@ -62,6 +62,7 @@
         {% block sw_manufacturer_list_content %}
         <div class="sw-manufacturer-list__content">
             {% block sw_manufacturer_list_empty_state %}
+            <!-- TODO: The empty state is not needed. "sw-meteor-entity-data-table" renders a empty state on its own -->
             <mt-empty-state
                 v-if="!isLoading && !total"
                 :centered="true"
@@ -76,11 +77,14 @@
             {% block sw_manufacturer_list_grid %}
             <sw-meteor-entity-data-table
                 v-else-if="entitySearchable"
+                {# TODO: we should avoid direct ref access #}
                 ref="manufacturerTable"
                 class="sw-manufacturer-list__grid"
                 detail-route="sw.manufacturer.detail"
                 :columns="manufacturerColumns"
+                {# TODO: it would be better if "sw-meteor-entity-data-table" handles the repository on his own. This would save code for repository creation in all modules #}
                 :repository="manufacturerRepository"
+                {# TODO: Why do we need two criteria/criteriaResolver. I would prefer to have only one criteria. And "sw-meteor-entity-data-table" creates a new computed criteria based on the given one (merge it with their default) #}
                 :criteria-resolver="resolveManufacturerCriteria"
                 :criteria="manufacturerCriteria"
                 :initial-page="page"

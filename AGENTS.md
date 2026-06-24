@@ -53,6 +53,7 @@ Before you commit or hand work back:
 - **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
 - **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries.
 - **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.
+- **After review feedback or CI failures**, create a follow-up commit; do not amend or force-push unless explicitly asked.
 - **Lint every file you touched** per the File Linting table below.
 
 When a task matches a skill, open `.claude/skills/<name>/SKILL.md` and follow it **before** implementing.

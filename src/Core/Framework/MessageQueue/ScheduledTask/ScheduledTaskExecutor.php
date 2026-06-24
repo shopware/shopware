@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -58,7 +59,7 @@ final class ScheduledTaskExecutor
                     ]
                 );
 
-                $this->rescheduleTask($task, $taskEntity);
+                $this->reschedule($handler, $task, $taskEntity);
 
                 return;
             }
@@ -68,7 +69,7 @@ final class ScheduledTaskExecutor
             throw $e;
         }
 
-        $this->rescheduleTask($task, $taskEntity);
+        $this->reschedule($handler, $task, $taskEntity);
     }
 
     private function markTaskRunning(ScheduledTask $task): void
@@ -91,15 +92,35 @@ final class ScheduledTaskExecutor
         ], Context::createCLIContext());
     }
 
-    private function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    private function reschedule(ScheduledTaskHandler $handler, ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    {
+        if ($handler instanceof DynamicallyScheduledTaskHandler) {
+            $this->persistNextExecutionTime($task, $taskEntity, $handler->getNextExecutionTime($task, $taskEntity));
+
+            return;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            // BC: a subclass may still override the deprecated rescheduleTask() hook, which persists itself
+            $handler->rescheduleNext($task, $taskEntity);
+
+            return;
+        }
+
+        $this->persistNextExecutionTime($task, $taskEntity, null);
+    }
+
+    private function persistNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity, ?\DateTimeInterface $nextExecutionTime): void
     {
         $now = $this->clock->now();
 
-        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $newNextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        if ($nextExecutionTime === null) {
+            $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $nextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        }
 
-        if ($newNextExecutionTime < $now) {
-            $newNextExecutionTime = $now;
+        if ($nextExecutionTime < $now) {
+            $nextExecutionTime = $now;
         }
 
         $this->scheduledTaskRepository->update([
@@ -107,7 +128,7 @@ final class ScheduledTaskExecutor
                 'id' => $task->getTaskId(),
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'lastExecutionTime' => $now,
-                'nextExecutionTime' => $newNextExecutionTime,
+                'nextExecutionTime' => $nextExecutionTime,
             ],
         ], Context::createCLIContext());
     }

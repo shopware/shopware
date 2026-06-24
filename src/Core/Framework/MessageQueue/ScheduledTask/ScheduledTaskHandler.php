@@ -55,6 +55,23 @@ abstract class ScheduledTaskHandler
     abstract public function run(): void;
 
     /**
+     * @internal invoked by the {@see ScheduledTaskExecutor} to honor a subclass that overrides the deprecated
+     * {@see rescheduleTask()} hook. Implement {@see DynamicallyScheduledTaskHandler} instead of overriding this.
+     */
+    public function rescheduleNext(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    {
+        // a subclass may still override the deprecated rescheduleTask() hook; route through it so its custom
+        // logic (and the deprecation nudge) keeps working until the hook is removed in v6.8.0.0
+        if ((new \ReflectionMethod($this, 'rescheduleTask'))->getDeclaringClass()->getName() !== self::class) {
+            $this->rescheduleTask($task, $taskEntity);
+
+            return;
+        }
+
+        $this->doRescheduleTask($task, $taskEntity);
+    }
+
+    /**
      * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
      */
     public function runTask(ScheduledTask $task): void

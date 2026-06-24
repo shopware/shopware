@@ -308,6 +308,7 @@
 
         .sw-admin-menu__user-actions-toggle {
             padding: 0;
+            justify-content: center;
 
             &:hover:not(.is--active) {
                 background: transparent;

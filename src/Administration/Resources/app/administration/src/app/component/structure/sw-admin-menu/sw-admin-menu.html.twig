@@ -137,7 +137,10 @@
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_custom_fields %}
-                    <div class="sw-admin-menu__user-custom-fields collapsible-text">
+                    <div
+                        v-if="isExpanded"
+                        class="sw-admin-menu__user-custom-fields collapsible-text"
+                    >
                         <div class="sw-admin-menu__user-name">
                             {{ userName }}
                         </div>

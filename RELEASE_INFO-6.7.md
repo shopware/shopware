@@ -11,6 +11,14 @@ Extension authors should type the script `response` service for the hook they im
 use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and avoid `render()` there;
 use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
 
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
 ### Scheduled task execution moved to `ScheduledTaskExecutor`
 
 The orchestration logic of `ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) has moved into the new `ScheduledTaskExecutor` service.

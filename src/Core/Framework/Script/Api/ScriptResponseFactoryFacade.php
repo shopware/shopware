@@ -25,6 +25,8 @@ class ScriptResponseFactoryFacade
     public function __construct(
         private readonly RouterInterface $router,
         /**
+         * @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+         *
          * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be removed with v6.8.0 when render() is removed from this class)
          */
         private readonly ?ScriptController $scriptController = null,

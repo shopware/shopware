@@ -824,6 +824,14 @@ Type the script `response` service for the hook you implement:
 use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and return JSON or redirects there;
 use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
 
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
 </details>
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed

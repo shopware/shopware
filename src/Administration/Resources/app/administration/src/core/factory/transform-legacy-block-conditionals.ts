@@ -7,12 +7,29 @@ import type { LegacyConditionRenderOrderSegment } from 'src/app/component/struct
 const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;
 
+/**
+ * Maps each Vue condition case to the global helper name that should evaluate it.
+ * Use it when constructing rewrite expressions for `v-if`, `v-else-if`, and `v-else`.
+ *
+ * @example
+ * const helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS;
+ */
 type LegacyBlockHelperNames = {
     if: string;
     elseIf: string;
     else: string;
 };
 
+/**
+ * Carries the runtime metadata inserted into each generated legacy helper call.
+ * Use it when serializing helper options for a condition case in a render-order segment.
+ *
+ * @example
+ * const parameters: HelperParameters = {
+ *     segmentCaseIndex: 0,
+ *     renderOrderSegment: 'shimExtension',
+ * };
+ */
 type HelperParameters = {
     segmentCaseIndex: number;
     isStartingCondition?: boolean;
@@ -20,6 +37,16 @@ type HelperParameters = {
 };
 
 /**
+ * Describes a transformed condition chain range that a shim slot must reserve.
+ * Use it when passing metadata from the template rewrite step to `createShimSlot`.
+ *
+ * @example
+ * const reservation: LegacyConditionCaseReservation = {
+ *     chainKey: 'sw_product_detail:0',
+ *     caseStartIndex: 1,
+ *     caseCount: 2,
+ * };
+ *
  * @private
  */
 export type LegacyConditionCaseReservation = {
@@ -29,6 +56,15 @@ export type LegacyConditionCaseReservation = {
 };
 
 /**
+ * Represents the result of rewriting one block template string.
+ * Use it when a caller needs both the rewritten template and the reservation metadata.
+ *
+ * @example
+ * const result: LegacyConditionTransformResult = {
+ *     template,
+ *     conditionCases: [],
+ * };
+ *
  * @private
  */
 export type LegacyConditionTransformResult = {
@@ -38,6 +74,15 @@ export type LegacyConditionTransformResult = {
 };
 
 /**
+ * Stores a single top-level Twig block extracted from an override template.
+ * Use it as the input shape before condition chains are analyzed and rewritten.
+ *
+ * @example
+ * const entry: LegacyTwigBlockSequenceEntry = {
+ *     blockName: 'sw_product_detail_base',
+ *     innerTemplate: '<div v-if="active"></div>',
+ * };
+ *
  * @private
  */
 export type LegacyTwigBlockSequenceEntry = {
@@ -46,6 +91,16 @@ export type LegacyTwigBlockSequenceEntry = {
 };
 
 /**
+ * Stores a Twig block after condition rewriting and reservation collection.
+ * Use it between the transform step and the block index that powers shim slots.
+ *
+ * @example
+ * const entry: LegacyTwigBlockSequenceTransformEntry = {
+ *     blockName: 'sw_product_detail_base',
+ *     innerTemplate,
+ *     legacyConditionCases: [],
+ * };
+ *
  * @private
  */
 export type LegacyTwigBlockSequenceTransformEntry = LegacyTwigBlockSequenceEntry & {
@@ -53,6 +108,16 @@ export type LegacyTwigBlockSequenceTransformEntry = LegacyTwigBlockSequenceEntry
 };
 
 /**
+ * Describes one indexed legacy Twig override ready to become a shim slot.
+ * Use it from `sw-block` when creating shim slots for a block name.
+ *
+ * @example
+ * const blockEntry: BlockEntry = {
+ *     componentName: 'sw-product-detail',
+ *     innerTemplate,
+ *     legacyConditionCases: [],
+ * };
+ *
  * @private
  */
 export type BlockEntry = {
@@ -61,25 +126,52 @@ export type BlockEntry = {
     legacyConditionCases: LegacyConditionCaseReservation[];
 };
 
+/**
+ * Captures one contiguous Vue condition chain found among a block's top-level children.
+ * Use it while deciding whether a chain starts locally or continues across neighboring blocks.
+ *
+ * @example
+ * const firstChild = chain.children[0];
+ */
 type BlockConditionChainInfo = {
     children: Element[];
     blockName: string;
-    starting: boolean; //Is this chain starting a chain in the block
-    ending: boolean; //Is this chain ending a chain in the block
+    starting: boolean; // Is this chain starting a chain in the block
+    ending: boolean; // Is this chain ending a chain in the block
     firstChainInBlock: boolean;
     lastChainInBlock: boolean;
     index: number;
     fullChainKey?: string;
-    caseStartIndex?: number; //Assigned during rewrite construction, the starting case index for this chain in its render-order segment
-    followedBy?: BlockConditionChainInfo; //Chains in other blocks that are following this chain as continuation chains
+    // Assigned during rewrite construction.
+    // This is the starting case index for this chain in its render-order segment.
+    caseStartIndex?: number;
+    followedBy?: BlockConditionChainInfo; // Chains in other blocks that are following this chain as continuation chains
 };
 
+/**
+ * Groups all condition chains discovered for one block and its render-order segment.
+ * Use it as the unit passed through chain-key assignment and rewrite construction.
+ *
+ * @example
+ * const info: BlockConditionInfo = {
+ *     blockName: 'sw_product_detail_base',
+ *     renderOrderSegment: 'defaultSlot',
+ *     conditionalChains: [],
+ * };
+ */
 type BlockConditionInfo = {
     blockName: string;
     renderOrderSegment: LegacyConditionRenderOrderSegment;
     conditionalChains: BlockConditionChainInfo[];
 };
 
+/**
+ * Describes one string replacement that swaps a Vue condition attribute for a helper call.
+ * Use it when applying ordered rewrites back to the original template source.
+ *
+ * @example
+ * const rewrite: RewriteInfo = { codeBefore: ['v-else'], codeAfter: 'v-if="$swLegacyBlockElse(...)"' };
+ */
 type RewriteInfo = {
     codeBefore: string[];
     codeAfter: string;
@@ -91,6 +183,13 @@ const GLOBAL_LEGACY_HELPERS = {
     else: '$swLegacyBlockElse',
 } satisfies LegacyBlockHelperNames;
 
+/**
+ * Maps a local chain key to the full chain key discovered in a later rewrite pass.
+ * Use it when native block rewrites must continue a chain that was first indexed by a Twig shim.
+ *
+ * @example
+ * const context: LegacyConditionContinuationContext = { 'child:0': 'parent:0' };
+ */
 type LegacyConditionContinuationContext = Record<string, string>;
 
 const legacyConditionContinuationContexts = new Map<string, LegacyConditionContinuationContext>();
@@ -104,11 +203,25 @@ const indexedLegacyTwigBlockEntries: Array<{
 let legacyTwigBlockIndexDirty = false;
 let legacyTwigBlockIndexVersion = -1;
 
+/**
+ * Clears cross-pass aliases between local and full condition chain keys.
+ * Use it during test teardown or when rebuilding the legacy Twig block index from scratch.
+ *
+ * @example
+ * resetLegacyConditionContinuationContexts();
+ */
 function resetLegacyConditionContinuationContexts(): void {
     legacyConditionContinuationContexts.clear();
     legacyConditionContinuationContextVersion += 1;
 }
 
+/**
+ * Stores an alias from a block-local chain key to the full key of the chain it continues.
+ * Use it when native block rewrites discover that a local `v-else` continues a chain from another block.
+ *
+ * @example
+ * storeLegacyConditionContinuationAlias('sw-product-detail', 'extension:0', 'base:0');
+ */
 function storeLegacyConditionContinuationAlias(componentName: string, localChainKey: string, fullChainKey: string): void {
     const context = legacyConditionContinuationContexts.get(componentName) ?? {};
 
@@ -121,6 +234,13 @@ function storeLegacyConditionContinuationAlias(componentName: string, localChain
     legacyConditionContinuationContextVersion += 1;
 }
 
+/**
+ * Resolves the chain key that should be written into generated helper calls.
+ * Use it when shim rewrites may need aliases collected during native-block analysis.
+ *
+ * @example
+ * const chainKey = getChainKeyForRewrite(chain, 'shimExtension', continuationContext);
+ */
 function getChainKeyForRewrite(
     chain: BlockConditionChainInfo,
     renderOrderSegment: LegacyConditionRenderOrderSegment,
@@ -136,16 +256,39 @@ function getChainKeyForRewrite(
     return continuationContext[localChainKey] ?? chainKey;
 }
 
-/** Escapes block names for helper calls embedded in single-quoted Vue expressions. */
+/**
+ * Escapes values for helper calls embedded in single-quoted Vue expressions.
+ * Use it for chain keys before serializing them into generated template code.
+ *
+ * @example
+ * escapeSingleQuotedString("product's-tab");
+ */
 function escapeSingleQuotedString(value: string): string {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
+/**
+ * Serializes helper metadata into object-literal code that Vue can compile.
+ * Use it when building the replacement `v-if` expression for a transformed condition.
+ *
+ * @example
+ * createLegacyConditionOptionsCode({ segmentCaseIndex: 0, renderOrderSegment: 'defaultSlot' });
+ */
 function createLegacyConditionOptionsCode(parameters: HelperParameters): string {
-    return `{ segmentCaseIndex: ${parameters.segmentCaseIndex}, isStartingCondition: ${Boolean(parameters.isStartingCondition)}, renderOrderSegment: '${parameters.renderOrderSegment}' }`;
+    return [
+        `{ segmentCaseIndex: ${parameters.segmentCaseIndex},`,
+        `isStartingCondition: ${Boolean(parameters.isStartingCondition)},`,
+        `renderOrderSegment: '${parameters.renderOrderSegment}' }`,
+    ].join(' ');
 }
 
-/** Builds the replacement v-if expression that links a case to the legacy condition state. */
+/**
+ * Builds the replacement `v-if` expression that links a case to legacy condition state.
+ * Use it for every rewritten `v-if`, `v-else-if`, or `v-else` attribute.
+ *
+ * @example
+ * createLegacyHelperExpression('$swLegacyBlockIf', 'sw_card:0', 'isVisible', parameters);
+ */
 function createLegacyHelperExpression(
     helperName: string,
     conditionKey: string,
@@ -161,11 +304,24 @@ function createLegacyHelperExpression(
     return `${helperName}('${escapedConditionKey}', ${createLegacyConditionOptionsCode(parameters)})`;
 }
 
+/**
+ * Escapes double quotes for generated attribute values.
+ * Use it before embedding helper expressions into a double-quoted `v-if` attribute.
+ *
+ * @example
+ * escapeDoubleQuotedAttributeValue('title === "active"');
+ */
 function escapeDoubleQuotedAttributeValue(value: string): string {
     return value.replace(/"/g, '&quot;');
 }
 
-/** Expands self-closing custom components so the browser parser keeps the intended tree. */
+/**
+ * Expands self-closing custom components so the browser parser keeps the intended tree.
+ * Use it before parsing templates with `template.innerHTML`.
+ *
+ * @example
+ * normalizeSelfClosingTags('<sw-field />');
+ */
 function normalizeSelfClosingTags(template: string): string {
     return template.replace(SELF_CLOSING_TAG_REG_EXP, (match, tagName: string, attributes: string = '') => {
         const trimmedAttributes = attributes.trim();
@@ -175,12 +331,23 @@ function normalizeSelfClosingTags(template: string): string {
     });
 }
 
+/**
+ * Creates the stable local key for one condition chain in a block.
+ * Use it whenever transformed code and runtime helpers need to refer to the same chain.
+ *
+ * @example
+ * createLegacyConditionChainKey('sw_product_detail_base', 0);
+ */
 function createLegacyConditionChainKey(blockName: string, chainIndex: number): string {
     return `${blockName}:${chainIndex}`;
 }
 
 /**
  * Rewrites native sw-block conditional chains before Vue compiles them.
+ * Use it in the template factory pipeline for native `<sw-block>` templates that contain conditional chains.
+ *
+ * @example
+ * transformNativeLegacyBlockConditionals('<sw-block name="base"><div v-if="active"></div></sw-block>');
  *
  * @private
  */
@@ -236,6 +403,13 @@ export default function transformNativeLegacyBlockConditionals(template: string,
     return template;
 }
 
+/**
+ * Finds top-level `v-if` / `v-else-if` / `v-else` chains inside one block.
+ * Use it before assigning chain keys so continuation chains across neighboring blocks can be detected.
+ *
+ * @example
+ * const chains = collectBlockConditionalChains('sw_card', parseBlockTemplateChildren(template));
+ */
 function collectBlockConditionalChains(blockName: string, children: Element[]): BlockConditionChainInfo[] {
     let chainIndex: number = 0;
     let buildingChain = false;
@@ -310,6 +484,13 @@ function collectBlockConditionalChains(blockName: string, children: Element[]): 
     return conditionalChains;
 }
 
+/**
+ * Parses a block's inner template and returns only its top-level element children.
+ * Use it when analyzing condition chains without compiling the whole Vue template.
+ *
+ * @example
+ * const children = parseBlockTemplateChildren('<div v-if="active"></div>');
+ */
 function parseBlockTemplateChildren(template: string): Element[] {
     const parsedTemplate = document.createElement('template');
     parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
@@ -317,6 +498,13 @@ function parseBlockTemplateChildren(template: string): Element[] {
     return Array.from(parsedTemplate.content.children);
 }
 
+/**
+ * Assigns full chain keys and segment-local case indices to collected chains.
+ * Use it after collecting all block chains in render order so cross-block continuations share state.
+ *
+ * @example
+ * fillChainIndices(blockConditionInfos, {}, 'sw-product-detail');
+ */
 function fillChainIndices(
     blockConditionInfos: BlockConditionInfo[],
     caseStartIndexByChainKey: Record<string, number> = {},
@@ -327,7 +515,8 @@ function fillChainIndices(
 
     const nextCaseIndexByChainKey = new Map<string, number>();
 
-    // Iterate over blocks in order and assign chain keys, ensuring that continuation chains receive the same key as their leading chain.
+    // Iterate over blocks in order and assign chain keys, ensuring that continuation chains receive the same key as
+    // their leading chain.
     blockConditionInfos.forEach((blockInfo) => {
         blockInfo.conditionalChains.forEach((chain) => {
             const localChainKey = createLegacyConditionChainKey(blockInfo.blockName, chain.index);
@@ -369,10 +558,24 @@ function fillChainIndices(
     });
 }
 
+/**
+ * Normalizes browser-serialized empty attributes back to their Vue source form.
+ * Use it before matching parsed element attributes against the original template text.
+ *
+ * @example
+ * normalizeParsedVueTemplate('<div v-else=""></div>');
+ */
 function normalizeParsedVueTemplate(template: string): string {
     return template.replace(/(\s)([^\s"'<>\/=]+)\s*=\s*(?:""|'')/g, '$1$2');
 }
 
+/**
+ * Extracts the exact source code for one condition attribute from parsed outer HTML.
+ * Use it to build replacement candidates that still match the original template string.
+ *
+ * @example
+ * getAttributeCode('<div v-else></div>', 'v-else');
+ */
 function getAttributeCode(template: string, attributeName: string): string {
     const escapedAttributeName = attributeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const attributeRegExp = new RegExp(`\\b${escapedAttributeName}(?![\\w-])(?:\\s*=\\s*(?:"[^"]*"|'[^']*'))?`);
@@ -389,6 +592,13 @@ function getAttributeCode(template: string, attributeName: string): string {
     return match[0] ?? '';
 }
 
+/**
+ * Builds possible source snippets for an attribute after browser parsing has normalized it.
+ * Use it so rewrites still match templates that used single quotes, double quotes, or bare `v-else`.
+ *
+ * @example
+ * createAttributeCodeCandidates('v-if', 'active', 'v-if="active"');
+ */
 function createAttributeCodeCandidates(
     attributeName: string,
     expression: string | null,
@@ -406,15 +616,31 @@ function createAttributeCodeCandidates(
     return Array.from(new Set(candidates.filter(Boolean)));
 }
 
+/**
+ * Creates the final `v-if` attribute that delegates condition evaluation to a legacy helper.
+ * Use it as the replacement value for every transformed condition case.
+ *
+ * @example
+ * createLegacyHelperAttribute('$swLegacyBlockElse', 'sw_card:0', undefined, parameters);
+ */
 function createLegacyHelperAttribute(
     helperName: string,
     chainKey: string,
     expression: string | null | undefined,
     parameters: HelperParameters,
 ): string {
-    return `v-if="${escapeDoubleQuotedAttributeValue(createLegacyHelperExpression(helperName, chainKey, expression, parameters))}"`;
+    const helperExpression = createLegacyHelperExpression(helperName, chainKey, expression, parameters);
+
+    return `v-if="${escapeDoubleQuotedAttributeValue(helperExpression)}"`;
 }
 
+/**
+ * Adds one attribute replacement to a rewrite list.
+ * Use it while walking a chain's children so replacements can be applied later in source order.
+ *
+ * @example
+ * addAttributeRewrite(rewrites, child, 'v-if', '$swLegacyBlockIf', 'sw_card:0', 'active', parameters);
+ */
 function addAttributeRewrite(
     rewrites: RewriteInfo[],
     child: Element,
@@ -433,6 +659,13 @@ function addAttributeRewrite(
     });
 }
 
+/**
+ * Builds all helper-attribute rewrites for a single condition chain.
+ * Use it after `fillChainIndices` has assigned the chain key and segment case offsets.
+ *
+ * @example
+ * const rewrites = constructChainAttributeRewrites(chain, 'shimExtension', 'sw-product-detail');
+ */
 function constructChainAttributeRewrites(
     chain: BlockConditionChainInfo,
     renderOrderSegment: LegacyConditionRenderOrderSegment,
@@ -479,6 +712,15 @@ function constructChainAttributeRewrites(
     return rewrites;
 }
 
+/**
+ * Decides whether a block contains chains that need compatibility rewrites.
+ * Use it to skip simple standalone `v-if` chains that Vue can evaluate natively.
+ *
+ * @example
+ * if (shouldPerformBlockRewrite(chains)) {
+ *     // rewrite the block
+ * }
+ */
 function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
     if (chains.length === 0) {
         return false;
@@ -489,10 +731,24 @@ function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
     return true;
 }
 
+/**
+ * Decides whether a specific chain must be rewritten.
+ * Use it for leading, trailing, or continuation chains that can be affected by block stacking.
+ *
+ * @example
+ * const rewritableChains = chains.filter((chain) => shouldPerformChainRewrite(chain));
+ */
 function shouldPerformChainRewrite(chain: BlockConditionChainInfo): boolean {
     return !chain.starting || chain.followedBy !== undefined || chain.firstChainInBlock || chain.lastChainInBlock;
 }
 
+/**
+ * Finds the earliest matching source snippet for a rewrite after the current cursor.
+ * Use it when applying replacements to avoid rewriting a later duplicate attribute first.
+ *
+ * @example
+ * const match = findRewriteMatch(template, ['v-else'], 0);
+ */
 function findRewriteMatch(
     rewrittenTemplate: string,
     candidates: string[],
@@ -521,6 +777,13 @@ function findRewriteMatch(
     }, null);
 }
 
+/**
+ * Applies attribute rewrites in source order while preserving unmatched template text.
+ * Use it after constructing all replacements for one template or block fragment.
+ *
+ * @example
+ * const rewrittenTemplate = applyOrderedRewrites(template, rewrites);
+ */
 function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string {
     let cursor = 0;
     let rewrittenTemplate = template;
@@ -550,6 +813,10 @@ function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string
 
 /**
  * Rewrites neighboring top-level legacy Twig blocks as one conditional sequence.
+ * Use it when indexing Twig override templates so shims preserve `v-if` / `v-else` behavior across blocks.
+ *
+ * @example
+ * transformLegacyTwigBlockSequenceConditionals(entries, 'sw-product-detail');
  *
  * @private
  */
@@ -565,7 +832,9 @@ export function transformLegacyTwigBlockSequenceConditionals(
         legacyConditionCases: [],
     }));
 
-    // Step 1: Analyze the blocks child elements to find v-if / v-else-if / v-else chains and collect information about their structure, such as whether they are leading or trailing chains and which chains are continuing each other across blocks.
+    // Step 1: Analyze the blocks child elements to find v-if / v-else-if / v-else chains and collect information about
+    // their structure, such as whether they are leading or trailing chains and which chains are continuing each other
+    // across blocks.
     entries.forEach((entry) => {
         const children = parseBlockTemplateChildren(entry.innerTemplate);
         const conditionalChains = collectBlockConditionalChains(entry.blockName, children);
@@ -575,7 +844,8 @@ export function transformLegacyTwigBlockSequenceConditionals(
             conditionalChains,
         });
     });
-    // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive the same key as their leading chain.
+    // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive
+    // the same key as their leading chain.
     fillChainIndices(blockConditonalChains, caseStartIndexByChainKey, componentName);
     const continuationContext = legacyConditionContinuationContexts.get(componentName);
 
@@ -603,6 +873,13 @@ export function transformLegacyTwigBlockSequenceConditionals(
     return entries;
 }
 
+/**
+ * Collects the next free case index for every already indexed condition chain.
+ * Use it while rebuilding the block index so later overrides append cases without reusing slots.
+ *
+ * @example
+ * const offsets = collectExistingCaseStartIndices();
+ */
 function collectExistingCaseStartIndices(): Record<string, number> {
     const caseStartIndexByChainKey: Record<string, number> = {};
 
@@ -620,6 +897,13 @@ function collectExistingCaseStartIndices(): Record<string, number> {
     return caseStartIndexByChainKey;
 }
 
+/**
+ * Rebuilds the legacy Twig block index when stored entries or continuation aliases changed.
+ * Use it lazily before reads so aliases discovered by native rewrites are reflected in shim entries.
+ *
+ * @example
+ * ensureLegacyTwigBlockIndex();
+ */
 function ensureLegacyTwigBlockIndex(): void {
     if (!legacyTwigBlockIndexDirty && legacyTwigBlockIndexVersion === legacyConditionContinuationContextVersion) {
         return;
@@ -652,6 +936,12 @@ function ensureLegacyTwigBlockIndex(): void {
 }
 
 /**
+ * Stores extracted Twig block entries so they can be transformed and indexed lazily.
+ * Use it from `twig-block-index.ts` after a component override template has been parsed.
+ *
+ * @example
+ * indexLegacyTwigBlockConditionEntries('sw-product-detail', entries);
+ *
  * @private
  */
 export function indexLegacyTwigBlockConditionEntries(componentName: string, entries: LegacyTwigBlockSequenceEntry[]): void {
@@ -660,6 +950,12 @@ export function indexLegacyTwigBlockConditionEntries(componentName: string, entr
 }
 
 /**
+ * Returns indexed legacy Twig override entries for one block name.
+ * Use it from `<sw-block name="...">` when creating shim slots for registered Twig overrides.
+ *
+ * @example
+ * const entries = getLegacyTwigBlockEntries('sw_product_detail_base');
+ *
  * @private
  */
 export function getLegacyTwigBlockEntries(blockName: string): BlockEntry[] {
@@ -669,6 +965,14 @@ export function getLegacyTwigBlockEntries(blockName: string): BlockEntry[] {
 }
 
 /**
+ * Checks whether one block name has legacy Twig override entries.
+ * Use it before creating shim slots so `sw-block` can skip work for untouched blocks.
+ *
+ * @example
+ * if (hasLegacyTwigBlockEntries('sw_product_detail_base')) {
+ *     // create shim slots
+ * }
+ *
  * @private
  */
 export function hasLegacyTwigBlockEntries(blockName: string): boolean {
@@ -678,6 +982,12 @@ export function hasLegacyTwigBlockEntries(blockName: string): boolean {
 }
 
 /**
+ * Clears all indexed Twig block condition state.
+ * Use it from test teardown or component-factory reset paths that rebuild templates from scratch.
+ *
+ * @example
+ * resetLegacyTwigBlockConditionIndex();
+ *
  * @private
  */
 export function resetLegacyTwigBlockConditionIndex(): void {

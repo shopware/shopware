@@ -525,8 +525,38 @@ interface CustomProperties extends ServiceContainer {
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
+    /**
+     * Starts a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+     *     segmentCaseIndex: 0,
+     *     renderOrderSegment: 'defaultSlot',
+     * });
+     */
     $swLegacyBlockIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Continues a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+     *     segmentCaseIndex: 1,
+     *     renderOrderSegment: 'shimExtension',
+     * });
+     */
     $swLegacyBlockElseIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Finishes a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElse('sw_card:0', {
+     *     segmentCaseIndex: 2,
+     *     renderOrderSegment: 'nativeExtension',
+     * });
+     */
     $swLegacyBlockElse: (chainKey: string, options: LegacyConditionCaseOptions) => boolean;
 }
 

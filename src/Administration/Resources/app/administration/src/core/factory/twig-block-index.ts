@@ -29,10 +29,23 @@ export {
 } from './transform-legacy-block-conditionals';
 
 /**
+ * Re-exports the indexed shim entry shape used by `sw-block`.
+ * Use this import path for callers that historically consumed block-index types.
+ *
+ * @example
+ * import type { BlockEntry } from 'src/core/factory/twig-block-index';
+ *
  * @private
  */
 export type { BlockEntry } from './transform-legacy-block-conditionals';
 
+/**
+ * Represents the subset of TwigJS token data needed to identify block tokens.
+ * Use it immediately after parsing a template with TwigJS.
+ *
+ * @example
+ * const tokens = parsed.tokens as ParsedTwigToken[];
+ */
 type ParsedTwigToken = {
     type: string;
     value?: string;
@@ -43,6 +56,13 @@ type ParsedTwigToken = {
     };
 };
 
+/**
+ * Narrows a parsed Twig token to a real `{% block %}` token with a block name.
+ * Use it after `isBlockToken` has filtered the generic token list.
+ *
+ * @example
+ * const blockTokens: ParsedBlockToken[] = tokens.filter(isBlockToken);
+ */
 type ParsedBlockToken = ParsedTwigToken & {
     token: {
         blockName: string;
@@ -50,10 +70,24 @@ type ParsedBlockToken = ParsedTwigToken & {
     };
 };
 
+/**
+ * Checks whether a TwigJS token represents a top-level `{% block %}`.
+ * Use it as a type guard before reconstructing a block's inner template.
+ *
+ * @example
+ * const blockTokens = parsedTokens.filter(isBlockToken);
+ */
 function isBlockToken(token: ParsedTwigToken): token is ParsedBlockToken {
     return token.type === 'logic' && typeof token.token?.blockName === 'string';
 }
 
+/**
+ * Parses a Twig override template into top-level block entries.
+ * Use it before handing the entries to the legacy condition transform and index.
+ *
+ * @example
+ * const entries = parseTwigBlockEntries('sw-product-detail', rawTemplate);
+ */
 function parseTwigBlockEntries(componentName: string, rawTemplate: string): LegacyTwigBlockSequenceEntry[] | null {
     let parsed: ReturnType<typeof Twig.twig>;
 
@@ -79,6 +113,11 @@ function parseTwigBlockEntries(componentName: string, rawTemplate: string): Lega
  *
  * Warns and skips malformed templates — TwigJS may surface the error again
  * later through the normal template pipeline if needed.
+ *
+ * Use it in the async component factory when a component override supplies a Twig template.
+ *
+ * @example
+ * indexTwigBlocksFromTemplate('sw-product-detail', '{% block sw_product_detail_base %}<div />{% endblock %}');
  *
  * @private
  */

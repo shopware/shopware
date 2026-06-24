@@ -61,6 +61,13 @@ import useSession from '../../composables/use-session';
 const { Component, State, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
+/**
+ * Scopes a transformed block condition chain to the current Vue component instance.
+ * Use it before delegating generated `$swLegacyBlock*` calls to the shared legacy condition runtime.
+ *
+ * @example
+ * getLegacyBlockConditionKey(instance, 'sw_product_detail_base:0');
+ */
 function getLegacyBlockConditionKey(instance: ComponentPublicInstance, chainKey: string): string {
     const componentUid = instance.$?.uid;
 
@@ -206,6 +213,16 @@ export default class VueAdapter extends ViewAdapter {
             get: getBlockDataScope,
             enumerable: true,
         });
+        /**
+         * Starts a transformed legacy block condition chain for the current component instance.
+         * Use it only from compiled templates produced by `transform-legacy-block-conditionals`.
+         *
+         * @example
+         * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+         *     segmentCaseIndex: 0,
+         *     renderOrderSegment: 'defaultSlot',
+         * });
+         */
         this.app.config.globalProperties.$swLegacyBlockIf = function legacyBlockIf(
             this: ComponentPublicInstance,
             chainKey: string,
@@ -214,6 +231,16 @@ export default class VueAdapter extends ViewAdapter {
         ): boolean {
             return legacyIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
         };
+        /**
+         * Continues a transformed legacy block condition chain for the current component instance.
+         * Use it only from generated replacements for `v-else-if` in legacy-aware block templates.
+         *
+         * @example
+         * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+         *     segmentCaseIndex: 1,
+         *     renderOrderSegment: 'shimExtension',
+         * });
+         */
         this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
             this: ComponentPublicInstance,
             chainKey: string,
@@ -222,6 +249,16 @@ export default class VueAdapter extends ViewAdapter {
         ): boolean {
             return legacyElseIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
         };
+        /**
+         * Finishes a transformed legacy block condition chain for the current component instance.
+         * Use it only from generated replacements for `v-else` in legacy-aware block templates.
+         *
+         * @example
+         * this.$swLegacyBlockElse('sw_card:0', {
+         *     segmentCaseIndex: 2,
+         *     renderOrderSegment: 'nativeExtension',
+         * });
+         */
         this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
             this: ComponentPublicInstance,
             chainKey: string,

@@ -18,7 +18,22 @@ import type { BlockEntry } from 'src/core/factory/transform-legacy-block-conditi
 import swBlockParent from '../sw-block-parent/index';
 import useLegacyConditionContext from './legacy-condition-context';
 
+/**
+ * Represents the host component data exposed to a legacy Twig shim template.
+ * Use it when reading reactive values or global helpers from the component that owns the original block.
+ *
+ * @example
+ * const scope: DataScope = { product, $swLegacyBlockElse };
+ */
 type DataScope = Record<string | symbol, unknown>;
+
+/**
+ * Extends `DataScope` with the Vue internals needed to reach instance ids and global properties.
+ * Use it when helper calls must be scoped by component uid or resolved from `app.config.globalProperties`.
+ *
+ * @example
+ * const uid = (source as DataScopeWithAppContext).$?.uid;
+ */
 type DataScopeWithAppContext = DataScope & {
     $?: {
         uid?: number;
@@ -29,6 +44,14 @@ type DataScopeWithAppContext = DataScope & {
         };
     };
 };
+
+/**
+ * Describes one allowlisted legacy block helper exposed to the shim template.
+ * Use it after resolving `$swLegacyBlockIf`, `$swLegacyBlockElseIf`, or `$swLegacyBlockElse`.
+ *
+ * @example
+ * const helper: LegacyBlockHelper = (...args) => args.length;
+ */
 type LegacyBlockHelper = (...args: unknown[]) => unknown;
 
 const warnedBlocks = new Set<string>();
@@ -38,6 +61,13 @@ const allowedLegacyBlockHelperKeys = new Set<string>([
     '$swLegacyBlockElse',
 ]);
 
+/**
+ * Resolves an allowlisted legacy helper from the data scope or the owning app's global properties.
+ * Use it when a shim template calls a generated `$swLegacyBlock*` expression.
+ *
+ * @example
+ * const helper = resolveAllowedLegacyBlockHelper(dataScopeRef.value, '$swLegacyBlockElse');
+ */
 function resolveAllowedLegacyBlockHelper(source: DataScope, helperName: string): unknown {
     const helper =
         source[helperName] ?? (source as DataScopeWithAppContext).$?.appContext?.config?.globalProperties?.[helperName];
@@ -45,7 +75,13 @@ function resolveAllowedLegacyBlockHelper(source: DataScope, helperName: string):
     return typeof helper === 'function' ? helper.bind(source) : helper;
 }
 
-/** Builds the same per-component condition key used by the global legacy helpers. */
+/**
+ * Builds the same per-component condition key used by the global legacy helpers.
+ * Use it before reserving or clearing shim condition cases for a specific component instance.
+ *
+ * @example
+ * getLegacyBlockConditionKey(dataScope, 'sw_product_detail_base:0');
+ */
 function getLegacyBlockConditionKey(source: DataScope, chainKey: string): string {
     const componentUid = (source as DataScopeWithAppContext).$?.uid;
 
@@ -56,6 +92,13 @@ function getLegacyBlockConditionKey(source: DataScope, chainKey: string): string
     return `${componentUid}:${chainKey}`;
 }
 
+/**
+ * Lists the unique runtime chain keys that a shim slot reserved.
+ * Use it during unmount to clear all persistent condition chains owned by that shim component.
+ *
+ * @example
+ * const chainKeys = getReservedLegacyConditionChainKeys(dataScopeRef.value, entry);
+ */
 function getReservedLegacyConditionChainKeys(source: DataScope, entry: BlockEntry): string[] {
     return Array.from(
         new Set(
@@ -66,7 +109,13 @@ function getReservedLegacyConditionChainKeys(source: DataScope, entry: BlockEntr
     );
 }
 
-/** Guards against accidentally exposing Vue internals or private properties into the shim template. */
+/**
+ * Guards against accidentally exposing Vue internals or private properties into the shim template.
+ * Use it from the setup proxy traps before forwarding a property read to the host component.
+ *
+ * @example
+ * isInternalKey('$store');
+ */
 function isInternalKey(key: string | symbol): boolean {
     if (typeof key !== 'string' || allowedLegacyBlockHelperKeys.has(key)) {
         return false;
@@ -75,7 +124,15 @@ function isInternalKey(key: string | symbol): boolean {
     return key[0] === '$' || key[0] === '_';
 }
 
-/** @private */
+/**
+ * Creates a Vue slot that renders one indexed legacy Twig block as a compatibility shim.
+ * Use it from `<sw-block name="...">` when `twig-block-index` reports legacy override entries.
+ *
+ * @example
+ * const slot = createShimSlot(entry, 'sw_product_detail_base');
+ *
+ * @private
+ */
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
@@ -103,7 +160,13 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
     const { reserveLegacyConditionCases, clearLegacyConditionChain } = useLegacyConditionContext();
-    /** Drops persisted chain state when the owning shim component is removed. */
+    /**
+     * Drops persisted chain state when the owning shim component is removed.
+     * Use it as the shim component `beforeUnmount` hook.
+     *
+     * @example
+     * clearExtensionChain();
+     */
     const clearExtensionChain = () => {
         getReservedLegacyConditionChainKeys(dataScopeRef.value, entry).forEach((chainKey) => {
             clearLegacyConditionChain(chainKey);
@@ -170,6 +233,12 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
  * `Reflect.ownKeys` on the *actual* target. Using the component proxy as the
  * target would trigger Vue's `ownKeys` warning on that validation call even
  * though our trap returns `[]`. A plain `{}` target keeps that check silent.
+ *
+ * Use it as the setup result for a shim component so identifiers in the legacy
+ * template resolve against the current host component data scope.
+ *
+ * @example
+ * const setupContext = buildSetupContext(() => dataScope);
  */
 function buildSetupContext(getDataScope: () => DataScope): Record<string, unknown> {
     return new Proxy({} as Record<string, unknown>, {
@@ -222,7 +291,15 @@ function buildSetupContext(getDataScope: () => DataScope): Record<string, unknow
     });
 }
 
-/** For test teardown only — never call in production code. @private */
+/**
+ * Resets module-level shim-slot state used to de-duplicate warnings.
+ * Use it in test teardown only, never in production code.
+ *
+ * @example
+ * resetShimSlotState();
+ *
+ * @private
+ */
 export function resetShimSlotState(): void {
     warnedBlocks.clear();
 }

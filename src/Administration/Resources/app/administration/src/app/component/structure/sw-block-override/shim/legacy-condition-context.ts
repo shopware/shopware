@@ -3,18 +3,48 @@
  */
 import { reactive } from 'vue';
 
+/**
+ * Stores the boolean outcome for one case in a legacy block condition chain.
+ * Use it when evaluating or replaying a generated `v-if`, `v-else-if`, or `v-else` helper call.
+ *
+ * @example
+ * const caseResult: CaseResult = { result: true, isStartingCondition: true };
+ */
 type CaseResult = {
     result: boolean;
     isStartingCondition?: boolean;
 };
 
 /**
+ * Names the phase in which a condition case is rendered.
+ *
+ * A render-order segment is one layer of the final block stack: `defaultSlot` for core block content,
+ * `shimExtension` for legacy Twig override shims, and `nativeExtension` for native `<sw-block extends>`.
+ * The condition helpers read these segments in that order so a later `v-else` can see earlier branch results.
+ *
+ * @example
+ * const segment: LegacyConditionRenderOrderSegment = 'shimExtension';
+ *
  * @private
  */
 export type LegacyConditionRenderOrderSegment = 'defaultSlot' | 'shimExtension' | 'nativeExtension';
 
+/**
+ * Represents the ordered case slots for one render-order segment.
+ * Use it when a shim reserves cases before its component has evaluated them.
+ *
+ * @example
+ * const cases: LegacyConditionCaseList = [{ result: false }, undefined];
+ */
 type LegacyConditionCaseList = Array<CaseResult | undefined>;
 
+/**
+ * Collects all segment-specific case results for one logical conditional chain.
+ * Use it when a chain starts in a default block and continues through shim or native block extensions.
+ *
+ * @example
+ * const chain = createLegacyConditionChain();
+ */
 type LegacyConditionChain = {
     defaultSlotCases: LegacyConditionCaseList;
     shimExtensionCases: LegacyConditionCaseList;
@@ -26,6 +56,16 @@ type LegacyConditionChain = {
 };
 
 /**
+ * Describes where one generated condition helper call belongs inside a chain.
+ * Use it as the third argument for generated `$swLegacyBlockIf` and `$swLegacyBlockElseIf` calls.
+ *
+ * @example
+ * const options: LegacyConditionCaseOptions = {
+ *     segmentCaseIndex: 0,
+ *     renderOrderSegment: 'defaultSlot',
+ *     isStartingCondition: true,
+ * };
+ *
  * @private
  */
 export type LegacyConditionCaseOptions = {
@@ -35,6 +75,12 @@ export type LegacyConditionCaseOptions = {
 };
 
 /**
+ * Reserves a range of shim case slots before the shim component evaluates them.
+ * Use it when `createShimSlot` mounts a legacy Twig override that has transformed conditionals.
+ *
+ * @example
+ * const reservation: LegacyConditionCaseReservation = { caseStartIndex: 1, caseCount: 2 };
+ *
  * @private
  */
 export type LegacyConditionCaseReservation = {
@@ -52,7 +98,13 @@ const LEGACY_CONDITION_RENDER_ORDER = [
     'nativeExtension',
 ] as const satisfies LegacyConditionRenderOrderSegment[];
 
-// Drops stale chains if no v-else consumes them in the same tick.
+/**
+ * Drops stale, non-persistent chains if no `v-else` consumes them in the same tick.
+ * Use it after a starting `v-if` so temporary default-slot state does not leak between renders.
+ *
+ * @example
+ * scheduleLegacyConditionCleanup('sw_card:0', chain);
+ */
 function scheduleLegacyConditionCleanup(chainKey: string, chain: LegacyConditionChain): void {
     queueMicrotask(() => {
         if (legacyConditionContext[chainKey] === chain && !chain.persistent) {
@@ -61,10 +113,24 @@ function scheduleLegacyConditionCleanup(chainKey: string, chain: LegacyCondition
     });
 }
 
+/**
+ * Registers a reactive dependency on the render version for a chain.
+ * Use it inside `else-if` and `else` helpers so pending shim results can trigger a re-render.
+ *
+ * @example
+ * trackLegacyConditionChain('sw_card:0');
+ */
 function trackLegacyConditionChain(chainKey: string): void {
     void legacyConditionRenderVersions[chainKey];
 }
 
+/**
+ * Creates an empty chain state with all render-order segments initialized.
+ * Use it when the first generated helper call for a chain is evaluated.
+ *
+ * @example
+ * const chain = createLegacyConditionChain();
+ */
 function createLegacyConditionChain(): LegacyConditionChain {
     return {
         defaultSlotCases: [],
@@ -75,6 +141,13 @@ function createLegacyConditionChain(): LegacyConditionChain {
     };
 }
 
+/**
+ * Selects the case list that belongs to a render-order segment.
+ * Use it whenever a helper reads or writes cases without duplicating segment branching logic.
+ *
+ * @example
+ * const shimCases = getCaseListForRenderOrderSegment(chain, 'shimExtension');
+ */
 function getCaseListForRenderOrderSegment(
     chain: LegacyConditionChain,
     renderOrderSegment: LegacyConditionRenderOrderSegment,
@@ -90,6 +163,13 @@ function getCaseListForRenderOrderSegment(
     return chain.nativeExtensionCases;
 }
 
+/**
+ * Returns all case results that precede the current helper call in render order.
+ * Use it to decide whether an `else-if` or `else` may render after earlier cases.
+ *
+ * @example
+ * const previousCases = getPreviousCaseResults(chain, { segmentCaseIndex: 1, renderOrderSegment: 'defaultSlot' });
+ */
 function getPreviousCaseResults(
     chain: LegacyConditionChain,
     options: LegacyConditionCaseOptions,
@@ -119,6 +199,13 @@ function getPreviousCaseResults(
     return previousCaseResults;
 }
 
+/**
+ * Wraps a boolean result with metadata that marks the start of a fresh condition chain.
+ * Use it before storing the outcome of a generated helper call.
+ *
+ * @example
+ * const result = createLegacyConditionCaseResult(false, { segmentCaseIndex: 0, renderOrderSegment: 'defaultSlot' });
+ */
 function createLegacyConditionCaseResult(result: boolean, options: LegacyConditionCaseOptions): CaseResult {
     const caseResult: CaseResult = { result };
 
@@ -129,6 +216,13 @@ function createLegacyConditionCaseResult(result: boolean, options: LegacyConditi
     return caseResult;
 }
 
+/**
+ * Batches the reactive render-version bump for one chain into a microtask.
+ * Use it when shim reservations or results change and dependent native cases must be re-evaluated.
+ *
+ * @example
+ * scheduleChainUpdate('sw_card:0');
+ */
 function scheduleChainUpdate(chainKey: string): void {
     if (pendingUpdates.has(chainKey)) return;
 
@@ -140,6 +234,13 @@ function scheduleChainUpdate(chainKey: string): void {
     });
 }
 
+/**
+ * Stores the latest case result and schedules updates for persistent shim-backed chains.
+ * Use it from each legacy helper after computing its boolean result.
+ *
+ * @example
+ * setLegacyCaseResult('sw_card:0', chain, options, { result: true });
+ */
 function setLegacyCaseResult(
     chainKey: string,
     chain: LegacyConditionChain,
@@ -162,7 +263,13 @@ function setLegacyCaseResult(
     }
 }
 
-/** Starts a legacy conditional chain for one block render. */
+/**
+ * Starts a legacy conditional chain for one block render.
+ * Use it from generated `$swLegacyBlockIf` calls that replace the original `v-if`.
+ *
+ * @example
+ * legacyIf('sw_card:0', isVisible, { segmentCaseIndex: 0, renderOrderSegment: 'defaultSlot' });
+ */
 function legacyIf(chainKey: string, expression: unknown, options: LegacyConditionCaseOptions): boolean {
     const result = Boolean(expression);
 
@@ -187,7 +294,13 @@ function legacyIf(chainKey: string, expression: unknown, options: LegacyConditio
     return result;
 }
 
-/** Continues the chain only when no earlier case matched. */
+/**
+ * Continues a legacy condition chain only when no earlier case matched.
+ * Use it from generated `$swLegacyBlockElseIf` calls that replace the original `v-else-if`.
+ *
+ * @example
+ * legacyElseIf('sw_card:0', hasFallback, { segmentCaseIndex: 1, renderOrderSegment: 'shimExtension' });
+ */
 function legacyElseIf(chainKey: string, expression: unknown, options: LegacyConditionCaseOptions): boolean {
     trackLegacyConditionChain(chainKey);
     const chain = legacyConditionContext[chainKey];
@@ -211,7 +324,13 @@ function legacyElseIf(chainKey: string, expression: unknown, options: LegacyCond
     return caseResult;
 }
 
-/** Finishes the chain and renders only when all previous cases missed. */
+/**
+ * Finishes a legacy condition chain and renders only when all previous cases missed.
+ * Use it from generated `$swLegacyBlockElse` calls that replace the original `v-else`.
+ *
+ * @example
+ * legacyElse('sw_card:0', { segmentCaseIndex: 2, renderOrderSegment: 'nativeExtension' });
+ */
 function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): boolean {
     trackLegacyConditionChain(chainKey);
     const chain = legacyConditionContext[chainKey];
@@ -238,7 +357,13 @@ function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): bool
     return result;
 }
 
-/** Reserves condition chain slots for shim cases before their render function runs. */
+/**
+ * Reserves condition chain slots for shim cases before their render function runs.
+ * Use it from `createShimSlot` so later native cases wait until the shim cases have evaluated.
+ *
+ * @example
+ * reserveLegacyConditionCases('sw_card:0', { caseStartIndex: 1, caseCount: 2 });
+ */
 function reserveLegacyConditionCases(chainKey: string, reservation: LegacyConditionCaseReservation): void {
     const chain = legacyConditionContext[chainKey];
 
@@ -281,7 +406,13 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
     }
 }
 
-/** Clears persistent shim chain state when the owning shim tree is removed. */
+/**
+ * Clears persistent shim chain state when the owning shim tree is removed.
+ * Use it from the shim component `beforeUnmount` hook to prevent stale condition results.
+ *
+ * @example
+ * clearLegacyConditionChain('sw_card:0');
+ */
 function clearLegacyConditionChain(chainKey: string): void {
     if (!legacyConditionContext[chainKey]) {
         return;
@@ -292,6 +423,12 @@ function clearLegacyConditionChain(chainKey: string): void {
 }
 
 /**
+ * Exposes the legacy condition runtime used by generated global helpers and shim slots.
+ * Use it when wiring Vue global properties or tests that need direct access to the shared context.
+ *
+ * @example
+ * const { legacyIf, reserveLegacyConditionCases } = useLegacyConditionContext();
+ *
  * @private
  */
 export default function useLegacyConditionContext() {

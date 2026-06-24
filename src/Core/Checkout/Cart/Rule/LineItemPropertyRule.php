@@ -58,7 +58,7 @@ class LineItemPropertyRule extends Rule
         ];
     }
 
-    public function getConfig(): ?RuleConfig
+    public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)

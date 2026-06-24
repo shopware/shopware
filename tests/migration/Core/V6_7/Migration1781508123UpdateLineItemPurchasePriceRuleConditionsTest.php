@@ -45,7 +45,7 @@ class Migration1781508123UpdateLineItemPurchasePriceRuleConditionsTest extends T
         $conditionValues = $this->getConditionValues();
         static::assertCount(7, $conditionValues);
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             [
                 'type' => 'net',
                 'amount' => 100,
@@ -54,7 +54,7 @@ class Migration1781508123UpdateLineItemPurchasePriceRuleConditionsTest extends T
             $conditionValues[$this->ids->getBytes('rule-condition-1')],
         );
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             [
                 'type' => 'gross',
                 'amount' => 101,
@@ -62,7 +62,7 @@ class Migration1781508123UpdateLineItemPurchasePriceRuleConditionsTest extends T
             $conditionValues[$this->ids->getBytes('rule-condition-2')],
         );
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             [
                 'type' => 'gross',
             ],
@@ -74,7 +74,7 @@ class Migration1781508123UpdateLineItemPurchasePriceRuleConditionsTest extends T
     {
         $conditionValues = $this->getConditionValues();
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             ['isNet' => true],
             $conditionValues[$this->ids->getBytes('rule-condition-4')],
         );
@@ -84,17 +84,17 @@ class Migration1781508123UpdateLineItemPurchasePriceRuleConditionsTest extends T
     {
         $conditionValues = $this->getConditionValues();
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             ['something' => 'product'],
             $conditionValues[$this->ids->getBytes('rule-condition-5')],
         );
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             ['isNet' => 1],
             $conditionValues[$this->ids->getBytes('rule-condition-6')],
         );
 
-        static::assertEqualsCanonicalizing(
+        static::assertEquals(
             [],
             $conditionValues[$this->ids->getBytes('rule-condition-7')],
         );

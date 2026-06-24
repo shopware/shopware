@@ -70,7 +70,7 @@ class LineItemPurchasePriceRule extends Rule
         return $constraints;
     }
 
-    public function getConfig(): ?RuleConfig
+    public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)

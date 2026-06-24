@@ -278,6 +278,17 @@ class OrderLineItemEntity extends Entity
         $this->payload[$key] = $value;
     }
 
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        if (isset($data['payload']) && \is_array($data['payload'])) {
+            unset($data['payload']['purchasePrices']);
+        }
+
+        return $data;
+    }
+
     public function getParentId(): ?string
     {
         return $this->parentId;

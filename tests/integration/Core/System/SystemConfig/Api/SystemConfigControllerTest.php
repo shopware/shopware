@@ -23,7 +23,7 @@ class SystemConfigControllerTest extends TestCase
 
     public function testBatchSaveConfigurationPersistsNestedConfigKeys(): void
     {
-        $key = 'core.basicInformation.activeCaptchasV2.turnstile.config.siteKey';
+        $key = 'core.basicInformation.foo.bar.baz';
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->delete($key);
@@ -32,14 +32,14 @@ class SystemConfigControllerTest extends TestCase
             $response = $this->createController()->batchSaveConfiguration(
                 new Request([], [
                     'null' => [
-                        $key => 'site-key',
+                        $key => 'test-value',
                     ],
                 ]),
                 Context::createDefaultContext()
             );
 
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-            static::assertSame('site-key', $systemConfigService->get($key));
+            static::assertSame('test-value', $systemConfigService->get($key));
         } finally {
             $systemConfigService->delete($key);
         }

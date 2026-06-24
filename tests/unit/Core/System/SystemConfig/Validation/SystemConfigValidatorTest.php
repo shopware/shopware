@@ -114,7 +114,7 @@ class SystemConfigValidatorTest extends TestCase
                 [
                     'elements' => [
                         [
-                            'name' => 'core.basicInformation.activeCaptchasV2',
+                            'name' => 'core.basicInformation.foo',
                             'config' => [],
                         ],
                     ],
@@ -130,7 +130,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation->validate([
             'null' => [
-                'core.basicInformation.activeCaptchasV2.turnstile.config.siteKey' => 'site-key',
+                'core.basicInformation.foo.bar.baz' => 'test-value',
             ],
         ], $context);
     }

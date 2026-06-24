@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Provider;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -13,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
  */
 #[Package('discovery')]
 class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportProvider
@@ -33,6 +34,8 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
 
     public function getTechnicalName(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         return 'google';
     }
 
@@ -40,6 +43,8 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,
     ): array {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         $storeCountry = $salesChannelContext->getShippingLocation()->getCountry()->getIso();
         $targetCountries = $this->resolveTargetCountries($salesChannelContext);
         $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl() ?? '';

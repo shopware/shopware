@@ -17,7 +17,8 @@ permissions:
   actions: write
   contents: read
   id-token: write
-  pull-requests: read
+  issues: write
+  pull-requests: write
   checks: read
   statuses: read
 
@@ -85,11 +86,14 @@ jobs:
           identity: ShopwareDownstream
 
       - name: Check downstream mergeability
-        uses: actions/github-script@v6
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         if: steps.sts.outputs.token
+        env:
+          DOWNSTREAM_TOKEN: ${{ steps.sts.outputs.token }}
         with:
-          github-token: ${{ steps.sts.outputs.token }}
+          github-token: ${{ github.token }}
           script: |
+            const downstreamGithub = getOctokit(process.env.DOWNSTREAM_TOKEN);
             const branch = process.env.GITHUB_HEAD_REF && process.env.GITHUB_HEAD_REF.length ? process.env.GITHUB_HEAD_REF : (process.env.GITHUB_REF || '').replace('refs/heads/','');
             if (!branch) {
               core.setFailed('Could not determine branch name from environment');
@@ -103,12 +107,30 @@ jobs:
 
             const failures = [];
             const wait = ms => new Promise(r => setTimeout(r, ms));
+            const corePr = context.payload.pull_request;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+            const upsertComment = async (client, owner, repo, issue_number, marker, body) => {
+              try {
+                const comments = await client.paginate(client.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+                const existing = comments.find(comment => comment.body && comment.body.includes(marker));
+
+                if (existing) {
+                  await client.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+                  return;
+                }
+
+                await client.rest.issues.createComment({ owner, repo, issue_number, body });
+              } catch (err) {
+                core.warning(`Could not post mergeability comment on ${owner}/${repo}#${issue_number}: ${err.message}`);
+              }
+            };
 
             for (const r of repos) {
               core.info(`Checking ${r.owner}/${r.repo} for branch ${branch}`);
 
               // Look for an open PR from owner:branch
-              const pulls = await github.rest.pulls.list({ owner: r.owner, repo: r.repo, head: `${r.owner}:${branch}`, state: 'open' });
+              const pulls = await downstreamGithub.rest.pulls.list({ owner: r.owner, repo: r.repo, head: `${r.owner}:${branch}`, state: 'open' });
 
               if (!pulls || !pulls.data || pulls.data.length === 0) {
                 core.info(`No open PR found for ${r.owner}/${r.repo} with branch ${branch} — considered OK`);
@@ -118,18 +140,24 @@ jobs:
               const pr = pulls.data[0];
 
               // Ensure mergeable flag is computed (may be null initially)
-              let prDetail = await github.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+              let prDetail = await downstreamGithub.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
               let tries = 0;
               while (prDetail.data.mergeable === null && tries < 6) {
                 core.info(`mergeable=null for ${r.repo}#${pr.number}, waiting...`);
                 await wait(2000);
-                prDetail = await github.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+                prDetail = await downstreamGithub.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
                 tries++;
               }
 
               // use `mergeable_state` field as best effort to check if checks pass: https://docs.github.com/en/graphql/reference/enums#mergestatestatus
               if (prDetail.data.mergeable === false || prDetail.data.mergeable_state !== 'clean') {
-                failures.push(`${r.repo} PR #${pr.number} is not mergeable, state: ${prDetail.data.mergeable_state} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                failures.push({
+                  owner: r.owner,
+                  repo: r.repo,
+                  number: pr.number,
+                  state: prDetail.data.mergeable_state || 'unknown',
+                  url: pr.html_url || `https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`,
+                });
                 continue;
               }
 
@@ -137,7 +165,45 @@ jobs:
             }
 
             if (failures.length > 0) {
-              throw new Error('Mergeability check failed:\n' + failures.join('\n'));
+              if (corePr) {
+                const coreMarker = '<!-- downstream-mergeability-check -->';
+                const coreBody = [
+                  coreMarker,
+                  '### :information_source: Downstream PRs are not mergeable yet',
+                  '',
+                  'The mergeability check found downstream PRs that are not yet mergeable:',
+                  '',
+                  '| Repository | PR | State |',
+                  '| --- | --- | --- |',
+                  ...failures.map(failure => `| ${failure.owner}/${failure.repo} | [#${failure.number}](${failure.url}) | \`${failure.state}\` |`),
+                  '',
+                  `Once they are mergeable (CI green, approved, no conflicts), rerun this job from the [workflow run](${runUrl}).`,
+                  '',
+                  'After that, merge this platform PR. Merging the platform PR automatically merges the downstream PRs, so downstream PRs should not be merged manually.',
+                ].join('\n');
+
+                await upsertComment(github, context.repo.owner, context.repo.repo, corePr.number, coreMarker, coreBody);
+
+                for (const failure of failures) {
+                  const downstreamMarker = '<!-- downstream-mergeability-core-first -->';
+                  const downstreamBody = [
+                    downstreamMarker,
+                    '### :warning: Merge the platform PR first',
+                    '',
+                    `This downstream PR belongs to [${context.repo.owner}/${context.repo.repo}#${corePr.number}](${corePr.html_url}).`,
+                    '',
+                    'Make this PR mergeable (CI green, approved, no conflicts), then rerun the platform mergeability job.',
+                    '',
+                    'The platform PR should be merged first. This downstream PR will be merged automatically afterwards, so do not merge it manually.',
+                  ].join('\n');
+
+                  await upsertComment(downstreamGithub, failure.owner, failure.repo, failure.number, downstreamMarker, downstreamBody);
+                }
+              } else {
+                core.info('No platform PR found in the event payload; skipping mergeability comments');
+              }
+
+              throw new Error('Mergeability check failed:\n' + failures.map(failure => `${failure.repo} PR #${failure.number} is not mergeable, state: ${failure.state} - ${failure.url}`).join('\n'));
             } else {
               core.info('All downstream mergeability checks passed');
             }

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-sales-channel-modal-grid {
     .sw-grid-row {
         border-bottom: 0;
@@ -13,7 +11,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         margin-bottom: 0;
         color: var(--color-text-primary-default);
         font-weight: normal;
@@ -26,7 +24,7 @@
 
     .sw-sales-channel-modal-grid__item-description {
         color: var(--color-text-primary-default);
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin-top: 5px;
         cursor: pointer;
     }

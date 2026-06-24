@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -29,6 +30,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(OpenAiProductExportProvider::class)]
 class OpenAiProductExportProviderTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetTechnicalNameReturnsOpenAi(): void
     {
         $provider = new OpenAiProductExportProvider(
@@ -39,6 +41,7 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('open-ai', $provider->getTechnicalName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
         $repository = $this->createSalesChannelRepository();
@@ -78,6 +81,7 @@ class OpenAiProductExportProviderTest extends TestCase
         ], $providerContext->get('variantMapping'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
         $context = Context::createDefaultContext();
@@ -114,6 +118,7 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame(['US'], $renderContext['provider']->get('targetCountries'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
         $context = Context::createDefaultContext();
@@ -152,6 +157,7 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('Merchant', $renderContext['provider']->get('sellerName'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenRepositoryReturnsNoSalesChannel(): void
     {
         $context = Context::createDefaultContext();
@@ -187,6 +193,7 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertNull($renderContext['provider']->get('targetCountries'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
         $salesChannel = $this->createSalesChannel(['DE']);

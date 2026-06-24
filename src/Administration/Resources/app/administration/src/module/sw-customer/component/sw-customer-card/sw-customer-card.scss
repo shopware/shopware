@@ -1,45 +1,58 @@
-@import "~scss/variables";
-
-$sw-customer-color-mail-to-link: var(--color-text-brand-default);
-
 .sw-customer-card {
-    .sw-customer-card__metadata {
-        padding-top: 17px;
-    }
-
-    .sw-customer-card__metadata-customer-name {
+    &__metadata-customer-name {
         align-items: center;
         display: flex;
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-m;
-        margin-bottom: 1px;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-m);
     }
 
-    .sw-customer-card__metadata-customer-guest-label {
-        margin: 0 0 0 12px;
-        text-align: center;
+    &__metadata-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--scale-size-16);
     }
 
-    .sw-customer-card__metadata-item {
-        margin-bottom: 8px;
-        font-size: $font-size-xs;
-
-        .sw-customer-card-email-link {
-            color: $sw-customer-color-mail-to-link;
-            text-decoration: none;
-        }
+    &__metadata-header-text {
+        display: flex;
+        flex-direction: column;
     }
 
-    .sw-customer-card__actions {
-        padding-top: 10px;
+    &__metadata-customer-guest-label {
+        margin-left: var(--scale-size-8);
+    }
+
+    .sw-customer-card-email-link {
+        text-decoration: none;
+    }
+
+    &__metadata-item {
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__actions {
+        padding-top: var(--scale-size-10);
 
         .mt-button {
-            margin-right: 6px;
+            margin-right: var(--scale-size-6);
 
             &:last-of-type {
                 margin-right: 0;
             }
         }
+    }
+
+    &__tag-select {
+        margin-top: var(--scale-size-12);
+    }
+
+    .sw-card-section.sw-card-section--divider-bottom {
+        border-bottom: 1px solid var(--color-border-secondary-default);
+    }
+
+    &__detailed-data {
+        border-bottom-left-radius: var(--border-radius-card);
+        border-bottom-right-radius: var(--border-radius-card);
     }
 
     .sw-customer-card__tag-select {

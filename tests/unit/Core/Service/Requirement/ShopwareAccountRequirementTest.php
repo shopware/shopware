@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
 
 /**
@@ -16,6 +17,11 @@ class ShopwareAccountRequirementTest extends TestCase
     public function testGetName(): void
     {
         static::assertSame('shopware_account', ShopwareAccountRequirement::getName());
+    }
+
+    public function testGatesPrivileges(): void
+    {
+        static::assertSame(Gate::PRIVILEGES, (new ShopwareAccountRequirement($this->createMock(Connection::class)))->getGate());
     }
 
     public function testIsSatisfiedWhenUserHasStoreToken(): void

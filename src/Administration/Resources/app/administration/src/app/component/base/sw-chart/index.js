@@ -268,7 +268,7 @@ export default {
                 stroke: {
                     width: '2',
                     curve: 'straight',
-                    colors: ['var(--color-border-brand-selected)'],
+                    colors: ['var(--color-border-brand-default)'],
                 },
 
                 title: {

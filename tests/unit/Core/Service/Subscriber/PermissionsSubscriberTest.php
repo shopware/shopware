@@ -44,7 +44,7 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
         $this->subscriber->syncConsentRequirement($event);
@@ -62,7 +62,7 @@ class PermissionsSubscriberTest extends TestCase
 
         $this->manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
         $this->subscriber->syncConsentRequirement($event);

@@ -35,8 +35,6 @@
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
@@ -45,6 +43,8 @@
             <argument type="service" id="Shopware\Core\Service\ServiceSourceResolver"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceStorage">
@@ -61,11 +61,10 @@
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\ServiceStorage"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="messenger.bus.default"/>
             <argument type="service" id="event_dispatcher"/>
-
         </service>
 
         <service id="Shopware\Core\Service\ScheduledTask\InstallServicesTask">
@@ -148,6 +147,11 @@
 
         <service id="Shopware\Core\Service\Requirement\ServiceConsentRequirement">
             <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Requirement\ServicesEnabledRequirement">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="shopware.service.requirement"/>
         </service>
 

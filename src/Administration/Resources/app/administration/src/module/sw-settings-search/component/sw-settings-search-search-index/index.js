@@ -132,6 +132,8 @@ export default {
                         this.createNotificationSuccess({
                             message: this.$t('sw-settings-search.notification.index.success'),
                         });
+
+                        this.buildFinish();
                     } else {
                         this.progressBarValue = ((this.offset ?? 1) / this.totalProduct) * 100;
                         this.offset = data.offset.offset;

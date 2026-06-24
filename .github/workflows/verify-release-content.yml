@@ -1,0 +1,38 @@
+name: Verify release content
+
+on:
+  push:
+    branches:
+      - '[0-9]+.[0-9]+.[0-9]+.x'
+  workflow_dispatch:
+    inputs:
+      version_prefix:
+        description: 'Version prefix to verify (e.g. 6.7.11). Derived from branch name when omitted.'
+        required: false
+
+jobs:
+  verify:
+    name: Verify release content
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: "0"
+
+      - name: Fetch trunk
+        run: git fetch origin trunk
+
+      - name: Derive version prefix
+        id: version
+        run: |
+          if [[ -n "${{ inputs.version_prefix }}" ]]; then
+            echo "prefix=${{ inputs.version_prefix }}" >> "$GITHUB_OUTPUT"
+          else
+            # 6.7.11.x → 6.7.11
+            echo "prefix=${GITHUB_REF_NAME%.x}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify release content
+        run: bash .github/bin/verify_release_content.bash "${{ steps.version.outputs.prefix }}"

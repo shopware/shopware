@@ -44,7 +44,7 @@ class CustomerTagRuleTest extends TestCase
                     Rule::OPERATOR_NEQ,
                     Rule::OPERATOR_EMPTY,
                 ],
-                'isMatchAny' => 1,
+                'isMatchAny' => 0,
             ],
             'fields' => [
                 'identifiers' => [

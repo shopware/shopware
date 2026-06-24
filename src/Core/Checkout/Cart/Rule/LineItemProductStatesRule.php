@@ -66,7 +66,7 @@ class LineItemProductStatesRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [
                 State::IS_PHYSICAL,
                 State::IS_DOWNLOAD,

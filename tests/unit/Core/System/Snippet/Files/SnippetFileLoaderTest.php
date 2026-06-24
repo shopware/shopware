@@ -45,7 +45,6 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSn
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -786,7 +785,6 @@ class SnippetFileLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: $this->createMock(ClientInterface::class),
             config: $this->config,
-            validator: Validation::createValidator(),
         );
     }
 }

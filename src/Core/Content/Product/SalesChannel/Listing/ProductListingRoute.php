@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,7 +37,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -101,15 +101,19 @@ class ProductListingRoute extends AbstractProductListingRoute
 
     private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, PartialEntity $category): void
     {
-        $productAssignmentType = $category->get('productAssignmentType');
-        $productStreamId = $category->get('productStreamId');
+        $hasProductStream = $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
+            && $category->get('productStreamId') !== null;
 
-        if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && \is_string($productStreamId) && $productStreamId !== '') {
+        if ($hasProductStream) {
             $this->cacheTagCollector->addTag(
-                EntityCacheKeyGenerator::buildStreamTag($productStreamId)
+                EntityCacheKeyGenerator::buildStreamTag($category->get('productStreamId'))
             );
 
-            $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+            $filters = $this->productStreamBuilder->buildFilters(
+                $category->get('productStreamId'),
+                $salesChannelContext->getContext()
+            );
+            $criteria->addFilter(...$filters);
 
             return;
         }

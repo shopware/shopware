@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
@@ -102,17 +103,10 @@ class OpenApiDefinitionSchemaBuilder
                 continue;
             }
 
-            if (
-                $field->is(Required::class)
-                && !$field instanceof VersionField
-                && !$field instanceof ReferenceVersionField
-                && !$field instanceof CreatedAtField
-                && !$field instanceof UpdatedAtField
-                && !\array_key_exists($field->getPropertyName(), $defaults)
-            ) {
+            if ($this->isRequiredResponseField($field, $defaults)) {
                 $requiredAttributes[] = $field->getPropertyName();
 
-                if (!$this->isTechnicalReadField($field)) {
+                if ($this->isWritableRequestField($field)) {
                     $requestRequiredAttributes[] = $field->getPropertyName();
                 }
             }
@@ -138,7 +132,12 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             if ($field instanceof JsonField) {
-                $attributes[] = $this->resolveJsonField($field);
+                $attr = $this->resolveJsonField($field);
+                $attributes[] = $attr;
+
+                if ($this->isWritableRequestField($field)) {
+                    $requestAttributes[] = $attr;
+                }
 
                 continue;
             }
@@ -175,7 +174,7 @@ class OpenApiDefinitionSchemaBuilder
 
             $attributes[] = $attr;
 
-            if (!$this->isTechnicalReadField($field)) {
+            if ($this->isWritableRequestField($field)) {
                 $requestAttributes[] = $attr;
             }
         }
@@ -287,17 +286,26 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         if ($includeRequestSchemas) {
-            $schema[$schemaName . 'Create'] = new Schema([
+            $createSchema = [
                 'type' => 'object',
                 'schema' => $schemaName . 'Create',
-                'properties' => $requestAttributes,
-            ]);
+            ];
 
-            $schema[$schemaName . 'Update'] = new Schema([
+            if ($requestAttributes !== []) {
+                $createSchema['properties'] = $requestAttributes;
+            }
+
+            $updateSchema = [
                 'type' => 'object',
                 'schema' => $schemaName . 'Update',
-                'properties' => $requestAttributes,
-            ]);
+            ];
+
+            if ($requestAttributes !== []) {
+                $updateSchema['properties'] = $requestAttributes;
+            }
+
+            $schema[$schemaName . 'Create'] = new Schema($createSchema);
+            $schema[$schemaName . 'Update'] = new Schema($updateSchema);
 
             if ($since !== null && $since !== '') {
                 $schema[$schemaName . 'Create']->description = 'Added since version: ' . $since;
@@ -306,7 +314,6 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($requestRequiredAttributes !== []) {
                 $schema[$schemaName . 'Create']->required = $requestRequiredAttributes;
-                $schema[$schemaName . 'Update']->required = $requestRequiredAttributes;
             }
         }
 
@@ -641,9 +648,32 @@ class OpenApiDefinitionSchemaBuilder
         return $field->getFlag(Deprecated::class) !== null;
     }
 
+    /**
+     * @param array<string, mixed> $defaults
+     */
+    private function isRequiredResponseField(Field $field, array $defaults): bool
+    {
+        return $field->is(Required::class)
+            && !$field instanceof VersionField
+            && !$field instanceof ReferenceVersionField
+            && !$field instanceof CreatedAtField
+            && !$field instanceof UpdatedAtField
+            && !\array_key_exists($field->getPropertyName(), $defaults);
+    }
+
+    private function isWritableRequestField(Field $field): bool
+    {
+        return !$this->isTechnicalReadField($field)
+            && !$this->isWriteProtected($field)
+            && !$field instanceof AssociationField
+            && !$field->is(Computed::class)
+            && !$field->is(Runtime::class);
+    }
+
     private function isTechnicalReadField(Field $field): bool
     {
         return $field->is(PrimaryKey::class)
+            || ($field instanceof IdField && $field->getPropertyName() === 'id')
             || $field instanceof CreatedAtField
             || $field instanceof UpdatedAtField;
     }

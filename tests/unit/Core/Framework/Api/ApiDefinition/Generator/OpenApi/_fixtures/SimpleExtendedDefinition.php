@@ -39,6 +39,7 @@ class SimpleExtendedDefinition extends EntityDefinition
                 (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
                 (new CreatedAtField())->addFlags(new ApiAware()),
                 new FkField('simple_id', 'simpleId', SimpleDefinition::class),
+                (new JsonField('required_json_field', 'requiredJsonField'))->addFlags(new ApiAware(), new Required()),
                 (new JsonField('extended_json_field', 'extendedJsonField'))->addFlags(new Extension()),
 
                 (new OneToOneAssociationField('simpleIdField', 'simple_id', 'id_field', SimpleDefinition::class, false))->addFlags(new Extension()),

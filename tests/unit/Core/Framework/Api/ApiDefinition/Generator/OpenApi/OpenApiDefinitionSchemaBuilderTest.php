@@ -10,6 +10,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ComplexDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\TechnicalOnlyDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -30,6 +31,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 SimpleDefinition::class,
                 ComplexDefinition::class,
                 SimpleExtendedDefinition::class,
+                TechnicalOnlyDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -137,12 +139,17 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             'jsonapi',
             true
         );
-        $createProperties = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
-        $updateProperties = json_decode($schema['SimpleExtendedUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+        $createSchema = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $updateSchema = json_decode($schema['SimpleExtendedUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $createProperties = $createSchema['properties'];
+        $updateProperties = $updateSchema['properties'];
 
         static::assertSame($createProperties, $updateProperties);
+        static::assertSame(['requiredJsonField'], $createSchema['required']);
+        static::assertArrayNotHasKey('required', $updateSchema);
         static::assertArrayNotHasKey('id', $createProperties);
         static::assertArrayNotHasKey('createdAt', $createProperties);
+        static::assertArrayHasKey('requiredJsonField', $createProperties);
         static::assertArrayHasKey('extensions', $createProperties);
         static::assertArrayHasKey('properties', $createProperties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $createProperties['extensions']['properties']);
@@ -151,6 +158,28 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             $createProperties['extensions']['properties']['simpleIdField']['$ref']
         );
         static::assertArrayNotHasKey('data', $createProperties['extensions']['properties']['simpleIdField']);
+    }
+
+    public function testRequestSchemaWithOnlyTechnicalFieldsHasNoPropertiesArray(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(TechnicalOnlyDefinition::class),
+            '/technical-only',
+            false,
+            false,
+            'jsonapi',
+            true
+        );
+
+        $createSchema = json_decode($schema['TechnicalOnlyCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $updateSchema = json_decode($schema['TechnicalOnlyUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertSame('object', $createSchema['type']);
+        static::assertSame('object', $updateSchema['type']);
+        static::assertArrayNotHasKey('properties', $createSchema);
+        static::assertArrayNotHasKey('properties', $updateSchema);
+        static::assertArrayNotHasKey('required', $createSchema);
+        static::assertArrayNotHasKey('required', $updateSchema);
     }
 
     public function testJsonApiExtensionConversionKeepsAssociationLinkage(): void

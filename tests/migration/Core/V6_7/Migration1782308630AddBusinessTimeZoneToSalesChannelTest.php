@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1779893783AddBusinessTimeZoneToSalesChannel;
+use Shopware\Core\Migration\V6_7\Migration1782308630AddBusinessTimeZoneToSalesChannel;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(Migration1779893783AddBusinessTimeZoneToSalesChannel::class)]
-class Migration1779893783AddBusinessTimeZoneToSalesChannelTest extends TestCase
+#[CoversClass(Migration1782308630AddBusinessTimeZoneToSalesChannel::class)]
+class Migration1782308630AddBusinessTimeZoneToSalesChannelTest extends TestCase
 {
     private Connection $connection;
 
@@ -34,7 +34,7 @@ class Migration1779893783AddBusinessTimeZoneToSalesChannelTest extends TestCase
         $salesChannelCount = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `sales_channel`');
         static::assertGreaterThan(0, $salesChannelCount);
 
-        $migration = new Migration1779893783AddBusinessTimeZoneToSalesChannel();
+        $migration = new Migration1782308630AddBusinessTimeZoneToSalesChannel();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
@@ -55,8 +55,8 @@ class Migration1779893783AddBusinessTimeZoneToSalesChannelTest extends TestCase
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(
-            1779893783,
-            (new Migration1779893783AddBusinessTimeZoneToSalesChannel())->getCreationTimestamp()
+            1782308630,
+            (new Migration1782308630AddBusinessTimeZoneToSalesChannel())->getCreationTimestamp()
         );
     }
 

@@ -11,11 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * @internal
  */
 #[Package('discovery')]
-class Migration1779893783AddBusinessTimeZoneToSalesChannel extends MigrationStep
+class Migration1782308630AddBusinessTimeZoneToSalesChannel extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1779893783;
+        return 1782308630;
     }
 
     public function update(Connection $connection): void

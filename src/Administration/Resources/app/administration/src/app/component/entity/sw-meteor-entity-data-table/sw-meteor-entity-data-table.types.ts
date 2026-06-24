@@ -39,21 +39,29 @@ export type MeteorEntityTableColumnDefinition = {
     routerLink?: string;
     inlineEdit?: string | boolean;
     allowResize?: boolean;
+    cellWrap?: 'nowrap' | 'normal';
+    clickable?: boolean;
+    previewImage?: string;
+    rendererOptions?: unknown;
     visible?: boolean;
     width?: number | string;
     sortable?: boolean;
+    [key: string]: unknown;
 };
 
 export type MeteorEntityTableColumn = {
     property: string;
     label: string;
-    position: number;
+    position?: number;
     renderer: 'text' | 'number' | 'price' | 'badge';
     clickable?: boolean;
     allowResize?: boolean;
+    cellWrap?: 'nowrap' | 'normal';
+    previewImage?: string;
+    rendererOptions?: unknown;
     visible?: boolean;
-    width?: number;
     sortable?: boolean;
+    [key: string]: unknown;
 };
 
 export type MeteorEntityTableState = {

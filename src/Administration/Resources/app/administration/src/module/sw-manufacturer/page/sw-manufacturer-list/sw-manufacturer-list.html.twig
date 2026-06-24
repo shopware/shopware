@@ -82,6 +82,7 @@
                 :columns="manufacturerColumns"
                 :repository="manufacturerRepository"
                 :criteria-resolver="resolveManufacturerCriteria"
+                :criteria="manufacturerCriteria"
                 :initial-page="page"
                 :initial-limit="limit"
                 :initial-search-term="term"
@@ -95,15 +96,9 @@
                 :disable-search="true"
                 @load-success="onTableLoadSuccess"
                 @load-error="onTableLoadError"
-                @pagination-change="onPageChange"
-                @sort-change="onSortColumn"
-            >
-                {% block sw_manufacturer_list_grid_columns_name_preview %}
-                <template #preview-name="{ data }">
-                    <sw-media-preview-v2 :source="data?.mediaId" />
-                </template>
-                {% endblock %}
-            </sw-meteor-entity-data-table>
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+            />
             {% endblock %}
 
         </div>

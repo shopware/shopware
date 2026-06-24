@@ -58,13 +58,11 @@ export default {
             return [
                 {
                     property: 'name',
-                    dataIndex: 'name',
-                    allowResize: true,
-                    routerLink: 'sw.manufacturer.detail',
                     label: 'sw-manufacturer.list.columnName',
-                    inlineEdit: 'string',
                     primary: true,
                     clickable: true,
+                    renderer: 'text',
+                    previewImage: 'media.url',
                 },
                 {
                     property: 'link',
@@ -82,6 +80,8 @@ export default {
             if (this.sortBy) {
                 manufacturerCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             }
+
+            manufacturerCriteria.addAssociation('media');
 
             return manufacturerCriteria;
         },
@@ -190,7 +190,7 @@ export default {
             });
         },
 
-        onSortColumn({ column, sortDirection }) {
+        onSortColumn(column, sortDirection) {
             this.page = 1;
             this.sortBy = column.dataIndex || column.property;
             this.sortDirection = sortDirection;

@@ -518,7 +518,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.vm.loading).toBe(false);
     });
 
-    it('pagination-current-page-change updates state, emits pagination-change, and reloads', async () => {
+    it('pagination-current-page-change updates state, emits page-change, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -528,7 +528,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         await flushPromises();
 
         expect(wrapper.vm.state.page).toBe(3);
-        expect(wrapper.emitted('pagination-change')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('page-change')?.at(-1)?.[0]).toEqual({
             page: 3,
             limit: 25,
         });
@@ -536,7 +536,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(lastSearchCriteria(repository).page).toBe(3);
     });
 
-    it('pagination-limit-change resets page, emits pagination-change, and reloads', async () => {
+    it('pagination-limit-change resets page, emits page-change, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -550,7 +550,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(wrapper.vm.state.page).toBe(1);
         expect(wrapper.vm.state.limit).toBe(50);
-        expect(wrapper.emitted('pagination-change')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('page-change')?.at(-1)?.[0]).toEqual({
             page: 1,
             limit: 50,
         });
@@ -559,7 +559,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(lastSearchCriteria(repository).limit).toBe(50);
     });
 
-    it('sort-change resets page, emits wrapper sort-change, and reloads', async () => {
+    it('sort-change resets page, emits wrapper column-sort, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -582,23 +582,21 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.vm.state.page).toBe(1);
         expect(wrapper.vm.state.sortBy).toBe('name');
         expect(wrapper.vm.state.sortDirection).toBe('DESC');
-        const sortChangePayload = wrapper.emitted('sort-change')?.at(-1)?.[0] as {
-            column?: {
+        const sortChangePayload = wrapper.emitted('column-sort')?.at(-1) as [
+            {
                 property?: string;
                 dataIndex?: string;
-            };
-            sortBy: string;
-            sortDirection: 'ASC' | 'DESC';
-        };
+            },
+            'ASC' | 'DESC',
+        ];
 
-        expect(sortChangePayload.sortBy).toBe('name');
-        expect(sortChangePayload.sortDirection).toBe('DESC');
-        expect(sortChangePayload.column).toEqual(
+        expect(sortChangePayload[0]).toEqual(
             expect.objectContaining({
                 property: 'name',
                 dataIndex: 'translated.name',
             }),
         );
+        expect(sortChangePayload[1]).toBe('DESC');
         expect(lastSearchCriteria(repository).sortings).toEqual([
             {
                 field: 'translated.name',
@@ -607,7 +605,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             },
         ]);
     });
-
     it('search-value-change resets page, emits wrapper search event, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),

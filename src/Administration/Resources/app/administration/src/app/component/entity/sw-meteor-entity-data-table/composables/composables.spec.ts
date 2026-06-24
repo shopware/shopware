@@ -8,6 +8,7 @@ import { useMeteorEntityTableSelection } from './use-meteor-entity-table-selecti
 
 describe('sw-meteor-entity-data-table composables', () => {
     it('normalizes wrapper column definitions for mt-data-table', () => {
+        const renderItemBadge = jest.fn();
         const { resolvedColumns } = useMeteorEntityTableColumns(
             () => [
                 {
@@ -15,9 +16,18 @@ describe('sw-meteor-entity-data-table composables', () => {
                     label: 'sw-manufacturer.list.columnName',
                     primary: true,
                     renderer: 'badge',
+                    rendererOptions: {
+                        renderItemBadge,
+                    },
                     width: 240,
                     allowResize: false,
+                    cellWrap: 'normal',
                     sortable: true,
+                },
+                {
+                    property: 'media.url',
+                    label: 'Preview',
+                    previewImage: 'media.url',
                 },
             ],
             (key) => `translated.${key}`,
@@ -29,9 +39,21 @@ describe('sw-meteor-entity-data-table composables', () => {
                 label: 'translated.sw-manufacturer.list.columnName',
                 position: 100,
                 renderer: 'badge',
+                rendererOptions: {
+                    renderItemBadge,
+                },
                 clickable: true,
                 allowResize: false,
+                cellWrap: 'normal',
                 width: 240,
+                sortable: true,
+            },
+            {
+                property: 'media.url',
+                label: 'translated.Preview',
+                position: 200,
+                renderer: 'text',
+                previewImage: 'media.url',
                 sortable: true,
             },
         ]);

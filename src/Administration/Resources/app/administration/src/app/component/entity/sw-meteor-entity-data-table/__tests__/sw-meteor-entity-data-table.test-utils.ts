@@ -95,6 +95,7 @@ export async function createWrapper(
     options: {
         mocks?: Record<string, unknown>;
         globalProperties?: Record<string, unknown>;
+        slots?: Record<string, string>;
     } = {},
 ): Promise<TestWrapper> {
     const translate =
@@ -130,6 +131,7 @@ export async function createWrapper(
             ],
             ...props,
         },
+        slots: options.slots,
         global: {
             stubs: {
                 'mt-data-table': {

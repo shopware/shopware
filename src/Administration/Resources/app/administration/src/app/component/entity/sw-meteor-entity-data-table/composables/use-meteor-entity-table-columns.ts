@@ -32,14 +32,27 @@ export function useMeteorEntityTableColumns(
                 label: translate(column.label),
                 position: getColumnPosition(column, index),
                 renderer: column.renderer ?? 'text',
+                sortable: column.sortable !== false,
             };
 
-            if (column.primary === true || typeof column.routerLink === 'string') {
+            if (column.primary === true || typeof column.routerLink === 'string' || column.clickable === true) {
                 meteorColumn.clickable = true;
             }
 
             if (typeof column.allowResize === 'boolean') {
                 meteorColumn.allowResize = column.allowResize;
+            }
+
+            if (column.cellWrap) {
+                meteorColumn.cellWrap = column.cellWrap;
+            }
+
+            if (column.previewImage) {
+                meteorColumn.previewImage = column.previewImage;
+            }
+
+            if (column.rendererOptions) {
+                meteorColumn.rendererOptions = column.rendererOptions;
             }
 
             if (typeof column.visible === 'boolean') {
@@ -51,8 +64,6 @@ export function useMeteorEntityTableColumns(
             if (typeof width === 'number') {
                 meteorColumn.width = width;
             }
-
-            meteorColumn.sortable = column.sortable !== false;
 
             return meteorColumn;
         });

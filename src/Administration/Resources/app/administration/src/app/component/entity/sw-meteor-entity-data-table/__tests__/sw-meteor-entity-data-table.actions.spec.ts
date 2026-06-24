@@ -17,7 +17,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         _overridesMap['sw-meteor-entity-data-table']?.splice(0);
     });
 
-    it('selection-change from mt-data-table updates selected ids and emits wrapper selection-change', async () => {
+    it('selection-change from mt-data-table updates selected ids and emits wrapper selection events', async () => {
         const wrapper = await createWrapper();
 
         await mountedTable(wrapper).vm.$emit('selection-change', {
@@ -27,18 +27,32 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(wrapper.vm.selectedIds).toEqual(['manufacturer-1']);
-        expect(wrapper.emitted('selection-change')?.at(-1)?.[0]).toEqual({
-            selectedIds: ['manufacturer-1'],
-            selection: {
+        expect(wrapper.emitted('selected-ids-change')?.at(-1)?.[0]).toEqual(['manufacturer-1']);
+        expect(wrapper.emitted('selection-change')?.at(-1)).toEqual([
+            {
                 'manufacturer-1': {
                     id: 'manufacturer-1',
                     name: 'Shopware',
                 },
             },
-        });
+            1,
+        ]);
+        expect(wrapper.emitted('select-item')?.at(-1)).toEqual([
+            {
+                'manufacturer-1': {
+                    id: 'manufacturer-1',
+                    name: 'Shopware',
+                },
+            },
+            {
+                id: 'manufacturer-1',
+                name: 'Shopware',
+            },
+            true,
+        ]);
     });
 
-    it('handles multiple-selection-change and emits wrapper selection-change', async () => {
+    it('handles multiple-selection-change and emits wrapper selection events', async () => {
         const wrapper = await createWrapper();
 
         await mountedTable(wrapper).vm.$emit('multiple-selection-change', {
@@ -54,12 +68,12 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             'manufacturer-1',
             'manufacturer-2',
         ]);
-        expect(wrapper.emitted('selection-change')?.at(-1)?.[0]).toEqual({
-            selectedIds: [
-                'manufacturer-1',
-                'manufacturer-2',
-            ],
-            selection: {
+        expect(wrapper.emitted('selected-ids-change')?.at(-1)?.[0]).toEqual([
+            'manufacturer-1',
+            'manufacturer-2',
+        ]);
+        expect(wrapper.emitted('selection-change')?.at(-1)).toEqual([
+            {
                 'manufacturer-1': {
                     id: 'manufacturer-1',
                     name: 'Shopware',
@@ -68,6 +82,17 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
                     id: 'manufacturer-2',
                     name: 'Meteor',
                 },
+            },
+            2,
+        ]);
+        expect(wrapper.emitted('select-all-items')?.at(-1)?.[0]).toEqual({
+            'manufacturer-1': {
+                id: 'manufacturer-1',
+                name: 'Shopware',
+            },
+            'manufacturer-2': {
+                id: 'manufacturer-2',
+                name: 'Meteor',
             },
         });
     });
@@ -125,6 +150,89 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             id: 'manufacturer-1',
             name: 'Shopware',
         });
+
+        expect(router.push).toHaveBeenCalledWith({
+            name: 'sw.manufacturer.detail',
+            params: {
+                id: 'manufacturer-1',
+            },
+        });
+        expect(wrapper.emitted('open-detail')?.at(-1)?.[0]).toEqual({
+            id: 'manufacturer-1',
+            record: {
+                id: 'manufacturer-1',
+                name: 'Shopware',
+            },
+        });
+    });
+
+    it('opens detail from a clickable inline-edit cell value', async () => {
+        const router = {
+            push: jest.fn(),
+        };
+        const wrapper = await createWrapper(
+            {
+                detailRoute: 'sw.manufacturer.detail',
+                allowInlineEdit: true,
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        inlineEdit: 'string',
+                        primary: true,
+                    },
+                ],
+            },
+            {
+                mocks: {
+                    $router: router,
+                },
+            },
+        );
+
+        await wrapper.get('.sw-meteor-entity-data-table-inline-edit-cell__value-link').trigger('click');
+
+        expect(router.push).toHaveBeenCalledWith({
+            name: 'sw.manufacturer.detail',
+            params: {
+                id: 'manufacturer-1',
+            },
+        });
+        expect(wrapper.emitted('open-detail')?.at(-1)?.[0]).toEqual({
+            id: 'manufacturer-1',
+            record: {
+                id: 'manufacturer-1',
+                name: 'Shopware',
+            },
+        });
+    });
+
+    it('opens detail from a clickable internal preview cell value', async () => {
+        const router = {
+            push: jest.fn(),
+        };
+        const wrapper = await createWrapper(
+            {
+                detailRoute: 'sw.manufacturer.detail',
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        primary: true,
+                    },
+                ],
+            },
+            {
+                mocks: {
+                    $router: router,
+                },
+                slots: {
+                    'preview-name': '<span class="preview-slot">Preview</span>',
+                },
+            },
+        );
+
+        await wrapper.get('.sw-meteor-entity-data-table__column-value-link').trigger('click');
 
         expect(router.push).toHaveBeenCalledWith({
             name: 'sw.manufacturer.detail',
@@ -216,7 +324,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
-    it('confirming single delete calls repository.delete, emits delete-success, and reloads', async () => {
+    it('confirming single delete calls repository.delete, emits delete-item-finish, and reloads', async () => {
         const repository = {
             search: jest.fn(() =>
                 Promise.resolve(
@@ -240,7 +348,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(repository.delete).toHaveBeenCalledWith('manufacturer-1', undefined);
-        expect(wrapper.emitted('delete-success')?.at(-1)?.[0]).toBe('manufacturer-1');
+        expect(wrapper.emitted('delete-item-finish')?.at(-1)?.[0]).toBe('manufacturer-1');
         expect(repository.search).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.selectedIds).toEqual([]);
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(false);
@@ -305,7 +413,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal__confirm').exists()).toBe(true);
     });
 
-    it('failed single delete emits delete-error and keeps loading consistent', async () => {
+    it('failed single delete emits delete-item-failed and keeps loading consistent', async () => {
         const error = new Error('Delete failed');
         const repository = {
             search: jest.fn(() =>
@@ -327,9 +435,9 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await wrapper.get('.sw-meteor-entity-data-table-delete-modal__confirm').trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted('delete-error')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('delete-item-failed')?.at(-1)?.[0]).toEqual({
             id: 'manufacturer-1',
-            error,
+            errorResponse: error,
         });
         expect(wrapper.vm.loading).toBe(false);
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(true);
@@ -393,7 +501,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
-    it('confirming bulk delete calls repository.syncDeleted, emits bulk-delete-success, clears selection, and reloads', async () => {
+    it('confirming bulk delete calls repository.syncDeleted, emits items-delete-finish, clears selection, and reloads', async () => {
         const repository = {
             search: jest.fn(() =>
                 Promise.resolve(
@@ -423,12 +531,12 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             ],
             undefined,
         );
-        expect(wrapper.emitted('bulk-delete-success')).toHaveLength(1);
+        expect(wrapper.emitted('items-delete-finish')).toHaveLength(1);
         expect(wrapper.vm.selectedIds).toEqual([]);
         expect(repository.search).toHaveBeenCalledTimes(2);
     });
 
-    it('failed bulk delete emits bulk-delete-error', async () => {
+    it('failed bulk delete emits delete-items-failed', async () => {
         const error = new Error('Bulk delete failed');
         const repository = {
             search: jest.fn(() =>
@@ -448,9 +556,9 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await wrapper.get('.sw-meteor-entity-data-table-bulk-delete-modal__confirm').trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted('bulk-delete-error')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('delete-items-failed')?.at(-1)?.[0]).toEqual({
             selectedIds: ['manufacturer-1'],
-            error,
+            errorResponse: error,
         });
     });
 

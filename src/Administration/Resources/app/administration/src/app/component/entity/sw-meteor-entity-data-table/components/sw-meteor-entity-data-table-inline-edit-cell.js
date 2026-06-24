@@ -16,10 +16,15 @@ export default {
             type: Boolean,
             required: true,
         },
+        isClickable: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: [
         'update:modelValue',
+        'open-detail',
         'start',
         'save',
         'cancel',
@@ -58,7 +63,19 @@ export default {
             </template>
 
             <template v-else>
-                <span class="sw-meteor-entity-data-table-inline-edit-cell__value">
+                <a
+                    v-if="isClickable"
+                    class="sw-meteor-entity-data-table-inline-edit-cell__value sw-meteor-entity-data-table-inline-edit-cell__value-link"
+                    href="#"
+                    @click.prevent="$emit('open-detail')"
+                >
+                    {{ modelValue }}
+                </a>
+
+                <span
+                    v-else
+                    class="sw-meteor-entity-data-table-inline-edit-cell__value"
+                >
                     {{ modelValue }}
                 </span>
 

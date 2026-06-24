@@ -54,7 +54,7 @@ class SeoUrlRouteConfig
     public function getPrimaryKeyParameter(string $primaryKey): array
     {
         if ($this->primaryKeyParameterKey === null) {
-            throw SeoUrlRouteConfigException::routeConfigMissingPrimaryKey($this->definition->getEntityName());
+            throw SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey($this->definition->getEntityName());
         }
 
         return [$this->primaryKeyParameterKey => $primaryKey];

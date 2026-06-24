@@ -9,14 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('discovery')]
 class SeoUrlRouteConfigException extends SeoException
 {
-    public const ROUTE_CONFIG_MISSING_PRIMARY_KEY = 'FRAMEWORK__ROUTE_PARAMETERS_MISMATCHING';
+    public const ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY = 'FRAMEWORK__ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY';
     public const ROUTE_CONFIG_NOT_FOUND_FOR_ENTITY_NAME = 'FRAMEWORK__ROUTE_CONFIG_NOT_FOUND_FOR_ENTITY_NAME';
 
-    public static function routeConfigMissingPrimaryKey(string $entityName): self
+    public static function routeConfigMissingParameterKeyForPrimaryKey(string $entityName): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::ROUTE_CONFIG_MISSING_PRIMARY_KEY,
+            self::ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY,
             'Missing key for primary key.',
             ['entityName' => $entityName]
         );

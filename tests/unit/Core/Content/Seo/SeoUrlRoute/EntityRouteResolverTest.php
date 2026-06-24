@@ -86,7 +86,7 @@ class EntityRouteResolverTest extends TestCase
 
     public function testThrowsExceptionWhenRouteHasNoPrimaryKeyConfigured(): void
     {
-        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingPrimaryKey('product'));
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey('product'));
 
         $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
 

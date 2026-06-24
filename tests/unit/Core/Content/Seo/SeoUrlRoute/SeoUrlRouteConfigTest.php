@@ -48,7 +48,7 @@ class SeoUrlRouteConfigTest extends TestCase
             '{{ foo.bar }}'
         );
 
-        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingPrimaryKey('foo_bar'));
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey('foo_bar'));
 
         $config->getPrimaryKeyParameter('foo-value');
     }

@@ -24,7 +24,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
@@ -39,7 +39,7 @@ jobs:
     strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: ./.github/actions/ats
         with:
           project: ${{ matrix.name }}
@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # Fetch full history in order to see what's changed
 
@@ -180,7 +180,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
@@ -288,7 +288,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
   php-security:
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
@@ -296,7 +296,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -327,7 +327,7 @@ jobs:
         security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 2
 
@@ -398,7 +398,7 @@ jobs:
           path: new-shopware
 
       - name: Cache Storefront npm packages
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
           # offline (see prefer-offline below), which keeps the install off the network.
@@ -429,7 +429,7 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Checkout template
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: shopware/production
           path: old-shopware
@@ -658,7 +658,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.ref }}
 
@@ -673,7 +673,7 @@ jobs:
           bin/console system:update:finish
 
       - name: Checkout previous major version again
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
 
@@ -739,7 +739,7 @@ jobs:
             run: composer init:testdb
 
           - name: Checkout current major version
-            uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
             with:
                 ref: ${{ github.ref }}
 

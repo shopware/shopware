@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;
 

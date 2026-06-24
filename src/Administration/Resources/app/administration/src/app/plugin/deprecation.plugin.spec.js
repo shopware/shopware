@@ -39,6 +39,7 @@ describe('app/plugins/deprecated.plugin', () => {
         global.console.warn.mockReset();
         global.console.warn = orgMock;
         deprecationPlugin.pluginInstalled = false;
+        deprecationPlugin.runtimeWarnings.clear();
 
         await component.unmount();
         await flushPromises();
@@ -256,6 +257,300 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
         expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
         expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+    });
+
+    it('[component] should use registry metadata for registry-backed deprecated components', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'sw-button',
+                deprecated: {
+                    version: '6.8.0',
+                    comment: '',
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[sw-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('legacy sw-button component is replaced by mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('Use "mt-button" instead.'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
+    });
+
+    it('[registry prop] should warn when a registry-deprecated prop is provided', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-text-field',
+                props: {
+                    value: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    value: 'legacy value',
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-text-field]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "value"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-text-field'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-text-field'));
+    });
+
+    it('[registry prop] should warn when a registry-deprecated prop is provided as a dash-case vnode prop', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-card',
+                props: {
+                    contentPadding: {
+                        type: Boolean,
+                        required: false,
+                        default: false,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    'content-padding': true,
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-card]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "content-padding"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-card'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-card'));
+    });
+
+    it('[registry prop] should warn with the original dash-case name when a renamed prop is provided as a dash-case vnode prop', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-banner',
+                props: {
+                    notificationIndex: {
+                        type: Number,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    'notification-index': 1,
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-banner]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "notification-index"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('Use "banner-index" instead.'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-alert'));
+    });
+
+    it('[registry prop] should not warn when a value-mapped prop uses a non-deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'primary',
+                },
+            },
+        });
+
+        expect(global.console.warn).not.toHaveBeenCalled();
+    });
+
+    it('[registry prop] should warn when a value-mapped prop uses a deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'ghost',
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "variant"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
+    });
+
+    it('[registry prop] should warn when a provided value-mapped prop changes to a deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'primary',
+                },
+            },
+        });
+
+        expect(global.console.warn).not.toHaveBeenCalled();
+
+        await component.setProps({
+            variant: 'ghost',
+        });
+        await flushPromises();
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "variant"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
+    });
+
+    it('[registry prop] should warn when a value-mapped prop is provided after creation', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+        });
+
+        expect(global.console.warn).not.toHaveBeenCalled();
+
+        await component.setProps({
+            variant: 'ghost',
+        });
+        await flushPromises();
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[0]).toEqual(expect.stringContaining('[mt-button]'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "variant"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('mt-button'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-button'));
+    });
+
+    it('[registry prop] should warn when a provided value-mapped prop changes to another deprecated value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-button',
+                props: {
+                    variant: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    variant: 'ghost',
+                },
+            },
+        });
+
+        expect(global.console.warn.mock.calls[0][1]).toEqual(expect.stringContaining('Use "primary" instead.'));
+
+        await component.setProps({
+            variant: 'danger',
+        });
+        await flushPromises();
+
+        expect(global.console.warn.mock.calls[2][1]).toEqual(expect.stringContaining('Use "critical" instead.'));
+    });
+
+    it('[prop] should use registry metadata for known deprecated props', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-text-field',
+                props: {
+                    value: {
+                        type: String,
+                        required: false,
+                        deprecated: {
+                            version: '6.8.0',
+                        },
+                        default: null,
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    value: 'legacy value',
+                },
+            },
+        });
+
+        const firstCall = global.console.warn.mock.calls[0];
+
+        expect(firstCall[1]).toEqual(expect.stringContaining('deprecated API "value"'));
+        expect(firstCall[1]).toEqual(expect.stringContaining('UPGRADE-6.7.md#removal-of-sw-text-field'));
+    });
+
+    it('[registry prop] should not warn when a registry-deprecated prop only has a default value', async () => {
+        component = createComponent({
+            customComponent: {
+                name: 'mt-text-field',
+                props: {
+                    value: {
+                        type: String,
+                        required: false,
+                        default: 'default legacy value',
+                    },
+                },
+            },
+        });
+
+        expect(global.console.warn).not.toHaveBeenCalled();
     });
 
     it('[component] should show the additional comment in the warnings', async () => {

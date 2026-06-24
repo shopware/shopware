@@ -1,6 +1,16 @@
 import { Plugin } from 'vite';
 import path from 'path';
 import deprecatedList from './deprecated-list';
+import assets from '../../../src/app/deprecation-registry/definitions/assets';
+
+type AssetMigration = {
+    id: string;
+    description?: string;
+};
+
+type AssetRegistry = {
+    assetMigrations: AssetMigration[];
+};
 
 // @deprecated tag:v6.8.0
 // After v6.8.0 all these images in `./deprecated-list` should be removed. Maybe consider leaving this plugin in here for a bit and adjust the warning.
@@ -18,6 +28,9 @@ import deprecatedList from './deprecated-list';
 export default function viteImageDeprecationPlugin(adminDir: string, deprecatedImages: string[] = deprecatedList): Plugin {
     const deprecatedFilesSet = new Set(deprecatedImages);
     const extensionsThatArePartOfDeprecation = new Set(deprecatedImages.map((file) => path.extname(file)));
+    const assetMigration = (assets as AssetRegistry).assetMigrations.find((migration) => {
+        return migration.id === 'asset.admin-png-jpg-to-webp';
+    });
 
     return {
         name: 'shopware-vite-plugin-image-deprecation',
@@ -38,7 +51,8 @@ export default function viteImageDeprecationPlugin(adminDir: string, deprecatedI
             // Match imports that are part of the alias list
             if (deprecatedFilesSet.has(relativePath)) {
                 console.warn(
-                    `DEPRECATION: In file "${importer}", the image import "${source}" uses a deprecated format. PNG and JPG assets have been migrated to WebP. Please update your assets to WebP to ensure continued support.`,
+                    `DEPRECATION: In file "${importer}", the image import "${source}" uses a deprecated format. ` +
+                        (assetMigration?.description ?? 'Please update your assets to WebP.'),
                 );
             }
             return null;

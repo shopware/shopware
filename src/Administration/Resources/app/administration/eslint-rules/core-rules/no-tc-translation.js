@@ -4,6 +4,10 @@
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const utils = require('eslint-plugin-vue/lib/utils');
+const { loadRegistry } = require('../deprecation-rules/registry/load-registry');
+const { isMigrationSelected } = require('../deprecation-rules/registry/filter-migrations');
+
+const tcMigration = loadRegistry().globalApiMigrations.find((migration) => migration.id === 'global.$tc');
 
 function reportTc(context, node, isProperty) {
     const target = isProperty ? node.callee.property : node.callee;
@@ -28,25 +32,25 @@ module.exports = {
         fixable: 'code',
         schema: [],
         messages: {
-            noTc: 'Use $t() instead of $tc(). $tc is deprecated — $t handles pluralization natively.',
+            noTc: tcMigration
+                ? `${tcMigration.description} It will be removed in Shopware ${tcMigration.removedIn}.`
+                : 'Use $t() instead of $tc(). $tc is deprecated.',
         },
     },
 
     create(context) {
+        if (tcMigration && !isMigrationSelected(tcMigration)) {
+            return {};
+        }
+
         function checkCallExpression(node) {
             // Matches something.$tc(...)
-            if (
-                node.callee.type === 'MemberExpression' &&
-                node.callee.property.name === '$tc'
-            ) {
+            if (node.callee.type === 'MemberExpression' && node.callee.property.name === '$tc') {
                 reportTc(context, node, true);
             }
 
             // Matches bare $tc(...)
-            if (
-                node.callee.type === 'Identifier' &&
-                node.callee.name === '$tc'
-            ) {
+            if (node.callee.type === 'Identifier' && node.callee.name === '$tc') {
                 reportTc(context, node, false);
             }
         }

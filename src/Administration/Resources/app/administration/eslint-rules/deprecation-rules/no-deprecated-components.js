@@ -1,7 +1,65 @@
-const fs = require('fs');
-const path = require('path');
+const { loadRegistry } = require('./registry/load-registry');
+const { filterMigrations, isMigrationSelected } = require('./registry/filter-migrations');
 
-/* eslint-disable max-len */
+function formatReferences(migration) {
+    if (!migration.references?.length) {
+        return '';
+    }
+
+    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
+}
+
+function appendRegistryContext(message, migration, usage = null) {
+    const references = formatReferences(migration);
+
+    return [
+        message,
+        usage?.message ?? '',
+        '',
+        migration.description,
+        `Removed in Shopware ${migration.removedIn}.`,
+        references ? `References:\n${references}` : '',
+    ]
+        .filter(Boolean)
+        .join('\n');
+}
+
+function hasObjectVBind(node) {
+    return node.startTag.attributes.some((attribute) => {
+        return (
+            attribute.type === 'VAttribute' &&
+            attribute.directive === true &&
+            attribute.key?.name?.name === 'bind' &&
+            !attribute.key.argument
+        );
+    });
+}
+
+function hasObjectVOn(node) {
+    return node.startTag.attributes.some((attribute) => {
+        return (
+            attribute.type === 'VAttribute' &&
+            attribute.directive === true &&
+            attribute.key?.name?.name === 'on' &&
+            !attribute.key.argument
+        );
+    });
+}
+
+function getCodemodComment(componentName, hasDynamicProps, hasDynamicListeners) {
+    const vBindWarning = hasDynamicProps
+        ? '. Dynamic v-bind props may still contain deprecated API usage and need manual review.'
+        : '';
+    const vOnWarning = hasDynamicListeners
+        ? '. Dynamic v-on listeners may still contain deprecated event usage and need manual review.'
+        : '';
+
+    return `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly${vBindWarning}${vOnWarning} -->`;
+}
+
+function usageFixesAutomatically(usage) {
+    return usage?.fix !== 'manual';
+}
 
 /**
  * @sw-package framework
@@ -29,171 +87,82 @@ module.exports = {
                     activatedComponents: {
                         type: 'array',
                         items: {
-                            type: 'string'
-                        }
-                    }
-                }
-            }
-        ]
+                            type: 'string',
+                        },
+                    },
+                },
+            },
+        ],
     },
     /** @param {RuleContext} context */
     create(context) {
+        const registry = loadRegistry();
+        const componentMigrations = filterMigrations(registry.componentApiMigrations).filter((migration) => {
+            return migration.usage.some((usage) => usage.kind === 'rename-component');
+        });
+        const defaultActivatedComponents = filterMigrations(registry.componentApiMigrations).map(
+            (migration) => migration.component,
+        );
+
         return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags
             {
                 VElement(node) {
                     const enableFix = context.options?.[0]?.fix ?? true;
-                    const activatedComponents = context.options?.[0]?.activatedComponents ?? [
-                        'sw-button',
-                        'sw-icon',
-                        'sw-colorpicker',
-                        'sw-card',
-                        'sw-text-field',
-                        'sw-number-field',
-                        'sw-external-link',
-                        'sw-url-field',
-                        'sw-loader',
-                        'sw-tabs',
-                        'sw-datepicker',
-                        'sw-skeleton-bar',
-                        'sw-email-field',
-                        'sw-tabs',
-                        'sw-password-field',
-                        'sw-progress-bar',
-                        'sw-switch-field',
-                        'sw-checkbox-field',
-                        'sw-textarea-field',
-                        'sw-select-field',
-                        'sw-alert',
-                        'sw-popover',
-                        'sw-data-grid'
-                    ];
-
-                    const conversionMap = [
-                        {
-                            before: 'sw-switch-field',
-                            after: 'mt-switch'
-                        },
-                        {
-                            before: 'sw-checkbox-field',
-                            after: 'mt-checkbox'
-                        },
-                        {
-                            before: 'sw-textarea-field',
-                            after: 'mt-textarea'
-                        },
-                        {
-                            before: 'sw-select-field',
-                            after: 'mt-select'
-                        },
-                        {
-                            before: 'sw-alert',
-                            after: 'mt-banner'
-                        },
-                        {
-                            before: 'sw-popover',
-                            after: 'mt-floating-ui'
-                        },
-                    ].filter(conversion => activatedComponents.includes(conversion.before));
-
-                    // Handle deprecated components
-                    conversionMap.forEach(conversion => {
-                        if (node.name === conversion.before) {
-                            const componentName = conversion.before;
-                            const newComponentName = conversion.after;
-
-                            // Convert old component to new component
-                            context.report({
-                                loc: node.loc,
-                                message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
-                                *fix(fixer) {
-                                    if (!enableFix) return;
-
-                                    const isSelfClosing = node.startTag.selfClosing;
-
-                                    // Handle self-closing tags
-                                    if (isSelfClosing) {
-                                        // Replace the component name
-                                        const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                        yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-
-                                        // Save indentation of the old component
-                                        const indentation = node.loc.start.column;
-
-                                        // Add comment to the converted component
-                                        yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-
-                                        return;
-                                    }
-
-                                    // Handle non-self-closing tags
-                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
-                                    const endTagRange = node.endTag.range;
-
-                                    // Replace the component name
-                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
-                                    yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
-
-                                    // Save indentation of the old component
-                                    const indentation = node.loc.start.column;
-
-                                    // Add comment to the converted component
-                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-                                }
-                            });
-                        }
+                    const activatedComponents = context.options?.[0]?.activatedComponents ?? defaultActivatedComponents;
+                    const migration = componentMigrations.find((candidate) => {
+                        return candidate.component === node.name && activatedComponents.includes(candidate.component);
                     });
 
-                    const deprecatedComponents = [
-                        'sw-button',
-                        'sw-icon',
-                        'sw-colorpicker',
-                        'sw-card',
-                        'sw-text-field',
-                        'sw-number-field',
-                        'sw-external-link',
-                        'sw-url-field',
-                        'sw-loader',
-                        'sw-tabs',
-                        'sw-datepicker',
-                        'sw-skeleton-bar',
-                        'sw-email-field',
-                        'sw-tabs',
-                        'sw-password-field',
-                        'sw-progress-bar'
-                    ].filter(component => activatedComponents.includes(component));
-
-                    // Handle other deprecated components
-                    if (deprecatedComponents.includes(node.name)) {
-                        const componentName = node.name;
-                        const newComponentName = componentName.replace('sw-', 'mt-');
+                    if (migration) {
+                        const componentName = migration.component;
+                        const newComponentName = migration.replacement;
+                        const renameUsage = migration.usage.find((usage) => usage.kind === 'rename-component');
 
                         // Convert old component to new component
                         context.report({
                             loc: node.loc,
-                            message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
+                            message: appendRegistryContext(
+                                `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
+                                migration,
+                                renameUsage,
+                            ),
                             *fix(fixer) {
-                                if (!enableFix) return;
+                                if (!enableFix || !usageFixesAutomatically(renameUsage)) return;
 
                                 const isSelfClosing = node.startTag.selfClosing;
+                                const codemodComment = getCodemodComment(
+                                    componentName,
+                                    hasObjectVBind(node),
+                                    hasObjectVOn(node),
+                                );
 
                                 // Handle self-closing tags
                                 if (isSelfClosing) {
                                     // Replace the component name
-                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
+                                    const startTagRange = [
+                                        node.startTag.range[0],
+                                        componentName.length + node.startTag.range[0] + 1,
+                                    ];
                                     yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
 
                                     // Save indentation of the old component
                                     const indentation = node.loc.start.column;
 
                                     // Add comment to the converted component
-                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
+                                    yield fixer.insertTextBeforeRange(
+                                        startTagRange,
+                                        `${codemodComment}\n${' '.repeat(indentation)}`,
+                                    );
 
                                     return;
                                 }
 
                                 // Handle non-self-closing tags
-                                const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
+                                const startTagRange = [
+                                    node.startTag.range[0],
+                                    componentName.length + node.startTag.range[0] + 1,
+                                ];
                                 const endTagRange = node.endTag.range;
 
                                 // Replace the component name
@@ -204,44 +173,71 @@ module.exports = {
                                 const indentation = node.loc.start.column;
 
                                 // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
-                            }
+                                yield fixer.insertTextBeforeRange(
+                                    startTagRange,
+                                    `${codemodComment}\n${' '.repeat(indentation)}`,
+                                );
+                            },
                         });
                     }
 
                     // Handle special sw-data-grid component
                     const swDatagridName = 'sw-data-grid';
                     if (node.name === swDatagridName && activatedComponents.includes(swDatagridName)) {
-                        // Check if comment a line before the sw-data-grid component exists
-                        const commentBeforeNode = context.getSourceCode().getText().split('\n')[node.loc.start.line - 2];
+                        const dataGridMigration = registry.getComponentApiMigration(swDatagridName);
 
-                        // Do not add comment if it already exists
-                        if (commentBeforeNode.includes('<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->')) {
+                        if (dataGridMigration && !isMigrationSelected(dataGridMigration)) {
                             return;
                         }
+
+                        // Check if comment a line before the sw-data-grid component exists
+                        const commentBeforeNode =
+                            context.getSourceCode().getText().split('\n')[node.loc.start.line - 2] ?? '';
+
+                        // Do not add comment if it already exists
+                        if (
+                            commentBeforeNode.includes(
+                                '<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->',
+                            )
+                        ) {
+                            return;
+                        }
+                        const replacementUsage = dataGridMigration?.usage.find((usage) => {
+                            return usage.kind === 'manual-component-replacement';
+                        });
 
                         // Add comment a line before the sw-data-grid component
                         context.report({
                             loc: node.loc,
-                            message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
+                            message: dataGridMigration
+                                ? appendRegistryContext(
+                                      `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
+                                      dataGridMigration,
+                                      replacementUsage,
+                                  )
+                                : `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
-                                if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
+                                if (!enableFix || !usageFixesAutomatically(replacementUsage)) return;
 
                                 // Get the range of the start tag
-                                const startTagRange = [node.startTag.range[0], swDatagridName.length + node.startTag.range[0] + 1];
+                                const startTagRange = [
+                                    node.startTag.range[0],
+                                    swDatagridName.length + node.startTag.range[0] + 1,
+                                ];
 
                                 // Save indentation of the old component
                                 const indentation = node.loc.start.column;
 
                                 // Add comment to the converted component
-                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->\n${' '.repeat(indentation)}`);
-                            }
+                                yield fixer.insertTextBeforeRange(
+                                    startTagRange,
+                                    `<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->\n${' '.repeat(indentation)}`,
+                                );
+                            },
                         });
                     }
                 },
-            }
-        )
-    }
+            },
+        );
+    },
 };

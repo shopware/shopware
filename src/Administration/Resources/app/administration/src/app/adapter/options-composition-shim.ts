@@ -750,10 +750,10 @@ function checkUnsupportedFeatures(componentName: string, config: ComponentConfig
  */
 function logDeprecationWarning(componentName: string): void {
     console.warn(
-        `[Deprecation Warning] Component "${componentName}" is being overridden with Options API patterns, ` +
-            `but the target uses Composition API. A compatibility shim has been activated. ` +
-            `This is a temporary solution and may have limitations. ` +
-            `Please migrate your override to use Shopware.Component.overrideComponentSetup(). ` +
-            `See: https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api`,
+        `[Deprecation Warning] Component "${componentName}" is being overridden with Options API patterns. ` +
+            'Options API component overrides are deprecated for Composition API components. ' +
+            'Use Shopware.Component.overrideComponentSetup() for setup-based overrides. ' +
+            'It will be removed in Shopware 6.9.0. ' +
+            'See: UPGRADE-6.8.md#composition-api-extension-and-override-system',
     );
 }

@@ -314,7 +314,6 @@ export default [
                     'sw-password-field',
                 ],
             }],
-            'sw-deprecation-rules/no-deprecated-component-usage': ['error', 'enableFix'],
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
 
@@ -457,6 +456,23 @@ export default [
             'sw-core-rules/enforce-async-component-registers': 'error',
             'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+    {
+        files: [
+            'src/app/deprecation-registry/**/*.ts',
+            'src/app/plugin/deprecation.plugin.ts',
+        ],
+        rules: {
+            'sw-core-rules/require-package-annotation': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+            '@typescript-eslint/no-base-to-string': 'off',
+            '@typescript-eslint/no-redundant-type-constituents': 'off',
+            '@typescript-eslint/no-this-alias': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/restrict-template-expressions': 'off',
+            'prefer-const': 'off',
         },
     },
     {

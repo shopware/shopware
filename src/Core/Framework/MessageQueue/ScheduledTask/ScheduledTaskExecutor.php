@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +21,7 @@ final class ScheduledTaskExecutor
     public function __construct(
         private readonly EntityRepository $scheduledTaskRepository,
         private readonly LoggerInterface $exceptionLogger,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -41,7 +44,7 @@ final class ScheduledTaskExecutor
             return;
         }
 
-        $handler->runTask($task);
+        $this->markTaskRunning($task);
 
         try {
             $handler->run();
@@ -55,16 +58,57 @@ final class ScheduledTaskExecutor
                     ]
                 );
 
-                $handler->reschedule($task, $taskEntity);
+                $this->rescheduleTask($task, $taskEntity);
 
                 return;
             }
 
-            $handler->failTask($task);
+            $this->markTaskFailed($task);
 
             throw $e;
         }
 
-        $handler->reschedule($task, $taskEntity);
+        $this->rescheduleTask($task, $taskEntity);
+    }
+
+    private function markTaskRunning(ScheduledTask $task): void
+    {
+        $this->scheduledTaskRepository->update([
+            [
+                'id' => $task->getTaskId(),
+                'status' => ScheduledTaskDefinition::STATUS_RUNNING,
+            ],
+        ], Context::createCLIContext());
+    }
+
+    private function markTaskFailed(ScheduledTask $task): void
+    {
+        $this->scheduledTaskRepository->update([
+            [
+                'id' => $task->getTaskId(),
+                'status' => ScheduledTaskDefinition::STATUS_FAILED,
+            ],
+        ], Context::createCLIContext());
+    }
+
+    private function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    {
+        $now = $this->clock->now();
+
+        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $newNextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
+
+        if ($newNextExecutionTime < $now) {
+            $newNextExecutionTime = $now;
+        }
+
+        $this->scheduledTaskRepository->update([
+            [
+                'id' => $task->getTaskId(),
+                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+                'lastExecutionTime' => $now,
+                'nextExecutionTime' => $newNextExecutionTime,
+            ],
+        ], Context::createCLIContext());
     }
 }

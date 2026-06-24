@@ -55,30 +55,45 @@ abstract class ScheduledTaskHandler
     abstract public function run(): void;
 
     /**
-     * @internal forwards to the overridable {@see markTaskRunning()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
      */
     public function runTask(ScheduledTask $task): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->markTaskRunning($task);
     }
 
     /**
-     * @internal forwards to the overridable {@see markTaskFailed()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
      */
     public function failTask(ScheduledTask $task): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->markTaskFailed($task);
     }
 
     /**
-     * @internal forwards to the overridable {@see rescheduleTask()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
      */
     public function reschedule(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->rescheduleTask($task, $taskEntity);
     }
 
-    protected function markTaskRunning(ScheduledTask $task): void
+    private function markTaskRunning(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -88,7 +103,7 @@ abstract class ScheduledTaskHandler
         ], Context::createCLIContext());
     }
 
-    protected function markTaskFailed(ScheduledTask $task): void
+    private function markTaskFailed(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -98,7 +113,7 @@ abstract class ScheduledTaskHandler
         ], Context::createCLIContext());
     }
 
-    protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    private function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
         $now = $this->now();
 

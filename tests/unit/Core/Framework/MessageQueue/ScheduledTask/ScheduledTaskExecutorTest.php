@@ -29,7 +29,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
+        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, new TestExecutorTask());
 
@@ -43,7 +43,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection()]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
+        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, $this->createTask());
 
@@ -60,7 +60,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
         $handler = $this->createHandler($repository);
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
+        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock());
 
         $executor->execute($handler, $task);
 
@@ -82,8 +82,8 @@ class ScheduledTaskExecutorTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
-        $handler = $this->createHandler($repository, new MockClock($now));
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
+        $handler = $this->createHandler($repository);
+        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -116,8 +116,8 @@ class ScheduledTaskExecutorTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
 
-        $handler = $this->createHandler($repository, new MockClock($now));
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
+        $handler = $this->createHandler($repository);
+        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock($now));
 
         $executor->execute($handler, $task);
 
@@ -137,7 +137,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $logger->expects($this->never())->method('error');
 
         $handler = $this->createHandler($repository, throw: new \RuntimeException('boom'));
-        $executor = new ScheduledTaskExecutor($repository, $logger);
+        $executor = new ScheduledTaskExecutor($repository, $logger, new MockClock());
 
         try {
             $executor->execute($handler, $task);
@@ -165,7 +165,7 @@ class ScheduledTaskExecutorTest extends TestCase
         $logger->expects($this->once())->method('error');
 
         $handler = $this->createHandler($repository, throw: new \RuntimeException('boom'));
-        $executor = new ScheduledTaskExecutor($repository, $logger);
+        $executor = new ScheduledTaskExecutor($repository, $logger, new MockClock());
 
         $executor->execute($handler, $task);
 
@@ -173,25 +173,6 @@ class ScheduledTaskExecutorTest extends TestCase
         static::assertCount(2, $payloads);
         static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $payloads[0]['status']);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $payloads[1]['status']);
-    }
-
-    public function testExecutorRespectsOverriddenHandlerHooks(): void
-    {
-        $task = $this->createTask();
-        $entity = $this->createEntity($task->getTaskId(), ScheduledTaskDefinition::STATUS_QUEUED);
-
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
-        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$entity])]);
-
-        $handler = new OverridingExecutorHandler($repository, $this->createMock(LoggerInterface::class));
-        $handler->setClock(new MockClock());
-        $executor = new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class));
-
-        $executor->execute($handler, $task);
-
-        // the overridden protected hooks must be used by the executor
-        static::assertTrue($handler->markedRunning);
-        static::assertTrue($handler->rescheduled);
     }
 
     /**
@@ -294,30 +275,5 @@ class TestExecutorHandler extends ScheduledTaskHandler
         if ($this->throw !== null) {
             throw $this->throw;
         }
-    }
-}
-
-/**
- * @internal
- */
-#[Package('framework')]
-class OverridingExecutorHandler extends ScheduledTaskHandler
-{
-    public bool $markedRunning = false;
-
-    public bool $rescheduled = false;
-
-    public function run(): void
-    {
-    }
-
-    protected function markTaskRunning(ScheduledTask $task): void
-    {
-        $this->markedRunning = true;
-    }
-
-    protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
-    {
-        $this->rescheduled = true;
     }
 }

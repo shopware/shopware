@@ -14,6 +14,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $repository = new StaticEntityRepository([]);
 
         $handler = new HandlerStub($repository, $this->createMock(LoggerInterface::class));
-        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class)));
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($repository, $this->createMock(LoggerInterface::class), new MockClock()));
 
         // a task without id is run directly by the executor, without touching the repository
         $task = new HandlerStubTask();

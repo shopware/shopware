@@ -21,8 +21,15 @@
 
     &.is--list {
         .sw-media-folder-item__folder-thumbnails.is--inner {
-            max-width: 15px;
+            width: 16px;
+            height: 16px;
+            max-width: 16px;
             transform: translate(-50%, -40%);
+
+            svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
         }
 
         .sw-media-base-item__preview-container {

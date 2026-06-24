@@ -254,7 +254,7 @@
     "vue": "3.5.22",
     "micromatch": "4.0.8",
     "test-exclude": "7.0.1",
-    "@sentry/node": "10.31.0",
+    "@sentry/node": "10.54.0",
     "@vue/vue3-jest": {
       "babel-jest": "$babel-jest",
       "jest": "$jest"

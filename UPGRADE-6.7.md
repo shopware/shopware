@@ -6,6 +6,20 @@ The product-stream filter row now reuses the `sw-condition-base` layout instead 
 
 The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
 
+## Deprecation of `render()` on the core script `response` service
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in v6.8.0.
+
+Rendering Storefront templates is a Storefront concern. From v6.8.0 the `render()` method is only available on the `response` service in **Storefront script hooks** (the `/storefront/script/{hook}` endpoint), where it is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`. In admin-api and store-api script hooks the `response` service no longer offers `render()`.
+
+App scripts that may run outside a Storefront context should guard their usage:
+
+```twig
+{% if response.render is defined %}
+    {% set rendered = response.render('@Storefront/...') %}
+{% endif %}
+```
+
 ## Deprecation of `sw_integration_list_introduction` twig block
 
 The block `sw_integration_list_introduction` in `src/Administration/Resources/app/administration/src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig` has been deprecated and will be removed in v6.8.0.

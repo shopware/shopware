@@ -13,8 +13,6 @@ use Shopware\Core\System\CustomField\Xml\CustomFields;
 
 /**
  * @internal
- *
- * @phpstan-import-type CustomFieldSetArray from \Shopware\Core\System\CustomField\Xml\CustomFieldSet
  */
 #[Package('framework')]
 class CustomFieldSetPersister

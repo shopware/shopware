@@ -1,6 +1,6 @@
 ---
 title: Sales-channel business timezone
-date: 2026-06-08
+date: 2026-06-24
 area: after-sales
 tags: [core, documents, mail, sales-channel]
 ---

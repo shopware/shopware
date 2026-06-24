@@ -29,8 +29,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * It reports two situations, both proven statically so it never produces a false positive (a false flag would
  * block CI on a legitimate mock, which is worse than the debt):
- *  - **pure stub** — a `createMock()` double that is never `->expects()`-ed (local variable: within its
- *    method; property: anywhere in the class). The fix is `createStub()`.
+ *  - **pure stub** — a `createMock()` double that is never `->expects()`-ed: a local variable (checked within
+ *    its method), an inline `createMock(...)` passed straight into another call/the SUT (which can never be
+ *    `->expects()`-ed), or a property (checked anywhere in the class). The fix is `createStub()`.
  *  - **mixed usage** — a shared `setUp`/property mock that IS `->expects()`-ed in some test methods but left
  *    without an expectation in others, so it notices in the latter. This only exists because older PHPUnit
  *    tolerated mixing a mock and a stub on one double; the fix is per-method (`->expects($this->never())` /
@@ -120,57 +121,36 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private function findInlineStubMocks(array $stmts): array
     {
         $finder = new NodeFinder();
+        $calls = [...$finder->findInstanceOf($stmts, MethodCall::class), ...$finder->findInstanceOf($stmts, StaticCall::class)];
 
-        $assigned = [];
+        $skip = [];
+        // assigned createMock → handled by the local/property analysis
         foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
             if ($this->isCreateMockCall($assign->expr)) {
-                $assigned[spl_object_id($assign->expr)] = true;
+                $skip[spl_object_id($assign->expr)] = true;
             }
         }
-
-        $realOrEscaping = [];
-        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            // `createMock(X)->expects(...)` → real mock
-            if ($this->isExpectsCall($call) && $this->isCreateMockCall($call->var)) {
-                $realOrEscaping[spl_object_id($call->var)] = true;
-            }
-            // createMock(X) passed into `$this->...()`
-            if ($call->var instanceof Variable && $call->var->name === 'this') {
-                $this->markCreateMockArgs($call->getArgs(), $realOrEscaping);
+        // `createMock(X)->expects(...)` → real mock
+        foreach ($calls as $call) {
+            if ($call instanceof MethodCall && $this->isExpectsCall($call) && $this->isCreateMockCall($call->var)) {
+                $skip[spl_object_id($call->var)] = true;
             }
         }
-        foreach ($finder->findInstanceOf($stmts, StaticCall::class) as $call) {
-            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true)) {
-                $this->markCreateMockArgs($call->getArgs(), $realOrEscaping);
+        // createMock(X) passed into a `$this->`/`self::`/`static::` call → expectations could be set out of view
+        $this->eachOwnCallArg($finder, $stmts, function (Arg $arg) use (&$skip): void {
+            if ($this->isCreateMockCall($arg->value)) {
+                $skip[spl_object_id($arg->value)] = true;
             }
-        }
+        });
 
         $result = [];
-        foreach ([...$finder->findInstanceOf($stmts, MethodCall::class), ...$finder->findInstanceOf($stmts, StaticCall::class)] as $call) {
-            if (!$this->isCreateMockCall($call)) {
-                continue;
-            }
-
-            $id = spl_object_id($call);
-            if (!isset($assigned[$id]) && !isset($realOrEscaping[$id])) {
+        foreach ($calls as $call) {
+            if ($this->isCreateMockCall($call) && !isset($skip[spl_object_id($call)])) {
                 $result[] = $call;
             }
         }
 
         return $result;
-    }
-
-    /**
-     * @param array<Arg> $args
-     * @param array<int, true> $marked
-     */
-    private function markCreateMockArgs(array $args, array &$marked): void
-    {
-        foreach ($args as $arg) {
-            if ($this->isCreateMockCall($arg->value)) {
-                $marked[spl_object_id($arg->value)] = true;
-            }
-        }
     }
 
     /**
@@ -239,7 +219,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             return [];
         }
 
-        $setUp = $this->findMethod($methods, 'setUp');
+        $setUp = $this->findSetUp($methods);
         $testMethods = array_filter($methods, fn (ClassMethod $m): bool => $this->isTestMethod($m));
         $helperMethods = array_filter(
             $methods,
@@ -345,25 +325,36 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      */
     private function disqualifyDoublesPassedToOwnMethods(NodeFinder $finder, array $stmts, array &$disqualified, callable $resolveName): void
     {
-        $collect = function (array $args) use (&$disqualified, $resolveName): void {
-            foreach ($args as $arg) {
-                \assert($arg instanceof Arg);
-                $name = $resolveName($arg->value);
-                if ($name !== null) {
-                    $disqualified[$name] = true;
-                }
+        $this->eachOwnCallArg($finder, $stmts, function (Arg $arg) use (&$disqualified, $resolveName): void {
+            $name = $resolveName($arg->value);
+            if ($name !== null) {
+                $disqualified[$name] = true;
             }
-        };
+        });
+    }
 
+    /**
+     * Invokes $onArg for every argument of a `$this->`/`self::`/`static::` call in $stmts — the one place that
+     * defines "the test's own call", where an expectation could be configured on a double out of view.
+     *
+     * @param array<Node> $stmts
+     * @param callable(Arg): void $onArg
+     */
+    private function eachOwnCallArg(NodeFinder $finder, array $stmts, callable $onArg): void
+    {
         foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
             if ($call->var instanceof Variable && $call->var->name === 'this') {
-                $collect($call->getArgs());
+                foreach ($call->getArgs() as $arg) {
+                    $onArg($arg);
+                }
             }
         }
 
         foreach ($finder->findInstanceOf($stmts, StaticCall::class) as $call) {
             if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true)) {
-                $collect($call->getArgs());
+                foreach ($call->getArgs() as $arg) {
+                    $onArg($arg);
+                }
             }
         }
     }
@@ -392,10 +383,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     /**
      * @param array<ClassMethod> $methods
      */
-    private function findMethod(array $methods, string $name): ?ClassMethod
+    private function findSetUp(array $methods): ?ClassMethod
     {
         foreach ($methods as $method) {
-            if (mb_strtolower($method->name->name) === mb_strtolower($name)) {
+            if (mb_strtolower($method->name->name) === 'setup') {
                 return $method;
             }
         }

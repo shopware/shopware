@@ -42,6 +42,15 @@
         height: 16px;
     }
 
+    a.sw-order-line-items-grid__item-payload-options {
+        &:hover,
+        &:focus-visible {
+            .sw-product-variant-info__specification {
+                color: inherit;
+            }
+        }
+    }
+
     .sw-order-line-items-grid__item-payload-options {
         .sw-product-variant-info {
             text-overflow: unset;

@@ -172,6 +172,39 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.
+The inline fallback logic in `__invoke()` was removed; the handler now always delegates to a `ScheduledTaskExecutor`.
+
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the `ScheduledTaskExecutorCompilerPass`, so handlers registered through the container — the standard way plugins register them — require no changes.
+
+If you instantiate a `ScheduledTaskHandler` manually (for example in tests), set the executor explicitly:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks were **removed**. The executor now owns the status transitions and rescheduling, so overriding these hooks no longer has any effect.
+
+If you previously overrode `rescheduleTask()` to compute a custom next execution time, implement the `Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler` interface instead. The executor asks the handler for the next execution time and persists it for you — the handler only answers the "when", not the "how":
+
+```php
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+
+class MyScheduledTaskHandler extends ScheduledTaskHandler implements DynamicallyScheduledTaskHandler
+{
+    public function getNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity): ?\DateTimeInterface
+    {
+        // return the next execution time, or null to fall back to the default `now + runInterval` schedule
+        return $this->nextPendingRecordTimestamp();
+    }
+}
+```
 ## Removal of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 
 The deprecated `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options were removed. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
@@ -1699,6 +1732,33 @@ State-based invalidation is not supported anymore.
 ```diff
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
+```
+
+## Inline `<custom-fields>` in `manifest.xml` removed
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
+Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
+
+```diff
+// manifest.xml
+- <custom-fields>
+-     <custom-field-set>
+-         <name>swag_example_set</name>
+-         ...
+-     </custom-field-set>
+- </custom-fields>
+```
+
+```xml
+<!-- Resources/config/custom-fields.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>swag_example_set</name>
+        ...
+    </custom-field-set>
+</custom-fields>
 ```
 
 </details>

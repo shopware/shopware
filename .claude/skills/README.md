@@ -1,6 +1,6 @@
 # Shopware AI Skills
 
-Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agentskills.io) format. Auto-loaded by Claude Code, opencode, Codex CLI, Cursor, Gemini CLI and other Agent-Skills-compatible runtimes when their `description` matches the user's message.
+Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agentskills.io) format. Offered to Claude Code, opencode, Codex CLI, Cursor, Gemini CLI and other Agent-Skills-compatible runtimes; a skill is invoked when its `description` matches the task (best-effort, model-decided — not guaranteed). Mandatory steps live in `AGENTS.md` so they apply even when no skill triggers.
 
 ## Available skills
 

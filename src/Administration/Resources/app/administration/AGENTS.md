@@ -2,6 +2,7 @@
 
 > **Full Documentation**: See `technical-docs/` for comprehensive guides
 > **Specific Areas**: See AGENTS.md in `src/core/`, `src/app/`, `src/module/`, `test/`
+> **Skill**: For Admin JS/TS/Vue/Jest work, follow `shopware-admin-js` (`.claude/skills/shopware-admin-js/SKILL.md`) — it carries the mandatory coding + test rules.
 
 ## File Structure
 ```

@@ -5,10 +5,11 @@ unattended twin, and the conventions that keep two skills looking like two
 skills, not two snowflakes.
 
 A **Skill** packages an AI capability in the [Anthropic Agent Skills](https://agentskills.io/specification)
-format. It auto-loads in Claude Code, opencode, Codex CLI, Cursor, Gemini
-CLI and other Agent-Skills-compatible runtimes when the user message matches
-the skill's `description`. Today this repository ships one skill (`triage`);
-the same pattern applies to any future skill.
+format. It is offered to Claude Code, opencode, Codex CLI, Cursor, Gemini
+CLI and other Agent-Skills-compatible runtimes and is invoked when the user
+message matches the skill's `description` (best-effort, model-decided). This
+repository ships several skills (see `.claude/skills/README.md`); the same
+pattern applies to any new skill.
 
 ## Two surfaces per skill
 

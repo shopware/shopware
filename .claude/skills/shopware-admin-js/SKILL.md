@@ -1,6 +1,8 @@
 ---
 name: shopware-admin-js
 description: Apply Shopware Administration JS/TS/Vue coding rules. Use when editing Admin UI code, Jest specs, component behavior, or DAL-backed Admin UI that needs ACL privilege handling.
+paths:
+  - "src/Administration/Resources/app/administration/**/*.{js,ts,vue,twig,scss}"
 license: MIT
 ---
 

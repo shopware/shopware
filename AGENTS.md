@@ -44,21 +44,32 @@ shopware/
 
 ## AI Skills
 
-This repo ships portable Agent Skills under `.claude/skills/`. They auto-load in Claude Code / opencode / Codex CLI when you start a session in this directory and mention the skill's trigger phrase (e.g. "triage issue #16599" loads the `triage` skill). See `.claude/skills/README.md` for the catalogue.
+This repo ships Agent Skills under `.claude/skills/` (catalogue: `.claude/skills/README.md`). Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
+
+### Definition of Done — mandatory for every change
+
+Before you commit or hand work back:
+- **Code change ⇒ tests are not optional.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`.
+- **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
+- **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries.
+- **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.
+- **Lint every file you touched** per the File Linting table below.
+
+When a task matches a skill, open `.claude/skills/<name>/SKILL.md` and follow it **before** implementing.
+
+### Skill catalogue
+
+- `shopware-knowledge-capture` — saving durable knowledge; routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
+- `shopware-change-scope` — root-cause analysis, boyscouting, and cleanup scope.
+- `shopware-release-docs` — release notes, upgrade notes, developer-facing changelog decisions.
+- `shopware-pr-hygiene` — PR templates, conventional titles, review follow-up commits.
+- `shopware-php-code` — PHP architecture, API schema, migrations, deprecations, BC-sensitive code.
+- `shopware-admin-js` — Administration JavaScript, TypeScript, Vue, ACL, Jest.
+- `shopware-phpunit-tests` — PHPUnit test structure, fixtures, feature flags, coverage, data providers.
 
 Skills can have an optional unattended twin via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw) at `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`. Editing or compiling these workflows requires the `gh aw` CLI extension; the current pin lives in [`.github/aw/README.md`](.github/aw/README.md) → "Pinning".
 
 To add a new skill (interactive or unattended), follow the checklist in [`coding-guidelines/core/agent-skills.md`](coding-guidelines/core/agent-skills.md).
-
-Task-specific guidance lives in skills instead of this always-loaded file:
-
-- `shopware-knowledge-capture` for saving durable knowledge and routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
-- `shopware-change-scope` for root-cause analysis, boyscouting, and cleanup scope.
-- `shopware-release-docs` for release notes, upgrade notes, and developer-facing changelog decisions.
-- `shopware-pr-hygiene` for PR templates, conventional titles, and review follow-up commits.
-- `shopware-php-code` for PHP architecture, API schema, migrations, deprecations, and BC-sensitive code.
-- `shopware-admin-js` for Administration JavaScript, TypeScript, Vue, ACL, and Jest work.
-- `shopware-phpunit-tests` for PHPUnit test structure, fixtures, feature flags, coverage, and data providers.
 
 ## Subtree Guidance
 

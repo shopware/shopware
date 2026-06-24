@@ -24,6 +24,7 @@ We need a documentation model that:
 1. Root `AGENTS.md` stays concise and carries only repository-wide context, main subtree routing, and mandatory linting guidance.
 2. Main subtree `AGENTS.md` files are allowed when they hold real subtree rules or route to substantial existing guidance.
 3. Do not add mechanical `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` stubs just to point at README files.
+   **Exception:** a single root `CLAUDE.md` whose body is `@AGENTS.md` is allowed and recommended. Claude Code loads only `CLAUDE.md`, never `AGENTS.md`.
 4. Task-specific guidance lives in Agent Skills under `.claude/skills/`, where it loads only when the task asks for it.
 5. Reusable normative rules belong in `coding-guidelines/`.
 6. Folder-specific human guidance may live in an existing README when contributors naturally read that README for the work.
@@ -44,6 +45,7 @@ We need a documentation model that:
 ## Consequences
 
 - Root agent context stays smaller.
+- Claude Code loads repo guidance via the `CLAUDE.md → @AGENTS.md` bridge; `AGENTS.md` remains the single source of truth for all tools.
 - Humans and agents still share durable coding rules through `AGENTS.md`, `coding-guidelines/`, and existing README files.
 - Rules that only matter for certain tasks can trigger as skills instead of occupying every session.
 - The repository avoids a large number of one-line routing files.

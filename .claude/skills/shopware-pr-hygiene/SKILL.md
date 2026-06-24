@@ -1,6 +1,6 @@
 ---
 name: shopware-pr-hygiene
-description: Prepare or update Shopware pull requests. Use when creating or editing a PR description, checking PR title style, doing the final pre-opening check for missing tests or docs, responding to review feedback, or updating a PR after CI failures.
+description: Prepare or update Shopware pull requests. Use when writing or editing a PR description or PR text (incl. "output a PR description"), choosing a PR title, doing the pre-open check for missing tests or release notes, responding to review feedback, or updating a PR after CI failures.
 license: MIT
 ---
 

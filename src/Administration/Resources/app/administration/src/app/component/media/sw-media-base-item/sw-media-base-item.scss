@@ -61,6 +61,9 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
         }
 
         .sw-context-button__button {
+            height: 16px;
+            padding: 0 2px;
+            line-height: 13px;
             background: $sw-media-base-item-color-context-button;
             border: 1px solid $sw-media-base-item-color-border;
             border-radius: $sw-media-base-item-border-radius;

@@ -70,10 +70,8 @@ class CreateMailTemplateTraitTest extends TestCase
 
     public function testCreateMail(): void
     {
-        $enLanguageByteId = $this->getLanguageIdByLocale('en-GB');
-        static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale('de-DE');
-        static::assertIsString($deLanguageByteId);
+        $enLanguageByteId = $this->getLanguageByteId('en-GB');
+        $deLanguageByteId = $this->getLanguageByteId('de-DE');
 
         // create new mail template
         $mailTemplateType = new MailTemplateTypeCreateStruct(
@@ -151,10 +149,8 @@ class CreateMailTemplateTraitTest extends TestCase
             $this->targetDirectory . '/de-plain.txt.twig',
         ]);
 
-        $enLanguageByteId = $this->getLanguageIdByLocale('en-GB');
-        static::assertIsString($enLanguageByteId);
-        $deLanguageByteId = $this->getLanguageIdByLocale('de-DE');
-        static::assertIsString($deLanguageByteId);
+        $enLanguageByteId = $this->getLanguageByteId('en-GB');
+        $deLanguageByteId = $this->getLanguageByteId('de-DE');
 
         // create new mail template
         $mailTemplateType = new MailTemplateTypeCreateStruct(
@@ -272,6 +268,109 @@ class CreateMailTemplateTraitTest extends TestCase
     }
 
     /**
+     * The system default language ({@see Defaults::LANGUAGE_SYSTEM}) does not necessarily use the
+     * en-* or de-* locale. When Shopware is installed with a different default language, en-GB and
+     * de-DE can still exist as separate, non-default languages.
+     *
+     * In that case the mail template and its type must still provide a translation for the system
+     * default language, otherwise the mail can no longer be rendered for the default sales channel.
+     */
+    public function testCreateMailWithForeignDefaultLanguage(): void
+    {
+        $defaultLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+
+        $frFrLocaleId = $this->getOrCreateLocale('fr-FR');
+        $enGbLocaleId = $this->connection->fetchOne('SELECT `id` FROM `locale` WHERE `code` = :code', ['code' => 'en-GB']);
+        static::assertIsString($enGbLocaleId);
+
+        // Switch the system default language to a locale that is neither en-* nor de-*.
+        $this->connection->update(
+            'language',
+            [
+                'name' => 'ForeignLang',
+                'locale_id' => $frFrLocaleId,
+                'translation_code_id' => $frFrLocaleId,
+            ],
+            ['id' => $defaultLanguageId]
+        );
+
+        // en-GB now has to exist as a separate, non-default language
+        $enGbLanguageId = Uuid::randomBytes();
+        $this->connection->insert(
+            'language',
+            [
+                'id' => $enGbLanguageId,
+                'name' => 'English',
+                'locale_id' => $enGbLocaleId,
+                'translation_code_id' => $enGbLocaleId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        // de-DE already exists as a separate, non-default language
+        $deLanguageId = $this->getLanguageByteId('de-DE');
+
+        $mailTemplateType = new MailTemplateTypeCreateStruct(
+            self::TEST_TECHNICAL_NAME,
+            'EN test name',
+            'DE Test Name',
+        );
+
+        $mailTemplate = new MailTemplateCreateStruct(
+            $this->testDirectoryName,
+            'EN test name',
+            'DE Test Name',
+            'Test description',
+            'Test Beschreibung',
+            '{{ salesChannel.name }}',
+            '{{ salesChannel.name }}',
+        );
+
+        $this->createMail($this->connection, $mailTemplateType, $mailTemplate);
+
+        $mailTemplateTypes = $this->getMailTemplateTypes();
+        static::assertCount(1, $mailTemplateTypes);
+        $typeTranslations = $mailTemplateTypes[0]['translations'];
+
+        // The system default language must always be filled (with the en-GB content as fallback)
+        $defaultTypeTranslation = $this->findTranslationByLanguageId($defaultLanguageId, $typeTranslations);
+        static::assertSame($mailTemplateType->getEnName(), $defaultTypeTranslation['name']);
+
+        // The separate en-GB and de-DE languages must keep their respective translations
+        $enTypeTranslation = $this->findTranslationByLanguageId($enGbLanguageId, $typeTranslations);
+        static::assertSame($mailTemplateType->getEnName(), $enTypeTranslation['name']);
+        $deTypeTranslation = $this->findTranslationByLanguageId($deLanguageId, $typeTranslations);
+        static::assertSame($mailTemplateType->getDeName(), $deTypeTranslation['name']);
+
+        $mailTemplates = $this->getMailTemplates($mailTemplateTypes[0]['id']);
+        static::assertCount(1, $mailTemplates);
+        $templateTranslations = $mailTemplates[0]['translations'];
+
+        $defaultMailTranslation = $this->findTranslationByLanguageId($defaultLanguageId, $templateTranslations);
+        static::assertSame($mailTemplate->getEnSubject(), $defaultMailTranslation['subject']);
+        static::assertSame($mailTemplate->getEnHtml(), $defaultMailTranslation['content_html']);
+
+        $enMailTranslation = $this->findTranslationByLanguageId($enGbLanguageId, $templateTranslations);
+        static::assertSame($mailTemplate->getEnSubject(), $enMailTranslation['subject']);
+        $deMailTranslation = $this->findTranslationByLanguageId($deLanguageId, $templateTranslations);
+        static::assertSame($mailTemplate->getDeSubject(), $deMailTranslation['subject']);
+    }
+
+    private function getLanguageByteId(string $locale): string
+    {
+        $languageByteId = $this->connection->fetchOne(
+            'SELECT `language`.`id`
+             FROM `language`
+             INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
+             WHERE `locale`.`code` = :code',
+            ['code' => $locale]
+        );
+        static::assertIsString($languageByteId);
+
+        return $languageByteId;
+    }
+
+    /**
      * @param array<array<string, mixed>> $translations
      *
      * @return array<string, mixed>
@@ -363,20 +462,6 @@ class CreateMailTemplateTraitTest extends TestCase
         }
 
         return $mailTemplateTypes;
-    }
-
-    private function getLanguageIdByLocale(string $locale): ?string
-    {
-        $languageId = $this->connection->fetchOne(
-            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id` WHERE `locale`.`code` = :code LIMIT 1',
-            ['code' => $locale]
-        );
-
-        if (!\is_string($languageId)) {
-            return null;
-        }
-
-        return $languageId;
     }
 
     private function createLanguage(string $localeCode, ?string $translationCode = null): string

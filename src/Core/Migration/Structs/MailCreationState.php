@@ -21,12 +21,12 @@ class MailCreationState
     /**
      * @var list<string>
      */
-    protected array $enLanguageByteIds = [];
+    protected array $englishLanguageByteIds = [];
 
     /**
      * @var list<string>
      */
-    protected array $deLanguageByteIds = [];
+    protected array $germanLanguageByteIds = [];
 
     public function getMailTemplateTypeByteId(): ?string
     {
@@ -71,33 +71,33 @@ class MailCreationState
     /**
      * @return list<string>
      */
-    public function getEnLanguageByteIds(): array
+    public function getEnglishLanguageByteIds(): array
     {
-        return $this->enLanguageByteIds;
+        return $this->englishLanguageByteIds;
     }
 
     /**
-     * @param list<string> $enLanguageByteIds
+     * @param list<string> $englishLanguageByteIds
      */
-    public function setEnLanguageByteIds(array $enLanguageByteIds): void
+    public function setEnglishLanguageByteIds(array $englishLanguageByteIds): void
     {
-        $this->enLanguageByteIds = $this->uniqueLanguageByteIds($enLanguageByteIds);
+        $this->englishLanguageByteIds = $this->uniqueLanguageByteIds($englishLanguageByteIds);
     }
 
     /**
      * @return list<string>
      */
-    public function getDeLanguageByteIds(): array
+    public function getGermanLanguageByteIds(): array
     {
-        return $this->deLanguageByteIds;
+        return $this->germanLanguageByteIds;
     }
 
     /**
-     * @param list<string> $deLanguageByteIds
+     * @param list<string> $germanLanguageByteIds
      */
-    public function setDeLanguageByteIds(array $deLanguageByteIds): void
+    public function setGermanLanguageByteIds(array $germanLanguageByteIds): void
     {
-        $this->deLanguageByteIds = $this->uniqueLanguageByteIds($deLanguageByteIds);
+        $this->germanLanguageByteIds = $this->uniqueLanguageByteIds($germanLanguageByteIds);
     }
 
     /**
@@ -107,16 +107,6 @@ class MailCreationState
      */
     private function uniqueLanguageByteIds(array $languageByteIds): array
     {
-        $uniqueLanguageByteIds = [];
-
-        foreach ($languageByteIds as $languageByteId) {
-            if (\in_array($languageByteId, $uniqueLanguageByteIds, true)) {
-                continue;
-            }
-
-            $uniqueLanguageByteIds[] = $languageByteId;
-        }
-
-        return $uniqueLanguageByteIds;
+        return array_values(array_unique($languageByteIds));
     }
 }

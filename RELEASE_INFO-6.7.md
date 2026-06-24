@@ -1,5 +1,42 @@
 # 6.7.13.0 (upcoming)
 
+## Core
+
+### Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The orchestration logic of `ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) has moved into the new `ScheduledTaskExecutor` service.
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the new `ScheduledTaskExecutorCompilerPass`.
+Scheduled task handlers registered through the container — the standard way plugins register them — require **no changes** and keep working as before.
+
+The inline execution logic in `ScheduledTaskHandler::__invoke()` is deprecated and will be removed in Shopware 6.8.0.0.
+This only affects code that instantiates a `ScheduledTaskHandler` manually instead of resolving it from the container (for example in tests).
+In that case, set the executor explicitly to opt into the new behaviour, otherwise the handler falls back to the deprecated inline logic and triggers a deprecation warning:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks are deprecated and will be removed in Shopware 6.8.0.0. They remain overridable until then — the executor still routes through an overridden `rescheduleTask()` for backwards compatibility — but new code should not rely on them, as the executor owns the status transitions and rescheduling.
+
+If you need to control when a task runs next (instead of the default `now + runInterval` schedule), implement the new `DynamicallyScheduledTaskHandler` interface rather than overriding `rescheduleTask()`. The executor asks the handler for the next execution time via `getNextExecutionTime()` and persists it, so the handler only answers the "when", not the "how":
+
+```php
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+
+class MyScheduledTaskHandler extends ScheduledTaskHandler implements DynamicallyScheduledTaskHandler
+{
+    public function getNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity): ?\DateTimeInterface
+    {
+        // return the next execution time, or null to fall back to the default `now + runInterval` schedule
+        return $this->nextPendingRecordTimestamp();
+    }
+}
+```
+
 # 6.7.12.0 (upcoming)
 
 ## Features

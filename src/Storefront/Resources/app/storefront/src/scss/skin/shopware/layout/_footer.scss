@@ -35,7 +35,7 @@ Contains custom skin styles for the footer located at the bottom of the page.
 }
 
 .footer-bottom {
-    background: $gray-100;
+    background-color: darken($sw-background-color, 5%);
 }
 
 .footer-service-menu-item {

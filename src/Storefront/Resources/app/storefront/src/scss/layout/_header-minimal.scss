@@ -5,7 +5,7 @@ Contains custom styles for the minimal header which is used on checkout pages.
 */
 
 .header-minimal {
-    background: $white;
+    background-color: $sw-background-color;
     border-bottom: 1px solid var(--text-color-brand-primary);
 }
 

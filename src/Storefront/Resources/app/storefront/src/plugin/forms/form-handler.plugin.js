@@ -141,6 +141,12 @@ export default class FormHandler extends Plugin {
         // Overriding the native checkValidity method to provide the native API with custom validation.
         this.form.checkValidity = this._checkValidity.bind(this);
 
+        // Overriding the native reportValidity method as well. The native implementation relies on the browser's
+        // constraint validation UI, which is not displayed by Safari/WebKit (e.g. on iOS). Plugins calling
+        // `reportValidity()` (e.g. PayPal Smart Payment Buttons) would fail silently there. The override uses the
+        // accessible custom validation that also scrolls to and focuses the first invalid field on all browsers.
+        this.form.reportValidity = this._reportValidity.bind(this);
+
         this._initFieldValidationEvents();
     }
 
@@ -196,13 +202,7 @@ export default class FormHandler extends Plugin {
 
                 this.$emitter.publish('validationFailed', { invalidFields });
 
-                // The focus will be set to the first invalid field.
-                // The page will automatically scroll to the field with focus.
-                if (this.options.focusInvalidField === true) {
-                    // In Safari, focus alone may not scroll, so manual scrolling is needed.
-                    invalidFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    invalidFields[0].focus();
-                }
+                this._focusFirstInvalidField(invalidFields);
 
                 return;
             }
@@ -248,6 +248,45 @@ export default class FormHandler extends Plugin {
         const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
         return invalidFields.length === 0;
+    }
+
+    /**
+     * This method is used to override the native reportValidity method of the form.
+     * In addition to checking the validity, it scrolls to and focuses the first invalid field,
+     * so the user gets a visual hint on browsers that do not render the native validation UI (e.g. Safari/iOS).
+     *
+     * @return {boolean}
+     * @private
+     */
+    _reportValidity() {
+        // Form fields are always updated again, because there might be fields that where added async.
+        const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
+
+        if (invalidFields.length > 0) {
+            this._focusFirstInvalidField(invalidFields);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sets the focus to the first invalid field and scrolls it into view.
+     *
+     * @param {HTMLElement[]} invalidFields
+     * @private
+     */
+    _focusFirstInvalidField(invalidFields) {
+        if (this.options.focusInvalidField !== true || invalidFields.length === 0) {
+            return;
+        }
+
+        // The focus will be set to the first invalid field.
+        // The page will automatically scroll to the field with focus.
+        // In Safari, focus alone may not scroll, so manual scrolling is needed.
+        invalidFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        invalidFields[0].focus();
     }
 
     /**

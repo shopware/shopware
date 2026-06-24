@@ -172,4 +172,55 @@ describe('FormHandler Plugin', () => {
         expect(formValidationSpy).toHaveBeenCalledTimes(1);
         expect(validationResult).toBe(false);
     });
+
+    test('should report invalidity and focus the first invalid field', () => {
+        // The native `reportValidity` is overridden because the native validation UI is not rendered by
+        // every browser (e.g. Safari/iOS). The override uses the accessible custom validation instead, so
+        // plugins relying on `reportValidity()` (e.g. PayPal Smart Payment Buttons) get scroll/focus feedback.
+        HTMLElement.prototype.scrollIntoView = jest.fn();
+
+        const nameField = document.getElementById('name');
+        const formFields = form.querySelectorAll('input');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        formFields.forEach((field) => {
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+        });
+
+        const validationResult = form.reportValidity();
+
+        // The form is invalid because the required fields are empty.
+        expect(validationResult).toBe(false);
+
+        // The invalid fields should be marked as invalid.
+        expect(nameField.classList).toContain(window.formValidation.config.invalidClass);
+
+        // The first invalid field should be scrolled into view and focused, even without a native validation UI.
+        expect(nameField.scrollIntoView).toHaveBeenCalledTimes(1);
+        expect(document.activeElement).toBe(nameField);
+    });
+
+    test('should report validity when all fields are valid', () => {
+        HTMLElement.prototype.scrollIntoView = jest.fn();
+
+        const formFields = form.querySelectorAll('input');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        formFields.forEach((field) => {
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+        });
+
+        document.getElementById('name').value = 'John Doe';
+        document.getElementById('email').value = 'john@example.com';
+        document.getElementById('emailConfirmation').value = 'john@example.com';
+        document.getElementById('password').value = 'a-very-long-password';
+        document.getElementById('privacy').checked = true;
+
+        const validationResult = form.reportValidity();
+
+        expect(validationResult).toBe(true);
+
+        // No field should be scrolled into view when the form is valid.
+        expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+    });
 });

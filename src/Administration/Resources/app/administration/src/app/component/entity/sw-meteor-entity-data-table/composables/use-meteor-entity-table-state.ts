@@ -15,8 +15,8 @@ import type { MeteorEntityTableLoadSuccessPayload } from '../sw-meteor-entity-da
 import type Criteria from 'src/core/data/criteria.data';
 
 type UseMeteorEntityTableStateOptions = {
-    repository: MeteorEntityTableRepository;
-    context?: unknown;
+    getRepository: () => MeteorEntityTableRepository | null;
+    getContext: () => unknown;
     emit: {
         (event: 'load-success', payload: MeteorEntityTableLoadSuccessPayload): void;
         (event: 'load-error', payload: unknown): void;
@@ -65,7 +65,13 @@ export function useMeteorEntityTableState(options: UseMeteorEntityTableStateOpti
                 return [];
             }
 
-            const result = await options.repository.search(criteria, options.context);
+            const repository = options.getRepository();
+
+            if (!repository) {
+                throw new Error('sw-meteor-entity-data-table requires either a repository or an entity.');
+            }
+
+            const result = await repository.search(criteria, options.getContext());
 
             if (requestId !== requestSequence.value) {
                 return records.value;

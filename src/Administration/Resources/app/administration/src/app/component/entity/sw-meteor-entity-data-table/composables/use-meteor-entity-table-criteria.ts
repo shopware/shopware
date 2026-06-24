@@ -6,16 +6,18 @@
 
 import Criteria from 'src/core/data/criteria.data';
 import type {
-    MeteorEntityTableCriteriaResolver,
     MeteorEntityTableColumnDefinition,
+    MeteorEntityTableCriteriaTransform,
     MeteorEntityTableState,
 } from '../sw-meteor-entity-data-table.types';
+import { getStateSnapshot } from '../sw-meteor-entity-data-table.utils';
 
 type UseMeteorEntityTableCriteriaOptions = {
     state: MeteorEntityTableState;
-    columns: MeteorEntityTableColumnDefinition[];
-    criteria?: Criteria | null;
-    criteriaResolver?: MeteorEntityTableCriteriaResolver | null;
+    getColumns: () => MeteorEntityTableColumnDefinition[];
+    getCriteria: () => Criteria | null | undefined;
+    getCriteriaTransform: () => MeteorEntityTableCriteriaTransform | null | undefined;
+    getSearchTerm: () => string;
 };
 
 function cloneCriteria(criteria?: Criteria | null): Criteria {
@@ -45,18 +47,21 @@ function getSortFields(activeColumn: MeteorEntityTableColumnDefinition | undefin
 
 export function useMeteorEntityTableCriteria(options: UseMeteorEntityTableCriteriaOptions) {
     const buildCriteria = async (): Promise<Criteria | null> => {
-        const criteria = cloneCriteria(options.criteria);
+        const baseCriteria = options.getCriteria() ?? null;
+        const criteria = cloneCriteria(baseCriteria);
         criteria.setPage(options.state.page);
         criteria.setLimit(options.state.limit);
 
-        if (options.state.searchTerm) {
-            criteria.setTerm(options.state.searchTerm);
+        const searchTerm = options.getSearchTerm();
+
+        if (searchTerm) {
+            criteria.setTerm(searchTerm);
         }
 
         criteria.resetSorting();
 
         if (options.state.sortBy) {
-            const activeColumn = options.columns.find((column) => {
+            const activeColumn = options.getColumns().find((column) => {
                 return [
                     column.property,
                     column.dataIndex,
@@ -69,11 +74,17 @@ export function useMeteorEntityTableCriteria(options: UseMeteorEntityTableCriter
             });
         }
 
-        if (!options.criteriaResolver) {
+        const criteriaTransform = options.getCriteriaTransform();
+
+        if (!criteriaTransform) {
             return criteria;
         }
 
-        return options.criteriaResolver(criteria);
+        return criteriaTransform(criteria, getStateSnapshot(options.state), {
+            baseCriteria,
+            columns: options.getColumns(),
+            searchTerm,
+        });
     };
 
     return {

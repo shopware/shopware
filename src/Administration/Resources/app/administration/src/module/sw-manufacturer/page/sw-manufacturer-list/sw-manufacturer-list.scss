@@ -20,4 +20,12 @@
             align-items: center;
         }
     }
+
+    .sw-meteor-entity-data-table__preview {
+        .sw-media-preview-v2 {
+            position: relative;
+            width: 1rem;
+            height: 1rem;
+        }
+    }
 }

@@ -7,19 +7,8 @@
 import { computed } from 'vue';
 import type { MeteorEntityTableColumn, MeteorEntityTableColumnDefinition } from '../sw-meteor-entity-data-table.types';
 
-/**
- * TODO:
- * This file can be simplified a lot. We don't need to do things like this:
- * ```
- * if (column.cellWrap) {
-        meteorColumn.cellWrap = column.cellWrap;
-    }
- ```
-
-   and also other things. So propose a solution to simplify this file
- */
-
 const COLUMN_POSITION_STEP = 100;
+const DEFAULT_PREVIEW_IMAGE_FALLBACK = '/administration/administration/static/img/empty-states/media-empty-state.svg';
 
 function getColumnPosition(column: MeteorEntityTableColumnDefinition, index: number): number {
     const columnWithPosition = column as MeteorEntityTableColumnDefinition & { position?: number };
@@ -39,46 +28,27 @@ export function useMeteorEntityTableColumns(
 ) {
     const resolvedColumns = computed<MeteorEntityTableColumn[]>(() => {
         return columns().map((column, index) => {
-            const meteorColumn: MeteorEntityTableColumn = {
+            const width = getColumnWidth(column.width);
+            const clickable = column.primary === true || typeof column.routerLink === 'string' || column.clickable === true;
+            const previewImageFallback = column.previewImage
+                ? (column.previewImageFallback ?? DEFAULT_PREVIEW_IMAGE_FALLBACK)
+                : column.previewImageFallback;
+
+            return {
                 property: column.property,
                 label: translate(column.label),
                 position: getColumnPosition(column, index),
                 renderer: column.renderer ?? 'text',
                 sortable: column.sortable !== false,
+                ...(clickable ? { clickable: true } : {}),
+                ...(typeof column.allowResize === 'boolean' ? { allowResize: column.allowResize } : {}),
+                ...(column.cellWrap ? { cellWrap: column.cellWrap } : {}),
+                ...(column.previewImage ? { previewImage: column.previewImage } : {}),
+                ...(previewImageFallback ? { previewImageFallback } : {}),
+                ...(column.rendererOptions ? { rendererOptions: column.rendererOptions } : {}),
+                ...(typeof column.visible === 'boolean' ? { visible: column.visible } : {}),
+                ...(typeof width === 'number' ? { width } : {}),
             };
-
-            if (column.primary === true || typeof column.routerLink === 'string' || column.clickable === true) {
-                meteorColumn.clickable = true;
-            }
-
-            if (typeof column.allowResize === 'boolean') {
-                meteorColumn.allowResize = column.allowResize;
-            }
-
-            if (column.cellWrap) {
-                meteorColumn.cellWrap = column.cellWrap;
-            }
-
-            if (column.previewImage) {
-                // TODO: We need to have a fallback image here, because if the previewImage is not available, we need to show a placeholder image.
-                meteorColumn.previewImage = column.previewImage;
-            }
-
-            if (column.rendererOptions) {
-                meteorColumn.rendererOptions = column.rendererOptions;
-            }
-
-            if (typeof column.visible === 'boolean') {
-                meteorColumn.visible = column.visible;
-            }
-
-            const width = getColumnWidth(column.width);
-
-            if (typeof width === 'number') {
-                meteorColumn.width = width;
-            }
-
-            return meteorColumn;
         });
     });
 

@@ -6,8 +6,10 @@
 
 import type { ComputedRef, Reactive, Ref } from 'vue';
 import type Criteria from 'src/core/data/criteria.data';
-
-// TODO: it would be great if we can use as many types as possible from the main "mt-data-table" component instead of defining our own types here. 
+import type {
+    BaseColumnDefinition as MtDataTableBaseColumnDefinition,
+    ColumnChanges as MtDataTableColumnChanges,
+} from '@shopware-ag/meteor-component-library/dist/esm/MtDataTable';
 
 export type MeteorEntityTableSortDirection = 'ASC' | 'DESC';
 
@@ -29,42 +31,38 @@ export type MeteorEntityTableRepository = {
     save?: (record: MeteorEntityTableRecord, context?: unknown) => Promise<unknown>;
 };
 
-export type MeteorEntityTableColumnDefinition = {
+export type MeteorEntityTableColumnRenderer = 'text' | 'number' | 'price' | 'badge';
+
+export type MeteorEntityTableColumnDefinition = Omit<
+    Partial<MtDataTableBaseColumnDefinition>,
+    'label' | 'position' | 'property'
+> & {
     property: string;
     label: string;
     dataIndex?: string;
     sortField?: string;
     sortFields?: string[];
     naturalSorting?: boolean;
-    renderer?: 'text' | 'number' | 'price' | 'badge';
+    renderer?: MeteorEntityTableColumnRenderer;
     primary?: boolean;
     routerLink?: string;
-    inlineEdit?: string | boolean;
-    allowResize?: boolean;
-    cellWrap?: 'nowrap' | 'normal';
     clickable?: boolean;
     previewImage?: string;
+    previewImageFallback?: string;
     rendererOptions?: unknown;
-    visible?: boolean;
-    width?: number | string;
-    sortable?: boolean;
     [key: string]: unknown;
 };
 
-export type MeteorEntityTableColumn = {
-    property: string;
-    label: string;
-    position?: number;
-    renderer: 'text' | 'number' | 'price' | 'badge';
+export type MeteorEntityTableColumn = MtDataTableBaseColumnDefinition & {
+    renderer: MeteorEntityTableColumnRenderer;
     clickable?: boolean;
-    allowResize?: boolean;
-    cellWrap?: 'nowrap' | 'normal';
     previewImage?: string;
+    previewImageFallback?: string;
     rendererOptions?: unknown;
-    visible?: boolean;
-    sortable?: boolean;
     [key: string]: unknown;
 };
+
+export type MeteorEntityTableColumnChanges = Record<string, MtDataTableColumnChanges>;
 
 export type MeteorEntityTableState = {
     page: number;
@@ -84,6 +82,50 @@ export type MeteorEntityTableLoadSuccessPayload = {
 };
 
 export type MeteorEntityTableCriteriaResolver = (criteria: Criteria) => Criteria | null | Promise<Criteria | null>;
+
+export type MeteorEntityTableCriteriaTransformContext = {
+    baseCriteria: Criteria | null;
+    columns: MeteorEntityTableColumnDefinition[];
+    searchTerm: string;
+};
+
+export type MeteorEntityTableCriteriaTransform = (
+    criteria: Criteria,
+    state: MeteorEntityTableState,
+    context: MeteorEntityTableCriteriaTransformContext,
+) => Criteria | null | Promise<Criteria | null>;
+
+export type MeteorEntityTableEmptyStateContext = {
+    records: MeteorEntityTableRecord[];
+    total: number;
+    loading: boolean;
+    state: MeteorEntityTableState;
+    searchTerm: string;
+};
+
+export type MeteorEntityTableRouteQueryKeys = {
+    page: string;
+    limit: string;
+    term: string;
+    sortBy: string;
+    sortDirection: string;
+    naturalSorting: string;
+};
+
+export type MeteorEntityTableRouteQueryValue = string | string[] | number | boolean | null | undefined;
+
+export type MeteorEntityTableRouteQuery = Record<string, MeteorEntityTableRouteQueryValue>;
+
+export type MeteorEntityTableRoute = {
+    name?: string | symbol | null;
+    params?: Record<string, unknown>;
+    query?: MeteorEntityTableRouteQuery;
+};
+
+export type MeteorEntityTableRouter = {
+    push?: (route: MeteorEntityTableRoute) => Promise<unknown> | void;
+    replace?: (route: MeteorEntityTableRoute) => Promise<unknown> | void;
+};
 
 export type MeteorEntityTablePublicApi = {
     records: Ref<MeteorEntityTableRecord[]>;

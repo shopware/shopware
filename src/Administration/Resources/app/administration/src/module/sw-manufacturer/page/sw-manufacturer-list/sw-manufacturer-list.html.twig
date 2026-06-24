@@ -54,55 +54,50 @@
 
     {% block sw_manufacturer_list_language_switch %}
     <template #language-switch>
-        <sw-language-switch @on-change="onChangeLanguage" />
+        <sw-language-switch />
     </template>
     {% endblock %}
 
     <template #content>
         {% block sw_manufacturer_list_content %}
         <div class="sw-manufacturer-list__content">
-            {% block sw_manufacturer_list_empty_state %}
-            <!-- TODO: The empty state is not needed. "sw-meteor-entity-data-table" renders a empty state on its own -->
-            <mt-empty-state
-                v-if="!isLoading && !total"
-                :centered="true"
-                :icon="$route.meta.$module.icon"
-                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-empty-state.messageNoResultTitle')"
-                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
-                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
-                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
-            {% endblock %}
-
             {% block sw_manufacturer_list_grid %}
             <sw-meteor-entity-data-table
-                v-else-if="entitySearchable"
-                {# TODO: we should avoid direct ref access #}
-                ref="manufacturerTable"
                 class="sw-manufacturer-list__grid"
                 detail-route="sw.manufacturer.detail"
+                entity="product_manufacturer"
                 :columns="manufacturerColumns"
-                {# TODO: it would be better if "sw-meteor-entity-data-table" handles the repository on his own. This would save code for repository creation in all modules #}
-                :repository="manufacturerRepository"
-                {# TODO: Why do we need two criteria/criteriaResolver. I would prefer to have only one criteria. And "sw-meteor-entity-data-table" creates a new computed criteria based on the given one (merge it with their default) #}
-                :criteria-resolver="resolveManufacturerCriteria"
                 :criteria="manufacturerCriteria"
-                :initial-page="page"
-                :initial-limit="limit"
-                :initial-search-term="term"
-                :initial-sort-by="currentSortBy"
-                :initial-sort-direction="sortDirection"
-                :initial-natural-sorting="naturalSorting"
+                :criteria-transform="transformManufacturerCriteria"
+                :search-term="term"
+                default-sort-by="name"
                 :allow-edit="acl.can('product_manufacturer.editor')"
-                :allow-inline-edit="acl.can('product_manufacturer.editor')"
                 :allow-delete="acl.can('product_manufacturer.deleter')"
                 :show-selections="acl.can('product_manufacturer.deleter')"
                 :disable-search="true"
-                @load-success="onTableLoadSuccess"
-                @load-error="onTableLoadError"
-                @page-change="onPageChange"
-                @column-sort="onSortColumn"
-            />
+                @search-term-change="onSearchTermChange"
+                @total-change="onTableTotalChange"
+                @loading-change="onTableLoadingChange"
+            >
+                {% block sw_manufacturer_list_grid_columns_name_preview %}
+                <template #preview-name="{ data }">
+                    <sw-media-preview-v2 :source="data.mediaId" />
+                </template>
+                {% endblock %}
+
+                {% block sw_manufacturer_list_empty_state %}
+                <template #empty-state="{ searchTerm }">
+                    <mt-empty-state
+                        :centered="true"
+                        :icon="$route.meta.$module.icon"
+                        :headline="$t('sw-empty-state.messageNoResultTitle')"
+                        :description="isValidTerm(searchTerm) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                        :link-text="isValidTerm(searchTerm) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                        :link-href="isValidTerm(searchTerm) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+                    />
+                </template>
+                {% endblock %}
+            </sw-meteor-entity-data-table>
             {% endblock %}
 
         </div>

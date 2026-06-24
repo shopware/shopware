@@ -54,6 +54,7 @@ describe('sw-meteor-entity-data-table composables', () => {
                 position: 200,
                 renderer: 'text',
                 previewImage: 'media.url',
+                previewImageFallback: '/administration/administration/static/img/empty-states/media-empty-state.svg',
                 sortable: true,
             },
         ]);

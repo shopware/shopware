@@ -1,7 +1,4 @@
 <template>
-    <!-- TODO:
-        - `layout="full"` should be a prop, so that we can use the component in a card layout as well
-    -->
     <mt-data-table
         class="sw-meteor-entity-data-table"
         :columns="resolvedColumns"
@@ -17,7 +14,7 @@
         :allow-row-selection="showSelections"
         :allow-bulk-delete="showSelections && allowDelete"
         :selected-rows="selectedIds"
-        layout="full"
+        :layout="layout"
         :disable-edit="!allowEdit"
         :disable-delete="!allowDelete"
         :disable-search="disableSearch"
@@ -46,15 +43,41 @@
         @change-show-outlines="setShowOutlines"
         @change-outline-framing="setEnableOutlineFraming"
     >
-        <template
-            v-for="column in columnsWithSlots"
-            :key="column.property"
-            #[`column-${column.property}`]="scope"
-        >
-            <slot
-                :name="`column-${column.property}`"
-                v-bind="scope"
-            />
+        <template v-for="column in columnsWithSlots" :key="column.property" #[`column-${column.property}`]="scope">
+            <slot v-if="hasColumnSlot(column.property)" :name="`column-${column.property}`" v-bind="scope" />
+
+            <span v-else class="sw-meteor-entity-data-table__cell">
+                <span
+                    v-if="hasPreviewSlot(column.property) || getColumnPreviewImage(scope)"
+                    class="sw-meteor-entity-data-table__preview"
+                >
+                    <slot v-if="hasPreviewSlot(column.property)" :name="`preview-${column.property}`" :data="scope.data" />
+
+                    <img
+                        v-else
+                        class="sw-meteor-entity-data-table__preview-image"
+                        :src="getColumnPreviewImage(scope)"
+                        :alt="`${getColumnValue(scope)}`"
+                    />
+                </span>
+
+                <a
+                    v-if="scope.data && scope.columnDefinition?.clickable"
+                    class="sw-meteor-entity-data-table__column-value sw-meteor-entity-data-table__column-value-link"
+                    href="#"
+                    @click.prevent="openDetail(scope.data)"
+                >
+                    {{ getColumnValue(scope) }}
+                </a>
+
+                <span v-else class="sw-meteor-entity-data-table__column-value">
+                    {{ getColumnValue(scope) }}
+                </span>
+            </span>
+        </template>
+
+        <template v-if="hasEmptyStateSlot" #empty-state>
+            <slot name="empty-state" v-bind="emptyStateContext" />
         </template>
     </mt-data-table>
 
@@ -69,44 +92,20 @@
         @close="closeDeleteModal"
         @confirm="confirmDelete"
     >
-        <template
-            v-if="$slots['delete-confirm-text']"
-            #delete-confirm-text="{ item }"
-        >
-            <slot
-                name="delete-confirm-text"
-                :item="item"
-            />
+        <template v-if="$slots['delete-confirm-text']" #delete-confirm-text="{ item }">
+            <slot name="delete-confirm-text" :item="item" />
         </template>
 
-        <template
-            v-if="$slots['delete-modal-footer']"
-            #delete-modal-footer="scope"
-        >
-            <slot
-                name="delete-modal-footer"
-                v-bind="scope"
-            />
+        <template v-if="$slots['delete-modal-footer']" #delete-modal-footer="scope">
+            <slot name="delete-modal-footer" v-bind="scope" />
         </template>
 
-        <template
-            v-if="$slots['delete-modal-cancel']"
-            #delete-modal-cancel="scope"
-        >
-            <slot
-                name="delete-modal-cancel"
-                v-bind="scope"
-            />
+        <template v-if="$slots['delete-modal-cancel']" #delete-modal-cancel="scope">
+            <slot name="delete-modal-cancel" v-bind="scope" />
         </template>
 
-        <template
-            v-if="$slots['delete-modal-delete-item']"
-            #delete-modal-delete-item="scope"
-        >
-            <slot
-                name="delete-modal-delete-item"
-                v-bind="scope"
-            />
+        <template v-if="$slots['delete-modal-delete-item']" #delete-modal-delete-item="scope">
+            <slot name="delete-modal-delete-item" v-bind="scope" />
         </template>
     </sw-meteor-entity-data-table-delete-modal>
 
@@ -121,34 +120,16 @@
         @close="closeBulkDeleteModal"
         @confirm="confirmBulkDelete"
     >
-        <template
-            v-if="$slots['bulk-modal-delete-confirm-text']"
-            #bulk-modal-delete-confirm-text="{ selectionCount }"
-        >
-            <slot
-                name="bulk-modal-delete-confirm-text"
-                :selection-count="selectionCount"
-            />
+        <template v-if="$slots['bulk-modal-delete-confirm-text']" #bulk-modal-delete-confirm-text="{ selectionCount }">
+            <slot name="bulk-modal-delete-confirm-text" :selection-count="selectionCount" />
         </template>
 
-        <template
-            v-if="$slots['bulk-modal-cancel']"
-            #bulk-modal-cancel="scope"
-        >
-            <slot
-                name="bulk-modal-cancel"
-                v-bind="scope"
-            />
+        <template v-if="$slots['bulk-modal-cancel']" #bulk-modal-cancel="scope">
+            <slot name="bulk-modal-cancel" v-bind="scope" />
         </template>
 
-        <template
-            v-if="$slots['bulk-modal-delete-items']"
-            #bulk-modal-delete-items="scope"
-        >
-            <slot
-                name="bulk-modal-delete-items"
-                v-bind="scope"
-            />
+        <template v-if="$slots['bulk-modal-delete-items']" #bulk-modal-delete-items="scope">
+            <slot name="bulk-modal-delete-items" v-bind="scope" />
         </template>
     </sw-meteor-entity-data-table-bulk-delete-modal>
 </template>
@@ -158,52 +139,37 @@
  * @sw-package framework
  */
 
-// TODO: we should avoid any eslint-disable comments in this component. So we need to find solutions for the following issues:
-// 1. filename-rules/match
-// 2. sw-deprecation-rules/private-feature-declarations
-
 /* eslint-disable filename-rules/match, sw-deprecation-rules/private-feature-declarations */
 
-import {
-    defineComponent,
-    getCurrentInstance,
-    onMounted,
-    reactive,
-    ref,
-    watch,
-} from 'vue';
+import { computed, defineComponent, getCurrentInstance, inject, onMounted, reactive, ref, watch } from 'vue';
 import type { PropType } from 'vue';
 import type Criteria from 'src/core/data/criteria.data';
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import SwMeteorEntityDataTableBulkDeleteModal from './components/sw-meteor-entity-data-table-bulk-delete-modal';
 import SwMeteorEntityDataTableDeleteModal from './components/sw-meteor-entity-data-table-delete-modal';
-// TODO: remove inline editing completely from this component
-import SwMeteorEntityDataTableInlineEditCell from './components/sw-meteor-entity-data-table-inline-edit-cell';
 import { useMeteorEntityTableColumns } from './composables/use-meteor-entity-table-columns';
 import { useMeteorEntityTableCriteria } from './composables/use-meteor-entity-table-criteria';
 import { useMeteorEntityTableDelete } from './composables/use-meteor-entity-table-delete';
-import { useMeteorEntityTableInlineEdit } from './composables/use-meteor-entity-table-inline-edit';
 import { useMeteorEntityTableSelection } from './composables/use-meteor-entity-table-selection';
+import { useMeteorEntityTableRouteSync } from './composables/use-meteor-entity-table-route-sync';
 import { useMeteorEntityTableSlots } from './composables/use-meteor-entity-table-slots';
 import { useMeteorEntityTableState } from './composables/use-meteor-entity-table-state';
 import type {
+    MeteorEntityTableCriteriaTransform,
     MeteorEntityTableCriteriaResolver,
+    MeteorEntityTableColumnChanges,
     MeteorEntityTableColumnDefinition,
+    MeteorEntityTableEmptyStateContext,
     MeteorEntityTableLoadSuccessPayload,
     MeteorEntityTableRecord,
     MeteorEntityTableRepository,
+    MeteorEntityTableRoute,
+    MeteorEntityTableRouteQuery,
+    MeteorEntityTableRouteQueryKeys,
+    MeteorEntityTableRouter,
 } from './sw-meteor-entity-data-table.types';
+import { getStateSnapshot } from './sw-meteor-entity-data-table.utils';
 import './sw-meteor-entity-data-table.types';
-
-// TODO: investigate if we can better use existing types from the main mt-data-table component instead of defining our own types here
-type SwMeteorEntityDataTableColumnChanges = Record<
-    string,
-    {
-        position?: number;
-        width?: number;
-        visible?: boolean;
-    }
->;
 
 type SwMeteorEntityDataTableViewSettings = {
     enableRowNumbering: boolean;
@@ -212,14 +178,34 @@ type SwMeteorEntityDataTableViewSettings = {
     enableOutlineFraming: boolean;
 };
 
+type SwMeteorEntityDataTableRepositoryFactory = {
+    create: (entityName: string) => MeteorEntityTableRepository;
+};
+
 type SwMeteorEntityDataTableProps = {
-    repository: MeteorEntityTableRepository;
+    entity?: string | null;
+    repository?: MeteorEntityTableRepository | null;
     columns: MeteorEntityTableColumnDefinition[];
-    // TODO: I would prefer to have only one criteria prop. This component creates then a new computed criteria based on the given criteria and updates it when it changes from the outside
+    // Controlled input: parent-owned base criteria used for table loading.
     criteria?: Criteria | null;
+    criteriaTransform?: MeteorEntityTableCriteriaTransform | null;
     criteriaResolver?: MeteorEntityTableCriteriaResolver | null;
+    resetPageOnCriteriaChange: boolean;
+    // Controlled input: parent-owned search value bridged through update:searchTerm/search-term-change.
+    searchTerm?: string | null;
+    syncRouteQuery: boolean;
+    routeQueryKeys: Partial<MeteorEntityTableRouteQueryKeys>;
+    reloadOnLanguageChange: boolean;
     context?: unknown;
     detailRoute?: string | null;
+    // Controlled defaults: route fallback values and table state defaults for parent-owned list pages.
+    defaultPage?: number | null;
+    defaultLimit?: number | null;
+    defaultSearchTerm?: string | null;
+    defaultSortBy?: string | null;
+    defaultSortDirection?: 'ASC' | 'DESC' | null;
+    defaultNaturalSorting?: boolean | null;
+    // Initial uncontrolled state: used when no controlled default or route query value is present.
     initialPage: number;
     initialLimit: number;
     initialSearchTerm: string;
@@ -227,11 +213,11 @@ type SwMeteorEntityDataTableProps = {
     initialSortDirection: 'ASC' | 'DESC';
     initialNaturalSorting: boolean;
     allowEdit: boolean;
-    allowInlineEdit: boolean;
     allowDelete: boolean;
     showSelections: boolean;
     showSettings: boolean;
     disableSearch: boolean;
+    layout: 'default' | 'full';
     steps: number[];
     caption: string;
     additionalContextButtons: Array<{
@@ -244,8 +230,13 @@ type SwMeteorEntityDataTableProps = {
 type SwMeteorEntityDataTableEmit = {
     (e: 'load-success', payload: MeteorEntityTableLoadSuccessPayload): void;
     (e: 'load-error', error: unknown): void;
+    // State notifications for parent-owned page chrome and list orchestration.
+    (e: 'loading-change', loading: boolean): void;
+    (e: 'total-change', total: number): void;
     (e: 'page-change', payload: { page: number; limit: number }): void;
     (e: 'column-sort', column: MeteorEntityTableColumnDefinition | undefined, direction: 'ASC' | 'DESC'): void;
+    (e: 'update:searchTerm', searchTerm: string): void;
+    (e: 'search-term-change', searchTerm: string): void;
     (e: 'search-value-change', searchTerm: string): void;
     (e: 'selection-change', selection: Record<string, MeteorEntityTableRecord>, selectionCount: number): void;
     (e: 'selected-ids-change', selectedIds: string[]): void;
@@ -262,8 +253,6 @@ type SwMeteorEntityDataTableEmit = {
     (e: 'delete-item-failed', payload: { id: string; errorResponse: unknown }): void;
     (e: 'items-delete-finish'): void;
     (e: 'delete-items-failed', payload: { selectedIds: string[]; errorResponse: unknown }): void;
-    (e: 'inline-edit-save', promise: Promise<unknown>, record: MeteorEntityTableRecord): void;
-    (e: 'inline-edit-cancel', promise: Promise<MeteorEntityTableRecord[]>): void;
 };
 
 export default defineComponent({
@@ -274,10 +263,26 @@ export default defineComponent({
         SwMeteorEntityDataTableDeleteModal,
     },
 
+    beforeRouteUpdate(to: MeteorEntityTableRoute, _from: MeteorEntityTableRoute, next: () => void) {
+        const syncRouteQueryState = (
+            this as { syncRouteQueryState?: (query?: MeteorEntityTableRouteQuery) => Promise<void> }
+        ).syncRouteQueryState;
+
+        if (typeof syncRouteQueryState === 'function') {
+            void syncRouteQueryState(to.query as MeteorEntityTableRouteQuery);
+        }
+
+        next();
+    },
+
     props: {
+        entity: {
+            type: String,
+            default: null,
+        },
         repository: {
-            type: Object as PropType<MeteorEntityTableRepository>,
-            required: true,
+            type: Object as PropType<MeteorEntityTableRepository | null>,
+            default: null,
         },
         columns: {
             type: Array as PropType<MeteorEntityTableColumnDefinition[]>,
@@ -287,9 +292,33 @@ export default defineComponent({
             type: Object as PropType<Criteria | null>,
             default: null,
         },
+        criteriaTransform: {
+            type: Function as unknown as PropType<MeteorEntityTableCriteriaTransform | null>,
+            default: null,
+        },
         criteriaResolver: {
             type: Function as unknown as PropType<MeteorEntityTableCriteriaResolver | null>,
             default: null,
+        },
+        resetPageOnCriteriaChange: {
+            type: Boolean,
+            default: true,
+        },
+        searchTerm: {
+            type: String as PropType<string | null>,
+            default: null,
+        },
+        syncRouteQuery: {
+            type: Boolean,
+            default: true,
+        },
+        routeQueryKeys: {
+            type: Object as PropType<Partial<MeteorEntityTableRouteQueryKeys>>,
+            default: () => ({}),
+        },
+        reloadOnLanguageChange: {
+            type: Boolean,
+            default: true,
         },
         context: {
             type: null as unknown as PropType<unknown>,
@@ -297,6 +326,30 @@ export default defineComponent({
         },
         detailRoute: {
             type: String,
+            default: null,
+        },
+        defaultPage: {
+            type: Number,
+            default: null,
+        },
+        defaultLimit: {
+            type: Number,
+            default: null,
+        },
+        defaultSearchTerm: {
+            type: String,
+            default: null,
+        },
+        defaultSortBy: {
+            type: String,
+            default: null,
+        },
+        defaultSortDirection: {
+            type: String as PropType<'ASC' | 'DESC' | null>,
+            default: null,
+        },
+        defaultNaturalSorting: {
+            type: Boolean as PropType<boolean | null>,
             default: null,
         },
         initialPage: {
@@ -327,10 +380,6 @@ export default defineComponent({
             type: Boolean,
             default: true,
         },
-        allowInlineEdit: {
-            type: Boolean,
-            default: true,
-        },
         allowDelete: {
             type: Boolean,
             default: true,
@@ -346,6 +395,10 @@ export default defineComponent({
         disableSearch: {
             type: Boolean,
             default: false,
+        },
+        layout: {
+            type: String as PropType<'default' | 'full'>,
+            default: 'full',
         },
         steps: {
             type: Array as PropType<number[]>,
@@ -370,8 +423,12 @@ export default defineComponent({
     emits: [
         'load-success',
         'load-error',
+        'loading-change',
+        'total-change',
         'page-change',
         'column-sort',
+        'update:searchTerm',
+        'search-term-change',
         'search-value-change',
         'selection-change',
         'selected-ids-change',
@@ -383,8 +440,6 @@ export default defineComponent({
         'delete-item-failed',
         'items-delete-finish',
         'delete-items-failed',
-        'inline-edit-save',
-        'inline-edit-cancel',
     ],
 
     setup(rawProps, { emit: rawEmit, slots }) {
@@ -394,6 +449,7 @@ export default defineComponent({
         const translator = ref((key: string) => {
             return instance?.appContext.config.globalProperties.$t?.(key) ?? key;
         });
+        const repositoryFactory = inject<SwMeteorEntityDataTableRepositoryFactory | null>('repositoryFactory', null);
 
         const setupState = createExtendableSetup(
             {
@@ -409,14 +465,40 @@ export default defineComponent({
                     () => props.columns,
                     (key) => translator.value(key),
                 );
+                const resolvedRepository = computed(() => {
+                    if (props.repository) {
+                        return props.repository;
+                    }
 
-                // TODO: I would prefer a computed criteria which merges the given criteria with the criteria from the table state. This would allow to have only one criteria prop and all page, limit, etc. changes would be reflected in the criteria automatically. This would also allow to have a better control over the criteria and avoid issues with the criteria being out of sync with the table state.
+                    if (!props.entity) {
+                        return null;
+                    }
+
+                    return repositoryFactory?.create(props.entity) ?? null;
+                });
+                const resolveCriteriaTransform = (): MeteorEntityTableCriteriaTransform | null => {
+                    if (props.criteriaTransform) {
+                        return props.criteriaTransform;
+                    }
+
+                    if (props.criteriaResolver) {
+                        return (criteria) => props.criteriaResolver?.(criteria) ?? null;
+                    }
+
+                    return null;
+                };
+                const initialPage = props.defaultPage ?? props.initialPage;
+                const initialLimit = props.defaultLimit ?? props.initialLimit;
+                const initialSearchTerm = props.searchTerm ?? props.defaultSearchTerm ?? props.initialSearchTerm;
+                const initialSortBy = props.defaultSortBy ?? props.initialSortBy;
+                const initialSortDirection = props.defaultSortDirection ?? props.initialSortDirection;
+                const initialNaturalSorting = props.defaultNaturalSorting ?? props.initialNaturalSorting;
+
                 let buildTableCriteria: () => Promise<Criteria | null> = () => Promise.resolve(null);
 
-                // TODO: The table state need to be synced with the criteria. With a computed criteria it get updated automatically.
                 const tableState = useMeteorEntityTableState({
-                    repository: props.repository,
-                    context: props.context,
+                    getRepository: () => resolvedRepository.value,
+                    getContext: () => props.context,
                     emit: (event, payload) => {
                         if (event === 'load-success') {
                             emit('load-success', payload as MeteorEntityTableLoadSuccessPayload);
@@ -426,53 +508,54 @@ export default defineComponent({
                         emit('load-error', payload);
                     },
                     buildCriteria: () => buildTableCriteria(),
-                    initialPage: props.initialPage,
-                    initialLimit: props.initialLimit,
-                    initialSearchTerm: props.initialSearchTerm,
-                    initialSortBy: props.initialSortBy,
-                    initialSortDirection: props.initialSortDirection,
-                    initialNaturalSorting: props.initialNaturalSorting,
+                    initialPage,
+                    initialLimit,
+                    initialSearchTerm,
+                    initialSortBy,
+                    initialSortDirection,
+                    initialNaturalSorting,
                 });
 
                 ({ buildCriteria: buildTableCriteria } = useMeteorEntityTableCriteria({
                     state: tableState.state,
-                    columns: props.columns,
-                    criteria: props.criteria,
-                    criteriaResolver: props.criteriaResolver,
+                    getColumns: () => props.columns,
+                    getCriteria: () => props.criteria,
+                    getCriteriaTransform: () => resolveCriteriaTransform(),
+                    getSearchTerm: () => tableState.state.searchTerm,
                 }));
 
                 const tableSelection = useMeteorEntityTableSelection(() => tableState.records.value);
                 const tableDelete = useMeteorEntityTableDelete({
-                    repository: props.repository,
-                    context: props.context,
+                    getRepository: () => resolvedRepository.value,
+                    getContext: () => props.context,
                     reload: tableState.reload,
                     getSelectedIds: () => tableSelection.selectedIds.value,
                     setSelectedIds: tableSelection.setSelectedIds,
                     emit,
                 });
-                const tableInlineEdit = useMeteorEntityTableInlineEdit({
-                    repository: props.repository,
-                    context: props.context,
-                    reload: tableState.reload,
-                    emit,
-                });
-                const isInlineEditableColumn = (property: string) => {
-                    return (
-                        props.allowInlineEdit &&
-                        props.columns.some((column) => {
-                            return column.property === property && !!column.inlineEdit;
-                        })
-                    );
-                };
                 const tableSlots = useMeteorEntityTableSlots(() => resolvedTableColumns.value, slots, {
-                    hasInternalColumnSlot: isInlineEditableColumn,
+                    resolvePreviewImageFallback: (previewImageFallback) => {
+                        return Shopware.Filter.getByName('asset')(previewImageFallback);
+                    },
                 });
-                const columnChanges = reactive<SwMeteorEntityDataTableColumnChanges>({});
+                const hasEmptyStateSlot = computed(() => {
+                    return typeof slots['empty-state'] === 'function';
+                });
+                const columnChanges = reactive<MeteorEntityTableColumnChanges>({});
                 const viewSettings = reactive<SwMeteorEntityDataTableViewSettings>({
                     enableRowNumbering: false,
                     showStripes: true,
                     showOutlines: true,
                     enableOutlineFraming: false,
+                });
+                const emptyStateContext = computed<MeteorEntityTableEmptyStateContext>(() => {
+                    return {
+                        records: tableState.records.value,
+                        total: tableState.total.value,
+                        loading: tableState.loading.value,
+                        state: getStateSnapshot(tableState.state),
+                        searchTerm: tableState.state.searchTerm,
+                    };
                 });
 
                 const setEnableRowNumbering = (value: boolean) => {
@@ -517,37 +600,6 @@ export default defineComponent({
                     });
                 };
 
-                const handlePaginationCurrentPageChange = (page: number) => {
-                    void tableState.setPage(page);
-                    emit('page-change', {
-                        page,
-                        limit: tableState.state.limit,
-                    });
-                };
-
-                const handlePaginationLimitChange = (limit: number) => {
-                    tableState.state.page = 1;
-                    void tableState.setLimit(limit);
-                    emit('page-change', {
-                        page: 1,
-                        limit,
-                    });
-                };
-
-                const handleSortChange = (sortBy: string, sortDirection: 'ASC' | 'DESC') => {
-                    const column = getColumnForSort(sortBy);
-
-                    tableState.state.page = 1;
-                    void tableState.setSort(sortBy, sortDirection, column?.naturalSorting ?? false);
-                    emit('column-sort', column, sortDirection);
-                };
-
-                const handleSearchValueChange = (searchTerm: string) => {
-                    tableState.state.page = 1;
-                    void tableState.setSearchTerm(searchTerm);
-                    emit('search-value-change', searchTerm);
-                };
-
                 const handleSelectionChange = ({ id, value }: { id: string; value: boolean }) => {
                     const item = tableState.records.value.find((record) => record.id === id);
                     const ids = value
@@ -583,12 +635,113 @@ export default defineComponent({
                     emit('context-select', payload);
                 };
 
+                const getCurrentRoute = () => {
+                    return instance?.proxy?.$route as MeteorEntityTableRoute | undefined;
+                };
+
+                const getRouter = () => {
+                    return instance?.proxy?.$router as MeteorEntityTableRouter | undefined;
+                };
+
+                const routeSync = useMeteorEntityTableRouteSync({
+                    state: tableState.state,
+                    initialState: {
+                        page: initialPage,
+                        limit: initialLimit,
+                        searchTerm: initialSearchTerm,
+                        sortBy: initialSortBy,
+                        sortDirection: initialSortDirection,
+                        naturalSorting: initialNaturalSorting,
+                    },
+                    getSyncRouteQuery: () => props.syncRouteQuery,
+                    getRouteQueryKeys: () => props.routeQueryKeys,
+                    getRoute: getCurrentRoute,
+                    getRouter,
+                    reload: tableState.reload,
+                    emitSearchTermChange: (searchTerm) => {
+                        emit('update:searchTerm', searchTerm);
+                        emit('search-term-change', searchTerm);
+                    },
+                });
+
+                const setPage = async (page: number) => {
+                    const records = await tableState.setPage(page);
+                    routeSync.updateRouteQuery('push');
+
+                    return records;
+                };
+
+                const setLimit = async (limit: number) => {
+                    const records = await tableState.setLimit(limit);
+                    routeSync.updateRouteQuery('push');
+
+                    return records;
+                };
+
+                const setSearchTerm = async (searchTerm: string) => {
+                    const records = await tableState.setSearchTerm(searchTerm);
+                    routeSync.updateRouteQuery('push');
+
+                    return records;
+                };
+
+                const setSort = async (sortBy: string, sortDirection: 'ASC' | 'DESC', naturalSorting = false) => {
+                    const records = await tableState.setSort(sortBy, sortDirection, naturalSorting);
+                    routeSync.updateRouteQuery('push');
+
+                    return records;
+                };
+
+                const handlePaginationCurrentPageChange = (page: number) => {
+                    void setPage(page);
+                    emit('page-change', {
+                        page,
+                        limit: tableState.state.limit,
+                    });
+                };
+
+                const handlePaginationLimitChange = (limit: number) => {
+                    tableState.state.page = 1;
+                    void setLimit(limit);
+                    emit('page-change', {
+                        page: 1,
+                        limit,
+                    });
+                };
+
+                const handleSortChange = (sortBy: string, sortDirection: 'ASC' | 'DESC') => {
+                    const column = getColumnForSort(sortBy);
+
+                    tableState.state.page = 1;
+                    void setSort(sortBy, sortDirection, column?.naturalSorting ?? false);
+                    emit('column-sort', column, sortDirection);
+                };
+
+                const handleSearchValueChange = (searchTerm: string) => {
+                    tableState.state.page = 1;
+                    void setSearchTerm(searchTerm);
+                    routeSync.emitSearchTermBridge(searchTerm);
+                    emit('search-value-change', searchTerm);
+                };
+
                 onMounted(() => {
                     translator.value = (key: string) => {
                         return instance?.proxy?.$t?.(key) ?? instance?.appContext.config.globalProperties.$t?.(key) ?? key;
                     };
 
-                    void tableState.load();
+                    routeSync.syncInitialRouteState();
+
+                    void tableState.load().finally(() => {
+                        routeSync.markLoaded();
+                    });
+                });
+
+                watch(tableState.loading, (loading) => {
+                    emit('loading-change', loading);
+                });
+
+                watch(tableState.total, (total) => {
+                    emit('total-change', total);
                 });
 
                 watch(tableState.records, () => {
@@ -602,7 +755,6 @@ export default defineComponent({
                     }
                 });
 
-                // TODO: This is not needed with a computed criteria.
                 watch(
                     () =>
                         [
@@ -621,33 +773,101 @@ export default defineComponent({
                         sortDirection,
                         naturalSorting,
                     ]) => {
-                        if (tableState.state.page !== page) {
-                            tableState.state.page = page;
+                        const controlledSearchTerm = props.searchTerm ?? searchTerm;
+                        const changed = routeSync.syncState({
+                            page,
+                            limit,
+                            searchTerm: controlledSearchTerm,
+                            sortBy,
+                            sortDirection,
+                            naturalSorting,
+                        });
+
+                        if (changed) {
+                            routeSync.markStateChangeFromRoute();
+                        }
+                    },
+                    {
+                        flush: 'sync',
+                    },
+                );
+
+                watch(
+                    () =>
+                        [
+                            props.criteria,
+                            props.searchTerm,
+                            props.criteriaTransform,
+                            props.criteriaResolver,
+                        ] as const,
+                    (
+                        [
+                            criteria,
+                            searchTerm,
+                            criteriaTransform,
+                            criteriaResolver,
+                        ],
+                        [
+                            previousCriteria,
+                            previousSearchTerm,
+                            previousCriteriaTransform,
+                            previousCriteriaResolver,
+                        ],
+                    ) => {
+                        if (!routeSync.isLoaded()) {
+                            return;
                         }
 
-                        if (tableState.state.limit !== limit) {
-                            tableState.state.limit = limit;
+                        const criteriaChanged = criteria !== previousCriteria;
+                        const searchTermChanged = searchTerm !== previousSearchTerm;
+                        const criteriaTransformChanged =
+                            criteriaTransform !== previousCriteriaTransform || criteriaResolver !== previousCriteriaResolver;
+
+                        if (searchTermChanged && routeSync.shouldSkipSearchTermPropReload(searchTerm)) {
+                            return;
                         }
 
-                        if (tableState.state.searchTerm !== searchTerm) {
-                            tableState.state.searchTerm = searchTerm;
+                        if (searchTermChanged) {
+                            tableState.state.searchTerm = searchTerm ?? '';
                         }
 
-                        if (tableState.state.sortBy !== sortBy) {
-                            tableState.state.sortBy = sortBy;
+                        if (
+                            (criteriaChanged || searchTermChanged) &&
+                            props.resetPageOnCriteriaChange &&
+                            !routeSync.shouldSkipCriteriaPageReset()
+                        ) {
+                            tableState.state.page = 1;
                         }
 
-                        if (tableState.state.sortDirection !== sortDirection) {
-                            tableState.state.sortDirection = sortDirection;
-                        }
+                        routeSync.clearCriteriaPageResetSkip();
 
-                        if (tableState.state.naturalSorting !== naturalSorting) {
-                            tableState.state.naturalSorting = naturalSorting;
+                        if (criteriaChanged || searchTermChanged || criteriaTransformChanged) {
+                            void tableState.reload();
+                            routeSync.updateRouteQuery('push');
                         }
                     },
                 );
 
-                // TODO: We need to sync the current page, limit, etc. inside the route query params, so that we can restore the state when navigating back to the table. This is especially important for the detail view, where we want to restore the table state when navigating back to the list view.
+                watch(
+                    () => (props.syncRouteQuery ? routeSync.getRouteQuerySnapshot() : null),
+                    (query) => {
+                        void routeSync.syncRouteQueryState(query ?? {});
+                    },
+                    {
+                        deep: true,
+                    },
+                );
+
+                watch(
+                    () => Shopware.Store.get('context')?.api?.languageId,
+                    (languageId, previousLanguageId) => {
+                        if (!props.reloadOnLanguageChange || !routeSync.isLoaded() || languageId === previousLanguageId) {
+                            return;
+                        }
+
+                        void tableState.reload();
+                    },
+                );
 
                 return {
                     public: {
@@ -661,22 +881,26 @@ export default defineComponent({
                         load: tableState.load,
                         reload: tableState.reload,
                         buildCriteria: buildTableCriteria,
-                        setPage: tableState.setPage,
-                        setLimit: tableState.setLimit,
-                        setSearchTerm: tableState.setSearchTerm,
-                        setSort: tableState.setSort,
+                        setPage,
+                        setLimit,
+                        setSearchTerm,
+                        setSort,
                         setSelectedIds: tableSelection.setSelectedIds,
                         openDetail: openRecordDetail,
                     },
                     private: {
+                        syncRouteQueryState: routeSync.syncRouteQueryState,
                         rebuildSelection: tableSelection.rebuildSelection,
                         pruneSelection: tableSelection.pruneSelection,
                         columnsWithSlots: tableSlots.columnsWithSlots,
                         hasColumnSlot: tableSlots.hasColumnSlot,
                         hasPreviewSlot: tableSlots.hasPreviewSlot,
+                        hasEmptyStateSlot,
                         columnChanges,
                         viewSettings,
+                        emptyStateContext,
                         getColumnValue: tableSlots.getColumnValue,
+                        getColumnPreviewImage: tableSlots.getColumnPreviewImage,
                         itemToDelete: tableDelete.itemToDelete,
                         isDeleting: tableDelete.isDeleting,
                         bulkDeleteIds: tableDelete.bulkDeleteIds,
@@ -687,13 +911,6 @@ export default defineComponent({
                         openBulkDeleteModal: tableDelete.openBulkDeleteModal,
                         closeBulkDeleteModal: tableDelete.closeBulkDeleteModal,
                         confirmBulkDelete: tableDelete.confirmBulkDelete,
-                        isColumnInlineEditable: isInlineEditableColumn,
-                        isInlineEditing: tableInlineEdit.isInlineEditing,
-                        startInlineEdit: tableInlineEdit.startInlineEdit,
-                        getInlineEditValue: tableInlineEdit.getInlineEditValue,
-                        updateInlineEditValue: tableInlineEdit.updateInlineEditValue,
-                        saveInlineEdit: tableInlineEdit.saveInlineEdit,
-                        cancelInlineEdit: tableInlineEdit.cancelInlineEdit,
                         handlePaginationCurrentPageChange,
                         handlePaginationLimitChange,
                         handleSortChange,
@@ -766,6 +983,16 @@ export default defineComponent({
         display: inline-flex;
         flex: 0 0 auto;
         align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: var(--scale-size-24);
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-xs);
+    }
+
+    .sw-meteor-entity-data-table__preview-image {
+        max-width: calc(100% - 5px);
+        max-height: calc(100% - 5px);
     }
 
     .sw-meteor-entity-data-table__column-value {
@@ -775,51 +1002,5 @@ export default defineComponent({
         white-space: nowrap;
     }
 
-    .mt-data-table__table-wrapper-table-row:hover,
-    .mt-data-table__table-wrapper-table-row:focus-within {
-        .sw-meteor-entity-data-table-inline-edit-cell__start {
-            opacity: 1;
-        }
-    }
-}
-
-.sw-meteor-entity-data-table-inline-edit-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-    max-width: 100%;
-
-    .sw-meteor-entity-data-table-inline-edit-cell__value {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .sw-meteor-entity-data-table-inline-edit-cell__start {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        padding: 0;
-        color: var(--color-icon-secondary-default, #52667a);
-        cursor: pointer;
-        background: transparent;
-        border: 0;
-        opacity: 0;
-        transition: opacity 0.12s ease-in-out;
-
-        &:focus-visible {
-            opacity: 1;
-            outline: 2px solid var(--color-border-brand-default, #189eff);
-            outline-offset: 2px;
-        }
-    }
-
-    .sw-meteor-entity-data-table-inline-edit-cell__input {
-        min-width: 120px;
-    }
 }
 </style>

@@ -8,8 +8,8 @@ import { ref } from 'vue';
 import type { MeteorEntityTableRecord, MeteorEntityTableRepository } from '../sw-meteor-entity-data-table.types';
 
 type UseMeteorEntityTableDeleteOptions = {
-    repository: MeteorEntityTableRepository;
-    context?: unknown;
+    getRepository: () => MeteorEntityTableRepository | null;
+    getContext: () => unknown;
     reload: () => Promise<MeteorEntityTableRecord[]>;
     getSelectedIds: () => string[];
     setSelectedIds: (ids: string[]) => void;
@@ -38,7 +38,9 @@ export function useMeteorEntityTableDelete(options: UseMeteorEntityTableDeleteOp
     };
 
     const confirmDelete = async () => {
-        if (!itemToDelete.value || !options.repository.delete) {
+        const repository = options.getRepository();
+
+        if (!itemToDelete.value || !repository?.delete) {
             return;
         }
 
@@ -46,7 +48,7 @@ export function useMeteorEntityTableDelete(options: UseMeteorEntityTableDeleteOp
         isDeleting.value = true;
 
         try {
-            await options.repository.delete(id, options.context);
+            await repository.delete(id, options.getContext());
             options.setSelectedIds(options.getSelectedIds().filter((selectedId) => selectedId !== id));
             itemToDelete.value = null;
             options.emit('delete-item-finish', id);
@@ -81,12 +83,14 @@ export function useMeteorEntityTableDelete(options: UseMeteorEntityTableDeleteOp
         isBulkDeleting.value = true;
 
         try {
-            if (options.repository.syncDeleted) {
-                await options.repository.syncDeleted(selectedIds, options.context);
-            } else if (options.repository.delete) {
-                const deleteItem = options.repository.delete;
+            const repository = options.getRepository();
 
-                await Promise.all(selectedIds.map((id) => deleteItem(id, options.context)));
+            if (repository?.syncDeleted) {
+                await repository.syncDeleted(selectedIds, options.getContext());
+            } else if (repository?.delete) {
+                const deleteItem = repository.delete;
+
+                await Promise.all(selectedIds.map((id) => deleteItem(id, options.getContext())));
             }
 
             options.setSelectedIds([]);

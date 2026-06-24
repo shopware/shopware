@@ -35,7 +35,6 @@ type TableVm = {
     load: () => Promise<unknown>;
     reload: () => Promise<unknown>;
     setSelectedIds: (ids: string[]) => void;
-    startInlineEdit: (record: TableRecord) => void;
     confirmDelete?: unknown;
     [key: string]: unknown;
 };
@@ -95,6 +94,7 @@ export async function createWrapper(
     options: {
         mocks?: Record<string, unknown>;
         globalProperties?: Record<string, unknown>;
+        provide?: Record<string, unknown>;
         slots?: Record<string, string>;
     } = {},
 ): Promise<TestWrapper> {
@@ -118,10 +118,12 @@ export async function createWrapper(
             ),
         ),
     };
+    const hasRepositoryProp = Object.prototype.hasOwnProperty.call(props, 'repository');
+    const shouldUseDefaultRepository = !hasRepositoryProp && !props.entity;
 
     const wrapper = mount(SwMeteorEntityDataTable, {
         props: {
-            repository,
+            ...(shouldUseDefaultRepository ? { repository } : {}),
             columns: [
                 {
                     property: 'name',
@@ -152,6 +154,7 @@ export async function createWrapper(
                         'showStripes',
                         'showOutlines',
                         'enableOutlineFraming',
+                        'searchValue',
                     ],
                     emits: [
                         'pagination-current-page-change',
@@ -173,11 +176,17 @@ export async function createWrapper(
                     template: `
                         <div class="mt-data-table-stub">
                             <slot
-                                v-for="column in columns"
-                                :name="'column-' + column.property"
-                                :data="dataSource[0]"
-                                :column-definition="column"
+                                v-if="dataSource.length === 0 && !isLoading"
+                                name="empty-state"
                             />
+                            <template v-else>
+                                <slot
+                                    v-for="column in columns"
+                                    :name="'column-' + column.property"
+                                    :data="dataSource[0]"
+                                    :column-definition="column"
+                                />
+                            </template>
                         </div>
                     `,
                 },
@@ -215,6 +224,7 @@ export async function createWrapper(
                     `,
                 },
             },
+            provide: options.provide,
             config: {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
                 globalProperties: (options.globalProperties ?? {}) as any,

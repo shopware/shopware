@@ -363,6 +363,82 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.vm.resolvedColumns[0]).not.toHaveProperty('width');
     });
 
+    it('renders the preview fallback when a preview image value is missing', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                {
+                    property: 'name',
+                    label: 'Name',
+                    previewImage: 'media.url',
+                },
+            ],
+        });
+
+        expect(wrapper.get('.sw-meteor-entity-data-table__preview-image').attributes('src')).toBe(
+            'administration/administration/static/img/empty-states/media-empty-state.svg',
+        );
+    });
+
+    it('routes preview fallback assets through the configured assets path', async () => {
+        const previousAssetsPath = Shopware.Context.api.assetsPath;
+        Shopware.Context.api.assetsPath = 'https://cdn.example.test/';
+
+        try {
+            const wrapper = await createWrapper({
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        previewImage: 'media.url',
+                    },
+                ],
+            });
+
+            expect(wrapper.get('.sw-meteor-entity-data-table__preview-image').attributes('src')).toBe(
+                'https://cdn.example.test/administration/administration/static/img/empty-states/media-empty-state.svg',
+            );
+        } finally {
+            Shopware.Context.api.assetsPath = previousAssetsPath;
+        }
+    });
+
+    it('keeps real media preview URLs unchanged when an assets path is configured', async () => {
+        const previousAssetsPath = Shopware.Context.api.assetsPath;
+        const mediaUrl = 'https://media.example.test/manufacturer.png';
+        Shopware.Context.api.assetsPath = 'https://cdn.example.test/';
+
+        try {
+            const wrapper = await createWrapper({
+                repository: {
+                    search: jest.fn(() =>
+                        Promise.resolve(
+                            createSearchResult([
+                                {
+                                    id: 'manufacturer-1',
+                                    name: 'Shopware',
+                                    media: {
+                                        url: mediaUrl,
+                                    },
+                                },
+                            ]),
+                        ),
+                    ),
+                },
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        previewImage: 'media.url',
+                    },
+                ],
+            });
+
+            expect(wrapper.get('.sw-meteor-entity-data-table__preview-image').attributes('src')).toBe(mediaUrl);
+        } finally {
+            Shopware.Context.api.assetsPath = previousAssetsPath;
+        }
+    });
+
     it('creates criteria from page, limit, search term, and sort state', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
@@ -619,6 +695,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(wrapper.vm.state.page).toBe(1);
         expect(wrapper.vm.state.searchTerm).toBe('new search');
+        expect(wrapper.emitted('update:searchTerm')?.at(-1)?.[0]).toBe('new search');
+        expect(wrapper.emitted('search-term-change')?.at(-1)?.[0]).toBe('new search');
         expect(wrapper.emitted('search-value-change')?.at(-1)?.[0]).toBe('new search');
         expect(lastSearchCriteria(repository).term).toBe('new search');
     });

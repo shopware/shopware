@@ -6,9 +6,9 @@
     :is-loading="isLoading"
 >
     {% block sw_settings_search_search_behaviour_title %}
-    <h4 class="sw-settings-search__search-behaviour-title">
+    <p class="sw-settings-search__search-behaviour-title">
         {{ $t('sw-settings-search.generalTab.textTitleSearchBehaviour') }}
-    </h4>
+    </p>
     {% endblock %}
 
     {% block sw_settings_search_search_behaviour_condition %}
@@ -36,7 +36,7 @@
             showOnDisabledElements: true
         }"
         name="sw-field--searchBehaviourConfigs-minSearchLength"
-        class="sw-settings-search__search-behaviour-term-length"
+        number-type="int"
         :label="$t('sw-settings-search.generalTab.labelMinimalSearchTerm')"
         :disabled="!acl.can('product_search_config.editor')"
         :min="min"

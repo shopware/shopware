@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-text-editor-toolbar-table-button {
     padding: 12px;
 
@@ -22,7 +20,7 @@
     .sw-text-editor-toolbar-table-button__grid-info {
         white-space: pre-wrap;
         color: var(--color-text-secondary-default);
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
     }
 
     .sw-text-editor-toolbar-table-button__table {
@@ -30,7 +28,7 @@
         cursor: pointer;
         border-radius: 2px;
         border-style: hidden;
-        box-shadow: 0 0 0 1px var(--color-border-primary-default);
+        box-shadow: 0 0 0 1px var(--color-border-secondary-default);
         margin-top: 22px;
 
         .sw-text-editor-toolbar-table-button__col-placeholder {
@@ -40,13 +38,13 @@
 
         .sw-text-editor-toolbar-table-button__table-head {
             .sw-text-editor-toolbar-table-button__col {
-                border: 1px solid var(--color-border-primary-default);
+                border: 1px solid var(--color-border-secondary-default);
                 background: var(--color-background-secondary-default);
             }
         }
 
         .sw-text-editor-toolbar-table-button__col {
-            border: 1px solid var(--color-border-primary-default);
+            border: 1px solid var(--color-border-secondary-default);
 
             &.is--selected {
                 background: var(--color-background-brand-default);

@@ -115,15 +115,9 @@ export default {
 
     methods: {
         hasAccessToRoute(path) {
-            let route = '';
-            let match = false;
+            const match = this.$router.getRoutes().find((route) => route.name === path);
 
-            route = `/${path.replace(/[\.\-]/g, '/')}`;
-            match = this.$router.resolve({
-                path: route,
-            });
-
-            if (!match.meta) {
+            if (!match?.meta) {
                 return true;
             }
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
@@ -36,27 +37,6 @@ class TemplateConfigAccessorTest extends TestCase
             $this->themeScripts,
             'prod',
         );
-    }
-
-    public function testConfigReturnsStaticValueWithoutCallingSystemConfig(): void
-    {
-        $this->systemConfigService->expects($this->never())->method('get');
-
-        static::assertSame(255, $this->accessor->config('seo.descriptionMaxLength', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.revocationNoticeCmsPageId', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.taxCmsPageId', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.tosCmsPageId', null));
-        static::assertTrue($this->accessor->config('confirm.revocationNotice', null));
-    }
-
-    public function testConfigFallsThroughToSystemConfigForNonStaticKey(): void
-    {
-        $this->systemConfigService->expects($this->once())
-            ->method('get')
-            ->with('my.custom.key', 'sales-channel-id')
-            ->willReturn('custom-value');
-
-        static::assertSame('custom-value', $this->accessor->config('my.custom.key', 'sales-channel-id'));
     }
 
     public function testScriptsDelegatesToThemeScripts(): void
@@ -132,6 +112,30 @@ class TemplateConfigAccessorTest extends TestCase
             ->willReturn('#ff0000');
 
         static::assertSame('#ff0000', $this->accessor->theme('my-theme-key', $context, 'theme-id-123'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedConfigReturnsStaticValueWithoutCallingSystemConfig(): void
+    {
+        $this->systemConfigService->expects($this->never())->method('get');
+
+        $result = $this->accessor->config('seo.descriptionMaxLength', null);
+
+        static::assertSame(255, $result);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedConfigDelegatesToSystemConfig(): void
+    {
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('get')
+            ->with('core.basicInformation.shopName', 'sales-channel-id')
+            ->willReturn('Shopware');
+
+        $result = $this->accessor->config('core.basicInformation.shopName', 'sales-channel-id');
+
+        static::assertSame('Shopware', $result);
     }
 
     public function testImportMapPrefersDevImportMapWhenDevEnvAndFlagFilePresent(): void

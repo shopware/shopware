@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFac
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\StoreApiMcpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TelemetrySubscriberCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -150,6 +151,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass()); // @codeCoverageIgnore
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

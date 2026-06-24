@@ -1,6 +1,5 @@
 {% block sw_integration_mcp_allowlist %}
 <div class="sw-integration-mcp-allowlist">
-
     {% block sw_integration_mcp_allowlist_sticky %}
     <div class="sw-integration-mcp-allowlist__sticky">
         {% block sw_integration_mcp_allowlist_admin_banner %}
@@ -19,11 +18,14 @@
             variant="attention"
             class="sw-integration-mcp-allowlist__coverage-banner"
         >
-            {{ $t('sw-integration.mcp.coverageWarning', { count: uncoveredTools.length }) }}
+            <span>{{ $t('sw-integration.mcp.coverageWarning', { count: uncoveredTools.length }) }}</span>
+
             <span
                 v-if="allMissingPrivileges.length > 0"
                 class="sw-integration-mcp-allowlist__missing-privileges-list"
-            >{{ $t('sw-integration.mcp.missingPrivilegesList', { privileges: allMissingPrivileges.join(', ') }) }}</span>
+            >
+                {{ $t('sw-integration.mcp.missingPrivilegesList', { privileges: allMissingPrivileges.join(', ') }) }}
+            </span>
         </mt-banner>
         {% endblock %}
 
@@ -33,8 +35,13 @@
             variant="attention"
             class="sw-integration-mcp-allowlist__stale-banner"
         >
-            {{ $t('sw-integration.mcp.missingCapabilitySuggestions', { count: missingCapabilitySuggestions.length }) }}
-            <span class="sw-integration-mcp-allowlist__missing-privileges-list">{{ missingCapabilitySuggestions.map((s) => s.name).join('\n') }}</span>
+            <span>
+                {{ $t('sw-integration.mcp.missingCapabilitySuggestions', { count: missingCapabilitySuggestions.length }) }}
+            </span>
+
+            <span class="sw-integration-mcp-allowlist__missing-privileges-list">
+                {{ missingCapabilitySuggestions.map((s) => s.name).join('\n') }}
+            </span>
         </mt-banner>
         {% endblock %}
 
@@ -61,24 +68,21 @@
     {% endblock %}
 
     {% block sw_integration_mcp_allowlist_all_toggle %}
-    <div class="sw-integration-mcp-allowlist__all-tools-row">
-        <mt-switch
-            v-model="allCapabilitiesEnabled"
-            :disabled="disabled"
-            :label="$t('sw-integration.mcp.allCapabilitiesLabel')"
-        />
-
-        <mt-icon
-            v-tooltip="{ message: $t('sw-integration.mcp.infoText'), showDelay: 200, width: '300px' }"
-            name="regular-question-circle-s"
-            size="16px"
-            class="sw-integration-mcp-allowlist__info-icon"
-        />
-    </div>
+    <mt-switch
+        v-model="allCapabilitiesEnabled"
+        class="sw-integration-mcp-allowlist__all-tools-row"
+        :disabled="disabled"
+        :label="$t('sw-integration.mcp.allCapabilitiesLabel')"
+        :help-text="$t('sw-integration.mcp.infoText')"
+        :bordered="true"
+    />
     {% endblock %}
 
     {% block sw_integration_mcp_allowlist_types %}
-    <template v-if="!allCapabilitiesEnabled">
+    <div
+        v-if="!allCapabilitiesEnabled"
+        class="sw-integration-mcp-allowlist__type-list"
+    >
         <template
             v-for="typeConfig in typeConfigs"
             :key="typeConfig.key"
@@ -93,7 +97,7 @@
                 >
                     <mt-icon
                         :name="isTypeExpanded(typeConfig.key) ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs'"
-                        size="12px"
+                        size="10px"
                         class="sw-integration-mcp-allowlist__type-chevron"
                     />
 
@@ -102,26 +106,28 @@
                     </span>
 
                     <!-- flat types (single group, or all groups have one item): expand/collapse item descriptions -->
-                    <span
+                    <mt-link
                         v-if="isTypeExpanded(typeConfig.key) && isFlatType(typeConfig.key) && flatTypeHasExpandableItems(typeConfig.key)"
+                        as="a"
                         class="sw-integration-mcp-allowlist__toggle-all"
                         @click.stop="areAllItemsInTypeExpanded(typeConfig.key) ? collapseAllItemsInType(typeConfig.key) : expandAllItemsInType(typeConfig.key)"
                     >
                         {{ areAllItemsInTypeExpanded(typeConfig.key) ? $t('sw-integration.mcp.collapseAll') : $t('sw-integration.mcp.expandAll') }}
-                    </span>
+                    </mt-link>
 
                     <!-- multi-group non-flat types: expand/collapse groups -->
-                    <span
+                    <mt-link
                         v-else-if="isTypeExpanded(typeConfig.key) && Object.keys(typeConfig.groups).length > 1"
+                        as="a"
                         class="sw-integration-mcp-allowlist__toggle-all"
                         @click.stop="areAllGroupsExpanded(typeConfig.key) ? collapseAllGroups(typeConfig.key) : expandAllGroups(typeConfig.key)"
                     >
                         {{ areAllGroupsExpanded(typeConfig.key) ? $t('sw-integration.mcp.collapseAll') : $t('sw-integration.mcp.expandAll') }}
-                    </span>
+                    </mt-link>
 
-                    <span class="sw-integration-mcp-allowlist__type-count">
+                    <mt-badge class="sw-integration-mcp-allowlist__type-count">
                         {{ typeSelectedCount(typeConfig.key) }}/{{ typeTotal(typeConfig.key) }}
-                    </span>
+                    </mt-badge>
 
                     <mt-switch
                         :model-value="typeAllEnabled(typeConfig.key)"
@@ -134,8 +140,8 @@
 
                     <mt-icon
                         v-tooltip="{ message: $t(typeConfig.guidanceKey), showDelay: 200, width: '280px' }"
-                        name="regular-question-circle-s"
-                        size="14px"
+                        name="solid-question-circle-s"
+                        size="16px"
                         class="sw-integration-mcp-allowlist__type-info"
                         @click.stop
                     />
@@ -163,17 +169,18 @@
 
                             <span class="sw-integration-mcp-allowlist__group-label">{{ groupLabel(typeConfig.key, group) }}</span>
 
-                            <span
+                            <mt-link
                                 v-if="isGroupExpanded(typeConfig.key, group) && getGroupItems(typeConfig.key, group).filter((i) => !!i.description).length > 1"
+                                as="a"
                                 class="sw-integration-mcp-allowlist__toggle-all"
                                 @click.stop="areAllItemsInGroupExpanded(typeConfig.key, group) ? collapseAllItemsInGroup(typeConfig.key, group) : expandAllItemsInGroup(typeConfig.key, group)"
                             >
                                 {{ areAllItemsInGroupExpanded(typeConfig.key, group) ? $t('sw-integration.mcp.collapseAll') : $t('sw-integration.mcp.expandAll') }}
-                            </span>
+                            </mt-link>
 
                             <mt-icon
                                 :name="isGroupExpanded(typeConfig.key, group) ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs'"
-                                size="12px"
+                                size="10px"
                                 class="sw-integration-mcp-allowlist__group-chevron"
                             />
                         </div>
@@ -195,24 +202,31 @@
                                         />
 
                                         <template v-if="typeConfig.key === 'tools'">
-                                            <span
+                                            <mt-badge
                                                 v-if="item.dependencies?.length > 0"
                                                 v-tooltip="{ message: $t('sw-integration.mcp.requiresTooltip', { deps: item.dependencies.join(', ') }), showDelay: 200 }"
+                                                variant="info"
                                                 class="sw-integration-mcp-allowlist__requires-badge"
-                                            >{{ $t('sw-integration.mcp.requiresLabel') }}</span>
+                                            >
+                                                {{ $t('sw-integration.mcp.requiresLabel') }}
+                                            </mt-badge>
 
-                                            <span
+                                            <mt-badge
                                                 v-if="isDependency(item.name)"
                                                 v-tooltip="{ message: $t('sw-integration.mcp.dependencyOf'), showDelay: 200 }"
+                                                variant="neutral"
                                                 class="sw-integration-mcp-allowlist__dep-badge"
-                                            >{{ $t('sw-integration.mcp.dep') }}</span>
+                                            >
+                                                {{ $t('sw-integration.mcp.dep') }}
+                                            </mt-badge>
 
-                                            <span
+                                            <mt-badge
                                                 v-for="chip in privilegeChips(item)"
                                                 :key="chip"
-                                                class="sw-integration-mcp-allowlist__privilege-badge"
-                                                :class="privilegeChipClass(chip)"
-                                            >{{ chip }}</span>
+                                                :variant="privilegeChipClass(chip)"
+                                            >
+                                                {{ chip }}
+                                            </mt-badge>
                                         </template>
                                     </template>
 
@@ -230,17 +244,23 @@
                                             />
 
                                             <template v-if="typeConfig.key === 'tools'">
-                                                <span
+                                                <mt-badge
                                                     v-if="item.dependencies?.length > 0"
                                                     v-tooltip="{ message: $t('sw-integration.mcp.requiresTooltip', { deps: item.dependencies.join(', ') }), showDelay: 200 }"
+                                                    variant="info"
                                                     class="sw-integration-mcp-allowlist__requires-badge"
-                                                >{{ $t('sw-integration.mcp.requiresLabel') }}</span>
+                                                >
+                                                    {{ $t('sw-integration.mcp.requiresLabel') }}
+                                                </mt-badge>
 
-                                                <span
+                                                <mt-badge
                                                     v-if="isDependency(item.name)"
                                                     v-tooltip="{ message: $t('sw-integration.mcp.dependencyOf'), showDelay: 200 }"
+                                                    variant="neutral"
                                                     class="sw-integration-mcp-allowlist__dep-badge"
-                                                >{{ $t('sw-integration.mcp.dep') }}</span>
+                                                >
+                                                    {{ $t('sw-integration.mcp.dep') }}
+                                                </mt-badge>
 
                                                 <mt-icon
                                                     v-if="uncoveredTools.some((t) => t.name === item.name)"
@@ -253,7 +273,7 @@
 
                                             <mt-icon
                                                 :name="isItemExpanded(typeConfig.key, item) ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs'"
-                                                size="12px"
+                                                size="10px"
                                                 class="sw-integration-mcp-allowlist__tool-chevron"
                                             />
                                         </div>
@@ -274,12 +294,14 @@
                                                     <span class="sw-integration-mcp-allowlist__privilege-label">
                                                         {{ $t('sw-integration.mcp.privilegesLabel') }}
                                                     </span>
-                                                    <span
+
+                                                    <mt-badge
                                                         v-for="chip in privilegeChips(item)"
                                                         :key="chip"
-                                                        class="sw-integration-mcp-allowlist__privilege-badge"
-                                                        :class="privilegeChipClass(chip)"
-                                                    >{{ chip }}</span>
+                                                        :variant="privilegeChipClass(chip)"
+                                                    >
+                                                        {{ chip }}
+                                                    </mt-badge>
                                                 </div>
 
                                                 <p
@@ -290,7 +312,10 @@
                                                         name="regular-exclamation-triangle"
                                                         size="12px"
                                                     />
-                                                    {{ $t('sw-integration.mcp.missingDeps', { deps: missingDependencies(item).join(', ') }) }}
+
+                                                    <span>
+                                                        {{ $t('sw-integration.mcp.missingDeps', { deps: missingDependencies(item).join(', ') }) }}
+                                                    </span>
                                                 </p>
                                             </template>
                                         </div>
@@ -302,7 +327,7 @@
                 </template>
             </div>
         </template>
-    </template>
+    </div>
     {% endblock %}
 
     {% block sw_integration_mcp_allowlist_empty %}
@@ -312,6 +337,5 @@
         :description="$t('sw-integration.mcp.noCapabilitiesDescription')"
     />
     {% endblock %}
-
 </div>
 {% endblock %}

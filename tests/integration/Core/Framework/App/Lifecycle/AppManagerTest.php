@@ -905,7 +905,7 @@ class AppManagerTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
-        $this->appManager->delete($this->loadApp($app['id']), $this->context);
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
@@ -942,7 +942,7 @@ class AppManagerTest extends TestCase
         $app = $apps->first();
         static::assertNotNull($app);
 
-        $this->appManager->delete($app, $this->context);
+        $this->appManager->uninstall($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -967,7 +967,7 @@ class AppManagerTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appManager->delete($appEntity, $this->context);
+        $this->appManager->uninstall($appEntity, $this->context);
 
         static::assertSame([], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -989,7 +989,7 @@ class AppManagerTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appManager->delete($appEntity, $this->context, true);
+        $this->appManager->uninstall($appEntity, $this->context, true);
 
         static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
@@ -1046,7 +1046,7 @@ class AppManagerTest extends TestCase
         $appPrivilege = 'app.' . $app->getName();
         $this->createAclRole($aclRoleId, [$appPrivilege]);
 
-        $this->appManager->delete($app, $this->context);
+        $this->appManager->uninstall($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1105,7 +1105,7 @@ class AppManagerTest extends TestCase
             'id' => $appId,
         ];
 
-        $this->appManager->delete($this->loadApp($app['id']), $this->context);
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
         static::assertNull($flow);

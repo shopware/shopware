@@ -1,8 +1,8 @@
 @import "~scss/variables";
 
-$sw-page-smart-bar-border-color: var(--color-border-primary-default);
-$sw-page-separator-color: var(--color-border-primary-default);
-$sw-page-divider-background-color: var(--color-border-primary-default);
+$sw-page-smart-bar-border-color: var(--color-border-secondary-default);
+$sw-page-separator-color: var(--color-border-secondary-default);
+$sw-page-divider-background-color: var(--color-border-secondary-default);
 $sw-page-smart-bar-background-color: var(--color-elevation-surface-default);
 $sw-page-smart-bar-headline-color: var(--color-text-primary-default);
 $sw-page-side-content-default-width: 440px;
@@ -70,14 +70,14 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .smart-bar__back-btn {
         width: 54px;
         height: var(--scale-size-24);
-        line-height: $line-height-md;
+        line-height: var(--font-line-height-m);
         display: grid;
         grid-template-columns: 30px var(--scale-size-24);
         align-items: center;
         margin-left: 20px;
 
         .mt-icon.icon--regular-chevron-left-s {
-            line-height: $line-height-md;
+            line-height: var(--font-line-height-m);
             margin: auto;
         }
     }

@@ -464,12 +464,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/Api/Controller/CacheController.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Framework/Api/Controller/InfoController.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -546,12 +540,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 4,
     'path' => __DIR__ . '/src/Core/Framework/App/Hmac/Guzzle/AuthMiddleware.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/Persister/PaymentMethodPersister.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -736,7 +724,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php',
 ];
 $ignoreErrors[] = [

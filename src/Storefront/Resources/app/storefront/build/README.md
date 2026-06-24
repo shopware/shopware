@@ -63,11 +63,12 @@ When the dev server stops, Shopware falls back to production assets/import map.
 - `vite/build-components.js`
   - orchestrates component builds across all bundles from `var/plugins.json`
   - per bundle:
-    - clears `Resources/app/storefront/dist-es/components` before processing
-    - uses custom `Resources/app/storefront/vite.components.config.mts` when present
+    - clears `<bundle>/Resources/public/storefront/components` before processing
+    - uses custom `<bundle>/Resources/app/storefront/vite.components.config.mts` when present
     - otherwise performs generic inline Vite build
   - enforces one-style-source rule (`Foo.scss` xor `Foo.css`)
-  - emits `dist-es/components/.vite/manifest.json` (+ `build-meta.json`)
+  - emits component chunks and `.vite/build-meta.json` under `<bundle>/Resources/public/storefront/components/`
+  - after `assets:install`, published assets live at `public/bundles/<bundle>/storefront/components/`
 
 ### Shared component config
 

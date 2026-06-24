@@ -7,7 +7,7 @@
     <services>
         <service id="Shopware\Core\Framework\Script\Execution\ScriptLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler"/>
             <argument type="service" id="cache.object"/>
             <argument>%twig.cache%</argument>
             <argument>%kernel.debug%</argument>
@@ -56,7 +56,6 @@
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory" public="true">
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ScriptController" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">

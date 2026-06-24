@@ -111,7 +111,7 @@ module.exports = tseslint.config(
             'sw-core-rules': swCoreRules,
         },
         rules: {
-            'sw-core-rules/require-global-default-use': 'error',
+            'sw-core-rules/require-global-default-use': ['error', { snippetRoot: 'src/Storefront' }],
         },
     },
 );

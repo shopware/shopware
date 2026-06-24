@@ -6,16 +6,14 @@ const fs = require('fs');
 const path = require('path');
 
 const ADMIN_ROOT = path.resolve(__dirname, '..', '..');
-const SRC_ROOT = path.join(ADMIN_ROOT, 'src');
 
 /**
- * The Storefront ships admin modules (e.g. sw-theme-manager) that are loaded into this
- * Administration at runtime and therefore share the same `global.default`. Their snippets are
- * scanned alongside the Administration's own so duplicates there are detected too.
+ * `global.default` always lives in this Administration — the rule's home. Candidate snippets and the
+ * allow list are instead read from the directory ESLint runs in (`context.cwd`), so the rule also
+ * covers admin modules shipped by other bundles when they are linted from their own directory —
+ * without this Administration ever referencing those bundles.
  */
-const STOREFRONT_ADMIN_SRC = path.resolve(ADMIN_ROOT, '..', '..', '..', '..', 'Storefront', 'Resources', 'app', 'administration', 'src');
-
-const ALLOW_LIST_FILE = path.join(ADMIN_ROOT, 'snippet-global-default-allow-list.js');
+const GLOBAL_DEFAULT_DIR = path.join(ADMIN_ROOT, 'src', 'app', 'snippet');
 
 let duplicateCache = null;
 
@@ -23,13 +21,13 @@ let duplicateCache = null;
  * Reads the allow list of snippet keys that intentionally keep a global.default duplicate.
  * Set SNIPPET_ALLOW_LIST_DISABLED to bypass it and surface every duplicate, including allowed ones.
  */
-function loadAllowList() {
+function loadAllowList(cwd) {
     if (process.env.SNIPPET_ALLOW_LIST_DISABLED) {
         return [];
     }
 
     try {
-        const list = require(ALLOW_LIST_FILE);
+        const list = require(path.join(cwd, 'snippet-global-default-allow-list.js'));
         return Array.isArray(list) ? list : [];
     } catch {
         return [];
@@ -90,15 +88,15 @@ function collectSnippetFiles(dir, acc) {
  * Builds — and caches — the map of duplicate snippet keys: keyed by the dotted snippet key
  * (globally unique by module namespace) and holding the matching `global.default` key.
  */
-function getDuplicates() {
+function getDuplicates(cwd) {
     if (duplicateCache) {
         return duplicateCache;
     }
 
     const map = new Map();
 
-    const central = path.join(SRC_ROOT, 'app', 'snippet');
-    const globalDefaultByLocale = {};
+    const central = GLOBAL_DEFAULT_DIR;
+    const globalDefaultByLocale = Object.create(null);
     const locales = [];
     for (const file of fs.existsSync(central) ? fs.readdirSync(central) : []) {
         if (!file.endsWith('.json')) {
@@ -112,27 +110,29 @@ function getDuplicates() {
     }
 
     if (!locales.length) {
-        duplicateCache = map;
+        duplicateCache = { map, baseLocale: null };
         return duplicateCache;
     }
 
-    const baseLocale = locales[0];
+    const baseLocale = locales.includes('en') ? 'en' : [...locales].sort()[0];
     const defaultKeys = Object.keys(globalDefaultByLocale[baseLocale]);
-    const allowList = loadAllowList();
+    const allowList = loadAllowList(cwd);
 
-    // Group snippet files by their directory, flattened per locale.
-    const byDir = {};
-    const candidateFiles = [SRC_ROOT, STOREFRONT_ADMIN_SRC].flatMap((root) => collectSnippetFiles(root, []));
-    for (const file of candidateFiles) {
+    // Group snippet files per module directory, flattened by locale; the Map + prototype-less objects keep snippet keys from polluting Object.prototype.
+    const byDir = new Map();
+    for (const file of collectSnippetFiles(path.join(cwd, 'src'), [])) {
         const locale = path.basename(file, '.json');
         if (!globalDefaultByLocale[locale]) {
             continue;
         }
+
         const dir = path.dirname(file);
-        (byDir[dir] ??= {})[locale] = flatten(readJson(file) ?? {}, '', {});
+        const byLocale = byDir.get(dir) ?? Object.create(null);
+        byLocale[locale] = flatten(readJson(file) ?? {}, '', Object.create(null));
+        byDir.set(dir, byLocale);
     }
 
-    for (const perLocale of Object.values(byDir)) {
+    for (const perLocale of byDir.values()) {
         const base = perLocale[baseLocale];
         if (!base) {
             continue;
@@ -152,7 +152,7 @@ function getDuplicates() {
         }
     }
 
-    duplicateCache = map;
+    duplicateCache = { map, baseLocale };
     return duplicateCache;
 }
 
@@ -172,13 +172,20 @@ module.exports = {
     },
 
     create(context) {
-        const map = getDuplicates();
+        const cwd = context.cwd ?? process.cwd();
+        const { map, baseLocale } = getDuplicates(cwd);
         if (!map.size) {
             return {};
         }
 
         const filename = context.filename ?? context.getFilename();
-        const relativeFile = path.relative(ADMIN_ROOT, filename);
+
+        // Report each duplicate once, on the base-locale file — the key exists in every locale (all-locale gate), so per-locale reporting would only duplicate each finding.
+        if (path.basename(filename, '.json') !== baseLocale) {
+            return {};
+        }
+
+        const relativeFile = path.relative(cwd, filename);
         const keyPath = [];
 
         return {

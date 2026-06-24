@@ -68,7 +68,7 @@
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
                 :router-link="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
-                {{ $t('sw-users-permissions.users.user-grid.contextMenuEdit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -79,7 +79,7 @@
                 :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
-                {{ $t('sw-users-permissions.users.user-grid.contextMenuDelete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -224,7 +224,7 @@
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
-                        {{ $t('sw-users-permissions.users.user-grid.labelButtonDelete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

@@ -123,6 +123,21 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+        static::assertArrayHasKey('data', $properties['extensions']['properties']['simpleIdField']['properties']);
+    }
+
+    public function testWriteExtensionConversionUsesDirectAssociationSchema(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleExtendedDefinition::class),
+            '/simple-extended',
+            false
+        );
+        $properties = json_decode($schema['SimpleExtendedWrite']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+
+        static::assertArrayHasKey('extensions', $properties);
+        static::assertArrayHasKey('properties', $properties['extensions']);
+        static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
         static::assertSame(
             '#/components/schemas/Simple',
             $properties['extensions']['properties']['simpleIdField']['$ref']

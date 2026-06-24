@@ -85,8 +85,6 @@ class OpenApiDefinitionSchemaBuilder
         $exampleDetailPath = $path . '/' . $uuid;
 
         $extensions = [];
-        $extensionRelationships = [];
-
         $defaults = $definition->getDefaults();
 
         foreach ($definition->getFields() as $field) {
@@ -171,6 +169,7 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
+        $extensionWriteAttributes = $extensionAttributes;
 
         if ($extensionAttributes !== []) {
             foreach ($extensions as $extension) {
@@ -178,7 +177,7 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $extensionRelationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
+                $extensionWriteAttributes[$extension->getPropertyName()] = $this->getRelationShipProperty($extensionAttributes[$extension->getPropertyName()]);
             }
         }
 
@@ -202,13 +201,19 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
-        $jsonApiAttributes = $attributes;
+        $writeAttributes = $attributes;
 
         if ($extensionAttributes !== []) {
-            $jsonApiAttributes[] = new Property([
+            $attributes[] = new Property([
                 'property' => 'extensions',
                 'type' => 'object',
                 'properties' => $extensionAttributes,
+            ]);
+
+            $writeAttributes[] = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionWriteAttributes,
             ]);
         }
 
@@ -222,7 +227,7 @@ class OpenApiDefinitionSchemaBuilder
                     new Schema(['ref' => '#/components/schemas/resource']),
                     new Schema([
                         'type' => 'object',
-                        'properties' => $jsonApiAttributes,
+                        'properties' => $attributes,
                     ]),
                 ],
             ]);
@@ -248,20 +253,6 @@ class OpenApiDefinitionSchemaBuilder
             $attributes[] = $this->getRelationShipProperty($relationship);
         }
 
-        if ($extensionAttributes !== []) {
-            $extensionRelationshipsProperty = new Property([
-                'property' => 'extensions',
-                'type' => 'object',
-                'properties' => $extensionAttributes,
-            ]);
-
-            foreach ($extensionRelationships as $property => $relationship) {
-                $extensionRelationshipsProperty->properties[$property] = $this->getRelationShipProperty($relationship);
-            }
-
-            $attributes[] = $extensionRelationshipsProperty;
-        }
-
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again
         if (\count($attributes) === 1 && $attributes[0]->property === 'id') {
             return [];
@@ -279,6 +270,20 @@ class OpenApiDefinitionSchemaBuilder
 
         if ($requiredAttributes !== []) {
             $schema[$schemaName]->required = $requiredAttributes;
+        }
+
+        $schema[$schemaName . 'Write'] = new Schema([
+            'type' => 'object',
+            'schema' => $schemaName . 'Write',
+            'properties' => $writeAttributes,
+        ]);
+
+        if ($since !== null && $since !== '') {
+            $schema[$schemaName . 'Write']->description = 'Added since version: ' . $since;
+        }
+
+        if ($requiredAttributes !== []) {
+            $schema[$schemaName . 'Write']->required = $requiredAttributes;
         }
 
         return $schema;

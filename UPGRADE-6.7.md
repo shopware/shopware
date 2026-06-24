@@ -1,5 +1,17 @@
 # 6.7.12.0
 
+## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
+
+The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.
+A migration (`Migration1781508123UpdateLineItemPurchasePriceRuleConditions`) rewrites existing `rule_condition` payloads automatically (`isNet: true` → `type: 'net'`, `isNet: false` → `type: 'gross'`).
+
+## Deprecation of rule builder line item condition components
+
+The following Administration rule builder condition components are deprecated and will be removed in v6.8.0. The affected conditions (`cartLineItemInCategory`, `cartLineItemPurchasePrice`) are now rendered generically via `sw-condition-generic`:
+
+* `sw-condition-line-item-in-category`
+* `sw-condition-line-item-purchase-price`
+* `sw-condition-is-net-select`
 ## `sw-product-stream-filter` now reuses `sw-condition-base` styling
 
 The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.

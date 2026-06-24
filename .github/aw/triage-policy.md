@@ -20,13 +20,20 @@ post-run schema/secret-scan validator
 assign, or comment on the issue — the structured result is the only
 deliverable.
 
-**Hard turn limit.** This run is force-stopped after **30 turns** (roughly one
-tool call each). If you are stopped before emitting, the run produces **no
-output at all** and the whole triage is wasted — so this is worse than any
-low-confidence answer. Pace yourself against the tool budget below: aim to emit
-your `TriageOutput` by ~20 tool calls, and if you near the limit, emit
-immediately with whatever evidence you have at a reduced confidence rather than
-risk being cut off with nothing.
+**Hard turn limit.** This run is force-stopped after **50 turns** (roughly one
+tool call each), with **no warning** — you will not be told you are running out.
+If you are stopped before emitting, the run produces **no output at all** and the
+whole triage is wasted, which is worse than any low-confidence answer. You cannot
+see how many turns remain, so do not try to run right up to the edge: follow the
+"bias toward finishing" guidance in the tool budget below and emit your
+`TriageOutput` with reduced confidence well before you would expect to be cut off.
+
+**Shallow checkout — `git log` history is NOT available.** This run checks out
+the repository at `fetch-depth: 1`, so `git log` sees only the single
+checked-out commit, regardless of path or date flags. Do not rely on `git log`
+for recent-fix evidence and do not retry it with different flags — it cannot
+surface history here. For related-fix / duplicate detection, use the GitHub
+`search_pull_requests` / `search_issues` / `get_pull_request` MCP tools instead.
 
 {{#runtime-import .github/aw/shared/triage-policy.md}}
 

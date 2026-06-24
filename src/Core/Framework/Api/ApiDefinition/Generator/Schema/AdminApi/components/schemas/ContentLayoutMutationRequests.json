@@ -7,7 +7,7 @@
             "ContentLayoutDraftEnvelope": {
                 "title": "Content layout draft envelope",
                 "type": "object",
-                "description": "Fields shared by every draft (stateless) mutation request: the draft tree the edit is applied to, plus the optional source binding used for binding-scope resolvability.",
+                "description": "Fields shared by every draft (stateless) mutation request: the draft tree the edit is applied to, plus the optional root source used for resolvability.",
                 "properties": {
                     "layout": {
                         "type": "array",
@@ -17,16 +17,11 @@
                         },
                         "default": []
                     },
-                    "entityType": {
+                    "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional entity type binding the draft to an entity source's root context for binding-scope resolvability. One of the values from `GET /api/_info/content-system-entity-types.json`. Mutually exclusive with `section` (`entityType` takes precedence). With neither set, only intrinsic well-formedness is evaluated.",
+                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
                         "default": null,
                         "example": "product"
-                    },
-                    "section": {
-                        "type": ["string", "null"],
-                        "description": "Optional content section binding the draft to a registered section source's root context. The Storefront registers `header` and `footer`. Mutually exclusive with `entityType`. An unknown or unregistered section is rejected with `400`.",
-                        "default": null
                     }
                 }
             },
@@ -560,7 +555,7 @@
             "ContentLayoutDiagnoseRequest": {
                 "title": "Content layout diagnose request",
                 "type": "object",
-                "description": "An unsaved draft layout to resolve and diagnose, plus an optional source binding. The whole body is optional; an empty body diagnoses an empty tree.",
+                "description": "An unsaved draft layout to resolve and diagnose, plus an optional root source. The whole body is optional; an empty body diagnoses an empty tree.",
                 "properties": {
                     "layout": {
                         "type": "array",
@@ -570,16 +565,11 @@
                         },
                         "default": []
                     },
-                    "entityType": {
+                    "rootSource": {
                         "type": ["string", "null"],
-                        "description": "Optional entity type binding the draft to an entity source's root context. One of the values from `GET /api/_info/content-system-entity-types.json`. Mutually exclusive with `section` (`entityType` takes precedence).",
+                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
                         "default": null,
                         "example": "product"
-                    },
-                    "section": {
-                        "type": ["string", "null"],
-                        "description": "Optional content section binding the draft to a registered section source's root context (the Storefront registers `header` and `footer`). Mutually exclusive with `entityType`. An unknown or unregistered section is rejected with `400`.",
-                        "default": null
                     }
                 }
             }

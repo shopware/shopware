@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -18,7 +18,7 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(ContentLayoutAssignableEntitySchemaGenerator::class)) {
+        if (!$container->hasDefinition(RootSourceRegistry::class)) {
             return;
         }
 
@@ -35,8 +35,8 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
             $entityTypes[] = $this->extractEntityType($container, $serviceId, $sourceDefinition->getArguments());
         }
 
-        $resolver = $container->getDefinition(ContentLayoutAssignableEntitySchemaGenerator::class);
-        $resolver->setArgument(0, $entityTypes);
+        $registry = $container->getDefinition(RootSourceRegistry::class);
+        $registry->setArgument('$entityTypes', $entityTypes);
     }
 
     /**

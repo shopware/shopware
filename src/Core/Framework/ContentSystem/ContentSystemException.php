@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -44,7 +45,6 @@ class ContentSystemException extends HttpException
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
     public const INVALID_LAYOUT_STRUCTURE = 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE';
-    public const NO_SOURCE_FOR_SECTION = 'CONTENT_SYSTEM__NO_SOURCE_FOR_SECTION';
     public const MUTATION_TARGET_NOT_FOUND = 'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND';
     public const MUTATION_CYCLE = 'CONTENT_SYSTEM__MUTATION_CYCLE';
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
@@ -54,14 +54,15 @@ class ContentSystemException extends HttpException
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
     public const PREVIEW_PAYLOAD_STORE_FAILED = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_STORE_FAILED';
+    public const UNKNOWN_ROOT_SOURCE = 'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE';
+    public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
+    public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
+    public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
 
     /**
-     * Error codes that represent a defect in client-supplied layout input — a typo'd entity, an undecodable
-     * config, an unregistered source named by the client — rather than an internal fault. The diagnostics
-     * layer catches only these per element and maps them to an `invalid_config` violation; every other code
-     * propagates, so an internal fault is never relabelled as the client's mistake. A status-code filter is
-     * insufficient: DATA_LOADER_NOT_REGISTERED and INVALID_FIELD_VALUE_TYPE are HTTP 500 yet are legitimate
-     * client defects for a client-supplied tree.
+     * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
+     * diagnostics layer maps only these per element to an `invalid_config` violation and lets every other code
+     * propagate, so an internal fault is never relabelled as the client's mistake.
      */
     public const CLIENT_DEFECT_CODES = [
         self::DATA_LOADER_NOT_REGISTERED,
@@ -393,16 +394,6 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function noSourceForSection(string $section): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::NO_SOURCE_FOR_SECTION,
-            'No content layout specification source is registered for section "{{ section }}"',
-            ['section' => $section]
-        );
-    }
-
     public static function invalidLayoutStructure(ConstraintViolationListInterface $violations): self
     {
         $messages = [];
@@ -505,6 +496,75 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PREVIEW_PAYLOAD_STORE_FAILED,
             'Could not store the content preview payload.'
+        );
+    }
+
+    // The client-facing 400 for a written root source that is not a member of the registry. Distinct from
+    // rootSourceResolutionUnsupported(): membership is gated with this 400 before resolve()/sourceFor() is ever
+    // reached — on both the create and edit content_layout write paths, and the diagnose/mutation routes.
+    public static function unknownRootSource(string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_ROOT_SOURCE,
+            'Unknown root source "{{ rootSource }}". It is not a registered root source.',
+            ['rootSource' => $rootSource]
+        );
+    }
+
+    // The internal 500 fail-hard when RootSourceRegistry::sourceFor()/resolve() is handed an id absent from
+    // knownRootSources(). Not a client fault: every runtime caller gates membership first, so reaching this is a
+    // programming error in a new, ungated caller.
+    public static function rootSourceResolutionUnsupported(string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ROOT_SOURCE_RESOLUTION_UNSUPPORTED,
+            'Root source "{{ rootSource }}" is not registered and cannot be resolved. Validate membership via RootSourceRegistry::knownRootSources() before resolving.',
+            ['rootSource' => $rootSource]
+        );
+    }
+
+    // The "none" source resolves no layout and exposes no rendering path; RenderingSpecificationResolver gates on
+    // supports()/supportsEntityType() (both false), so these methods are unreachable and fail hard if ever reached.
+    public static function noneSourceNotRenderable(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NONE_SOURCE_NOT_RENDERABLE,
+            'The "none" root source resolves no layout and exposes no rendering path; this resolution method must never be called on it.'
+        );
+    }
+
+    // The client-facing 400 surfaced as the assignment write violation when an entity/section is bound to a layout
+    // whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
+    public static function rootSourceAssignmentMismatch(string $rootSource, string $assignmentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ROOT_SOURCE_ASSIGNMENT_MISMATCH,
+            'Cannot assign a "{{ assignmentType }}" entity to a content layout whose root source is "{{ rootSource }}".',
+            ['rootSource' => $rootSource, 'assignmentType' => $assignmentType]
+        );
+    }
+
+    // The assignment-mismatch write violation, shared by the Core entity-assignment validator and the Storefront
+    // header/footer validator: both reject a content-layout assignment whose bound layout's immutable root source
+    // is a different page kind, with the identical ConstraintViolation shape. $assignmentType is the entity type
+    // (Core) or the section id (Storefront); $propertyPath is the assignment's content_layout_id field path.
+    public static function rootSourceAssignmentMismatchViolation(string $rootSource, string $assignmentType, string $propertyPath): ConstraintViolation
+    {
+        $exception = self::rootSourceAssignmentMismatch($rootSource, $assignmentType);
+
+        return new ConstraintViolation(
+            $exception->getMessage(),
+            $exception->getMessage(),
+            [],
+            null,
+            $propertyPath,
+            $rootSource,
+            null,
+            $exception->getErrorCode(),
         );
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -39,15 +40,41 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains('unregistered_component', $codes);
     }
 
-    #[TestDox('resolves a bound entity source from the entityType field and returns a binding verdict')]
-    public function testDiagnoseWithEntitySource(): void
+    #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
+    public function testDiagnoseWithRootSource(): void
     {
         $body = $this->diagnose([
             'layout' => [$this->element($this->registeredComponent())],
-            'entityType' => 'product',
+            'rootSource' => 'product',
         ]);
 
         static::assertArrayHasKey('resolvable', $body['diagnostics']);
+    }
+
+    #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
+    public function testDiagnoseRejectsUnknownRootSource(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::DIAGNOSE_URL, [
+            'layout' => [$this->element($this->registeredComponent())],
+            'rootSource' => 'definitely-not-a-root-source',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
+    public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
+    {
+        $body = $this->diagnose([
+            'layout' => [$this->element($this->registeredComponent())],
+            'rootSource' => '',
+        ]);
+
+        static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
     /**

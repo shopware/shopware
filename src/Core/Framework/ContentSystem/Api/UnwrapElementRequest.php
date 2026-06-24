@@ -20,8 +20,7 @@ final class UnwrapElementRequest
         public readonly string $containerElementId,
         #[Assert\Type('array')]
         public readonly array $layout = [],
-        public readonly ?string $entityType = null,
-        public readonly ?string $section = null,
+        public readonly ?string $rootSource = null,
     ) {
     }
 }

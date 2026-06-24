@@ -62,7 +62,6 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the eight draft mu
 
 - **Adapter/** - Specification sources, layout assignment entities, resolution helpers
 - **Api/** - Admin API controllers (layout preview, resolve-and-diagnose, the eight draft mutation actions, and the eight persisted mutation actions)
-- **Binding/** - Source-binding enumeration for the resolvability gate (`LayoutBindingEnumerator` extension point)
 - **Cache/** - HTTP cache integration and invalidation
 - **Diagnostics/** - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
 - **Event/** - Hydration lifecycle event definitions

@@ -35,6 +35,7 @@ class ContentLayoutDefaultSeedingTest extends TestCase
             'id' => $id,
             'name' => 'seeder-test',
             'version' => '1.0.0',
+            'rootSource' => 'none',
             'layout' => [['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE, 'properties' => []]],
         ]], $context);
 

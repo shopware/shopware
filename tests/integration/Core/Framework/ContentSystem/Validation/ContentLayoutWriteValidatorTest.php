@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
@@ -24,24 +25,74 @@ class ContentLayoutWriteValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    #[TestDox('persists an incomplete but well-formed layout')]
-    public function testAcceptsIncompleteButWellFormedLayout(): void
+    #[TestDox('persists a layout that is resolvable for its declared root source')]
+    public function testAcceptsResolvableLayout(): void
     {
         $context = Context::createDefaultContext();
         $id = Uuid::randomHex();
 
-        $this->repository()->create([$this->layout(TestElementTypeLoader::RESOLVABLE, $id)], $context);
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $id)], $context);
 
         static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
     }
 
-    #[TestDox('rejects a content layout with an unregistered component on write')]
+    #[TestDox('rejects a layout that is not resolvable for its declared root source on creation')]
+    public function testRejectsUnresolvableLayoutOnCreation(): void
+    {
+        $context = Context::createDefaultContext();
+
+        try {
+            $this->repository()->create([$this->layout('category', TestElementTypeLoader::UNRESOLVABLE)], $context);
+            static::fail('Expected the resolvability gate to reject the unresolvable layout on creation.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+    }
+
+    #[TestDox('rejects a none-rooted layout that contains an element requiring root context')]
+    public function testRejectsNoneRootedLayoutRequiringRootContext(): void
+    {
+        $context = Context::createDefaultContext();
+
+        try {
+            $this->repository()->create([$this->layout('none', TestElementTypeLoader::UNRESOLVABLE)], $context);
+            static::fail('Expected the resolvability gate to reject the none-rooted layout that requires root context.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+    }
+
+    #[TestDox('accepts a none-rooted layout that needs no root context')]
+    public function testAcceptsNoneRootedResolvableLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = Uuid::randomHex();
+
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $id)], $context);
+
+        static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
+    }
+
+    #[TestDox('rejects an unregistered root source on creation with a membership violation')]
+    public function testRejectsUnknownRootSource(): void
+    {
+        $context = Context::createDefaultContext();
+
+        try {
+            $this->repository()->create([$this->layout('definitely-not-a-root-source', TestElementTypeLoader::RESOLVABLE)], $context);
+            static::fail('Expected the membership check to reject the unregistered root source.');
+        } catch (WriteException $exception) {
+            static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, iterator_to_array($exception->getErrors(), false)[0]['code']);
+        }
+    }
+
+    #[TestDox('rejects a layout with an unregistered component on write')]
     public function testRejectsUnregisteredComponent(): void
     {
         $context = Context::createDefaultContext();
 
         try {
-            $this->repository()->create([$this->layout('Sw:Test:DefinitelyUnregistered')], $context);
+            $this->repository()->create([$this->layout('category', 'Sw:Test:DefinitelyUnregistered')], $context);
             static::fail('Expected the well-formedness gate to reject the unregistered component.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Sw:Test:DefinitelyUnregistered', $exception->getMessage());
@@ -49,70 +100,72 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
     }
 
-    #[TestDox('bypasses the well-formedness gate when the write context carries the skip flag')]
+    #[TestDox('bypasses every check when the write context carries the skip flag')]
     public function testSkipFlagBypassesGate(): void
     {
         $context = Context::createDefaultContext();
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
         $id = Uuid::randomHex();
 
-        $this->repository()->create([$this->layout('Sw:Test:DefinitelyUnregistered', $id)], $context);
+        $this->repository()->create([$this->layout('category', 'Sw:Test:DefinitelyUnregistered', $id)], $context);
 
         static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
     }
 
-    #[TestDox('rejects an edit that makes a category-bound layout unresolvable')]
-    public function testRejectsEditBreakingResolvabilityForBoundCategory(): void
+    #[TestDox('rejects an edit that makes the layout unresolvable for its committed root source')]
+    public function testRejectsEditBreakingResolvability(): void
     {
         $context = Context::createDefaultContext();
         $layoutId = Uuid::randomHex();
-        $this->repository()->create([$this->layout(TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
-        $this->bindCategory($layoutId, $context);
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
         try {
             $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(TestElementTypeLoader::UNRESOLVABLE)]], $context);
-            static::fail('Expected the bound-source re-check to reject the breaking edit.');
+            static::fail('Expected the gate to re-validate the edit against the committed root source.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
         }
     }
 
-    #[TestDox('accepts an edit that keeps a category-bound layout resolvable')]
-    public function testAcceptsResolvableEditForBoundCategory(): void
+    #[TestDox('accepts an edit that keeps the layout resolvable for its committed root source')]
+    public function testAcceptsResolvableEdit(): void
     {
         $context = Context::createDefaultContext();
         $layoutId = Uuid::randomHex();
-        $this->repository()->create([$this->layout(TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
-        $this->bindCategory($layoutId, $context);
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
-        $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-bound-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
+        $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
 
         $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
-        static::assertSame('renamed-bound-layout', $layout->getName());
+        static::assertSame('renamed-layout', $layout->getName());
     }
 
-    private function bindCategory(string $layoutId, Context $context): void
+    #[TestDox('rejects an update that changes the immutable root source')]
+    public function testRejectsRootSourceChange(): void
     {
-        $categoryId = Uuid::randomHex();
-        $categoryRepository = $this->getContainer()->get('category.repository');
-        static::assertInstanceOf(EntityRepository::class, $categoryRepository);
-        $categoryRepository->create([['id' => $categoryId, 'name' => 'recheck-category']], $context);
+        $context = Context::createDefaultContext();
+        $layoutId = Uuid::randomHex();
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
 
-        $assignmentRepository = $this->getContainer()->get('category_content_layout.repository');
-        static::assertInstanceOf(EntityRepository::class, $assignmentRepository);
-        $assignmentRepository->create([['id' => Uuid::randomHex(), 'categoryId' => $categoryId, 'contentLayoutId' => $layoutId]], $context);
+        try {
+            $this->repository()->update([['id' => $layoutId, 'rootSource' => 'product']], $context);
+            static::fail('Expected the DAL to reject the change of the immutable root source.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('immutable', $exception->getMessage());
+        }
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function layout(string $component, ?string $id = null): array
+    private function layout(string $rootSource, string $component, ?string $id = null): array
     {
         return [
             'id' => $id ?? Uuid::randomHex(),
             'name' => 'gate-test',
             'version' => '1.0.0',
+            'rootSource' => $rootSource,
             'layout' => $this->tree($component),
         ];
     }

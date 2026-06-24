@@ -5,11 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
-use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
@@ -32,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ContentDiagnoseController::class)]
 class ContentDiagnoseControllerTest extends TestCase
 {
-    #[TestDox('returns the per-element resolutions for a well-formed tree without a bound source')]
+    #[TestDox('returns the per-element resolutions for a well-formed tree without a root source')]
     public function testDiagnoseReturnsPerElementResolutions(): void
     {
         $analysis = new LayoutAnalysis(
@@ -71,8 +70,8 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('threads the entityType source root context into the diagnostics analysis')]
-    public function testDiagnoseResolvesEntityTypeSource(): void
+    #[TestDox('threads the root source context resolved from the registry into the diagnostics analysis')]
+    public function testDiagnoseResolvesRootSource(): void
     {
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
@@ -82,11 +81,9 @@ class ContentDiagnoseControllerTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('providedRootContext')->willReturn($rootContext);
-
-        $sourceLocator = static::createStub(SpecificationSourceLocator::class);
-        $sourceLocator->method('resolveByEntityType')->willReturn($source);
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product']);
+        $registry->method('resolve')->willReturn($rootContext);
 
         $threadedRootContext = false;
         $diagnostics = static::createStub(LayoutDiagnostics::class);
@@ -101,31 +98,66 @@ class ContentDiagnoseControllerTest extends TestCase
         $controller = $this->controller(
             diagnostics: $diagnostics,
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
-            sourceLocator: $sourceLocator,
+            rootSourceRegistry: $registry,
         );
 
         $controller->diagnose(
-            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], entityType: 'product'),
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], rootSource: 'product'),
             Context::createDefaultContext(),
         );
 
         static::assertSame($rootContext, $threadedRootContext);
     }
 
-    #[TestDox('rejects a section value with no matching ContentSection with a 400')]
-    public function testDiagnoseRejectsUnknownSection(): void
+    #[TestDox('evaluates only well-formedness when no root source is supplied')]
+    public function testDiagnoseWithoutRootSourceThreadsNullContext(): void
     {
+        $registry = static::createMock(RootSourceRegistry::class);
+        $registry->expects($this->never())->method('resolve');
+
+        $threadedRootContext = 'unset';
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnCallback(
+            function (array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): LayoutAnalysis {
+                $threadedRootContext = $analyzedRootContext;
+
+                return new LayoutAnalysis(new DiagnosticsReport([]), []);
+            }
+        );
+
+        $controller = $this->controller(
+            diagnostics: $diagnostics,
+            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+            rootSourceRegistry: $registry,
+        );
+
+        $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+
+        static::assertNull($threadedRootContext);
+    }
+
+    #[TestDox('rejects an unknown root source with unknownRootSource before reaching resolve')]
+    public function testDiagnoseRejectsUnknownRootSource(): void
+    {
+        $registry = static::createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product']);
+        $registry->expects($this->never())->method('resolve');
+
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
             serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
+            rootSourceRegistry: $registry,
         );
 
-        $this->expectExceptionObject(ContentSystemException::noSourceForSection('does-not-exist'));
-
-        $controller->diagnose(
-            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], section: 'does-not-exist'),
-            Context::createDefaultContext(),
-        );
+        try {
+            $controller->diagnose(
+                new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], rootSource: 'definitely-not-a-root-source'),
+                Context::createDefaultContext(),
+            );
+            static::fail('Expected a ContentSystemException for the unknown root source.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $exception->getErrorCode());
+        }
     }
 
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
@@ -165,12 +197,12 @@ class ContentDiagnoseControllerTest extends TestCase
     private function controller(
         LayoutDiagnostics $diagnostics,
         ContentElementFieldSerializer $serializer,
-        ?SpecificationSourceLocator $sourceLocator = null,
+        ?RootSourceRegistry $rootSourceRegistry = null,
     ): ContentDiagnoseController {
         return new ContentDiagnoseController(
             new DraftLayoutDecoder($serializer),
             $diagnostics,
-            $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
+            $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
         );
     }
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -11,17 +10,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The layout gate: the two gate predicates plus the binding-enforcement seam. It never throws — it returns
- * a {@see DiagnosticsReport}. Well-formedness gates persistence; resolvability for a bound source gates serving.
- * {@see isBindingEnforced()} is the single overridable point through which a future versioning/draft system can
- * exempt a binding from the serving gate; the default enforces every binding.
+ * The layout gate: the two gate predicates. It never throws — it returns a {@see DiagnosticsReport}.
+ * Well-formedness gates persistence; resolvability for the declared root source gates serving.
  */
 #[Package('framework')]
 class LayoutGate
 {
     /**
-     * Write-context state that suppresses the content-layout gates. Migrations and trusted bulk importers set
-     * it deliberately via Context::addState; absent the flag, validation runs on every write path incl. Sync API.
+     * Write-context state that suppresses the content-layout gates. Trusted bulk importers set it deliberately via
+     * Context::addState; absent the flag, validation runs on every write path incl. Sync API. Migrations never
+     * reach this gate — they write raw SQL through Connection, bypassing the DAL.
      */
     public const SKIP_VALIDATION_STATE = 'content-system-skip-layout-validation';
 
@@ -52,14 +50,5 @@ class LayoutGate
     public function resolvability(array $tree, array $providedRootContext, Context $context): DiagnosticsReport
     {
         return $this->diagnostics->analyze($tree, $providedRootContext, $context)->report;
-    }
-
-    /**
-     * Whether a binding must pass the serving gate. Default: every binding is enforced. A future draft system
-     * overrides this to exempt non-live versions while the published version still must pass.
-     */
-    public function isBindingEnforced(SourceBinding $binding): bool
-    {
-        return true;
     }
 }

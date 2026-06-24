@@ -2,22 +2,21 @@
 
 namespace Shopware\Storefront\ContentSystem\Validation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Storefront\ContentSystem\FooterContentLayout\FooterContentLayoutDefinition;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The Storefront header/footer assignment write validator: applies the shared binding check to the
- * header/footer assignment entities. Both sections expose no root-ambient context, so binding a layout to a
- * header or footer requires it to be fully resolvable without page data. Delegates the load-tree → resolvability
- * path to the shared Core {@see LayoutBindingChecker}.
+ * The Storefront header/footer assignment gate: a tree-blind type-match of the bound layout's immutable root
+ * source against the section id (header / footer).
  *
  * @internal
  */
@@ -32,8 +31,7 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private readonly LayoutGate $gate,
-        private readonly LayoutBindingChecker $bindingChecker,
+        private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
     }
 
@@ -60,15 +58,15 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!$this->gate->isBindingEnforced(new SourceBinding($section, []))) {
+            $rootSource = $this->rootSourceReader->read($command->getPayload()[self::CONTENT_LAYOUT_ID], $event->getCommands(), $context);
+
+            if ($rootSource === null || $rootSource === $section) {
                 continue;
             }
 
-            $violations = $this->bindingChecker->bindingViolations($command->getPayload()[self::CONTENT_LAYOUT_ID], [], $event->getCommands(), $context);
-
-            if ($violations->count() === 0) {
-                continue;
-            }
+            $violations = new ConstraintViolationList([
+                ContentSystemException::rootSourceAssignmentMismatchViolation($rootSource, $section, '/' . self::CONTENT_LAYOUT_ID),
+            ]);
 
             $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
         }

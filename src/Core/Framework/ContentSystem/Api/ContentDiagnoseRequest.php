@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Envelope DTO for the resolve-and-diagnose action. The raw layout tree stays undecoded so
- * ContentElementFieldSerializer::decodeElement() remains the single decode path. Optional source fields
- * (entityType or section) enable the binding-resolvability branch; absent both, only well-formedness is checked.
+ * Envelope DTO for the resolve-and-diagnose action; the raw layout tree stays undecoded so DraftLayoutDecoder
+ * remains the single decode path. The optional rootSource enables the resolvability branch; absent it, only
+ * well-formedness is checked.
  *
  * @internal
  */
@@ -21,8 +21,7 @@ final class ContentDiagnoseRequest
     public function __construct(
         #[Assert\Type('array')]
         public readonly array $layout = [],
-        public readonly ?string $entityType = null,
-        public readonly ?string $section = null,
+        public readonly ?string $rootSource = null,
     ) {
     }
 }

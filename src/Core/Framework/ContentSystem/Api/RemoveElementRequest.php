@@ -20,8 +20,7 @@ final class RemoveElementRequest
         public readonly string $elementId,
         #[Assert\Type('array')]
         public readonly array $layout = [],
-        public readonly ?string $entityType = null,
-        public readonly ?string $section = null,
+        public readonly ?string $rootSource = null,
     ) {
     }
 }

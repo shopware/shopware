@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
-use Shopware\Core\Framework\ContentSystem\ContentSection;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -44,7 +44,7 @@ class LayoutMutationController
         private readonly DraftLayoutDecoder $decoder,
         private readonly MutationPipeline $pipeline,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly SpecificationSourceLocator $sourceLocator,
+        private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly ContentElementFieldSerializer $elementSerializer,
     ) {
     }
@@ -57,7 +57,7 @@ class LayoutMutationController
     ): Response {
         $mutation = new InsertElement($this->registry, $payload->type, $payload->parentElementId, $payload->slot, $payload->index);
 
-        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/remove-element', name: 'api.action.content_system.layout.remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -66,7 +66,7 @@ class LayoutMutationController
         RemoveElementRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond(new RemoveElement($payload->elementId), $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond(new RemoveElement($payload->elementId), $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/move-element', name: 'api.action.content_system.layout.move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -77,7 +77,7 @@ class LayoutMutationController
     ): Response {
         $mutation = new MoveElement($payload->elementId, $payload->newParentId, $payload->newSlot, $payload->index);
 
-        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/replace-element', name: 'api.action.content_system.layout.replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -88,7 +88,7 @@ class LayoutMutationController
     ): Response {
         $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType);
 
-        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/duplicate-element', name: 'api.action.content_system.layout.duplicate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -97,7 +97,7 @@ class LayoutMutationController
         DuplicateElementRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond(new DuplicateElement($payload->elementId, $payload->index), $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond(new DuplicateElement($payload->elementId, $payload->index), $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/wrap-elements', name: 'api.action.content_system.layout.wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -108,7 +108,7 @@ class LayoutMutationController
     ): Response {
         $mutation = new WrapElements($this->registry, $payload->elementIds, $payload->containerType, $payload->slot);
 
-        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/unwrap-element', name: 'api.action.content_system.layout.unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -117,7 +117,7 @@ class LayoutMutationController
         UnwrapElementRequest $payload,
         Context $context,
     ): Response {
-        return $this->respond(new UnwrapElement($payload->containerElementId), $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond(new UnwrapElement($payload->containerElementId), $payload->layout, $payload->rootSource, $context);
     }
 
     #[Route(path: '/api/_action/content-system/layout/attach-element', name: 'api.action.content_system.layout.attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
@@ -128,16 +128,16 @@ class LayoutMutationController
     ): Response {
         $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
 
-        return $this->respond($mutation, $payload->layout, $payload->entityType, $payload->section, $context);
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
     /**
      * @param array<int|string, mixed> $layout
      */
-    private function respond(LayoutMutation $mutation, array $layout, ?string $entityType, ?string $section, Context $context): JsonResponse
+    private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
         $tree = $this->decoder->decode($layout);
-        $result = $this->pipeline->run($mutation, $tree, $this->resolveRootContext($entityType, $section, $context), $context);
+        $result = $this->pipeline->run($mutation, $tree, $this->resolveRootContext($rootSource, $context), $context);
 
         return new JsonResponse(MutationResponse::fromResult($result, $this->elementSerializer));
     }
@@ -145,18 +145,16 @@ class LayoutMutationController
     /**
      * @return list<ProvidedContext>|null
      */
-    private function resolveRootContext(?string $entityType, ?string $section, Context $context): ?array
+    private function resolveRootContext(?string $rootSource, Context $context): ?array
     {
-        if ($entityType !== null && $entityType !== '') {
-            return $this->sourceLocator->resolveByEntityType($entityType)->providedRootContext($context);
+        if ($rootSource === null || $rootSource === '') {
+            return null;
         }
 
-        if ($section !== null && $section !== '') {
-            $resolved = ContentSection::tryFrom($section) ?? throw ContentSystemException::noSourceForSection($section);
-
-            return $this->sourceLocator->resolveBySection($resolved)->providedRootContext($context);
+        if (!\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
+            throw ContentSystemException::unknownRootSource($rootSource);
         }
 
-        return null;
+        return $this->rootSourceRegistry->resolve($rootSource, $context);
     }
 }

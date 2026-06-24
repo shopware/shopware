@@ -23,8 +23,7 @@ final class MoveElementRequest
         public readonly ?string $newParentId = null,
         public readonly ?string $newSlot = null,
         public readonly ?int $index = null,
-        public readonly ?string $entityType = null,
-        public readonly ?string $section = null,
+        public readonly ?string $rootSource = null,
     ) {
     }
 }

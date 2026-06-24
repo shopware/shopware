@@ -96,6 +96,7 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
             'id' => $id,
             'name' => 'delete-restriction-layout',
             'version' => '1.0.0',
+            'rootSource' => 'category',
             'layout' => [
                 ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],

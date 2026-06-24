@@ -328,6 +328,7 @@ class ContentLayoutMutationControllerTest extends TestCase
             'id' => $id,
             'name' => 'mutation-' . $id,
             'version' => '1.0.0',
+            'rootSource' => 'category',
             'layout' => $tree,
         ]], Context::createDefaultContext());
 

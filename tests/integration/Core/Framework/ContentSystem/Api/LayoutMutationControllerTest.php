@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
@@ -174,18 +175,50 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
-    #[TestDox('returns binding diagnostics in the body for an unresolvable bound source rather than throwing')]
-    public function testBindingDiagnosticsReturnedNotThrown(): void
+    #[TestDox('returns resolvability diagnostics in the body for an unresolvable root source rather than throwing')]
+    public function testResolvabilityDiagnosticsReturnedNotThrown(): void
     {
-        // insert an element that cannot resolve against the bound product source (it requires an entity the
-        // source does not provide); the route must report resolvable=false in a 200 body, never throw a 500
+        // insert an element that cannot resolve against the product root source (it requires an entity the source
+        // does not provide); the route must report resolvable=false in a 200 body, never throw a 500
         $body = $this->mutate('insert-element', [
             'layout' => [$this->element('block-a', TestElementTypeLoader::RESOLVABLE)],
             'type' => TestElementTypeLoader::UNRESOLVABLE,
-            'entityType' => 'product',
+            'rootSource' => 'product',
         ]);
 
         static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
+    public function testRejectsUnknownRootSource(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'type' => $component,
+            'rootSource' => 'definitely-not-a-root-source',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('treats an empty rootSource as absent and evaluates only well-formedness without gating')]
+    public function testTreatsEmptyRootSourceAsAbsent(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $body = $this->mutate('insert-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'type' => $component,
+            'rootSource' => '',
+        ]);
+
+        static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
     /**

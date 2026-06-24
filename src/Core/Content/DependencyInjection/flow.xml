@@ -199,6 +199,12 @@
 
         <service id="Shopware\Core\Content\Flow\Indexing\FlowBuilder"/>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SalesChannelContextStorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="event_dispatcher"/>

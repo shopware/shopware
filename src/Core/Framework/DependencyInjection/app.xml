@@ -160,10 +160,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler">
-            <argument type="service" id="custom_field_set.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="custom_field_set_relation.repository"/>
-            <argument type="service" id="custom_field.repository"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldSetPersister"/>
             <tag name="shopware.app_lifecycle.handler" priority="-1100"/>
         </service>
 
@@ -596,7 +593,7 @@
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="0"/>
         </service>

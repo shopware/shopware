@@ -258,10 +258,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
@@ -387,6 +383,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument>%elasticsearch.refresh_after_bulk%</argument>
 
             <tag name="messenger.message_handler"/>
         </service>

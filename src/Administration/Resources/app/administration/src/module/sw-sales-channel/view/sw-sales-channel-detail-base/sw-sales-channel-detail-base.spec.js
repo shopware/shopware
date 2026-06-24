@@ -22,7 +22,7 @@ responses.addResponse({
 });
 
 async function createWrapper(options = {}) {
-    const { props = {}, provide = {} } = options;
+    const { props = {}, provide = {}, stubs = {} } = options;
 
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
@@ -38,7 +38,19 @@ async function createWrapper(options = {}) {
                 },
                 'sw-entity-single-select': true,
                 'sw-single-select': true,
-                'sw-sales-channel-defaults-select': true,
+                'sw-sales-channel-defaults-select': {
+                    props: [
+                        'criteria',
+                        'disabled',
+                        'propertyName',
+                    ],
+                    template: `
+                        <sw-sales-channel-defaults-select-stub
+                            :disabled="disabled"
+                            :property-name="propertyName"
+                        />
+                    `,
+                },
                 'router-link': true,
                 'sw-radio-field': true,
                 'sw-multi-tag-ip-select': true,
@@ -59,6 +71,7 @@ async function createWrapper(options = {}) {
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
                 'sw-time-ago': true,
+                ...stubs,
             },
             provide: {
                 salesChannelService: {},
@@ -1173,18 +1186,45 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have currency criteria with sort', async () => {
+    it.each([
+        [
+            'currencies',
+            'name',
+        ],
+        [
+            'shippingMethods',
+            'name',
+        ],
+        [
+            'paymentMethods',
+            'distinguishableName',
+        ],
+        [
+            'countries',
+            'name',
+        ],
+        [
+            'languages',
+            'name',
+        ],
+    ])('should pass alphabetical sort criteria to %s defaults select', async (propertyName, sortField) => {
         const wrapper = await createWrapper();
 
-        const criteria = wrapper.vm.currencyCriteria;
+        const field = wrapper.getComponent(`sw-sales-channel-defaults-select-stub[property-name="${propertyName}"]`);
+        const criteria = field.props('criteria');
 
-        expect(criteria.parse()).toEqual(
-            expect.objectContaining({
-                sort: expect.arrayContaining([
-                    { field: 'name', order: 'ASC', naturalSorting: false },
-                ]),
-            }),
-        );
+        expect(criteria.parse().sort[0]).toEqual({ field: sortField, order: 'ASC', naturalSorting: false });
+    });
+
+    it('should filter language criteria by active languages', async () => {
+        const wrapper = await createWrapper();
+
+        const field = wrapper.getComponent('sw-sales-channel-defaults-select-stub[property-name="languages"]');
+        const criteria = field.props('criteria');
+
+        expect(criteria.parse().filter).toEqual([
+            { type: 'equals', field: 'active', value: true },
+        ]);
     });
 
     it('should return filters from filter registry', async () => {
@@ -1481,6 +1521,50 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         const banner = wrapper.get('mt-banner-stub');
         expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should open the domain modal for the default unserved language', async () => {
+        const openCreateDomainModal = jest.fn();
+        const scrollIntoView = jest.fn();
+
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                    languageId: 'language-1',
+                    currencyId: 'currency-1',
+                    languages: [
+                        { id: 'language-1' },
+                        { id: 'language-2' },
+                    ],
+                    domains: [{ languageId: 'language-2' }],
+                },
+            },
+            stubs: {
+                'sw-sales-channel-detail-domains': {
+                    template: '<div class="sw-sales-channel-detail-domains"></div>',
+                    methods: {
+                        onClickOpenCreateDomainModal: openCreateDomainModal,
+                    },
+                    mounted() {
+                        this.$el.scrollIntoView = scrollIntoView;
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onClickCreateDomainForUnservedLanguage();
+        await wrapper.vm.$nextTick();
+
+        expect(openCreateDomainModal).toHaveBeenCalledWith({
+            languageId: 'language-1',
+            currencyId: 'currency-1',
+        });
+        expect(scrollIntoView).toHaveBeenCalledWith({
+            behavior: 'smooth',
+            block: 'center',
+        });
     });
 
     it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {

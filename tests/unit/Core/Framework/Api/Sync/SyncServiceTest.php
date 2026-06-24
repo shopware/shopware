@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
+use Shopware\Core\Framework\Event\NestedEventDispatcher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -142,6 +146,66 @@ class SyncServiceTest extends TestCase
         );
 
         $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
+    }
+
+    public function testWrittenEventsAreDispatchedInSystemScopeWithOriginalSource(): void
+    {
+        $writer = $this->createMock(EntityWriterInterface::class);
+        $writer
+            ->expects($this->once())
+            ->method('sync')
+            ->willReturn(new WriteResult([], [], [
+                'product' => [new EntityWriteResult('created-id', [], 'product', EntityWriteResult::OPERATION_INSERT)],
+            ]));
+
+        $dispatcher = new EventDispatcher();
+        $eventDispatcher = new NestedEventDispatcher($dispatcher);
+
+        $source = new AdminApiSource('user-id');
+        $context = Context::createDefaultContext($source);
+
+        $containerListenerWasCalled = false;
+        $dispatcher->addListener(EntityWrittenContainerEvent::class, static function (EntityWrittenContainerEvent $event) use (&$containerListenerWasCalled, $source): void {
+            $containerListenerWasCalled = true;
+            $eventSource = $event->getContext()->getSource();
+
+            static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertInstanceOf(AdminApiSource::class, $eventSource);
+            static::assertSame($source->getUserId(), $eventSource->getUserId());
+        });
+
+        $nestedListenerWasCalled = false;
+        $dispatcher->addListener('product.written', static function (EntityWrittenEvent $event) use (&$nestedListenerWasCalled, $source): void {
+            $nestedListenerWasCalled = true;
+            $eventSource = $event->getContext()->getSource();
+
+            static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertInstanceOf(AdminApiSource::class, $eventSource);
+            static::assertSame($source->getUserId(), $eventSource->getUserId());
+        });
+
+        $service = new SyncService(
+            $writer,
+            $eventDispatcher,
+            new StaticDefinitionInstanceRegistry(
+                [ProductDefinition::class],
+                $this->createMock(ValidatorInterface::class),
+                $this->createMock(EntityWriteGatewayInterface::class),
+            ),
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(SyncFkResolver::class)
+        );
+
+        $service->sync(
+            [new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => 'created-id']])],
+            $context,
+            new SyncBehavior()
+        );
+
+        static::assertTrue($containerListenerWasCalled);
+        static::assertTrue($nestedListenerWasCalled);
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
     }
 
     public function testWildcardDeleteForMappingEntities(): void

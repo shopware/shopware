@@ -20,6 +20,7 @@ Put knowledge in the smallest durable home where future readers will naturally f
 
 - `AGENTS.md`: always-needed agent routing, repository conventions, and short rules agents must load before work.
 - Nested `AGENTS.md`: subtree-specific agent rules that must apply automatically when working below that directory.
+- `CLAUDE.md`: Claude Code compatibility bridge. For every tracked `AGENTS.md`, keep a sibling `CLAUDE.md` whose only content is `@AGENTS.md`.
 - `coding-guidelines/`: durable normative coding rules, rationale, and examples useful to humans and agents.
 - Existing README: folder-specific human guidance when contributors naturally read that README for the work.
 - ADR: durable decisions with real trade-offs, consequences, or future compatibility impact.
@@ -37,7 +38,8 @@ Put knowledge in the smallest durable home where future readers will naturally f
 
 ## Guardrails
 
-- Do not add mechanical `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` stubs just to point at README files.
+- Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
+- Do not put independent guidance in `CLAUDE.md`; it only imports the sibling `AGENTS.md`.
 - Do not duplicate ADR or coding-guideline content in READMEs.
 - Do not add README or AGENTS files just to index `coding-guidelines/`.
 - Keep local setup, Docker worktree notes, approval rules, and personal tool preferences in untracked local notes, not tracked project docs.

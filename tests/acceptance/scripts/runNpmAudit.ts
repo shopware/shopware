@@ -15,6 +15,13 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  *
  * Example:
  *   'https://github.com/advisories/GHSA-xxxx-xxxx-xxxx', // pkg-name issue, severity, devDep only, no fix available
+ *
+ * Current package.json overrides keep these advisories fixed in the
+ * acceptance suite dependency tree:
+ * - GHSA-8988-4f7v-96qf via lighthouse 12.6.1
+ * - GHSA-hmw2-7cc7-3qxx via form-data 4.0.6
+ * - GHSA-h67p-54hq-rp68 via js-yaml 4.2.0
+ * - GHSA-7c78-jf6q-g5cm via tmp 0.2.7
  */
 runNpmAudit({
     ignoredGHSAs: [

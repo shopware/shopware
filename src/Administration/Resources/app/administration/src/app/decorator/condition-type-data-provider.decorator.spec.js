@@ -59,6 +59,7 @@ const EXPECTED_CONDITION_TYPES = [
     'cartLineItemTotalPrice',
     'cartLineItemUnitPrice',
     'cartLineItemWithQuantity',
+    'cartLineItemPerItemQuantity',
     'cartHasDeliveryFreeItem',
     'dayOfWeek',
     'cartWeight',

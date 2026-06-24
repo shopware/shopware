@@ -30,6 +30,15 @@ async function createWrapper(privileges = [], resetError = false) {
 
             global: {
                 renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
+                    },
+                },
                 provide: {
                     validationService: {},
                     repositoryFactory: {
@@ -68,7 +77,7 @@ async function createWrapper(privileges = [], resetError = false) {
                     </div>
                 `,
                     },
-                    'mt-empty-state': true,
+                    'sw-empty-state': true,
                     'sw-container': true,
                     'sw-card-filter': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
@@ -120,7 +129,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
         expect(wrapper.vm.searchConfigs.excludedTerms).toEqual([]);
         expect(wrapper.find('.sw-settings-search-excluded-search-terms').exists()).toBeTruthy();
-        expect(wrapper.find('mt-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('should have pagination on list excluded terms', async () => {
@@ -145,31 +154,6 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         const dataGrids = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(dataGrids).toHaveLength(10);
         expect(dataGrids.at(0).text()).toEqual(firstValue);
-    });
-
-    it('should show an empty state when filtering excluded terms has no matches', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
-        await flushPromises();
-
-        wrapper.vm.onSearchTermChange('__empty_state_review__');
-        await flushPromises();
-
-        const emptyState = wrapper.find('mt-empty-state-stub');
-
-        expect(wrapper.find('.sw-data-grid').exists()).toBeFalsy();
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes('headline')).toBe(
-            'sw-settings-search.generalTab.textExcludedSearchTermsNoResultsTitle',
-        );
-        expect(emptyState.attributes('description')).toBe(
-            'sw-settings-search.generalTab.textExcludedSearchTermsNoResultsDescription',
-        );
-        expect(emptyState.attributes('icon')).toBe('regular-search');
-        expect(emptyState.attributes('role')).toBe('status');
-        expect(emptyState.attributes('aria-live')).toBe('polite');
-        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 
     it('should not able to delete excluded terms', async () => {

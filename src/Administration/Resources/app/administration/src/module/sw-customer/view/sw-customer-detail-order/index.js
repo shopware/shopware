@@ -118,12 +118,10 @@ export default {
                 {
                     property: 'orderNumber',
                     label: 'sw-customer.detailOrder.columnNumber',
-                    align: 'center',
                 },
                 {
                     property: 'amountTotal',
                     label: 'sw-customer.detailOrder.columnAmount',
-                    align: 'right',
                 },
                 {
                     property: 'stateMachineState.name',
@@ -132,7 +130,6 @@ export default {
                 {
                     property: 'orderDateTime',
                     label: 'sw-customer.detailOrder.columnOrderDate',
-                    align: 'center',
                 },
             ];
         },

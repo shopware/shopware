@@ -202,8 +202,8 @@ class DocumentMergerTest extends TestCase
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
 
-        $mockFpdi->expects($this->any())->method('setSourceFile')->willReturn($numDocs);
-        $mockFpdi->expects($this->any())->method('importPage')->willReturn('');
+        $mockFpdi->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->method('importPage')->willReturn('');
 
         // Only use merge when merging more than 1 documents
         if ($numDocs > 1 && $withMedia) {

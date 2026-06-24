@@ -170,6 +170,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    iconSize: '20px',
                 },
                 {
                     property: 'defaultBillingAddress',
@@ -177,6 +178,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-file-text',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    iconSize: '20px',
                 },
                 {
                     property: 'lastName',

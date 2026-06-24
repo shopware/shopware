@@ -284,8 +284,10 @@ class PromotionCalculator
 
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
+            $isStackable = $split->isStackable();
             $split->setStackable(true);
             $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
+            $split->setStackable($isStackable);
         }
 
         $packages = $this->enrichPackagesWithCartData($packages, $splitItems);

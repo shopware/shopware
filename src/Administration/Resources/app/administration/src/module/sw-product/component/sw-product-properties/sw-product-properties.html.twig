@@ -13,13 +13,14 @@
         <mt-card
             class="sw-product-properties__card"
             position-identifier="sw-product-properties"
+            :title="$t('sw-product.properties.cardTitle')"
             :is-loading="isLoading"
         >
             <template #title>
                 {% block sw_product_properties_card_title %}
                 <div
-                    class="sw-card__title"
-                    :class="{ 'is--inherited': isInherited }"
+                    class="sw-inherit-wrapper__card-title"
+                    :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                 >
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch
@@ -33,7 +34,9 @@
                     {% endblock %}
 
                     {% block sw_product_properties_card_title_text %}
-                    {{ $t('sw-product.properties.cardTitle') }}
+                    <h3 class="mt-card__title">
+                        {{ $t('sw-product.properties.cardTitle') }}
+                    </h3>
                     {% endblock %}
                 </div>
                 {% endblock %}

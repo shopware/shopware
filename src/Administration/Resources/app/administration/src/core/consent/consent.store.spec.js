@@ -15,6 +15,19 @@ const defaultConsents = {
     },
 };
 
+const CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS = 1000;
+
+function expectConsentStatusChangeEvent(consentEventHandler, expectedUpdatedValue) {
+    expect(consentEventHandler).toHaveBeenCalledTimes(1);
+
+    const [event] = consentEventHandler.mock.calls[0];
+    expect(event).toBeInstanceOf(ConsentEvent);
+    expect(event.eventName).toBe('consent_status_change');
+    expect(event.eventProperties).toEqual(expectedUpdatedValue);
+    expect(event.timestamp).toBeInstanceOf(Date);
+    expect(Math.abs(event.timestamp.getTime() - Date.now())).toBeLessThanOrEqual(CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS);
+}
+
 describe('/core/consent/consent.store', () => {
     beforeAll(() => {
         Shopware.Service().register('consentApiService', () => {
@@ -85,14 +98,7 @@ describe('/core/consent/consent.store', () => {
             expect(acceptSpy).toHaveBeenCalledWith('test_consent');
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
-            const emittedConsentEvent = consentEventHandler.mock.calls[0][0];
-
-            expect(emittedConsentEvent).toBeInstanceOf(ConsentEvent);
-            expect(emittedConsentEvent).toMatchObject({
-                eventName: 'consent_status_change',
-                eventProperties: expectedUpdatedValue,
-                timestamp: expect.any(Date),
-            });
+            expectConsentStatusChangeEvent(consentEventHandler, expectedUpdatedValue);
         });
 
         it('throws error if consent to accept does not exist', async () => {
@@ -191,14 +197,7 @@ describe('/core/consent/consent.store', () => {
                 expect(revokeSpy).toHaveBeenCalledWith('test_consent');
                 expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
-                const emittedConsentEvent = consentEventHandler.mock.calls[0][0];
-
-                expect(emittedConsentEvent).toBeInstanceOf(ConsentEvent);
-                expect(emittedConsentEvent).toMatchObject({
-                    eventName: 'consent_status_change',
-                    eventProperties: expectedUpdatedValue,
-                    timestamp: expect.any(Date),
-                });
+                expectConsentStatusChangeEvent(consentEventHandler, expectedUpdatedValue);
             });
 
             it('throws error if consent to accept does not exist', async () => {

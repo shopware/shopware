@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const defaultData = {
     operator: null,
@@ -33,6 +33,10 @@ const config = {
     },
 };
 
+const conditionDataProviderServiceMock = {
+    getOperatorOptionsByIdentifiers: jest.fn(() => []),
+};
+
 Shopware.Component.register('sw-mock', {
     template: '<div class="sw-mock"><slot></slot></div>',
     data() {
@@ -40,30 +44,31 @@ Shopware.Component.register('sw-mock', {
     },
 });
 
-describe('app/mixin/generic-condition', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-mock'), {
-            global: {
-                mixins: [
-                    Shopware.Mixin.getByName('generic-condition'),
-                ],
-                mocks: {
-                    condition: {
-                        type: 'cartLineItemDimensionWeight',
-                        value: null,
-                    },
-                    ensureValueExist: () => {},
-                    $t: (snippetKey) => snippetKey,
+async function createWrapper() {
+    return mount(await Shopware.Component.build('sw-mock'), {
+        global: {
+            mixins: [
+                Shopware.Mixin.getByName('generic-condition'),
+            ],
+            mocks: {
+                condition: {
+                    type: 'cartLineItemDimensionWeight',
+                    value: null,
                 },
+                ensureValueExist: () => {},
+                $t: (snippetKey) => snippetKey,
+                conditionDataProviderService: conditionDataProviderServiceMock,
             },
-        });
-
-        Shopware.Store.get('ruleConditionsConfig').config = config;
+        },
     });
+}
 
-    it('should update and convert the field value', () => {
+describe('app/mixin/generic-condition', () => {
+    it('should update and convert the field value', async () => {
+        Shopware.Store.get('ruleConditionsConfig').config = config;
+
+        const wrapper = await createWrapper();
+
         // config should be set
         expect(wrapper.vm.config).toEqual(config.cartLineItemDimensionWeight);
         expect(wrapper.vm.values).toEqual({});
@@ -73,22 +78,30 @@ describe('app/mixin/generic-condition', () => {
         expect(wrapper.vm.getVisibleValue('amount')).toBe(100000);
     });
 
-    it('should not convert when "from" unit is undefined', () => {
+    it('should not convert when "from" unit is undefined', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.updateFieldValue('amount', 100, 'g', undefined);
         expect(wrapper.vm.getVisibleValue('amount')).toBe(100);
     });
 
-    it('should not convert when "to" unit is undefined', () => {
+    it('should not convert when "to" unit is undefined', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.updateFieldValue('amount', 100, undefined, 'kg');
         expect(wrapper.vm.getVisibleValue('amount')).toBe(100);
     });
 
-    it('should not convert when "from" and "to" units are equal', () => {
+    it('should not convert when "from" and "to" units are equal', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.updateFieldValue('amount', 100, 'kg', 'kg');
         expect(wrapper.vm.getVisibleValue('amount')).toBe(100);
     });
 
-    it('should update base unit', () => {
+    it('should update base unit', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.baseUnit).toBeNull();
 
         // update base unit
@@ -96,7 +109,9 @@ describe('app/mixin/generic-condition', () => {
         expect(wrapper.vm.baseUnit).toBe('kg');
     });
 
-    it('should handle unit change', () => {
+    it('should handle unit change', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.selectedUnit).toBeNull();
 
         // change unit
@@ -109,12 +124,16 @@ describe('app/mixin/generic-condition', () => {
         expect(wrapper.vm.getVisibleValue('amount')).toBe(100000);
     });
 
-    it('should get the true visible value when visible value was set before', () => {
+    it('should get the true visible value when visible value was set before', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.updateVisibleValue(1);
         expect(wrapper.vm.getVisibleValue('amount')).toBe(1);
     });
 
-    it('should translate options for single-select fields in getBind', () => {
+    it('should translate options for single-select fields in getBind', async () => {
+        const wrapper = await createWrapper();
+
         const field = {
             name: 'status',
             type: 'single-select',
@@ -140,7 +159,9 @@ describe('app/mixin/generic-condition', () => {
         ]);
     });
 
-    it('should translate options for multi-select fields in getBind', () => {
+    it('should translate options for multi-select fields in getBind', async () => {
+        const wrapper = await createWrapper();
+
         const field = {
             name: 'tags',
             type: 'multi-select',
@@ -173,16 +194,54 @@ describe('app/mixin/generic-condition', () => {
         { name: 'datetime + equals', type: 'datetime', operator: '=', expected: false },
         { name: 'string + between', type: 'string', operator: 'between', expected: false },
     ])('should validate if field has between operator: $name', async ({ type, operator, expected }) => {
+        const wrapper = await createWrapper();
+
         await wrapper.setData({ operator });
 
         expect(wrapper.vm.isBetweenDateField({ type })).toBe(expected);
     });
 
-    it('should write the between value to the field', () => {
+    it('should write the between value to the field', async () => {
+        const wrapper = await createWrapper();
+
         const value = { from: '2026-01-01', to: '2026-12-31' };
 
         wrapper.vm.updateBetweenDateValue('amount', value);
 
         expect(wrapper.vm.condition.value).toEqual({ amount: value });
+    });
+
+    it.each([
+        { name: 'multi-entity-id-select', fieldType: 'multi-entity-id-select', expected: true },
+        { name: 'multi-select', fieldType: 'multi-select', expected: true },
+        { name: 'tagged', fieldType: 'tagged', expected: true },
+        { name: 'single-entity-id-select', fieldType: 'single-entity-id-select', expected: false },
+        { name: 'int', fieldType: 'int', expected: false },
+        { name: 'float', fieldType: 'float', expected: false },
+    ])('derives operator labels from field cardinality, not isMatchAny: $name', async ({ fieldType, expected }) => {
+        Shopware.Store.get('ruleConditionsConfig').config = {
+            cartLineItemDimensionWeight: {
+                operatorSet: {
+                    operators: [
+                        '=',
+                        '!=',
+                    ],
+                    isMatchAny: !expected,
+                },
+                fields: [{ name: 'field', type: fieldType, config: {} }],
+            },
+        };
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.operators).toEqual([]);
+        expect(conditionDataProviderServiceMock.getOperatorOptionsByIdentifiers).toHaveBeenCalledWith(
+            [
+                '=',
+                '!=',
+            ],
+            expected,
+        );
     });
 });

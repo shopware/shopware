@@ -70,10 +70,6 @@ export default {
             ];
         },
 
-        showNoResultsEmptyState() {
-            return !this.showEmptyState && this.searchTerm !== '' && this.items.length === 0;
-        },
-
         /**
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */

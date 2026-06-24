@@ -302,6 +302,7 @@
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
       "messageSaveWarning": "Keine Änderung vorgenommen.",
+      "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
       "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme."
     },
     "mediaForm": {

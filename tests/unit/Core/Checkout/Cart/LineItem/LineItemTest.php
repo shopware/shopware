@@ -252,6 +252,7 @@ class LineItemTest extends TestCase
         $lineItem->setPayloadValue('protected', 'test', true);
 
         static::assertSame('test', $lineItem->getPayloadValue('protected'));
+        static::assertArrayHasKey('protected', $lineItem->getPayload());
 
         $payload = self::getSerializedPayload($lineItem);
 

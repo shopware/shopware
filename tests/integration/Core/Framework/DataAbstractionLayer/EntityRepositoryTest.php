@@ -1004,6 +1004,7 @@ class EntityRepositoryTest extends TestCase
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
+            'guest' => true,
             'lastName' => 'not',
             'firstName' => $matchTerm,
             'salutationId' => $salutation,
@@ -1498,6 +1499,49 @@ class EntityRepositoryTest extends TestCase
         foreach ($firstIds as $childrenId) {
             static::assertNotContains($childrenId, $secondIds);
         }
+    }
+
+    public function testPaginatedOneToManyAssociationCoversEveryChildExactlyOnce(): void
+    {
+        $id = Uuid::randomHex();
+
+        // All children share the same (non-unique) name, so the paginated read must rely on a deterministic
+        // tie-breaker (the primary key) to number rows; otherwise pages can overlap or skip children.
+        $children = array_fill(0, 20, ['name' => 'test', 'configurationId' => $id]);
+
+        $data = [
+            'id' => $id,
+            'name' => 'default folder',
+            'configuration' => [
+                'id' => $id,
+                'createThumbnails' => true,
+            ],
+            'children' => $children,
+        ];
+
+        $context = Context::createDefaultContext();
+        /** @var EntityRepository<MediaFolderCollection> $repository */
+        $repository = static::getContainer()->get('media_folder.repository');
+        $repository->create([$data], $context);
+
+        $pageSize = 3;
+        $seen = [];
+
+        for ($offset = 0; $offset < 20; $offset += $pageSize) {
+            $criteria = new Criteria([$id]);
+            $criteria->getAssociation('children')->setLimit($pageSize)->setOffset($offset);
+
+            $folder = $repository->search($criteria, $context)->getEntities()->get($id);
+            static::assertInstanceOf(MediaFolderEntity::class, $folder);
+            static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
+
+            foreach ($folder->getChildren()->getIds() as $childId) {
+                static::assertArrayNotHasKey($childId, $seen, 'Paginated one-to-many read returned an overlapping child');
+                $seen[$childId] = true;
+            }
+        }
+
+        static::assertCount(20, $seen, 'Paginated one-to-many read skipped or duplicated children');
     }
 
     public function testFilterConsistencyOnCriteriaObject(): void

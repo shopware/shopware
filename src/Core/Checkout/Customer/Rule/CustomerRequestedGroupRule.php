@@ -68,7 +68,7 @@ class CustomerRequestedGroupRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('customerGroupIds', CustomerGroupDefinition::ENTITY_NAME, true);
     }
 }

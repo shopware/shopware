@@ -58,6 +58,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn(self::getTestTimestamp());
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -81,6 +82,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($dateTime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -103,6 +105,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($datetime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -125,6 +128,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($datetime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -147,6 +151,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($datetime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -169,6 +174,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($datetime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -194,6 +200,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn($datetime);
         $scope->method('getSalesChannelContext')->willReturn($checkoutContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         static::assertFalse($rule->match($scope));
 
@@ -245,6 +252,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $scope->method('getCurrentTime')->willReturn(self::getTestTimestamp());
         $scope->method('getSalesChannelContext')->willReturn($salesChannelContext);
+        $scope->method('getCustomer')->willReturn($customer);
 
         $match = $this->rule->match($scope);
         if ($isMatching) {

@@ -1,9 +1,4 @@
 /* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-
-$sw-tree-item-color-border: var(--color-border-primary-default);
-$sw-tree-item-color-background: var(--color-background-secondary-default);
-$sw-tree-item-color-text: var(--color-text-primary-default);
 
 .sw-multi-snippet-drag-and-drop {
     position: relative;
@@ -59,13 +54,13 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
         user-select: none;
         pointer-events: none;
         background: transparent;
-        border: 1px dashed $sw-tree-item-color-border;
+        border: 1px dashed var(--color-border-secondary-default);
     }
 
     .is--drag-element {
         user-select: none;
         pointer-events: none;
         background: var(--color-elevation-surface-raised);
-        box-shadow: 0 0 5px 1px var(--color-border-brand-selected);
+        box-shadow: 0 0 5px 1px var(--color-border-brand-default);
     }
 }

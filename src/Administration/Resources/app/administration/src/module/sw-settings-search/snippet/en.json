@@ -18,10 +18,12 @@
       "labelMinimalSearchTerm": "Minimal search term length",
       "labelExcludedSearchTerms": "Excluded search terms",
       "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
+      "textEmptyStateExcludedSearchTermsDescription": "Exclude search terms to stop them from being matched in your Sales Channels' search results.",
       "buttonAddExcludedSearch": "Exclude search term",
       "textPlaceholderTermsFilter": "Search excluded search terms...",
       "buttonAddExcludedSearchTerms" : "Exclude search term",
       "labelExcludedSearchTermsNoResults": "No results found.",
+      "labelExcludedSearchTermsNoResultsDescription": "Try adjusting your search to find what you're looking for.",
       "labelSearchableContent": "Searchable content",
       "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Sales Channels go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
       "buttonResetDefault": "Reset to default",
@@ -30,6 +32,7 @@
       "labelGeneralTab": "General",
       "labelCustomFieldsTab": "Custom fields",
       "textEmptyStateSearchableContent": "No searchable content added yet.",
+      "textEmptyStateSearchableContentDescription": "Add searchable content to control what can be found in your Sales Channels' search.",
       "titleExampleModal": "Search ranking example",
       "textColumnSearchTerm": "Excluded search terms",
       "modal": {
@@ -107,7 +110,8 @@
       "linkRebuildSearchIndex": "Rebuild search index",
       "labelName": "Search result",
       "labelScore": "Ranking score",
-      "textNoResult": "No results found. Please try again with another search term."
+      "textNoResult": "No results found.",
+      "textNoResultDescription": "Please try again with another search term."
     },
     "textLeaveConfirm": "You have made changes on this page. If you leave without saving, your changes will be lost."
   },

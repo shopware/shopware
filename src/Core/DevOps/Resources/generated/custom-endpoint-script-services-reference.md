@@ -222,6 +222,8 @@ The `response` service allows you to create HTTP-Responses.
         ```
 ### render()
 
+**Deprecated:** tag:v6.8.0 - Rendering Storefront templates is moving to the Storefront bundle. The `render()` method will only be available on the `response` service in Storefront script hooks; guard usage in app scripts with `{% if response.render is defined %}`.
+
 * The `render()` method allows you to render a twig view with the parameters you provide and create a StorefrontResponse.
 
     Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)

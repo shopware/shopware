@@ -68,12 +68,9 @@
                     </template>
 
                     <template #column-stateMachineState.name="{ item }">
-                        <sw-label
-                            :variant="getVariantFromOrderState(item)"
-                            appearance="pill"
-                        >
+                        <mt-badge :variant="getVariantFromOrderState(item)">
                             {{ item?.stateMachineState?.translated?.name }}
-                        </sw-label>
+                        </mt-badge>
                     </template>
 
                     <template

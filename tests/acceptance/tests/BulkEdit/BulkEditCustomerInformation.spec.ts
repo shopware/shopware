@@ -1,5 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+const TIMEOUT = 15_000;
+
 test('As a merchant, I can perform bulk edits on customer information', { tag: '@BulkEdits' }, async ({
     TestDataService,
     ShopAdmin,
@@ -63,7 +65,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
             //verify general information
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
-            await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup, { timeout: 10000 });
+            await ShopAdmin.expects(userCustomerGroup).toHaveText(accountData.customerGroup, { timeout: TIMEOUT });
             const accountStatus = await AdminCustomerDetail.getAccountStatus();
             await ShopAdmin.expects(accountStatus).toHaveText(accountData.accountStatus ? 'Active' : 'Inactive');
             const language = await AdminCustomerDetail.getLanguage();
@@ -80,14 +82,14 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
             await customFieldSetTabContent.customFieldSetTab.click();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue, { timeout: 15_000 });
+            await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue(customFieldValue, { timeout: TIMEOUT });
         }
     });
 
     await test.step('Verify that changes are not applied to other customers', async () => {
         await ShopAdmin.goesTo(AdminCustomerDetail.url(customer3.id), true);
         const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
-        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name, { timeout: 15_000 });
+        await ShopAdmin.expects(userCustomerGroup).toHaveText(currentCustomerGroup.name, { timeout: TIMEOUT });
         const accountStatus = await AdminCustomerDetail.getAccountStatus();
         await ShopAdmin.expects(accountStatus).toHaveText(customer3.active ? 'Active' : 'Inactive');
         const language = await AdminCustomerDetail.getLanguage();
@@ -99,7 +101,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
         await customFieldSetTabContent.customFieldSetTab.click();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
         await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)).toBeVisible();
-        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('', { timeout: 15_000 });
+        await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)).toHaveValue('', { timeout: TIMEOUT });
     });
 
 });

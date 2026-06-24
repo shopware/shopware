@@ -56,42 +56,29 @@ export default {
             variant="small"
             @modal-close="closeModal"
         >
-            <p class="sw-data-grid__confirm-bulk-delete-text sw-meteor-entity-data-table-bulk-delete-modal__text">
-                <slot name="bulk-modal-delete-confirm-text" :selection-count="selectionCount">
-                    {{ confirmText }}
-                </slot>
+            <p class="sw-meteor-entity-data-table-bulk-delete-modal__text">
+                {{ confirmText }}
             </p>
 
             <template #modal-footer>
-                <slot
-                    name="bulk-modal-cancel"
-                    :close-modal="closeModal"
+                <mt-button
+                    class="sw-meteor-entity-data-table-bulk-delete-modal__cancel"
+                    size="small"
+                    variant="secondary"
+                    @click="closeModal"
                 >
-                    <mt-button
-                        class="sw-meteor-entity-data-table-bulk-delete-modal__cancel"
-                        size="small"
-                        variant="secondary"
-                        @click="closeModal"
-                    >
-                        {{ cancelText }}
-                    </mt-button>
-                </slot>
+                    {{ cancelText }}
+                </mt-button>
 
-                <slot
-                    name="bulk-modal-delete-items"
-                    :is-bulk-loading="isDeleting"
-                    :delete-items="deleteItems"
+                <mt-button
+                    class="sw-meteor-entity-data-table-bulk-delete-modal__confirm"
+                    variant="critical"
+                    size="small"
+                    :is-loading="isDeleting"
+                    @click="deleteItems"
                 >
-                    <mt-button
-                        class="sw-meteor-entity-data-table-bulk-delete-modal__confirm"
-                        variant="critical"
-                        size="small"
-                        :is-loading="isDeleting"
-                        @click="deleteItems"
-                    >
-                        {{ deleteText }}
-                    </mt-button>
-                </slot>
+                    {{ deleteText }}
+                </mt-button>
             </template>
         </sw-modal>
     `,

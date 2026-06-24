@@ -5,24 +5,24 @@
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 
 import { computed } from 'vue';
-import type { MeteorEntityTableColumn, MeteorEntityTableLegacyColumn } from '../sw-meteor-entity-data-table.types';
+import type { MeteorEntityTableColumn, MeteorEntityTableColumnDefinition } from '../sw-meteor-entity-data-table.types';
 
 const COLUMN_POSITION_STEP = 100;
 
-function getColumnPosition(column: MeteorEntityTableLegacyColumn, index: number): number {
-    const columnWithPosition = column as MeteorEntityTableLegacyColumn & { position?: number };
+function getColumnPosition(column: MeteorEntityTableColumnDefinition, index: number): number {
+    const columnWithPosition = column as MeteorEntityTableColumnDefinition & { position?: number };
 
     return typeof columnWithPosition.position === 'number'
         ? columnWithPosition.position
         : (index + 1) * COLUMN_POSITION_STEP;
 }
 
-function getColumnWidth(width: MeteorEntityTableLegacyColumn['width']): number | undefined {
+function getColumnWidth(width: MeteorEntityTableColumnDefinition['width']): number | undefined {
     return typeof width === 'number' ? width : undefined;
 }
 
 export function useMeteorEntityTableColumns(
-    columns: () => MeteorEntityTableLegacyColumn[],
+    columns: () => MeteorEntityTableColumnDefinition[],
     translate: (key: string) => string,
 ) {
     const resolvedColumns = computed<MeteorEntityTableColumn[]>(() => {

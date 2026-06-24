@@ -7,7 +7,7 @@ import { useMeteorEntityTableColumns } from './use-meteor-entity-table-columns';
 import { useMeteorEntityTableSelection } from './use-meteor-entity-table-selection';
 
 describe('sw-meteor-entity-data-table composables', () => {
-    it('normalizes legacy column definitions for mt-data-table', () => {
+    it('normalizes wrapper column definitions for mt-data-table', () => {
         const { resolvedColumns } = useMeteorEntityTableColumns(
             () => [
                 {
@@ -37,7 +37,7 @@ describe('sw-meteor-entity-data-table composables', () => {
         ]);
     });
 
-    it('keeps legacy columns sortable unless sorting is explicitly disabled', () => {
+    it('keeps wrapper columns sortable unless sorting is explicitly disabled', () => {
         const { resolvedColumns } = useMeteorEntityTableColumns(
             () => [
                 {
@@ -65,7 +65,7 @@ describe('sw-meteor-entity-data-table composables', () => {
         ]);
     });
 
-    it('keeps legacy selection payloads in sync with the current records', () => {
+    it('keeps selected records in sync with the current records', () => {
         let records: MeteorEntityTableRecord[] = [
             { id: 'manufacturer-1', name: 'Shopware' },
             { id: 'manufacturer-2', name: 'Meteor' },

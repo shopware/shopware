@@ -95,12 +95,12 @@
                 :disable-search="true"
                 @load-success="onTableLoadSuccess"
                 @load-error="onTableLoadError"
-                @page-change="onPageChange"
-                @column-sort="onSortColumn"
+                @pagination-change="onPageChange"
+                @sort-change="onSortColumn"
             >
                 {% block sw_manufacturer_list_grid_columns_name_preview %}
-                <template #preview-name="{ item }">
-                    <sw-media-preview-v2 :source="item.mediaId" />
+                <template #preview-name="{ data }">
+                    <sw-media-preview-v2 :source="data?.mediaId" />
                 </template>
                 {% endblock %}
             </sw-meteor-entity-data-table>

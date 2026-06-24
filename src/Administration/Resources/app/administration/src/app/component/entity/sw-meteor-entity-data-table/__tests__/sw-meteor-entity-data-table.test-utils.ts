@@ -146,6 +146,10 @@ export async function createWrapper(
                         'disableDelete',
                         'additionalContextButtons',
                         'columnChanges',
+                        'enableRowNumbering',
+                        'showStripes',
+                        'showOutlines',
+                        'enableOutlineFraming',
                     ],
                     emits: [
                         'pagination-current-page-change',
@@ -159,6 +163,10 @@ export async function createWrapper(
                         'item-delete',
                         'bulk-delete',
                         'context-select',
+                        'change-enable-row-numbering',
+                        'change-show-stripes',
+                        'change-show-outlines',
+                        'change-outline-framing',
                     ],
                     template: `
                         <div class="mt-data-table-stub">

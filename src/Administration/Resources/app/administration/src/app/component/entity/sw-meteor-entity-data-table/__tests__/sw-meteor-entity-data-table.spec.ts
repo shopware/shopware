@@ -224,7 +224,28 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         });
     });
 
-    it('assigns deterministic position values when legacy columns have none', async () => {
+    it('updates controlled mt-data-table view settings from settings events', async () => {
+        const wrapper = await createWrapper();
+        const dataTable = mountedTable(wrapper);
+
+        expect(dataTable.props('enableRowNumbering')).toBe(false);
+        expect(dataTable.props('showStripes')).toBe(true);
+        expect(dataTable.props('showOutlines')).toBe(true);
+        expect(dataTable.props('enableOutlineFraming')).toBe(false);
+
+        await dataTable.vm.$emit('change-enable-row-numbering', true);
+        await dataTable.vm.$emit('change-show-stripes', false);
+        await dataTable.vm.$emit('change-show-outlines', false);
+        await dataTable.vm.$emit('change-outline-framing', true);
+        await wrapper.vm.$nextTick();
+
+        expect(mountedTable(wrapper).props('enableRowNumbering')).toBe(true);
+        expect(mountedTable(wrapper).props('showStripes')).toBe(false);
+        expect(mountedTable(wrapper).props('showOutlines')).toBe(false);
+        expect(mountedTable(wrapper).props('enableOutlineFraming')).toBe(true);
+    });
+
+    it('assigns deterministic position values when columns have none', async () => {
         const wrapper = await createWrapper({
             columns: [
                 {
@@ -304,7 +325,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         );
     });
 
-    it('keeps supported legacy column presentation options', async () => {
+    it('keeps supported column presentation options', async () => {
         const wrapper = await createWrapper({
             columns: [
                 {
@@ -328,7 +349,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         );
     });
 
-    it('normalizes unsupported legacy width values deliberately', async () => {
+    it('normalizes unsupported width values deliberately', async () => {
         const wrapper = await createWrapper({
             columns: [
                 {
@@ -497,7 +518,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.vm.loading).toBe(false);
     });
 
-    it('pagination-current-page-change updates state, emits legacy page-change, and reloads', async () => {
+    it('pagination-current-page-change updates state, emits pagination-change, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -507,7 +528,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         await flushPromises();
 
         expect(wrapper.vm.state.page).toBe(3);
-        expect(wrapper.emitted('page-change')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('pagination-change')?.at(-1)?.[0]).toEqual({
             page: 3,
             limit: 25,
         });
@@ -515,7 +536,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(lastSearchCriteria(repository).page).toBe(3);
     });
 
-    it('pagination-limit-change resets page, emits legacy page-change, and reloads', async () => {
+    it('pagination-limit-change resets page, emits pagination-change, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -529,7 +550,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         expect(wrapper.vm.state.page).toBe(1);
         expect(wrapper.vm.state.limit).toBe(50);
-        expect(wrapper.emitted('page-change')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('pagination-change')?.at(-1)?.[0]).toEqual({
             page: 1,
             limit: 50,
         });
@@ -538,7 +559,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(lastSearchCriteria(repository).limit).toBe(50);
     });
 
-    it('sort-change resets page, emits legacy column-sort, and reloads', async () => {
+    it('sort-change resets page, emits wrapper sort-change, and reloads', async () => {
         const repository = {
             search: jest.fn(() => Promise.resolve(createSearchResult([]))),
         };
@@ -561,13 +582,23 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(wrapper.vm.state.page).toBe(1);
         expect(wrapper.vm.state.sortBy).toBe('name');
         expect(wrapper.vm.state.sortDirection).toBe('DESC');
-        expect(wrapper.emitted('column-sort')?.at(-1)).toEqual([
+        const sortChangePayload = wrapper.emitted('sort-change')?.at(-1)?.[0] as {
+            column?: {
+                property?: string;
+                dataIndex?: string;
+            };
+            sortBy: string;
+            sortDirection: 'ASC' | 'DESC';
+        };
+
+        expect(sortChangePayload.sortBy).toBe('name');
+        expect(sortChangePayload.sortDirection).toBe('DESC');
+        expect(sortChangePayload.column).toEqual(
             expect.objectContaining({
                 property: 'name',
                 dataIndex: 'translated.name',
             }),
-            'DESC',
-        ]);
+        );
         expect(lastSearchCriteria(repository).sortings).toEqual([
             {
                 field: 'translated.name',
@@ -648,7 +679,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(repository.search).toHaveBeenCalledTimes(1);
     });
 
-    it('forwards column-property slots with legacy aliases and Meteor scope values', async () => {
+    it('forwards column-property slots with Meteor scope values only', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -669,9 +700,9 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             },
             slots: {
                 'column-name': `
-                    <template #default="{ item, column, columnIndex, data, columnDefinition }">
-                        <span class="legacy-column-slot">
-                            {{ item.name }}|{{ column.property }}|{{ columnIndex }}|{{ data.name }}|{{ columnDefinition.property }}
+                    <template #default="{ data, columnDefinition, item, column, columnIndex }">
+                        <span class="meteor-column-slot">
+                            {{ data?.name }}|{{ columnDefinition?.property }}|{{ item === undefined }}|{{ column === undefined }}|{{ columnIndex === undefined }}
                         </span>
                     </template>
                 `,
@@ -702,10 +733,10 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         await flushPromises();
 
-        expect(wrapper.get('.legacy-column-slot').text()).toBe('Shopware|name|0|Shopware|name');
+        expect(wrapper.get('.meteor-column-slot').text()).toBe('Shopware|name|true|true|true');
     });
 
-    it('forwards preview-property slots for migrated legacy preview content', async () => {
+    it('forwards preview-property slots with Meteor scope values', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -730,8 +761,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
             },
             slots: {
                 'preview-name': `
-                    <template #default="{ item }">
-                        <span class="legacy-preview-slot">{{ item.mediaId }}</span>
+                    <template #default="{ data }">
+                        <span class="meteor-preview-slot">{{ data?.mediaId }}</span>
                     </template>
                 `,
             },
@@ -761,7 +792,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
 
         await flushPromises();
 
-        expect(wrapper.get('.legacy-preview-slot').text()).toBe('media-1');
+        expect(wrapper.get('.meteor-preview-slot').text()).toBe('media-1');
         expect(wrapper.text()).toContain('Shopware');
     });
 

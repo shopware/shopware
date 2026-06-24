@@ -33,7 +33,6 @@ export function useMeteorEntityTableSlots(
     slots: Slots,
     options: {
         hasInternalColumnSlot?: (property: string) => boolean;
-        isInlineEdit?: (record?: MeteorEntityTableRecord) => boolean;
     } = {},
 ) {
     const hasColumnSlot = (property: string) => {
@@ -54,23 +53,6 @@ export function useMeteorEntityTableSlots(
         });
     });
 
-    const normalizeSlotScope = (scope: MeteorColumnSlotScope) => {
-        const columnDefinition = scope.columnDefinition;
-        const item = scope.data ?? {};
-        const columnIndex = columnDefinition
-            ? columns().findIndex((column) => column.property === columnDefinition.property)
-            : -1;
-
-        return {
-            ...scope,
-            item,
-            data: item,
-            column: columnDefinition,
-            columnIndex,
-            isInlineEdit: options.isInlineEdit?.(scope.data) ?? false,
-        };
-    };
-
     const getColumnValue = (scope: MeteorColumnSlotScope) => {
         if (!scope.columnDefinition) {
             return '';
@@ -83,7 +65,6 @@ export function useMeteorEntityTableSlots(
         columnsWithSlots,
         hasColumnSlot,
         hasPreviewSlot,
-        normalizeSlotScope,
         getColumnValue,
     };
 }

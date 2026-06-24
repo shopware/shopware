@@ -20,6 +20,10 @@
         :disable-search="disableSearch"
         :disable-settings-table="!showSettings"
         :additional-context-buttons="additionalContextButtons"
+        :enable-row-numbering="viewSettings.enableRowNumbering"
+        :show-stripes="viewSettings.showStripes"
+        :show-outlines="viewSettings.showOutlines"
+        :enable-outline-framing="viewSettings.enableOutlineFraming"
         :enable-reload="true"
         :pagination-options="steps"
         :caption="caption"
@@ -34,6 +38,10 @@
         @context-select="handleContextSelect"
         @item-delete="openDeleteModal"
         @bulk-delete="openBulkDeleteModal"
+        @change-enable-row-numbering="setEnableRowNumbering"
+        @change-show-stripes="setShowStripes"
+        @change-show-outlines="setShowOutlines"
+        @change-outline-framing="setEnableOutlineFraming"
     >
         <template
             v-for="column in columnsWithSlots"
@@ -43,7 +51,7 @@
             <slot
                 v-if="hasColumnSlot(column.property)"
                 :name="`column-${column.property}`"
-                v-bind="normalizeSlotScope(scope)"
+                v-bind="scope"
             />
 
             <template v-else>
@@ -54,7 +62,7 @@
                     >
                         <slot
                             :name="`preview-${column.property}`"
-                            v-bind="normalizeSlotScope(scope)"
+                            v-bind="scope"
                         />
                     </span>
 
@@ -89,47 +97,7 @@
         :delete-text="$t('global.default.delete')"
         @close="closeDeleteModal"
         @confirm="confirmDelete"
-    >
-        <template
-            v-if="$slots['delete-confirm-text']"
-            #delete-confirm-text="{ item }"
-        >
-            <slot
-                name="delete-confirm-text"
-                :item="item"
-            />
-        </template>
-
-        <template
-            v-if="$slots['delete-modal-footer']"
-            #delete-modal-footer="scope"
-        >
-            <slot
-                name="delete-modal-footer"
-                v-bind="scope"
-            />
-        </template>
-
-        <template
-            v-if="$slots['delete-modal-cancel']"
-            #delete-modal-cancel="scope"
-        >
-            <slot
-                name="delete-modal-cancel"
-                v-bind="scope"
-            />
-        </template>
-
-        <template
-            v-if="$slots['delete-modal-delete-item']"
-            #delete-modal-delete-item="scope"
-        >
-            <slot
-                name="delete-modal-delete-item"
-                v-bind="scope"
-            />
-        </template>
-    </sw-meteor-entity-data-table-delete-modal>
+    />
 
     <sw-meteor-entity-data-table-bulk-delete-modal
         v-if="bulkDeleteIds.length > 0"
@@ -141,37 +109,7 @@
         :delete-text="$t('global.default.delete')"
         @close="closeBulkDeleteModal"
         @confirm="confirmBulkDelete"
-    >
-        <template
-            v-if="$slots['bulk-modal-delete-confirm-text']"
-            #bulk-modal-delete-confirm-text="{ selectionCount }"
-        >
-            <slot
-                name="bulk-modal-delete-confirm-text"
-                :selection-count="selectionCount"
-            />
-        </template>
-
-        <template
-            v-if="$slots['bulk-modal-cancel']"
-            #bulk-modal-cancel="scope"
-        >
-            <slot
-                name="bulk-modal-cancel"
-                v-bind="scope"
-            />
-        </template>
-
-        <template
-            v-if="$slots['bulk-modal-delete-items']"
-            #bulk-modal-delete-items="scope"
-        >
-            <slot
-                name="bulk-modal-delete-items"
-                v-bind="scope"
-            />
-        </template>
-    </sw-meteor-entity-data-table-bulk-delete-modal>
+    />
 </template>
 
 <script lang="ts">
@@ -204,7 +142,7 @@ import { useMeteorEntityTableSlots } from './composables/use-meteor-entity-table
 import { useMeteorEntityTableState } from './composables/use-meteor-entity-table-state';
 import type {
     MeteorEntityTableCriteriaResolver,
-    MeteorEntityTableLegacyColumn,
+    MeteorEntityTableColumnDefinition,
     MeteorEntityTableLoadSuccessPayload,
     MeteorEntityTableRecord,
     MeteorEntityTableRepository,
@@ -220,9 +158,16 @@ type SwMeteorEntityDataTableColumnChanges = Record<
     }
 >;
 
+type SwMeteorEntityDataTableViewSettings = {
+    enableRowNumbering: boolean;
+    showStripes: boolean;
+    showOutlines: boolean;
+    enableOutlineFraming: boolean;
+};
+
 type SwMeteorEntityDataTableProps = {
     repository: MeteorEntityTableRepository;
-    columns: MeteorEntityTableLegacyColumn[];
+    columns: MeteorEntityTableColumnDefinition[];
     criteria?: Criteria | null;
     criteriaResolver?: MeteorEntityTableCriteriaResolver | null;
     context?: unknown;
@@ -251,24 +196,23 @@ type SwMeteorEntityDataTableProps = {
 type SwMeteorEntityDataTableEmit = {
     (e: 'load-success', payload: MeteorEntityTableLoadSuccessPayload): void;
     (e: 'load-error', error: unknown): void;
-    (e: 'page-change', payload: { page: number; limit: number }): void;
-    (e: 'column-sort', column: MeteorEntityTableLegacyColumn | undefined, direction: 'ASC' | 'DESC'): void;
-    (e: 'search-value-change', searchTerm: string): void;
-    (e: 'selection-change', selection: Record<string, MeteorEntityTableRecord>, selectionCount: number): void;
-    (e: 'selected-ids-change', selectedIds: string[]): void;
+    (e: 'pagination-change', payload: { page: number; limit: number }): void;
     (
-        e: 'select-item',
-        selection: Record<string, MeteorEntityTableRecord>,
-        item: MeteorEntityTableRecord | undefined,
-        selected: boolean,
+        e: 'sort-change',
+        payload: {
+            column: MeteorEntityTableColumnDefinition | undefined;
+            sortBy: string;
+            sortDirection: 'ASC' | 'DESC';
+        },
     ): void;
-    (e: 'select-all-items', selection: Record<string, MeteorEntityTableRecord>): void;
+    (e: 'search-value-change', searchTerm: string): void;
+    (e: 'selection-change', payload: { selectedIds: string[]; selection: Record<string, MeteorEntityTableRecord> }): void;
     (e: 'open-detail', payload: { id: string; record: MeteorEntityTableRecord }): void;
     (e: 'context-select', payload: { key: string; data: MeteorEntityTableRecord }): void;
-    (e: 'delete-item-finish', id: string): void;
-    (e: 'delete-item-failed', payload: { id: string; errorResponse: unknown }): void;
-    (e: 'items-delete-finish'): void;
-    (e: 'delete-items-failed', payload: { selectedIds: string[]; errorResponse: unknown }): void;
+    (e: 'delete-success', id: string): void;
+    (e: 'delete-error', payload: { id: string; error: unknown }): void;
+    (e: 'bulk-delete-success'): void;
+    (e: 'bulk-delete-error', payload: { selectedIds: string[]; error: unknown }): void;
     (e: 'inline-edit-save', promise: Promise<unknown>, record: MeteorEntityTableRecord): void;
     (e: 'inline-edit-cancel', promise: Promise<MeteorEntityTableRecord[]>): void;
 };
@@ -288,7 +232,7 @@ export default defineComponent({
             required: true,
         },
         columns: {
-            type: Array as PropType<MeteorEntityTableLegacyColumn[]>,
+            type: Array as PropType<MeteorEntityTableColumnDefinition[]>,
             required: true,
         },
         criteria: {
@@ -378,19 +322,16 @@ export default defineComponent({
     emits: [
         'load-success',
         'load-error',
-        'page-change',
-        'column-sort',
+        'pagination-change',
+        'sort-change',
         'search-value-change',
         'selection-change',
-        'selected-ids-change',
-        'select-item',
-        'select-all-items',
         'open-detail',
         'context-select',
-        'delete-item-finish',
-        'delete-item-failed',
-        'items-delete-finish',
-        'delete-items-failed',
+        'delete-success',
+        'delete-error',
+        'bulk-delete-success',
+        'bulk-delete-error',
         'inline-edit-save',
         'inline-edit-cancel',
     ],
@@ -472,9 +413,30 @@ export default defineComponent({
                 };
                 const tableSlots = useMeteorEntityTableSlots(() => resolvedTableColumns.value, slots, {
                     hasInternalColumnSlot: isInlineEditableColumn,
-                    isInlineEdit: tableInlineEdit.isInlineEditing,
                 });
                 const columnChanges = reactive<SwMeteorEntityDataTableColumnChanges>({});
+                const viewSettings = reactive<SwMeteorEntityDataTableViewSettings>({
+                    enableRowNumbering: false,
+                    showStripes: true,
+                    showOutlines: true,
+                    enableOutlineFraming: false,
+                });
+
+                const setEnableRowNumbering = (value: boolean) => {
+                    viewSettings.enableRowNumbering = value;
+                };
+
+                const setShowStripes = (value: boolean) => {
+                    viewSettings.showStripes = value;
+                };
+
+                const setShowOutlines = (value: boolean) => {
+                    viewSettings.showOutlines = value;
+                };
+
+                const setEnableOutlineFraming = (value: boolean) => {
+                    viewSettings.enableOutlineFraming = value;
+                };
 
                 const openRecordDetail = (record: MeteorEntityTableRecord) => {
                     emit('open-detail', {
@@ -504,7 +466,7 @@ export default defineComponent({
 
                 const handlePaginationCurrentPageChange = (page: number) => {
                     void tableState.setPage(page);
-                    emit('page-change', {
+                    emit('pagination-change', {
                         page,
                         limit: tableState.state.limit,
                     });
@@ -513,7 +475,7 @@ export default defineComponent({
                 const handlePaginationLimitChange = (limit: number) => {
                     tableState.state.page = 1;
                     void tableState.setLimit(limit);
-                    emit('page-change', {
+                    emit('pagination-change', {
                         page: 1,
                         limit,
                     });
@@ -524,7 +486,11 @@ export default defineComponent({
 
                     tableState.state.page = 1;
                     void tableState.setSort(sortBy, sortDirection, column?.naturalSorting ?? false);
-                    emit('column-sort', column, sortDirection);
+                    emit('sort-change', {
+                        column,
+                        sortBy,
+                        sortDirection,
+                    });
                 };
 
                 const handleSearchValueChange = (searchTerm: string) => {
@@ -534,7 +500,6 @@ export default defineComponent({
                 };
 
                 const handleSelectionChange = ({ id, value }: { id: string; value: boolean }) => {
-                    const item = tableState.records.value.find((record) => record.id === id);
                     const ids = value
                         ? [
                               ...tableSelection.selectedIds.value,
@@ -543,9 +508,10 @@ export default defineComponent({
                         : tableSelection.selectedIds.value.filter((selectedId) => selectedId !== id);
 
                     tableSelection.setSelectedIds(ids);
-                    emit('selected-ids-change', tableSelection.selectedIds.value);
-                    emit('selection-change', tableSelection.selection.value, tableSelection.selectedIds.value.length);
-                    emit('select-item', tableSelection.selection.value, item, value);
+                    emit('selection-change', {
+                        selectedIds: tableSelection.selectedIds.value,
+                        selection: tableSelection.selection.value,
+                    });
                 };
 
                 const handleMultipleSelectionChange = ({ selections, value }: { selections: string[]; value: boolean }) => {
@@ -559,9 +525,10 @@ export default defineComponent({
                         : tableSelection.selectedIds.value.filter((selectedId) => !selections.includes(selectedId));
 
                     tableSelection.setSelectedIds(ids);
-                    emit('selected-ids-change', tableSelection.selectedIds.value);
-                    emit('selection-change', tableSelection.selection.value, tableSelection.selectedIds.value.length);
-                    emit('select-all-items', tableSelection.selection.value);
+                    emit('selection-change', {
+                        selectedIds: tableSelection.selectedIds.value,
+                        selection: tableSelection.selection.value,
+                    });
                 };
 
                 const handleContextSelect = (payload: { key: string; data: MeteorEntityTableRecord }) => {
@@ -582,8 +549,10 @@ export default defineComponent({
                     tableSelection.pruneSelection();
 
                     if (previousSelectedIds.length !== tableSelection.selectedIds.value.length) {
-                        emit('selected-ids-change', tableSelection.selectedIds.value);
-                        emit('selection-change', tableSelection.selection.value, tableSelection.selectedIds.value.length);
+                        emit('selection-change', {
+                            selectedIds: tableSelection.selectedIds.value,
+                            selection: tableSelection.selection.value,
+                        });
                     }
                 });
 
@@ -657,7 +626,7 @@ export default defineComponent({
                         hasColumnSlot: tableSlots.hasColumnSlot,
                         hasPreviewSlot: tableSlots.hasPreviewSlot,
                         columnChanges,
-                        normalizeSlotScope: tableSlots.normalizeSlotScope,
+                        viewSettings,
                         getColumnValue: tableSlots.getColumnValue,
                         itemToDelete: tableDelete.itemToDelete,
                         isDeleting: tableDelete.isDeleting,
@@ -683,6 +652,10 @@ export default defineComponent({
                         handleSelectionChange,
                         handleMultipleSelectionChange,
                         handleContextSelect,
+                        setEnableRowNumbering,
+                        setShowStripes,
+                        setShowOutlines,
+                        setEnableOutlineFraming,
                     },
                 };
             },

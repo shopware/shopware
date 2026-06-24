@@ -27,7 +27,7 @@ export type MeteorEntityTableRepository = {
     save?: (record: MeteorEntityTableRecord, context?: unknown) => Promise<unknown>;
 };
 
-export type MeteorEntityTableLegacyColumn = {
+export type MeteorEntityTableColumnDefinition = {
     property: string;
     label: string;
     dataIndex?: string;

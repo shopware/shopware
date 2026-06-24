@@ -14,10 +14,10 @@ type UseMeteorEntityTableDeleteOptions = {
     getSelectedIds: () => string[];
     setSelectedIds: (ids: string[]) => void;
     emit: {
-        (event: 'delete-item-finish', id: string): void;
-        (event: 'delete-item-failed', payload: { id: string; errorResponse: unknown }): void;
-        (event: 'items-delete-finish'): void;
-        (event: 'delete-items-failed', payload: { selectedIds: string[]; errorResponse: unknown }): void;
+        (event: 'delete-success', id: string): void;
+        (event: 'delete-error', payload: { id: string; error: unknown }): void;
+        (event: 'bulk-delete-success'): void;
+        (event: 'bulk-delete-error', payload: { selectedIds: string[]; error: unknown }): void;
     };
 };
 
@@ -49,12 +49,12 @@ export function useMeteorEntityTableDelete(options: UseMeteorEntityTableDeleteOp
             await options.repository.delete(id, options.context);
             options.setSelectedIds(options.getSelectedIds().filter((selectedId) => selectedId !== id));
             itemToDelete.value = null;
-            options.emit('delete-item-finish', id);
+            options.emit('delete-success', id);
             await options.reload();
-        } catch (errorResponse: unknown) {
-            options.emit('delete-item-failed', {
+        } catch (error: unknown) {
+            options.emit('delete-error', {
                 id,
-                errorResponse,
+                error,
             });
         } finally {
             isDeleting.value = false;
@@ -91,12 +91,12 @@ export function useMeteorEntityTableDelete(options: UseMeteorEntityTableDeleteOp
 
             options.setSelectedIds([]);
             bulkDeleteIds.value = [];
-            options.emit('items-delete-finish');
+            options.emit('bulk-delete-success');
             await options.reload();
-        } catch (errorResponse: unknown) {
-            options.emit('delete-items-failed', {
+        } catch (error: unknown) {
+            options.emit('bulk-delete-error', {
                 selectedIds,
-                errorResponse,
+                error,
             });
         } finally {
             isBulkDeleting.value = false;

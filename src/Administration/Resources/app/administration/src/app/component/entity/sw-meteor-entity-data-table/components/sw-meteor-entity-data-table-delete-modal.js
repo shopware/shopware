@@ -56,52 +56,29 @@ export default {
             variant="small"
             @modal-close="closeModal"
         >
-            <p class="sw-listing__confirm-delete-text sw-meteor-entity-data-table-delete-modal__text">
-                <slot name="delete-confirm-text" :item="item">
-                    {{ confirmText }}
-                </slot>
+            <p class="sw-meteor-entity-data-table-delete-modal__text">
+                {{ confirmText }}
             </p>
 
             <template #modal-footer>
-                <slot
-                    name="delete-modal-footer"
-                    :item="item"
-                    :close-modal="closeModal"
-                    :delete-item="deleteItem"
-                    :is-deleting="isDeleting"
+                <mt-button
+                    class="sw-meteor-entity-data-table-delete-modal__cancel"
+                    size="small"
+                    variant="secondary"
+                    @click="closeModal"
                 >
-                    <slot
-                        name="delete-modal-cancel"
-                        :item="item"
-                        :close-modal="closeModal"
-                    >
-                        <mt-button
-                            class="sw-meteor-entity-data-table-delete-modal__cancel"
-                            size="small"
-                            variant="secondary"
-                            @click="closeModal"
-                        >
-                            {{ cancelText }}
-                        </mt-button>
-                    </slot>
+                    {{ cancelText }}
+                </mt-button>
 
-                    <slot
-                        name="delete-modal-delete-item"
-                        :item="item"
-                        :delete-item="deleteItem"
-                        :is-deleting="isDeleting"
-                    >
-                        <mt-button
-                            class="sw-meteor-entity-data-table-delete-modal__confirm"
-                            variant="critical"
-                            size="small"
-                            :is-loading="isDeleting"
-                            @click="deleteItem"
-                        >
-                            {{ deleteText }}
-                        </mt-button>
-                    </slot>
-                </slot>
+                <mt-button
+                    class="sw-meteor-entity-data-table-delete-modal__confirm"
+                    variant="critical"
+                    size="small"
+                    :is-loading="isDeleting"
+                    @click="deleteItem"
+                >
+                    {{ deleteText }}
+                </mt-button>
             </template>
         </sw-modal>
     `,

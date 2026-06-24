@@ -36,7 +36,7 @@ async function createWrapper(privileges = []) {
                         'disableSearch',
                     ],
                     template:
-                        '<div class="sw-meteor-entity-data-table"><slot name="preview-name" :item="{ mediaId: \'media-id\' }"></slot></div>',
+                        '<div class="sw-meteor-entity-data-table"><slot name="preview-name" :data="{ mediaId: \'media-id\' }"></slot></div>',
                     methods: {
                         reload: jest.fn(),
                     },

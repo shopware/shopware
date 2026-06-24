@@ -17,7 +17,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         _overridesMap['sw-meteor-entity-data-table']?.splice(0);
     });
 
-    it('selection-change from mt-data-table updates selected ids and emits legacy selection-change', async () => {
+    it('selection-change from mt-data-table updates selected ids and emits wrapper selection-change', async () => {
         const wrapper = await createWrapper();
 
         await mountedTable(wrapper).vm.$emit('selection-change', {
@@ -27,43 +27,18 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(wrapper.vm.selectedIds).toEqual(['manufacturer-1']);
-        expect(wrapper.emitted('selected-ids-change')?.at(-1)?.[0]).toEqual(['manufacturer-1']);
-        expect(wrapper.emitted('selection-change')?.at(-1)).toEqual([
-            {
+        expect(wrapper.emitted('selection-change')?.at(-1)?.[0]).toEqual({
+            selectedIds: ['manufacturer-1'],
+            selection: {
                 'manufacturer-1': {
                     id: 'manufacturer-1',
                     name: 'Shopware',
                 },
             },
-            1,
-        ]);
-    });
-
-    it('preserves legacy select-item when a single selection changes', async () => {
-        const wrapper = await createWrapper();
-
-        await mountedTable(wrapper).vm.$emit('selection-change', {
-            id: 'manufacturer-1',
-            value: true,
         });
-        await flushPromises();
-
-        expect(wrapper.emitted('select-item')?.at(-1)).toEqual([
-            {
-                'manufacturer-1': {
-                    id: 'manufacturer-1',
-                    name: 'Shopware',
-                },
-            },
-            {
-                id: 'manufacturer-1',
-                name: 'Shopware',
-            },
-            true,
-        ]);
     });
 
-    it('handles multiple-selection-change and preserves legacy select-all-items', async () => {
+    it('handles multiple-selection-change and emits wrapper selection-change', async () => {
         const wrapper = await createWrapper();
 
         await mountedTable(wrapper).vm.$emit('multiple-selection-change', {
@@ -79,14 +54,20 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             'manufacturer-1',
             'manufacturer-2',
         ]);
-        expect(wrapper.emitted('select-all-items')?.at(-1)?.[0]).toEqual({
-            'manufacturer-1': {
-                id: 'manufacturer-1',
-                name: 'Shopware',
-            },
-            'manufacturer-2': {
-                id: 'manufacturer-2',
-                name: 'Meteor',
+        expect(wrapper.emitted('selection-change')?.at(-1)?.[0]).toEqual({
+            selectedIds: [
+                'manufacturer-1',
+                'manufacturer-2',
+            ],
+            selection: {
+                'manufacturer-1': {
+                    id: 'manufacturer-1',
+                    name: 'Shopware',
+                },
+                'manufacturer-2': {
+                    id: 'manufacturer-2',
+                    name: 'Meteor',
+                },
             },
         });
     });
@@ -235,7 +216,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
-    it('confirming single delete calls repository.delete, emits delete-item-finish, and reloads', async () => {
+    it('confirming single delete calls repository.delete, emits delete-success, and reloads', async () => {
         const repository = {
             search: jest.fn(() =>
                 Promise.resolve(
@@ -259,13 +240,13 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await flushPromises();
 
         expect(repository.delete).toHaveBeenCalledWith('manufacturer-1', undefined);
-        expect(wrapper.emitted('delete-item-finish')?.at(-1)?.[0]).toBe('manufacturer-1');
+        expect(wrapper.emitted('delete-success')?.at(-1)?.[0]).toBe('manufacturer-1');
         expect(repository.search).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.selectedIds).toEqual([]);
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(false);
     });
 
-    it('delete modal uses legacy footer slots and critical Meteor button defaults', async () => {
+    it('delete modal uses wrapper buttons', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -283,10 +264,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
                         label: 'Name',
                     },
                 ],
-            },
-            slots: {
-                'delete-modal-footer':
-                    '<template #default="{ item }"><button class="delete-footer-slot">{{ item.name }}</button></template>',
             },
             global: {
                 stubs: {
@@ -324,10 +301,11 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         });
         await flushPromises();
 
-        expect(wrapper.get('.delete-footer-slot').text()).toBe('Shopware');
+        expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal__cancel').exists()).toBe(true);
+        expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal__confirm').exists()).toBe(true);
     });
 
-    it('failed single delete emits delete-item-failed and keeps loading consistent', async () => {
+    it('failed single delete emits delete-error and keeps loading consistent', async () => {
         const error = new Error('Delete failed');
         const repository = {
             search: jest.fn(() =>
@@ -349,15 +327,15 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await wrapper.get('.sw-meteor-entity-data-table-delete-modal__confirm').trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted('delete-item-failed')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('delete-error')?.at(-1)?.[0]).toEqual({
             id: 'manufacturer-1',
-            errorResponse: error,
+            error,
         });
         expect(wrapper.vm.loading).toBe(false);
         expect(wrapper.find('.sw-meteor-entity-data-table-delete-modal').exists()).toBe(true);
     });
 
-    it('delete modal exposes the legacy confirm-text slot', async () => {
+    it('delete modal renders default confirm text', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -375,10 +353,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
                         label: 'Name',
                     },
                 ],
-            },
-            slots: {
-                'delete-confirm-text':
-                    '<template #default="{ item }"><span class="delete-confirm-slot">{{ item.name }}</span></template>',
             },
             global: {
                 stubs: {
@@ -399,7 +373,9 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         });
         await flushPromises();
 
-        expect(wrapper.get('.delete-confirm-slot').text()).toBe('Shopware');
+        expect(wrapper.get('.sw-meteor-entity-data-table-delete-modal__text').text()).toBe(
+            'global.entity-components.deleteMessage',
+        );
     });
 
     it('bulk delete opens a confirmation modal for selected ids', async () => {
@@ -417,7 +393,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(wrapper.get('.sw-modal-stub').attributes('data-variant')).toBe('small');
     });
 
-    it('confirming bulk delete calls repository.syncDeleted, emits items-delete-finish, clears selection, and reloads', async () => {
+    it('confirming bulk delete calls repository.syncDeleted, emits bulk-delete-success, clears selection, and reloads', async () => {
         const repository = {
             search: jest.fn(() =>
                 Promise.resolve(
@@ -447,12 +423,12 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             ],
             undefined,
         );
-        expect(wrapper.emitted('items-delete-finish')).toHaveLength(1);
+        expect(wrapper.emitted('bulk-delete-success')).toHaveLength(1);
         expect(wrapper.vm.selectedIds).toEqual([]);
         expect(repository.search).toHaveBeenCalledTimes(2);
     });
 
-    it('failed bulk delete emits delete-items-failed', async () => {
+    it('failed bulk delete emits bulk-delete-error', async () => {
         const error = new Error('Bulk delete failed');
         const repository = {
             search: jest.fn(() =>
@@ -472,13 +448,13 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await wrapper.get('.sw-meteor-entity-data-table-bulk-delete-modal__confirm').trigger('click');
         await flushPromises();
 
-        expect(wrapper.emitted('delete-items-failed')?.at(-1)?.[0]).toEqual({
+        expect(wrapper.emitted('bulk-delete-error')?.at(-1)?.[0]).toEqual({
             selectedIds: ['manufacturer-1'],
-            errorResponse: error,
+            error,
         });
     });
 
-    it('bulk delete modal exposes legacy footer slots', async () => {
+    it('bulk delete modal uses wrapper buttons', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -497,10 +473,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
                     },
                 ],
                 showSelections: true,
-            },
-            slots: {
-                'bulk-modal-delete-items':
-                    '<template #default="{ deleteItems }"><button class="bulk-delete-slot" @click="deleteItems">Delete selected</button></template>',
             },
             global: {
                 stubs: {
@@ -536,7 +508,8 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         await mountedTable(wrapper).vm.$emit('bulk-delete');
         await flushPromises();
 
-        expect(wrapper.get('.bulk-delete-slot').text()).toBe('Delete selected');
+        expect(wrapper.find('.sw-meteor-entity-data-table-bulk-delete-modal__cancel').exists()).toBe(true);
+        expect(wrapper.find('.sw-meteor-entity-data-table-bulk-delete-modal__confirm').exists()).toBe(true);
     });
 
     it('marks a row as inline editing', async () => {
@@ -634,7 +607,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(repository.search).toHaveBeenCalledTimes(2);
     });
 
-    it('supports the old isInlineEdit slot scope value for editable columns', async () => {
+    it('does not add wrapper-only inline edit state to external column slots', async () => {
         const wrapper = mount(SwMeteorEntityDataTable, {
             props: {
                 repository: {
@@ -656,7 +629,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
             },
             slots: {
                 'column-name':
-                    '<template #default="{ isInlineEdit }"><span class="inline-slot">{{ isInlineEdit ? "editing" : "viewing" }}</span></template>',
+                    '<template #default="{ isInlineEdit }"><span class="inline-slot">{{ isInlineEdit === undefined ? "no-alias" : "alias" }}</span></template>',
             },
             global: {
                 stubs: {
@@ -683,12 +656,12 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         }) as TestWrapper;
 
         await flushPromises();
-        expect(wrapper.get('.inline-slot').text()).toBe('viewing');
+        expect(wrapper.get('.inline-slot').text()).toBe('no-alias');
 
         wrapper.vm.startInlineEdit(wrapper.vm.records[0]);
         await flushPromises();
 
-        expect(wrapper.get('.inline-slot').text()).toBe('editing');
+        expect(wrapper.get('.inline-slot').text()).toBe('no-alias');
     });
 
     it('exposes the public createExtendableSetup API keys on the component instance', async () => {
@@ -779,7 +752,6 @@ describe('src/app/component/entity/sw-meteor-entity-data-table actions', () => {
         expect(previousStateKeys).toContain('records');
         expect(previousStateKeys).toContain('load');
         expect(previousStateKeys).not.toContain('confirmDelete');
-        expect(previousStateKeys).not.toContain('normalizeSlotScope');
         expect(observedRecords).toEqual([
             { id: 'manufacturer-1', name: 'Shopware' },
             { id: 'manufacturer-2', name: 'Meteor' },

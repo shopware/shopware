@@ -7,13 +7,13 @@
 import Criteria from 'src/core/data/criteria.data';
 import type {
     MeteorEntityTableCriteriaResolver,
-    MeteorEntityTableLegacyColumn,
+    MeteorEntityTableColumnDefinition,
     MeteorEntityTableState,
 } from '../sw-meteor-entity-data-table.types';
 
 type UseMeteorEntityTableCriteriaOptions = {
     state: MeteorEntityTableState;
-    columns: MeteorEntityTableLegacyColumn[];
+    columns: MeteorEntityTableColumnDefinition[];
     criteria?: Criteria | null;
     criteriaResolver?: MeteorEntityTableCriteriaResolver | null;
 };
@@ -26,7 +26,7 @@ function cloneCriteria(criteria?: Criteria | null): Criteria {
     return Criteria.fromCriteria(criteria);
 }
 
-function getSortFields(activeColumn: MeteorEntityTableLegacyColumn | undefined, sortBy: string): string[] {
+function getSortFields(activeColumn: MeteorEntityTableColumnDefinition | undefined, sortBy: string): string[] {
     if (!activeColumn) {
         return sortBy ? [sortBy] : [];
     }

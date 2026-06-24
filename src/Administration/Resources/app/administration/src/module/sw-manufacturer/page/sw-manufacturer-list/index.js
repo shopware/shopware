@@ -64,6 +64,7 @@ export default {
                     label: 'sw-manufacturer.list.columnName',
                     inlineEdit: 'string',
                     primary: true,
+                    clickable: true,
                 },
                 {
                     property: 'link',
@@ -189,10 +190,10 @@ export default {
             });
         },
 
-        onSortColumn(column, direction) {
+        onSortColumn({ column, sortDirection }) {
             this.page = 1;
             this.sortBy = column.dataIndex || column.property;
-            this.sortDirection = direction;
+            this.sortDirection = sortDirection;
             this.naturalSorting = column.naturalSorting || false;
             this.isLoading = true;
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
@@ -50,6 +51,7 @@ readonly class PresignedMediaUploadService
         private MediaFileExtensionValidator $extensionValidator,
         private AbstractMediaPathStrategy $mediaPathStrategy,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -148,13 +150,13 @@ readonly class PresignedMediaUploadService
 
             $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
-            return ['mediaId' => $payload->mediaId, 'uploadedAt' => new \DateTimeImmutable()];
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now()];
         }
 
         $this->extensionValidator->validate($payload->extension, $payload->private, $context);
 
         $mediaId = Uuid::randomHex();
-        $uploadedAt = new \DateTimeImmutable();
+        $uploadedAt = $this->clock->now();
 
         $data = [
             'id' => $mediaId,
@@ -255,7 +257,7 @@ readonly class PresignedMediaUploadService
             'fileName' => $payload->fileName,
             'mediaTypeRaw' => serialize($mediaType),
             'metaData' => $this->buildMetadata($s3Metadata->etag, $mimeType, $payload),
-            'uploadedAt' => $media->getUploadedAt() ?? new \DateTime(),
+            'uploadedAt' => $media->getUploadedAt() ?? $this->clock->now(),
         ];
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {

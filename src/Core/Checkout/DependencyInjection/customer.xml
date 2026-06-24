@@ -77,8 +77,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker"/>
 
             <tag name="validator.constraint_validator"/>
         </service>
@@ -451,6 +456,13 @@
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber">
             <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

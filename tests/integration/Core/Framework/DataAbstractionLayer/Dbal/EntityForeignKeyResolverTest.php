@@ -179,7 +179,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         static::assertCount(1, $affected);
         static::assertArrayHasKey('shipping_method', $affected);
-        static::assertContains($ids->get('shipping-method'), $affected['shipping_method']);
+        static::assertSame($ids->get('shipping-method'), $affected['shipping_method'][0]['id']);
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 

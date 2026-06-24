@@ -88,6 +88,13 @@ class MyScheduledTaskHandler extends ScheduledTaskHandler implements Dynamically
     }
 }
 ```
+
+### Sales Channel business timezone
+
+Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone.
+
+Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
+
 ## API
 
 ### DAL write event listeners no longer expand API ACL requirements

@@ -293,14 +293,14 @@
                 "enabledState": {
                     "enabled": "Enabled",
                     "disabled": "Disabled",
-                    "custom": "Customized"
+                    "custom": "Customised"
                 },
                 "detail": {
                     "backToList": "Back to agentic files",
                     "previewTitle": "Generated preview",
-                    "previewDescription": "This is the content currently served for this Sales Channel, including saved customizations.",
+                    "previewDescription": "This is the content currently served for this Sales Channel, including saved customisations.",
                     "templatesTitle": "Content sources",
-                    "templatesDescription": "Shows which templates contribute to the generated file and whether a template has been customized. Advanced users can override individual templates when Custom Notes are not enough.",
+                    "templatesDescription": "Shows which templates contribute to the generated file and whether a template has been customised. Advanced users can override individual templates when Custom Notes are not enough.",
                     "showContentSources": "Show sources",
                     "hideContentSources": "Hide sources",
                     "customNotesTitle": "Custom Notes",
@@ -314,7 +314,7 @@
                     "columnSourceRole": "Role",
                     "actionEditOverride": "Edit override",
                     "overrideModalTitle": "Edit {source}",
-                    "overrideModalDescription": "Adjust the content contributed by this template for this Sales Channel. The change is stored as a customization and can be reset to the default template content at any time.",
+                    "overrideModalDescription": "Adjust the content contributed by this template for this Sales Channel. The change is stored as a customisation and can be reset to the default template content at any time.",
                     "overrideModalFieldLabel": "Content",
                     "overrideModalReset": "Reset to default",
                     "overrideModalApply": "Apply override",

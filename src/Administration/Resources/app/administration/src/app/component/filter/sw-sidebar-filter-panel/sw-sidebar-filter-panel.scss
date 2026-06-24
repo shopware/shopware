@@ -7,7 +7,7 @@
         align-items: center;
         margin: 0;
         padding: 0 25px;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         a {
             float: left;
@@ -23,7 +23,7 @@
         cursor: pointer;
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
             border-radius: var(--border-radius-xs);
         }

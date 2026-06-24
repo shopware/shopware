@@ -536,6 +536,10 @@ export default {
             return this.salesChannel.serviceCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
         },
 
+        businessTimeZoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
+        },
+
         salesChannelFavoritesService() {
             return Shopware.Service('salesChannelFavorites');
         },

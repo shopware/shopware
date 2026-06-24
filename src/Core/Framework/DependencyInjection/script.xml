@@ -56,6 +56,8 @@
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory" public="true">
             <argument type="service" id="router"/>
+            <!-- @deprecated tag:v6.8.0 Only needed for the deprecated ScriptResponseFactoryFacade::render() BC path -->
+            <argument type="service" id="Shopware\Storefront\Controller\ScriptController" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">
@@ -71,4 +73,3 @@
         </service>
     </services>
 </container>
-

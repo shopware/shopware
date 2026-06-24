@@ -5,14 +5,13 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Script\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
-use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
+use Shopware\Storefront\Framework\Script\Api\StorefrontHook;
 use Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade;
 use Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacadeHookFactory;
+use Shopware\Storefront\Page\Page;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -32,7 +31,7 @@ class StorefrontScriptResponseFactoryFacadeHookFactoryTest extends TestCase
     public function testFactoryBuildsStorefrontFacadeWithSalesChannelContext(): void
     {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
-        $hook = $this->createSalesChannelContextAwareHook($salesChannelContext);
+        $hook = new StorefrontHook('test-hook', [], [], new Page(), $salesChannelContext);
 
         $scriptController = $this->createMock(ScriptController::class);
         $scriptController->expects($this->once())
@@ -53,32 +52,5 @@ class StorefrontScriptResponseFactoryFacadeHookFactoryTest extends TestCase
             static::createStub(RouterInterface::class),
             $scriptController ?? static::createStub(ScriptController::class),
         );
-    }
-
-    private function createSalesChannelContextAwareHook(SalesChannelContext $salesChannelContext): Hook&SalesChannelContextAware
-    {
-        return new class(Context::createDefaultContext(), $salesChannelContext) extends Hook implements SalesChannelContextAware {
-            public function __construct(
-                Context $context,
-                private readonly SalesChannelContext $salesChannelContext,
-            ) {
-                parent::__construct($context);
-            }
-
-            public function getName(): string
-            {
-                return 'test.hook';
-            }
-
-            public static function getServiceIds(): array
-            {
-                return [];
-            }
-
-            public function getSalesChannelContext(): SalesChannelContext
-            {
-                return $this->salesChannelContext;
-            }
-        };
     }
 }

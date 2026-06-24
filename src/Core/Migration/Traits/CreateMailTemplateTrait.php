@@ -16,13 +16,13 @@ trait CreateMailTemplateTrait
         MailTemplateTypeCreateStruct $mailTemplateType,
         MailTemplateCreateStruct $mailTemplate,
     ): void {
-        $germanLanguageByteIds = $this->getLanguageByteIds($connection, 'de-DE');
+        $germanLanguageByteIds = $this->getLanguageByteIdsByLocalePrefix($connection, 'de');
 
         // The system default language must always be filled. It is therefore added to the english
         // language ids (and removed again if it actually is a german language), so its translation is
         // never skipped, regardless of which locale the default language uses.
         $englishLanguageByteIds = array_values(array_unique(array_diff(
-            array_merge($this->getLanguageByteIds($connection, 'en-GB'), [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]),
+            array_merge($this->getLanguageByteIdsByLocalePrefix($connection, 'de', true), [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]),
             $germanLanguageByteIds
         )));
 
@@ -183,7 +183,14 @@ trait CreateMailTemplateTrait
     private function getMailTemplateId(Connection $connection, ?string $mailTemplateTypeByteId): ?string
     {
         $result = $connection->fetchOne(
-            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
+            <<<'SQL'
+SELECT `id`
+FROM `mail_template`
+WHERE `mail_template_type_id` = :mailTemplateTypeId
+    AND `system_default` = 1
+ORDER BY `created_at` ASC, `id` ASC
+LIMIT 1
+SQL,
             ['mailTemplateTypeId' => $mailTemplateTypeByteId]
         );
 
@@ -203,19 +210,34 @@ trait CreateMailTemplateTrait
     }
 
     /**
-     * @return array<string> binary language ids of every language using the given locale
+     * @return list<string>
      */
-    private function getLanguageByteIds(Connection $connection, string $locale): array
+    private function getLanguageByteIdsByLocalePrefix(Connection $connection, string $localePrefix, bool $invert = false): array
     {
-        $sql = <<<'SQL'
+        $operator = $invert ? 'NOT LIKE' : 'LIKE';
+
+        $languageIds = $connection->fetchFirstColumn(
+            \sprintf(
+                <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE `locale`.`code` = :code
-SQL;
+WHERE LOWER(`locale`.`code`) %s :localePrefix
+ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
+SQL,
+                $operator
+            ),
+            ['localePrefix' => $localePrefix . '-%']
+        );
+        $languageByteIds = [];
+        foreach ($languageIds as $languageId) {
+            if (!\is_string($languageId)) {
+                continue;
+            }
 
-        $languageIds = $connection->fetchFirstColumn($sql, ['code' => $locale]);
+            $languageByteIds[] = $languageId;
+        }
 
-        return array_values(array_unique(array_filter($languageIds)));
+        return $languageByteIds;
     }
 }

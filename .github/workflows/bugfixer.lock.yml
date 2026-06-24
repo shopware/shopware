@@ -32,14 +32,14 @@
 #   - QUALITY_INITIATIVE_ANTHROPIC_API_KEY
 #
 # Custom actions used:
-#   - actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-#   - actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-#   - actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+#   - actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+#   - actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+#   - actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 #   - actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
 #   - actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
 #   - actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
 #   - actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-#   - github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+#   - github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
 #
 # Container images used:
 #   - ghcr.io/github/gh-aw-firewall/agent:0.27.4@sha256:b268ebf37df2428b19efcb383f001d65dc6a5ec10af43feb886d1a8477ab0e3a
@@ -165,7 +165,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -208,7 +208,7 @@ jobs:
         id: restore-daily-aic-cache
         if: ${{ env.GH_AW_MAX_DAILY_AI_CREDITS != '' }}
         continue-on-error: true
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           key: agentic-workflow-usage-bugfixer-${{ github.run_id }}
           restore-keys: agentic-workflow-usage-bugfixer-
@@ -254,7 +254,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY }}
       - name: Checkout .github and .agents folders
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           sparse-checkout: |
@@ -556,7 +556,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -577,7 +577,7 @@ jobs:
             echo "GH_AW_SAFE_OUTPUTS_TOOLS_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json"
           } >> "$GITHUB_OUTPUT"
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'improve-pr' && github.event.inputs.pr_number && format('refs/pull/{0}/head', github.event.inputs.pr_number) || 'trunk' }}
@@ -1333,7 +1333,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -1397,7 +1397,7 @@ jobs:
         id: restore-daily-aic-cache-conclusion
         if: always()
         continue-on-error: true
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           key: agentic-workflow-usage-bugfixer-${{ github.run_id }}
           restore-keys: agentic-workflow-usage-bugfixer-
@@ -1418,7 +1418,7 @@ jobs:
         id: save-daily-aic-cache
         if: always()
         continue-on-error: true
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           key: agentic-workflow-usage-bugfixer-${{ github.run_id }}
           path: /tmp/gh-aw/agentic-workflow-usage-cache.jsonl
@@ -1586,7 +1586,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -1614,7 +1614,7 @@ jobs:
           echo "GH_AW_AGENT_OUTPUT=/tmp/gh-aw/agent_output.json" >> "$GITHUB_OUTPUT"
       - name: Checkout repository for patch context
         if: needs.agent.outputs.has_patch == 'true'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       # --- Threat Detection ---
@@ -1869,7 +1869,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -1947,7 +1947,7 @@ jobs:
     steps:
       - name: Setup Scripts
         id: setup
-        uses: github/gh-aw-actions/setup@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        uses: github/gh-aw-actions/setup@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
@@ -1991,7 +1991,7 @@ jobs:
             await main();
       - name: Checkout repository (trusted default branch for comment events)
         if: ((!cancelled()) && needs.agent.result != 'skipped' && contains(needs.agent.outputs.output_types, 'create_pull_request') || (!cancelled()) && needs.agent.result != 'skipped' && contains(needs.agent.outputs.output_types, 'push_to_pull_request_branch')) && (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment')
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.event.repository.default_branch }}
           token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
@@ -1999,7 +1999,7 @@ jobs:
           fetch-depth: 1
       - name: Checkout repository
         if: ((!cancelled()) && needs.agent.result != 'skipped' && contains(needs.agent.outputs.output_types, 'create_pull_request') || (!cancelled()) && needs.agent.result != 'skipped' && contains(needs.agent.outputs.output_types, 'push_to_pull_request_branch')) && github.event_name != 'issue_comment' && github.event_name != 'pull_request_review_comment'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: trunk
           token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}

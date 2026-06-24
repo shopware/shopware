@@ -817,14 +817,19 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 ## `render()` removed from the core script `response` service
 
-`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` has been removed. Rendering Storefront templates from scripts is only available in Storefront script hooks (the `/storefront/script/{hook}` endpoint), where the `response` service is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`. In admin-api and store-api script hooks the `response` service no longer offers `render()`.
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` has been removed.
+Rendering Storefront templates from scripts is only available in Storefront script hooks (the `/storefront/script/{hook}` endpoint), where the `response` service is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`.
 
-App scripts that may run outside a Storefront context should guard their usage:
+Type the script `response` service for the hook you implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and return JSON or redirects there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
 
 ```twig
-{% if response.render is defined %}
-    {% set rendered = response.render('@Storefront/...') %}
-{% endif %}
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
 ```
 
 </details>
@@ -1732,6 +1737,33 @@ State-based invalidation is not supported anymore.
 ```diff
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
+```
+
+## Inline `<custom-fields>` in `manifest.xml` removed
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is no longer supported.
+Move the definitions into a dedicated `Resources/config/custom-fields.xml` file instead, using the same XML format.
+
+```diff
+// manifest.xml
+- <custom-fields>
+-     <custom-field-set>
+-         <name>swag_example_set</name>
+-         ...
+-     </custom-field-set>
+- </custom-fields>
+```
+
+```xml
+<!-- Resources/config/custom-fields.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>swag_example_set</name>
+        ...
+    </custom-field-set>
+</custom-fields>
 ```
 
 </details>

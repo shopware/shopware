@@ -66,7 +66,7 @@ class SyncService implements SyncServiceInterface
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
 
-        $this->eventDispatcher->dispatch($writes);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes));
 
         $ids = $this->getWrittenEntities($result->getWritten());
 

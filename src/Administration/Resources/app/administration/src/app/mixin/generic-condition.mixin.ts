@@ -30,6 +30,16 @@ type BetweenValue = {
     to: string | null;
 };
 
+/**
+ * Field types whose compared value is a list. Used to pick the "is one of / is none of" operator labels
+ * over "is equal to / is not equal to".
+ */
+const LIST_VALUED_FIELD_TYPES = [
+    'multi-entity-id-select',
+    'multi-select',
+    'tagged',
+];
+
 /* Mixin uses many untyped dependencies */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
 
@@ -78,12 +88,15 @@ export default Mixin.register(
                     return null;
                 }
 
-                // @ts-expect-error - conditionDataProviderService is available in base component
+                const isMultiValue = Object.values(this.config.fields ?? {}).some((field) =>
+                    LIST_VALUED_FIELD_TYPES.includes(field.type),
+                );
+
+                // @ts-expect-error
                 return this.conditionDataProviderService.getOperatorOptionsByIdentifiers(
                     // @ts-expect-error
                     this.config.operatorSet.operators,
-                    // @ts-expect-error
-                    this.config.operatorSet.isMatchAny,
+                    isMultiValue,
                 );
             },
 

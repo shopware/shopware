@@ -84,7 +84,7 @@ class OrderStatusRuleTest extends TestCase
 
         static::assertEquals([
             'operators' => $operators,
-            'isMatchAny' => true,
+            'isMatchAny' => false,
         ], $configData['operatorSet']);
     }
 

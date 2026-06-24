@@ -1095,9 +1095,15 @@ class EntityReader implements EntityReaderInterface
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
+        $primaryKeyAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id';
+
         $orderByParts = $query->getOrderByParts();
 
-        $windowOrderBy = $orderByParts !== [] ? implode(', ', $orderByParts) : $sqlAccessor;
+        // Always end the window ordering with the reference primary key so ROW_NUMBER() produces a deterministic
+        // total order within each partition. The criteria sortings may be absent or non-unique (e.g. sorting by a
+        // shared `name`); without a unique tie-breaker the row numbering is undefined within a parent and paginated
+        // reads (limit/offset) of the association can return overlapping rows across separate queries.
+        $windowOrderBy = implode(', ', [...$orderByParts, $primaryKeyAccessor]);
 
         // ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) guarantees that rows are numbered in the declared sort
         // order within each parent entity, regardless of how the database engine executes the surrounding query, which
@@ -1110,7 +1116,7 @@ class EntityReader implements EntityReaderInterface
             $sqlAccessor,
 
             // add primary key select to group concat them
-            EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
+            $primaryKeyAccessor,
         );
 
         foreach ($orderByParts as $i => $sorting) {

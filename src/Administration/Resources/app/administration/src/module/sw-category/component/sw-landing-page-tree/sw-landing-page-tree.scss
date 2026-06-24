@@ -1,5 +1,3 @@
-$sw-tree-item-color-background: var(--color-background-secondary-default);
-
 .sw-landing-page-tree {
     height: 100%;
 
@@ -33,10 +31,10 @@ $sw-tree-item-color-background: var(--color-background-secondary-default);
             }
 
             &:hover {
-                background: $sw-tree-item-color-background;
+                background: var(--color-background-secondary-default);
 
                 .sw-tree-item__content {
-                    background: $sw-tree-item-color-background;
+                    background: var(--color-background-secondary-default);
                 }
             }
         }

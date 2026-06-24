@@ -10,9 +10,32 @@ on:
         description: "Issue number to triage (manual dispatch only)"
         required: false
         type: number
+  slash_command:
+    name: triage
+    events: [issue_comment]
+  label_command:
+    name: qi/triage
+    events: [issues]
+    remove_label: false
   status-comment:
     issues: true
     pull-requests: false
+
+if: >-
+  github.event_name == 'workflow_dispatch' ||
+  (
+    github.event_name == 'issue_comment' &&
+    github.event.issue.pull_request == null &&
+    (
+      github.event.comment.body == '/triage' ||
+      startsWith(github.event.comment.body, '/triage ')
+    )
+  ) ||
+  (
+    github.event_name == 'issues' &&
+    github.event.action == 'labeled' &&
+    github.event.label.name == 'qi/triage'
+  )
 
 run-name: "Shopware Issue Triage #${{ github.event.issue.number || github.event.inputs.issue_number }}"
 
@@ -31,7 +54,7 @@ engine:
 
 permissions: read-all        # read-only agent; the only output is a run artifact
 network: defaults
-timeout-minutes: 8
+timeout-minutes: 15          # wall-clock budget; max-turns (30) bounds runaway loops.
 
 tools:
   github:

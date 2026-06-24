@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -42,7 +42,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -137,12 +137,7 @@ class ProductListingRoute extends AbstractProductListingRoute
                 continue;
             }
 
-            // propagate stream state (e.g. display-as-group) only for the requested category
-            $streamFilters = $this->getProductStreamFilters(
-                $category,
-                $salesChannelContext,
-                $category->getId() === $categoryId ? $criteria : null
-            );
+            $streamFilters = $this->getProductStreamFilters($category, $salesChannelContext);
 
             if ($streamFilters !== []) {
                 $filters[] = $this->groupFilters($streamFilters);
@@ -163,7 +158,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * @return list<Filter>
      */
-    private function getProductStreamFilters(PartialEntity $category, SalesChannelContext $salesChannelContext, ?Criteria $criteria = null): array
+    private function getProductStreamFilters(PartialEntity $category, SalesChannelContext $salesChannelContext): array
     {
         if (!$this->isProductStreamCategory($category)) {
             return [];
@@ -172,17 +167,10 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productStreamId = $category->get('productStreamId');
         \assert(\is_string($productStreamId));
 
-        $streamCriteria = new Criteria();
-        $this->productStreamBuilder->enrichCriteria(
-            $streamCriteria,
+        return array_values($this->productStreamBuilder->buildFilters(
             $productStreamId,
             $salesChannelContext->getContext()
-        );
-
-        // propagate stream states (e.g. display-as-group handling) to the listing criteria
-        $criteria?->addState(...$streamCriteria->getStates());
-
-        return array_values($streamCriteria->getFilters());
+        ));
     }
 
     private function isProductStreamCategory(PartialEntity $category): bool

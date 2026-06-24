@@ -1,10 +1,4 @@
-@import "~scss/variables";
 @import "~scss/mixins";
-
-$sw-media-index-font-size-navigation: $font-size-m;
-$sw-media-index-color-breadcrumb-icon: var(--color-text-brand-default);
-$sw-media-index-color-navigation-parent: var(--color-text-primary-default);
-$sw-media-index-page-background-color: var(--color-elevation-surface-default);
 
 .sw-media-index {
     .sw-media-index__navigation {
@@ -14,23 +8,23 @@ $sw-media-index-page-background-color: var(--color-elevation-surface-default);
         align-items: center;
         padding-left: 26px;
         min-width: 150px;
-        font-size: $sw-media-index-font-size-navigation;
+        font-size: var(--font-size-m);
     }
 
     .sw-media-index__navigation-breadcrumb {
-        color: $sw-media-index-color-breadcrumb-icon;
+        color: var(--color-text-brand-default);
         height: 28px;
     }
 
     .sw-media-index__navigation-label {
         @include truncate;
 
-        color: $sw-media-index-color-navigation-parent;
+        color: var(--color-text-primary-default);
         text-decoration: none;
     }
 
     .sw-media-index__page-content {
-        background: $sw-media-index-page-background-color;
+        background: var(--color-elevation-surface-default);
         display: grid;
         height: 100%;
         grid-template-columns: 1fr auto;

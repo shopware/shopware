@@ -1,4 +1,3 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-settings-country-new-snippet-modal {
@@ -63,7 +62,7 @@
         }
 
         .sw-field__label label {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
 
         .sw-block-field__block input {

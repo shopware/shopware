@@ -15,7 +15,7 @@
 
     &__type-section {
         background: var(--color-elevation-surface-default);
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-bottom: none;
         overflow: hidden;
 
@@ -25,7 +25,7 @@
         }
 
         &:last-child {
-            border-bottom: 1px solid var(--color-border-primary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
             border-bottom-right-radius: var(--border-radius-xs);
             border-bottom-left-radius: var(--border-radius-xs);
         }

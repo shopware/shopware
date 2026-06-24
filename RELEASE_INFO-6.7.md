@@ -1,5 +1,50 @@
 # 6.7.13.0 (upcoming)
 
+## Core
+
+### Declarative custom fields via `Resources/config/custom-fields.xml`
+
+Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
+
+This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+
+The XML format is the same one already used by apps in the manifest:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>my_plugin_fields</name>
+        <label>My Fields</label>
+        <label lang="de-DE">Meine Felder</label>
+        <related-entities>
+            <product/>
+        </related-entities>
+        <fields>
+            <int name="my_plugin_weight">
+                <label>Weight</label>
+                <position>1</position>
+            </int>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+New classes:
+- `Shopware\Core\System\CustomField\CustomFieldSetPersister` — shared persistence logic for custom field sets
+- `Shopware\Core\System\CustomField\CustomFieldXmlLoader` — loads and validates `custom-fields.xml` files
+
+The custom field XML DTO classes have been moved from `Shopware\Core\Framework\App\Manifest\Xml\CustomField` to `Shopware\Core\System\CustomField\Xml` to make them properly reusable outside the app system.
+
+## App System
+
+### Deprecation of inline `<custom-fields>` in `manifest.xml`
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
+
+When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
 # 6.7.12.0 (upcoming)
 
 ## Features
@@ -306,40 +351,6 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
-### Declarative custom fields via `Resources/config/custom-fields.xml`
-
-Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
-
-This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
-
-The XML format is the same one already used by apps in the manifest:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
-    <custom-field-set>
-        <name>my_plugin_fields</name>
-        <label>My Fields</label>
-        <label lang="de-DE">Meine Felder</label>
-        <related-entities>
-            <product/>
-        </related-entities>
-        <fields>
-            <int name="my_plugin_weight">
-                <label>Weight</label>
-                <position>1</position>
-            </int>
-        </fields>
-    </custom-field-set>
-</custom-fields>
-```
-
-New classes:
-- `Shopware\Core\System\CustomField\CustomFieldSetPersister` — shared persistence logic for custom field sets
-- `Shopware\Core\System\CustomField\CustomFieldXmlLoader` — loads and validates `custom-fields.xml` files
-
-The custom field XML DTO classes have been moved from `Shopware\Core\Framework\App\Manifest\Xml\CustomField` to `Shopware\Core\System\CustomField\Xml` to make them properly reusable outside the app system.
 ### `cache:watch:delayed` shuts down gracefully
 
 The `cache:watch:delayed` command now stops cleanly on `SIGINT`/`SIGTERM` instead of being killed mid-loop, and exposes a configurable `--interval` option (microseconds) for the poll frequency.
@@ -593,11 +604,6 @@ Enabling the flag requires configuration changes — the worker consume command 
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
 
-### Deprecation of inline `<custom-fields>` in `manifest.xml`
-
-Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
-
-When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials

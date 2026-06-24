@@ -61,7 +61,22 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
    them in `src/`. Always search with `rg` scoped to `src/` — it is fast and
    skips `node_modules`/vendor by default. Never run `find … | xargs grep`
    across the repo or into `node_modules`/vendor: those scans are slow and
-   are the main way a run burns its wall-clock budget. For the **primary
+   are the main way a run burns its wall-clock budget.
+
+   **If the affected code resolves to a third-party dependency, stop — do not
+   hunt for its source.** The failing element is sometimes provided by an
+   external package rather than by this repo: a frontend element/module pulled
+   from `node_modules` (a tag or import with no definition under `src/`), or a
+   PHP class from a Composer package under `vendor/`. Those sources are not part
+   of this repo, so no amount of further searching will surface them. Record the
+   in-repo *usage* site you already have — the template, `.vue`/`.js`, or PHP
+   file that renders, imports, calls, or configures the dependency — as the
+   affected path, note in `reasoning` that the underlying code is external (name
+   the package or symbol if you know it), and move on. Do NOT `ls`/`find`
+   through `node_modules`/`vendor`, chase the dependency's internals, or re-grep
+   its usages to "confirm" — you already have what you need.
+
+   For the **primary
    domain label**, grep the package marker
    on the affected file — `#[Package('<key>')]` on PHP or `@sw-package <key>`
    on JS/TS — and map the key via references/DOMAINS.md. The marker is
@@ -119,11 +134,26 @@ domain-label catalogue and the package-marker → label mapping, see
 
 ## Tool budget
 
-You have ~15 tool calls total. After 8 calls without finding the affected
-code area, OR after 2 empty searches **commit to the limited evidence you have**:
-emit `affected_paths: []`, lower confidence by 0.10, and add to reasoning:
-"Did not locate affected file after N rg/grep attempts." Do not loop. A
-calibrated partial answer beats a hung run.
+You operate under a finite budget, and running out **before you emit** is the
+worst possible outcome — worse than any low-confidence answer. So **stay aware
+of how many tool calls you have made and always leave headroom to emit your
+result.** Treat ~15 tool calls as your working target; as you approach your
+limit, stop investigating and emit immediately with whatever you have — lower
+the confidence to reflect the incomplete search and note in `reasoning` what you
+did not get to. A valid low-confidence result always beats no result.
+
+Two earlier stop conditions apply, whichever comes first:
+
+- **After 8 calls without locating the affected code area**, OR after 2 empty
+  searches, commit to the limited evidence you have: emit `affected_paths: []`,
+  lower confidence by 0.10, and add to reasoning: "Did not locate affected file
+  after N rg/grep attempts."
+- **Once you have a candidate file, stop drilling.** Recording the file and its
+  rough area is enough — do NOT keep spending calls to pin the exact line,
+  re-grep the same identifier in adjacent paths, or re-run `git log` variants.
+  Over-confirmation burns the same budget as failing to find.
+
+Do not loop. A calibrated partial answer beats a hung run.
 
 ## Anti-reward-hacking
 

@@ -20,6 +20,14 @@ post-run schema/secret-scan validator
 assign, or comment on the issue — the structured result is the only
 deliverable.
 
+**Hard turn limit.** This run is force-stopped after **30 turns** (roughly one
+tool call each). If you are stopped before emitting, the run produces **no
+output at all** and the whole triage is wasted — so this is worse than any
+low-confidence answer. Pace yourself against the tool budget below: aim to emit
+your `TriageOutput` by ~20 tool calls, and if you near the limit, emit
+immediately with whatever evidence you have at a reduced confidence rather than
+risk being cut off with nothing.
+
 {{#runtime-import .github/aw/shared/triage-policy.md}}
 
 ## Output contract

@@ -68,11 +68,11 @@ class NavigationControllerTest extends TestCase
 
         $entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $entityRouteResolver->method('generateSeoUrlPlaceholder')
-            ->willReturnCallback(static function (string $entityName, array $values) {
+            ->willReturnCallback(static function (string $entityName, string $primaryKey) {
                 return match ($entityName) {
-                    'product' => '/product/' . $values[0],
-                    'category' => '/navigation/' . $values[0],
-                    'landing_page' => '/landingPage/' . $values[0],
+                    'product' => '/product/' . $primaryKey,
+                    'category' => '/navigation/' . $primaryKey,
+                    'landing_page' => '/landingPage/' . $primaryKey,
                     default => '/' . $entityName,
                 };
             });

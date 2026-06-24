@@ -36,10 +36,10 @@ class EntityRouteResolverTest extends TestCase
         $resolver = $this->getContainer()->get(EntityRouteResolver::class);
         static::assertInstanceOf(EntityRouteResolver::class, $resolver);
 
-        static::assertSame($expectedPath, $resolver->generateUrl($entityName, [$id]));
+        static::assertSame($expectedPath, $resolver->generateUrl($entityName, $id));
         static::assertSame(
             SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . $expectedPath . '#',
-            $resolver->generateSeoUrlPlaceholder($entityName, [$id])
+            $resolver->generateSeoUrlPlaceholder($entityName, $id)
         );
     }
 
@@ -74,10 +74,10 @@ class EntityRouteResolverTest extends TestCase
             ],
         );
 
-        static::assertSame($expectedPath, $resolver->generateUrl($entityName, [$id]));
+        static::assertSame($expectedPath, $resolver->generateUrl($entityName, $id));
         static::assertSame(
             SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . $expectedPath . '#',
-            $resolver->generateSeoUrlPlaceholder($entityName, [$id])
+            $resolver->generateSeoUrlPlaceholder($entityName, $id)
         );
     }
 

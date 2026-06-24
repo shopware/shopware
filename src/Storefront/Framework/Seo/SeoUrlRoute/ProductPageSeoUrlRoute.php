@@ -36,7 +36,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
             true,
-            ['productId']
+            'productId'
         );
     }
 
@@ -66,7 +66,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 
         return new SeoUrlMapping(
             $product,
-            $this->getConfig()->getParameterKeyValuePairs([$product->getId()]),
+            $this->getConfig()->getPrimaryKeyParameter($product->getId()),
             [
                 'product' => $productJson,
             ]

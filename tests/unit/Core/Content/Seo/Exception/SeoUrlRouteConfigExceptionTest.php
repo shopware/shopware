@@ -15,14 +15,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SeoUrlRouteConfigException::class)]
 class SeoUrlRouteConfigExceptionTest extends TestCase
 {
-    public function testRouteParametersMismatching(): void
+    public function testRouteConfigMissingPrimaryKey(): void
     {
-        $exception = SeoUrlRouteConfigException::routeParametersMismatching(['productId'], ['abc123', 'extra']);
+        $exception = SeoUrlRouteConfigException::routeConfigMissingPrimaryKey('product');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame(SeoUrlRouteConfigException::ROUTE_PARAMETERS_MISMATCHING, $exception->getErrorCode());
-        static::assertSame('Mismatch between required route parameters and given values.', $exception->getMessage());
-        static::assertSame(['required' => ['productId'], 'given' => ['abc123', 'extra']], $exception->getParameters());
+        static::assertSame(SeoUrlRouteConfigException::ROUTE_CONFIG_MISSING_PRIMARY_KEY, $exception->getErrorCode());
+        static::assertSame('Missing key for primary key.', $exception->getMessage());
+        static::assertSame(['entityName' => 'product'], $exception->getParameters());
     }
 
     public function testRouteConfigNotFoundForEntityName(): void

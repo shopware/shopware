@@ -31,27 +31,23 @@ class EntityRouteResolver
     /**
      * Generates a SEO URL placeholder for the given entity.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
-     *
-     * @param list<string> $values
      */
-    public function generateSeoUrlPlaceholder(string $entityName, array $values = []): string
+    public function generateSeoUrlPlaceholder(string $entityName, string $primaryKey): string
     {
         $config = $this->getRouteConfig($entityName);
 
-        return $this->seoUrlPlaceholderHandler->generate($config->getRouteName(), $config->getParameterKeyValuePairs($values));
+        return $this->seoUrlPlaceholderHandler->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
     /**
      * Generates a concrete URL for the given entity via the Symfony router.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
-     *
-     * @param list<string> $values
      */
-    public function generateUrl(string $entityName, array $values = []): string
+    public function generateUrl(string $entityName, string $primaryKey): string
     {
         $config = $this->getRouteConfig($entityName);
 
-        return $this->router->generate($config->getRouteName(), $config->getParameterKeyValuePairs($values));
+        return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
     private function getRouteConfig(string $entityName): SeoUrlRouteConfig

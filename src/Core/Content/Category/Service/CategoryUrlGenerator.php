@@ -33,7 +33,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         }
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {
-            return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, [$category->getId()]);
+            return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $category->getId());
         }
 
         $linkType = $category->getTranslation('linkType');
@@ -45,13 +45,13 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 
         switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, [$internalLink]);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, $internalLink);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, [$internalLink]);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $internalLink);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, [$internalLink]);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, $internalLink);
 
             case CategoryDefinition::LINK_TYPE_EXTERNAL:
             default:

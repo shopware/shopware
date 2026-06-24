@@ -33,9 +33,7 @@ class CategoryUrlGeneratorTest extends TestCase
     {
         $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $this->urlGenerator = new CategoryUrlGenerator($this->entityRouteResolver);
-        $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnCallback(
-            static fn (string $entityName, array $values): string => $entityName
-        );
+        $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnArgument(0);
         $this->salesChannel = new SalesChannelEntity();
         $this->salesChannel->setNavigationCategoryId(Uuid::randomHex());
     }

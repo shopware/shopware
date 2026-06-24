@@ -25,6 +25,6 @@ class LandingPageStoreApiUrlRouteTest extends TestCase
         static::assertSame('store-api.landing-page.detail', $config->getRouteName());
         static::assertSame('', $config->getTemplate());
         static::assertTrue($config->getSkipInvalid());
-        static::assertSame(['landingPageId' => 'abc123'], $config->getParameterKeyValuePairs(['abc123']));
+        static::assertSame(['landingPageId' => 'abc123'], $config->getPrimaryKeyParameter('abc123'));
     }
 }

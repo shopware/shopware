@@ -66,22 +66,9 @@ class EntityRouteResolverTest extends TestCase
             ->with('frontend.detail.page', ['productId' => 'abc123'])
             ->willReturn('SEO_PLACEHOLDER');
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', ['productId']);
+        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', 'productId');
 
-        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('product', ['abc123']));
-    }
-
-    public function testGenerateSeoUrlPlaceholderUsesEmptyParametersByDefault(): void
-    {
-        $this->placeholderHandler
-            ->expects($this->once())
-            ->method('generate')
-            ->with('frontend.navigation.page', [])
-            ->willReturn('SEO_PLACEHOLDER');
-
-        $resolver = $this->createResolverWithRoute('category', 'frontend.navigation.page');
-
-        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('category'));
+        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('product', 'abc123'));
     }
 
     public function testGenerateUrlPassesResolvedRouteAndParameters(): void
@@ -92,41 +79,35 @@ class EntityRouteResolverTest extends TestCase
             ->with('frontend.detail.page', ['productId' => 'abc123'])
             ->willReturn('/product/some-product/abc123');
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', ['productId']);
+        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', 'productId');
 
-        static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', ['abc123']));
+        static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', 'abc123'));
     }
 
-    public function testThrowsExceptionOnRouteParameterMismatch(): void
+    public function testThrowsExceptionWhenRouteHasNoPrimaryKeyConfigured(): void
     {
-        $this->expectExceptionObject(SeoUrlRouteConfigException::routeParametersMismatching(['productId'], []));
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingPrimaryKey('product'));
 
-        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page', ['productId']);
+        $resolver = $this->createResolverWithRoute('product', 'frontend.detail.page');
 
-        $resolver->generateUrl('product', []);
+        $resolver->generateUrl('product', 'abc123');
     }
 
-    /**
-     * @param list<string> $parameterKeys
-     */
-    private function createResolverWithRoute(string $entityName, string $routeName, array $parameterKeys = []): EntityRouteResolver
+    private function createResolverWithRoute(string $entityName, string $routeName, ?string $primaryKeyParameterKey = null): EntityRouteResolver
     {
         return new EntityRouteResolver(
-            new SeoUrlRouteRegistry([$this->createSeoUrlRoute($entityName, $routeName, $parameterKeys)]),
+            new SeoUrlRouteRegistry([$this->createSeoUrlRoute($entityName, $routeName, $primaryKeyParameterKey)]),
             $this->placeholderHandler,
             $this->router,
         );
     }
 
-    /**
-     * @param list<string> $parameterKeys
-     */
-    private function createSeoUrlRoute(string $entityName, string $routeName, array $parameterKeys = []): SeoUrlRouteInterface
+    private function createSeoUrlRoute(string $entityName, string $routeName, ?string $primaryKeyParameterKey = null): SeoUrlRouteInterface
     {
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($entityName);
 
-        $config = new SeoUrlRouteConfig($definition, $routeName, '{{ entity.name }}', true, $parameterKeys);
+        $config = new SeoUrlRouteConfig($definition, $routeName, '{{ entity.name }}', true, $primaryKeyParameterKey);
 
         $seoUrlRoute = static::createStub(SeoUrlRouteInterface::class);
         $seoUrlRoute->method('getConfig')->willReturn($config);

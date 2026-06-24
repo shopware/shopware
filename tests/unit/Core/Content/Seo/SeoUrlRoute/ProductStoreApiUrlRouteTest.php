@@ -25,6 +25,6 @@ class ProductStoreApiUrlRouteTest extends TestCase
         static::assertSame('store-api.product.detail', $config->getRouteName());
         static::assertSame('', $config->getTemplate());
         static::assertTrue($config->getSkipInvalid());
-        static::assertSame(['productId' => 'abc123'], $config->getParameterKeyValuePairs(['abc123']));
+        static::assertSame(['productId' => 'abc123'], $config->getPrimaryKeyParameter('abc123'));
     }
 }

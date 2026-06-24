@@ -24,7 +24,7 @@ class CategoryStoreApiUrlRoute implements EntitySeoUrlRouteInterface
             self::ROUTE_NAME,
             '',
             true,
-            ['navigationId']
+            'navigationId'
         );
     }
 }

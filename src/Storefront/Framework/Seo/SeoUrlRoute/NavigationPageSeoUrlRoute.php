@@ -38,7 +38,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
             true,
-            ['navigationId']
+            'navigationId'
         );
     }
 
@@ -72,7 +72,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
         return new SeoUrlMapping(
             $category,
-            $this->getConfig()->getParameterKeyValuePairs([$category->getId()]),
+            $this->getConfig()->getPrimaryKeyParameter($category->getId()),
             [
                 'category' => $categoryJson,
             ],

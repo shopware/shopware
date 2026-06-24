@@ -75,7 +75,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
-                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, [$landingPage['id']]));
+                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, $landingPage['id']));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];

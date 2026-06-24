@@ -33,7 +33,7 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
             true,
-            ['landingPageId']
+            'landingPageId'
         );
     }
 
@@ -53,7 +53,7 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 
         return new SeoUrlMapping(
             $landingPage,
-            $this->getConfig()->getParameterKeyValuePairs([$landingPage->getId()]),
+            $this->getConfig()->getPrimaryKeyParameter($landingPage->getId()),
             [
                 'landingPage' => $landingPageJson,
             ]

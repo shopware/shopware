@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo\SeoUrlRoute;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +24,7 @@ class SeoUrlRouteConfigTest extends TestCase
             'foo_bar',
             '{{ foo.bar }}',
             false,
-            ['fooId', 'barId']
+            'fooId'
         );
 
         static::assertSame($entityDefinition, $config->getDefinition());
@@ -31,8 +32,24 @@ class SeoUrlRouteConfigTest extends TestCase
         static::assertSame('{{ foo.bar }}', $config->getTemplate());
         static::assertFalse($config->getSkipInvalid());
         static::assertSame(
-            ['fooId' => 'foo-value', 'barId' => 'bar-value'],
-            $config->getParameterKeyValuePairs(['foo-value', 'bar-value'])
+            ['fooId' => 'foo-value'],
+            $config->getPrimaryKeyParameter('foo-value')
         );
+    }
+
+    public function testGetPrimaryKeyParameterThrowsWhenNoKeyConfigured(): void
+    {
+        $defintion = $this->createMock(EntityDefinition::class);
+        $defintion->method('getEntityName')->willReturn('foo_bar');
+
+        $config = new SeoUrlRouteConfig(
+            $defintion,
+            'foo_bar',
+            '{{ foo.bar }}'
+        );
+
+        $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingPrimaryKey('foo_bar'));
+
+        $config->getPrimaryKeyParameter('foo-value');
     }
 }

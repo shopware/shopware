@@ -24,7 +24,7 @@ class LandingPageStoreApiUrlRoute implements EntitySeoUrlRouteInterface
             self::ROUTE_NAME,
             '',
             true,
-            ['landingPageId']
+            'landingPageId'
         );
     }
 }

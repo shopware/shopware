@@ -24,7 +24,7 @@ class ProductStoreApiUrlRoute implements EntitySeoUrlRouteInterface
             self::ROUTE_NAME,
             '',
             true,
-            ['productId']
+            'productId'
         );
     }
 }

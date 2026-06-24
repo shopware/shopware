@@ -49,7 +49,7 @@ This repo ships Agent Skills under `.claude/skills/` (catalogue: `.claude/skills
 ### Definition of Done — mandatory for every change
 
 Before you commit or hand work back:
-- **Code change ⇒ tests are not optional.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`.
+- **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`. Style-only, snippet/translation, and docs-only changes do not need tests; still add one when it is useful and follows an established pattern.
 - **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
 - **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries.
 - **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.

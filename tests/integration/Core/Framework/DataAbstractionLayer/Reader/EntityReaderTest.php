@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -2729,6 +2730,51 @@ class EntityReaderTest extends TestCase
 
             return $mediaEntity->getFileName();
         })));
+    }
+
+    public function testOneToManyPaginationRespectsCrossEntitySort(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50)
+            ->media('small', 1)
+            ->media('medium', 2)
+            ->media('large', 3);
+
+        $this->productRepository->create([$product->build()], $context);
+
+        // file_size is WriteProtected, so set it via SQL directly.
+        foreach (['small' => 1_000, 'medium' => 5_000, 'large' => 10_000] as $name => $size) {
+            $this->connection->executeStatement(
+                'UPDATE `media` SET `file_size` = :size WHERE `file_name` = :name',
+                ['size' => $size, 'name' => $name]
+            );
+        }
+
+        // Skip the cover (position 0), sort by descending file size, take only the top 1.
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->getAssociation('media')
+            ->addAssociation('media')
+            ->addFilter(new NotEqualsFilter('position', 0))
+            ->addSorting(new FieldSorting('media.fileSize', FieldSorting::DESCENDING))
+            ->setLimit(1);
+
+        $product = $this->productRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $productMedia = $product->getMedia();
+        static::assertNotNull($productMedia);
+        static::assertCount(1, $productMedia);
+
+        $firstProductMedia = $productMedia->first();
+        static::assertNotNull($firstProductMedia);
+        $firstMedia = $firstProductMedia->getMedia();
+        static::assertNotNull($firstMedia);
+        // Must be the image with the highest file_size, not an arbitrary one.
+        static::assertSame('large', $firstMedia->getFileName());
     }
 
     public function testManyToManyJoinsIntoSameTableFiltered(): void

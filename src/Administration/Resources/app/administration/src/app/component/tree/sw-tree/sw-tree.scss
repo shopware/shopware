@@ -12,7 +12,7 @@
 
     .sw-tree__search {
         padding: var(--scale-size-10) var(--scale-size-20);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-tree-actions__headline {
@@ -52,7 +52,7 @@
 
             &::before {
                 content: "";
-                background: var(--color-border-primary-default);
+                background: var(--color-border-secondary-default);
                 position: absolute;
                 left: 15.5px;
                 top: 50%;

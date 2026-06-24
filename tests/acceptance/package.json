@@ -6,6 +6,8 @@
     "createTask": "./bin/createTask.js"
   },
   "scripts": {
+    "format": "prettier --check .",
+    "format:fix": "prettier --write . --cache",
     "lint": "eslint . --ext .ts",
     "lint:fix": "npm run lint -- --fix",
     "act": "npx playwright test --ui"
@@ -22,6 +24,7 @@
     "dotenv": "16.6.1",
     "eslint": "8.57.1",
     "eslint-plugin-playwright": "1.6.2",
+    "prettier": "^3.6.2",
     "typescript": "5.9.3"
   },
   "dependencies": {

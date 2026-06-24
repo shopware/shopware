@@ -45,6 +45,31 @@ class SystemConfigControllerTest extends TestCase
         }
     }
 
+    public function testBatchSaveConfigurationPersistsNestedConfigKeysWithoutConfigurationForm(): void
+    {
+        $key = 'core.defaultSalesChannel.visibility';
+        $value = ['test-sales-channel' => 30];
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->delete($key);
+
+        try {
+            $response = $this->createController()->batchSaveConfiguration(
+                new Request([], [
+                    'null' => [
+                        $key => $value,
+                    ],
+                ]),
+                Context::createDefaultContext()
+            );
+
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+            static::assertSame($value, $systemConfigService->get($key));
+        } finally {
+            $systemConfigService->delete($key);
+        }
+    }
+
     private function createController(): SystemConfigController
     {
         return new SystemConfigController(

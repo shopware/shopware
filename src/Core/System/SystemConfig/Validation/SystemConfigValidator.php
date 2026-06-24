@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
@@ -135,7 +136,7 @@ class SystemConfigValidator
     {
         try {
             return $this->configurationService->getConfiguration($domain, $context);
-        } catch (SystemConfigException) {
+        } catch (SystemConfigException|BundleConfigNotFoundException) {
             return [];
         }
     }

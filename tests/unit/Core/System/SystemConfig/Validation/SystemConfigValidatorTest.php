@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -168,7 +169,26 @@ class SystemConfigValidatorTest extends TestCase
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
-        static::assertSame($result, []);
+        static::assertSame([], $result);
+    }
+
+    public function testGetSystemConfigByDomainWithBundleConfigNotFoundException(): void
+    {
+        $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock->method('getConfiguration')
+            ->willThrowException(new BundleConfigNotFoundException('Resources/config/defaultSalesChannel.xml', 'System'));
+
+        $dataValidatorMock = $this->createMock(DataValidator::class);
+
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+
+        $contextMock = Context::createDefaultContext();
+
+        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+
+        $result = $refMethod->invoke($systemConfigValidation, 'core.defaultSalesChannel', $contextMock);
+
+        static::assertSame([], $result);
     }
 
     /**

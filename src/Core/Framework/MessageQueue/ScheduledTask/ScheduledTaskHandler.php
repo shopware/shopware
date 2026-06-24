@@ -57,55 +57,22 @@ abstract class ScheduledTaskHandler
     /**
      * @internal invoked by the {@see ScheduledTaskExecutor} to honor a subclass that overrides the deprecated
      * {@see rescheduleTask()} hook. Implement {@see DynamicallyScheduledTaskHandler} instead of overriding this.
+     *
+     * @deprecated tag:v6.8.0 - reason:becomes-internal - will be removed together with the {@see rescheduleTask()}
+     * hook; the executor will always persist the schedule itself and use {@see DynamicallyScheduledTaskHandler}
+     * for custom timing. Still called from inside the core, so it does not trigger a deprecation itself.
      */
     public function rescheduleNext(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
-        // a subclass may still override the deprecated rescheduleTask() hook; route through it so its custom
-        // logic (and the deprecation nudge) keeps working until the hook is removed in v6.8.0.0
+        // Only when a subclass actually overrides the deprecated rescheduleTask() hook do we route through it,
+        // so its custom logic (and the deprecation nudge it triggers) keeps working until the hook is removed in
+        // v6.8.0.0. The default handler never overrides it, so it takes the doRescheduleTask() path and no
+        // deprecation is emitted.
         if ((new \ReflectionMethod($this, 'rescheduleTask'))->getDeclaringClass()->getName() !== self::class) {
             $this->rescheduleTask($task, $taskEntity);
 
             return;
         }
-
-        $this->doRescheduleTask($task, $taskEntity);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
-     */
-    public function runTask(ScheduledTask $task): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
-        );
-
-        $this->doMarkTaskRunning($task);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
-     */
-    public function failTask(ScheduledTask $task): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
-        );
-
-        $this->doMarkTaskFailed($task);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
-     */
-    public function reschedule(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
-        );
 
         $this->doRescheduleTask($task, $taskEntity);
     }

@@ -64,7 +64,7 @@ abstract class ScheduledTaskHandler
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
-        $this->markTaskRunning($task);
+        $this->doMarkTaskRunning($task);
     }
 
     /**
@@ -77,7 +77,7 @@ abstract class ScheduledTaskHandler
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
-        $this->markTaskFailed($task);
+        $this->doMarkTaskFailed($task);
     }
 
     /**
@@ -90,10 +90,49 @@ abstract class ScheduledTaskHandler
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
-        $this->rescheduleTask($task, $taskEntity);
+        $this->doRescheduleTask($task, $taskEntity);
     }
 
-    private function markTaskRunning(ScheduledTask $task): void
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
+     */
+    protected function markTaskRunning(ScheduledTask $task): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        $this->doMarkTaskRunning($task);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
+     */
+    protected function markTaskFailed(ScheduledTask $task): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        $this->doMarkTaskFailed($task);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, the task state transitions are handled by the {@see ScheduledTaskExecutor}
+     */
+    protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        $this->doRescheduleTask($task, $taskEntity);
+    }
+
+    private function doMarkTaskRunning(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -103,7 +142,7 @@ abstract class ScheduledTaskHandler
         ], Context::createCLIContext());
     }
 
-    private function markTaskFailed(ScheduledTask $task): void
+    private function doMarkTaskFailed(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -113,7 +152,7 @@ abstract class ScheduledTaskHandler
         ], Context::createCLIContext());
     }
 
-    private function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    private function doRescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
         $now = $this->now();
 
@@ -164,7 +203,7 @@ abstract class ScheduledTaskHandler
             return;
         }
 
-        $this->markTaskRunning($task);
+        $this->doMarkTaskRunning($task);
 
         try {
             $this->run();
@@ -178,16 +217,16 @@ abstract class ScheduledTaskHandler
                     ]
                 );
 
-                $this->rescheduleTask($task, $taskEntity);
+                $this->doRescheduleTask($task, $taskEntity);
 
                 return;
             }
 
-            $this->markTaskFailed($task);
+            $this->doMarkTaskFailed($task);
 
             throw $e;
         }
 
-        $this->rescheduleTask($task, $taskEntity);
+        $this->doRescheduleTask($task, $taskEntity);
     }
 }

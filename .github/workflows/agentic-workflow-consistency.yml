@@ -1,0 +1,43 @@
+name: Agentic Workflow Consistency
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/*.md"
+      - ".github/workflows/*.lock.yml"
+      - ".github/workflows/agentics-maintenance.yml"
+      - ".github/workflows/agentic-workflow-consistency.yml"
+      - ".github/aw/**"
+      - ".github/dependabot.yml"
+      - ".gitattributes"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-check:
+    name: gh aw compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Install gh-aw
+        uses: github/gh-aw-actions/setup-cli@2702b4242b4cf95f4ee11b588355e49f38c220d0 # v0.80.2
+        with:
+          version: v0.80.2
+
+      - name: Compile agentic workflows
+        run: gh aw compile
+
+      - name: Check generated files are up to date
+        run: |
+          git diff --exit-code -- \
+            .gitattributes \
+            .github/workflows/agentics-maintenance.yml \
+            .github/workflows/bugfixer.lock.yml \
+            .github/workflows/triage.lock.yml \
+            .github/aw/actions-lock.json

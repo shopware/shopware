@@ -2,6 +2,23 @@
 
 ## Core
 
+### Deprecated core script response rendering
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.
+The method remains available in 6.7 for backwards compatibility when the Storefront bundle and a `SalesChannelContext` are available.
+
+Extension authors should type the script `response` service for the hook they implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and avoid `render()` there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
+
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
 ### Declarative custom fields via `Resources/config/custom-fields.xml`
 
 Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).

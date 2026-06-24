@@ -180,7 +180,12 @@ export default {
             return /^\d+(\.\d+)?$/.test(value);
         },
 
-        onChangeDisplayMode() {
+        onChangeDisplayMode(value) {
+            // min-height is only meaningful in cover mode; clear it otherwise so no value is persisted/sent
+            if (value !== 'cover') {
+                this.element.config.minHeight.value = '';
+            }
+
             this.emitUpdate();
         },
 

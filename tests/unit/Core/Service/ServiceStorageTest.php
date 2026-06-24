@@ -56,6 +56,25 @@ class ServiceStorageTest extends TestCase
         static::assertSame($app->getId(), $service->id);
     }
 
+    public function testFindByNameAndIntegrationId(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyService');
+        /** @var StaticEntityRepository<AppCollection> $repository */
+        $repository = new StaticEntityRepository([
+            static function (Criteria $criteria) use ($app): array {
+                self::assertServiceFilter($criteria);
+
+                return [$app];
+            },
+        ]);
+
+        $service = (new ServiceStorage($repository))->findByNameAndIntegrationId('MyService', 'integration-id', Context::createDefaultContext());
+
+        static::assertInstanceOf(Service::class, $service);
+        static::assertSame($app->getId(), $service->id);
+        static::assertSame('MyService', $service->name);
+    }
+
     public function testFindAll(): void
     {
         $app = AppFixture::createAppEntity();
@@ -77,5 +96,7 @@ class ServiceStorageTest extends TestCase
     private static function assertServiceFilter(Criteria $criteria): void
     {
         static::assertContainsEquals(new EqualsFilter('selfManaged', true), $criteria->getFilters());
+        static::assertTrue($criteria->hasAssociation('aclRole'));
+        static::assertFalse($criteria->hasAssociation('app'));
     }
 }

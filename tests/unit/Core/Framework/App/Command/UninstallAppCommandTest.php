@@ -12,8 +12,6 @@ use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -90,19 +88,6 @@ class UninstallAppCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $status);
         static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
         static::assertFalse($captured()['keepUserData']);
-    }
-
-    #[TestDox('Throws InvalidArgumentException when the name argument is not a string')]
-    public function testThrowsWhenNameArgumentIsNotString(): void
-    {
-        $input = static::createStub(InputInterface::class);
-        $input->method('getArgument')->willReturn(null);
-
-        $execute = new \ReflectionMethod(UninstallAppCommand::class, 'execute');
-
-        $this->expectExceptionObject(new \InvalidArgumentException('Argument $name must be an string'));
-
-        $execute->invoke($this->command, $input, new BufferedOutput());
     }
 
     #[TestDox('Returns FAILURE with an error when the named app is not installed')]

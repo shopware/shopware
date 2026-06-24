@@ -459,7 +459,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
-            ->with($app, $context);
+            ->with($app, $context, true);
 
         $this->createLifecycle($this->buildAppRepository([$app]))->uninstall('MyCoolService', $context);
     }

@@ -1,5 +1,9 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { verifyRecaptchaProtectionNotice, verifyRecaptchaScriptNotLoaded, waitForRecaptchaScriptLoaded } from '../../helpers/recaptcha-helpers';
+import {
+    verifyRecaptchaProtectionNotice,
+    verifyRecaptchaScriptNotLoaded,
+    waitForRecaptchaScriptLoaded,
+} from '../../helpers/recaptcha-helpers';
 
 const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 const reCaptcha_V2_secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
@@ -12,9 +16,13 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         // Get and store current config
-        const getCurrentConfig = await TestDataService.AdminApiClient.get('_action/system-config?domain=core.basicInformation');
+        const getCurrentConfig = await TestDataService.AdminApiClient.get(
+            '_action/system-config?domain=core.basicInformation'
+        );
         if (!getCurrentConfig.ok()) {
-            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
+            throw new Error(
+                `Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`
+            );
         }
         originalConfig = await getCurrentConfig.json();
 
@@ -42,7 +50,9 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
             data: updatedConfig,
         });
         if (!updateResponse.ok()) {
-            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
+            throw new Error(
+                `Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`
+            );
         }
 
         await TestDataService.clearCaches();
@@ -59,7 +69,8 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
         }
     });
 
-    test('As a customer, I can perform a registration by validating to be not a robot via the invisible Google reCaptcha V2.',
+    test(
+        'As a customer, I can perform a registration by validating to be not a robot via the invisible Google reCaptcha V2.',
         { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
         async ({
             ShopCustomer,
@@ -69,7 +80,6 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
             Register,
             acceptTechnicalRequiredCookies,
         }) => {
-
             const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
 
             await test.step('Navigate to login page and verify initial state', async () => {
@@ -83,7 +93,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
                 // Wait for _GRECAPTCHA cookie to be set (with retry to handle config propagation delay)
                 await ShopCustomer.expects(async () => {
                     const cookies = await StorefrontAccountLogin.page.context().cookies();
-                    const grecaptchaCookie = cookies.find(c => c.name === '_GRECAPTCHA');
+                    const grecaptchaCookie = cookies.find((c) => c.name === '_GRECAPTCHA');
                     await ShopCustomer.expects(grecaptchaCookie).toBeTruthy();
                 }).toPass({
                     intervals: [1_000, 2_500],
@@ -95,7 +105,9 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
 
             await test.step('Customer attempts to register and is automatically validated via the invisible reCaptcha V2', async () => {
                 await ShopCustomer.attemptsTo(Register(customer));
-                await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
+                await ShopCustomer.expects(
+                    StorefrontAccount.page.getByText(customer.email, { exact: true })
+                ).toBeVisible();
             });
         }
     );

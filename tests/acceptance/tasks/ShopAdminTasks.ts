@@ -56,5 +56,5 @@ export const test = mergeTests(
     AddCreditItem,
     CreateDocument,
     CreateRuleBillingCountry,
-    CreateFlowForValidation,
+    CreateFlowForValidation
 );

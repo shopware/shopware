@@ -6,8 +6,8 @@
     "createTask": "./bin/createTask.js"
   },
   "scripts": {
-    "format": "prettier --check .",
-    "format:fix": "prettier --write . --cache",
+    "format": "prettier --check \"**/*.{js,cjs,ts}\"",
+    "format:fix": "prettier --write \"**/*.{js,cjs,ts}\" --cache",
     "lint": "eslint . --ext .ts",
     "lint:fix": "npm run lint -- --fix",
     "act": "npx playwright test --ui"

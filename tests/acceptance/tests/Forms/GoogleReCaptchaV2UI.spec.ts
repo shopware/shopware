@@ -103,7 +103,13 @@ test.describe('Google reCAPTCHA V2 UI', () => {
         test(
             'As a customer, I can see the invisible Google reCaptcha V2 is loaded in the contact form.',
             { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
-            async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, StorefrontFooter, acceptTechnicalRequiredCookies }) => {
+            async ({
+                ShopCustomer,
+                StorefrontHome,
+                StorefrontContactForm,
+                StorefrontFooter,
+                acceptTechnicalRequiredCookies,
+            }) => {
                 await test.step('Open the contact form modal on home page', async () => {
                     await ShopCustomer.goesTo(StorefrontHome.url());
 

@@ -23,9 +23,11 @@ export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }
             return async function CreateDocument() {
                 const { orderId, type, referencedDocumentId } = options;
 
-                const documentPayload: Record<string, unknown>[] = [{
-                    orderId: orderId,
-                }];
+                const documentPayload: Record<string, unknown>[] = [
+                    {
+                        orderId: orderId,
+                    },
+                ];
 
                 if (typesRequiringInvoice.includes(type) && referencedDocumentId) {
                     documentPayload[0].referencedDocumentId = referencedDocumentId;

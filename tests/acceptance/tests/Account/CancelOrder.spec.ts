@@ -15,7 +15,9 @@ test(
         await ShopCustomer.attemptsTo(Login(customer));
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
 
-        const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(untouchedOrder.orderNumber);
+        const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(
+            untouchedOrder.orderNumber
+        );
         await ShopCustomer.expects(untouchedOrderItemLocators.orderStatus).toContainText('Open');
 
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);

@@ -47,7 +47,7 @@ test(
 
         const pluginInstalled = await page.evaluate(() => {
             const shopware = (globalThis as any).Shopware;
-            return !!(shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce);
+            return !!shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce;
         });
 
         if (!pluginInstalled) {
@@ -58,7 +58,7 @@ test(
             await test.step('clicking the install button always navigates somewhere', async () => {
                 const extensionStoreDetailExists = await page.evaluate(() => {
                     const shopware = (globalThis as any).Shopware;
-                    return !!(shopware?.Context?.app?.config?.bundles?.SwagExtensionStore);
+                    return !!shopware?.Context?.app?.config?.bundles?.SwagExtensionStore;
                 });
 
                 await page.locator('.mt-banner .mt-button').click();
@@ -81,5 +81,5 @@ test(
                 await ShopAdmin.expects(page.locator('.mt-banner')).not.toBeVisible();
             });
         }
-    },
+    }
 );

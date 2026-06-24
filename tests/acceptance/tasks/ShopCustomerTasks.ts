@@ -31,6 +31,5 @@ export const test = mergeTests(
     ConfirmImmediateAccessToDigitalProduct,
     ValidateLighthouseScore,
     CheckVisibilityInHome,
-    AcceptTechnicalRequiredCookies,
+    AcceptTechnicalRequiredCookies
 );
-

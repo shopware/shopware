@@ -82,8 +82,9 @@ test.describe('Shopware Services', () => {
     );
 
     test.skip(
-        'As a merchant, I want to fully deactivate the Shopware Services feature.',{ 
-            tag: '@Settings', 
+        'As a merchant, I want to fully deactivate the Shopware Services feature.',
+        {
+            tag: '@Settings',
             annotation: {
                 type: 'issue',
                 description: 'https://github.com/shopware/shopware/issues/17082',

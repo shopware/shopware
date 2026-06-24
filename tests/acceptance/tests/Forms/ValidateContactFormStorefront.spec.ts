@@ -4,7 +4,6 @@ test(
     'As a customer, I want to fill out and submit the contact form.',
     { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel }) => {
-
         test.slow(); //Necessary for multiple retries due to rate limiting
 
         await test.step('Open the contact form modal on home page.', async () => {
@@ -21,12 +20,14 @@ test(
             await ShopCustomer.fillsIn(StorefrontContactForm.emailInput, 'mail@test.com');
             await ShopCustomer.fillsIn(StorefrontContactForm.phoneInput, '0123456789');
             await ShopCustomer.fillsIn(StorefrontContactForm.subjectInput, 'Test: Product question');
-            await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
+            await ShopCustomer.fillsIn(
+                StorefrontContactForm.commentInput,
+                'Test: Hello, I have a question about your products.'
+            );
         });
 
         await ShopCustomer.expects(async () => {
             await test.step('Send and validate the contact form.', async () => {
-
                 const contactFormPromise = StorefrontContactForm.page.waitForResponse(
                     `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
                 );
@@ -46,7 +47,6 @@ test(
     'As a customer, I forgot to fill out some fields and should be informed about the missing ones.',
     { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, InstanceMeta }) => {
-
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.presses(StorefrontHome.contactFormLink);
@@ -57,9 +57,18 @@ test(
             await ShopCustomer.presses(StorefrontContactForm.submitButton);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
-            await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.firstNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.lastNameInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.salutationSelect).toHaveCSS(
+                'border-color',
+                'rgb(194, 0, 23)'
+            );
+            await ShopCustomer.expects(StorefrontContactForm.firstNameInput).toHaveCSS(
+                'border-color',
+                'rgb(194, 0, 23)'
+            );
+            await ShopCustomer.expects(StorefrontContactForm.lastNameInput).toHaveCSS(
+                'border-color',
+                'rgb(194, 0, 23)'
+            );
             await ShopCustomer.expects(StorefrontContactForm.emailInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.phoneInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.subjectInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');

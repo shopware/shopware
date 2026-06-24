@@ -5,7 +5,6 @@ export const CheckVisibilityInHome = base.extend<{ CheckVisibilityInHome: Task }
     CheckVisibilityInHome: async ({ ShopCustomer, StorefrontHome, TestDataService }, use) => {
         const task = (productName: string) => {
             return async () => {
-
                 await TestDataService.clearCaches();
                 const productLocators = await StorefrontHome.getListingItemByProductName(productName);
 
@@ -15,7 +14,7 @@ export const CheckVisibilityInHome = base.extend<{ CheckVisibilityInHome: Task }
                 }).toPass({
                     intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
                 });
-            }
+            };
         };
 
         await use(task);

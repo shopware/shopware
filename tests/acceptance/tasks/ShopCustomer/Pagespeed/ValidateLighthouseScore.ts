@@ -6,26 +6,29 @@ type ValidateLighthouseScoreType = (
     page: Page,
     name: string,
     thresholds: {
-        'performance': number,
-        'accessibility': number,
-        'best-practices': number,
-        'seo': number,
+        performance: number;
+        accessibility: number;
+        'best-practices': number;
+        seo: number;
     },
-    port: number,
+    port: number
 ) => () => Promise<void>;
 
-export const ValidateLighthouseScore = base.extend<{ ValidateLighthouseScore: ValidateLighthouseScoreType }, FixtureTypes>({
-    ValidateLighthouseScore: async ({}, use)=> {
+export const ValidateLighthouseScore = base.extend<
+    { ValidateLighthouseScore: ValidateLighthouseScoreType },
+    FixtureTypes
+>({
+    ValidateLighthouseScore: async ({}, use) => {
         const task: ValidateLighthouseScoreType = (
             page: Page,
             name: string,
             thresholds = {
-                'performance': 50,
-                'accessibility': 100,
+                performance: 50,
+                accessibility: 100,
                 'best-practices': 50,
-                'seo': 30,
+                seo: 30,
             },
-            port = 9222,
+            port = 9222
         ) => {
             return async function ValidateLighthouseScore() {
                 await playAudit({
@@ -40,7 +43,7 @@ export const ValidateLighthouseScore = base.extend<{ ValidateLighthouseScore: Va
                         directory: 'test-results/lighthouse',
                     },
                 });
-            }
+            };
         };
 
         await use(task);

@@ -35,9 +35,9 @@ the checklist for adding a new skill), see
 | Workflow | Trigger | Engine | Output |
 |---|---|---|---|
 | `bugfixer` | `qi/bugfixer` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
-| `triage` | `workflow_dispatch` (input: `issue_number`) | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
+| `triage` | `workflow_dispatch` (input: `issue_number`), `/triage` issue comment, `qi/triage` issue label | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
 
-The triage agent is read-only — it has no write permissions and cannot label, comment, or close. Its only side effect is the artifact, which a downstream job (or a human) consumes.
+The triage agent job is read-only — it cannot label, comment, or close. Command-trigger activation may add status/reaction feedback, and the validated artifact is consumed by the downstream processor that posts the triage result.
 
 The Bugfixer agent also runs without direct write credentials. Branch creation, commits, pull request creation, pull request branch updates, and comments are mediated through gh aw safe outputs. Public comments and PR bodies intentionally omit token and cost analytics; use the Actions step summary, `gh aw audit`, or `gh aw logs` for usage data.
 

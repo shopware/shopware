@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Storefront\Controller\ScriptController;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -18,29 +18,28 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(
         private readonly RouterInterface $router,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-         */
-        private readonly ?ScriptController $scriptController
     ) {
     }
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade
     {
-        $salesChannelContext = null;
-        if ($hook instanceof SalesChannelContextAware) {
-            $salesChannelContext = $hook->getSalesChannelContext();
-        }
-
         return new ScriptResponseFactoryFacade(
             $this->router,
-            $this->scriptController,
-            $salesChannelContext
+            $this->resolveSalesChannelContext($hook)
         );
     }
 
     public function getName(): string
     {
         return 'response';
+    }
+
+    protected function resolveSalesChannelContext(Hook $hook): ?SalesChannelContext
+    {
+        if ($hook instanceof SalesChannelContextAware) {
+            return $hook->getSalesChannelContext();
+        }
+
+        return null;
     }
 }

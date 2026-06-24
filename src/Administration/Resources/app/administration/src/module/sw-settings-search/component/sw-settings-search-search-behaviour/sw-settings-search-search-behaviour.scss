@@ -1,14 +1,8 @@
 .sw-settings-search {
     &__search-behaviour-title {
-        display: block;
-        width: 100%;
-        margin-bottom: var(--scale-size-32);
-    }
-
-    .mt-card {
-        .sw-settings-search__search-behaviour-title {
-            font-size: var(--font-size-s);
-        }
+        margin-bottom: var(--scale-size-8);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     &__search-behaviour-condition {
@@ -20,9 +14,5 @@
             white-space: pre-line;
             display: inline;
         }
-    }
-
-    &__search-behaviour-term-length.sw-field {
-        width: 50%;
     }
 }

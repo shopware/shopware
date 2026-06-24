@@ -10,6 +10,7 @@ When writing unit tests, the following is important:
 - **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
 - **Mocking** - Don't be lazy but deal with mock objects to optimize for example database access. So you don't have to persist every storage case before but you can describe it as a Mock.
 - **Readable** - You are not the only one who maintains the code. Therefore, it is important that others can quickly and easily understand your unit tests and extend them with additional cases.
+- **Callback assertions** - When a callback, listener, or inline test double observes the behavior under test, assert the observed arguments directly in that callback. Only keep the smallest state outside the callback that the test still needs, for example a boolean to prove it was called, a counter when cardinality matters, or captured values when later assertions need comparison across calls.
 - **Extensibility** - It is important that when more cases are added or certain cases are not tested that it is easy to extend your unit tests with another case without extending dozens of lines of code.
 - **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
 - **Cleanup** - It is also important that you clean up your artifacts. If you register an event listener dynamically, make sure that it is removed again on `teardown`. If you write data to the database or change the schema, make sure it is rolled back.

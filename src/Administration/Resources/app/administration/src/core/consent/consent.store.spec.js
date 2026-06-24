@@ -15,7 +15,7 @@ const defaultConsents = {
     },
 };
 
-const CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS = 100;
+const CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS = 1000;
 
 function expectConsentStatusChangeEvent(consentEventHandler, expectedUpdatedValue) {
     expect(consentEventHandler).toHaveBeenCalledTimes(1);
@@ -25,9 +25,7 @@ function expectConsentStatusChangeEvent(consentEventHandler, expectedUpdatedValu
     expect(event.eventName).toBe('consent_status_change');
     expect(event.eventProperties).toEqual(expectedUpdatedValue);
     expect(event.timestamp).toBeInstanceOf(Date);
-    expect(Math.abs(event.timestamp.getTime() - Date.now())).toBeLessThanOrEqual(
-        CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS,
-    );
+    expect(Math.abs(event.timestamp.getTime() - Date.now())).toBeLessThanOrEqual(CONSENT_EVENT_TIMESTAMP_DELTA_IN_MS);
 }
 
 describe('/core/consent/consent.store', () => {

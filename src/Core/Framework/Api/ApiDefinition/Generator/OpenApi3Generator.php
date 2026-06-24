@@ -77,7 +77,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $this->getResourceUri($definition),
                 $forSalesChannel,
                 $onlyFlat,
-                $apiType
+                $apiType,
+                $this->shouldIncludeRequestSchemas($definition, $apiType, $onlyFlat, $bundleName)
             );
 
             $openApi->components->merge($schema);
@@ -265,5 +266,18 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return false;
+    }
+
+    private function shouldIncludeRequestSchemas(EntityDefinition $definition, string $apiType, bool $onlyFlat, ?string $bundleName): bool
+    {
+        if ($apiType !== DefinitionService::TYPE_JSON_API || $onlyFlat) {
+            return false;
+        }
+
+        if ($bundleName !== null && $bundleName !== '') {
+            return false;
+        }
+
+        return !is_subclass_of($definition, SalesChannelDefinitionInterface::class);
     }
 }

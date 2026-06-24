@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -36,6 +37,7 @@ class SimpleExtendedDefinition extends EntityDefinition
         return new FieldCollection(
             [
                 (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+                (new CreatedAtField())->addFlags(new ApiAware()),
                 new FkField('simple_id', 'simpleId', SimpleDefinition::class),
                 (new JsonField('extended_json_field', 'extendedJsonField'))->addFlags(new Extension()),
 

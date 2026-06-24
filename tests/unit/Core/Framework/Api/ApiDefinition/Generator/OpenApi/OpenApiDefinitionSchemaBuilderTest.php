@@ -120,6 +120,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         );
         $properties = json_decode($schema['SimpleExtended']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
+        static::assertArrayHasKey('createdAt', $properties);
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
@@ -131,12 +132,17 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         $schema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(SimpleExtendedDefinition::class),
             '/simple-extended',
-            false
+            false,
+            false,
+            'jsonapi',
+            true
         );
         $createProperties = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
         $updateProperties = json_decode($schema['SimpleExtendedUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertSame($createProperties, $updateProperties);
+        static::assertArrayNotHasKey('id', $createProperties);
+        static::assertArrayNotHasKey('createdAt', $createProperties);
         static::assertArrayHasKey('extensions', $createProperties);
         static::assertArrayHasKey('properties', $createProperties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $createProperties['extensions']['properties']);

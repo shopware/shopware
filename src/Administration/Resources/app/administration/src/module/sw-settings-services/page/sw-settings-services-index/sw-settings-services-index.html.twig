@@ -111,10 +111,12 @@
 
                 <sw-settings-services-revoke-permissions-modal
                     v-if="!config.disabled && config.permissionsConsent"
+                    :services-with-account-requirement="servicesWithAccountRequirement"
                 />
 
                 <sw-settings-services-deactivate-modal
                     v-if="!config.disabled"
+                    :services-with-account-requirement="servicesWithAccountRequirement"
                     :feedback-link="currentRevision.links['feedback-url']"
                 />
             </div>

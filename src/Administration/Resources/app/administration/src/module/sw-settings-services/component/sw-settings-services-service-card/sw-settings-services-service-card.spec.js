@@ -12,6 +12,22 @@ import {
 import SwSettingsServicesServiceCard from './index';
 import SwColorBadge from '../../../../app/component/utils/sw-color-badge';
 
+const createService = (overrides = {}) => ({
+    id: 'service-id',
+    active: true,
+    name: 'service-name',
+    label: 'service-label',
+    icon: 'service-icon',
+    description: 'service-description',
+    updated_at: '2025-07-08 11:21:44.819',
+    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
+    requested_privileges: [],
+    privileges: [],
+    domains: [],
+    requirements: [],
+    ...overrides,
+});
+
 describe('src/module/sw-settings-services/component/sw-settings-services-service-card.ts', () => {
     beforeAll(() => {
         Shopware.Service().register('shopwareExtensionService', () => ({
@@ -52,18 +68,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
     ])('displays the service with the correct status', (active, requestedPrivileges, statusColor, statusText) => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: {
-                    id: 'service-id',
+                service: createService({
                     active: active,
-                    name: 'service-name',
-                    label: 'service-label',
-                    icon: 'service-icon',
-                    description: 'service-description',
-                    updated_at: '2025-07-08 11:21:44.819',
-                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
                     requested_privileges: requestedPrivileges,
-                    privileges: [],
-                },
+                }),
             },
             global: {
                 stubs: {
@@ -103,18 +111,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
     ])('displays the service with the correct icon and version', (icon, expected) => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: {
-                    id: 'service-id',
-                    active: true,
-                    name: 'service-name',
-                    label: 'service-label',
-                    icon: icon,
-                    description: 'service-description',
-                    updated_at: '2025-07-08 11:21:44.819',
-                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
-                    requested_privileges: [],
-                    privileges: [],
-                },
+                service: createService({ icon: icon }),
             },
             global: {
                 stubs: {
@@ -147,18 +144,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: {
-                    id: 'service-id',
-                    active: true,
-                    name: 'service-name',
-                    label: 'service-label',
-                    icon: 'service-icon',
-                    description: 'service-description',
-                    updated_at: '2025-07-08 11:21:44.819',
-                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
-                    requested_privileges: [],
-                    privileges: [],
-                },
+                service: createService(),
             },
             global: {
                 stubs: {
@@ -218,6 +204,51 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
+    it('hides the deactivate action for services that require Shopware Account', async () => {
+        const card = mount(SwSettingsServicesServiceCard, {
+            props: {
+                service: createService({
+                    requirements: ['shopware_account'],
+                }),
+            },
+            global: {
+                stubs: {
+                    SwColorBadge,
+                    SwExtensionIcon: {
+                        template: '<div><img :src="src" :alt="alt" /></div>',
+                        props: [
+                            'src',
+                            'alt',
+                        ],
+                    },
+                    SwStatus,
+                    MtModalAction,
+                    MtModal,
+                    MtModalRoot,
+                    MtModalTrigger,
+                    MtPopover,
+                    MtPopoverItem,
+                    MtButton,
+                    SwExtensionPermissionsModal: true,
+                },
+            },
+        });
+
+        expect(card.vm.serviceHasShopwareAccountRequirement).toBe(true);
+        expect(card.text()).toContain('sw-settings-services.service-card.cannot-remove-or-deactivate');
+
+        await card.findComponent(MtPopover).findComponent(MtButton).trigger('click');
+        // Wait 32ms for debounce
+        await new Promise((resolve) => {
+            setTimeout(resolve, 32);
+        });
+
+        const popoverItems = card.findAllComponents(MtPopoverItem).map((popoverItem) => popoverItem.text());
+
+        expect(popoverItems).not.toContain('sw-settings-services.general.deactivate');
+        expect(popoverItems).toContain('sw-settings-services.service-card.permissions');
+    });
+
     it('activates a service', async () => {
         Shopware.Service('shopwareExtensionService').activateExtension.mockImplementationOnce(() => {
             return Promise.resolve();
@@ -225,18 +256,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: {
-                    id: 'service-id',
-                    active: false,
-                    name: 'service-name',
-                    label: 'service-label',
-                    icon: 'service-icon',
-                    description: 'service-description',
-                    updated_at: '2025-07-08 11:21:44.819',
-                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
-                    requested_privileges: [],
-                    privileges: [],
-                },
+                service: createService({ active: false }),
             },
             global: {
                 stubs: {
@@ -311,19 +331,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: {
-                    id: 'service-id',
+                service: createService({
                     active: false,
-                    name: 'service-name',
-                    label: 'service-label',
-                    icon: 'service-icon',
-                    description: 'service-description',
-                    updated_at: '2025-07-08 11:21:44.819',
-                    version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
-                    requested_privileges: [],
-                    privileges: [],
                     domains: ['url-to-app-server'],
-                },
+                }),
             },
             global: {
                 stubs: {

@@ -40,7 +40,7 @@
                     />
 
                     <mt-popover-item
-                        v-if="service.active"
+                        v-if="service.active && !serviceHasShopwareAccountRequirement"
                         :label="$t('sw-settings-services.general.deactivate')"
                         :disabled="isLoading"
                         :on-label-click="() => openDeactivateModal(toggleFloatingUi)"
@@ -55,7 +55,15 @@
         </div>
 
         <div class="sw-settings-services-service-card__description">
-            {{ service.description }}
+            <p>{{ service.description }}</p>
+            <div
+                v-if="serviceHasShopwareAccountRequirement"
+                class="sw-settings-services-service-card__account-requirement"
+            >
+                <p>
+                    {{ $t('sw-settings-services.service-card.cannot-remove-or-deactivate') }}
+                </p>
+            </div>
         </div>
 
         <div class="sw-settings-services-service-card__footer">

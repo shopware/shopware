@@ -6,6 +6,7 @@ import type { CategorizedPermissions, ServiceDescription } from '../../service/s
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+import { serviceHasShopwareAccountRequirement } from '../../requirements/index';
 
 /**
  * @private
@@ -80,6 +81,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         readableVersion() {
             return this.service.version.split('-')[0];
+        },
+
+        serviceHasShopwareAccountRequirement() {
+            return serviceHasShopwareAccountRequirement(this.service.requirements);
         },
 
         dateFilter() {

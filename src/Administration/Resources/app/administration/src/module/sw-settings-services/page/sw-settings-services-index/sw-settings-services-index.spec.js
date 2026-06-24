@@ -230,6 +230,34 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(0);
     });
 
+    it('shows installed services that remain available when services are deactivated', async () => {
+        Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => [
+            {
+                id: 'gmv-service-id',
+                active: true,
+                name: 'gmv',
+                label: 'GMV',
+                requirements: ['shopware_account'],
+            },
+        ]);
+
+        Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
+            disabled: true,
+            permissionsConsent: null,
+        }));
+
+        const page = await mountPage();
+        await flushPromises();
+
+        const activateBanner = page.getComponent(MtBanner);
+
+        expect(activateBanner.props('variant')).toBe('attention');
+        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
+        expect(page.findComponent(SwSettingsServicesRevokePermissionsModal).exists()).toBe(false);
+        expect(page.findComponent(SwSettingsServicesDeactivateModal).exists()).toBe(false);
+        expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(1);
+    });
+
     it('can activate services', async () => {
         Shopware.Service('shopwareServicesService').getInstalledServices.mockImplementationOnce(async () => []);
 

@@ -22,25 +22,14 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Drives `createMock()` doubles that are not used as real mocks towards `createStub()`. PHPUnit 12+ emits a
- * "No expectations were configured for the mock object … use a test stub instead" notice for every mock that
- * a test leaves without a call-count expectation; this rule is the cheap static guard so the cleanup can be
- * enforced without running the whole (sharded) unit matrix a second time under PHPUnit 12 to fail on it.
+ * Static guard for the PHPUnit 12+ "no expectations configured for mock … use a test stub" notice: flags a
+ * `createMock()` double that is never `->expects()`-ed (local var, inline argument, or property) and points it
+ * to `createStub()`. A property `->expects()`-ed in only some tests is flagged as mixed usage instead (fix it
+ * per-method, not with `createStub()`).
  *
- * It reports two situations, both proven statically so it never produces a false positive (a false flag would
- * block CI on a legitimate mock, which is worse than the debt):
- *  - **pure stub** — a `createMock()` double that is never `->expects()`-ed: a local variable (checked within
- *    its method), an inline `createMock(...)` passed straight into another call/the SUT (which can never be
- *    `->expects()`-ed), or a property (checked anywhere in the class). The fix is `createStub()`.
- *  - **mixed usage** — a shared `setUp`/property mock that IS `->expects()`-ed in some test methods but left
- *    without an expectation in others, so it notices in the latter. This only exists because older PHPUnit
- *    tolerated mixing a mock and a stub on one double; the fix is per-method (`->expects($this->never())` /
- *    real counts), splitting the test, or a per-test double — not a blanket `createStub()`.
- *
- * To stay false-positive-safe the rule skips a double that is passed into a `$this->`/`self::`/`static::`
- * call or (for properties) touched by a non-test/non-setUp helper, since expectations could be configured out
- * of view there. The reverse mistake — converting a real mock — is caught for free by phpstan-phpunit
- * (`Stub::expects()` is undefined).
+ * Only flags what it can prove, to never block CI on a legitimate mock: doubles passed into a `$this->`/
+ * `self::`/`static::` call (or properties touched by a helper) are skipped. The reverse — converting a real
+ * mock — is caught for free by phpstan-phpunit (`Stub::expects()` is undefined).
  *
  * @implements Rule<InClassNode>
  *

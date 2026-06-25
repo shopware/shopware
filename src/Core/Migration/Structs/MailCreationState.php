@@ -19,12 +19,12 @@ class MailCreationState
     protected bool $mailTemplateExists = true;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $englishLanguageByteIds = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $germanLanguageByteIds = [];
 
@@ -69,7 +69,7 @@ class MailCreationState
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getEnglishLanguageByteIds(): array
     {
@@ -77,15 +77,15 @@ class MailCreationState
     }
 
     /**
-     * @param array<string> $englishLanguageByteIds
+     * @param list<string> $englishLanguageByteIds
      */
     public function setEnglishLanguageByteIds(array $englishLanguageByteIds): void
     {
-        $this->englishLanguageByteIds = $englishLanguageByteIds;
+        $this->englishLanguageByteIds = $this->uniqueLanguageByteIds($englishLanguageByteIds);
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getGermanLanguageByteIds(): array
     {
@@ -93,10 +93,20 @@ class MailCreationState
     }
 
     /**
-     * @param array<string> $germanLanguageByteIds
+     * @param list<string> $germanLanguageByteIds
      */
     public function setGermanLanguageByteIds(array $germanLanguageByteIds): void
     {
-        $this->germanLanguageByteIds = $germanLanguageByteIds;
+        $this->germanLanguageByteIds = $this->uniqueLanguageByteIds($germanLanguageByteIds);
+    }
+
+    /**
+     * @param list<string> $languageByteIds
+     *
+     * @return list<string>
+     */
+    private function uniqueLanguageByteIds(array $languageByteIds): array
+    {
+        return array_values(array_unique($languageByteIds));
     }
 }

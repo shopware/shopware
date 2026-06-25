@@ -55,7 +55,7 @@ The Bugfixer agent also runs without direct write credentials. Branch creation, 
 
 ## Pinning
 
-- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.79.6`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
+- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.81.2`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
 - **Engine model** — `triage.md` is pinned to `claude-sonnet-4-6`; `bugfixer.md` is pinned to `claude-opus-4-8` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
 - **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
 

@@ -31,6 +31,9 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
     }
 
     .sw-context-button__button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: $sw-context-button-color-text;
         background: 0 none;
         border: 1px solid transparent;
@@ -40,15 +43,6 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
         line-height: var(--font-line-height-xs);
         padding: 0 var(--scale-size-8);
         outline: none;
-
-        .mt-icon {
-            width: 16px;
-            height: 16px;
-            padding-top: 5px;
-            padding-right: 1px;
-            padding-bottom: 5px;
-            padding-left: 2px;
-        }
 
         &:hover,
         &.is--active {

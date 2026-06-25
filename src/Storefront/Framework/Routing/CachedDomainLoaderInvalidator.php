@@ -36,7 +36,10 @@ class CachedDomainLoaderInvalidator implements EventSubscriberInterface
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
         if ($event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME)) {
-            $this->logger->invalidate([CachedDomainLoader::CACHE_KEY], true);
+            $this->logger->invalidate([
+                CachedDomainLoader::CACHE_KEY,
+                CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
+            ], true);
         }
     }
 }

@@ -47,7 +47,7 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      nightly: true
+      profile: nightly
   visual-tests:
     uses: ./.github/workflows/visual-tests.yml
     secrets: inherit

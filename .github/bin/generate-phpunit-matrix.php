@@ -3,7 +3,8 @@
 $php = ['8.2'];
 $db = ['mysql:8.0'];
 
-$nightly = $_SERVER['argv'][1] ?? false;
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
+$nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
 
 if ($nightly) {
     $php = ['8.2', '8.5'];

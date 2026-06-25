@@ -5,11 +5,12 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
-      nightly:
+      profile:
+        description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
   workflow_call:
     inputs:
-      nightly:
+      profile:
         type: string
         default: ""
 
@@ -27,7 +28,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
           jq . <<<"$MATRIX"
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$MATRIX" >> $GITHUB_OUTPUT
@@ -50,7 +51,7 @@ jobs:
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}
-          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.profile == 'nightly' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
@@ -61,7 +62,7 @@ jobs:
   acceptance-status-check:
     runs-on: ubuntu-24.04
     needs: acceptance
-    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    if: ${{ !cancelled() && inputs.profile == 'nightly' }}
     permissions:
       actions: read
     steps:
@@ -139,7 +140,7 @@ jobs:
 
           echo "slack-msg=$MESSAGE" >>"$GITHUB_OUTPUT"
       - name: Post Slack message
-        if: ${{ !cancelled() && inputs.nightly == 'true' }}
+        if: ${{ !cancelled() && inputs.profile == 'nightly' }}
         env:
           MESSAGE: ${{ steps.generate-message.outputs.slack-msg }}
         run: |
@@ -183,7 +184,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - id: generate-matrix
         run: |
-          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
+          MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.profile }}")
           echo $MATRIX
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$MATRIX" >> $GITHUB_OUTPUT
@@ -481,11 +482,11 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile == 'nightly' && github.event_name == 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
+        if: ${{ (inputs.profile != 'nightly' || github.event_name != 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
@@ -596,27 +597,27 @@ jobs:
         run: symfony server:start -d
 
       - name: Install Shopware in previous major version on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console system:install --basic-setup --create-database --skip-assets-install
 
       - name: Run next major migrations
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         run: php .github/bin/blue-green-check.php
 
   blue-green-66-67:
@@ -684,17 +685,17 @@ jobs:
           bin/console system:generate-jwt-secret
 
       - name: Refresh theme in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
       - name: Run integration tests in previous major version
-        if: inputs.nightly == 'true'
+        if: inputs.profile == 'nightly'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
-        if: inputs.nightly != 'true'
+        if: inputs.profile != 'nightly'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
@@ -702,7 +703,7 @@ jobs:
   update-66-67:
       name: "PHP update 6.6 -> 6.7"
       runs-on: ubuntu-24.04
-      if: inputs.nightly == 'true'
+      if: inputs.profile == 'nightly' || inputs.profile == 'release'
       env:
           APP_ENV: test
           APP_URL: http://localhost:8000

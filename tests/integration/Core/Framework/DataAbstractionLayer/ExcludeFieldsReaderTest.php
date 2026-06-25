@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,9 +28,8 @@ class ExcludeFieldsReaderTest extends TestCase
 
         $product = static::getContainer()->get('product.repository')->search($criteria, $context)->get($id);
 
-        // Unlike addFields(), the result is the full, typed entity — not a PartialEntity.
+        // Unlike addFields(), the result is the full, typed ProductEntity (not a PartialEntity).
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertNotInstanceOf(PartialEntity::class, $product);
 
         // The excluded (nullable) field is left null; everything else loads as usual.
         static::assertNull($product->getDescription());

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -66,12 +67,38 @@ class ScriptResponseFactoryFacadeTest extends TestCase
         $facade->render('@Storefront/foo.html.twig');
     }
 
+    #[TestDox('render() keeps the deprecated Storefront rendering BC path when its dependencies are available')]
+    #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRenderDelegatesToScriptControllerForLegacyBc(): void
+    {
+        $rendered = new Response('rendered storefront html', Response::HTTP_ACCEPTED);
+
+        $scriptController = $this->createMock(ScriptController::class);
+        $scriptController->expects($this->once())
+            ->method('renderStorefrontForScript')
+            ->with('@Storefront/detail.html.twig', ['page' => 'data'])
+            ->willReturn($rendered);
+
+        $facade = $this->buildFacade(
+            scriptController: $scriptController,
+            salesChannelContext: static::createStub(SalesChannelContext::class),
+        );
+
+        $response = $facade->render('@Storefront/detail.html.twig', ['page' => 'data']);
+
+        static::assertSame($rendered, $response->getInner());
+        static::assertSame(Response::HTTP_ACCEPTED, $response->getCode());
+    }
+
     private function buildFacade(
         ?RouterInterface $router = null,
+        ?ScriptController $scriptController = null,
         ?SalesChannelContext $salesChannelContext = null,
     ): ScriptResponseFactoryFacade {
         return new ScriptResponseFactoryFacade(
             $router ?? static::createStub(RouterInterface::class),
+            $scriptController,
             $salesChannelContext,
         );
     }

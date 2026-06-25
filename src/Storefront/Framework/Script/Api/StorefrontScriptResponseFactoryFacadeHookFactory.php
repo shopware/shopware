@@ -28,10 +28,12 @@ class StorefrontScriptResponseFactoryFacadeHookFactory extends ScriptResponseFac
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade
     {
+        \assert($hook instanceof StorefrontHook);
+
         return new StorefrontScriptResponseFactoryFacade(
             $this->router,
             $this->scriptController,
-            $this->resolveSalesChannelContext($hook)
+            $hook->getSalesChannelContext()
         );
     }
 }

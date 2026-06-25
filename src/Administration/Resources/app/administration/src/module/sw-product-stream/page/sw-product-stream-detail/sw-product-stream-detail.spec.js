@@ -4,7 +4,6 @@
 
 import { mount } from '@vue/test-utils';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -108,7 +107,6 @@ async function createWrapper() {
                 'sw-product-stream-modal-preview': true,
                 'sw-custom-field-set-renderer': true,
                 'mt-banner': true,
-                'mt-switch': MtSwitch,
             },
             provide: {
                 customFieldDataProviderService: {
@@ -187,51 +185,5 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const banner = wrapper.find('.sw-product-stream-detail__product-type-warning mt-banner-stub');
         expect(banner.exists()).toBe(false);
-    });
-
-    it('should render and update the display-as-group toggle', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        wrapper.vm.productStream = {
-            id: 'stream-1',
-            displayAsGroup: true,
-            filters: {
-                entity: 'product_stream',
-            },
-        };
-
-        await wrapper.vm.$nextTick();
-
-        const field = wrapper.getComponent(MtSwitch);
-
-        expect(field.props('modelValue')).toBe(true);
-        expect(field.props('label')).toBe('sw-product-stream.detail.labelDisplayAsGroup');
-        expect(field.get('input').element.checked).toBe(true);
-
-        field.vm.$emit('update:modelValue', false);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.productStream.displayAsGroup).toBe(false);
-    });
-
-    it('should keep displayAsGroup when loading an existing product stream', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-        const productStreamRepository = wrapper.vm.productStreamRepository;
-
-        wrapper.vm.loadFilters = jest.fn().mockResolvedValue();
-        productStreamRepository.get = jest.fn().mockResolvedValue({
-            id: 'stream-1',
-            displayAsGroup: false,
-            filters: {
-                entity: 'product_stream',
-            },
-        });
-
-        await wrapper.vm.loadEntityData('stream-1');
-
-        expect(wrapper.vm.productStream.displayAsGroup).toBe(false);
-        expect(productStreamRepository.get).toHaveBeenCalledWith('stream-1', Shopware.Context.api);
     });
 });

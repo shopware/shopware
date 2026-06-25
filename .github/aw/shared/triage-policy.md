@@ -58,7 +58,11 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
 
 2. **Identify the code area** (`rg`, `find`). Pick 2–4 likely code
    identifiers (class names, methods, error strings, UI labels) and `rg`
-   them in `src/`. For the **primary domain label**, grep the package marker
+   them in `src/`. Always search with `rg` scoped to `src/` — it is fast and
+   skips `node_modules`/vendor by default. Never run `find … | xargs grep`
+   across the repo or into `node_modules`/vendor: those scans are slow and
+   are the main way a run burns its wall-clock budget. For the **primary
+   domain label**, grep the package marker
    on the affected file — `#[Package('<key>')]` on PHP or `@sw-package <key>`
    on JS/TS — and map the key via references/DOMAINS.md. The marker is
    authoritative; the top-level directory is only a fallback when no marker
@@ -70,17 +74,30 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
    `fix:` or `revert:` commits, **especially those referencing the issue
    number (`#N`) in the message** — direct fix-PR references.
 
-4. **Search for duplicates / related fixes.** Pick 2–3 distinctive title
-   keywords, run ONE good search, and (if a fix-commit surfaced in step 3)
-   verify the PR closes this issue. Use the tools available in your mode:
+4. **Search for duplicates / related fixes (optional, hard-capped).** Pick 2–3
+   distinctive title keywords and run **ONE good search** (two absolute
+   maximum — never more). Use the tools available in your mode:
    - Interactive: `gh issue list --search "<keywords>"` and `gh pr view <pr-number>`.
    - Unattended (gh aw): the GitHub MCP `search_issues` / `list_issues` and
      `get_pull_request` tools (from the `issues` / `pull_requests` toolsets the
      workflow grants — `gh` is NOT available in this mode).
 
-   Max ~5 search/lookup calls total. Duplicate detection drives the
-   `duplicate` disposition and `duplicate_of`: if you cannot run a search in
-   your mode, say so in `reasoning` and do NOT assert `duplicate`.
+   Rules:
+   - That one search may be a `search_pull_requests` or `search_issues` call —
+     searching for a related PR is fine. What is banned is **unbounded
+     reformulation**: if a search returns nothing relevant, treat the question
+     as answered. Do not rephrase the same query or switch tools to "try
+     another angle" — the second search is a hard ceiling, not a routine retry.
+   - An empty result is a complete, correct answer: set `related_issues: []` /
+     `related_prs: []`, `duplicate_of: null`, and add to `reasoning`:
+     "No related PR/issue found in N searches."
+   - A `get_pull_request` lookup **by number** — for a `#N` that surfaced in
+     step 3 or in a linked issue — is always allowed and does NOT count against
+     the 2-search budget (it's a direct lookup, not a search).
+
+   Duplicate detection drives the `duplicate` disposition and `duplicate_of`:
+   if you cannot run a search in your mode, say so in `reasoning` and do NOT
+   assert `duplicate`. A run that stops here with empty arrays beats one that loops.
 
 5. **Estimate change-size.** Single contained file = `quick-fix` / `small`;
    multiple subsystems = `medium`; can't tell = `unknown`. Only justify a
@@ -103,8 +120,8 @@ domain-label catalogue and the package-marker → label mapping, see
 ## Tool budget
 
 You have ~15 tool calls total. After 8 calls without finding the affected
-code area, **commit to the limited evidence you have**: emit
-`affected_paths: []`, lower confidence by 0.10, and add to reasoning:
+code area, OR after 2 empty searches **commit to the limited evidence you have**:
+emit `affected_paths: []`, lower confidence by 0.10, and add to reasoning:
 "Did not locate affected file after N rg/grep attempts." Do not loop. A
 calibrated partial answer beats a hung run.
 

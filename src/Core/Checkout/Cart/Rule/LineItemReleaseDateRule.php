@@ -78,7 +78,7 @@ class LineItemReleaseDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true, true)
             ->dateTimeField('lineItemReleaseDate');
     }
 

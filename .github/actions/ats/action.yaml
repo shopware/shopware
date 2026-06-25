@@ -192,7 +192,11 @@ runs:
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
         - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-          if: always()
+          # Upload whenever a Playwright trace was retained (trace: 'retain-on-failure' => only failures
+          # and the failed first attempt of a flaky test; never a clean pass), or always for Visual runs
+          # (continue-on-error, results need manual review). Gating on trace.zip rather than on test-results/
+          # being non-empty avoids uploading the Lighthouse HTML report, which is written on every run.
+          if: always() && (hashFiles(format('{0}/test-results/**/trace.zip', inputs.directory)) != '' || contains(inputs.project, 'Visual'))
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
               path: ${{ inputs.directory }}/test-results/

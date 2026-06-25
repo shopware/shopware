@@ -14,6 +14,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -35,7 +37,7 @@ class RequestTransformerTest extends TestCase
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
-        $domainLoader->expects($this->never())->method('load');
+        $domainLoader->expects($this->never())->method('loadDomains');
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, $registeredApiPrefixes, $domainLoader);
 
@@ -52,7 +54,7 @@ class RequestTransformerTest extends TestCase
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->expects($this->once())->method('load')->willReturn([]);
+        $domainLoader->expects($this->once())->method('loadDomains')->willReturn(new DomainCollection());
 
         // no registered api prefixes ==> sales channel is always required
         $registeredApiPrefixes = [];
@@ -95,24 +97,25 @@ class RequestTransformerTest extends TestCase
             'isCanonical' => false,
         ]);
 
+        $domains = new DomainCollection();
+        $domains->set($domainKey, DomainStruct::fromArray([
+            'url' => $domainKey,
+            'id' => $domainId,
+            'salesChannelId' => $salesChannelId,
+            'typeId' => 'storefront',
+            'snippetSetId' => $snippetSetId,
+            'currencyId' => $currencyId,
+            'languageId' => $languageId,
+            'themeId' => $themeId,
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->method('load')->willReturn([
-            $domainKey => [
-                'url' => $domainKey,
-                'id' => $domainId,
-                'salesChannelId' => $salesChannelId,
-                'typeId' => 'storefront',
-                'snippetSetId' => $snippetSetId,
-                'currencyId' => $currencyId,
-                'languageId' => $languageId,
-                'themeId' => $themeId,
-                'maintenance' => '0',
-                'maintenanceIpWhitelist' => '',
-                'locale' => 'en-GB',
-                'themeName' => 'Storefront',
-                'parentThemeName' => '',
-            ],
-        ]);
+        $domainLoader->method('loadDomains')->willReturn($domains);
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader);
 

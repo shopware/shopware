@@ -1,6 +1,43 @@
 # 6.7.13.0 (upcoming)
 
+## Storefront
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
 ## Core
+
+### Deprecated `maintenanceIpWhitelist` wording of the sales channel
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.
+The deprecated members keep working and will be replaced in Shopware 6.8. Migrate your code now:
+
+- DAL: use the new field `maintenanceIpAllowlist` instead of `maintenanceIpWhitelist`. Both fields are available and kept in sync during the transition.
+- `Shopware\Core\System\SalesChannel\SalesChannelEntity`: use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead of `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()`.
+- `Shopware\Core\SalesChannelRequest`: use the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead of `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST`.
+- `Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: use the constant `MAINTENANCE_ALLOWLIST_HEADER` instead of `MAINTENANCE_WHITELIST_HEADER`.
+
+The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
+
+### Deprecated core script response rendering
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.
+The method remains available in 6.7 for backwards compatibility when the Storefront bundle and a `SalesChannelContext` are available.
+
+Extension authors should type the script `response` service for the hook they implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and avoid `render()` there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
+
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
 
 ### Declarative custom fields via `Resources/config/custom-fields.xml`
 
@@ -71,6 +108,13 @@ class MyScheduledTaskHandler extends ScheduledTaskHandler implements Dynamically
     }
 }
 ```
+
+### Sales Channel business timezone
+
+Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone.
+
+Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
+
 ## API
 
 ### DAL write event listeners no longer expand API ACL requirements

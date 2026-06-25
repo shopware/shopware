@@ -21,7 +21,7 @@ Add a Meteor Admin SDK context method that returns a short-lived signed token fo
 const { token, expiresAt } = await sw.context.getAclToken();
 ```
 
-The initial API does not accept a permission filter. The token always contains the effective permissions for the current app and current Administration user:
+The initial API does not accept a permission filter. The token is not an authentication token and must not be accepted as a login or session credential. It is a signed permission snapshot for the current Administration user. The token always contains the effective permissions for the current app and current Administration user:
 
 ```text
 effectivePermissions = appPermissions intersect currentUserPermissions
@@ -30,6 +30,8 @@ effectivePermissions = appPermissions intersect currentUserPermissions
 For an admin user, `currentUserPermissions` is treated as unrestricted, so the token still contains only permissions granted to the app. The app permission boundary is never bypassed.
 
 Use the existing raw Shopware ACL privilege names, for example `product:read`, `order:update`, `sales_channel:read`, `api_send_email`, or app-defined additional privileges. Do not use Administration UI role aliases such as `product.viewer` or `order.editor` as the token contract.
+
+The token is requested through the existing Meteor Admin SDK `postMessage` bridge after the iframe has loaded. The parent Administration resolves the requesting app from the message origin and calls Core to generate the signed token. The iframe must not choose the app name.
 
 The token can also be requested with an app integration access token for backend-to-backend use cases, but only when the request includes `sw-app-user-id`. The authenticated integration id must belong to the requested app, and the referenced user must be allowed to access that app through `app.all` or `app.<appName>`. Without a resolved user id the request is rejected, so the token always represents an Administration user and does not need a separate integration-only claim shape.
 
@@ -57,9 +59,11 @@ Sign the token with the existing app secret and a symmetric JWT algorithm. The a
 
 Use a short TTL, for example 5 minutes. This keeps permission changes and disabled users from staying valid for long without adding server-side token state.
 
+Do not add the token to the base app URL iframe request. Native iframe navigation cannot send custom headers, and adding the JWT to the signed iframe URL can exceed practical URL limits. The initial iframe request keeps using the existing signed app URL. Apps opt in by calling `sw.context.getAclToken()` after the iframe has loaded.
+
 ## App usage
 
-An app frontend asks the Meteor Admin SDK for a token and forwards it to its own backend:
+An app frontend can ask the Meteor Admin SDK for a token and forward it to its own backend:
 
 ```ts
 const { token } = await sw.context.getAclToken();
@@ -67,12 +71,14 @@ const { token } = await sw.context.getAclToken();
 await fetch('https://app.example/admin/analytics', {
     method: 'POST',
     headers: {
-        Authorization: `Bearer ${token}`,
+        'x-shopware-auth': token,
         'Content-Type': 'application/json',
     },
     body: JSON.stringify({ range: '30d' }),
 });
 ```
+
+If an app needs ACL-aware bootstrap data for a main extension, the base app URL should return a minimal iframe shell first. That shell requests the token through the SDK and then calls the app backend with `x-shopware-auth`.
 
 The app backend verifies the token with the app secret and checks the permissions required by its own action:
 
@@ -98,8 +104,8 @@ Frontend-only checks such as `sw.context.getUserInformation()` remain useful for
 
 Server-side app SDKs should provide verification helpers for this token contract. The Meteor Admin SDK only exposes token creation because verification requires the app secret and belongs on the app backend.
 
-JWTs have no protocol-level size limit, but HTTP headers often have practical limits around 8 KB to 16 KB. The token includes the full effective permission intersection because that is the simplest and least surprising behavior.
+JWTs have no protocol-level size limit, but HTTP headers and URLs have practical size limits. The token includes the full effective permission intersection because that is the simplest and least surprising behavior.
 
 Token revocation is time-based. A permission change or deactivated user can remain valid until the short token TTL expires. Do not add server-side token storage unless that becomes a measured requirement.
 
-Do not deliver this token as an iframe query parameter. It can become too large and query parameters are more likely to be logged. App backends should receive it as an `Authorization` header on their own requests.
+Do not deliver this token as an iframe query parameter. It can become too large for practical URL limits. App backends should receive it as the `x-shopware-auth` header on app-initiated requests after the iframe has loaded.

@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -86,6 +88,28 @@ class InsertElementTest extends TestCase
 
         static::assertSame('Sw:Card', $result[0]->getComponent());
         static::assertSame('existing', $result[1]->getId());
+    }
+
+    #[TestDox('seeds no style on a freshly scaffolded element')]
+    public function testInsertScaffoldsWithoutStyle(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card');
+        $result = $insert->apply([]);
+
+        static::assertTrue($result[0]->getStyle()->isEmpty());
+    }
+
+    #[TestDox('keeps the parent style when rebuilding it to insert into its slot')]
+    public function testInsertKeepsParentStyle(): void
+    {
+        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
+        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
+            'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
+        ], new ContextDefinitions([], []), $style);
+
+        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply([$parent]);
+
+        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
     }
 
     #[TestDox('rejects an unregistered type with a 400')]

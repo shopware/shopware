@@ -36,6 +36,8 @@ We need a documentation model that:
 Shopware-specific skills live in this repository under `.agents/skills/`.
 They are branch-local guidance tied to `AGENTS.md`, `coding-guidelines/`, ADRs, PR conventions, and the platform code they describe. Keeping them here makes guidance changes reviewable with the related platform change and avoids a separate install or sync step for agents working from this checkout.
 
+Claude Code discovers project skills from `.claude/skills/`, so that path is a Git-tracked symlink to `../.agents/skills`. `.agents/skills` remains the source of truth; do not edit or duplicate skill files through the symlink as a separate copy.
+
 The accepted downside is that exact reuse across plugin or other repositories is harder. That trade-off is intentional: Shopware-specific skills should stay close to the branch-local platform guidance they depend on instead of becoming a second source of truth.
 
 ## Initial Skills
@@ -53,6 +55,7 @@ The accepted downside is that exact reuse across plugin or other repositories is
 
 - Root agent context stays smaller.
 - Claude Code loads repo guidance via sibling `CLAUDE.md → @AGENTS.md` bridges; `AGENTS.md` remains the single source of truth for all tools.
+- Claude Code loads the same skills through the `.claude/skills` symlink while `.agents/skills` remains canonical.
 - Humans and agents still share durable coding rules through `AGENTS.md`, `coding-guidelines/`, and existing README files.
 - Rules that only matter for certain tasks can trigger as skills instead of occupying every session.
 - The repository accepts one-line Claude bridge files only where real `AGENTS.md` guidance exists, while avoiding duplicated agent-specific guidance.

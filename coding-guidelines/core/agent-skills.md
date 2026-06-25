@@ -15,7 +15,8 @@ repository ships several skills; the same pattern applies to any new skill.
 Each skill has up to two surfaces — keep them in lockstep:
 
 1. **Interactive** — `.agents/skills/<name>/SKILL.md`. Loaded into a developer's
-   editor session. Emits whatever output format is most useful to a human
+   editor session. `.claude/skills` points to the same directory for Claude
+   Code compatibility. Emits whatever output format is most useful to a human
    (typically Markdown).
 2. **Unattended (optional)** — a [GitHub Agentic Workflow](https://github.com/githubnext/gh-aw)
    at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment
@@ -46,6 +47,8 @@ install command live in [`.github/aw/README.md`](../../.github/aw/README.md) →
 │   └── TOOLS.md
 └── assets/                    # optional — worked examples, fixtures
     └── examples.md
+
+.claude/skills -> ../.agents/skills  # symlink, do not edit separately
 
 .github/workflows/<name>.md    # optional — gh aw SOURCE (edit this)
 .github/workflows/<name>.lock.yml   # compiled — `gh aw compile` regenerates

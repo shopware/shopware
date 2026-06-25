@@ -1,6 +1,6 @@
 # Shopware AI Skills
 
-Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agentskills.io) format. Offered to Agent-Skills-compatible runtimes; a skill is invoked when its `description` matches the task (best-effort, model-decided — not guaranteed). Mandatory steps live in `AGENTS.md` so they apply even when no skill triggers.
+Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agentskills.io) format. `.agents/skills` is the canonical location; `.claude/skills` is a symlink for Claude Code. Offered to Agent-Skills-compatible runtimes; a skill is invoked when its `description` matches the task (best-effort, model-decided — not guaranteed). Mandatory steps live in `AGENTS.md` so they apply even when no skill triggers.
 
 ## Available skills
 
@@ -21,7 +21,7 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 
 When you start a session in this repo with an Agent-Skills-compatible runtime:
 
-1. The runtime scans `.agents/skills/` for `SKILL.md` files.
+1. The runtime scans `.agents/skills/` for `SKILL.md` files, or `.claude/skills/` in Claude Code.
 2. Each skill's `description` frontmatter is matched against your message.
 3. If a skill matches, its body (plus on-demand `references/`) is injected into the agent's context.
 

@@ -3,6 +3,9 @@
         "general": {
             "moduleTitle": "Login"
         },
+        "index": {
+            "backToLogin": "Back to login"
+        },
         "credentials": {
             "title": "Log in to Shopware",
             "buttonSsoLogin": "With Shopware Account",
@@ -14,6 +17,20 @@
             "forgotPassword": "Forgot password?",
             "warningTooManyAttempts": "Too many login attempts. Please try again later.",
             "errorInvalidCredentials": "Incorrect username or password"
+        },
+        "recovery": {
+            "title": "Forgot password?",
+            "description": "Enter the email address linked to your account to receive a password reset link.",
+            "labelEmail": "Email address",
+            "buttonSubmit": "Send password reset link",
+            "errorLinkExpired": "This password recovery link is expired or invalid. Please request a new link.",
+            "warningTooManyAttempts": "Too many attempts. Please try again later."
+        },
+        "accessDenied": {
+            "title": "No access to this store",
+            "description": "Your login was successful, but you don't have access to this Shopware store.",
+            "buttonDifferentAccount": "Log in with different account",
+            "loggedInAs": "Logged in as:"
         }
     }
 }

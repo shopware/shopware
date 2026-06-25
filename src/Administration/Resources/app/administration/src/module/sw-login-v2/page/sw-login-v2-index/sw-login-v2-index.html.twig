@@ -36,4 +36,12 @@
             </transition>
         </router-view>
     </div>
+
+    <mt-link
+        v-if="$route.meta.backToLogin"
+        class="sw-login-v2-index__back-to-login"
+        :to="{ name: 'sw.login.v2.index.credentials' }"
+    >
+        {{ $t('sw-login-v2.index.backToLogin') }}
+    </mt-link>
 </div>

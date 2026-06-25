@@ -3,6 +3,9 @@
         "general": {
             "moduleTitle": "Login"
         },
+        "index": {
+            "backToLogin": "Zurück zur Anmeldung"
+        },
         "credentials": {
             "title": "Bei Shopware anmelden",
             "buttonSsoLogin": "Mit Shopware Account",
@@ -14,6 +17,20 @@
             "forgotPassword": "Passwort vergessen?",
             "warningTooManyAttempts": "Zu viele Anmeldeversuche. Bitte versuche es später erneut.",
             "errorInvalidCredentials": "Benutzername oder Passwort ist falsch"
+        },
+        "recovery": {
+            "title": "Passwort vergessen?",
+            "description": "Gib die mit deinem Konto verknüpfte E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.",
+            "labelEmail": "E-Mail-Adresse",
+            "buttonSubmit": "Link zum Zurücksetzen senden",
+            "errorLinkExpired": "Dieser Link zum Zurücksetzen des Passworts ist abgelaufen oder ungültig. Bitte fordere einen neuen Link an.",
+            "warningTooManyAttempts": "Zu viele Versuche. Bitte versuche es später erneut."
+        },
+        "accessDenied": {
+            "title": "Kein Zugriff auf diesen Shop",
+            "description": "Deine Anmeldung war erfolgreich, aber du hast keinen Zugriff auf diesen Shopware-Shop.",
+            "buttonDifferentAccount": "Mit anderem Konto anmelden",
+            "loggedInAs": "Angemeldet als:"
         }
     }
 }

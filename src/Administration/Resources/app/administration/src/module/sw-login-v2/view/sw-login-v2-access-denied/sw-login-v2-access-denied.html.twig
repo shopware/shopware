@@ -1,0 +1,37 @@
+<div class="sw-login-v2-access-denied">
+    <div class="sw-login-v2-access-denied__icon">
+        <mt-icon
+            name="lock"
+            mode="solid"
+            size="var(--scale-size-24)"
+        />
+    </div>
+
+    <div class="sw-login-v2-access-denied__content">
+        <h2 class="sw-login-v2-access-denied__title">
+            {{ $t('sw-login-v2.accessDenied.title') }}
+        </h2>
+
+        <p class="sw-login-v2-access-denied__description">
+            {{ $t('sw-login-v2.accessDenied.description') }}
+        </p>
+    </div>
+
+    <mt-button
+        class="sw-login-v2-access-denied__retry-button"
+        variant="primary"
+        size="small"
+    >
+        {{ $t('sw-login-v2.accessDenied.buttonDifferentAccount') }}
+    </mt-button>
+
+    <p class="sw-login-v2-access-denied__used-account">
+        <span class="sw-login-v2-access-denied__used-account-title">
+            {{ $t('sw-login-v2.accessDenied.loggedInAs') }}
+        </span>
+
+        <span class="sw-login-v2-access-denied__used-account-email">
+            {{ email }}
+        </span>
+    </p>
+</div>

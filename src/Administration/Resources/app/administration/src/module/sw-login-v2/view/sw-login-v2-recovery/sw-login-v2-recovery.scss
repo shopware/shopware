@@ -1,0 +1,36 @@
+.sw-login-v2-recovery {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-16);
+        margin-bottom: var(--scale-size-24);
+    }
+
+    &__title {
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-2xl);
+    }
+
+    &__description {
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__email {
+        margin-bottom: var(--scale-size-24);
+    }
+
+    &__error.mt-banner {
+        margin: 0 0 var(--scale-size-24);
+    }
+
+    &__warning.mt-banner {
+        margin: 0 0 var(--scale-size-24);
+    }
+}

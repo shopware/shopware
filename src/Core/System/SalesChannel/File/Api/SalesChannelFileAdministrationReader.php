@@ -8,6 +8,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFil
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 
@@ -23,6 +24,7 @@ class SalesChannelFileAdministrationReader
         private readonly SalesChannelFileDiscovery $discovery,
         private readonly SalesChannelFileConfigurationLoader $configurationLoader,
         private readonly Environment $twig,
+        private readonly SalesChannelFileTemplateResolver $templateResolver,
     ) {
     }
 
@@ -56,14 +58,15 @@ class SalesChannelFileAdministrationReader
         }
 
         $configuration = $this->configurationLoader->load($fileFamily, $fileName, $salesChannelId, $context);
+        $templates = $this->templateResolver->resolveTemplateChain($file, $salesChannelId);
 
         return new SalesChannelFileAdministrationDetail(
             $file->fileFamily,
             $file->fileName,
             $file->templatePath,
             $file->contentType,
-            $this->serializeTemplates($file->templates),
-            $this->supportsUserProvidedContent($file->templates),
+            $this->serializeTemplates($templates, $file->baseTemplateName),
+            $this->supportsUserProvidedContent($templates),
             $configuration === null ? null : $this->serializeConfiguration($configuration),
         );
     }
@@ -82,17 +85,17 @@ class SalesChannelFileAdministrationReader
      *
      * @return list<SalesChannelFileAdministrationTemplate>
      */
-    private function serializeTemplates(array $templates): array
+    private function serializeTemplates(array $templates, string $baseTemplateName): array
     {
         $serialized = [];
-        $baseTwigNamespace = array_key_first($templates);
+        $baseTemplateName = array_last($templates) ?? $baseTemplateName;
 
         foreach ($templates as $twigNamespace => $templateName) {
             $serialized[] = new SalesChannelFileAdministrationTemplate(
                 $twigNamespace,
                 $templateName,
                 $this->loadTemplateContent($templateName),
-                $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
+                $templateName === $baseTemplateName ? 'base' : 'extension',
             );
         }
 

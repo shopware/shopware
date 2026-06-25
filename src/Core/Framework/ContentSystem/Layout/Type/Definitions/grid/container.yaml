@@ -151,7 +151,21 @@ properties:
       - "center"
       - "stretch"
     adminUI:
-      component: "select"
+      component: "radio-panel"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
 
   alignContent:
     type: string
@@ -167,7 +181,30 @@ properties:
       - "spaceBetween"
       - "spaceEvenly"
     adminUI:
-      component: "select"
+      component: "radio-panel"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+          - value: "spaceAround"
+            label: "Space around"
+            icon: "regular-align-justify"
+          - value: "spaceBetween"
+            label: "Space between"
+            icon: "regular-align-justify"
+          - value: "spaceEvenly"
+            label: "Space evenly"
+            icon: "regular-align-justify"
 
   justify:
     type: string
@@ -180,7 +217,21 @@ properties:
       - "center"
       - "stretch"
     adminUI:
-      component: "select"
+      component: "radio-panel"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
 
   justifyContent:
     type: string
@@ -196,7 +247,30 @@ properties:
       - "spaceBetween"
       - "spaceEvenly"
     adminUI:
-      component: "select"
+      component: "radio-panel"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+          - value: "spaceAround"
+            label: "Space around"
+            icon: "regular-align-justify"
+          - value: "spaceBetween"
+            label: "Space between"
+            icon: "regular-align-justify"
+          - value: "spaceEvenly"
+            label: "Space evenly"
+            icon: "regular-align-justify"
 
   centered:
     type: boolean

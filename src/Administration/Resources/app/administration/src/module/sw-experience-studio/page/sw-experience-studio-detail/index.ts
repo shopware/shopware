@@ -391,9 +391,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            const normalizedValue = payload.value.trim();
+
             this.inlineEditSession = {
                 ...this.inlineEditSession,
-                draftValue: payload.value,
+                draftValue: normalizedValue,
             };
         },
 
@@ -402,15 +404,16 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            const normalizedValue = payload.value.trim();
             const session = this.inlineEditSession;
             this.clearInlineEditSession();
 
-            if (payload.value === session.originalValue) {
+            if (normalizedValue === session.originalValue) {
                 return;
             }
 
             this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, { text: payload.value }) ? {} : false;
+                return updateElementPropertiesInLayout(layout, payload.elementId, { text: normalizedValue }) ? {} : false;
             });
         },
 

@@ -361,6 +361,26 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
+        getRadioPanelOptionId(key: string, optionValue: string): string {
+            const normalizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '-');
+            const normalizedOptionValue = optionValue.replace(/[^a-zA-Z0-9_-]/g, '-');
+
+            return `sw-experience-studio-radio-panel-${normalizedKey}-${normalizedOptionValue}`;
+        },
+
+        getRadioPanelLabelTargetId(key: string, property: ContentSystemElementTypeProperty): string | undefined {
+            const options = this.getRadioPanelOptions(property);
+
+            if (options.length === 0) {
+                return undefined;
+            }
+
+            const currentValue = String(this.getPropertyValue(key, property) ?? '');
+            const selectedOption = options.find((option) => option.value === currentValue) ?? options[0];
+
+            return this.getRadioPanelOptionId(key, selectedOption.value);
+        },
+
         onUpdateProperty(key: string, value: PrimitiveValue): void {
             const selectedElement = this.selectedElement as ContentElementNode | null;
 

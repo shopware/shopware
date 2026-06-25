@@ -1,0 +1,13 @@
+type: string
+default: "auto"
+enum:
+  - "auto"
+  - "start"
+  - "center"
+  - "end"
+  - "stretch"
+  - "baseline"
+adminUI:
+  component: "select"
+  label: "Align Self"
+  description: "Cross-axis alignment of the element within its parent."

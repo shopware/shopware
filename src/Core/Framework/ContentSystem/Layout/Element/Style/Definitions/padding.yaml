@@ -1,0 +1,6 @@
+type: string
+maxLength: 64
+adminUI:
+  component: "text"
+  label: "Padding"
+  description: "Inner spacing shorthand (any valid CSS padding value)."

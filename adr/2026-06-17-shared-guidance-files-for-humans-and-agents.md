@@ -30,6 +30,19 @@ We need a documentation model that:
 6. Folder-specific human guidance may live in an existing README when contributors naturally read that README for the work.
 7. ADRs capture durable decisions, trade-offs, and consequences; they should not become living checklists.
 8. Local-only agent mechanics stay in untracked override files such as `AGENTS.override.md`.
+9. Plugin repositories may use their own `AGENTS.md` to explicitly point agents at a neighbouring platform checkout's `AGENTS.md` and selected platform skills. This is a reuse hint, not skill installation; copy or sync selected skills only when another repository needs reliable triggering.
+
+Example plugin `AGENTS.md`:
+
+```md
+## Shopware Guidance
+
+This plugin follows Shopware platform guidance. If available, read:
+- `../platform/AGENTS.md`
+- `../platform/.claude/skills/shopware-php-code/SKILL.md`
+- `../platform/.claude/skills/shopware-phpunit-tests/SKILL.md`
+- `../platform/.claude/skills/shopware-pr-hygiene/SKILL.md`
+```
 
 ## Initial Skills
 
@@ -49,6 +62,7 @@ We need a documentation model that:
 - Humans and agents still share durable coding rules through `AGENTS.md`, `coding-guidelines/`, and existing README files.
 - Rules that only matter for certain tasks can trigger as skills instead of occupying every session.
 - The repository accepts one-line Claude bridge files only where real `AGENTS.md` guidance exists, while avoiding duplicated agent-specific guidance.
+- Plugin repositories can reuse platform guidance cheaply through explicit `AGENTS.md` references without introducing a shared skills distribution workflow.
 
 ## Rejected Alternatives
 

@@ -141,6 +141,14 @@ Defining custom fields inline in `manifest.xml` via the `<custom-fields>` elemen
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
 
+## Administration
+
+### Snippet inheritance from JSON language files
+
+The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.
+
+Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
+
 # 6.7.12.0 (upcoming)
 
 ## Features

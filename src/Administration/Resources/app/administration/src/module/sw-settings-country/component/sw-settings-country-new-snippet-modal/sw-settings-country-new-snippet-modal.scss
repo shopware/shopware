@@ -4,7 +4,7 @@
     .sw-tree {
         border: none;
         margin-bottom: 20px;
-        max-height: 400px;
+        max-height: 520px;
         overflow-y: auto;
     }
 
@@ -19,7 +19,7 @@
 
     .sw-tree .sw-tree__content .sw-tree-item__element {
         grid-template-columns: 30px 0 20px minmax(0, 1fr) 0;
-        font-size: var(--font-size-m);
+        font-size: var(--font-size-s);
         line-height: var(--font-line-height-m);
     }
 

@@ -30,6 +30,13 @@
             "title": "Email sent",
             "description": "If {email} is linked to an account, you'll receive a password reset email shortly."
         },
+        "reset": {
+            "title": "Set new password",
+            "description": "Choose a new password for your account.",
+            "labelNewPassword": "Enter new password",
+            "labelRepeatPassword": "Repeat new password",
+            "buttonSubmit": "Set new password"
+        },
         "accessDenied": {
             "title": "No access to this store",
             "description": "Your login was successful, but you don't have access to this Shopware store.",

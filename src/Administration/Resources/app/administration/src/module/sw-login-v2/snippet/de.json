@@ -30,6 +30,13 @@
             "title": "E-Mail gesendet",
             "description": "Falls {email} mit einem Konto verknüpft ist, erhältst du in Kürze eine E-Mail zum Zurücksetzen des Passworts."
         },
+        "reset": {
+            "title": "Neues Passwort festlegen",
+            "description": "Wähle ein neues Passwort für dein Konto.",
+            "labelNewPassword": "Neues Passwort eingeben",
+            "labelRepeatPassword": "Neues Passwort wiederholen",
+            "buttonSubmit": "Neues Passwort festlegen"
+        },
         "accessDenied": {
             "title": "Kein Zugriff auf diesen Shop",
             "description": "Deine Anmeldung war erfolgreich, aber du hast keinen Zugriff auf diesen Shopware-Shop.",

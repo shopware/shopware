@@ -1,3 +1,32 @@
 <div class="sw-login-v2-reset">
-    <!-- new password form goes here -->
+    <div class="sw-login-v2-reset__content">
+        <h1 class="sw-login-v2-reset__title">
+            {{ $t('sw-login-v2.reset.title') }}
+        </h1>
+
+        <p class="sw-login-v2-reset__description">
+            {{ $t('sw-login-v2.reset.description') }}
+        </p>
+    </div>
+
+    <mt-password-field
+        class="sw-login-v2-reset__password"
+        :label="$t('sw-login-v2.reset.labelNewPassword')"
+        required
+    />
+
+    <mt-password-field
+        class="sw-login-v2-reset__repeat-password"
+        :label="$t('sw-login-v2.reset.labelRepeatPassword')"
+        required
+    />
+
+    <mt-button
+        class="sw-login-v2-reset__reset"
+        variant="primary"
+        size="default"
+        block
+    >
+        {{ $t('sw-login-v2.reset.buttonSubmit') }}
+    </mt-button>
 </div>

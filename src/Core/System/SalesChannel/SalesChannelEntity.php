@@ -220,6 +220,8 @@ class SalesChannelEntity extends Entity
 
     protected MeasurementUnits $measurementUnits;
 
+    protected ?string $businessTimeZone = null;
+
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
         return $this->mailHeaderFooter;
@@ -1023,5 +1025,15 @@ class SalesChannelEntity extends Entity
     public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
     {
         $this->measurementUnits = $measurementUnits;
+    }
+
+    public function getBusinessTimeZone(): ?string
+    {
+        return $this->businessTimeZone;
+    }
+
+    public function setBusinessTimeZone(?string $businessTimeZone): void
+    {
+        $this->businessTimeZone = $businessTimeZone;
     }
 }

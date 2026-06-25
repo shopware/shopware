@@ -1,24 +1,22 @@
 # 6.7.12.0
 
+## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
+
+The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.
+A migration (`Migration1781508123UpdateLineItemPurchasePriceRuleConditions`) rewrites existing `rule_condition` payloads automatically (`isNet: true` → `type: 'net'`, `isNet: false` → `type: 'gross'`).
+
+## Deprecation of rule builder line item condition components
+
+The following Administration rule builder condition components are deprecated and will be removed in v6.8.0. The affected conditions (`cartLineItemInCategory`, `cartLineItemPurchasePrice`) are now rendered generically via `sw-condition-generic`:
+
+* `sw-condition-line-item-in-category`
+* `sw-condition-line-item-purchase-price`
+* `sw-condition-is-net-select`
 ## `sw-product-stream-filter` now reuses `sw-condition-base` styling
 
 The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.
 
 The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
-
-## Deprecation of `render()` on the core script `response` service
-
-`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in v6.8.0.
-
-Rendering Storefront templates is a Storefront concern. From v6.8.0 the `render()` method is only available on the `response` service in **Storefront script hooks** (the `/storefront/script/{hook}` endpoint), where it is provided by `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade`. In admin-api and store-api script hooks the `response` service no longer offers `render()`.
-
-App scripts that may run outside a Storefront context should guard their usage:
-
-```twig
-{% if response.render is defined %}
-    {% set rendered = response.render('@Storefront/...') %}
-{% endif %}
-```
 
 ## Deprecation of `sw_integration_list_introduction` twig block
 

@@ -66,6 +66,8 @@
             "labelInputShippingMethods": "Versandarten",
             "labelInputPaymentMethods": "Zahlungsarten",
             "labelInputCountries": "Länder",
+            "labelBusinessTimeZone": "Geschäfts-Zeitzone",
+            "helpTextBusinessTimeZone": "Zeitzone, die verwendet wird, wenn ein Datum oder eine Uhrzeit in Dokumenten dieses Verkaufskanals ausgegeben wird. Wenn leer, wird keine Geschäfts-Zeitzone angewendet.",
             "countryMultiSelectHelpText": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
             "helpTextTaxCalculation": {
                 "label": "Wenn ein Steuerservice-Anbieter (Tax Provider) aktiviert wird, werden diese Einstellungen möglicherweise überschrieben. Du kannst dies in den {link} überprüfen. ",

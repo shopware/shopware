@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Administration\Snippet\AppLifecycleSubscriber;
@@ -24,7 +25,7 @@ class AppLifecycleSubscriberTest extends TestCase
 {
     private AppLifecycleSubscriber $subscriber;
 
-    private SourceResolver&MockObject $sourceResolver;
+    private SourceResolver&Stub $sourceResolver;
 
     private AppAdministrationSnippetPersister&MockObject $persister;
 
@@ -32,13 +33,13 @@ class AppLifecycleSubscriberTest extends TestCase
 
     private Context $context;
 
-    private Manifest&MockObject $manifest;
+    private Manifest&Stub $manifest;
 
     protected function setUp(): void
     {
-        $this->sourceResolver = $this->createMock(SourceResolver::class);
+        $this->sourceResolver = static::createStub(SourceResolver::class);
         $this->persister = $this->createMock(AppAdministrationSnippetPersister::class);
-        $this->manifest = $this->createMock(Manifest::class);
+        $this->manifest = static::createStub(Manifest::class);
 
         $this->app = new AppEntity();
         $this->app->setId('app-id');
@@ -49,6 +50,8 @@ class AppLifecycleSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->persister->expects($this->never())->method('updateSnippets');
+
         $events = AppLifecycleSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(AppInstalledEvent::class, $events);
@@ -59,10 +62,10 @@ class AppLifecycleSubscriberTest extends TestCase
 
     public function testOnAppUpdateWithAppUpdatedEvent(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('has')->with('Resources/app/administration/snippet')->willReturn(false);
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(false);
 
-        $this->sourceResolver->method('filesystemForApp')->with($this->app)->willReturn($filesystem);
+        $this->sourceResolver->method('filesystemForApp')->willReturn($filesystem);
 
         $this->persister->expects($this->once())
             ->method('updateSnippets')
@@ -74,20 +77,20 @@ class AppLifecycleSubscriberTest extends TestCase
 
     public function testOnAppUpdateWithMultipleSnippetFiles(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('has')->with('Resources/app/administration/snippet')->willReturn(true);
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(true);
 
-        $file1 = $this->createMock(SplFileInfo::class);
+        $file1 = static::createStub(SplFileInfo::class);
         $file1->method('getFilenameWithoutExtension')->willReturn('en_GB');
         $file1->method('getContents')->willReturn('{"test": "value"}');
 
-        $file2 = $this->createMock(SplFileInfo::class);
+        $file2 = static::createStub(SplFileInfo::class);
         $file2->method('getFilenameWithoutExtension')->willReturn('de_DE');
         $file2->method('getContents')->willReturn('{"test": "wert"}');
 
-        $filesystem->method('findFiles')->with('*.json', 'Resources/app/administration/snippet')->willReturn([$file1, $file2]);
+        $filesystem->method('findFiles')->willReturn([$file1, $file2]);
 
-        $this->sourceResolver->method('filesystemForApp')->with($this->app)->willReturn($filesystem);
+        $this->sourceResolver->method('filesystemForApp')->willReturn($filesystem);
 
         $expectedSnippets = [
             'en_GB' => '{"test": "value"}',

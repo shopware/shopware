@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminSearchController;
 use Shopware\Administration\Service\AdminSearcher;
@@ -34,13 +35,13 @@ class AdminSearchControllerTest extends TestCase
 
     private MockObject&AclCriteriaValidator $criteriaValidator;
 
-    private MockObject&DefinitionInstanceRegistry $definitionInstanceRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private MockObject&DefinitionInstanceRegistry $definitionRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionRegistry;
 
-    private MockObject&JsonEntityEncoder $entityEncoder;
+    private Stub&JsonEntityEncoder $entityEncoder;
 
-    private MockObject&RequestCriteriaBuilder $requestCriteriaBuilder;
+    private Stub&RequestCriteriaBuilder $requestCriteriaBuilder;
 
     private MockObject&AdminSearcher $searcher;
 
@@ -48,13 +49,13 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->requestCriteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->requestCriteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->searcher = $this->createMock(AdminSearcher::class);
         $this->serializer = $this->createMock(DecoderInterface::class);
         $this->criteriaValidator = $this->createMock(AclCriteriaValidator::class);
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->entityEncoder = $this->createMock(JsonEntityEncoder::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->entityEncoder = static::createStub(JsonEntityEncoder::class);
 
         $this->controller = new AdminSearchController(
             $this->requestCriteriaBuilder,
@@ -70,6 +71,9 @@ class AdminSearchControllerTest extends TestCase
     public function testSearchWithNoQueryReturnsEmptyData(): void
     {
         $this->serializer->expects($this->once())->method('decode')->willReturn([]);
+
+        $this->searcher->expects($this->once())->method('search')->willReturn([]);
+        $this->criteriaValidator->expects($this->never())->method('validate');
 
         $response = $this->controller->search(new Request(), Context::createDefaultContext());
 
@@ -90,6 +94,8 @@ class AdminSearchControllerTest extends TestCase
         $validationError = [ProductDefinition::class . ':' . AclRoleDefinition::PRIVILEGE_READ];
         $this->criteriaValidator->expects($this->once())->method('validate')
             ->willReturn($validationError);
+
+        $this->searcher->expects($this->once())->method('search')->willReturn([]);
 
         $response = $this->controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
 
@@ -119,6 +125,8 @@ class AdminSearchControllerTest extends TestCase
 
         $this->definitionInstanceRegistry->method('has')
             ->willReturnOnConsecutiveCalls(true, true);
+
+        $this->criteriaValidator->expects($this->exactly(2))->method('validate')->willReturn([]);
 
         $productEntity = new ProductEntity();
         $productEntity->setUniqueIdentifier(Uuid::randomHex());

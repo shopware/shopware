@@ -40,6 +40,8 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->userConfigRepository->expects($this->never())->method('search');
+
         static::assertSame([
             SalesChannelEvents::SALES_CHANNEL_DELETED => 'onSalesChannelDeleted',
         ], $this->salesChannelUserConfigSubscriber->getSubscribedEvents());

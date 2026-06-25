@@ -34,6 +34,8 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithEmptyCollection(): void
     {
+        $this->definitionInstanceRegistry->expects($this->never())->method('has');
+
         $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
 
         $entities = new CriteriaCollection();
@@ -68,7 +70,7 @@ class AdminSearcherTest extends TestCase
     {
         $this->definitionInstanceRegistry->method('has')->willReturn(true);
         $this->definitionInstanceRegistry->expects($this->once())->method('getRepository')->willReturn(
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class)
         );
 
         $this->source->setIsAdmin(true);

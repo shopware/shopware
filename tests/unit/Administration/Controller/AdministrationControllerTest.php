@@ -8,6 +8,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
@@ -56,33 +57,33 @@ use Twig\Environment;
 #[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
     private Context $context;
 
     /**
-     * @var MockObject&EntityRepository<CurrencyCollection>
+     * @var Stub&EntityRepository<CurrencyCollection>
      */
-    private MockObject&EntityRepository $currencyRepository;
+    private Stub&EntityRepository $currencyRepository;
 
-    private MockObject&DefinitionInstanceRegistry $definitionRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionRegistry;
 
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private Stub&EventDispatcherInterface $eventDispatcher;
 
-    private MockObject&PrefixFilesystem $fileSystemOperator;
+    private Stub&PrefixFilesystem $fileSystemOperator;
 
-    private MockObject&HtmlSanitizer $htmlSanitizer;
+    private Stub&HtmlSanitizer $htmlSanitizer;
 
-    private MockObject&ParameterBagInterface $parameterBag;
+    private Stub&ParameterBagInterface $parameterBag;
 
     private string $shopwareCoreDir;
 
     private string $serviceRegistryUrl;
 
     /**
-     * @var MockObject&EntityRepository<LanguageCollection>
+     * @var Stub&EntityRepository<LanguageCollection>
      */
-    private MockObject&EntityRepository $languageRepository;
+    private Stub&EntityRepository $languageRepository;
 
     private string $refreshTokenTtl;
 
@@ -92,17 +93,17 @@ class AdministrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->currencyRepository = $this->createMock(EntityRepository::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->fileSystemOperator = $this->createMock(PrefixFilesystem::class);
-        $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
-        $this->parameterBag = $this->createMock(ParameterBagInterface::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->currencyRepository = static::createStub(EntityRepository::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->fileSystemOperator = static::createStub(PrefixFilesystem::class);
+        $this->htmlSanitizer = static::createStub(HtmlSanitizer::class);
+        $this->parameterBag = static::createStub(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
         $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
-        $this->languageRepository = $this->createMock(EntityRepository::class);
+        $this->languageRepository = static::createStub(EntityRepository::class);
         $this->refreshTokenTtl = 'P1W';
         $this->analyticsGatewayUrl = 'https://analytics-gateway.test.com';
 
@@ -151,7 +152,7 @@ class AdministrationControllerTest extends TestCase
         $currency->setIsoCode('fakeIsoCode');
         $currencyCollection->add($currency);
 
-        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+        $this->currencyRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'currency',
                 1,
@@ -190,7 +191,7 @@ class AdministrationControllerTest extends TestCase
         $currency->setIsoCode('EUR');
         $currencyCollection->add($currency);
 
-        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+        $this->currencyRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'currency',
                 1,
@@ -220,7 +221,7 @@ class AdministrationControllerTest extends TestCase
         $this->parameterBag->method('has')->willReturn(true);
         $this->parameterBag->method('get')->willReturn(true);
 
-        $frwService = $this->createMock(FirstRunWizardService::class);
+        $frwService = static::createStub(FirstRunWizardService::class);
         $frwService->method('frwShouldRun')->willReturn(true);
 
         $controller = $this->createAdministrationController(firstRunWizardService: $frwService);
@@ -240,7 +241,7 @@ class AdministrationControllerTest extends TestCase
         $currency->setIsoCode('EUR');
         $currencyCollection->add($currency);
 
-        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+        $this->currencyRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'currency',
                 1,
@@ -365,12 +366,13 @@ class AdministrationControllerTest extends TestCase
 
     public function testPluginIndexReturnsNotFoundResponse(): void
     {
-        $controller = $this->createAdministrationController();
-
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator = $this->createMock(PrefixFilesystem::class);
+        $fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willThrowException(new UnableToReadFile());
+
+        $controller = $this->createAdministrationController(fileSystemOperator: $fileSystemOperator);
         $response = $controller->pluginIndex('foo');
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
@@ -379,13 +381,14 @@ class AdministrationControllerTest extends TestCase
 
     public function testPluginIndexReturnsUnchangedFileIfNoReplaceableStringIsFound(): void
     {
-        $controller = $this->createAdministrationController();
-
         $fileContent = '<html><head></head><body></body></html>';
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator = $this->createMock(PrefixFilesystem::class);
+        $fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
+
+        $controller = $this->createAdministrationController(fileSystemOperator: $fileSystemOperator);
         $response = $controller->pluginIndex('foo');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -394,19 +397,19 @@ class AdministrationControllerTest extends TestCase
 
     public function testPluginIndexReplacesAsset(): void
     {
-        $controller = $this->createAdministrationController();
-
         $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator = $this->createMock(PrefixFilesystem::class);
+        $fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/foo/meteor-app/index.html')
             ->willReturn($fileContent);
 
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator->expects($this->once())
             ->method('publicUrl')
             ->with('/')
             ->willReturn('http://localhost/bundles/');
 
+        $controller = $this->createAdministrationController(fileSystemOperator: $fileSystemOperator);
         $response = $controller->pluginIndex('foo');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -419,19 +422,19 @@ class AdministrationControllerTest extends TestCase
 
     public function testPluginIndexSetsCacheHeaders(): void
     {
-        $controller = $this->createAdministrationController();
-
         $fileContent = '<html><head></head><body></body></html>';
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator = $this->createMock(PrefixFilesystem::class);
+        $fileSystemOperator->expects($this->once())
             ->method('read')
             ->with('bundles/test-plugin/meteor-app/index.html')
             ->willReturn($fileContent);
 
-        $this->fileSystemOperator->expects($this->once())
+        $fileSystemOperator->expects($this->once())
             ->method('publicUrl')
             ->with('/')
             ->willReturn('http://localhost/bundles/');
 
+        $controller = $this->createAdministrationController(fileSystemOperator: $fileSystemOperator);
         $response = $controller->pluginIndex('test-plugin');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -450,7 +453,7 @@ class AdministrationControllerTest extends TestCase
     {
         $this->expectExceptionObject(RoutingException::languageNotFound($this->context->getLanguageId()));
 
-        $this->connection->expects($this->once())->method('fetchOne')->willReturn(false);
+        $this->connection->method('fetchOne')->willReturn(false);
         $controller = $this->createAdministrationController();
 
         $controller->resetExcludedSearchTerm($this->context);
@@ -466,17 +469,19 @@ class AdministrationControllerTest extends TestCase
         $excludedTerms = $this->getExcludedTerms($sourceLanguage);
         $searchConfigId = Uuid::randomHex();
 
-        $this->connection->method('fetchOne')
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')
             ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         if ($sourceLanguage === null) {
-            $this->eventDispatcher->expects($this->once())->method('dispatch')
+            $eventDispatcher->expects($this->once())->method('dispatch')
                 ->willReturn(new PreResetExcludedSearchTermEvent($searchConfigId, $excludedTerms, $context));
         } else {
-            $this->eventDispatcher->expects($this->never())->method('dispatch');
+            $eventDispatcher->expects($this->never())->method('dispatch');
         }
 
-        $this->connection->expects($this->once())->method('executeStatement')
+        $connection->expects($this->once())->method('executeStatement')
             ->with(
                 'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `id` = :id',
                 [
@@ -485,7 +490,7 @@ class AdministrationControllerTest extends TestCase
                 ]
             );
 
-        $controller = $this->createAdministrationController();
+        $controller = $this->createAdministrationController(connection: $connection, eventDispatcher: $eventDispatcher);
 
         $response = $controller->resetExcludedSearchTerm($context);
 
@@ -504,7 +509,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testSanitizeHtmlInvokesSanitizerWhenFieldIsEmpty(): void
     {
-        $this->htmlSanitizer->expects($this->once())->method('sanitize')->willReturn('');
+        $this->htmlSanitizer->method('sanitize')->willReturn('');
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => '']), $this->context);
@@ -521,7 +526,7 @@ class AdministrationControllerTest extends TestCase
 
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => $field]), $this->context);
@@ -531,7 +536,7 @@ class AdministrationControllerTest extends TestCase
     {
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
@@ -546,7 +551,7 @@ class AdministrationControllerTest extends TestCase
         $html = '<p>test</p>';
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->method('getByEntityName')->willReturn($entityDefinition);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => $html, 'field' => 'test_entity.idAllowHtml']), $this->context);
@@ -561,9 +566,9 @@ class AdministrationControllerTest extends TestCase
         $sanitized = 'test';
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($this->definitionRegistry);
-        $this->definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $this->definitionRegistry->method('getByEntityName')->willReturn($entityDefinition);
 
-        $this->htmlSanitizer->expects($this->once())->method('sanitize')->willReturn($sanitized);
+        $this->htmlSanitizer->method('sanitize')->willReturn($sanitized);
 
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(
@@ -619,7 +624,7 @@ class AdministrationControllerTest extends TestCase
         }, $expectedLocales, \array_keys($expectedLocales));
 
         $context = Context::createDefaultContext();
-        $languageRepository = $this->createMock(EntityRepository::class);
+        $languageRepository = static::createStub(EntityRepository::class);
         $languageRepository->method('search')
             ->willReturn(new EntitySearchResult(
                 'language',
@@ -677,34 +682,37 @@ class AdministrationControllerTest extends TestCase
         (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
         (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
         ?FirstRunWizardService $firstRunWizardService = null,
+        (PrefixFilesystem&MockObject)|null $fileSystemOperator = null,
+        (Connection&MockObject)|null $connection = null,
+        (EventDispatcherInterface&MockObject)|null $eventDispatcher = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
         /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([$collection]);
-        $customerEmailUniqueChecker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $customerEmailUniqueChecker = static::createStub(CustomerEmailUniqueChecker::class);
         $customerEmailUniqueChecker
             ->method('findConflictingCustomerId')
             ->willReturn($collection->first()?->getId());
 
         return new AdministrationController(
-            $this->createMock(TemplateFinder::class),
-            $firstRunWizardService ?? $this->createMock(FirstRunWizardService::class),
-            $snippetFinder ?? $this->createMock(SnippetFinderInterface::class),
+            static::createStub(TemplateFinder::class),
+            $firstRunWizardService ?? static::createStub(FirstRunWizardService::class),
+            $snippetFinder ?? static::createStub(SnippetFinderInterface::class),
             [],
             new KnownIpsCollector(),
-            $this->connection,
-            $this->eventDispatcher,
+            $connection ?? $this->connection,
+            $eventDispatcher ?? $this->eventDispatcher,
             $this->shopwareCoreDir,
             $customerRepository,
             $this->currencyRepository,
             $this->htmlSanitizer,
             $this->definitionRegistry,
             $this->parameterBag,
-            $this->fileSystemOperator,
+            $fileSystemOperator ?? $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
-            $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
+            $tokenValidator ?? static::createStub(SymfonyBearerTokenValidator::class),
             $this->analyticsGatewayUrl,
             $customerEmailUniqueChecker,
             $this->refreshTokenTtl,

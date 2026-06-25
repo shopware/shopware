@@ -50,6 +50,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private const ENABLED_NAMESPACES = [
         'Shopware\\Tests\\Unit\\Core\\DevOps\\',
         'Shopware\\Tests\\Unit\\Core\\Profiling\\',
+        'Shopware\\Tests\\Unit\\Administration\\',
     ];
 
     public function getNodeType(): string

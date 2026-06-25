@@ -98,7 +98,8 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         $filesystem->method('exists')->willReturn(true);
 
         $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')
+        $router->expects($this->once())
+            ->method('generate')
             ->with('administration.plugin.index', ['pluginName' => 'acme'])
             ->willReturn('/admin/acme/index.html');
 

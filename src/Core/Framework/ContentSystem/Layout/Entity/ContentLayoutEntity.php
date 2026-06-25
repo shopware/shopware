@@ -27,10 +27,9 @@ class ContentLayoutEntity extends Entity
      */
     protected array $layout;
 
-    /**
-     * @var array<string, mixed>|null
-     */
-    protected ?array $schema = null;
+    // Always hydrated: root_source is a Required field, so every full load sets it. A future PartialEntity /
+    // addFields reader that omits it would make getRootSource() throw on the uninitialized typed property.
+    protected string $rootSource;
 
     protected ?ProductContentLayoutCollection $productContentLayouts = null;
 
@@ -74,20 +73,14 @@ class ContentLayoutEntity extends Entity
         $this->layout = $layout;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
-    public function getSchema(): ?array
+    public function getRootSource(): string
     {
-        return $this->schema;
+        return $this->rootSource;
     }
 
-    /**
-     * @param array<string, mixed>|null $schema
-     */
-    public function setSchema(?array $schema): void
+    public function setRootSource(string $rootSource): void
     {
-        $this->schema = $schema;
+        $this->rootSource = $rootSource;
     }
 
     public function getProductContentLayouts(): ?ProductContentLayoutCollection

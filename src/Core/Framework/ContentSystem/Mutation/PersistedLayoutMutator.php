@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\LayoutBindingEnumerator;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
@@ -20,10 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
- * Applies one structural mutation to a stored content_layout and commits it. Loads the layout by id, guards an
- * optimistic-concurrency token, applies the operation to the loaded tree, re-resolves against the layout's real
- * source bindings, and persists the mutated tree (whose write runs the resolvability gates). The persisted
- * counterpart to {@see MutationPipeline}, which transforms a stateless draft tree without touching storage.
+ * Applies one structural mutation to a stored content_layout and commits it; the persisted counterpart to
+ * {@see MutationPipeline}, which transforms a stateless draft tree without touching storage.
  *
  * Known interim limitations, owned by and deferred to the planned layout draft/versioning system that will
  * supersede this `expectedVersion`/lock concurrency mechanism:
@@ -43,13 +38,12 @@ class PersistedLayoutMutator
 {
     /**
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
-     * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
      */
     public function __construct(
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $contentLayoutRepository,
         private readonly ContentElementFieldSerializer $elementSerializer,
-        private readonly iterable $bindingEnumerators,
+        private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
     ) {
     }
@@ -81,7 +75,7 @@ class PersistedLayoutMutator
                 'layout' => array_map($this->elementSerializer->serializeContentElement(...), $mutated),
             ]], $context);
 
-            $analysis = $this->diagnose($layoutId, $mutated, $context);
+            $analysis = $this->diagnose($layout->getRootSource(), $mutated, $context);
 
             // This MutationResult assembly is intentionally duplicated in MutationPipeline::run() (see the note
             // there): sharing it would couple Mutation/ to a Diagnostics/LayoutAnalysis-shaped helper or require
@@ -125,52 +119,21 @@ class PersistedLayoutMutator
     }
 
     /**
-     * Re-resolves the mutated tree against the layout's real source bindings (the same enumerators the write gate
-     * uses), so the echoed report matches what the gate enforced on commit. An unbound layout is diagnosed for
-     * well-formedness only. A layout bound to several sources unions every binding-scope violation into one report;
-     * the resolutions reflect the last bound source diagnosed.
+     * Re-resolves the mutated tree against the layout's single root source (the loaded entity carries it), so the
+     * echoed report matches what the content_layout write gate enforced on commit. resolve() returns a list (never
+     * null — [] for none/header/footer), so the binding-scope checks always run; the intrinsic-only path no longer
+     * applies to a stored layout.
+     *
+     * resolve() is never handed an unregistered id here even when the stored source was de-registered: mutate()
+     * commits the tree via update() first, and that write runs ContentLayoutWriteValidator, which re-checks
+     * membership of the committed root source and rejects a de-registered source as a clean unknownRootSource 400
+     * before any commit. A membership gate in this method would instead fire after the commit (the post-commit
+     * diagnose() limitation noted on the class), so the preceding write gate is the correct and only check needed.
      *
      * @param list<ContentElement> $tree
      */
-    private function diagnose(string $layoutId, array $tree, Context $context): LayoutAnalysis
+    private function diagnose(string $rootSource, array $tree, Context $context): LayoutAnalysis
     {
-        $bindings = [];
-        foreach ($this->bindingEnumerators as $enumerator) {
-            foreach ($enumerator->enumerate($layoutId, $context) as $binding) {
-                $bindings[] = $binding;
-            }
-        }
-
-        if ($bindings === []) {
-            return $this->diagnostics->analyze($tree, null, $context);
-        }
-
-        $intrinsic = [];
-        $bindingViolations = [];
-        $resolutions = [];
-
-        foreach ($bindings as $index => $binding) {
-            $analysis = $this->diagnostics->analyze($tree, $binding->providedRootContext, $context);
-            $resolutions = $analysis->resolutions;
-
-            foreach ($analysis->report->violations as $violation) {
-                if ($violation->scope() === ViolationScope::Intrinsic) {
-                    if ($index === 0) {
-                        $intrinsic[] = $violation;
-                    }
-
-                    continue;
-                }
-
-                $bindingViolations[$this->violationKey($violation)] = $violation;
-            }
-        }
-
-        return new LayoutAnalysis(new DiagnosticsReport([...$intrinsic, ...array_values($bindingViolations)]), $resolutions);
-    }
-
-    private function violationKey(Violation $violation): string
-    {
-        return $violation->code->value . '|' . $violation->elementId . '|' . ($violation->key ?? '');
+        return $this->diagnostics->analyze($tree, $this->rootSourceRegistry->resolve($rootSource, $context), $context);
     }
 }

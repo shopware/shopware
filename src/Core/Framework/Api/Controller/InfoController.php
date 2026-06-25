@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -64,7 +64,7 @@ class InfoController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
         private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
-        private readonly ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator,
+        private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
     }
@@ -155,7 +155,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/content-system-entity-types.json', name: 'api.info.content-system-entity-types', methods: ['GET'])]
     public function contentSystemEntityTypes(): JsonResponse
     {
-        return new JsonResponse($this->entitySchemaGenerator->getSchema());
+        return new JsonResponse(['entityTypes' => $this->rootSourceRegistry->entityRootSources()]);
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]

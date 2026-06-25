@@ -10,10 +10,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSe
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Single decode path from a content_layout `layout` storage value to its element tree, shared by the
- * well-formedness validator and the binding checker so the decode step cannot drift between them. Throws on any
- * decode defect; each caller keeps its own catch policy ({@see ContentLayoutWriteValidator} records an
- * invalid_config violation, {@see LayoutBindingChecker} skips to the committed-store fallback).
+ * Single decode path from a content_layout `layout` storage value to its element tree, used by the
+ * {@see ContentLayoutWriteValidator} so the decode step has one definition. Throws on any decode defect; the
+ * validator records a client-defect decode as an invalid_config violation and rethrows any other.
  *
  * @internal
  *

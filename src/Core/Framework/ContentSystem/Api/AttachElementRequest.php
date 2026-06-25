@@ -25,8 +25,7 @@ final class AttachElementRequest
         public readonly ?string $parentElementId = null,
         public readonly ?string $slot = null,
         public readonly ?int $index = null,
-        public readonly ?string $entityType = null,
-        public readonly ?string $section = null,
+        public readonly ?string $rootSource = null,
     ) {
     }
 }

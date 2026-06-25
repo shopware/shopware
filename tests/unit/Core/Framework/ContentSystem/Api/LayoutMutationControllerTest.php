@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\AttachElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\DuplicateElementRequest;
@@ -15,7 +15,6 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\MoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
-use Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -141,8 +140,8 @@ class LayoutMutationControllerTest extends TestCase
         ];
     }
 
-    #[TestDox('threads the entityType source root context into the mutation pipeline')]
-    public function testResolvesEntityTypeSource(): void
+    #[TestDox('threads the root source context resolved from the registry into the mutation pipeline')]
+    public function testResolvesRootSource(): void
     {
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
@@ -152,61 +151,29 @@ class LayoutMutationControllerTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('providedRootContext')->willReturn($rootContext);
-
-        $sourceLocator = static::createStub(SpecificationSourceLocator::class);
-        $sourceLocator->method('resolveByEntityType')->willReturn($source);
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturn($rootContext);
 
         $threadedRootContext = false;
-        $pipeline = static::createStub(MutationPipeline::class);
-        $pipeline->method('run')->willReturnCallback(
-            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): MutationResult {
-                $threadedRootContext = $analyzedRootContext;
+        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
 
-                return new MutationResult([], [], new DiagnosticsReport([]), []);
-            }
-        );
-
-        $controller = $this->controller($pipeline, $sourceLocator);
-
-        $controller->insert(new InsertElementRequest('Sw:Card', entityType: 'product'), Context::createDefaultContext());
+        $controller->insert(new InsertElementRequest('Sw:Card', rootSource: 'product'), Context::createDefaultContext());
 
         static::assertSame($rootContext, $threadedRootContext);
     }
 
-    #[TestDox('threads the section source root context into the mutation pipeline')]
-    public function testResolvesSectionSource(): void
+    #[TestDox('threads a null context into the pipeline when the registry resolves no bound source')]
+    public function testWithoutRootSourceThreadsNullContext(): void
     {
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: ContentElement::class,
-            contextType: ContextType::Single,
-            providerElementId: null,
-            distribution: DistributionStrategy::Broadcast,
-        )];
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturn(null);
 
-        $source = static::createStub(AbstractSpecificationSource::class);
-        $source->method('providedRootContext')->willReturn($rootContext);
+        $threadedRootContext = 'unset';
+        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
 
-        $sourceLocator = static::createStub(SpecificationSourceLocator::class);
-        $sourceLocator->method('resolveBySection')->willReturn($source);
+        $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
 
-        $threadedRootContext = false;
-        $pipeline = static::createStub(MutationPipeline::class);
-        $pipeline->method('run')->willReturnCallback(
-            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): MutationResult {
-                $threadedRootContext = $analyzedRootContext;
-
-                return new MutationResult([], [], new DiagnosticsReport([]), []);
-            }
-        );
-
-        $controller = $this->controller($pipeline, $sourceLocator);
-
-        $controller->insert(new InsertElementRequest('Sw:Card', section: 'header'), Context::createDefaultContext());
-
-        static::assertSame($rootContext, $threadedRootContext);
+        static::assertNull($threadedRootContext);
     }
 
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
@@ -222,27 +189,53 @@ class LayoutMutationControllerTest extends TestCase
         static::assertStringContainsString('"resolutions":{}', $content);
     }
 
-    #[TestDox('rejects a section value with no matching ContentSection with a 400')]
-    public function testRejectsUnknownSection(): void
+    #[TestDox('propagates the registry unknownRootSource exception instead of reaching the pipeline')]
+    public function testRejectsUnknownRootSource(): void
     {
-        $controller = $this->controller();
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willThrowException(
+            ContentSystemException::unknownRootSource('definitely-not-a-root-source')
+        );
 
-        $this->expectExceptionObject(ContentSystemException::noSourceForSection('does-not-exist'));
+        $controller = $this->controller(rootSourceRegistry: $registry);
 
-        $controller->insert(new InsertElementRequest('Sw:Card', section: 'does-not-exist'), Context::createDefaultContext());
+        try {
+            $controller->insert(new InsertElementRequest('Sw:Card', rootSource: 'definitely-not-a-root-source'), Context::createDefaultContext());
+            static::fail('Expected a ContentSystemException for the unknown root source.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $exception->getErrorCode());
+        }
     }
 
     private function controller(
         ?MutationPipeline $pipeline = null,
-        ?SpecificationSourceLocator $sourceLocator = null,
+        ?RootSourceRegistry $rootSourceRegistry = null,
     ): LayoutMutationController {
         return new LayoutMutationController(
             $this->decoder(),
             $pipeline ?? $this->pipelineReturning(new MutationResult([], [], new DiagnosticsReport([]), [])),
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
-            $sourceLocator ?? static::createStub(SpecificationSourceLocator::class),
+            $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementSerializer(),
         );
+    }
+
+    /**
+     * Builds a pipeline stub that captures the root context threaded into run() so a test can assert what the
+     * controller resolved and passed through.
+     */
+    private function capturingPipeline(mixed &$captured): MutationPipeline
+    {
+        $pipeline = static::createStub(MutationPipeline::class);
+        $pipeline->method('run')->willReturnCallback(
+            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$captured): MutationResult {
+                $captured = $analyzedRootContext;
+
+                return new MutationResult([], [], new DiagnosticsReport([]), []);
+            }
+        );
+
+        return $pipeline;
     }
 
     private function decoder(): DraftLayoutDecoder

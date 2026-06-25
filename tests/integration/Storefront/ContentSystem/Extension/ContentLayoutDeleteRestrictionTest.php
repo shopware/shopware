@@ -35,7 +35,7 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
     public function testRejectsDeletingHeaderBoundLayout(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = $this->createLayout($context);
+        $layoutId = $this->createLayout('header', $context);
         $this->headerRepository()->create([['id' => Uuid::randomHex(), 'contentLayoutId' => $layoutId]], $context);
 
         try {
@@ -52,7 +52,7 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
     public function testRejectsDeletingFooterBoundLayout(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = $this->createLayout($context);
+        $layoutId = $this->createLayout('footer', $context);
         $this->footerRepository()->create([['id' => Uuid::randomHex(), 'contentLayoutId' => $layoutId]], $context);
 
         try {
@@ -69,7 +69,7 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
     public function testRejectsDeletingHeaderBoundLayoutViaSyncApi(): void
     {
         $context = Context::createDefaultContext();
-        $layoutId = $this->createLayout($context);
+        $layoutId = $this->createLayout('header', $context);
         $this->headerRepository()->create([['id' => Uuid::randomHex(), 'contentLayoutId' => $layoutId]], $context);
 
         $operations = [
@@ -86,13 +86,14 @@ class ContentLayoutDeleteRestrictionTest extends TestCase
         static::assertSame($layoutId, $this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
 
-    private function createLayout(Context $context): string
+    private function createLayout(string $rootSource, Context $context): string
     {
         $id = Uuid::randomHex();
         $this->layoutRepository()->create([[
             'id' => $id,
             'name' => 'delete-restriction-layout',
             'version' => '1.0.0',
+            'rootSource' => $rootSource,
             'layout' => [
                 ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],

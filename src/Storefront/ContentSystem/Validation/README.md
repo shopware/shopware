@@ -4,5 +4,4 @@ Storefront DAL `PreWriteValidationEvent` gate for header/footer content layout a
 
 ## Key Classes
 
-- `HeaderFooterAssignmentWriteValidator` — the Storefront counterpart of Core's `ContentLayoutAssignmentWriteValidator`; blocks assignment writes where the bound layout is not resolvable without page data; runs the binding check for header/footer assignment writes via Core's shared `LayoutBindingChecker`. Skips a section entirely when `SKIP_VALIDATION_STATE` is set, or per-section when `LayoutGate::isBindingEnforced(new SourceBinding($section, []))` returns `false`
-- `HeaderFooterBindingEnumerator` — enumerates all header and footer bindings of a layout for the bound-layout re-check in Core's `ContentLayoutWriteValidator`; registered via the `content_system.layout_binding_enumerator` tag
+- `HeaderFooterAssignmentWriteValidator` — the Storefront counterpart of Core's `ContentLayoutAssignmentWriteValidator`: a tree-blind type-match for header/footer assignment writes. It reads the bound layout's immutable `root_source` via Core's shared `LayoutRootSourceReader` and rejects the write (`ContentSystemException::rootSourceAssignmentMismatch`, 400) when it does not equal the section id (`header` / `footer`). Skipped when `SKIP_VALIDATION_STATE` is set

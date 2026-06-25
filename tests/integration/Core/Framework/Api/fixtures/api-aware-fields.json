@@ -1668,7 +1668,7 @@
     "content_layout.name",
     "content_layout.version",
     "content_layout.layout",
-    "content_layout.schema",
+    "content_layout.rootSource",
     "content_layout.createdAt",
     "content_layout.updatedAt",
     "product_content_layout.id",

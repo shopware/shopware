@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
@@ -28,12 +29,12 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    #[TestDox('persists a category assignment when the bound layout is resolvable for the source')]
-    public function testAcceptsResolvableLayoutBoundToCategory(): void
+    #[TestDox('persists a category assignment when the layout root source matches the assignment type')]
+    public function testAcceptsAssignmentMatchingRootSource(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = $this->createLayout(TestElementTypeLoader::RESOLVABLE, $context);
+        $layoutId = $this->createLayout('category', $context);
 
         $assignmentId = Uuid::randomHex();
         $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $context);
@@ -41,31 +42,32 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('rejects a category assignment when the bound layout is not resolvable for the source')]
-    public function testRejectsUnresolvableLayoutBoundToCategory(): void
+    #[TestDox('rejects a category assignment when the layout was created for a different root source')]
+    public function testRejectsAssignmentMismatchingRootSource(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = $this->createLayout(TestElementTypeLoader::UNRESOLVABLE, $context);
+        $layoutId = $this->createLayout('product', $context);
 
         $assignmentId = Uuid::randomHex();
 
         try {
             $this->assignmentRepository()->create([$this->assignment($assignmentId, $categoryId, $layoutId)], $context);
-            static::fail('Expected the binding checker to reject the assignment of an unresolvable layout.');
+            static::fail('Expected the type-match to reject the assignment of a product-rooted layout to a category.');
         } catch (WriteException $exception) {
-            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+            static::assertStringContainsString('root source is "product"', $exception->getMessage());
+            static::assertSame(ContentSystemException::ROOT_SOURCE_ASSIGNMENT_MISMATCH, iterator_to_array($exception->getErrors(), false)[0]['code']);
         }
 
         static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('bypasses the binding checker when the write context carries the skip flag')]
-    public function testSkipFlagBypassesBindingGate(): void
+    #[TestDox('bypasses the type-match when the write context carries the skip flag')]
+    public function testSkipFlagBypassesTypeMatch(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
-        $layoutId = $this->createLayout(TestElementTypeLoader::UNRESOLVABLE, $context);
+        $layoutId = $this->createLayout('product', $context);
 
         $skipContext = Context::createDefaultContext();
         $skipContext->addState(LayoutGate::SKIP_VALIDATION_STATE);
@@ -76,8 +78,22 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('rejects a single batch that creates a layout and binds an unresolvable source to it at once')]
-    public function testRejectsAtomicCreateAndBindOfUnresolvableLayout(): void
+    #[TestDox('persists a single batch that creates a category-rooted layout and binds a category at once')]
+    public function testAcceptsAtomicCreateAndBindMatchingRootSource(): void
+    {
+        $context = Context::createDefaultContext();
+        $categoryId = $this->createCategory($context);
+        $layoutId = Uuid::randomHex();
+        $assignmentId = Uuid::randomHex();
+
+        $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, 'category')], $context);
+
+        static::assertSame($layoutId, $this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('rejects an atomic create-and-bind whose in-flight root source does not match the assignment type')]
+    public function testRejectsAtomicCreateAndBindMismatchingRootSource(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
@@ -85,35 +101,18 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $assignmentId = Uuid::randomHex();
 
         try {
-            $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::UNRESOLVABLE)], $context);
-            static::fail('Expected the binding checker to reject the atomic create-and-bind of an unresolvable layout.');
+            $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, 'product')], $context);
+            static::fail('Expected the type-match to read the in-flight root source and reject the create-and-bind.');
         } catch (WriteException $exception) {
-            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
-            // The binding checker reports the unresolvable layout once; the well-formedness gate must not re-report it
-            // for the same in-batch layout command.
-            static::assertCount(1, iterator_to_array($exception->getErrors(), false));
+            static::assertStringContainsString('root source is "product"', $exception->getMessage());
         }
 
         static::assertNull($this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
         static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('persists a single batch that creates a layout and binds a resolvable source to it at once')]
-    public function testAcceptsAtomicCreateAndBindOfResolvableLayout(): void
-    {
-        $context = Context::createDefaultContext();
-        $categoryId = $this->createCategory($context);
-        $layoutId = Uuid::randomHex();
-        $assignmentId = Uuid::randomHex();
-
-        $this->layoutRepository()->create([$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::RESOLVABLE)], $context);
-
-        static::assertSame($layoutId, $this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
-        static::assertSame($assignmentId, $this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
-    }
-
-    #[TestDox('rejects an atomic create-and-bind of an unresolvable layout via the Sync API')]
-    public function testRejectsAtomicCreateAndBindViaSyncApi(): void
+    #[TestDox('rejects a mismatching atomic create-and-bind via the Sync API')]
+    public function testRejectsAtomicCreateAndBindMismatchViaSyncApi(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
@@ -125,15 +124,15 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
                 'create-and-bind',
                 ContentLayoutDefinition::ENTITY_NAME,
                 SyncOperation::ACTION_UPSERT,
-                [$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, TestElementTypeLoader::UNRESOLVABLE)],
+                [$this->layoutWithCategoryBinding($layoutId, $assignmentId, $categoryId, 'product')],
             ),
         ];
 
         try {
             $this->syncService()->sync($operations, $context, new SyncBehavior());
-            static::fail('Expected the binding checker to reject the atomic Sync create-and-bind of an unresolvable layout.');
+            static::fail('Expected the type-match to reject the atomic Sync create-and-bind of a product-rooted layout to a category.');
         } catch (WriteException $exception) {
-            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+            static::assertStringContainsString('root source is "product"', $exception->getMessage());
         }
 
         static::assertNull($this->layoutRepository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
@@ -150,15 +149,16 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         return $id;
     }
 
-    private function createLayout(string $component, Context $context): string
+    private function createLayout(string $rootSource, Context $context): string
     {
         $id = Uuid::randomHex();
         $this->layoutRepository()->create([[
             'id' => $id,
             'name' => 'binding-gate-layout',
             'version' => '1.0.0',
+            'rootSource' => $rootSource,
             'layout' => [
-                ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []],
+                ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],
         ]], $context);
 
@@ -175,18 +175,20 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 
     /**
      * A layout payload that nests its category assignment, so the layout INSERT and the assignment INSERT land in
-     * a single write batch (one PreWriteValidationEvent) — the atomic create-and-bind path.
+     * a single write batch (one PreWriteValidationEvent) — the atomic create-and-bind path. The assignment
+     * type-match reads the layout's in-flight root source rather than the (not-yet-committed) row.
      *
      * @return array<string, mixed>
      */
-    private function layoutWithCategoryBinding(string $layoutId, string $assignmentId, string $categoryId, string $component): array
+    private function layoutWithCategoryBinding(string $layoutId, string $assignmentId, string $categoryId, string $rootSource): array
     {
         return [
             'id' => $layoutId,
             'name' => 'atomic-create-and-bind-layout',
             'version' => '1.0.0',
+            'rootSource' => $rootSource,
             'layout' => [
-                ['id' => Uuid::randomHex(), 'component' => $component, 'properties' => []],
+                ['id' => Uuid::randomHex(), 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
             ],
             'categoryContentLayouts' => [
                 ['id' => $assignmentId, 'categoryId' => $categoryId],

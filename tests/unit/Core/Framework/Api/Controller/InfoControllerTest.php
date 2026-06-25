@@ -17,10 +17,10 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -339,10 +339,10 @@ class InfoControllerTest extends TestCase
     {
         $expected = ['entityTypes' => ['product', 'category', 'landing_page']];
 
-        $schemaGenerator = static::createStub(ContentLayoutAssignableEntitySchemaGenerator::class);
-        $schemaGenerator->method('getSchema')->willReturn($expected);
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('entityRootSources')->willReturn(['product', 'category', 'landing_page']);
 
-        $controller = $this->createController(entitySchemaGenerator: $schemaGenerator);
+        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
         $response = $controller->contentSystemEntityTypes();
 
         static::assertSame(200, $response->getStatusCode());
@@ -372,7 +372,7 @@ class InfoControllerTest extends TestCase
         array $adminWorkerTransports = ['slow'],
         ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null,
         ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
-        ?ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator = null,
+        ?RootSourceRegistry $rootSourceRegistry = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -404,7 +404,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
             $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
-            $entitySchemaGenerator ?? static::createStub(ContentLayoutAssignableEntitySchemaGenerator::class),
+            $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             null,
         );
     }

@@ -6,8 +6,7 @@
 - `HeaderContentLayout/HeaderContentLayoutDefinition`, `FooterContentLayout/FooterContentLayoutDefinition` — standalone definitions (NOT extending `AbstractContentLayoutAssignableDefinition`)
 - `Extension/` — `ContentLayoutExtension`, `SalesChannelExtension`, `SalesChannelDomainExtension`
 - Resolution logic: `Core/Framework/ContentSystem/Adapter/FactoryHelper/DomainAwareLayoutResolver`
-- `Validation/HeaderFooterAssignmentWriteValidator` — `kernel.event_subscriber` on `PreWriteValidationEvent`; serving-gate validator for header/footer assignment writes; runs the binding check via Core's `Validation/LayoutBindingChecker`; skipped when `LayoutGate::SKIP_VALIDATION_STATE` is set, or per-section when `LayoutGate::isBindingEnforced(new SourceBinding($section, []))` returns `false`
-- `Validation/HeaderFooterBindingEnumerator` — `content_system.layout_binding_enumerator`; enumerates header and footer bindings of a layout for Core's bound-layout re-check
+- `Validation/HeaderFooterAssignmentWriteValidator` — `kernel.event_subscriber` on `PreWriteValidationEvent`; the same tree-blind type-match as Core's entity-assignment validator, against the section id (`header` / `footer`) instead of an entity type. It reads the bound layout's immutable `root_source` via Core's shared `Validation/LayoutRootSourceReader` and rejects the write (`ContentSystemException::rootSourceAssignmentMismatch`, 400) when it does not equal the section id; skipped when `LayoutGate::SKIP_VALIDATION_STATE` is set
 
 ## Constraints
 

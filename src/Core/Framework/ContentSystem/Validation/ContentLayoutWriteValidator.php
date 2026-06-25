@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
-use Shopware\Core\Framework\ContentSystem\Binding\LayoutBindingEnumerator;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
@@ -14,14 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The validator that applies the well-formedness gate plus the synchronous re-check of already-bound layouts. On
- * every content_layout write touching the layout column it decodes the tree, accumulates intrinsic-scope
- * violations (well-formedness — gates persistence), then re-validates the same tree against each distinct source
- * bound to the layout via the tagged binding enumerators, accumulating binding-scope violations so an edit cannot
- * make a live layout unresolvable and reach serving. An incomplete or unbound layout persists freely.
+ * The single ordered content_layout write gate: well-formedness on the decoded tree, then membership of the
+ * written root source in the registry, then resolvability of the tree against that source's root-ambient context.
+ * The per-step rationale — why membership is gated before resolvability, and why the edit path re-checks the
+ * committed source — is inline in validateCommand().
  *
  * @internal
  *
@@ -30,14 +30,12 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class ContentLayoutWriteValidator implements EventSubscriberInterface
 {
-    /**
-     * @param iterable<LayoutBindingEnumerator> $bindingEnumerators
-     */
     public function __construct(
         private readonly LayoutGate $gate,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly LayoutTreeDecoder $treeDecoder,
-        private readonly iterable $bindingEnumerators,
+        private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
     }
 
@@ -58,7 +56,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         }
 
         foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME || !$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
+            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -68,24 +66,69 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
     private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context): void
     {
-        $payload = $command->getPayload();
+        $touchesLayout = $command->hasField(ContentLayoutDefinition::LAYOUT_FIELD);
+        $setsRootSource = $command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
 
-        $violations = new ConstraintViolationList();
-
-        $tree = $this->decodeTree($payload[ContentLayoutDefinition::LAYOUT_FIELD] ?? null, $violations);
-
-        if ($tree !== null) {
-            $report = $this->gate->wellFormedness($tree, $context);
-            $violations->addAll($this->violationMapper->toConstraintViolationList($report->intrinsicErrors()));
-
-            $violations->addAll($this->recheckBoundSources($tree, $command, $context));
-        }
-
-        if ($violations->count() === 0) {
+        if (!$touchesLayout && !$setsRootSource) {
             return;
         }
 
-        $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
+        $payload = $command->getPayload();
+        $violations = new ConstraintViolationList();
+
+        // Step 1: well-formedness on the decoded tree (only when the write touches the layout column).
+        $tree = $touchesLayout ? $this->decodeTree($payload[ContentLayoutDefinition::LAYOUT_FIELD] ?? null, $violations) : null;
+
+        if ($tree !== null) {
+            $violations->addAll($this->violationMapper->toConstraintViolationList(
+                $this->gate->wellFormedness($tree, $context)->intrinsicErrors()
+            ));
+        }
+
+        // Step 2: membership of the written root source. On creation the row sets root_source; an unknown value is
+        // rejected here and step 3 is skipped, so resolve() is never handed an unregistered id.
+        if ($setsRootSource) {
+            $rootSource = $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD];
+
+            if (!\is_string($rootSource) || !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
+                $violations->add($this->unknownRootSourceViolation($rootSource));
+                $this->collect($event, $command, $violations);
+
+                return;
+            }
+        }
+
+        // Step 3: resolvability against the declared root source (the create payload value, else the committed row
+        // read through LayoutRootSourceReader). On the create path membership was already gated in step 2; on a
+        // layout-only edit the committed source is gated here before resolve() — a source de-registered after the
+        // layout was written, or a stray non-member value, surfaces as the unknownRootSource 400 instead of the
+        // resolve() 500. After this, resolve() is never handed an unregistered id on either path.
+        //
+        // resolvability() re-runs the analysis; its intrinsic checks are root-context-independent, so it recomputes
+        // step 1's intrinsic errors identically and we discard them, keeping only bindingErrors(). The redundant
+        // intrinsic pass is deliberate, not a correctness guard: the three steps gate on independent conditions, and
+        // step 1 must run on its own for the writes that never reach here (the unknown-source early-return, or an edit
+        // whose committed source reads null), so folding intrinsic out of step 1 to reuse this report would entangle
+        // the three steps to spare one analyze() pass on a bounded admin write.
+        if ($tree !== null) {
+            $rootSource = $setsRootSource
+                ? $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD]
+                : $this->rootSourceReader->read($command->getDecodedPrimaryKey()['id'] ?? null, $event->getCommands(), $context);
+
+            if (\is_string($rootSource)) {
+                if (!$setsRootSource && !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
+                    $violations->add($this->unknownRootSourceViolation($rootSource));
+                    $this->collect($event, $command, $violations);
+
+                    return;
+                }
+
+                $report = $this->gate->resolvability($tree, $this->rootSourceRegistry->resolve($rootSource, $context), $context);
+                $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
+            }
+        }
+
+        $this->collect($event, $command, $violations);
     }
 
     /**
@@ -108,35 +151,28 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         }
     }
 
-    /**
-     * Re-validates the written tree against every source currently bound to the layout. The binding
-     * enumerators read committed bindings, so a single batch that both makes the layout unresolvable for a
-     * source and deletes the only binding to that source still re-checks against it and over-rejects. This
-     * errs safe (it never accepts a write that leaves a live binding unresolvable); the trigger is contrived.
-     *
-     * @param list<ContentElement> $tree
-     */
-    private function recheckBoundSources(array $tree, WriteCommand $command, Context $context): ConstraintViolationList
+    private function unknownRootSourceViolation(mixed $rootSource): ConstraintViolation
     {
-        $violations = new ConstraintViolationList();
+        $exception = ContentSystemException::unknownRootSource(\is_string($rootSource) ? $rootSource : \get_debug_type($rootSource));
 
-        $contentLayoutId = $command->getDecodedPrimaryKey()['id'] ?? null;
+        return new ConstraintViolation(
+            $exception->getMessage(),
+            $exception->getMessage(),
+            [],
+            null,
+            '/' . ContentLayoutDefinition::ROOT_SOURCE_FIELD,
+            $rootSource,
+            null,
+            $exception->getErrorCode(),
+        );
+    }
 
-        if ($contentLayoutId === null) {
-            return $violations;
+    private function collect(PreWriteValidationEvent $event, WriteCommand $command, ConstraintViolationList $violations): void
+    {
+        if ($violations->count() === 0) {
+            return;
         }
 
-        foreach ($this->bindingEnumerators as $enumerator) {
-            foreach ($enumerator->enumerate($contentLayoutId, $context) as $binding) {
-                if (!$this->gate->isBindingEnforced($binding)) {
-                    continue;
-                }
-
-                $report = $this->gate->resolvability($tree, $binding->providedRootContext, $context);
-                $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
-            }
-        }
-
-        return $violations;
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
     }
 }

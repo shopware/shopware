@@ -57,15 +57,8 @@
         </service>
 
         <!-- Header/Footer Binding Gate (§8.2, empty root context) -->
-        <service id="Shopware\Storefront\ContentSystem\Validation\HeaderFooterBindingEnumerator">
-            <argument type="service" id="header_content_layout.repository"/>
-            <argument type="service" id="footer_content_layout.repository"/>
-            <tag name="content_system.layout_binding_enumerator"/>
-        </service>
-
         <service id="Shopware\Storefront\ContentSystem\Validation\HeaderFooterAssignmentWriteValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

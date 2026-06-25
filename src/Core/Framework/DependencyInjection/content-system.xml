@@ -269,9 +269,15 @@
             <argument type="service" id="cache.system"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator">
+        <!-- Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution -->
+        <service id="Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry">
+            <argument key="$entitySources" type="tagged_iterator" tag="content_system.entity_specification_source"/>
+            <argument key="$sectionSources" type="tagged_locator" tag="content_system.specification_source" index-by="section"/>
             <!-- $entityTypes set by ContentLayoutAssignableCompilerPass -->
-            <argument type="collection"/>
+            <argument key="$entityTypes" type="collection"/>
+            <argument key="$noneSource" type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource"/>
         </service>
 
         <!-- Content Route Loader (arg 0 set by ContentRouteCompilerPass) -->
@@ -314,18 +320,9 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
+        <!-- Shared read of a layout's immutable root source (in-flight write batch first, then committed row) -->
+        <service id="Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
-        <!-- Binding enumerators (tagged; Storefront contributes the header/footer enumerator) -->
-        <service id="Shopware\Core\Framework\ContentSystem\Binding\EntityAssignmentBindingEnumerator">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper"/>
-            <tag name="content_system.layout_binding_enumerator"/>
         </service>
 
         <!-- Resolvability gate (DAL PreWriteValidationEvent) -->
@@ -333,27 +330,25 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder"/>
-            <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutGate"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutBindingChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader"/>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <!-- Specification source selection for the diagnose route -->
-        <service id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator">
-            <argument type="tagged_iterator" tag="content_system.entity_specification_source"/>
-            <argument type="tagged_locator" tag="content_system.specification_source" index-by="section"/>
         </service>
 
         <!-- Shared draft-layout decode (structural gate) for the preview, diagnose and mutation routes -->
         <service id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+        </service>
+
+        <!-- Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Layout Validation -->
@@ -365,7 +360,7 @@
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController" public="true">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder">
@@ -397,7 +392,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Api\SpecificationSourceLocator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
         </service>
 
@@ -406,7 +401,7 @@
             <argument type="service" id="lock.factory"/>
             <argument type="service" id="content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
-            <argument type="tagged_iterator" tag="content_system.layout_binding_enumerator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>
         </service>
 

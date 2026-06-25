@@ -3,8 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
-use Shopware\Core\Framework\ContentSystem\Binding\SourceBinding;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -12,16 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The assignment-binding validator: a single generic subscriber on every Core entity-assignment entity that
- * applies the serving gate. When a source is bound to a layout it derives the source's provided root context from
- * the written assignment's definition and accumulates binding-scope violations via the shared
- * {@see LayoutBindingChecker}, establishing the served-implies-resolvable invariant on every path including the
- * Sync API. An atomic create-and-bind — a single batch (Admin or Sync) that creates both the layout and its
- * binding at once — is validated against the layout's in-flight write found in the same batch, so it no longer
- * slips past the gate. The provided-context computation needs only Context — no sales-channel state — so the DAL
- * boundary, which has no SalesChannelContext, suffices.
+ * The entity-assignment gate: a tree-blind type-match of the bound layout's immutable root source against the
+ * assignment definition's entity type. Do not add a tree re-check here: it would be an opportunistic write-time
+ * check at the wrong layer.
  *
  * @internal
  *
@@ -34,9 +29,7 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
 
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly RootContextMapper $rootContextMapper,
-        private readonly LayoutGate $gate,
-        private readonly LayoutBindingChecker $bindingChecker,
+        private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
     }
 
@@ -63,7 +56,7 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $this->validateBinding($event, $command, $definition, $context);
+            $this->validateAssignment($event, $command, $definition, $context);
         }
     }
 
@@ -74,29 +67,24 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
         return $definition instanceof AbstractContentLayoutAssignableDefinition ? $definition : null;
     }
 
-    private function validateBinding(
+    private function validateAssignment(
         PreWriteValidationEvent $event,
         WriteCommand $command,
         AbstractContentLayoutAssignableDefinition $definition,
         Context $context,
     ): void {
-        $providedRootContext = $this->rootContextMapper->map($definition->getPageDataRequirements());
-        $binding = new SourceBinding($definition->getContentLayoutEntityType(), $providedRootContext);
+        $rootSource = $this->rootSourceReader->read($command->getPayload()[self::CONTENT_LAYOUT_ID], $event->getCommands(), $context);
+        $expected = $definition->getContentLayoutEntityType();
 
-        if (!$this->gate->isBindingEnforced($binding)) {
+        // A null root source means the layout is not loadable (a non-existent id the FK constraint rejects anyway);
+        // a match is the served-implies-resolvable case. Only a real mismatch is rejected.
+        if ($rootSource === null || $rootSource === $expected) {
             return;
         }
 
-        $violations = $this->bindingChecker->bindingViolations(
-            $command->getPayload()[self::CONTENT_LAYOUT_ID],
-            $providedRootContext,
-            $event->getCommands(),
-            $context,
-        );
-
-        if ($violations->count() === 0) {
-            return;
-        }
+        $violations = new ConstraintViolationList([
+            ContentSystemException::rootSourceAssignmentMismatchViolation($rootSource, $expected, '/' . self::CONTENT_LAYOUT_ID),
+        ]);
 
         $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
     }

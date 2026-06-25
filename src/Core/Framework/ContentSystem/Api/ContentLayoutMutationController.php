@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
  * Exposes the persisted layout mutation actions. Each loads the stored content_layout named in the path,
@@ -50,7 +51,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/insert-element', name: 'api.action.content_system.layout.persisted_insert_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function insert(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutInsertRequest $payload,
         Context $context,
     ): Response {
@@ -62,7 +63,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/remove-element', name: 'api.action.content_system.layout.persisted_remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function remove(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutRemoveRequest $payload,
         Context $context,
     ): Response {
@@ -72,7 +73,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/move-element', name: 'api.action.content_system.layout.persisted_move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function move(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutMoveRequest $payload,
         Context $context,
     ): Response {
@@ -84,7 +85,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/replace-element', name: 'api.action.content_system.layout.persisted_replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function replace(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutReplaceRequest $payload,
         Context $context,
     ): Response {
@@ -96,7 +97,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/duplicate-element', name: 'api.action.content_system.layout.persisted_duplicate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function duplicate(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutDuplicateRequest $payload,
         Context $context,
     ): Response {
@@ -106,7 +107,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/wrap-elements', name: 'api.action.content_system.layout.persisted_wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function wrap(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutWrapElementsRequest $payload,
         Context $context,
     ): Response {
@@ -118,7 +119,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/unwrap-element', name: 'api.action.content_system.layout.persisted_unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function unwrap(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutUnwrapRequest $payload,
         Context $context,
     ): Response {
@@ -128,7 +129,7 @@ class ContentLayoutMutationController
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/attach-element', name: 'api.action.content_system.layout.persisted_attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
     public function attach(
         string $layoutId,
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentLayoutAttachRequest $payload,
         Context $context,
     ): Response {

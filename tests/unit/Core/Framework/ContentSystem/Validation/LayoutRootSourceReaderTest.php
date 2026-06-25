@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -67,14 +68,14 @@ class LayoutRootSourceReaderTest extends TestCase
         $layout = static::createStub(ContentLayoutEntity::class);
         $layout->method('getRootSource')->willReturn('category');
 
-        $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult($layout)));
+        $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult($layout), $readLayoutId));
 
         $command = $this->layoutCommand($commandClass, ContentLayoutDefinition::ENTITY_NAME, $commandPrimaryKey, $setsRootSource, 'product');
 
         static::assertSame('category', $reader->read($readLayoutId, [$command], Context::createDefaultContext()));
     }
 
-    #[DataProvider('invalidLayoutIdProvider')]
+    #[DataProvider('returnsNullForInvalidLayoutIdProvider')]
     #[TestDox('returns null for $_dataName without touching the store')]
     public function testReturnsNullForInvalidLayoutId(?string $invalidId): void
     {
@@ -89,15 +90,16 @@ class LayoutRootSourceReaderTest extends TestCase
     #[TestDox('returns null when the layout is not loadable from the committed store')]
     public function testReturnsNullWhenLayoutNotLoadable(): void
     {
-        $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult(null)));
+        $layoutId = Uuid::randomHex();
+        $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult(null), $layoutId));
 
-        static::assertNull($reader->read(Uuid::randomHex(), [], Context::createDefaultContext()));
+        static::assertNull($reader->read($layoutId, [], Context::createDefaultContext()));
     }
 
     /**
      * @return iterable<string, array{?string}>
      */
-    public static function invalidLayoutIdProvider(): iterable
+    public static function returnsNullForInvalidLayoutIdProvider(): iterable
     {
         yield 'a non-string (null) layout id' => [null];
         yield 'an empty string layout id' => [''];
@@ -136,10 +138,16 @@ class LayoutRootSourceReaderTest extends TestCase
     /**
      * @param EntitySearchResult<EntityCollection<Entity>> $result
      */
-    private function registryReturning(EntitySearchResult $result): DefinitionInstanceRegistry
+    private function registryReturning(EntitySearchResult $result, string $expectedLayoutId): DefinitionInstanceRegistry
     {
         /** @var StaticEntityRepository<EntityCollection<Entity>> $repository */
-        $repository = new StaticEntityRepository([$result]);
+        $repository = new StaticEntityRepository([
+            static function (Criteria $criteria) use ($result, $expectedLayoutId): EntitySearchResult {
+                static::assertSame([$expectedLayoutId], $criteria->getIds());
+
+                return $result;
+            },
+        ]);
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getRepository')->willReturn($repository);

@@ -41,7 +41,7 @@ class NoneSpecificationSourceTest extends TestCase
     /**
      * @param \Closure(NoneSpecificationSource, Request, SalesChannelContext): mixed $invoke
      */
-    #[DataProvider('unreachableResolutionMethodsProvider')]
+    #[DataProvider('resolutionMethodsFailHardProvider')]
     #[TestDox('fails hard when an unreachable resolution method is called')]
     public function testResolutionMethodsFailHard(\Closure $invoke): void
     {
@@ -53,7 +53,7 @@ class NoneSpecificationSourceTest extends TestCase
     /**
      * @return iterable<string, array{\Closure(NoneSpecificationSource, Request, SalesChannelContext): mixed}>
      */
-    public static function unreachableResolutionMethodsProvider(): iterable
+    public static function resolutionMethodsFailHardProvider(): iterable
     {
         yield 'resolveLayoutId' => [static fn (NoneSpecificationSource $s, Request $r, SalesChannelContext $c) => $s->resolveLayoutId('/path', $r, $c)];
         yield 'resolveSpecificationData' => [static fn (NoneSpecificationSource $s, Request $r, SalesChannelContext $c) => $s->resolveSpecificationData('/path', $r, $c)];

@@ -49,14 +49,17 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
     }
 
-    #[TestDox('rejects a none-rooted layout that contains an element requiring root context')]
-    public function testRejectsNoneRootedLayoutRequiringRootContext(): void
+    #[TestDox('rejects a none-rooted layout that is not resolvable')]
+    public function testRejectsNoneRootedUnresolvableLayout(): void
     {
+        // `none` is the special-cased root source that exposes no root context. This guards that the write gate still
+        // runs resolvability for it (rather than letting an empty root context pass) — a branch the category-rooted
+        // reject test does not exercise, since that one resolves a non-empty entity context.
         $context = Context::createDefaultContext();
 
         try {
             $this->repository()->create([$this->layout('none', TestElementTypeLoader::UNRESOLVABLE)], $context);
-            static::fail('Expected the resolvability gate to reject the none-rooted layout that requires root context.');
+            static::fail('Expected the resolvability gate to reject the unresolvable none-rooted layout.');
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
         }

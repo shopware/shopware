@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 #[CoversClass(RootSourceRegistry::class)]
 class RootSourceRegistryTest extends TestCase
 {
-    #[TestDox('knownRootSources unions entity types, section keys and none, and excludes main')]
+    #[TestDox('returns the union of entity types, section keys and none, but never main')]
     public function testKnownRootSourcesUnionsEverythingButMain(): void
     {
         $registry = new RootSourceRegistry(
@@ -40,7 +40,7 @@ class RootSourceRegistryTest extends TestCase
         static::assertNotContains('main', $known);
     }
 
-    #[TestDox('entityRootSources returns only the entity-type subset')]
+    #[TestDox('returns only the entity-type subset of the known root sources')]
     public function testEntityRootSourcesIsTheEntitySubset(): void
     {
         $registry = new RootSourceRegistry(

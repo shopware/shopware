@@ -46,7 +46,10 @@ class Migration1782259200ContentLayoutRootSourceTest extends TestCase
         static::assertSame('varchar(255)', $column['COLUMN_TYPE']);
         static::assertSame('NO', $column['IS_NULLABLE']);
         // The migration adds the column with a literal empty-string default to satisfy the ALGORITHM=INSTANT
-        // NOT-NULL add. MySQL and MariaDB both surface a string default with surrounding quotes in COLUMN_DEFAULT;
+        // NOT-NULL add. Assert a default is present before normalising it, so a regression that drops the
+        // default entirely (COLUMN_DEFAULT NULL) cannot pass via the (string) null === '' coincidence.
+        static::assertNotNull($column['COLUMN_DEFAULT']);
+        // MySQL and MariaDB both surface a string default with surrounding quotes in COLUMN_DEFAULT;
         // strip them so the assertion pins the empty-string default without coupling to the engine's quoting.
         static::assertSame('', trim((string) $column['COLUMN_DEFAULT'], '\''));
     }
@@ -77,11 +80,16 @@ class Migration1782259200ContentLayoutRootSourceTest extends TestCase
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'root_source'));
             static::assertFalse(TableHelper::columnExists($this->connection, 'content_layout', 'schema'));
         } finally {
-            // Leave content_layout in the canonical post-migration schema so sibling tests keep a consistent state.
-            $base->update($this->connection);
-            $migration->update($this->connection);
-            $migration->updateDestructive($this->connection);
-            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            // Nest the schema restore so a restore failure cannot leak FOREIGN_KEY_CHECKS=0 onto the shared
+            // connection: re-enabling the checks is an independent cleanup that must run regardless of outcome.
+            try {
+                // Leave content_layout in the canonical post-migration schema so sibling tests keep a consistent state.
+                $base->update($this->connection);
+                $migration->update($this->connection);
+                $migration->updateDestructive($this->connection);
+            } finally {
+                $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            }
         }
     }
 }

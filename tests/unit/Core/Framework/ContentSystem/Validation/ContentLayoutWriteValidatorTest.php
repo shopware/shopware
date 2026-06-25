@@ -49,6 +49,153 @@ class ContentLayoutWriteValidatorTest extends TestCase
         );
     }
 
+    #[TestDox('accepts a resolvable creation against a registered root source')]
+    public function testAcceptsResolvableCreation(): void
+    {
+        $gate = static::createStub(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
+
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['none']);
+        $registry->method('resolve')->willReturn([]);
+
+        $validator = $this->validator($gate, $registry);
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'none'])]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('re-validates a layout-only edit against the committed root source read by the reader after gating its membership')]
+    public function testLayoutOnlyEditResolvesAgainstCommittedRootSource(): void
+    {
+        $gate = static::createStub(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['category', 'none']);
+        $registry->method('resolve')->with('category')->willReturn([]);
+
+        $reader = static::createStub(LayoutRootSourceReader::class);
+        $reader->method('read')->willReturn('category');
+
+        $validator = $this->validator($gate, $registry, $reader);
+
+        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
+    public function testKnownRootSourceRunsResolvabilityOnCreation(): void
+    {
+        $gate = static::createStub(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->method('resolvability')
+            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product']);
+        $registry->method('resolve')->with('product')->willReturn([]);
+
+        $validator = $this->validator($gate, $registry);
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'product'])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
+    }
+
+    #[TestDox('bypasses every check when the write context carries the skip flag')]
+    public function testSkipFlagBypassesValidation(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->expects($this->never())->method('wellFormedness');
+        $gate->expects($this->never())->method('resolvability');
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->expects($this->never())->method('knownRootSources');
+        $registry->expects($this->never())->method('resolve');
+
+        $validator = $this->validator($gate, $registry);
+
+        $context = Context::createDefaultContext();
+        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext($context),
+            [$this->layoutCreate(['layout' => [], 'root_source' => 'bogus'])],
+        );
+
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('rejects an unregistered root source on creation with unknownRootSource and never reaches resolve')]
+    public function testUnknownRootSourceIsRejectedAndResolvabilitySkipped(): void
+    {
+        $validator = $this->validatorRejectingBeforeResolvability();
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'bogus'])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+    }
+
+    #[DataProvider('rejectsNonStringRootSourceOnCreationProvider')]
+    #[TestDox('rejects a non-string root source ($debugType) on creation with unknownRootSource and skips resolvability')]
+    public function testNonStringRootSourceIsRejectedOnCreation(mixed $rootSource, string $debugType): void
+    {
+        $validator = $this->validatorRejectingBeforeResolvability();
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => $rootSource])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+        static::assertStringContainsString('"' . $debugType . '"', (string) $violation->getMessage());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, string}>
+     */
+    public static function rejectsNonStringRootSourceOnCreationProvider(): iterable
+    {
+        yield 'null' => [null, 'null'];
+        yield 'array' => [[], 'array'];
+        yield 'int' => [42, 'int'];
+    }
+
+    #[TestDox('rejects a layout-only edit whose committed root source is no longer registered, skipping resolvability')]
+    public function testLayoutOnlyEditWithDeregisteredCommittedRootSourceIsRejected(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->never())->method('resolvability');
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product', 'none']);
+        $registry->expects($this->never())->method('resolve');
+
+        $reader = static::createStub(LayoutRootSourceReader::class);
+        $reader->method('read')->willReturn('category');
+
+        $validator = $this->validator($gate, $registry, $reader);
+
+        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+    }
+
     #[TestDox('records an invalid_config violation when the layout tree is an undecodable client defect')]
     public function testRecordsInvalidConfigViolationWhenLayoutTreeIsUndecodableClientDefect(): void
     {
@@ -86,172 +233,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator->preValidate($this->event([$this->layoutUpdate(['layout' => 'not-decodable'])]));
     }
 
-    #[TestDox('bypasses every check when the write context carries the skip flag')]
-    public function testSkipFlagBypassesValidation(): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->expects($this->never())->method('wellFormedness');
-        $gate->expects($this->never())->method('resolvability');
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->never())->method('knownRootSources');
-        $registry->expects($this->never())->method('resolve');
-
-        $validator = $this->validator($gate, $registry);
-
-        $context = Context::createDefaultContext();
-        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
-
-        $event = new PreWriteValidationEvent(
-            WriteContext::createFromContext($context),
-            [$this->layoutCreate(['layout' => [], 'root_source' => 'bogus'])],
-        );
-
-        $validator->preValidate($event);
-
-        static::assertCount(0, $event->getExceptions()->getExceptions());
-    }
-
-    #[TestDox('rejects an unregistered root source on creation with unknownRootSource and never reaches resolve')]
-    public function testUnknownRootSourceIsRejectedAndResolvabilitySkipped(): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->expects($this->never())->method('resolvability');
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product', 'none']);
-        $registry->expects($this->never())->method('resolve');
-
-        $validator = $this->validator($gate, $registry);
-
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'bogus'])]);
-        $validator->preValidate($event);
-
-        $violation = $this->onlyViolation($event);
-        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
-    }
-
-    #[DataProvider('nonStringRootSourceProvider')]
-    #[TestDox('rejects a non-string root source ($debugType) on creation with unknownRootSource and skips resolvability')]
-    public function testNonStringRootSourceIsRejectedOnCreation(mixed $rootSource, string $debugType): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->expects($this->never())->method('resolvability');
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product', 'none']);
-        $registry->expects($this->never())->method('resolve');
-
-        $validator = $this->validator($gate, $registry);
-
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => $rootSource])]);
-        $validator->preValidate($event);
-
-        $violation = $this->onlyViolation($event);
-        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
-        static::assertStringContainsString('"' . $debugType . '"', (string) $violation->getMessage());
-    }
-
-    /**
-     * @return iterable<string, array{mixed, string}>
-     */
-    public static function nonStringRootSourceProvider(): iterable
-    {
-        yield 'null' => [null, 'null'];
-        yield 'array' => [[], 'array'];
-        yield 'int' => [42, 'int'];
-    }
-
-    #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
-    public function testKnownRootSourceRunsResolvabilityOnCreation(): void
-    {
-        $rootContext = [];
-
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->expects($this->once())
-            ->method('resolvability')
-            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->expects($this->once())->method('resolve')->with('product')->willReturn($rootContext);
-
-        $validator = $this->validator($gate, $registry);
-
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'product'])]);
-        $validator->preValidate($event);
-
-        $violation = $this->onlyViolation($event);
-        static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
-    }
-
-    #[TestDox('accepts a resolvable creation against a registered root source')]
-    public function testAcceptsResolvableCreation(): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['none']);
-        $registry->method('resolve')->with('none')->willReturn([]);
-
-        $validator = $this->validator($gate, $registry);
-
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'none'])]);
-        $validator->preValidate($event);
-
-        static::assertCount(0, $event->getExceptions()->getExceptions());
-    }
-
-    #[TestDox('re-validates a layout-only edit against the committed root source read by the reader after gating its membership')]
-    public function testLayoutOnlyEditResolvesAgainstCommittedRootSource(): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->once())->method('knownRootSources')->willReturn(['category', 'none']);
-        $registry->expects($this->once())->method('resolve')->with('category')->willReturn([]);
-
-        $reader = $this->createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->once())->method('read')->willReturn('category');
-
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
-        $validator->preValidate($event);
-
-        static::assertCount(0, $event->getExceptions()->getExceptions());
-    }
-
-    #[TestDox('rejects a layout-only edit whose committed root source is no longer registered, skipping resolvability')]
-    public function testLayoutOnlyEditWithDeregisteredCommittedRootSourceIsRejected(): void
-    {
-        $gate = $this->createMock(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->expects($this->never())->method('resolvability');
-
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->once())->method('knownRootSources')->willReturn(['product', 'none']);
-        $registry->expects($this->never())->method('resolve');
-
-        $reader = $this->createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->once())->method('read')->willReturn('category');
-
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
-        $validator->preValidate($event);
-
-        $violation = $this->onlyViolation($event);
-        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
-    }
-
     private function validator(
         ?LayoutGate $gate = null,
         ?RootSourceRegistry $registry = null,
@@ -267,6 +248,23 @@ class ContentLayoutWriteValidatorTest extends TestCase
             $registry ?? $this->registryKnowing(['product', 'category', 'none']),
             $reader ?? static::createStub(LayoutRootSourceReader::class),
         );
+    }
+
+    /**
+     * Builds a validator whose gate and registry assert that resolvability is never reached: a creation whose
+     * root_source is unregistered (or not a string) must be rejected on membership before resolve() runs.
+     */
+    private function validatorRejectingBeforeResolvability(): ContentLayoutWriteValidator
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->never())->method('resolvability');
+
+        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product', 'none']);
+        $registry->expects($this->never())->method('resolve');
+
+        return $this->validator($gate, $registry);
     }
 
     private function cleanGate(): LayoutGate

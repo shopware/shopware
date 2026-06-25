@@ -156,16 +156,7 @@ class LayoutMutationControllerTest extends TestCase
         $registry->method('resolve')->willReturn($rootContext);
 
         $threadedRootContext = false;
-        $pipeline = static::createStub(MutationPipeline::class);
-        $pipeline->method('run')->willReturnCallback(
-            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): MutationResult {
-                $threadedRootContext = $analyzedRootContext;
-
-                return new MutationResult([], [], new DiagnosticsReport([]), []);
-            }
-        );
-
-        $controller = $this->controller($pipeline, $registry);
+        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
 
         $controller->insert(new InsertElementRequest('Sw:Card', rootSource: 'product'), Context::createDefaultContext());
 
@@ -179,20 +170,24 @@ class LayoutMutationControllerTest extends TestCase
         $registry->expects($this->never())->method('resolve');
 
         $threadedRootContext = 'unset';
-        $pipeline = static::createStub(MutationPipeline::class);
-        $pipeline->method('run')->willReturnCallback(
-            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): MutationResult {
-                $threadedRootContext = $analyzedRootContext;
-
-                return new MutationResult([], [], new DiagnosticsReport([]), []);
-            }
-        );
-
-        $controller = $this->controller($pipeline, $registry);
+        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
 
         $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
 
         static::assertNull($threadedRootContext);
+    }
+
+    #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
+    public function testEmptyResolutionsEncodeAsJsonObject(): void
+    {
+        $result = new MutationResult([], [], new DiagnosticsReport([]), []);
+        $controller = $this->controller($this->pipelineReturning($result));
+
+        $response = $controller->remove(new RemoveElementRequest('el'), Context::createDefaultContext());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('"resolutions":{}', $content);
     }
 
     #[TestDox('rejects an unknown root source with unknownRootSource before reaching the pipeline')]
@@ -212,19 +207,6 @@ class LayoutMutationControllerTest extends TestCase
         }
     }
 
-    #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
-    public function testEmptyResolutionsEncodeAsJsonObject(): void
-    {
-        $result = new MutationResult([], [], new DiagnosticsReport([]), []);
-        $controller = $this->controller($this->pipelineReturning($result));
-
-        $response = $controller->remove(new RemoveElementRequest('el'), Context::createDefaultContext());
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        static::assertStringContainsString('"resolutions":{}', $content);
-    }
-
     private function controller(
         ?MutationPipeline $pipeline = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
@@ -236,6 +218,24 @@ class LayoutMutationControllerTest extends TestCase
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementSerializer(),
         );
+    }
+
+    /**
+     * Builds a pipeline stub that captures the root context threaded into run() so a test can assert what the
+     * controller resolved and passed through.
+     */
+    private function capturingPipeline(mixed &$captured): MutationPipeline
+    {
+        $pipeline = static::createStub(MutationPipeline::class);
+        $pipeline->method('run')->willReturnCallback(
+            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$captured): MutationResult {
+                $captured = $analyzedRootContext;
+
+                return new MutationResult([], [], new DiagnosticsReport([]), []);
+            }
+        );
+
+        return $pipeline;
     }
 
     private function decoder(): DraftLayoutDecoder

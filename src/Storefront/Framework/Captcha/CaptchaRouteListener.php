@@ -68,22 +68,26 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
             ) {
                 $violations = $captcha->getViolations();
 
-                if ($captcha->shouldBreak()) {
+                // Only hard-fail breaking captchas that expose no actionable violation
+                // (e.g. the bot-only honeypot): non-AJAX throws a 403, AJAX gets a generic
+                // alert. Captchas that provide a violation (reCAPTCHA) are always rendered
+                // gracefully via the error controller instead of an error page.
+                if ($captcha->shouldBreak() && $violations->count() === 0) {
                     $exception = CaptchaException::invalid($captcha);
-                    if ($request->isXmlHttpRequest() && $violations->count() === 0) {
-                        $violations->add(new ConstraintViolation(
-                            $exception->getMessage(),
-                            'Invalid captcha',
-                            $exception->getParameters(),
-                            '',
-                            '',
-                            '',
-                            null,
-                            $exception->getErrorCode()
-                        ));
-                    } else {
+                    if (!$request->isXmlHttpRequest()) {
                         throw $exception;
                     }
+
+                    $violations->add(new ConstraintViolation(
+                        $exception->getMessage(),
+                        'Invalid captcha',
+                        $exception->getParameters(),
+                        '',
+                        '',
+                        '',
+                        null,
+                        $exception->getErrorCode()
+                    ));
                 }
 
                 $event->setController(fn () => $this->container->get(ErrorController::class)->onCaptchaFailure($violations, $request));

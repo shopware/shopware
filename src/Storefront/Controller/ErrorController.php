@@ -93,7 +93,9 @@ class ErrorController extends StorefrontController
             $errorRoute = (string) $request->request->get('errorRoute');
             $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
-            return $this->forwardToRoute($route, ['formViolations' => $formViolations]);
+            // Carry the posted error parameters so error routes with required parameters
+            // (e.g. customer-group registration's {customerGroupId}) can still be generated.
+            return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
         }
 
         $response = [];

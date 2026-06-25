@@ -14,8 +14,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -165,6 +167,42 @@ class GoogleReCaptchaV2Test extends TestCase
         ];
     }
 
+    public function testMissingTokenExposesCookieRequiredViolation(): void
+    {
+        $captcha = $this->getCaptcha();
+
+        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
+
+        $violations = $captcha->getViolations();
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(GoogleReCaptchaV2::COOKIE_REQUIRED_VIOLATION, $violation->getCode());
+        static::assertSame('', $violation->getPropertyPath());
+    }
+
+    public function testFailedVerificationExposesGenericViolation(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = $this->getCaptcha($mockHandler);
+
+        static::assertFalse($captcha->isValid(
+            self::getRequest([GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        ));
+
+        // Present-but-invalid token -> generic captcha violation.
+        $violations = $captcha->getViolations();
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
+    }
+
     /**
      * @return iterable<string, array{0: string, 1: bool, 2: bool}>
      */
@@ -174,6 +212,26 @@ class GoogleReCaptchaV2Test extends TestCase
         yield 'with get method and active captcha' => ['GET', true, false];
         yield 'with post method and inactive captcha' => ['POST', false, false];
         yield 'with post method and active captcha' => ['POST', true, true];
+    }
+
+    /**
+     * Returns the active captcha config in the same shape as the system config service,
+     * so the value passed to {@see GoogleReCaptchaV2::isValid()} keeps a `mixed` type.
+     */
+    private function getCaptchaConfig(string $secretKey = 'secret123'): mixed
+    {
+        $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV2::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV2::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => $secretKey],
+            ],
+        ]);
+
+        $config = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2');
+        static::assertIsArray($config);
+
+        return $config[GoogleReCaptchaV2::CAPTCHA_NAME];
     }
 
     /**

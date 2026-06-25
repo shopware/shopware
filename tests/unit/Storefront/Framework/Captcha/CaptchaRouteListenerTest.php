@@ -213,11 +213,70 @@ class CaptchaRouteListenerTest extends TestCase
             $container
         );
 
-        // Since violations count > 0, we expect an exception to be thrown
-        // @see CaptchaRouteListener::validateCaptcha()
-        $this->expectExceptionObject(CaptchaException::invalid($captcha));
-
+        $originalController = $event->getController();
         $listener->validateCaptcha($event);
+
+        // Captcha exposes a violation -> rendered gracefully (no throw), violation preserved.
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame('Existing violation', $violation->getMessage());
+
+        static::assertNotSame($originalController, $event->getController());
+        static::assertIsCallable($event->getController());
+    }
+
+    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndNonXmlRequestWithViolations(): void
+    {
+        $request = new Request(
+            query: ['_route' => 'frontend.account.register.page'],
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true, '_route' => 'frontend.account.register.page']
+        );
+
+        $event = new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            static function (): void {},
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $captcha = $this->createMock(AbstractCaptcha::class);
+        $captcha->expects($this->once())
+            ->method('supports')
+            ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+        $captcha->expects($this->once())
+            ->method('shouldBreak')
+            ->willReturn(true);
+
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation('', '', [], '', '', '', null, 'VIOLATION::RECAPTCHA_COOKIE_REQUIRED'));
+
+        $captcha->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn([]);
+
+        $container = $this->createMock(ContainerInterface::class);
+
+        $listener = new CaptchaRouteListener(
+            [$captcha],
+            $systemConfigService,
+            $container
+        );
+
+        $originalController = $event->getController();
+
+        // Breaking captcha + violation must NOT throw on a non-AJAX request (regression #17472).
+        $listener->validateCaptcha($event);
+
+        static::assertCount(1, $violations);
+        static::assertNotSame($originalController, $event->getController());
+        static::assertIsCallable($event->getController());
     }
 
     public function testCaptchaSupportedButInvalidWithShouldBreakFalseSetsErrorController(): void

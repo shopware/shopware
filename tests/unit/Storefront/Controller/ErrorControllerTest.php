@@ -78,6 +78,20 @@ class ErrorControllerTest extends TestCase
         );
     }
 
+    public function testOnCaptchaFailureForwardsErrorParameters(): void
+    {
+        $request = new Request();
+        $request->request->set('errorRoute', 'frontend.account.customer-group-registration.page');
+        $request->request->set('errorParameters', (string) json_encode(['customerGroupId' => 'group-123']));
+
+        $this->controller->onCaptchaFailure($this->violations, $request);
+
+        // Error parameters must be carried through so routes with required parameters
+        // (e.g. customer-group registration's {customerGroupId}) can be generated.
+        static::assertSame('frontend.account.customer-group-registration.page', $this->controller->forwardToRoute);
+        static::assertSame(['customerGroupId' => 'group-123'], $this->controller->forwardToRouteParameters);
+    }
+
     public function testOnCaptchaFailureWithRouteAttributeFallback(): void
     {
         $request = new Request();

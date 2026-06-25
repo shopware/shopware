@@ -14,8 +14,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -198,6 +200,59 @@ class GoogleReCaptchaV3Test extends TestCase
         ];
     }
 
+    public function testMissingTokenExposesCookieRequiredViolation(): void
+    {
+        $captcha = $this->getCaptcha();
+
+        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
+
+        $violations = $captcha->getViolations();
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(GoogleReCaptchaV3::COOKIE_REQUIRED_VIOLATION, $violation->getCode());
+        static::assertSame('', $violation->getPropertyPath());
+    }
+
+    public function testFailedVerificationExposesGenericViolation(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.1'], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = $this->getCaptcha($mockHandler);
+
+        static::assertFalse($captcha->isValid(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        ));
+
+        // Present-but-invalid token (score below threshold) -> generic captcha violation.
+        $violations = $captcha->getViolations();
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
+    }
+
+    public function testViolationsAreResetBetweenChecks(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = $this->getCaptcha($mockHandler);
+
+        static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
+        static::assertCount(1, $captcha->getViolations());
+
+        static::assertTrue($captcha->isValid(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        ));
+        static::assertCount(0, $captcha->getViolations());
+    }
+
     /**
      * @return iterable<string, array{0: string, 1: bool, 2: bool}>
      */
@@ -207,6 +262,26 @@ class GoogleReCaptchaV3Test extends TestCase
         yield 'with get method and active captcha' => ['GET', true, false];
         yield 'with post method and inactive captcha' => ['POST', false, false];
         yield 'with post method and active captcha' => ['POST', true, true];
+    }
+
+    /**
+     * Returns the active captcha config in the same shape as the system config service,
+     * so the value passed to {@see GoogleReCaptchaV3::isValid()} keeps a `mixed` type.
+     */
+    private function getCaptchaConfig(string $secretKey = 'secret123'): mixed
+    {
+        $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => $secretKey],
+            ],
+        ]);
+
+        $config = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2');
+        static::assertIsArray($config);
+
+        return $config[GoogleReCaptchaV3::CAPTCHA_NAME];
     }
 
     /**

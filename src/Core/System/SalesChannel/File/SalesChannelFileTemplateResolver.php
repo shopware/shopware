@@ -27,17 +27,15 @@ class SalesChannelFileTemplateResolver
     public function getRenderTemplateName(SalesChannelFile $file, ?string $salesChannelId = null): string
     {
         $templates = $this->resolveTemplateChain($file, $salesChannelId);
-        $key = array_key_first($templates);
 
-        return $key === null ? $file->baseTemplateName : $templates[$key];
+        return array_first($templates) ?? $file->baseTemplateName;
     }
 
     public function getBaseTemplateName(SalesChannelFile $file, ?string $salesChannelId = null): string
     {
         $templates = $this->resolveTemplateChain($file, $salesChannelId);
-        $key = array_key_last($templates);
 
-        return $key === null ? $file->baseTemplateName : $templates[$key];
+        return array_last($templates) ?? $file->baseTemplateName;
     }
 
     /**

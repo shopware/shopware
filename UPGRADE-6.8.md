@@ -1050,6 +1050,384 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## Removed Administration Twig blocks from legacy `sw-tabs` branches
+
+The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+
+The following Twig blocks have been removed:
+
+- `src/Administration/Resources/app/administration/src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig`
+  - `sw_custom_field_set_renderer_card_tabs`
+  - `sw_custom_field_set_renderer_card_tabs_content`
+  - `sw_custom_field_set_renderer_card_form_renderer`
+- `src/Administration/Resources/app/administration/src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig`
+  - `sw_media_modal_folder_settings_tab_item_settings`
+  - `sw_media_modal_folder_settings_tab_item_thumbnails`
+  - `sw_media_modal_folder_settings_tab_content_settings`
+  - `sw_media_modal_folder_settings_name_field`
+  - `sw_media_modal_folder_settings_default_folder`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails_left_container`
+  - `sw_media_modal_folder_settings_inherit_settings_field`
+  - `sw_media_modal_folder_settings_generate_thumbnails_field`
+  - `sw_media_modal_folder_settings_keep_proportions_field`
+  - `sw_media_modal_folder_settings_thumbnails_quality_field`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails_right_container`
+  - `sw_media_modal_folder_settings_thumbnail_list_caption`
+  - `sw_media_modal_folder_settings_thumbnail_list_container`
+  - `sw_media_modal_folder_settings_thumbnail_list`
+  - `sw_media_modal_folder_settings_thumbnail_size`
+  - `sw_media_modal_folder_settings_thumbnail_size_switch`
+  - `sw_media_modal_folder_settings_thumbnail_size_delete_button`
+- `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-category-view/sw-category-view.html.twig`
+  - `sw_category_view_tabs_general`
+  - `sw_category_view_tabs_products`
+  - `sw_category_view_tabs_cms`
+  - `sw_category_view_tabs_seo`
+- `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-landing-page-view/sw-landing-page-view.html.twig`
+  - `sw_landing_page_view_tabs_general`
+  - `sw_landing_page_view_tabs_cms`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/component/sw-cms-layout-assignment-modal/sw-cms-layout-assignment-modal.html.twig`
+  - `sw_cms_layout_assignment_modal_tab_categories`
+  - `sw_cms_layout_assignment_modal_tab_shop_pages`
+  - `sw_cms_layout_assignment_modal_tab_landing_pages`
+  - `sw_cms_layout_assignment_modal_landing_page_select`
+  - `sw_cms_layout_assignment_modal_landing_page_select_field`
+  - `sw_cms_layout_assignment_modal_category_select`
+  - `sw_cms_layout_assignment_modal_category_select_field`
+  - `sw_cms_layout_assignment_modal_shop_pages_select`
+  - `sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field`
+  - `sw_cms_layout_assignment_modal_shop_pages_select_field`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_select`
+  - `sw_entity_many_to_many_assignment_card_select`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_column_name`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_empty_state`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/buy-box/config/sw-cms-el-config-buy-box.html.twig`
+  - `sw_cms_element_buy_box_config_tab_content`
+  - `sw_cms_element_buy_box_config_tab_option`
+  - `sw_cms_element_buy_box_config_content_warning`
+  - `sw_cms_element_buy_box_config_product_select`
+  - `sw_cms_element_buy_box_config_product_variant_label`
+  - `sw_cms_element_buy_box_config_product_select_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_buy_box_config_options`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig`
+  - `sw_cms_element_cross_selling_config_tab_content`
+  - `sw_cms_element_cross_selling_config_tab_options`
+  - `sw_cms_element_cross_selling_config_content`
+  - `sw_cms_element_cross_selling_config_content_warning_text`
+  - `sw_cms_element_cross_selling_config_content_products`
+  - `sw_entity_single_select_variant_selected_item`
+  - `sw_entity_single_select_variant_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_cross_selling_config_options`
+  - `sw_cms_element_cross_selling_config_options_box_layout`
+  - `sw_cms_element_cross_selling_config_options_display_mode`
+  - `sw_cms_element_cross_selling_config_options_min_width`
+  - `sw_cms_element_cross_selling_config_options_speed`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/form/config/sw-cms-el-config-form.html.twig`
+  - `sw_cms_el_config_form_tab_content`
+  - `sw_cms_el_form_config_tab_options`
+  - `sw_cms_el_form_config_content`
+  - `sw_cms_el_form_config_content_form_type`
+  - `sw_cms_el_form_config_content_form_title`
+  - `sw_cms_el_form_config_content_form_confirmation_text`
+  - `sw_cms_el_form_config_options`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/image-gallery/config/sw-cms-el-config-image-gallery.html.twig`
+  - `sw_cms_element_image_gallery_config_tab_content`
+  - `sw_cms_element_image_gallery_config_tab_options`
+  - `sw_cms_element_image_gallery_config_content`
+  - `sw_cms_element_image_gallery_config_media_selection`
+  - `sw_cms_element_image_gallery_config_media_list_selection`
+  - `sw_cms_element_image_gallery_config_media_mapping_preview`
+  - `sw_cms_element_image_gallery_config_media_preview_list`
+  - `sw_cms_element_image_gallery_config_media_preview_item`
+  - `sw_cms_element_image_gallery_config_media_preview_info`
+  - `sw_cms_element_image_gallery_config_media_upload_listener`
+  - `sw_cms_element_image_gallery_config_media_modal`
+  - `sw_cms_element_image_gallery_config_settings`
+  - `sw_cms_element_image_gallery_config_settings_display_mode`
+  - `sw_cms_element_image_gallery_config_settings_display_mode_select`
+  - `sw_cms_element_image_gallery_config_settings_min_height`
+  - `sw_cms_element_image_gallery_config_settings_vertical_align`
+  - `sw_cms_element_image_gallery_config_settings_navigation`
+  - `sw_cms_element_image_gallery_config_settings_navigation_arrow_position`
+  - `sw_cms_element_image_gallery_config_settings_navigation_dots_position`
+  - `sw_cms_element_image_gallery_config_settings_navigation_preview_position`
+  - `sw_cms_element_image_gallery_config_settings_zoom_toggles`
+  - `sw_cms_element_image_gallery_config_settings_toggle_zoom`
+  - `sw_cms_element_image_gallery_config_settings_toggle_fullscreen`
+  - `sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles`
+  - `sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom`
+  - `sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery`
+  - `sw_cms_element_image_gallery_config_settings_use_fetch_priority_on_first_item`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/image-slider/config/sw-cms-el-config-image-slider.html.twig`
+  - `sw_cms_element_image_slider_config_tab_content`
+  - `sw_cms_element_image_slider_config_tab_options`
+  - `sw_cms_element_image_slider_config_content`
+  - `sw_cms_element_image_slider_config_media_selection`
+  - `sw_cms_element_image_slider_config_media_upload_listener`
+  - `sw_cms_element_image_slider_config_media_modal`
+  - `sw_cms_element_image_slider_config_settings`
+  - `sw_cms_element_image_slider_config_settings_display_mode`
+  - `sw_cms_element_image_gallery_config_settings_display_mode`
+  - `sw_cms_element_image_slider_config_settings_display_mode_select`
+  - `sw_cms_element_image_gallery_config_settings_display_mode_select`
+  - `sw_cms_element_image_slider_config_settings_min_height`
+  - `sw_cms_element_image_gallery_config_settings_min_height`
+  - `sw_cms_element_image_slider_config_settings_vertical_align`
+  - `sw_cms_element_image_gallery_config_settings_vertical_align`
+  - `sw_cms_element_image_slider_config_settings_navigation`
+  - `sw_cms_element_image_slider_config_settings_navigation_arrow_position`
+  - `sw_cms_element_image_slider_config_settings_navigation_dots_position`
+  - `sw_cms_element_image_slider_config_settings_speed`
+  - `sw_cms_element_image_slider_config_settings_auto_slide`
+  - `sw_cms_element_image_slider_config_settings_autoplay_timeout`
+  - `sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item`
+  - `sw_cms_element_image_slider_config_settings_links`
+  - `sw_cms_element_image_slider_config_settings_link_url`
+  - `sw_cms_element_image_slider_config_settings_link_aria_label`
+  - `sw_cms_element_image_slider_config_settings_link_target`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-description-reviews/config/sw-cms-el-config-product-description-reviews.html.twig`
+  - `sw_cms_element_product_description_reviews_config_tab_content`
+  - `sw_cms_element_product_description_reviews_config_tab_options`
+  - `sw_cms_element_product_description_reviews_config_content`
+  - `sw_cms_element_product_description_reviews_warning`
+  - `sw_cms_element_product_description_reviews_config_product_select`
+  - `sw_entity_single_select_variant_selected_item`
+  - `sw_entity_single_select_variant_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_el_product_description_rating_config_options`
+  - `sw_cms_el_product_description_rating_config_options_alignment`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-listing/config/sw-cms-el-config-product-listing.html.twig`
+  - `sw_cms_element_product_listing_config_layout_select`
+  - `sw_cms_element_product_listing_config_info`
+  - `sw_cms_element_product_listing_config_show_sorting`
+  - `sw_cms_element_product_listing_config_use_default_sorting`
+  - `sw_cms_element_product_listing_config_default_sorting`
+  - `sw_cms_element_product_listing_config_available_sortings`
+  - `sw_entity_multi_select_base_results_list_result_label`
+  - `sw_cms_element_product_listing_config_sorting_grid`
+  - `sw_cms_element_product_listing_config_filter_info`
+  - `sw_cms_element_product_listing_config_filter_by_wrapper`
+  - `sw_cms_element_product_listing_config_filter_by_manufacturer`
+  - `sw_cms_element_product_listing_config_filter_by_rating`
+  - `sw_cms_element_product_listing_config_filter_by_price`
+  - `sw_cms_element_product_listing_config_filter_for_free_shipping`
+  - `sw_cms_element_product_listing_config_filter_properties_wrapper`
+  - `sw_cms_element_product_listing_config_filter_spacer`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter_switch`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter_info_text`
+  - `sw_cms_element_product_listing_config_filter_property_search`
+  - `sw_cms_element_product_listing_config_filter_property_grid`
+  - `sw_cms_element_product_listing_config_filter_property_grid_columns`
+  - `sw_cms_element_product_listing_config_filter_property_grid_column_status`
+  - `sw_cms_element_product_listing_config_filter_property_grid_pagination`
+  - `sw_cms_element_product_listing_config_filter_empty_state`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig`
+  - `sw_cms_element_product_slider_config_tab_content`
+  - `sw_cms_element_product_slider_config_tab_options`
+  - `sw_cms_element_product_slider_config_content`
+  - `sw_cms_element_product_slider_config_content_title`
+  - `sw_cms_element_product_slider_config_content_product_assignment_type`
+  - `sw_cms_element_product_slider_config_content_product_stream_select`
+  - `sw_cms_element_product_slider_config_content_product_stream_performance_hint`
+  - `sw_cms_element_product_slider_config_content_product_stream_sorting`
+  - `sw_cms_element_product_slider_config_content_product_stream_limit`
+  - `sw_cms_element_product_slider_config_content_product_stream_preview_link`
+  - `sw_cms_element_product_slider_config_content_products`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_product_slider_config_settings`
+  - `sw_cms_element_product_slider_config_settings_display_mode`
+  - `sw_cms_element_product_slider_config_settings_min_width`
+  - `sw_cms_element_product_slider_config_settings_vertical_align`
+  - `sw_cms_element_product_slider_config_settings_box_layout`
+  - `sw_cms_element_product_slider_config_settings_border`
+  - `sw_cms_element_product_slider_config_settings_navigation_arrows`
+  - `sw_cms_element_product_slider_config_settings_speed`
+  - `sw_cms_element_product_slider_config_settings_rotate`
+  - `sw_cms_element_product_slider_config_settings_autoplay_timeout`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/text/config/sw-cms-el-config-text.html.twig`
+  - `sw_cms_el_config_text_tab_content`
+  - `sw_cms_el_text_config_tab_options`
+  - `sw_cms_el_text_config_content`
+  - `sw_cms_el_text_config_settings`
+  - `sw_cms_el_text_config_settings_vertical_align`
+- `src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig`
+  - `sw_customer_detail_content_tab_general`
+  - `sw_customer_detail_content_tab_addresses`
+  - `sw_customer_detail_content_tab_order`
+  - `sw_customer_detail_content_tab_after`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/component/modals/sw-flow-rule-modal/sw-flow-rule-modal.html.twig`
+  - `sw_flow_rule_headers`
+  - `sw_flow_rule_modal_tab_detail`
+  - `sw_flow_rule_modal_tab_rule`
+  - `sw_flow_rule_modal_content`
+  - `sw_flow_rule_modal_tab_detail_content`
+  - `sw_flow_rule_modal_detail_name`
+  - `sw_flow_rule_modal_detail_priority`
+  - `sw_flow_rule_modal_detail_description`
+  - `sw_flow_rule_modal_detail_type`
+  - `sw_flow_rule_modal_tab_rule_content`
+  - `sw_flow_rule_modal_conditions_card`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/page/sw-flow-detail/sw-flow-detail.html.twig`
+  - `sw_flow_tabs_header_general`
+  - `sw_flow_tabs_header_builder`
+  - `sw_flow_tabs_header_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/page/sw-flow-index/sw-flow-index.html.twig`
+  - `sw_flow_tabs_header_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-modal/sw-import-export-edit-profile-modal.html.twig`
+  - `sw_import_export_edit_profile_modal_tabs_general`
+  - `sw_import_export_edit_profile_modal_tabs_field_mappings`
+  - `sw_import_export_edit_profile_modal_tabs_field_advanced`
+  - `sw_import_export_edit_profile_modal_tabs_general_import_settings`
+  - `sw_import_export_edit_profile_modal_tabs_mappings`
+  - `sw_import_export_edit_profile_modal_tabs_mappings_text`
+  - `sw_import_export_edit_profile_modal_tabs_mappings_mapping`
+  - `sw_import_export_edit_profile_modal_tabs_advanced`
+  - `sw_import_export_edit_profile_modal_tabs_advanced_text`
+  - `sw_import_export_edit_profile_modal_tabs_advanced_identifiers`
+- `src/Administration/Resources/app/administration/src/module/sw-import-export/page/sw-import-export/sw-import-export.html.twig`
+  - `sw_import_export_tabs_import`
+  - `sw_import_export_tabs_export`
+  - `sw_import_export_tabs_profiles`
+- `src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig`
+  - `sw_mail_template_list_tabs_templates`
+  - `sw_mail_template_list_tabs_header_footer`
+- `src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.html.twig`
+  - `sw_media_modal_v2_tab_items`
+  - `sw_media_modal_v2_tab_item_library`
+  - `sw_media_modal_v2_tab_item_upload`
+  - `sw_media_modal_v2_tab_content`
+  - `sw_media_modal_v2_tab_content_library`
+  - `sw_media_modal_v2_navigation_and_search`
+  - `sw_media_modal_v2_folder_breadcrumbs`
+  - `sw_media_modal_v2_search_field`
+  - `sw_media_modal_v2_media_library`
+  - `sw_media_modal_v2_tab_content_upload`
+  - `sw_media_modal_v2_upload_component`
+  - `sw_media_modal_v2_uploaded_items`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-address-modal/sw-order-address-modal.html.twig`
+  - `sw_order_address_modal_tabs`
+  - `sw_order_address_modal_tab_edit_address`
+  - `sw_order_address_modal_tab_select_address`
+  - `sw_order_address_modal_tabs_content`
+  - `sw_order_address_modal_tabs_content_edit_address`
+  - `sw_order_address_modal_tabs_content_select_address`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-create-initial-modal/sw-order-create-initial-modal.html.twig`
+  - `sw_order_create_modal_tabs_customer`
+  - `sw_order_create_modal_tabs_products`
+  - `sw_order_create_modal_tabs_options`
+  - `sw_order_create_modal_tabs_extension`
+  - `sw_order_create_modal_tabs_content`
+  - `sw_order_create_modal_tabs_content_customer`
+  - `sw_order_create_modal_tabs_content_products`
+  - `sw_order_create_modal_tabs_content_options`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-new-customer-modal/sw-order-new-customer-modal.html.twig`
+  - `sw_order_new_customer_modal_tabs_details`
+  - `sw_order_new_customer_modal_tabs_billing`
+  - `sw_order_new_customer_modal_tabs_shipping`
+  - `sw_order_new_customer_modal_content_details`
+  - `sw_order_new_customer_modal_content_details_guest`
+  - `sw_order_new_customer_modal_content_details_form`
+  - `sw_order_new_customer_modal_content_shipping`
+  - `sw_order_new_customer_modal_content_shipping_same_billing`
+  - `sw_order_new_customer_modal_content_shipping_form`
+  - `sw_order_new_customer_modal_content_billing`
+  - `sw_order_new_customer_modal_content_billing_form`
+- `src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-create/sw-order-create.html.twig`
+  - `sw_order_create_content_tabs_general`
+  - `sw_order_create_content_tabs_details`
+- `src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig`
+  - `sw_order_detail_content_tabs_general`
+  - `sw_order_detail_content_tabs_details`
+  - `sw_order_detail_content_tabs_documents`
+  - `sw_order_detail_content_tabs_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/sw-product-modal-delivery.html.twig`
+  - `sw_product_modal_delivery_sidebar_tabs_items`
+- `src/Administration/Resources/app/administration/src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.html.twig`
+  - `sw_product_modal_variant_generation_sidebar_tabs_items`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_options`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_prices`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_restrictions`
+- `src/Administration/Resources/app/administration/src/module/sw-product/page/sw-product-detail/sw-product-detail.html.twig`
+  - `sw_product_detail_content_tabs_general`
+  - `sw_product_detail_content_tabs_specifications`
+  - `sw_product_detail_content_tabs_advanced_prices`
+  - `sw_product_detail_content_tabs_advanced_variants`
+  - `sw_product_detail_content_tabs_layout`
+  - `sw_product_detail_content_tabs_seo`
+  - `sw_product_detail_content_tabs_cross_selling`
+  - `sw_product_detail_content_tabs_reviews`
+  - `sw_product_detail_content_tabs_additional`
+- `src/Administration/Resources/app/administration/src/module/sw-profile/page/sw-profile-index/sw-profile-index.html.twig`
+  - `sw_profile_index_tabs_item_general`
+  - `sw_profile_index_tabs_item_search_preferences`
+- `src/Administration/Resources/app/administration/src/module/sw-promotion-v2/page/sw-promotion-v2-detail/sw-promotion-v2-detail.html.twig`
+  - `sw_promotion_v2_detail_content_tabs_general`
+  - `sw_promotion_v2_detail_content_tabs_conditions`
+  - `sw_promotion_v2_detail_content_tabs_discounts`
+- `src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/sw-sales-channel-products-assignment-modal.html.twig`
+  - `sw_sales_channel_products_assignment_modal_tabs_single_products`
+  - `sw_sales_channel_products_assignment_modal_tabs_categories`
+  - `sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups`
+  - `sw_sales_channel_products_assignment_modal_tab_content_single_products`
+  - `sw_sales_channel_products_assignment_modal_tab_content_categories`
+  - `sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups`
+- `src/Administration/Resources/app/administration/src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.html.twig`
+  - `sw_sales_channel_detail_content_tab_general`
+  - `sw_sales_channel_detail_content_tab_product_export_insights`
+  - `sw_sales_channel_detail_content_tab_products`
+  - `sw_sales_channel_detail_content_tab_theme`
+  - `sw_sales_channel_detail_content_tab_agentic_commerce_integration`
+  - `sw_sales_channel_detail_content_tab_export_template`
+  - `sw_sales_channel_detail_content_tab_product_comparison`
+  - `sw_sales_channel_detail_content_tab_analytics`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-country/page/sw-settings-country-detail/sw-settings-country-detail.html.twig`
+  - `sw_setting_country_tabs_setting`
+  - `sw_setting_country_tabs_state`
+  - `sw_setting_country_tabs_address_handling`
+  - `sw_setting_country_tabs_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/sw-custom-field-translated-labels.html.twig`
+  - `sw_custom_field_translated_labels_translated_tabs`
+  - `sw_custom_field_translated_labels_translated_content`
+  - `sw_custom_field_translated_labels_translated_content_field`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.html.twig`
+  - `sw_settings_logging_entry_info_tab_items`
+  - `sw_settings_logging_entry_info_content`
+  - `sw_settings_logging_entry_info_raw_content`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.html.twig`
+  - `sw_settings_rule_detail_tab_items`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-search/component/sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`
+  - `sw_settings_search_searchable_content_general_tab_title`
+  - `sw_settings_search_searchable_content_general_tab_item`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-search/page/sw-settings-search/sw-settings-search.html.twig`
+  - `sw_setting_search_tabs_general`
+  - `sw_setting_search_tabs_live_search`
+  - `sw_setting_search_tabs_after`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/sw-settings-tag-detail-modal.html.twig`
+  - `sw_settings_tag_detail_modal_tabs_general`
+  - `sw_settings_tag_detail_modal_tabs_assignments`
+  - `sw_settings_tag_detail_modal_tabs_general_tab`
+  - `sw_settings_tag_detail_modal_tabs_assignments_tab`
+- `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig`
+  - `sw_theme_manager_detail_content_inheritance`
+  - `sw_theme_manager_detail_content_inheritance_icon`
+  - `sw_theme_manager_detail_content_inheritance_text`
+  - `sw_theme_manager_detail_content_info`
+  - `sw_theme_manager_detail_content_info_image`
+  - `sw_theme_manager_detail_content_info_content`
+  - `sw_theme_manager_detail_content_info_context_button`
+  - `sw_theme_manager_detail_context_button_option_rename`
+  - `sw_theme_manager_detail_context_button_option_create`
+  - `sw_theme_manager_detail_context_button_option_reset`
+  - `sw_theme_manager_detail_context_button_option_delete`
+  - `sw_theme_manager_detail_content_areas`
+  - `sw_theme_manager_detail_content_sections`
+  - `sw_theme_manager_detail_content_fields`
+
 ## Removal of $tc function:
 
 * The `$tc` function will be completely removed

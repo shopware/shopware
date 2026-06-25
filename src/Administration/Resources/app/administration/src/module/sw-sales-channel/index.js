@@ -4,7 +4,9 @@
 
 import './service/export-template.service';
 import './product-export-templates';
+import './agentic-product-export-templates';
 import './service/domain-link.service';
+import './service/sales-channel-file.api.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
 import './acl';
@@ -13,7 +15,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-sales-channel-defaults-select',
     () => import('./component/sw-sales-channel-defaults-select'),
@@ -35,6 +37,14 @@ Shopware.Component.extend(
 Shopware.Component.register('sw-sales-channel-list', () => import('./page/sw-sales-channel-list'));
 Shopware.Component.register('sw-sales-channel-detail-base', () => import('./view/sw-sales-channel-detail-base'));
 Shopware.Component.register('sw-sales-channel-detail-products', () => import('./view/sw-sales-channel-detail-products'));
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-files',
+    () => import('./view/sw-sales-channel-detail-agentic-files'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-file',
+    () => import('./view/sw-sales-channel-detail-agentic-file'),
+);
 Shopware.Component.register('sw-sales-channel-detail-analytics', () => import('./view/sw-sales-channel-detail-analytics'));
 Shopware.Component.extend(
     'sw-sales-channel-create-base',
@@ -48,6 +58,18 @@ Shopware.Component.register(
 Shopware.Component.register(
     'sw-sales-channel-detail-product-comparison-preview',
     () => import('./view/sw-sales-channel-detail-product-comparison-preview'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-commerce-integration',
+    () => import('./view/sw-sales-channel-detail-agentic-commerce-integration'),
+);
+Shopware.Component.register(
+    'sw-agentic-commerce-tracking-config',
+    () => import('./component/sw-agentic-commerce-tracking-config'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-product-export-insights',
+    () => import('./view/sw-sales-channel-detail-product-export-insights'),
 );
 Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
@@ -68,7 +90,7 @@ Shopware.Component.register(
 Shopware.Component.register('sw-sales-channel-menu', () => import('./component/structure/sw-sales-channel-menu'));
 
 Shopware.Component.register('sw-sales-channel-measurement', () => import('./component/sw-sales-channel-measurement'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-sales-channel', {
@@ -78,7 +100,7 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#14D7A5',
+    color: 'var(--color-module-green-500)',
     icon: 'solid-server',
     entity: 'sales_channel',
 
@@ -130,6 +152,22 @@ Module.register('sw-sales-channel', {
                         privilege: 'sales_channel.viewer',
                     },
                 },
+                agenticFiles: {
+                    component: 'sw-sales-channel-detail-agentic-files',
+                    path: 'agentic-files',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticFile: {
+                    component: 'sw-sales-channel-detail-agentic-file',
+                    path: 'agentic-files/:fileName(.*)',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
                     path: 'product-comparison',
@@ -141,6 +179,22 @@ Module.register('sw-sales-channel', {
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticCommerceIntegration: {
+                    component: 'sw-sales-channel-detail-agentic-commerce-integration',
+                    path: 'agentic-commerce-integration',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                productExportInsights: {
+                    component: 'sw-sales-channel-detail-product-export-insights',
+                    path: 'product-export-insights',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

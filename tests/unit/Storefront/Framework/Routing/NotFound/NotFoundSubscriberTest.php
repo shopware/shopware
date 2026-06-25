@@ -6,11 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -36,7 +39,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $subscriber = new NotFoundSubscriber(
             $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createMock(SalesChannelContextRequestRestorer::class),
             true,
             $this->createMock(CacheInterface::class),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -68,7 +71,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $subscriber = new NotFoundSubscriber(
             $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -108,7 +111,7 @@ class NotFoundSubscriberTest extends TestCase
         $arrayAdapter = new ArrayAdapter();
         $subscriber = new NotFoundSubscriber(
             $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createContextRestorer(),
             false,
             new TagAwareAdapter($arrayAdapter, $arrayAdapter),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -132,9 +135,7 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertArrayHasKey(0, $writtenCaches);
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $cacheItem = \unserialize($writtenCaches[0]);
-        static::assertInstanceOf(Response::class, $cacheItem);
+        $cacheItem = Serialization::assertUnserializedInstanceOf(Response::class, $writtenCaches[0]);
 
         $cookies = $cacheItem->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -155,7 +156,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $subscriber = new NotFoundSubscriber(
             $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -184,7 +185,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel
             ->expects($this->once())
             ->method('handle')
-            ->with(static::callback(function (Request $request) {
+            ->with(static::callback(static function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
             }))
             ->willReturn(new Response());
@@ -200,7 +201,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $subscriber = new NotFoundSubscriber(
             $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createContextRestorer(),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -231,7 +232,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $subscriber = new NotFoundSubscriber(
             $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            $this->createMock(SalesChannelContextRequestRestorer::class),
             true,
             $this->createMock(CacheInterface::class),
             $this->createMock(EntityCacheKeyGenerator::class),
@@ -263,5 +264,24 @@ class NotFoundSubscriberTest extends TestCase
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
         static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
+    }
+
+    private function createContextRestorer(): SalesChannelContextRequestRestorer
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->method('getContext')
+            ->willReturn(Context::createDefaultContext());
+
+        $contextRestorer = $this->createMock(SalesChannelContextRequestRestorer::class);
+        $contextRestorer
+            ->method('restore')
+            ->willReturnCallback(static function (Request $request) use ($context): SalesChannelContext {
+                $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+                return $context;
+            });
+
+        return $contextRestorer;
     }
 }

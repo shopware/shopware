@@ -24,6 +24,8 @@ class ProductTranslationEntity extends TranslationEntity
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaTitle = null;
 
     protected ?string $packUnit = null;
@@ -36,6 +38,10 @@ class ProductTranslationEntity extends TranslationEntity
      * @var array<string, mixed>|null
      */
     protected ?array $slotConfig = null;
+
+    protected ?string $ogTitle = null;
+
+    protected ?string $ogDescription = null;
 
     /**
      * @var array<string>|null
@@ -80,6 +86,16 @@ class ProductTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
     }
 
     public function getMetaTitle(): ?string
@@ -172,5 +188,25 @@ class ProductTranslationEntity extends TranslationEntity
     public function setProductVersionId(string $productVersionId): void
     {
         $this->productVersionId = $productVersionId;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): void
+    {
+        $this->ogTitle = $ogTitle;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): void
+    {
+        $this->ogDescription = $ogDescription;
     }
 }

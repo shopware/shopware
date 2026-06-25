@@ -68,7 +68,7 @@ readonly class CachePolicyProvider
             }
         }
 
-        $policy = $this->policies[$policyName] ?? null;
+        $policy = $this->policies[$policyName ?? ''] ?? null;
         if ($policy === null) {
             return CachePolicy::noStore();
         }

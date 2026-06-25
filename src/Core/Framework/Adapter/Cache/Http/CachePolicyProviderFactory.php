@@ -26,12 +26,12 @@ class CachePolicyProviderFactory
         array $defaultPoliciesConfig
     ): CachePolicyProvider {
         // init CachePolicy objects from config arrays
-        $policies = array_map(function ($directives) {
+        $policies = array_map(static function ($directives) {
             return CachePolicy::fromArray($directives);
         }, $policiesConfig);
 
         // init DefaultPolicies objects from config arrays
-        $defaultPolicies = array_map(function ($defaults) {
+        $defaultPolicies = array_map(static function ($defaults) {
             return DefaultPolicies::fromArray($defaults);
         }, $defaultPoliciesConfig);
 

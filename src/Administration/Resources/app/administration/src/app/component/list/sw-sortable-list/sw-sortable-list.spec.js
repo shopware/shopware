@@ -37,7 +37,7 @@ async function createWrapper(userConfig = {}) {
                 },
             },
             mocks: {
-                $tc: (v) => v,
+                $t: (v) => v,
             },
             sync: true,
         },

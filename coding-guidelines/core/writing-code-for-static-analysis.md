@@ -145,3 +145,32 @@ This mainly includes:
 * special PHPStan types e.g. [class-string](https://phpstan.org/writing-php-code/phpdoc-types#class-string), [integer ranges](https://phpstan.org/writing-php-code/phpdoc-types#integer-ranges), etc
 
 Note that `Intersection & Union Types` are not covered here, as they are now a native language feature and the language feature should be used instead.
+
+## Prefer `list<T>` over `array<T>` for value collections
+
+When a collection is a sequential value list (without semantic keys), always prefer `list<T>` instead of `array<T>`.
+
+Using `list<T>` communicates the intended data shape more precisely and allows static analysis to catch accidental associative arrays early.
+
+**Examples:**
+```php
+/**
+ * @return list<string|bool|int|float>
+ */
+public function getChoices(): array
+{
+    return ['a', 'b', 'c'];
+}
+```
+
+```php
+/**
+ * @return list<string|bool|int|float>
+ */
+public function getEnumValues(): array
+{
+    return array_values(array_unique($values));
+}
+```
+
+When combining arrays from multiple sources, normalize back to list shape with `array_values(...)` after operations like `array_merge(...)` or `array_unique(...)`.

@@ -15,7 +15,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -53,7 +52,7 @@ class NavigationControllerTest extends TestCase
 
     private AbstractCategoryUrlGenerator $categoryUrlGenerator;
 
-    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
+    private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlReplacer;
 
     protected function setUp(): void
     {
@@ -62,11 +61,11 @@ class NavigationControllerTest extends TestCase
         $this->headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
         $this->footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
 
-        $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandler::class);
+        $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlReplacer->method('replace')
-            ->willReturnCallback(fn (string $url) => $url);
+            ->willReturnCallback(static fn (string $url) => $url);
         $this->seoUrlReplacer->method('generate')
-            ->willReturnCallback(function (string $route, array $parameters) {
+            ->willReturnCallback(static function (string $route, array $parameters) {
                 return match ($route) {
                     'frontend.detail.page' => '/product/' . $parameters['productId'],
                     'frontend.navigation.page' => '/navigation/' . $parameters['navigationId'],
@@ -217,11 +216,7 @@ class NavigationControllerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $categoryId,
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($categoryId));
 
         $this->controller->index($context, $request);
     }

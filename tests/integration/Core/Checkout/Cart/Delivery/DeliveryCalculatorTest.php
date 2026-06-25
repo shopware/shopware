@@ -132,21 +132,17 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateWithoutShippingMethodPrices(): void
     {
+        $shippingMethodName = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setPrices(new ShippingMethodPriceCollection());
-        $shippingMethod->setName(Uuid::randomHex());
+        $shippingMethod->setName($shippingMethodName);
+        $shippingMethod->addTranslated('name', $shippingMethodName);
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
-        $delivery->expects($this->never())->method('setShippingCosts');
-        $delivery->expects($this->atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
 
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation(
@@ -163,19 +159,16 @@ class DeliveryCalculatorTest extends TestCase
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery->expects($this->once())->method('getPositions')->willReturn(
-            new DeliveryPositionCollection(
-                [
-                    new DeliveryPosition(
-                        Uuid::randomHex(),
-                        $lineItem,
-                        1,
-                        $price,
-                        new DeliveryDate(new \DateTime(), new \DateTime())
-                    ),
-                ]
-            )
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            $costs,
         );
+
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
@@ -184,7 +177,13 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame($costs, $delivery->getShippingCosts());
 
         static::assertGreaterThan(0, $cart->getErrors()->count());
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+        static::assertSame([
+            'id' => $shippingMethod->getId(),
+            'name' => $shippingMethodName,
+            'reason' => 'no shipping costs found',
+        ], $error->getParameters());
     }
 
     public function testCalculateWithoutShippingMethodPricesWithFreeDeliveryItem(): void
@@ -192,15 +191,7 @@ class DeliveryCalculatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
-        $newCosts = null;
-        $delivery->expects($this->once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-            $newCosts = $costsParameter;
-        });
 
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation(
@@ -217,24 +208,23 @@ class DeliveryCalculatorTest extends TestCase
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery->expects($this->exactly(2))->method('getPositions')->willReturn(
-            new DeliveryPositionCollection(
-                [
-                    new DeliveryPosition(
-                        Uuid::randomHex(),
-                        $lineItem,
-                        1,
-                        $price,
-                        new DeliveryDate(new \DateTime(), new \DateTime())
-                    ),
-                ]
-            )
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            $costs,
         );
 
-        $data = new CartDataCollection();
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), new DeliveryCollection([$delivery]), $context);
-        static::assertNotSame($costs, $newCosts);
+        // the free-shipping recalculation replaces the initial costs with a freshly computed price
+        static::assertNotSame($costs, $delivery->getShippingCosts());
     }
 
     public function testCalculateWithOneMatchingPrice(): void
@@ -2046,16 +2036,14 @@ class DeliveryCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int>>
+     * @return iterable<string, array<int>>
      */
-    public static function mixedShippingProvider(): array
+    public static function mixedShippingProvider(): iterable
     {
-        return [
-            'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100],
-            'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1],
-            'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1],
-            'Mixed shipping by volume' => [DeliveryCalculator::CALCULATION_BY_VOLUME, 1, 1],
-        ];
+        yield 'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100];
+        yield 'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1];
+        yield 'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1];
+        yield 'Mixed shipping by volume' => [DeliveryCalculator::CALCULATION_BY_VOLUME, 1, 1];
     }
 
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection

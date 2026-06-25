@@ -20,7 +20,7 @@ class CollectingEventDispatcherTest extends TestCase
 
         static::assertEmpty($dispatcher->getListeners());
 
-        $callable = function (): void {};
+        $callable = static function (): void {};
 
         $dispatcher->addListener('event.name', $callable, 10);
         static::assertSame(['10' => [$callable]], $dispatcher->getListeners('event.name'));
@@ -41,5 +41,18 @@ class CollectingEventDispatcherTest extends TestCase
         static::assertCount(2, $events);
         static::assertSame($event1, $events['event.one']);
         static::assertSame($event2, $events[0]);
+    }
+
+    public function testFiltersEventsByClass(): void
+    {
+        $dispatcher = new CollectingEventDispatcher();
+
+        $event = new class {};
+        $eventClass = $event::class;
+
+        $dispatcher->dispatch(new \stdClass());
+        $dispatcher->dispatch($event);
+
+        static::assertSame([$event], $dispatcher->getEventsOfClass($eventClass));
     }
 }

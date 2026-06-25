@@ -169,6 +169,8 @@
         "placeholderDescription": "Regelbeschreibung eingeben ...",
         "labelType": "Typ",
         "placeholderType": "Regeltyp auswählen ...",
+        "deprecatedConditionWarning": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt. Bitte stattdessen \"{replacement}\" verwenden.",
+        "deprecatedConditionWarningNoReplacement": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt.",
         "placeholderDelayType": "Verzögerung auswählen ..."
       },
       "tag": {
@@ -250,6 +252,7 @@
         "labelAdmin": "Administrator",
         "labelCustom": "Benutzerdefiniert",
         "labelContactFormMail": "Anfragesteller",
+        "labelRevocationRequestFormMail": "Anfragesteller",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
         "useDifferentReplyToLabel": "Absender",
@@ -304,6 +307,8 @@
       "paymentMethod": "Zahlungsart",
       "contactForm": "Kontaktformular",
       "reviewForm": "Produktbewertung",
+      "revocationRequestMerchant": "Widerrufsantrag erhalten",
+      "revocationRequestCustomer": "Widerrufsantrag gesendet",
       "group": "Gruppe",
       "recovery": "Wiederherstellung",
       "registration": "Registrierung",

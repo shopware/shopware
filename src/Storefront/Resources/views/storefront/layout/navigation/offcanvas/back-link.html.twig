@@ -1,13 +1,19 @@
-{% if item.parentId == context.salesChannel.navigationCategoryId %}
+{% set isAlternateRoot = item.id == context.salesChannel.footerCategoryId
+    or item.id == context.salesChannel.serviceCategoryId %}
+
+{% if isAlternateRoot or item.parentId == context.salesChannel.navigationCategoryId %}
     {% set url = path('frontend.menu.offcanvas') %}
 {% else %}
     {% set url = path('frontend.menu.offcanvas', { navigationId: item.parentId }) %}
 {% endif %}
 
 {% block layout_navigation_offcanvas_navigation_category_back_link %}
+    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
     <a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"
        href="{{ url }}"
+       {% if not feature('JSON_LD_DATA') %}
        itemprop="url"
+       {% endif %}
        title="{{ 'general.back'|trans|striptags }}">
         {% block layout_navigation_offcanvas_navigation_category_back_link_text %}
             <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
@@ -16,7 +22,7 @@
             {% endblock %}
         </span>
 
-            <span itemprop="name">
+            <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>
             {{ 'general.back'|trans|sw_sanitize }}
         </span>
         {% endblock %}

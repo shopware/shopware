@@ -1,4 +1,3 @@
-// eslint-disable-next-line filename-rules/match
 import { createPinia, setActivePinia } from 'pinia';
 import type { ActionButtonsStore } from './action-buttons.store';
 

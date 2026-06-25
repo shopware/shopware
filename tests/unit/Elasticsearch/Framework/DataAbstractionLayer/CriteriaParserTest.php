@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -177,8 +178,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage(\sprintf('Provided filter of class %s is not supported', CustomFilter::class));
+        $this->expectExceptionObject(ElasticsearchException::unsupportedFilter(CustomFilter::class));
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
 
@@ -247,17 +247,17 @@ EOT,
                 'stats' => [
                     'script' => [
                         'source' => <<<EOT
-double getPercentage(def accessors, def doc) {
+double getRatio(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
         if (!doc.containsKey(key) || doc[key].empty) {
             continue;
         }\n
-        return (double) doc[key].value;
+        return 100 - (double) doc[key].value;
     }\n
     return 0;
 }\n
-return getPercentage(params['accessors'], doc);\n
+return getRatio(params['accessors'], doc);\n
 EOT,
                         'lang' => 'painless',
                         'params' => [
@@ -658,7 +658,7 @@ EOT,
             [
                 'script' => [
                     'script' => [
-                        'inline' => <<<EOT
+                        'source' => <<<EOT
 String getPercentageKey(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
@@ -682,23 +682,23 @@ if (percentageKey == '') {
     return false;
 }
 
-def percentage = (double) doc[percentageKey].value;
+def ratio = 100 - (double) doc[percentageKey].value;
 
 def match = true;
 if (params.containsKey('eq')) {
-    match = match && percentage == params['eq'];
+    match = match && ratio == params['eq'];
 }
 if (params.containsKey('gte')) {
-    match = match && percentage >= params['gte'];
+    match = match && ratio >= params['gte'];
 }
 if (params.containsKey('gt')) {
-    match = match && percentage > params['gt'];
+    match = match && ratio > params['gt'];
 }
 if (params.containsKey('lte')) {
-    match = match && percentage <= params['lte'];
+    match = match && ratio <= params['lte'];
 }
 if (params.containsKey('lt')) {
-    match = match && percentage < params['lt'];
+    match = match && ratio < params['lt'];
 }
 
 return match;
@@ -1046,13 +1046,13 @@ EOT,
 
         yield 'nested translated field' => [
             new FieldSorting('product_manufacturer.products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
         yield 'nested translated field with root prefix' => [
             new FieldSorting('products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
@@ -1115,7 +1115,7 @@ EOT,
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }
@@ -1290,6 +1290,24 @@ EOT,
                     'query' => [
                         'term' => [
                             'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'value',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter null on nested association field' => [
+            new EqualsFilter('unit.id', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'unit',
+                                'query' => [
+                                    'exists' => ['field' => 'unit.id'],
+                                ],
+                            ],
                         ],
                     ],
                 ],

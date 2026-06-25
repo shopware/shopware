@@ -3,14 +3,14 @@
     :id="'promotion-discount-' + discount.id"
     class="sw-promotion-discount-component"
     position-identifier="sw-promotion-discount-component"
-    :title="$tc('sw-promotion.detail.main.discounts.card')"
+    :title="$t('sw-promotion.detail.main.discounts.card')"
 >
     <template #headerRight>
         <sw-context-button class="sw-promotion-discount-component__context-button">
             {% block sw_promotion_detail_discounts_item_context_button_delete %}
             <sw-context-menu-item
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('promotion.editor'),
                     showOnDisabledElements: true
                 }"
@@ -19,7 +19,7 @@
                 :disabled="isEditingDisabled"
                 @click="onShowDeleteModal"
             >
-                {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+                {{ $t('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
             </sw-context-menu-item>
             {% endblock %}
         </sw-context-button>
@@ -35,7 +35,7 @@
             v-model="discount.scope"
             required
             validation="required"
-            :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+            :label="$t('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
             :is-loading="isLoading"
             :options="fieldScopeOptions"
@@ -49,7 +49,7 @@
             <mt-switch
                 v-model="discount.considerAdvancedRules"
                 bordered
-                :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                :label="$t('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                 :disabled="isEditingDisabled"
             />
         </template>
@@ -64,8 +64,8 @@
                 class="sw-promotion-discount-component__select-discount-rules"
                 :local-mode="discount.isNew()"
                 :rule-filter="ruleFilter"
-                :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                :label="$t('sw-promotion.detail.main.discounts.labelRules')"
+                :placeholder="$t('sw-promotion.detail.main.discounts.placeholder')"
                 :disabled="isEditingDisabled"
                 :restricted-rules="restrictedRules"
                 :restriction-snippet="promotionDiscountSnippet"
@@ -81,7 +81,7 @@
             <mt-select
                 v-if="!isSet"
                 v-model="discount.applierKey"
-                :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
+                :label="$t('sw-promotion.detail.main.discounts.labelApplyCount')"
                 :disabled="isEditingDisabled"
                 :options="applyCountOptions"
             />
@@ -90,7 +90,7 @@
             <mt-select
                 v-if="isMaxUsageVisible"
                 v-model="discount.usageKey"
-                :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
+                :label="$t('sw-promotion.detail.main.discounts.labelMaxCount')"
                 :disabled="isEditingDisabled"
                 :options="maxCountOptions"
             />
@@ -106,7 +106,7 @@
                 {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
                 <mt-select
                     v-model="discount.sorterKey"
-                    :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
+                    :label="$t('sw-promotion.detail.main.discounts.labelSorting')"
                     :disabled="isEditingDisabled"
                     :options="sorterOptions"
                 />
@@ -115,7 +115,7 @@
                 <mt-select
                     v-if="isPickingModeVisible"
                     v-model="discount.pickerKey"
-                    :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
+                    :label="$t('sw-promotion.detail.main.discounts.labelPicking')"
                     :disabled="isEditingDisabled"
                     :options="pickerOptions"
                 />
@@ -134,7 +134,7 @@
         <mt-select
             v-model="discount.type"
             class="sw-promotion-discount-component__type-select"
-            :label="$tc('sw-promotion.detail.main.discounts.labelType')"
+            :label="$t('sw-promotion.detail.main.discounts.labelType')"
             :disabled="isEditingDisabled"
             :options="discountTypeOptions"
             @update:model-value="onDiscountTypeChanged"
@@ -146,8 +146,8 @@
             validation="required"
             required
             :model-value="discount.value"
-            :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
-            :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
+            :label="$t('sw-promotion.detail.main.discounts.labelValue')"
+            :placeholder="$t('sw-promotion.detail.main.discounts.placeholderValue')"
             :disabled="isEditingDisabled"
             @update:model-value="onDiscountValueChanged"
         >
@@ -168,8 +168,8 @@
         {% block sw_promotion_discount_max_value_field %}
         <mt-number-field
             v-model="discount.maxValue"
-            :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
-            :help-text="$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices')"
+            :label="$t('sw-promotion.detail.main.discounts.labelMaxValue')"
+            :help-text="$t('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices')"
             :disabled="isEditingDisabled"
             @update:model-value="onMaxValueChanged"
         >
@@ -187,7 +187,7 @@
             @click="onClickAdvancedPrices"
             @keydown.enter="onClickAdvancedPrices"
         >
-            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            {{ $t('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <mt-icon
                 name="regular-long-arrow-right"
                 size="16px"
@@ -211,7 +211,7 @@
             @click="onClickAdvancedPrices"
             @keydown.enter="onClickAdvancedPrices"
         >
-            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            {{ $t('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <mt-icon
                 name="regular-long-arrow-right"
                 size="16px"
@@ -223,7 +223,7 @@
     {% block sw_promotion_discount_advanced_prices_modal %}
     <sw-modal
         v-if="displayAdvancedPrices"
-        :title="$tc('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
+        :title="$t('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
         class="sw-promotion-discount-form__advanced-prices-modal"
         @modal-close="onCloseAdvancedPricesModal"
     >
@@ -261,7 +261,7 @@
                 size="small"
                 @click="onCloseAdvancedPricesModal"
             >
-                {{ $tc('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
+                {{ $t('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
             </mt-button>
         </template>
     </sw-modal>
@@ -271,13 +271,13 @@
     <sw-modal
         v-if="showDeleteModal"
         variant="small"
-        :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')"
+        :title="$t('sw-promotion.detail.main.discounts.delete.confirmTitle')"
         class="sw-promotion-detail-discounts-modal"
         @modal-close="onCloseDeleteModal"
     >
         {% block sw_promotion_detail_discounts_modal_delete_text %}
         <p>
-            {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
+            {{ $t('sw-promotion.detail.main.discounts.delete.confirmText') }}
         </p>
         {% endblock %}
 
@@ -289,7 +289,7 @@
                 variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -300,7 +300,7 @@
                 class="sw-promotion-discount-delete-button"
                 @click="onConfirmDelete"
             >
-                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
+                {{ $t('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
             </mt-button>
             {% endblock %}
         </template>

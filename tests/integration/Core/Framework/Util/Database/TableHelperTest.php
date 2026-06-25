@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Types\Types;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -28,7 +27,6 @@ use Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelper\Exceptio
 /**
  * @internal
  */
-#[CoversClass(TableHelper::class)]
 class TableHelperTest extends TestCase
 {
     use KernelTestBehaviour;

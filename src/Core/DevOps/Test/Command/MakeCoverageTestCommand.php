@@ -75,7 +75,7 @@ class MakeCoverageTestCommand extends Command
             if (str_contains($reflection->getShortName(), 'Migration1')) {
                 $testPath = str_replace('/tests/unit', '/tests/migration', $testPath);
                 $testStub = $migrationTestStub;
-                $namespaceParts = array_values(array_filter($namespaceParts, fn ($part) => !str_contains($part, 'Migration')));
+                $namespaceParts = array_values(array_filter($namespaceParts, static fn ($part) => !str_contains($part, 'Migration')));
             }
 
             $namespace = implode('\\', $namespaceParts);

@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable */
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
@@ -52,7 +51,6 @@ module.exports = async function testTeardown(globalConfig) {
 
     writeObjectAsXml(coberture, cobertureFilePath);
 };
-
 
 async function readXmlAsObject(filePath) {
     const parser = new xml2js.Parser();

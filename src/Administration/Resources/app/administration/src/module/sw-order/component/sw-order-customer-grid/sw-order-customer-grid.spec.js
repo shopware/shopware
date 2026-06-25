@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -164,10 +166,12 @@ async function createWrapper() {
                                     {
                                         id: '1234',
                                         name: 'Lazada',
+                                        languageId: '8888',
                                     },
                                     {
                                         id: '123456',
                                         name: 'Tiki',
+                                        languageId: '5678',
                                     },
                                 ]);
                             }
@@ -183,12 +187,6 @@ async function createWrapper() {
                 },
             },
             mocks: {
-                $tc: (key, value) => {
-                    if (!value) {
-                        return key;
-                    }
-                    return key + JSON.stringify(value);
-                },
                 $t: (key, value) => {
                     if (!value) {
                         return key;
@@ -379,6 +377,56 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         expect(spyGetCart).toHaveBeenCalled();
     });
 
+    it('should show a dedicated maintenance mode error when switching customer fails', async () => {
+        const customer = {
+            ...customers[0],
+            salesChannelId: '1234',
+            boundSalesChannelId: '1234',
+        };
+
+        setCustomerData([customer]);
+        Shopware.Store.get('swOrder').setCustomer(null);
+        Shopware.Store.get('swOrder').setCartToken('1d8af3ddddbd378ba0065debd5e4e4b1');
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customer));
+        wrapper.vm.$t = jest.fn((key) => {
+            if (key === 'global.error-codes.FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE') {
+                return 'Translated maintenance mode error';
+            }
+
+            return key;
+        });
+
+        const updateCustomerContextSpy = jest.spyOn(wrapper.vm, 'updateCustomerContext').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE',
+                        },
+                    ],
+                },
+            },
+        });
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
+
+        const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+        await firstRow.find('.sw-field__radio-input input').setChecked(true);
+
+        await flushPromises();
+
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-order.create.messageSwitchCustomerError: Translated maintenance mode error',
+        });
+
+        updateCustomerContextSpy.mockRestore();
+        createNotificationErrorSpy.mockRestore();
+    });
+
     it('should check customer initially if customer exists', async () => {
         setCustomerData(customers);
 
@@ -494,6 +542,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
+
+        // First call on customer select, second call after sales channel select
+        expect(Shopware.Store.get('context').api.languageId).toBe('8888');
     });
 
     it('should show sales channel select modal when customer sales channel is not in the allowed list and has no bound sales channel', async () => {

@@ -16,9 +16,19 @@ trait CreateMailTemplateTrait
         MailTemplateTypeCreateStruct $mailTemplateType,
         MailTemplateCreateStruct $mailTemplate,
     ): void {
+        $germanLanguageByteIds = $this->getLanguageByteIdsByLocalePrefix($connection, 'de');
+
+        // The system default language must always be filled. It is therefore added to the english
+        // language ids (and removed again if it actually is a german language), so its translation is
+        // never skipped, regardless of which locale the default language uses.
+        $englishLanguageByteIds = array_values(array_unique(array_diff(
+            array_merge($this->getLanguageByteIdsByLocalePrefix($connection, 'de', true), [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]),
+            $germanLanguageByteIds
+        )));
+
         $mailCreationState = new MailCreationState();
-        $mailCreationState->setEnLanguageByteId($this->getLanguageIdByLocale($connection, 'en-GB'));
-        $mailCreationState->setDeLanguageByteId($this->getLanguageIdByLocale($connection, 'de-DE'));
+        $mailCreationState->setEnglishLanguageByteIds($englishLanguageByteIds);
+        $mailCreationState->setGermanLanguageByteIds($germanLanguageByteIds);
 
         $this->createMailTemplateType($connection, $mailTemplateType, $mailCreationState);
         $this->createMailTemplate($connection, $mailTemplate, $mailCreationState);
@@ -30,7 +40,7 @@ trait CreateMailTemplateTrait
         MailCreationState $mailCreationState,
     ): void {
         $mailTemplateTypeByteId = $this->getMailTemplateTypeId($connection, $mailTemplateType->getTechnicalName());
-        if (empty($mailTemplateTypeByteId)) {
+        if ($mailTemplateTypeByteId === null || $mailTemplateTypeByteId === '') {
             $mailCreationState->mailTemplateTypeDoesNotExist();
             $mailTemplateTypeByteId = Uuid::randomBytes();
         }
@@ -49,25 +59,33 @@ trait CreateMailTemplateTrait
             );
         }
 
-        if ($mailCreationState->hasEnLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreationState->getEnLanguageByteId() ?? '')) {
+        foreach ($mailCreationState->getEnglishLanguageByteIds() as $languageByteId) {
+            if ($this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $languageByteId)) {
+                continue;
+            }
+
             $connection->insert(
                 'mail_template_type_translation',
                 [
                     'mail_template_type_id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'name' => $mailTemplateType->getEnName(),
-                    'language_id' => $mailCreationState->getEnLanguageByteId(),
+                    'language_id' => $languageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if ($mailCreationState->hasDeLanguageByteId() && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $mailCreationState->getDeLanguageByteId() ?? '')) {
+        foreach ($mailCreationState->getGermanLanguageByteIds() as $languageByteId) {
+            if ($this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $languageByteId)) {
+                continue;
+            }
+
             $connection->insert(
                 'mail_template_type_translation',
                 [
                     'mail_template_type_id' => $mailCreationState->getMailTemplateTypeByteId(),
                     'name' => $mailTemplateType->getDeName(),
-                    'language_id' => $mailCreationState->getDeLanguageByteId(),
+                    'language_id' => $languageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
@@ -80,7 +98,7 @@ trait CreateMailTemplateTrait
         MailCreationState $mailCreationState,
     ): void {
         $mailTemplateByteId = $this->getMailTemplateId($connection, $mailCreationState->getMailTemplateTypeByteId());
-        if (empty($mailTemplateByteId)) {
+        if ($mailTemplateByteId === null || $mailTemplateByteId === '') {
             $mailCreationState->mailTemplateDoesNotExist();
             $mailTemplateByteId = Uuid::randomBytes();
         }
@@ -99,12 +117,16 @@ trait CreateMailTemplateTrait
             );
         }
 
-        if ($mailCreationState->hasEnLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreationState->getEnLanguageByteId() ?? '')) {
+        foreach ($mailCreationState->getEnglishLanguageByteIds() as $languageByteId) {
+            if ($this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $languageByteId)) {
+                continue;
+            }
+
             $connection->insert(
                 'mail_template_translation',
                 [
                     'mail_template_id' => $mailCreationState->getMailTemplateByteId(),
-                    'language_id' => $mailCreationState->getEnLanguageByteId(),
+                    'language_id' => $languageByteId,
                     'sender_name' => $mailCreateStruct->getEnSenderName(),
                     'subject' => $mailCreateStruct->getEnSubject(),
                     'description' => $mailCreateStruct->getEnDescription(),
@@ -115,12 +137,16 @@ trait CreateMailTemplateTrait
             );
         }
 
-        if ($mailCreationState->hasDeLanguageByteId() && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $mailCreationState->getDeLanguageByteId() ?? '')) {
+        foreach ($mailCreationState->getGermanLanguageByteIds() as $languageByteId) {
+            if ($this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $languageByteId)) {
+                continue;
+            }
+
             $connection->insert(
                 'mail_template_translation',
                 [
                     'mail_template_id' => $mailCreationState->getMailTemplateByteId(),
-                    'language_id' => $mailCreationState->getDeLanguageByteId(),
+                    'language_id' => $languageByteId,
                     'sender_name' => $mailCreateStruct->getDeSenderName(),
                     'subject' => $mailCreateStruct->getDeSubject(),
                     'description' => $mailCreateStruct->getDeDescription(),
@@ -148,18 +174,23 @@ trait CreateMailTemplateTrait
 
     private function hasTemplateTypeTranslation(Connection $connection, string $mailTemplateTypeByteId, string $languageByteId): bool
     {
-        $result = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SELECT 1 FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :mailTemplateTypeId AND `language_id` = :languageId',
             ['mailTemplateTypeId' => $mailTemplateTypeByteId, 'languageId' => $languageByteId]
         );
-
-        return !empty($result);
     }
 
     private function getMailTemplateId(Connection $connection, ?string $mailTemplateTypeByteId): ?string
     {
         $result = $connection->fetchOne(
-            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
+            <<<'SQL'
+SELECT `id`
+FROM `mail_template`
+WHERE `mail_template_type_id` = :mailTemplateTypeId
+    AND `system_default` = 1
+ORDER BY `created_at` ASC, `id` ASC
+LIMIT 1
+SQL,
             ['mailTemplateTypeId' => $mailTemplateTypeByteId]
         );
 
@@ -172,32 +203,41 @@ trait CreateMailTemplateTrait
 
     private function hasMailTemplateTranslation(Connection $connection, string $mailTemplateByteId, string $languageByteId): bool
     {
-        $result = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SELECT `mail_template_id` FROM `mail_template_translation` WHERE `mail_template_id` = :mailTemplateId AND `language_id` = :languageId',
             ['mailTemplateId' => $mailTemplateByteId, 'languageId' => $languageByteId]
         );
-
-        return !empty($result);
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
+    /**
+     * @return list<string>
+     */
+    private function getLanguageByteIdsByLocalePrefix(Connection $connection, string $localePrefix, bool $invert = false): array
     {
-        $sql = <<<'SQL'
+        $operator = $invert ? 'NOT LIKE' : 'LIKE';
+
+        $languageIds = $connection->fetchFirstColumn(
+            \sprintf(
+                <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE `locale`.`code` = :code
-SQL;
+WHERE LOWER(`locale`.`code`) %s :localePrefix
+ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
+SQL,
+                $operator
+            ),
+            ['localePrefix' => $localePrefix . '-%']
+        );
+        $languageByteIds = [];
+        foreach ($languageIds as $languageId) {
+            if (!\is_string($languageId)) {
+                continue;
+            }
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
-        if (!$languageId && $locale !== 'en-GB') {
-            return null;
+            $languageByteIds[] = $languageId;
         }
 
-        if (!$languageId) {
-            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        }
-
-        return $languageId;
+        return $languageByteIds;
     }
 }

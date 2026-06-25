@@ -7,9 +7,8 @@
         name="sw-field--selectedField"
         entity="custom_field"
         :criteria="customFieldCriteria"
-        :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+        :placeholder="$t('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
         :disabled="disabled || undefined"
-        size="medium"
         show-clearable-button
         @update:value="onFieldChange"
     >
@@ -47,10 +46,16 @@
     {% endblock %}
 
     {% block sw_condition_order_custom_field_value %}
+    <sw-condition-value-between-date
+        v-if="renderedField && isBetween"
+        v-model:value="betweenValue"
+        :date-type="renderedField.type"
+        :disabled="disabled || undefined"
+    />
+
     <sw-form-field-renderer
-        v-if="renderedField"
+        v-else-if="renderedField"
         name="sw-field--renderedFieldValue"
-        size="medium"
         :value="renderedFieldValue"
         :config="conditionDataProviderService.getTransformedCustomFieldConditionConfig(renderedField.config)"
         :disabled="disabled || undefined"

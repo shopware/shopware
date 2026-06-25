@@ -1,7 +1,7 @@
 {% block sw_order_send_document_modal %}
 <sw-modal
     class="sw-order-send-document-modal"
-    :title="$tc('sw-order.documentCard.labelSendDocument')"
+    :title="$t('sw-order.documentCard.labelSendDocument')"
     :is-loading="isLoading"
     @modal-close="$emit('modal-close')"
 >
@@ -12,21 +12,21 @@
     >
         {% block sw_order_send_document_modal_info_number %}
         <sw-description-list>
-            <dt>{{ $tc('sw-order.documentSendModal.labelNumber') }}</dt>
+            <dt>{{ $t('sw-order.documentSendModal.labelNumber') }}</dt>
             <dd>{{ document.config.documentNumber }}</dd>
         </sw-description-list>
         {% endblock %}
 
         {% block sw_order_send_document_modal_info_type %}
         <sw-description-list>
-            <dt>{{ $tc('sw-order.documentSendModal.labelType') }}</dt>
+            <dt>{{ $t('sw-order.documentSendModal.labelType') }}</dt>
             <dd>{{ document.documentType.name }}</dd>
         </sw-description-list>
         {% endblock %}
 
         {% block sw_order_send_document_modal_info_date %}
         <sw-description-list>
-            <dt>{{ $tc('sw-order.documentSendModal.labelDate') }}</dt>
+            <dt>{{ $t('sw-order.documentSendModal.labelDate') }}</dt>
             <dd><sw-time-ago
                 :date="document.createdAt"
                 :date-time-format="{ month: '2-digit', day: '2-digit' }"
@@ -43,7 +43,7 @@
         entity="mail_template"
         :criteria="mailTemplateCriteria"
         label-property="mailTemplateType.name"
-        :label="$tc('sw-order.documentSendModal.labelMailTemplate')"
+        :label="$t('sw-order.documentSendModal.labelMailTemplate')"
         description-position="bottom"
         required
         @update:value="onMailTemplateChange"
@@ -58,7 +58,7 @@
 
     <mt-text-field
         v-model="recipient"
-        :label="$tc('sw-order.documentSendModal.labelRecipient')"
+        :label="$t('sw-order.documentSendModal.labelRecipient')"
         required
     />
     {% endblock %}
@@ -68,7 +68,7 @@
     <mt-text-field
         v-model="subject"
         class="sw-order-send-document-modal__subject"
-        :label="$tc('sw-order.documentSendModal.labelSubject')"
+        :label="$t('sw-order.documentSendModal.labelSubject')"
         required
     />
     {% endblock %}
@@ -77,7 +77,7 @@
     <div
         class="sw-order-send-document-modal__email-content-label"
     >
-        {{ $tc('sw-order.documentSendModal.labelContent') }}
+        {{ $t('sw-order.documentSendModal.labelContent') }}
     </div>
 
     <div
@@ -94,7 +94,7 @@
             data-analytics-id="sw-order-send-document-modal.close"
             @click="$emit('modal-close')"
         >
-            {{ $tc('sw-order.documentSendModal.labelClose') }}
+            {{ $t('sw-order.documentSendModal.labelClose') }}
         </mt-button>
         {% endblock %}
 
@@ -105,7 +105,7 @@
             data-analytics-id="sw-order-send-document-modal.send-document"
             @click="onSendDocument"
         >
-            {{ $tc('sw-order.documentCard.labelSendDocument') }}
+            {{ $t('sw-order.documentCard.labelSendDocument') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -453,12 +454,12 @@ class CreditNoteRendererTest extends TestCase
             getPreviouslyCreditedIdsForInvoice (3 params) > credit items already part of other credit notes
         */
         $connection->method('fetchFirstColumn')
-            ->willReturnCallback(function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
+            ->willReturnCallback(static function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
                 if (\count($params) === 2) {
-                    return array_map(fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
+                    return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
                 }
                 if (\count($params) === 3) {
-                    return array_map(fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $creditNoteCreditIds);
+                    return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $creditNoteCreditIds);
                 }
 
                 return [];
@@ -478,6 +479,7 @@ class CreditNoteRendererTest extends TestCase
             $connection,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            new NativeClock()
         );
     }
 }

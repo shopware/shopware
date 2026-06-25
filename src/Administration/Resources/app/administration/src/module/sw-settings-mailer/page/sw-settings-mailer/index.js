@@ -47,11 +47,11 @@ export default {
             return [
                 {
                     value: '-bs',
-                    name: this.$tc('sw-settings-mailer.sendmail.sync'),
+                    name: this.$t('sw-settings-mailer.sendmail.sync'),
                 },
                 {
                     value: '-t -i',
-                    name: this.$tc('sw-settings-mailer.sendmail.async'),
+                    name: this.$t('sw-settings-mailer.sendmail.async'),
                 },
             ];
         },
@@ -68,22 +68,22 @@ export default {
                 {
                     id: 1,
                     value: 'local',
-                    label: this.$tc('sw-settings-mailer.mailer-configuration.local-agent'),
+                    label: this.$t('sw-settings-mailer.mailer-configuration.local-agent'),
                 },
                 {
                     id: 2,
                     value: 'smtp',
-                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server'),
+                    label: this.$t('sw-settings-mailer.mailer-configuration.smtp-server'),
                 },
                 {
                     id: 3,
                     value: 'smtp+oauth',
-                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server-oauth'),
+                    label: this.$t('sw-settings-mailer.mailer-configuration.smtp-server-oauth'),
                 },
                 {
                     id: 3,
                     value: '',
-                    label: this.$tc('sw-settings-mailer.mailer-configuration.env-file'),
+                    label: this.$t('sw-settings-mailer.mailer-configuration.env-file'),
                 },
             ];
         },
@@ -129,8 +129,8 @@ export default {
             // SMTP configuration invalid stop save and propagate error notification
             if (this.smtpHostError !== null || this.smtpPortError !== null) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-mailer.card-smtp.error.notificationMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-mailer.card-smtp.error.notificationMessage'),
                 });
 
                 this.isLoading = false;
@@ -163,14 +163,14 @@ export default {
         validateSmtpConfiguration() {
             this.smtpHostError = !this.mailerSettings['core.mailerSettings.host']
                 ? {
-                      detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                      detail: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                   }
                 : null;
 
             this.smtpPortError =
                 typeof this.mailerSettings['core.mailerSettings.port'] !== 'number'
                     ? {
-                          detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                          detail: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                       }
                     : null;
         },

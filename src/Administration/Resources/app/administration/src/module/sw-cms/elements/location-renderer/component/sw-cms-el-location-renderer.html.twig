@@ -1,6 +1,7 @@
 {% block sw_cms_el_location_renderer %}
 <div class="sw-cms-el-location-renderer">
     <sw-iframe-renderer
+        :key="elementLocation"
         :src="src"
         :location-id="elementLocation"
     />

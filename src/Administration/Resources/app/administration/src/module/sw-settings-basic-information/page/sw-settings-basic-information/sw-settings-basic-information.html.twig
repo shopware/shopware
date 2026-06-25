@@ -12,12 +12,12 @@
         {% block sw_settings_basic_information_smart_bar_header_title %}
         <h2>
             {% block sw_settings_basic_information_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-basic-information.general.textHeadline') }}
+            {{ $t('sw-settings-basic-information.general.textHeadline') }}
             {% endblock %}
 
             {% block sw_settings_basic_information_smart_bar_header_amount %}
@@ -45,7 +45,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $tc('sw-settings-basic-information.general.buttonSave') }}
+            {{ $t('sw-settings-basic-information.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>

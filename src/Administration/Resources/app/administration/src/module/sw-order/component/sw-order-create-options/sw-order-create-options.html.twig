@@ -4,7 +4,7 @@
     {% block sw_order_create_options_order %}
     {% block sw_order_create_options_order_headline %}
     <h3 class="sw-order-create-options__headline">
-        {{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}
+        {{ $t('sw-order.initialModal.options.textHeadlineOrder') }}
     </h3>
     {% endblock %}
 
@@ -13,7 +13,7 @@
     <mt-switch
         class="sw-order-create-options__disable-auto-promotion"
         :model-value="disabledAutoPromotion"
-        :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
+        :label="$t('sw-order.createBase.labelToggleAutomaticPromotions')"
         @update:model-value="onToggleAutoPromotion"
     />
     {% endblock %}
@@ -30,8 +30,8 @@
             entity="language"
             class="sw-order-create-options__order-language"
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.labelOrderLanguage')"
-            :placeholder="$tc('sw-order.createBase.placeholderOrderLanguage')"
+            :label="$t('sw-order.createBase.labelOrderLanguage')"
+            :placeholder="$t('sw-order.createBase.placeholderOrderLanguage')"
             show-clearable-button
         />
         {% endblock %}
@@ -40,15 +40,15 @@
         <sw-multi-tag-select
             class="sw-order-create-options__promotion-code"
             :value="promotionCodes"
-            :label="$tc('sw-order.createBase.labelPromotions')"
+            :label="$t('sw-order.createBase.labelPromotions')"
             :validate="validatePromotions"
             @update:value="changePromotionCodes"
         >
             <template #message-add-data>
-                <span>{{ $tc('sw-order.initialModal.options.placeholderAddPromotion') }}</span>
+                <span>{{ $t('sw-order.initialModal.options.placeholderAddPromotion') }}</span>
             </template>
             <template #message-enter-valid-data>
-                <span>{{ $tc('sw-order.createBase.placeholderAddPromotion') }}</span>
+                <span>{{ $t('sw-order.createBase.placeholderAddPromotion') }}</span>
             </template>
         </sw-multi-tag-select>
         {% endblock %}
@@ -58,7 +58,7 @@
 
     {% block sw_order_create_options_payment %}
     {% block sw_order_create_options_payment_headline %}
-    <h3>{{ $tc('sw-order.initialModal.options.textHeadlinePayment') }}</h3>
+    <h3>{{ $t('sw-order.initialModal.options.textHeadlinePayment') }}</h3>
     {% endblock %}
 
     {% block sw_order_create_options_payment_container %}
@@ -74,8 +74,8 @@
             label-property="distinguishableName"
             class="sw-order-create-options__payment-method"
             :criteria="paymentMethodCriteria"
-            :label="$tc('sw-order.createBase.labelPaymentMethod')"
-            :placeholder="$tc('sw-order.createBase.placeholderPaymentMethod')"
+            :label="$t('sw-order.createBase.labelPaymentMethod')"
+            :placeholder="$t('sw-order.createBase.placeholderPaymentMethod')"
             show-clearable-button
         />
         {% endblock %}
@@ -84,8 +84,8 @@
         <sw-order-customer-address-select
             v-model:value="context.billingAddressId"
             class="sw-order-create-options__billing-address"
-            :label="$tc('sw-order.createBase.labelBillingAddress')"
-            :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
+            :label="$t('sw-order.createBase.labelBillingAddress')"
+            :placeholder="$t('sw-order.createBase.placeholderBillingAddress')"
             :same-address-value="context.shippingAddressId"
             :customer="customer"
         />
@@ -97,8 +97,8 @@
             class="sw-order-create-options__currency-select"
             entity="currency"
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.labelCurrency')"
-            :placeholder="$tc('sw-order.createBase.placeholderCurrency')"
+            :label="$t('sw-order.createBase.labelCurrency')"
+            :placeholder="$t('sw-order.createBase.placeholderCurrency')"
             show-clearable-button
         />
         {% endblock %}
@@ -108,7 +108,7 @@
 
     {% block sw_order_create_options_shipment %}
     {% block sw_order_create_options_shipment_headline %}
-    <h3>{{ $tc('sw-order.initialModal.options.textHeadlineShipment') }}</h3>
+    <h3>{{ $t('sw-order.initialModal.options.textHeadlineShipment') }}</h3>
     {% endblock %}
 
     <sw-container
@@ -123,15 +123,15 @@
             entity="shipping_method"
             show-clearable-button
             :criteria="shippingMethodCriteria"
-            :label="$tc('sw-order.createBase.labelShippingMethod')"
-            :placeholder="$tc('sw-order.createBase.placeholderShippingMethod')"
+            :label="$t('sw-order.createBase.labelShippingMethod')"
+            :placeholder="$t('sw-order.createBase.placeholderShippingMethod')"
         />
         {% endblock %}
 
         <mt-number-field
             v-model="shippingCost"
             class="sw-order-create-options__shipping-cost"
-            :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
+            :label="$t('sw-order.initialModal.options.labelShippingCosts')"
             :step="1"
             :min="0"
             @update:model-value="onChangeShippingCost"
@@ -144,16 +144,16 @@
         <mt-switch
             v-model="isSameAsBillingAddress"
             name="sw-field--isSameAsBillingAddress"
-            :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
+            :label="$t('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />
 
         {% block sw_order_create_options_shipping_address %}
         <sw-order-customer-address-select
             v-model:value="context.shippingAddressId"
             class="sw-order-create-options__shipping-address"
-            :label="$tc('sw-order.createBase.labelShippingAddress')"
-            :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
-            :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
+            :label="$t('sw-order.createBase.labelShippingAddress')"
+            :placeholder="$t('sw-order.createBase.placeholderShippingAddress')"
+            :same-address-label="$t('sw-order.initialModal.options.textSameAsBillingAddress')"
             :same-address-value="context.billingAddressId"
             :customer="customer"
             :disabled="isSameAsBillingAddress"

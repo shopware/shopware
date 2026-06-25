@@ -82,7 +82,6 @@ const sidebarsStore = Shopware.Store.register({
             });
         },
 
-        // Store API
         setActiveSidebar(locationId: string): void {
             // cancel any pending close animation
             this.closingSidebar = null;

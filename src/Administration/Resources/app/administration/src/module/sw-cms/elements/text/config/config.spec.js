@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
-async function createWrapper() {
+async function createWrapper(additionalStubs = {}) {
     return mount(await wrapTestComponent('sw-cms-el-config-text', { sync: true }), {
         global: {
             provide: {
@@ -54,6 +54,7 @@ async function createWrapper() {
                         'label',
                     ],
                 },
+                ...additionalStubs,
             },
         },
         props: {
@@ -107,5 +108,55 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
         expect(wrapper.emitted('element-update')).toBeTruthy();
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+    });
+
+    describe('handleUpdateContent', () => {
+        afterEach(() => {
+            global.activeFeatureFlags = [];
+        });
+
+        it('should return true when textEditor ref is not available', async () => {
+            const wrapper = await createWrapper();
+
+            const result = await wrapper.vm.handleUpdateContent();
+
+            expect(result).toBe(true);
+        });
+
+        it('should delegate to textEditor.validate and return true on success', async () => {
+            const mockValidate = jest.fn(() => Promise.resolve(true));
+            global.activeFeatureFlags = ['METEOR_TEXT_EDITOR'];
+
+            const wrapper = await createWrapper({
+                'mt-text-editor': {
+                    template: '<div></div>',
+                    methods: { validate: mockValidate },
+                },
+            });
+            await flushPromises();
+
+            const result = await wrapper.vm.handleUpdateContent();
+
+            expect(mockValidate).toHaveBeenCalledTimes(1);
+            expect(result).toBe(true);
+        });
+
+        it('should return false when textEditor.validate reports invalid content', async () => {
+            const mockValidate = jest.fn(() => Promise.resolve(false));
+            global.activeFeatureFlags = ['METEOR_TEXT_EDITOR'];
+
+            const wrapper = await createWrapper({
+                'mt-text-editor': {
+                    template: '<div></div>',
+                    methods: { validate: mockValidate },
+                },
+            });
+            await flushPromises();
+
+            const result = await wrapper.vm.handleUpdateContent();
+
+            expect(mockValidate).toHaveBeenCalledTimes(1);
+            expect(result).toBe(false);
+        });
     });
 });

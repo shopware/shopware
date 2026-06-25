@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package fundamentals@framework
  */
@@ -2485,7 +2487,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(wrapper.vm.role.privileges).not.toContain('categories.editor');
     });
 
-    // eslint-disable-next-line max-len
     it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', async () => {
         const wrapper = await createWrapper({
             privilegesMappings: [

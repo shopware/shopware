@@ -1,7 +1,7 @@
 import template from './sw-select-rule-create.html.twig';
 import './sw-select-rule-create.scss';
 
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -125,8 +125,14 @@ export default {
 
     methods: {
         onSaveRule(ruleId, rule) {
-            if (this.rules) {
-                this.rules.add(rule);
+            if (this.rules && rule) {
+                const collection = EntityCollection.fromCollection(this.rules);
+
+                if (!collection.has(ruleId)) {
+                    collection.add(rule);
+                }
+
+                this.onUpdateCollection(collection);
             }
 
             this.$emit('save-rule', ruleId, rule);

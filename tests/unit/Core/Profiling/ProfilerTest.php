@@ -41,7 +41,7 @@ class ProfilerTest extends TestCase
         $profilerMock = $this->createMock(ProfilerInterface::class);
         $profilerMock->expects($this->exactly(3))->method('start');
         $profilerMock->expects($this->exactly(3))->method('stop')
-            ->willReturnCallback(function (string $name): void {
+            ->willReturnCallback(static function (string $name): void {
                 static::assertContains($name, ['trace1', 'trace2', 'trace3']);
             });
 
@@ -58,7 +58,7 @@ class ProfilerTest extends TestCase
     {
         $this->createProfiler('test-trace', 'shopware', []);
 
-        $result = Profiler::trace('test-trace', fn () => 'test-result');
+        $result = Profiler::trace('test-trace', static fn () => 'test-result');
 
         static::assertSame('test-result', $result);
     }
@@ -67,7 +67,7 @@ class ProfilerTest extends TestCase
     {
         $this->createProfiler('test-trace', 'shopware', ['key1' => 'value1', 'key2' => 'value2']);
 
-        Profiler::trace('test-trace', fn () => null, 'shopware', ['key1' => 'value1', 'key2' => 'value2']);
+        Profiler::trace('test-trace', static fn () => null, 'shopware', ['key1' => 'value1', 'key2' => 'value2']);
     }
 
     public function testTraceWithGlobalTags(): void
@@ -75,7 +75,7 @@ class ProfilerTest extends TestCase
         $this->createProfiler('test-trace', 'shopware', ['global' => 'tag', 'local' => 'tag']);
 
         Profiler::addTag('global', 'tag');
-        Profiler::trace('test-trace', fn () => null, 'shopware', ['local' => 'tag']);
+        Profiler::trace('test-trace', static fn () => null, 'shopware', ['local' => 'tag']);
     }
 
     public function testTraceStopsProfilerEvenOnException(): void
@@ -85,7 +85,7 @@ class ProfilerTest extends TestCase
         $stopCalled = false;
 
         $profilerMock->expects($this->once())->method('stop')->with('test-trace')
-            ->willReturnCallback(function () use (&$stopCalled): void {
+            ->willReturnCallback(static function () use (&$stopCalled): void {
                 $stopCalled = true;
             });
 
@@ -94,7 +94,7 @@ class ProfilerTest extends TestCase
         $this->expectExceptionObject(new \RuntimeException('Test exception'));
 
         try {
-            Profiler::trace('test-trace', fn () => throw new \RuntimeException('Test exception'));
+            Profiler::trace('test-trace', static fn () => throw new \RuntimeException('Test exception'));
         } finally {
             static::assertTrue($stopCalled, 'Profiler stop() should have been called even with exception');
         }
@@ -112,7 +112,7 @@ class ProfilerTest extends TestCase
 
         new Profiler(new \ArrayIterator(['profiler1' => $profilerMock1, 'profiler2' => $profilerMock2]), ['profiler1', 'profiler2']);
 
-        Profiler::trace('test-trace', fn () => 'result');
+        Profiler::trace('test-trace', static fn () => 'result');
     }
 
     public function testAddTag(): void
@@ -121,7 +121,7 @@ class ProfilerTest extends TestCase
 
         Profiler::addTag('tag1', 'value1');
         Profiler::addTag('tag2', 'value2');
-        Profiler::trace('test-trace', fn () => null);
+        Profiler::trace('test-trace', static fn () => null);
     }
 
     public function testRemoveTag(): void
@@ -131,7 +131,7 @@ class ProfilerTest extends TestCase
         Profiler::addTag('tag1', 'value1');
         Profiler::addTag('tag2', 'value2');
         Profiler::removeTag('tag2');
-        Profiler::trace('test-trace', fn () => null);
+        Profiler::trace('test-trace', static fn () => null);
     }
 
     public function testLocalTagsOverrideGlobalTags(): void
@@ -140,7 +140,7 @@ class ProfilerTest extends TestCase
 
         Profiler::addTag('tag1', 'global-value');
         Profiler::addTag('tag2', 'global-value');
-        Profiler::trace('test-trace', fn () => null, 'shopware', ['tag1' => 'local-value']);
+        Profiler::trace('test-trace', static fn () => null, 'shopware', ['tag1' => 'local-value']);
     }
 
     /**

@@ -24,6 +24,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -71,7 +72,7 @@ class CartLineItemControllerTest extends TestCase
             $this->cartService,
             $this->promotionItemBuilderMock,
             $this->productLineItemFactoryMock,
-            $this->createMock(HtmlSanitizer::class),
+            static::createStub(HtmlSanitizer::class),
             $this->productListRouteMock,
             $this->lineItemRegistryMock,
         );
@@ -214,7 +215,7 @@ class CartLineItemControllerTest extends TestCase
         $matcher = $this->exactly(2);
         $this->lineItemRegistryMock->expects($matcher)->method('create')
             ->willReturnCallback(
-                function (array $lineItemDataPar, SalesChannelContext $contextPar) use (
+                static function (array $lineItemDataPar, SalesChannelContext $contextPar) use (
                     $matcher,
                     $expectedLineItemData,
                     $expectedLineItemData2
@@ -432,6 +433,80 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testAddByProductNumberTrimsInputBeforeLookup(): void
+    {
+        $productNumber = \sprintf(' %s ', Uuid::randomHex());
+        $id = Uuid::randomHex();
+        $request = new Request([], ['number' => $productNumber]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+        $product = new ProductEntity();
+        $product->setUniqueIdentifier($id);
+        $product->setId($id);
+        $item = new LineItem($id, PromotionProcessor::LINE_ITEM_TYPE);
+
+        $cart->add($item);
+        $this->productListRouteMock->expects($this->once())
+            ->method('load')
+            ->with(
+                static::callback(static function (Criteria $criteria) use ($productNumber): bool {
+                    foreach ($criteria->getFilters() as $filter) {
+                        if ($filter instanceof EqualsFilter && $filter->getField() === 'productNumber' && $filter->getValue() === $productNumber) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }),
+                $context
+            )
+            ->willReturn(
+                new ProductListResponse(
+                    new EntitySearchResult(
+                        ProductDefinition::ENTITY_NAME,
+                        1,
+                        new ProductCollection([$product]),
+                        null,
+                        new Criteria(),
+                        Context::createDefaultContext()
+                    )
+                )
+            );
+
+        $this->productLineItemFactoryMock->expects($this->once())->method('create')->willReturn($item);
+
+        $this->cartService->expects($this->once())
+            ->method('getCart')->willReturn($cart);
+
+        $this->cartService->expects($this->once())
+            ->method('add')
+            ->with($cart, $item, $context)
+            ->willReturn($cart);
+
+        $this->translatorCallback();
+
+        $this->controller->addProductByNumber($request, $context);
+    }
+
+    public function testAddByProductNumberWithBlankInput(): void
+    {
+        $request = new Request([], ['number' => '   ']);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->productListRouteMock->expects($this->never())->method('load');
+        $this->productLineItemFactoryMock->expects($this->never())->method('create');
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $response = $this->controller->addProductByNumber($request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
 
@@ -685,37 +760,27 @@ class CartLineItemControllerTest extends TestCase
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
+        // Raw request payload: browsers submit everything as strings.
         $lineItems = [
-            [
-                'id' => $id1,
-                'quantity' => 5,
-                'stackable' => false,
-                'priceDefinition' => [
-                    'quantity' => 5,
-                    'isCalculated' => 1,
-                ],
-            ],
-            [
-                'id' => $id2,
-                'removable' => false,
-            ],
+            ['id' => $id1, 'quantity' => '5', 'stackable' => '1', 'priceDefinition' => ['quantity' => '5', 'isCalculated' => '1']],
+            ['id' => $id2, 'removable' => '0'],
         ];
 
         $request = new Request([], ['lineItems' => $lineItems]);
         $cart = new Cart(Uuid::randomHex());
         $context = $this->createMock(SalesChannelContext::class);
 
+        // The controller must normalize the raw strings to int/bool before handing them to update().
+        // identicalTo() enforces the types strictly; the default with() uses == and would pass uncast.
+        $expectedItems = [
+            ['id' => $id1, 'quantity' => 5, 'stackable' => true, 'priceDefinition' => ['quantity' => 5, 'isCalculated' => 1]],
+            ['id' => $id2, 'removable' => false],
+        ];
+
         $this->cartService->expects($this->once())
             ->method('update')
-            ->with($cart, $lineItems, $context)
-            ->willReturnCallback(function ($cart, $lineItems, $context) use ($id1, $id2) {
-                $expectedLineitem = new LineItem($id1, LineItem::PRODUCT_LINE_ITEM_TYPE);
-                $expectedLineitem2 = new LineItem($id2, LineItem::PRODUCT_LINE_ITEM_TYPE);
-                $expectedLineitems = [$expectedLineitem, $expectedLineitem2];
-                static::assertSame($expectedLineitems, $lineItems);
-
-                return $cart;
-            });
+            ->with($cart, static::identicalTo($expectedItems), $context)
+            ->willReturn($cart);
 
         $this->translatorCallback();
 

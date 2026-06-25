@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -31,7 +32,9 @@ class ThemeMergedConfigBuilderTest extends TestCase
 {
     private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private ThemeMergedConfigBuilder $mergedConfigBuilder;
@@ -75,8 +78,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
         $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context);
     }
@@ -191,7 +193,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
                 // If the criteria has a filter for a specific ID, find that theme
                 $filters = $criteria->getFilters();
                 foreach ($filters as $filter) {
-                    if ($filter instanceof \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter
+                    if ($filter instanceof EqualsFilter
                         && $filter->getField() === 'id') {
                         $searchId = (string) $filter->getValue();
                         $foundTheme = $themeCollection->get($searchId);

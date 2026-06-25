@@ -40,11 +40,11 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-users-permissions.roles.role-grid.labelName'),
+                    label: this.$t('sw-users-permissions.roles.role-grid.labelName'),
                 },
                 {
                     property: 'description',
-                    label: this.$tc('sw-users-permissions.roles.role-grid.labelDescription'),
+                    label: this.$t('sw-users-permissions.roles.role-grid.labelDescription'),
                 },
             ];
         },
@@ -153,7 +153,7 @@ export default {
                 .then(() => {
                     this.isLoading = false;
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
                             {
                                 name: role.name,
@@ -167,7 +167,7 @@ export default {
                 .catch(() => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-users-permissions.roles.role-grid.notification.deleteError.message',
                             {
                                 name: role.name,

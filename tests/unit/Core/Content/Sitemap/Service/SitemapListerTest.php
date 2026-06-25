@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Asset\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -30,11 +31,11 @@ class SitemapListerTest extends TestCase
         ]));
 
         $package = $this->createMock(Package::class);
-        $package->method('getUrl')->willReturnCallback(function (string $path) {
+        $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 
-        $sitemapLister = new SitemapLister($filesystem, $package);
+        $sitemapLister = new SitemapLister($filesystem, $package, new NativeClock());
 
         $sitemaps = $sitemapLister->getSitemaps($context);
 
@@ -75,11 +76,11 @@ class SitemapListerTest extends TestCase
         ]));
 
         $package = $this->createMock(Package::class);
-        $package->method('getUrl')->willReturnCallback(function (string $path) {
+        $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 
-        $sitemapLister = new SitemapLister($filesystem, $package);
+        $sitemapLister = new SitemapLister($filesystem, $package, new NativeClock());
 
         $sitemaps = $sitemapLister->getSitemaps($context);
 

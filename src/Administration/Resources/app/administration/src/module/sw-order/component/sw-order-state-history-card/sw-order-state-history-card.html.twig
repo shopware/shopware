@@ -24,7 +24,7 @@
         <sw-order-state-history-card-entry
             v-if="transaction"
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
@@ -33,14 +33,14 @@
             :history="transactionHistory"
             :transition-options="transactionOptions"
             state-machine-name="order_transaction.state"
-            :title="$tc('sw-order.stateCard.headlineTransactionState')"
+            :title="$t('sw-order.stateCard.headlineTransactionState')"
             @state-select="onTransactionStateSelected"
         />
 
         <template v-else>
             <div>
-                <h2>{{ $tc('sw-order.stateCard.headlineTransactionState') }}</h2>
-                {{ $tc('sw-order.stateCard.labelNoTransactionState') }}
+                <h2>{{ $t('sw-order.stateCard.headlineTransactionState') }}</h2>
+                {{ $t('sw-order.stateCard.labelNoTransactionState') }}
             </div>
         </template>
         {% endblock %}
@@ -49,7 +49,7 @@
         <sw-order-state-history-card-entry
             v-if="delivery"
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
@@ -58,14 +58,14 @@
             :disabled="!acl.can('order.editor') || undefined"
             :transition-options="deliveryOptions"
             state-machine-name="order_delivery.state"
-            :title="$tc('sw-order.stateCard.headlineDeliveryState')"
+            :title="$t('sw-order.stateCard.headlineDeliveryState')"
             @state-select="onDeliveryStateSelected"
         />
 
         <template v-else>
             <div>
-                <h2>{{ $tc('sw-order.stateCard.headlineDeliveryState') }}</h2>
-                {{ $tc('sw-order.stateCard.labelNoDeliveryState') }}
+                <h2>{{ $t('sw-order.stateCard.headlineDeliveryState') }}</h2>
+                {{ $t('sw-order.stateCard.labelNoDeliveryState') }}
             </div>
         </template>
         {% endblock %}
@@ -73,7 +73,7 @@
         {% block sw_order_state_history_card_order%}
         <sw-order-state-history-card-entry
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
@@ -82,7 +82,7 @@
             :disabled="!acl.can('order.editor') || undefined"
             :transition-options="orderOptions"
             state-machine-name="order.state"
-            :title="$tc('sw-order.stateCard.headlineOrderState')"
+            :title="$t('sw-order.stateCard.headlineOrderState')"
             @state-select="onOrderStateSelected"
         />
         {% endblock %}

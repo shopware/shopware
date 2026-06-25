@@ -2,12 +2,12 @@
 <mt-card
     class="sw-seo-url-template-card"
     position-identifier="sw-seo-url-template-card"
-    :title="$tc('sw-seo-url-template-card.general.titleCard')"
+    :title="$t('sw-seo-url-template-card.general.titleCard')"
     :is-loading="isLoading"
 >
     <template #toolbar>
         <sw-sales-channel-switch
-            :label="$tc('sw-seo-url-template-card.general.labelSalesChannelSelect')"
+            :label="$t('sw-seo-url-template-card.general.labelSalesChannelSelect')"
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </template>
@@ -15,9 +15,9 @@
     {% block sw_seo_url_template_card_info_box %}
     <mt-banner
         variant="info"
-        :title="$tc('sw-seo-url-template-card.general.headlineInfoMessageBoxEmptyProperties')"
+        :title="$t('sw-seo-url-template-card.general.headlineInfoMessageBoxEmptyProperties')"
     >
-        <span>{{ $tc('sw-seo-url-template-card.general.textInfoMessageBoxEmptyProperties') }}</span>
+        <span>{{ $t('sw-seo-url-template-card.general.textInfoMessageBoxEmptyProperties') }}</span>
     </mt-banner>
     {% endblock %}
 
@@ -30,7 +30,7 @@
         >
             <sw-container
                 columns="3fr 1fr"
-                gap="5px"
+                gap="var(--scale-size-6)"
             >
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
@@ -61,30 +61,30 @@
                                 {% block sw_seo_url_template_card_entries_input_suffix %}
                                 <sw-loader
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
-                                    size="16px"
+                                    size="var(--scale-size-16)"
                                 />
                                 <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
+                                    v-tooltip="$t('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
                                     name="regular-times"
                                 />
                                 <mt-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
-                                        entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
+                                    v-tooltip="$t('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', {
+                                        entity: $t(`global.entities.${seoUrlTemplate.entityName}`, 0)
                                     }, 0)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <mt-icon
                                     v-else-if="!props.currentValue"
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
-                                        entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
+                                    v-tooltip="$t('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', {
+                                        entity: $t(`global.entities.${seoUrlTemplate.entityName}`, 0)
                                     }, 1)"
                                     name="regular-exclamation-triangle"
                                 />
                                 <mt-icon
                                     v-else
-                                    v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')"
+                                    v-tooltip="$t('sw-seo-url-template-card.general.tooltipValidTemplate')"
                                     name="regular-checkmark"
                                 />
                                 {% endblock %}
@@ -103,8 +103,8 @@
                     label-property="name"
                     show-clearable-button
                     :options="getVariableOptions(seoUrlTemplate.id)"
-                    :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
-                    :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')"
+                    :placeholder="$t('sw-seo-url-template-card.general.placeholderSelectVariables')"
+                    :label="$t('sw-seo-url-template-card.general.labelPossibleValues')"
                     @update:value="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
                 />
                 {% endblock %}
@@ -116,7 +116,7 @@
             >
                 {% block sw_seo_url_template_card_entries_preview_label %}
                 <span class="sw-seo-url-template-card__preview-label">
-                    {{ $tc('sw-seo-url-template-card.general.preview') }}
+                    {{ $t('sw-seo-url-template-card.general.preview') }}
                 </span>
                 {% endblock %}
                 {% block sw_seo_url_template_card_entries_preview_item %}
@@ -125,10 +125,10 @@
                         {{ previews[seoUrlTemplate.id][0].seoPathInfo }}
                     </span>
                     <span v-else>
-                        {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
+                        {{ $t('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                     </span>
                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }, 0) }}
+                        {{ $t('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', { entity: $t(`global.entities.${seoUrlTemplate.entityName}`, 0) }, 0) }}
                     </span>
                 </div>
                 {% endblock %}
@@ -137,7 +137,7 @@
         </div>
     </template>
     <div v-if="salesChannelIsHeadless && !isLoading">
-        {{ $tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') }}
+        {{ $t('sw-seo-url.textSeoUrlsDisallowedForHeadless') }}
     </div>
     {% endblock %}
 </mt-card>

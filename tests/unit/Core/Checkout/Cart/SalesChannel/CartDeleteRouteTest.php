@@ -24,7 +24,7 @@ class CartDeleteRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $persister = $this->createMock(AbstractCartPersister::class);
         $persister

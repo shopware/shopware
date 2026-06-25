@@ -47,7 +47,7 @@ class SyncControllerTest extends TestCase
         $service = $this->createMock(SyncService::class);
         $service->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) use ($criteria) {
+            ->willReturnCallback(static function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 
@@ -92,8 +92,7 @@ class SyncControllerTest extends TestCase
 
     public function testSyncWithInvalidJson(): void
     {
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Parameter type json is invalid.');
+        $this->expectExceptionObject(ApiException::invalidApiType('json'));
 
         $invalidJson = 'this is not json';
         $request = new Request([], [], [], [], [], [], $invalidJson);
@@ -108,8 +107,7 @@ class SyncControllerTest extends TestCase
 
     public function testSyncWithInvalidOperation(): void
     {
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Invalid payload format. Expected an array of operations.');
+        $this->expectExceptionObject(new BadRequestHttpException('Invalid payload format. Expected an array of operations.'));
 
         $operations = ['delete-mapping' => 'action:delete'];
 

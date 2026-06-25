@@ -47,7 +47,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         salesChannelId(): string {
-            return Store.get('swOrder').context?.salesChannel?.id ?? '';
+            return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -103,15 +103,17 @@ export default Component.wrapComponentConfig({
         cartDelivery: {
             immediate: true,
             handler(value): void {
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
             },
         },
 
         'context.currencyId': {
-            async handler(): Promise<void> {
-                // await this.getCurrency();
+            async handler(currencyId: string): Promise<void> {
+                if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
+                    return;
+                }
+
                 await this.updateCartContext();
             },
         },
@@ -129,7 +131,11 @@ export default Component.wrapComponentConfig({
         },
 
         'context.shippingMethodId': {
-            async handler(): Promise<void> {
+            async handler(shippingMethodId: string): Promise<void> {
+                if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
+                    return;
+                }
+
                 await this.updateCartContext();
             },
         },
@@ -185,7 +191,7 @@ export default Component.wrapComponentConfig({
         },
 
         async updateCartContext(): Promise<void> {
-            if (!this.salesChannelId) {
+            if (!this.salesChannelId || !this.customer || !this.cart.token) {
                 return;
             }
 

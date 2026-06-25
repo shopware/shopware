@@ -25,7 +25,7 @@ class ScriptPriceStubsTest extends TestCase
     private const USD_ID = Defaults::LANGUAGE_SYSTEM;
 
     /**
-     * @param array<string, array{gross:float, net:float}> $prices
+     * @param array<array-key, array{gross:float, net:float, linked?: bool, currencyId?: string}> $prices
      */
     #[DataProvider('priceCases')]
     public function testPriceFactory(array $prices, PriceCollection $expected): void

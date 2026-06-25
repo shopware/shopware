@@ -83,7 +83,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private function getTokenFromSystem(Context $context): ?string
     {
         $contextSource = $context->getSource();
-        if (!($contextSource instanceof SystemSource)) {
+        if (!$contextSource instanceof SystemSource) {
             throw StoreException::invalidContextSource(SystemSource::class, $contextSource::class);
         }
 

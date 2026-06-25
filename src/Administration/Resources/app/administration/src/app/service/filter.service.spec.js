@@ -10,6 +10,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
+    let userConfigRepository;
 
     beforeEach(async () => {
         const router = createRouter({
@@ -62,19 +63,24 @@ describe('app/service/filter.service.js', () => {
             },
         });
 
-        filterService = new FilterService({
-            userConfigRepository: {
-                create: () =>
-                    Promise.resolve({
-                        key: 'test',
-                        userId: '123',
-                    }),
-                search: () => Promise.resolve(filterData),
-                save: (criteria) => {
-                    filterData = criteria;
-                    return Promise.resolve();
-                },
+        userConfigRepository = {
+            create: () =>
+                Promise.resolve({
+                    key: 'test',
+                    userId: '123',
+                }),
+            search: () => Promise.resolve(filterData),
+            save: (entity) => {
+                filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+                    entity,
+                ]);
+
+                return Promise.resolve();
             },
+        };
+
+        filterService = new FilterService({
+            userConfigRepository,
         });
     });
 
@@ -198,6 +204,74 @@ describe('app/service/filter.service.js', () => {
             { type: 'equalsAny', field: 'salutation.id', value: 'filter1' },
             { type: 'equalsAny', field: 'salutation.id', value: 'filter2' },
         ]);
+    });
+
+    it('saveFilters should resolve after the user config save finished', async () => {
+        await filterService.getStoredFilters('test');
+
+        const filters = {
+            filter1: {
+                value: 'filter1',
+                criteria: [
+                    {
+                        type: 'equalsAny',
+                        field: 'salutation.id',
+                        value: 'filter1',
+                    },
+                ],
+            },
+        };
+
+        let resolveSave;
+        const savePromise = new Promise((resolve) => {
+            resolveSave = resolve;
+        });
+
+        userConfigRepository.save = jest.fn((entity) => {
+            filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+                entity,
+            ]);
+
+            return savePromise;
+        });
+
+        const saveFiltersPromise = filterService.saveFilters('test', filters);
+        let resolved = false;
+        const resolutionMarker = saveFiltersPromise.then(() => {
+            resolved = true;
+        });
+
+        await flushPromises();
+
+        expect(resolved).toBe(false);
+
+        resolveSave();
+
+        await resolutionMarker;
+        await expect(saveFiltersPromise).resolves.toEqual(filters);
+    });
+
+    it('saveFilters should resolve with current filters when the user config save fails', async () => {
+        await filterService.getStoredFilters('test');
+
+        const filters = {
+            filter1: {
+                value: 'filter1',
+                criteria: [
+                    {
+                        type: 'equalsAny',
+                        field: 'salutation.id',
+                        value: 'filter1',
+                    },
+                ],
+            },
+        };
+
+        userConfigRepository.save = jest.fn(() => {
+            return Promise.reject(new Error('Save failed'));
+        });
+
+        await expect(filterService.saveFilters('test', filters)).resolves.toEqual(filters);
     });
 
     it('mergeWithStoredFilters when there is no cache data', async () => {

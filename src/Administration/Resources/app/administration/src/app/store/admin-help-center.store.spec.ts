@@ -1,4 +1,3 @@
-// eslint-disable-next-line filename-rules/match
 import { createPinia, setActivePinia } from 'pinia';
 import type { AdminHelpCenterStore } from './admin-help-center.store';
 

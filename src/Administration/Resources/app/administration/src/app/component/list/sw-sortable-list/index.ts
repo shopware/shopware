@@ -68,7 +68,6 @@ export default Shopware.Component.wrapComponentConfig({
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default(): boolean {
                 return true;
             },
@@ -83,7 +82,6 @@ export default Shopware.Component.wrapComponentConfig({
         scrollOnDrag: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default(): boolean {
                 return false;
             },

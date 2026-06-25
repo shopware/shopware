@@ -32,24 +32,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by integration test {@see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest}
+ * @codeCoverageIgnore
+ *
+ * @see EntityReaderTest
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface
 {
     final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
     final public const FOREIGN_KEYS = 'foreignKeys';
-    final public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
+
+    /**
+     * Marks temporary queries that select limited ids for to-many associations.
+     *
+     * EntityReader sets this state before applying association criteria in loadManyToManyWithCriteria() and
+     * fetchPaginatedOneToManyMapping(). Those queries are later wrapped as subqueries to enforce per-parent limits.
+     * They intentionally do not add their own GROUP BY, so CriteriaQueryBuilder must keep ORDER BY expressions
+     * unaggregated even when filters add to-many joins and mark the query as grouped.
+     */
+    final public const TO_MANY_ASSOCIATION_LIMIT_QUERY = 'to_many_association_limit_query';
 
     public function __construct(
         private readonly Connection $connection,
@@ -118,7 +129,7 @@ class EntityReader implements EntityReaderInterface
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
-            $fields = $definition->getFields()->filter(function (Field $field) use (&$fieldsForPartialLoading) {
+            $fields = $definition->getFields()->filter(static function (Field $field) use (&$fieldsForPartialLoading) {
                 if ($field->getFlag(PrimaryKey::class)) {
                     $fieldsForPartialLoading[$field->getPropertyName()] = [];
 
@@ -583,7 +594,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -674,19 +685,6 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading,
         bool $isPartialLoading,
     ): void {
-        $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
-
-        // inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
-        $sorting = array_merge(
-            [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
-            $fieldCriteria->getSorting()
-        );
-
-        $fieldCriteria->resetSorting();
-        $fieldCriteria->addSorting(...$sorting);
-
-        $ids = array_values($collection->getIds());
-
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
@@ -694,15 +692,18 @@ class EntityReader implements EntityReaderInterface
             $fieldsForPartialLoading[$association->getPropertyName()] = [];
         }
 
-        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
+        $ids = array_values($collection->getIds());
 
+        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
 
-        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
+        $fieldCriteria->addFilter(
+            new EqualsAnyFilter($this->buildOneToManyPropertyAccessor($definition, $association), $ids)
+        );
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -798,24 +799,26 @@ class EntityReader implements EntityReaderInterface
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        if ($ids !== []) {
-            $criteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        $data = $this->_read(
-            $criteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $fieldsForPartialLoading,
-            $isPartialLoading,
-        );
+        if ($ids !== []) {
+            $criteria->setIds($ids);
+
+            $data = $this->_read(
+                $criteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
@@ -879,9 +882,10 @@ class EntityReader implements EntityReaderInterface
         );
 
         $query = new QueryBuilder($this->connection);
-        // to many selects results in a `group by` clause. In this case the order by parts will be executed with MIN/MAX aggregation
-        // but at this point the order by will be moved to an sub select where we don't have a group state, the `state` prevents this behavior
-        $query->addState(self::MANY_TO_MANY_LIMIT_QUERY);
+        // To-many criteria can add joins that mark the query as grouped. In that case the order by parts are executed
+        // with MIN/MAX aggregation, but this limit query is moved into a subquery without its own group by.
+        // The state prevents aggregate sorting for those temporary to-many association limit queries.
+        $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
         $query = $this->criteriaQueryBuilder->build(
             $query,
@@ -1067,12 +1071,12 @@ class EntityReader implements EntityReaderInterface
     ): array {
         $sortings = $fieldCriteria->getSorting();
 
-        // Remove first entry
-        array_shift($sortings);
+        $query = new QueryBuilder($this->connection);
+        $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
         // build query based on provided association criteria (sortings, search, filter)
         $query = $this->criteriaQueryBuilder->build(
-            new QueryBuilder($this->connection),
+            $query,
             $association->getReferenceDefinition(),
             $fieldCriteria,
             $context
@@ -1091,24 +1095,31 @@ class EntityReader implements EntityReaderInterface
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
+        $primaryKeyAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id';
+
+        $orderByParts = $query->getOrderByParts();
+
+        // Always end the window ordering with the reference primary key so ROW_NUMBER() produces a deterministic
+        // total order within each partition. The criteria sortings may be absent or non-unique (e.g. sorting by a
+        // shared `name`); without a unique tie-breaker the row numbering is undefined within a parent and paginated
+        // reads (limit/offset) of the association can return overlapping rows across separate queries.
+        $windowOrderBy = implode(', ', [...$orderByParts, $primaryKeyAccessor]);
+
+        // ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) guarantees that rows are numbered in the declared sort
+        // order within each parent entity, regardless of how the database engine executes the surrounding query, which
+        // is essential when the sort references a joined table: a declarative window function always sees the fully
+        // joined and sorted rowset, so id_count = 1 reliably identifies the top-ranked child.
         $query->select(
-            // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
-            '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
+            "ROW_NUMBER() OVER (PARTITION BY {$sqlAccessor} ORDER BY {$windowOrderBy}) as id_count",
 
             // add select for foreign key for join condition
             $sqlAccessor,
 
             // add primary key select to group concat them
-            EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
+            $primaryKeyAccessor,
         );
 
-        foreach ($query->getOrderByParts() as $i => $sorting) {
-            // The first order is the primary key
-            if ($i === 0) {
-                continue;
-            }
-            --$i;
-
+        foreach ($orderByParts as $i => $sorting) {
             // Strip the ASC/DESC at the end of the sort
             $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
@@ -1140,7 +1151,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
+            static fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -1163,9 +1174,6 @@ class EntityReader implements EntityReaderInterface
             $type = $query->getParameterType($key);
             $wrapper->setParameter($key, $value, $type);
         }
-
-        // initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
-        $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
         $rows = $wrapper->executeQuery()->fetchAllAssociative();
 
@@ -1310,7 +1318,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        $related = \array_filter($collection->map(function (Entity $entity) use ($association) {
+        $related = \array_filter($collection->map(static function (Entity $entity) use ($association) {
             if ($association->is(Extension::class)) {
                 return $entity->getExtension($association->getPropertyName());
             }

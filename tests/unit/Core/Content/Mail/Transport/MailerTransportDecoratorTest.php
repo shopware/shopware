@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Mail\Transport;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +14,6 @@ use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,7 +33,9 @@ class MailerTransportDecoratorTest extends TestCase
 
     private Filesystem $filesystem;
 
-    /** @var MockObject&EntityRepository<DocumentCollection> */
+    /**
+     * @var MockObject&EntityRepository<DocumentCollection>
+     */
     private MockObject&EntityRepository $documentRepository;
 
     private MailerTransportDecorator $decorator;
@@ -42,7 +44,7 @@ class MailerTransportDecoratorTest extends TestCase
     {
         $this->decorated = $this->createMock(TransportInterface::class);
         $this->attachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
-        $this->filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->documentRepository = $this->createMock(EntityRepository::class);
 
         $this->decorator = new MailerTransportDecorator(

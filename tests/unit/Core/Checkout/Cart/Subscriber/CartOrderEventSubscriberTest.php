@@ -60,7 +60,7 @@ class CartOrderEventSubscriberTest extends TestCase
         $this->contextSwitchRoute->expects($this->once())
             ->method('switchContext')
             ->with(
-                static::callback(function (RequestDataBag $dataBag) use ($expectedDataBag) {
+                static::callback(static function (RequestDataBag $dataBag) use ($expectedDataBag) {
                     return $dataBag->all() === $expectedDataBag->all();
                 }),
                 static::equalTo($salesChannelContext)
@@ -83,7 +83,7 @@ class CartOrderEventSubscriberTest extends TestCase
         $this->contextSwitchRoute->expects($this->once())
             ->method('switchContext')
             ->with(
-                static::callback(function (RequestDataBag $dataBag) use ($expectedDataBag) {
+                static::callback(static function (RequestDataBag $dataBag) use ($expectedDataBag) {
                     return $dataBag->all() === $expectedDataBag->all();
                 }),
                 static::equalTo($salesChannelContext)

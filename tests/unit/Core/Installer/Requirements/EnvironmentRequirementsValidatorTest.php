@@ -24,9 +24,9 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 class EnvironmentRequirementsValidatorTest extends TestCase
 {
     /**
-     * @param array<string, string> $composerOverrides
+     * @param array<string, string|false> $composerOverrides
      * @param array<string, Link> $requires
-     * @param SystemCheck[] $expectedChecks
+     * @param list<SystemCheck> $expectedChecks
      */
     #[DataProvider('composerRequirementsProvider')]
     public function testValidateRequirements(?string $coreComposerName, array $composerOverrides, array $requires, array $expectedChecks): void

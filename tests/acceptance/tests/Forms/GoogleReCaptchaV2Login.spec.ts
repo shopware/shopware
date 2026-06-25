@@ -39,7 +39,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
 
         // Post the complete merged config
         const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-            data: updatedConfig
+            data: updatedConfig,
         });
         if (!updateResponse.ok()) {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
@@ -52,7 +52,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
         // Restore original config
         if (Object.keys(originalConfig).length > 0) {
             await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-                data: { null: originalConfig }
+                data: { null: originalConfig },
             });
 
             await TestDataService.clearCaches();

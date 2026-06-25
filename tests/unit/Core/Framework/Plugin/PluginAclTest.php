@@ -44,7 +44,7 @@ class PluginAclTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->testPluginBaseDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/' . self::PLUGINS_NAMESPACE;
+        $this->testPluginBaseDir = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/' . self::PLUGINS_NAMESPACE;
 
         foreach (self::PLUGINS_TO_LOAD as $pluginToLoad) {
             require_once $this->testPluginBaseDir . '/src/' . $pluginToLoad . '.php';

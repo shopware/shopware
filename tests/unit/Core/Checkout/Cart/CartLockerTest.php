@@ -33,7 +33,7 @@ class CartLockerTest extends TestCase
     {
         $called = false;
         $context = Generator::generateSalesChannelContext(token: 'test-token');
-        $result = $this->locker->locked($context, function () use (&$called) {
+        $result = $this->locker->locked($context, static function () use (&$called) {
             $called = true;
 
             return 'test-result';
@@ -53,7 +53,7 @@ class CartLockerTest extends TestCase
         static::assertTrue($lock->acquire());
         $lock->release();
 
-        $this->locker->locked($context, function () use ($lock): void {
+        $this->locker->locked($context, static function () use ($lock): void {
             // Lock should not be available during the execution of the closure
             static::assertFalse($lock->acquire(false));
         });
@@ -70,7 +70,7 @@ class CartLockerTest extends TestCase
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
         try {
-            $this->locker->locked($context, function (): void {
+            $this->locker->locked($context, static function (): void {
                 throw new \Exception('test');
             });
         } catch (\Exception) {
@@ -91,7 +91,7 @@ class CartLockerTest extends TestCase
 
         $this->expectExceptionObject(CartException::cartLocked($token));
 
-        $this->locker->locked($context, function (): void {
+        $this->locker->locked($context, static function (): void {
             // This should not be executed
         });
     }
@@ -105,7 +105,7 @@ class CartLockerTest extends TestCase
             $firstLock = $context->getCartLock();
             static::assertInstanceOf(LockInterface::class, $firstLock);
 
-            $this->locker->locked($context, function () use ($context, $firstLock): void {
+            $this->locker->locked($context, static function () use ($context, $firstLock): void {
                 static::assertSame($context->getCartLock(), $firstLock);
             });
         });

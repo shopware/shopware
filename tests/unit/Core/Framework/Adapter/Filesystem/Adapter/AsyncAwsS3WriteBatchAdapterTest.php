@@ -56,7 +56,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
         $result = ResultMockFactory::create(PutObjectOutput::class);
         $s3Client
             ->method('putObject')
-            ->willReturnCallback(function (array $input) use ($result) {
+            ->willReturnCallback(static function (array $input) use ($result) {
                 static::assertSame('test', $input['Bucket']);
                 static::assertSame('test.txt', $input['Key']);
                 static::assertSame('text/plain', $input['ContentType']);

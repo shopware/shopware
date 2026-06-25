@@ -236,7 +236,7 @@ export default {
                 await this.snippetSetRepository.delete(this.showDeleteModal);
                 await this.getList();
                 this.createDeleteSuccessNote();
-            } catch (e) {
+            } catch (_e) {
                 this.createDeleteErrorNote();
             }
 

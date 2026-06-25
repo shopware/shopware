@@ -112,10 +112,6 @@
                                         "description": "Zip code",
                                         "type": "string"
                                     },
-                                    "tags": {
-                                        "description": "Zip code",
-                                        "type": "string"
-                                    },
                                     "languageId": {
                                         "description": "Identifier of the language.",
                                         "type": "string",
@@ -144,9 +140,7 @@
                                           "type": "boolean"
                                         },
                                         "status": {
-                                            "description": "The subscription status.",
-                                            "type": "string",
-                                            "enum": ["notSet", "optIn", "optOut", "direct"]
+                                            "$ref": "#/components/schemas/NewsletterStatus"
                                         }
                                     },
                                     "type": "object"

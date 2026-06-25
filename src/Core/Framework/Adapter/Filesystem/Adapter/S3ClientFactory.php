@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 use AsyncAws\S3\S3Client;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @phpstan-type S3Config array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options?: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
@@ -19,7 +20,7 @@ class S3ClientFactory
      *
      * @return array{client: S3Client, bucket: string, root: string}
      */
-    public static function create(array $config): array
+    public static function create(array $config, ?HttpClientInterface $httpClient = null): array
     {
         $options = self::resolveS3Options($config);
 
@@ -41,7 +42,7 @@ class S3ClientFactory
         }
 
         return [
-            'client' => new S3Client($clientConfig),
+            'client' => new S3Client($clientConfig, null, $httpClient),
             'bucket' => $options['bucket'],
             'root' => $options['root'],
         ];

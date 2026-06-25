@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Event\SystemHeartbeatEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
@@ -27,6 +28,7 @@ interface Hookable
         AppPermissionsUpdated::class => AppPermissionsUpdated::NAME,
         UpdatePostFinishEvent::class => UpdatePostFinishEvent::EVENT_NAME,
         SystemConfigChangedHook::class => SystemConfigChangedHook::EVENT_NAME,
+        SystemHeartbeatEvent::class => SystemHeartbeatEvent::NAME,
     ];
 
     public const HOOKABLE_EVENTS_DESCRIPTION = [
@@ -39,6 +41,7 @@ interface Hookable
         AppPermissionsUpdated::class => 'Fires when an apps permissions were updated with a list of the currently accepted permissions, eg after new were accepted or revoked',
         UpdatePostFinishEvent::class => 'Fires after an shopware update has been finished',
         SystemConfigChangedHook::class => 'Fires when a system config value is changed',
+        SystemHeartbeatEvent::class => 'Fires as a recurrent task. Indicates to the app that the system is up and running.',
     ];
 
     public const HOOKABLE_EVENTS_PRIVILEGES = [
@@ -51,6 +54,7 @@ interface Hookable
         AppPermissionsUpdated::class => [],
         UpdatePostFinishEvent::class => [],
         SystemConfigChangedHook::class => ['system_config:read'],
+        SystemHeartbeatEvent::class => [],
     ];
 
     public function getName(): string;

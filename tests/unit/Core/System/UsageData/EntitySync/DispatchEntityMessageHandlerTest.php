@@ -26,10 +26,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
@@ -62,8 +65,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create');
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create'));
 
         $consentService = $this->createMock(ConsentService::class);
 
@@ -100,8 +102,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(null);
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::REVOKED, null));
 
         $definition = new SyncEntityDefinition();
         new StaticDefinitionInstanceRegistry(
@@ -114,7 +116,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -134,8 +136,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -156,7 +157,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->never())
-            ->method('getLastConsentIsAcceptedDate');
+            ->method('getConsentState');
 
         $definition = new SyncEntityDefinition();
         new StaticDefinitionInstanceRegistry(
@@ -169,7 +170,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -189,8 +190,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -248,14 +248,14 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->willReturn(\count($primaryKeys));
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -354,19 +354,19 @@ class DispatchEntityMessageHandlerTest extends TestCase
             );
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
-                    return !($field instanceof VersionField);
+                $fields = array_filter($fields, static function (Field $field) {
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);
@@ -425,20 +425,20 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('createExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
-            ->with(static::callback(function (string $query) use ($idFieldStorageName) {
+            ->with(static::callback(static function (string $query) use ($idFieldStorageName) {
                 return str_contains($query, EntityDefinitionQueryHelper::escape($idFieldStorageName));
             }));
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -486,8 +486,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')->willReturn('current-shop-id');
@@ -502,8 +502,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider,
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             $definition->getEntityName(),
             Operation::CREATE,
@@ -537,7 +536,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $manyToManyAssociationService = $this->createMock(ManyToManyAssociationService::class);
         $manyToManyAssociationService->expects($this->once())
             ->method('getMappingIdsForAssociationFields')
-            ->with(static::callback(function (array $associationFields) {
+            ->with(static::callback(static function (array $associationFields) {
                 return $associationFields[0] === 'missing';
             }))
             ->willReturn(['associationName' => ['primaryKeyValue' => 'associationValue']]);
@@ -582,14 +581,17 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
-            ->method('getLastConsentIsAcceptedDate')
-            ->willReturn($createdAndUpdatedAt);
+            ->method('getConsentState')
+            ->willReturn($this->createConsentState(
+                ConsentStatus::ACCEPTED,
+                $createdAndUpdatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -617,21 +619,10 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     public function testFormatsValueUsingFieldSerializer(): void
     {
-        $serializerMock = $this->createMock(FieldSerializerInterface::class);
-        $serializerMock->method('decode')
-            ->willReturn('decoded_value');
-
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $idFieldMock = $this->createMock(ManyToManyIdField::class);
-        $idFieldMock->method('getSerializer')
-            ->willReturn($serializerMock);
-        $idFieldMock->method('getAssociationName')
-            ->willReturn('association_name');
-        $idFieldMock->method('getStorageName')
-            ->willReturn('storage_name');
+        $idField = new ManyToManyIdField('storage_name', 'storageName', 'association_name');
 
         $definition = new EntityEncoderEntity();
-        $definition->setExtraFields([$idFieldMock]);
+        $definition->setExtraFields([$idField]);
 
         new StaticDefinitionInstanceRegistry(
             [$definition],
@@ -644,7 +635,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             'int' => '1337',
             'created_at' => (new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_FORMAT),
             'updated_at' => null,
-            'storage_name' => '1234',
+            'storage_name' => '["id-1","id-2"]',
             'blob' => 'blob',
         ]);
 
@@ -663,7 +654,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertNull($serialized['updatedAt']);
 
         static::assertArrayHasKey('association_name', $serialized);
-        static::assertSame('decoded_value', $serialized['association_name']);
+        static::assertSame(['id-1', 'id-2'], $serialized['association_name']);
 
         static::assertArrayHasKey('blob', $serialized);
         static::assertSame('blob', base64_decode($serialized['blob'], true));
@@ -695,19 +686,19 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->method('dispatch');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('getLastConsentIsAcceptedDate')
-            ->willReturn(new \DateTimeImmutable());
+        $consentService->method('getConsentState')
+            ->willReturn($this->createConsentState(ConsentStatus::ACCEPTED, null));
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
-                    return !($field instanceof VersionField);
+                $fields = array_filter($fields, static function (Field $field) {
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);
@@ -742,6 +733,22 @@ class DispatchEntityMessageHandlerTest extends TestCase
         ));
     }
 
+    private function createConsentState(ConsentStatus $status, ?string $updatedAt): ConsentState
+    {
+        if ($status === ConsentStatus::ACCEPTED && $updatedAt === null) {
+            $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        }
+
+        return new ConsentState(
+            BackendData::NAME,
+            ConsentScope\System::NAME,
+            ConsentScope\System::NAME,
+            $status,
+            'actor',
+            $updatedAt,
+        );
+    }
+
     private function createConnectionMock(): Connection&MockObject
     {
         $connection = $this->createMock(Connection::class);
@@ -749,8 +756,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
 
         return $connection;

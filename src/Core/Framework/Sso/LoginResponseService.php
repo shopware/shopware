@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Sso;
 
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -20,6 +21,7 @@ class LoginResponseService
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -82,6 +84,6 @@ class LoginResponseService
 
     private function createTimeStamp(int $expiresIn): int
     {
-        return (int) strtotime('+' . $expiresIn . ' seconds') * 1000;
+        return ($this->clock->now()->getTimestamp() + $expiresIn) * 1000;
     }
 }

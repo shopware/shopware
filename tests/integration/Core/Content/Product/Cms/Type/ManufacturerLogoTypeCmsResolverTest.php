@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -109,5 +110,38 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         static::assertNotEmpty($manufacturerLogoStruct->getManufacturer());
         static::assertSame('manufacturer_01', $manufacturerLogoStruct->getManufacturer()->getId());
         static::assertSame('media_01', $manufacturerLogoStruct->getMediaId());
+    }
+
+    public function testCollectWithMappedManufacturerWithoutMediaInEntityContext(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId('product_01');
+        $product->setManufacturerId('manufacturer_01');
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer_01');
+        $product->setManufacturer($manufacturer);
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
+            $product
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('manufacturer-logo');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->manufacturerLogoCmsElementResolver->collect($slot, $resolverContext);
+        static::assertNotNull($collection);
+        static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
+
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['mapped_product_manufacturer_id'];
+        static::assertSame(['manufacturer_01'], $criteria->getIds());
+        static::assertArrayHasKey('media', $criteria->getAssociations());
     }
 }

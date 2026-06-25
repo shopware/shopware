@@ -26,6 +26,11 @@ class Migration1771342632AddCorruptedMediaHandlerIndicesTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1771342632, (new Migration1771342632AddCorruptedMediaHandlerIndices())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1771342632AddCorruptedMediaHandlerIndices();

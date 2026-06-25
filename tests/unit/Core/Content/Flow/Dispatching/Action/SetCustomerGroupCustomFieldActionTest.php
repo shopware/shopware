@@ -29,7 +29,9 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
     private Connection&MockObject $connection;
 
-    /** @var MockObject&EntityRepository<CustomerGroupCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerGroupCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private SetCustomerGroupCustomFieldAction $action;

@@ -9,8 +9,12 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
 /**
+ * @internal
+ *
  * @phpstan-import-type Params from DriverManager
  * @phpstan-import-type OverrideParams from DriverManager
  */
@@ -21,16 +25,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class SystemRestoreDatabaseCommand extends Command
 {
+    /**
+     * @var callable(list<string>): Process
+     */
+    private $processFactory;
+
+    /**
+     * @param callable(list<string>): Process|null $processFactory
+     */
     public function __construct(
         private readonly string $defaultDirectory,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        ?callable $processFactory = null,
+        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
+        $this->processFactory = $processFactory ?? static fn (array $cmd): Process => new Process($cmd);
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        system('mkdir -p ' . escapeshellarg($this->defaultDirectory));
+        $this->filesystem->mkdir($this->defaultDirectory);
 
         /** @var non-empty-string $dbName */
         $dbName = $this->connection->getDatabase();
@@ -39,24 +54,26 @@ class SystemRestoreDatabaseCommand extends Command
 
         $path = \sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
 
-        $portString = '';
+        $cmd = [
+            'mysql',
+            '-u', $params['user'] ?? '',
+            '-h', $params['host'] ?? '',
+            '--port=' . ($params['port'] ?? ''),
+        ];
         if ($params['password'] ?? '') {
-            $portString = '-p' . escapeshellarg($params['password']);
+            $cmd[] = '-p' . $params['password'];
+        }
+        $cmd[] = $dbName;
+
+        $sqlContent = '';
+        if ($this->filesystem->exists($path)) {
+            $sqlContent = $this->filesystem->readFile($path);
         }
 
-        $cmd = \sprintf(
-            'mysql -u %s %s -h %s --port=%s %s < %s',
-            escapeshellarg($params['user'] ?? ''),
-            $portString,
-            escapeshellarg($params['host'] ?? ''),
-            escapeshellarg((string) ($params['port'] ?? '')),
-            escapeshellarg($dbName),
-            escapeshellarg($path)
-        );
+        $process = ($this->processFactory)($cmd);
+        $process->setInput($sqlContent);
+        $process->run();
 
-        $returnCode = 0;
-        system($cmd, $returnCode);
-
-        return $returnCode;
+        return $process->getExitCode() ?? 1;
     }
 }

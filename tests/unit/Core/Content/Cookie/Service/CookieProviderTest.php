@@ -86,7 +86,7 @@ class CookieProviderTest extends TestCase
         });
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(fn ($key) => 'Translated: ' . $key);
+        $translator->method('trans')->willReturnCallback(static fn ($key) => 'Translated: ' . $key);
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
             $translator,

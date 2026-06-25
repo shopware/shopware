@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@framework
  */
@@ -192,11 +194,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
-
-        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
         Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
@@ -579,5 +583,44 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
         expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
+
+    it('should stop loading when the email is already used', async () => {
+        const saveSpy = jest.spyOn(wrapper.vm.userRepository, 'save');
+        jest.spyOn(wrapper.vm, 'checkEmail').mockResolvedValue(false);
+
+        await wrapper.setData({
+            currentUser: { id: 'current-user-id' },
+            user: {
+                id: 'edited-user-id',
+                email: 'info@shopware.com',
+            },
+            isLoading: false,
+        });
+
+        await wrapper.vm.saveUser();
+
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('should stop loading when email validation fails', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const saveSpy = jest.spyOn(wrapper.vm.userRepository, 'save');
+        jest.spyOn(wrapper.vm, 'checkEmail').mockRejectedValue(new Error('Email validation failed'));
+
+        await wrapper.setData({
+            currentUser: { id: 'current-user-id' },
+            user: {
+                id: 'edited-user-id',
+                email: 'info@shopware.com',
+            },
+            isLoading: false,
+        });
+
+        await expect(wrapper.vm.saveUser()).rejects.toThrow('Email validation failed');
+
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(saveSpy).not.toHaveBeenCalled();
     });
 });

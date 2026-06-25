@@ -48,6 +48,18 @@ describe('src/module/sw-order/state/order-detail.store', () => {
         expect(Shopware.Store.get('swOrderDetail').isEditing).toBe(true);
     });
 
+    it('should clear order address ids when setOrderAddressIds gets null', () => {
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: '0190d92db32071d689120d3dcf352197',
+            customerAddressId: '0190d9275a6a72ae8b536849a4a02d85',
+            type: 'billing',
+        });
+
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
+
+        expect(state.orderAddressIds).toEqual([]);
+    });
+
     it('should set order address ids when provided valid address info', () => {
         const addressIdInfo = {
             orderAddressId: '0190d92db32071d689120d3dcf352197',

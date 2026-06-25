@@ -72,7 +72,7 @@ class ProductGeneratorTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')
-            ->willReturnCallback(function () use ($salesChannelIds, $properties, $categoryIds) {
+            ->willReturnCallback(static function () use ($salesChannelIds, $properties, $categoryIds) {
                 $sqlStatement = \func_get_arg(0);
 
                 if (\str_contains($sqlStatement, 'sales_channel')) {
@@ -133,7 +133,7 @@ class ProductGeneratorTest extends TestCase
 
         $productRepository = new StaticEntityRepository([]);
 
-        $registry->method('getRepository')->willReturnCallback(function () use ($taxRepository, $mediaRepository, &$productRepository) {
+        $registry->method('getRepository')->willReturnCallback(static function () use ($taxRepository, $mediaRepository, &$productRepository) {
             $entityName = \func_get_arg(0);
 
             return match ($entityName) {

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -11,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -26,19 +28,19 @@ class ClientRepositoryTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->createMock(Connection::class);
-        $this->clientRepository = new ClientRepository($this->connection);
+        $this->clientRepository = new ClientRepository($this->connection, new NativeClock());
     }
 
     public function testValidateClientWithInvalidGrantTypeThrowException(): void
     {
-        static::expectExceptionMessage('The authorization grant type is not supported by the authorization server.');
+        $this->expectExceptionObject(OAuthServerException::unsupportedGrantType());
         $this->clientRepository->validateClient('clientIdentifier', 'clientSecret', 'unsupportGrantType');
     }
 
     #[DataProvider('validateClientDataProvider')]
     public function testValidateClient(string $grantType, string $clientIdentifier, string $clientSecret, bool $expectedResult): void
     {
-        $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier, $clientSecret) {
+        $this->connection->method('fetchAssociative')->willReturnCallback(static function () use ($clientIdentifier, $clientSecret) {
             if ($clientIdentifier === 'SWUAADMIN' && $clientSecret === 'shopware') {
                 return [
                     'id' => '123',
@@ -64,7 +66,7 @@ class ClientRepositoryTest extends TestCase
         $this->connection
             ->method('fetchAssociative')
             ->willReturnCallback(
-                function () {
+                static function () {
                     return [
                         'id' => '123',
                         'active' => true,
@@ -92,7 +94,7 @@ class ClientRepositoryTest extends TestCase
      */
     public function testGetClientEntity(string $clientIdentifier, ?ClientEntityInterface $expectedResult): void
     {
-        $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier) {
+        $this->connection->method('fetchAssociative')->willReturnCallback(static function () use ($clientIdentifier) {
             if ($clientIdentifier === 'SWUAUSERCORRECT') {
                 return [
                     'user_id' => Uuid::randomBytes(),

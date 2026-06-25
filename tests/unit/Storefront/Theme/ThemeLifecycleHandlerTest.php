@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
@@ -35,7 +36,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private Connection&MockObject $connectionMock;
@@ -241,7 +244,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $config->setIsTheme(true);
 
         $context = Context::createDefaultContext();
-        $context->addState('skip-theme-compilation');
+        $context->addState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION);
 
         $this->themeLifecycleServiceMock
             ->expects($this->once())
@@ -261,5 +264,24 @@ class ThemeLifecycleHandlerTest extends TestCase
             new StorefrontPluginConfigurationCollection([$config]),
             $context,
         );
+    }
+
+    public function testRefreshAllActiveThemeImportMaps(): void
+    {
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+
+        $this->connectionMock
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => Uuid::randomHex()],
+                ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => Uuid::randomHex()],
+            ]);
+
+        $this->themeServiceMock
+            ->expects($this->exactly(2))
+            ->method('refreshThemeImportMap');
+
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($this->context, $configurationCollection);
     }
 }

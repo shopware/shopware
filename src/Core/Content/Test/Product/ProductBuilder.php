@@ -52,6 +52,8 @@ class ProductBuilder
 
     protected ?string $name;
 
+    protected ?string $description = null;
+
     /**
      * @var Manufacturer
      */
@@ -224,6 +226,13 @@ class ProductBuilder
     public function name(?string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function description(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

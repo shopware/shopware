@@ -5,7 +5,7 @@
     <sw-promotion-v2-wizard-description
         class="sw-promotion-v2-settings-trigger-settings__description"
     >
-        {{ $tc('sw-promotion-v2.detail.discounts.wizard.shipping-discount.description') }}
+        {{ $t('sw-promotion-v2.detail.discounts.wizard.shipping-discount.description') }}
     </sw-promotion-v2-wizard-description>
     {% endblock %}
 
@@ -14,7 +14,7 @@
     <mt-switch
         v-model="useTrigger"
         class="sw-promotion-v2-settings-trigger-settings__use-trigger"
-        :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')"
+        :label="$t('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')"
     />
     {% endblock %}
 
@@ -25,7 +25,7 @@
         <mt-select
             v-model="triggerType"
             class="sw-promotion-v2-settings-trigger-settings__trigger-type"
-            :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelNumberOfTriggers')"
+            :label="$t('sw-promotion-v2.detail.discounts.settings.trigger.labelNumberOfTriggers')"
             :disabled="!acl.can('promotion.editor')"
             :options="triggerOptions"
         />
@@ -38,8 +38,8 @@
             class="sw-promotion-v2-settings-trigger-settings__rule-selection"
             :rule-filter="ruleCriteria"
             :rule-scope="['cart']"
-            :label="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.labelSelection')"
-            :placeholder="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.placeholderSelection')"
+            :label="$t('sw-promotion-v2.detail.discounts.settings.ruleSelection.labelSelection')"
+            :placeholder="$t('sw-promotion-v2.detail.discounts.settings.ruleSelection.placeholderSelection')"
             :disabled="!acl.can('promotion.editor')"
         />
         {% endblock %}

@@ -23,11 +23,9 @@ function getCompatChildren() {
 function walk(vnode: VNode, children: ComponentPublicInstance[]) {
     if (vnode.component) {
         children.push(vnode.component.proxy!);
-        // eslint-disable-next-line no-bitwise
     } else if (vnode.shapeFlag & 16) {
         const vnodes = vnode.children as VNode[];
 
-        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < vnodes.length; i++) {
             walk(vnodes[i], children);
         }

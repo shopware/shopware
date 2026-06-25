@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,7 +30,7 @@ class RequirementsValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->projectDir = (new TestBootstrapper())->getProjectDir();
-        $this->fixturePath = __DIR__ . '/../../../../../../src/Core/Framework/Test/Plugin/Requirement/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/Plugin/Requirement/_fixtures/';
     }
 
     public function testValidateRequirementsValid(): void
@@ -137,6 +138,30 @@ class RequirementsValidatorTest extends TestCase
         }
 
         static::assertNull($exception);
+    }
+
+    public function testValidatesWithPluginIsManagedByComposerWhileActivating(): void
+    {
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementInvalidTest');
+
+        $plugin = $this->createPlugin($path);
+        $plugin->setManagedByComposer(true);
+
+        $exception = null;
+
+        try {
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), PluginLifecycleService::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
+        } catch (RequirementStackException $exception) {
+        }
+
+        $packages = [];
+        static::assertInstanceOf(RequirementStackException::class, $exception);
+        foreach ($exception->getRequirements() as $requirement) {
+            $packages[] = $requirement->getParameters()['requirement'];
+        }
+
+        static::assertContains('shopware/platform', $packages);
+        static::assertContains('test/not-installed', $packages);
     }
 
     public function testResolveActiveDependants(): void

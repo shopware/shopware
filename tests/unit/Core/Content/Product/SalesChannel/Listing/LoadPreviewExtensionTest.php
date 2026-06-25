@@ -31,7 +31,7 @@ class LoadPreviewExtensionTest extends TestCase
         $result = (new ExtensionDispatcher($dispatcher))->publish(
             name: LoadPreviewExtension::NAME,
             extension: $extension,
-            function: function (array $ids, SalesChannelContext $context): array {
+            function: static function (array $ids, SalesChannelContext $context): array {
                 return array_combine($ids, $ids);
             }
         );

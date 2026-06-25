@@ -66,7 +66,7 @@ class LandingPageUrlProviderTest extends TestCase
 
         static::assertCount(10, $urlResult->getUrls());
 
-        $invalidUrl = array_filter($urlResult->getUrls(), function (Url $url) {
+        $invalidUrl = array_filter($urlResult->getUrls(), static function (Url $url) {
             return \in_array($url->getLoc(), [
                 '/landing-page-11',
                 '/landing-page-12',

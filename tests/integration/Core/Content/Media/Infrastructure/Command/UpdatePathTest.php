@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
@@ -23,7 +22,6 @@ use Symfony\Component\Console\Output\NullOutput;
 /**
  * @internal
  */
-#[CoversClass(UpdatePathCommand::class)]
 class UpdatePathTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

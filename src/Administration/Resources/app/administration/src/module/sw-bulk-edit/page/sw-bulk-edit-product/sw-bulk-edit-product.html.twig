@@ -21,7 +21,7 @@
         >
             <mt-icon
                 name="regular-chevron-left"
-                size="16px"
+                size="var(--scale-size-16)"
             />
         </router-link>
     </template>
@@ -32,8 +32,8 @@
         {% block sw_bulk_edit_product_smart_bar_header_title %}
         <h2>
             {{ isChild
-            ? $tc('sw-bulk-edit.variant.textTitle', { variantTotal: selectedIds.length }, selectedIds.length)
-            : $tc('sw-bulk-edit.product.textTitle', { productTotal: selectedIds.length }, selectedIds.length)
+            ? $t('sw-bulk-edit.variant.textTitle', { variantTotal: selectedIds.length }, selectedIds.length)
+            : $t('sw-bulk-edit.product.textTitle', { productTotal: selectedIds.length }, selectedIds.length)
             }}
         </h2>
         {% endblock %}
@@ -57,7 +57,7 @@
             :disabled="isLoading || !hasSelectedChanges || undefined"
             @click="openModal"
         >
-            {{ $tc('sw-bulk-edit.applyChanges') }}
+            {{ $t('sw-bulk-edit.applyChanges') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -74,7 +74,7 @@
             >
                 {% block sw_bulk_edit_product_content_inheritance_alert %}
                 <mt-banner variant="inherited">
-                    {{ $tc('sw-bulk-edit.product.alertInheritance.message') }}
+                    {{ $t('sw-bulk-edit.product.alertInheritance.message') }}
                 </mt-banner>
                 {% endblock %}
             </mt-card>
@@ -85,16 +85,16 @@
                 position-identifier="sw-bulk-edit-product-restricted-fields"
             >
                 <mt-banner
-                    :title="$tc('sw-bulk-edit.product.alertRestrictedFields.title')"
+                    :title="$t('sw-bulk-edit.product.alertRestrictedFields.title')"
                     variant="attention"
                 >
-                    <span v-html="$tc('sw-bulk-edit.product.alertRestrictedFields.message')"></span>
+                    <span v-html="$t('sw-bulk-edit.product.alertRestrictedFields.message')"></span>
                     <ul>
                         <li
                             v-for="(restrictedField, index) in restrictedFields"
                             :key="index"
                         >
-                            {{ $tc(`sw-bulk-edit.product.alertRestrictedFields.${restrictedField}`) }}
+                            {{ $t(`sw-bulk-edit.product.alertRestrictedFields.${restrictedField}`) }}
                         </li>
                     </ul>
                 </mt-banner>
@@ -104,7 +104,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__info"
                 position-identifier="sw-bulk-edit-product-info"
-                :title="$tc('sw-bulk-edit.product.generalInformation.cardTitle')"
+                :title="$t('sw-bulk-edit.product.generalInformation.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_gereral_information %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -122,7 +122,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__prices"
                 position-identifier="sw-bulk-edit-product-prices"
-                :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
+                :title="$t('sw-bulk-edit.product.prices.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_prices %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -141,7 +141,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__advanced-prices"
                 position-identifier="sw-bulk-edit-product-advanced-prices"
-                :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
+                :title="$t('sw-bulk-edit.product.advancedPrices.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_advanced_prices %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -166,10 +166,10 @@
                             @click="displayAdvancePricesModal = true"
                             @keydown.enter="displayAdvancePricesModal = true"
                         >
-                            {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }, 0) }}
+                            {{ $t('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }, 0) }}
                             <mt-icon
                                 name="regular-long-arrow-right"
-                                size="16px"
+                                size="var(--scale-size-16)"
                             />
                         </a>
 
@@ -177,7 +177,7 @@
                         <sw-entity-multi-select
                             v-else-if="bulkEditProduct[formField.name].type === 'remove'"
                             class="sw-bulk-edit-product-base__advanced-prices-selection"
-                            :placeholder="$tc('sw-bulk-edit.product.advancedPrices.selectRule')"
+                            :placeholder="$t('sw-bulk-edit.product.advancedPrices.selectRule')"
                             :criteria="ruleCriteria"
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
@@ -209,7 +209,7 @@
                     v-if="displayAdvancePricesModal"
                     class="sw-bulk-edit-product-content-advanced-prices-modal"
                     variant="large"
-                    :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
+                    :title="$t('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
                 >
                     <sw-product-detail-context-prices
@@ -225,7 +225,7 @@
                                 variant="secondary"
                                 @click="displayAdvancePricesModal = false"
                             >
-                                {{ $tc('global.default.close') }}
+                                {{ $t('global.default.close') }}
                             </mt-button>
                         </slot>
                     </template>
@@ -239,7 +239,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__property"
                 position-identifier="sw-bulk-edit-product-property"
-                :title="$tc('sw-bulk-edit.product.property.cardTitle')"
+                :title="$t('sw-bulk-edit.product.property.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_property %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -257,7 +257,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__deliverability"
                 position-identifier="sw-bulk-edit-product-deliverability"
-                :title="$tc('sw-bulk-edit.product.deliverability.cardTitle')"
+                :title="$t('sw-bulk-edit.product.deliverability.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_deliverability %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -275,7 +275,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__assignment"
                 position-identifier="sw-bulk-edit-product-assignment"
-                :title="$tc('sw-bulk-edit.product.assignment.cardTitle')"
+                :title="$t('sw-bulk-edit.product.assignment.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_assignments %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -293,7 +293,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__media"
                 position-identifier="sw-bulk-edit-product-media"
-                :title="$tc('sw-bulk-edit.product.media.cardTitle')"
+                :title="$t('sw-bulk-edit.product.media.cardTitle')"
             >
                 {% block media %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -311,7 +311,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__labelling"
                 position-identifier="sw-bulk-edit-product-labelling"
-                :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
+                :title="$t('sw-bulk-edit.product.labelling.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_labelling %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -329,7 +329,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__seo"
                 position-identifier="sw-bulk-edit-product-seo"
-                :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
+                :title="$t('sw-bulk-edit.product.seo.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_seo %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -351,7 +351,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__measures"
                 position-identifier="sw-bulk-edit-product-measures"
-                :title="$tc('sw-bulk-edit.product.measurements.cardTitle')"
+                :title="$t('sw-bulk-edit.product.measurements.cardTitle')"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="measuresPackagingFields"
@@ -368,7 +368,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base__selling-packaging"
                 position-identifier="sw-bulk-edit-product-selling-packaging"
-                :title="$tc('sw-bulk-edit.product.sellingPackaging.cardTitle')"
+                :title="$t('sw-bulk-edit.product.sellingPackaging.cardTitle')"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="sellingPackagingFields"
@@ -384,7 +384,7 @@
             <mt-card
                 class="sw-bulk-edit-product-base___essential"
                 position-identifier="sw-bulk-edit-product-essential"
-                :title="$tc('sw-bulk-edit.product.featureSets.cardTitle')"
+                :title="$t('sw-bulk-edit.product.featureSets.cardTitle')"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="essentialCharacteristicsFormFields"
@@ -401,7 +401,7 @@
                 v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-product-base__custom_fields"
                 position-identifier="sw-bulk-edit-product-custom-fields"
-                :title="$tc('sw-bulk-edit.product.customFields.cardTitle')"
+                :title="$t('sw-bulk-edit.product.customFields.cardTitle')"
             >
                 <sw-bulk-edit-custom-fields
                     class="sw-bulk-edit__custom-fields"
@@ -416,8 +416,8 @@
         <mt-empty-state
             v-if="!isLoading && selectedIds.length == 0"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-bulk-edit.product.messageEmptyTitle')"
-            :description="$tc('sw-bulk-edit.product.messageEmptySubline')"
+            :headline="$t('sw-bulk-edit.product.messageEmptyTitle')"
+            :description="$t('sw-bulk-edit.product.messageEmptySubline')"
         />
 
         {% block sw_bulk_edit_product_save_modal %}

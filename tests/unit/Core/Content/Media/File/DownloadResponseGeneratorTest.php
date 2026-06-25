@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,6 +55,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $this->mediaService,
             'php',
             $this->createMock(AbstractMediaUrlGenerator::class),
+            new NativeClock(),
             ''
         );
 
@@ -74,6 +76,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $this->mediaService,
             'php',
             $this->createMock(AbstractMediaUrlGenerator::class),
+            new NativeClock(),
             ''
         );
 
@@ -91,8 +94,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setPrivate(true);
         $media->setPath('foobar.txt');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The file "foobar." does not exist');
+        $this->expectExceptionObject(MediaException::fileNotFound('foobar.'));
         $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
     }
 
@@ -119,6 +121,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $this->mediaService,
             $strategy ?? 'php',
             $generator,
+            new NativeClock(),
             $privateLocalPathPrefix
         );
 
@@ -188,6 +191,7 @@ class DownloadResponseGeneratorTest extends TestCase
             $this->mediaService,
             'php',
             $generator,
+            new NativeClock(),
             ''
         );
 
@@ -244,7 +248,7 @@ class DownloadResponseGeneratorTest extends TestCase
             return $response;
         }
 
-        return new StreamedResponse(function (): void {
+        return new StreamedResponse(static function (): void {
         }, Response::HTTP_OK, $headers);
     }
 }

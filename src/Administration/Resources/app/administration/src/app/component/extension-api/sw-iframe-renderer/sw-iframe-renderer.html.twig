@@ -12,6 +12,7 @@
             :title="src"
             width="100%"
             :height="iFrameHeight"
+            @load="onIframeLoad"
         ></iframe>
     </template>
 
@@ -22,6 +23,7 @@
         :title="src"
         width="100%"
         :height="iFrameHeight"
+        @load="onIframeLoad"
     ></iframe>
 </div>
 {% endblock %}

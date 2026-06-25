@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync, existsSync } from 'node:fs';
-import { getPackageJsonPaths } from './package-discovery.js';
+import { getPackageJsonPaths } from './package-discovery.ts';
 
 interface PackageJsonContent {
     dependencies?: Record<string, string>;

@@ -45,7 +45,7 @@ Application.addServiceProvider('extensionErrorService', () => {
                 autoClose: false,
                 actions: [
                     {
-                        label: root.$tc('sw-extension.errors.appLicenseCouldNotBeVerified.actionSetLicenseDomain'),
+                        label: root.$t('sw-extension.errors.appLicenseCouldNotBeVerified.actionSetLicenseDomain'),
                         method: () => {
                             void root.$router.push({
                                 name: 'sw.settings.store.index',
@@ -53,7 +53,7 @@ Application.addServiceProvider('extensionErrorService', () => {
                         },
                     },
                     {
-                        label: root.$tc('sw-extension.errors.appLicenseCouldNotBeVerified.actionLogin'),
+                        label: root.$t('sw-extension.errors.appLicenseCouldNotBeVerified.actionLogin'),
                         method: () => {
                             void root.$router.push({
                                 name: 'sw.extension.my-extensions.account',

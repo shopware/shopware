@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\TraceableMessageBus;
+use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
 
 trait QueueTestBehaviour
@@ -22,7 +23,7 @@ trait QueueTestBehaviour
     {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+        \assert($bus instanceof TraceableMessageBus);
         $bus->reset();
     }
 
@@ -33,14 +34,17 @@ trait QueueTestBehaviour
         $eventDispatcher->addSubscriber(static::getContainer()->get(MessageQueueStatsSubscriber::class));
 
         $locator = static::getContainer()->get('messenger.test_receiver_locator');
-        static::assertInstanceOf(ServiceLocator::class, $locator);
+        \assert($locator instanceof ServiceLocator);
 
-        $receiver = $locator->get('async');
+        $async = $locator->get('async');
+        \assert($async instanceof ReceiverInterface);
+        $webhook = $locator->get('webhook');
+        \assert($webhook instanceof ReceiverInterface);
 
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(MessageBusInterface::class, $bus);
+        \assert($bus instanceof MessageBusInterface);
 
-        $worker = new Worker([$receiver], $bus, $eventDispatcher);
+        $worker = new Worker(['async' => $async, 'webhook' => $webhook], $bus, $eventDispatcher);
 
         $worker->run([
             'sleep' => 1000,
@@ -53,7 +57,7 @@ trait QueueTestBehaviour
     protected function getDispatchedMessageCount(string $messageClass): int
     {
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+        \assert($bus instanceof TraceableMessageBus);
 
         $count = 0;
         foreach ($bus->getDispatchedMessages() as $message) {

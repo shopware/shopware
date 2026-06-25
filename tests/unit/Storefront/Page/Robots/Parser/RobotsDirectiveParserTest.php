@@ -388,7 +388,7 @@ TXT;
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             RobotsDirectiveParsingEvent::class,
-            function () use (&$eventDispatched): void {
+            static function () use (&$eventDispatched): void {
                 $eventDispatched = true;
             }
         );
@@ -407,7 +407,7 @@ TXT;
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             RobotsUnknownDirectiveEvent::class,
-            function (RobotsUnknownDirectiveEvent $event) use (&$eventDispatched, &$unknownDirectiveType): void {
+            static function (RobotsUnknownDirectiveEvent $event) use (&$eventDispatched, &$unknownDirectiveType): void {
                 $eventDispatched = true;
                 $unknownDirectiveType = $event->directiveType;
             }
@@ -426,7 +426,7 @@ TXT;
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             RobotsUnknownDirectiveEvent::class,
-            function (RobotsUnknownDirectiveEvent $event): void {
+            static function (RobotsUnknownDirectiveEvent $event): void {
                 if ($event->directiveType === 'Clean-param') {
                     $event->handled = true; // Mark as handled to prevent warning
                 }
@@ -444,7 +444,7 @@ TXT;
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             RobotsUnknownDirectiveEvent::class,
-            function (RobotsUnknownDirectiveEvent $event): void {
+            static function (RobotsUnknownDirectiveEvent $event): void {
                 if ($event->directiveType === 'Test-Directive') {
                     $customIssue = new ParseIssue(
                         $event->lineNumber,
@@ -470,7 +470,7 @@ TXT;
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             RobotsDirectiveParsingEvent::class,
-            function (RobotsDirectiveParsingEvent $event): void {
+            static function (RobotsDirectiveParsingEvent $event): void {
                 // Add a custom issue via the event
                 $parsedResult = $event->parsedResult;
                 $newIssues = array_values([

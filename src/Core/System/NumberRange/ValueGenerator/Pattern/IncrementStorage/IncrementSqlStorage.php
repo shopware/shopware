@@ -3,19 +3,28 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see IncrementSqlStorageTest
+ */
 #[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage
 {
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function reserve(array $config): int
@@ -31,7 +40,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $start,
                 'id' => Uuid::fromHexToBytes($config['id']),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -56,9 +65,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage
         );
         $lastNumber = $result->fetchOne();
 
-        $start = $config['start'] ?? 1;
+        $start = (int) ($config['start'] ?? 1);
 
-        if (!$lastNumber || (int) $lastNumber < $start) {
+        if ($lastNumber === false || (int) $lastNumber < $start) {
             $nextNumber = $start;
         } else {
             $nextNumber = $lastNumber + 1;
@@ -75,7 +84,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
             FROM `number_range_state`
         ');
 
-        return array_map(fn ($state) => (int) $state, $states);
+        return array_map(static fn ($state) => (int) $state, $states);
     }
 
     public function set(string $configurationId, int $value): void
@@ -89,7 +98,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $value,
                 'id' => Uuid::fromHexToBytes($configurationId),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

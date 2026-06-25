@@ -1,15 +1,13 @@
 @import "~scss/variables";
 
-$sw-product-price-suffix-font-size: 20px;
-
 .sw-product-price-form {
     &__tax-rate.sw-inherit-wrapper {
         justify-content: flex-start;
     }
 
     &__currency {
-        font-weight: $font-weight-regular;
-        font-size: $sw-product-price-suffix-font-size;
+        font-weight: var(--font-weight-regular);
+        font-size: var(--font-size-l);
     }
 
     &__links {
@@ -20,7 +18,7 @@ $sw-product-price-suffix-font-size: 20px;
         a {
             transition: color 0.3s ease;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: var(--scale-size-16);
         }
     }
 

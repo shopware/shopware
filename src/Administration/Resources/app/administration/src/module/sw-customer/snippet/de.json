@@ -2,7 +2,9 @@
   "sw-customer": {
     "error": {
       "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
-      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein.",
+      "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
+      "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz."
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."
@@ -161,6 +163,8 @@
       "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
+      "cardTitle": "Adressen",
+      "filterPlaceholder": "Adressen durchsuchen …",
       "buttonAddAddress": "Adresse anlegen",
       "buttonClose": "Schließen",
       "buttonDelete": "Löschen",
@@ -244,6 +248,7 @@
       "buttonEdit": "Bearbeiten",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
+      "messageCustomerNotFound": "Der Kunde konnte nicht gefunden werden. Der Kunde wurde möglicherweise gelöscht.",
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",

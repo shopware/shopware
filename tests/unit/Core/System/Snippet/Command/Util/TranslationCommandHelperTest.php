@@ -18,7 +18,7 @@ class TranslationCommandHelperTest extends TestCase
     public function testHandleSavingMetadataCLIOutput(): void
     {
         $success = false;
-        $callback = function () use (&$success): void {
+        $callback = static function () use (&$success): void {
             $success = true;
         };
 
@@ -34,7 +34,7 @@ class TranslationCommandHelperTest extends TestCase
 
     public function testHandleSavingMetadataCliOutputHandlesExceptions(): void
     {
-        $callback = function (): void {
+        $callback = static function (): void {
             throw new \RuntimeException('Test exception');
         };
 
@@ -51,7 +51,7 @@ class TranslationCommandHelperTest extends TestCase
         $locales = ['en-GB', 'de-DE', 'fr-FR'];
         $loadedLocales = [];
 
-        $callback = function (string $locale) use (&$loadedLocales): void {
+        $callback = static function (string $locale) use (&$loadedLocales): void {
             $loadedLocales[] = $locale;
         };
 

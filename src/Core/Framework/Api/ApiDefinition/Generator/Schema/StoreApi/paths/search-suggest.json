@@ -8,7 +8,7 @@
                     "Product"
                 ],
                 "summary": "Search for products (suggest)",
-                "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
+                "description": "Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
                 "operationId": "searchSuggest",
                 "parameters": [
                     {
@@ -18,16 +18,6 @@
                         "required": false,
                         "schema": {
                             "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -97,19 +87,9 @@
                     "Product"
                 ],
                 "summary": "Search for products (suggest)",
-                "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
+                "description": "Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
                 "operationId": "searchSuggestGet",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "search",
                         "in": "query",

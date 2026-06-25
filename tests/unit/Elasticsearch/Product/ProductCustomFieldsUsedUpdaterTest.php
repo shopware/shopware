@@ -128,7 +128,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['test_field']) && $fields['test_field']['type'] === 'long';
             }));
 
@@ -219,7 +219,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['stream_field']) && $fields['stream_field']['type'] === 'keyword';
             }));
 
@@ -412,7 +412,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['field1']) && $fields['field1']['type'] === 'long'
                     && isset($fields['field2']) && $fields['field2']['type'] === 'boolean';
             }));
@@ -483,7 +483,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['updated_field']) && $fields['updated_field']['type'] === 'double';
             }));
 
@@ -589,7 +589,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['new_filter_field'])
                     && $fields['new_filter_field']['type'] === 'date';
             }));
@@ -750,7 +750,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return \count($fields) === 1 && isset($fields['same_field']);
             }));
 
@@ -809,7 +809,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['combined_field']) && $fields['combined_field']['type'] === 'boolean';
             }));
 
@@ -980,7 +980,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['int_field']) && $fields['int_field']['type'] === 'long'
                     && isset($fields['float_field']) && $fields['float_field']['type'] === 'double'
                     && isset($fields['bool_field']) && $fields['bool_field']['type'] === 'boolean'
@@ -1213,7 +1213,7 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return \count($fields) === 1 && isset($fields['valid_field']);
             }));
 

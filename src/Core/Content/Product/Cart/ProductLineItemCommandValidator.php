@@ -107,7 +107,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
      */
     private function findProducts(array $commands): array
     {
-        $ids = array_map(function (WriteCommand $command) {
+        $ids = array_map(static function (WriteCommand $command) {
             if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
                 return null;
             }

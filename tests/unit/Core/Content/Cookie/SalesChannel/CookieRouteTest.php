@@ -189,7 +189,7 @@ class CookieRouteTest extends TestCase
                 $this->timestamp = time();
                 $this->objectProperty = new \stdClass();
                 $this->objectProperty->dynamic = random_int(1, 1000);
-                $this->callableProperty = fn () => 'dynamic';
+                $this->callableProperty = static fn () => 'dynamic';
             }
         };
 

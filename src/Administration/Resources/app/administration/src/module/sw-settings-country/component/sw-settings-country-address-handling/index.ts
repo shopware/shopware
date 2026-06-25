@@ -129,6 +129,14 @@ export default Component.wrapComponentConfig({
 
             return !this.country.checkPostalCodePattern;
         },
+
+        isDisplayStateInRegistrationActive(): boolean {
+            return !!this.country.forceStateInRegistration || !!this.country.displayStateInRegistration;
+        },
+
+        isDisplayStateInRegistrationDisabled(): boolean {
+            return !!this.country.forceStateInRegistration || !this.acl.can('country.editor');
+        },
     },
 
     watch: {
@@ -364,7 +372,6 @@ export default Component.wrapComponentConfig({
                             name: this.getLabelProperty(snippet),
                         };
                     });
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },
@@ -393,7 +400,7 @@ export default Component.wrapComponentConfig({
                 .map((item: string) => camelCase(item))
                 .join('.');
 
-            return this.$te(`sw-custom-snippet.${string}`) ? this.$tc(`sw-custom-snippet.${string}`) : value;
+            return this.$te(`sw-custom-snippet.${string}`) ? this.$t(`sw-custom-snippet.${string}`) : value;
         },
 
         updateCountry(path: string, value: unknown): void {

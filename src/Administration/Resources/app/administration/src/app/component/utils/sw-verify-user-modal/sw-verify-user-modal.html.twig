@@ -1,6 +1,6 @@
 {% block sw_settings_user_detail_content_confirm_password_modal %}
 <sw-modal
-    :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+    :title="$t('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
     variant="small"
     @modal-close="onCloseConfirmPasswordModal"
 >
@@ -12,8 +12,8 @@
         name="sw-field--confirm-password"
         :password-toggle-able="true"
         autocomplete="current-password"
-        :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
-        :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
+        :label="$t('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+        :placeholder="$t('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
         @keypress.enter="onSubmitConfirmPassword"
     />
     {% endblock %}
@@ -26,7 +26,7 @@
             variant="secondary"
             @click="onCloseConfirmPasswordModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -37,7 +37,7 @@
             size="small"
             @click="onSubmitConfirmPassword"
         >
-            {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
+            {{ $t('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
         </mt-button>
         {% endblock %}
     </template>

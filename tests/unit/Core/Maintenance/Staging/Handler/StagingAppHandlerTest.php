@@ -31,7 +31,7 @@ class StagingAppHandlerTest extends TestCase
 
         $connection
             ->method('delete')
-            ->willReturnCallback(function (string $table, array $criteria) use (&$tables, &$ids): int {
+            ->willReturnCallback(static function (string $table, array $criteria) use (&$tables, &$ids): int {
                 $tables[] = $table;
                 $ids[] = $criteria['id'];
 

@@ -34,7 +34,9 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private Context $context;
 
-    /** @var MockObject&EntityRepository<AppCollection> */
+    /**
+     * @var MockObject&EntityRepository<AppCollection>
+     */
     private MockObject&EntityRepository $entityRepository;
 
     private MockObject&Executor $executor;
@@ -68,8 +70,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppSecretIsNull(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage(AppException::appSecretMissing('test-app')->getMessage());
+        $this->expectExceptionObject(AppException::appSecretMissing('test-app'));
 
         $entity = $this->buildAppEntity('test-app', null, []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -79,8 +80,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsEmpty(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage(AppException::hostNotAllowed('', 'test-app')->getMessage());
+        $this->expectExceptionObject(AppException::hostNotAllowed('', 'test-app'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -90,8 +90,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage(AppException::hostNotAllowed('test-host', 'test-app')->getMessage());
+        $this->expectExceptionObject(AppException::hostNotAllowed('test-host', 'test-app'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -104,8 +103,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     public function testRunActionThrowsInvalidArgumentExceptionWhenNoIdInRequestBag(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage(AppException::invalidArgument('Ids must be an array')->getMessage());
+        $this->expectExceptionObject(AppException::invalidArgument('Ids must be an array'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);

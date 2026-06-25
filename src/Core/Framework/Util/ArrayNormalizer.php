@@ -46,6 +46,7 @@ class ArrayNormalizer
                 $first = mb_strstr($key, '.', true);
                 $rest = mb_strstr($key, '.');
                 // occurrence of dot is checked in if clause, so `mb_strstr` can't return false and the assert should not cause an exception
+                \assert(\is_string($first));
                 \assert(\is_string($rest));
 
                 if (isset($result[$first])) {

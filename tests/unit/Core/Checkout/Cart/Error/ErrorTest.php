@@ -36,6 +36,7 @@ use Shopware\Core\Content\Product\Cart\ProductStockReachedError;
 use Shopware\Core\Content\Product\Cart\PurchaseStepsError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -60,11 +61,7 @@ class ErrorTest extends TestCase
         static::assertSame('foo', $error->getName());
         static::assertSame('bar', $error->getReason());
 
-        $serialized = serialize($error);
-
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $unserialized = \unserialize($serialized);
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $unserialized);
+        $unserialized = Serialization::assertRoundTrip($error);
 
         static::assertSame($id, $unserialized->getShippingMethodId());
         static::assertSame('foo', $unserialized->getName());
@@ -74,11 +71,7 @@ class ErrorTest extends TestCase
     #[DataProvider('serializationDataProvider')]
     public function testErrorSerialization(Error $error): void
     {
-        $serialized = serialize($error);
-
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $unserialized = \unserialize($serialized);
-        static::assertInstanceOf($error::class, $unserialized);
+        $unserialized = Serialization::assertRoundTrip($error);
 
         // Call all public methods without parameters (i.e. getters) to make sure the don't throw an exception
         $refClass = new \ReflectionClass($error);

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -26,7 +27,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +47,14 @@ class TaskSchedulerTest extends TestCase
         $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
-        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag(), 12);
+        $this->scheduler = new TaskScheduler(
+            $this->scheduledTaskRepo,
+            $this->messageBus,
+            new ParameterBag(),
+            new Logger('test'),
+            12,
+            new NativeClock()
+        );
 
         $this->connection = static::getContainer()->get(Connection::class);
     }
@@ -71,7 +78,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;
@@ -114,7 +121,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;
@@ -198,11 +205,10 @@ class TaskSchedulerTest extends TestCase
 
     public function testScheduleTasksThrowsExceptionWhenTryingToScheduleWrongClass(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(\sprintf(
+        $this->expectExceptionObject(new \RuntimeException(\sprintf(
             'Tried to schedule "%s", but class does not extend ScheduledTask',
             FooMessage::class
-        ));
+        )));
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $context = Context::createDefaultContext();

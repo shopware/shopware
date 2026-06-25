@@ -64,6 +64,11 @@ async function createWrapper() {
                 },
                 provide: {
                     fileValidationService: new FileValidationService(),
+                    mediaPresignedUploadService: {
+                        prepareUpload: jest.fn(),
+                        uploadToPresignedUrl: jest.fn(),
+                        finalizeUpload: jest.fn(),
+                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1000 }),
                     },
@@ -203,6 +208,11 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.emitted()['preview-show']).toBeTruthy();
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
+    });
+
+    it('should show download label on the download button', async () => {
+        const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
+        expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownload');
     });
 
     it('should allow any text input in the document number field', async () => {

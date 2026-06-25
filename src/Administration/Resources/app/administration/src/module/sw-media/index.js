@@ -9,7 +9,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-media-index', () => import('./page/sw-media-index'));
 Shopware.Component.register('sw-media-grid', () => import('./component/sw-media-grid'));
 Shopware.Component.register('sw-media-sidebar', () => import('./component/sidebar/sw-media-sidebar'));
@@ -29,7 +29,7 @@ Shopware.Component.register('sw-media-library', () => import('./component/sw-med
 Shopware.Component.register('sw-media-modal-v2', () => import('./component/sw-media-modal-v2'));
 
 Shopware.Component.register('sw-media-save-modal', () => import('./component/sw-media-save-modal'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-media', {
@@ -39,7 +39,7 @@ Module.register('sw-media', {
     description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#ff68b4',
+    color: 'var(--color-pink-500)',
     icon: 'solid-image',
     favicon: 'icon-module-content.png',
     entity: 'media',
@@ -67,7 +67,7 @@ Module.register('sw-media', {
         {
             id: 'sw-media',
             label: 'sw-media.general.mainMenuItemGeneral',
-            color: '#ff68b4',
+            color: 'var(--color-pink-500)',
             icon: 'regular-image',
             path: 'sw.media.index',
             position: 20,

@@ -1,9 +1,10 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
-// eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
 import getTreeItems from './fixtures/treeItems';
 
 async function createWrapper(

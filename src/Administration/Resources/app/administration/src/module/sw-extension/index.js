@@ -5,7 +5,7 @@ import './acl';
 
 initState(Shopware);
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-extension-config', () => import('./page/sw-extension-config'));
 Shopware.Component.register('sw-extension-my-extensions-listing', () => import('./page/sw-extension-my-extensions-listing'));
 Shopware.Component.register('sw-extension-my-extensions-account', () => import('./page/sw-extension-my-extensions-account'));
@@ -77,7 +77,7 @@ Shopware.Component.register(
     () => import('./component/sw-extension-app-module-error-page'),
 );
 Shopware.Component.register('sw-extension-app-module-page', () => import('./page/sw-extension-app-module-page'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @sw-package checkout

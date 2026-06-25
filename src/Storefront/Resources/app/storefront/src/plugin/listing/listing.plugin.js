@@ -57,7 +57,7 @@ export default class ListingPlugin extends Plugin {
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector
+            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector,
             );
             this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
         }
@@ -302,11 +302,15 @@ export default class ListingPlugin extends Plugin {
     createResetAllButton() {
         this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
 
-        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector
+        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
         );
 
-        resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
-        resetAllButtonEl.addEventListener('click', this.resetAllFilter.bind(this));
+        if (!this._boundResetAllFilter) {
+            this._boundResetAllFilter = this.resetAllFilter.bind(this);
+        }
+
+        resetAllButtonEl.removeEventListener('click', this._boundResetAllFilter);
+        resetAllButtonEl.addEventListener('click', this._boundResetAllFilter);
 
         if (!this._showResetAll) {
             resetAllButtonEl.remove();
@@ -437,10 +441,33 @@ export default class ListingPlugin extends Plugin {
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
-            .then((response) => response.text())
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                }
+
+                const error = new Error('Could not fetch listing data.');
+                error.response = response;
+
+                throw error;
+            })
             .then((response) => {
                 this.renderResponse(response);
+            })
+            .catch((error) => {
+                if (error.response?.status === 403) {
+                    const loginPageUrl = this._getLoginPageUrl(filterParams);
 
+                    if (loginPageUrl) {
+                        this._navigateTo(loginPageUrl);
+                    }
+
+                    return;
+                }
+
+                throw error;
+            })
+            .finally(() => {
                 if (this._filterPanelActive) {
                     this.removeLoadingIndicatorClass();
                     this._updateAriaLive();
@@ -583,5 +610,55 @@ export default class ListingPlugin extends Plugin {
         }
 
         return url.toString();
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {string|null}
+     */
+    _getLoginPageUrl(filterParams) {
+        const loginPageUrl = window.router?.['frontend.account.login.page'];
+        const parameters = new URLSearchParams();
+
+        if (!loginPageUrl) {
+            return null;
+        }
+
+        if (!window.activeRoute) {
+            return loginPageUrl;
+        }
+
+        parameters.set('redirectTo', window.activeRoute);
+        parameters.set('redirectParameters', JSON.stringify(this._getLoginRedirectParameters(filterParams)));
+
+        return `${loginPageUrl}?${parameters.toString()}`;
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {Object}
+     */
+    _getLoginRedirectParameters(filterParams) {
+        let routeParameters = {};
+
+        try {
+            routeParameters = JSON.parse(window.activeRouteParameters || '{}');
+        } catch {
+            routeParameters = {};
+        }
+
+        return {
+            ...routeParameters,
+            ...Object.fromEntries(filterParams.entries()),
+        };
+    }
+
+    /**
+     * @private
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 }

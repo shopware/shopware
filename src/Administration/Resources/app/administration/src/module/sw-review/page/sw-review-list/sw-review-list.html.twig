@@ -5,7 +5,7 @@
         <sw-search-bar
             initial-search-type="product_review"
             :initial-search="term"
-            :placeholder="$tc('sw-review.list.placeholderSearchBar')"
+            :placeholder="$t('sw-review.list.placeholderSearchBar')"
             @search="onSearch"
         />
     </template>
@@ -16,7 +16,7 @@
         {% block sw_review_list_smart_bar_header_title %}
         <h2>
             {% block sw_review_list_smart_bar_header_title_text %}
-            {{ $tc('sw-review.list.textReviewOverview') }}
+            {{ $t('sw-review.list.textReviewOverview') }}
             {% endblock %}
 
             {% block sw_review_list_smart_bar_header_amount %}
@@ -138,7 +138,7 @@
             {% block sw_review_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-review.list.titleSidebarItemRefresh')"
+                :title="$t('sw-review.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

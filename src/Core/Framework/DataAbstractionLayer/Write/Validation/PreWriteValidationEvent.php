@@ -59,7 +59,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
      */
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, fn (WriteCommand $command) => $command instanceof DeleteCommand);
+        return $this->findPrimaryKeys($entity, static fn (WriteCommand $command) => $command instanceof DeleteCommand);
     }
 
     /**

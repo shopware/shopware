@@ -29,11 +29,11 @@ export default {
                     name: 'sw.settings.customer.group.detail',
                     params: { id: this.customerGroup.id },
                 });
-            } catch (err) {
+            } catch (_err) {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+                    message: this.$t('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });
             }
         },

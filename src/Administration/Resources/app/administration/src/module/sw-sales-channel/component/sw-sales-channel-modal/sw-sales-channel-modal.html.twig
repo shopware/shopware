@@ -1,7 +1,7 @@
 {% block sw_sales_channel_modal %}
 <sw-modal
     class="sw-sales-channel-modal"
-    :title="$tc(modalTitle)"
+    :title="$t(modalTitle)"
     @modal-close="onCloseModal"
 >
     {% block sw_sales_channel_modal_grid %}
@@ -29,7 +29,7 @@
             class="sw-sales-channel-modal__footer_left"
             @click.prevent="openRoute({ name: 'sw.sales.channel.list' })"
         >
-            {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+            {{ $t('sw-sales-channel.general.manageSalesChannels') }}
         </a>
 
         {% block sw_sales_channel_modal_footer_detail_actions %}
@@ -40,7 +40,7 @@
             variant="secondary"
             @click.prevent="detailType = false"
         >
-            {{ $tc('sw-sales-channel.modal.buttonBack') }}
+            {{ $t('sw-sales-channel.modal.buttonBack') }}
         </mt-button>
         {% endblock %}
 
@@ -48,7 +48,7 @@
         <mt-button
             v-if="detailType"
             v-tooltip="{
-                message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                message: $t('sw-sales-channel.modal.messageNoProductStreams'),
                 showOnDisabledElements: true,
                 disabled: !addChannelAction.disabled(detailType.id)
             }"
@@ -59,7 +59,7 @@
             :disabled="addChannelAction.disabled(detailType.id)"
             @click="onAddChannel(detailType.id)"
         >
-            {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+            {{ $t('sw-sales-channel.modal.buttonAddChannel') }}
         </mt-button>
         {% endblock %}
         {% endblock %}
@@ -72,7 +72,7 @@
             variant="secondary"
             @click="onCloseModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

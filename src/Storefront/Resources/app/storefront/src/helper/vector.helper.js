@@ -247,7 +247,7 @@ class Vector3 extends Vector {
         return new this.constructor(
             (this.y * vector.z - this.z * vector.y),
             (this.z * vector.x - this.x * vector.z),
-            (this.x * vector.y - this.y * vector.x)
+            (this.x * vector.y - this.y * vector.x),
         );
     }
 }

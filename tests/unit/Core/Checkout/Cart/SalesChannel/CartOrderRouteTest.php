@@ -48,7 +48,9 @@ class CartOrderRouteTest extends TestCase
 {
     private CartCalculator&MockObject $cartCalculator;
 
-    /** @var EntityRepository<OrderCollection>&MockObject */
+    /**
+     * @var EntityRepository<OrderCollection>&MockObject
+     */
     private EntityRepository&MockObject $orderRepository;
 
     private OrderPersister&MockObject $orderPersister;
@@ -72,7 +74,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
 
         $this->cartLocker = $this->createMock(CartLocker::class);
-        $this->cartLocker->method('locked')->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+        $this->cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $this->route = new CartOrderRoute(
             $this->cartCalculator,
@@ -307,7 +309,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $exception = new \Exception('test exception');
         $this->cartCalculator
@@ -344,11 +346,11 @@ class CartOrderRouteTest extends TestCase
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CheckoutPlaceOrderExtension::NAME), $post);
+        $dispatcher->addListener(CheckoutPlaceOrderExtension::onPost(), $post);
 
         $dispatcher->addListener(
-            ExtensionDispatcher::pre(CheckoutPlaceOrderExtension::NAME),
-            function (CheckoutPlaceOrderExtension $extension): void {
+            CheckoutPlaceOrderExtension::onPre(),
+            static function (CheckoutPlaceOrderExtension $extension): void {
                 $extension->stopPropagation();
 
                 $extension->result = new OrderPlaceResult(Uuid::randomHex());
@@ -356,8 +358,7 @@ class CartOrderRouteTest extends TestCase
         );
 
         // we don't care about the follow-up order process, the event listener above are already tested
-        static::expectException(CartException::class);
-        static::expectExceptionMessage('Order payment failed. The order was not stored.');
+        $this->expectExceptionObject(CartException::invalidPaymentOrderNotStored(Uuid::randomHex()));
 
         $route->order($cart, $context, new RequestDataBag());
     }

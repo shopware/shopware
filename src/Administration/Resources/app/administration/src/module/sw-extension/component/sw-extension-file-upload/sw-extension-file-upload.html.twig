@@ -10,7 +10,7 @@
             size="default"
             @click="showConfirmModal"
         >
-            {{ $tc('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
+            {{ $t('sw-extension.my-extensions.fileUpload.buttonFileUpload') }}
         </mt-button>
         {% endblock %}
         {% block sw_extension_file_upload_form %}
@@ -35,7 +35,7 @@
     <sw-modal
         v-if="confirmModalVisible"
         class="sw-extension-file-upload-confirm-modal"
-        :title="$tc('sw-extension.my-extensions.fileUpload.titleWarningModal')"
+        :title="$t('sw-extension.my-extensions.fileUpload.titleWarningModal')"
         variant="small"
         @modal-close="closeConfirmModal"
     >
@@ -43,7 +43,7 @@
         <template #default>
             {% block sw_extension_file_upload_confirm_modal_body %}
             <p>
-                {{ $tc('sw-extension.my-extensions.fileUpload.descriptionWarningModal') }}
+                {{ $t('sw-extension.my-extensions.fileUpload.descriptionWarningModal') }}
             </p>
             {% endblock %}
         </template>
@@ -52,7 +52,7 @@
             {% block sw_extension_file_upload_confirm_modal_footer_checkbox %}
             <mt-checkbox
                 v-model:checked="shouldHideConfirmModal"
-                :label="$tc('sw-extension.my-extensions.fileUpload.textHideWarning')"
+                :label="$t('sw-extension.my-extensions.fileUpload.textHideWarning')"
             />
             {% endblock %}
 
@@ -65,7 +65,7 @@
                     variant="secondary"
                     @click="closeConfirmModal"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -76,7 +76,7 @@
                     :is-loading="isLoading"
                     @click="onClickUpload"
                 >
-                    {{ $tc('global.default.confirm') }}
+                    {{ $t('global.default.confirm') }}
                 </mt-button>
                 {% endblock %}
             </div>

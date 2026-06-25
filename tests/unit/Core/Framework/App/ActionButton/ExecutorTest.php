@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request as SfRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -38,7 +39,7 @@ class ExecutorTest extends TestCase
             ->willReturn(new SfRequest());
 
         $guzzleClient = new Client([
-            'handler' => function (): void {
+            'handler' => static function (): void {
                 throw new ConnectException('Connection problems', new Request('POST', 'https://example.com'));
             },
         ]);
@@ -50,11 +51,11 @@ class ExecutorTest extends TestCase
             $this->createMock(ShopIdProvider::class),
             $this->createMock(RouterInterface::class),
             $requestStack,
-            $this->createMock(KernelInterface::class)
+            $this->createMock(KernelInterface::class),
+            new NativeClock()
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('connection problems');
+        $this->expectExceptionObject(AppException::actionButtonProcessException('123123123', 'ActionButton remote execution failed due to connection problems'));
 
         $app = new AppEntity();
         $app->setAppSecret('devSecret');

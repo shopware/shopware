@@ -6,7 +6,7 @@
             {{ rule.name }}
         </h2>
         <h2 v-else>
-            {{ $tc('sw-settings-rule.detail.textHeadline') }}
+            {{ $t('sw-settings-rule.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -23,13 +23,13 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         <sw-button-group
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('rule.editor'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
                 :disabled="!acl.can('rule.editor')"
                 @click="onSave"
             >
-                {{ $tc('sw-settings-rule.detail.buttonSave') }}
+                {{ $t('sw-settings-rule.detail.buttonSave') }}
             </sw-button-process>
             {% endblock %}
 
@@ -74,7 +74,7 @@
                     :disabled="!acl.can('rule.creator') || !acl.can('rule.editor')"
                     @click="onDuplicate"
                 >
-                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                    {{ $t('sw-product.detail.buttonSaveDuplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
                 {% endblock %}

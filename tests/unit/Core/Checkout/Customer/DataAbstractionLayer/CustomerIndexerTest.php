@@ -58,12 +58,12 @@ class CustomerIndexerTest extends TestCase
         $message = $this->createMock(CustomerIndexingMessage::class);
         $message->method('getData')->willReturn([$customerId]);
         $message->method('getContext')->willReturn(
-            $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock()
+            static::createStub(Context::class)
         );
         $message->method('getIds')->willReturn([$customerId]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(function ($message) use ($customerId) {
+        $eventDispatcher->expects($this->once())->method('dispatch')->willReturnCallback(static function ($message) use ($customerId) {
             static::assertInstanceOf(CustomerIndexerEvent::class, $message);
             static::assertSame($message->getIds(), [$customerId]);
 

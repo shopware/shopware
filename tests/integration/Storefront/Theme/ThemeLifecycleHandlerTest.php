@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -12,12 +11,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
-use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -41,7 +38,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme
 /**
  * @internal
  */
-#[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -84,7 +80,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -105,7 +101,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -151,7 +147,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->with(
                 $themeId,
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -172,7 +168,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (
                         $configs->first() instanceof StorefrontPluginConfiguration
                         ? $configs->first()->getTechnicalName()
@@ -232,12 +228,13 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(ThemeAssignmentException::class);
-        } else {
-            $this->expectException(ThemeException::class);
-        }
-        $this->expectExceptionMessage('Unable to deactivate or uninstall theme "Simple theme". Remove the following assignments between theme and sales channel assignments: "Simple theme" => "Headless".');
+        $placeholderSalesChannelId = 'sc-id';
+        $this->expectExceptionObject(ThemeException::themeAssignmentException(
+            'Simple theme',
+            ['Simple theme' => [$placeholderSalesChannelId]],
+            [],
+            [$placeholderSalesChannelId => 'Headless'],
+        ));
 
         $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
     }

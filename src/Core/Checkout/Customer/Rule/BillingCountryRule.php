@@ -36,7 +36,7 @@ class BillingCountryRule extends Rule
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -57,9 +57,6 @@ class BillingCountryRule extends Rule
         return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         $constraints = [
@@ -78,7 +75,7 @@ class BillingCountryRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('countryIds', CountryDefinition::ENTITY_NAME, true);
     }
 }

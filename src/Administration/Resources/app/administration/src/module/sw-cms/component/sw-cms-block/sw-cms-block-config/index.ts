@@ -80,17 +80,17 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     id: 1,
                     value: 'auto',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeAuto'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeAuto'),
                 },
                 {
                     id: 2,
                     value: 'contain',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeContain'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeContain'),
                 },
                 {
                     id: 3,
                     value: 'cover',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeCover'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeCover'),
                 },
             ];
         },

@@ -47,6 +47,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExceptionTaxProvider;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @internal
@@ -161,12 +162,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) use ($testProvider) {
+            ->willReturnCallback(static function (string $identifier) use ($testProvider) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return $testProvider;
                 }
@@ -270,12 +271,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return new TestEmptyTaxProvider();
                 }
@@ -311,8 +312,9 @@ class TaxProviderProcessorTest extends TestCase
             $this->createMock(TaxProviderPayloadService::class)
         );
 
-        $this->expectException(TaxProviderExceptions::class);
-        $this->expectExceptionMessage('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'foo_bar\' threw an exception: No tax provider found for identifier foo_bar');
+        $expected = new TaxProviderExceptions();
+        $expected->add('foo_bar', new NotFoundHttpException('No tax provider found for identifier foo_bar'));
+        $this->expectExceptionObject($expected);
 
         $processor->process(new Cart('foo'), $this->createMock(SalesChannelContext::class));
     }
@@ -364,7 +366,7 @@ class TaxProviderProcessorTest extends TestCase
         $registry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestGenericExceptionTaxProvider::class) {
                     return new TestGenericExceptionTaxProvider();
                 }

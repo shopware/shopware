@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -28,7 +27,6 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(StoreClient::class)]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -55,8 +53,7 @@ class StoreClientTest extends TestCase
 
     public function testLoginWithShopwareIdInvalidSource(): void
     {
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Expected context source to be "' . AdminApiSource::class . '" but got "' . SystemSource::class . '".');
+        $this->expectExceptionObject(StoreException::invalidContextSource(AdminApiSource::class, SystemSource::class));
 
         $this->storeClient->loginWithShopwareId('shopwareId', 'password', Context::createDefaultContext());
     }
@@ -142,7 +139,7 @@ class StoreClientTest extends TestCase
 
         static::assertSame([], $updateList);
 
-        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => null);
 
         static::assertIsArray($cachedList);
         static::assertSame([], $cachedList);
@@ -192,7 +189,7 @@ class StoreClientTest extends TestCase
         static::assertSame('1.1.0', $updateList[0]->getVersion());
         static::assertSame('feature1,feature2', $updateList[0]->getInAppFeatures());
 
-        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => null);
 
         static::assertIsArray($cachedList);
         static::assertCount(1, $cachedList);
@@ -270,34 +267,40 @@ class StoreClientTest extends TestCase
         ];
         $this->getStoreRequestHandler()->append(new Response(400, [], \json_encode($errorInfo, \JSON_THROW_ON_ERROR)));
 
-        $this->expectException(StoreException::class);
+        $this->expectExceptionObject(StoreException::storeError(new ClientException(
+            'Client error: `POST /swplatform/pluginlicenses/123/cancel',
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        )));
         $this->storeClient->cancelSubscription(123, $this->storeContext);
     }
 
     public function testCreateRatingThrowsExceptionOnClientError(): void
     {
-        $this->getStoreRequestHandler()->append(new ClientException(
+        $clientException = new ClientException(
             'Client error',
-            $this->createMock(RequestInterface::class),
-            $this->createMock(ResponseInterface::class)
-        ));
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        );
+        $this->getStoreRequestHandler()->append($clientException);
 
         $rating = new ReviewStruct();
         $rating->setExtensionId(123);
 
-        $this->expectException(StoreException::class);
+        $this->expectExceptionObject(StoreException::storeError($clientException));
         $this->storeClient->createRating($rating, $this->storeContext);
     }
 
     public function testFetchLicensesThrowsExceptionOnClientError(): void
     {
-        $this->getStoreRequestHandler()->append(new ClientException(
+        $clientException = new ClientException(
             'Client error',
-            $this->createMock(RequestInterface::class),
-            $this->createMock(ResponseInterface::class)
-        ));
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        );
+        $this->getStoreRequestHandler()->append($clientException);
 
-        $this->expectException(StoreException::class);
+        $this->expectExceptionObject(StoreException::storeError($clientException));
         $this->storeClient->listMyExtensions(new ExtensionCollection(), $this->storeContext);
     }
 }

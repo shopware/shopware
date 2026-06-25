@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -315,7 +317,6 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
 
-        // eslint-disable-next-line max-len
         const inlineMappingButton = wrapper.find(
             '.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon',
         );

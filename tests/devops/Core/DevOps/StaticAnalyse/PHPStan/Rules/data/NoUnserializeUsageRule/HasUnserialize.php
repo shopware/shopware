@@ -9,10 +9,15 @@ class HasUnserialize
         $first = unserialize($serialized);
         $second = \unserialize($serialized);
 
+        /**
+         * @phpstan-ignore shopware.unserializeUsage
+         */
+        $third = \unserialize($serialized);
+
         $this->unserialize();
         $unserialize = 'unserialize';
 
-        return [$first, $second, $unserialize];
+        return [$first, $second, $third, $unserialize];
     }
 
     private function unserialize(): void

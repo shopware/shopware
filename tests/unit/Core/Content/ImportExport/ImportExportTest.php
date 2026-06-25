@@ -144,13 +144,13 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             ImportExportBeforeImportRowEvent::class,
-            function () use (&$importExportBeforeImportRowEventCount): void {
+            static function () use (&$importExportBeforeImportRowEventCount): void {
                 ++$importExportBeforeImportRowEventCount;
             }
         );
         $eventDispatcher->addListener(
             ImportExportBeforeImportRecordEvent::class,
-            function () use (&$importExportBeforeImportRecordEventCount): void {
+            static function () use (&$importExportBeforeImportRecordEventCount): void {
                 ++$importExportBeforeImportRecordEventCount;
             }
         );
@@ -278,13 +278,13 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             EnrichExportCriteriaEvent::class,
-            function () use (&$enrichExportCriteriaEventCount): void {
+            static function () use (&$enrichExportCriteriaEventCount): void {
                 ++$enrichExportCriteriaEventCount;
             }
         );
         $eventDispatcher->addListener(
             ImportExportBeforeExportRecordEvent::class,
-            function () use (&$importExportBeforeExportRecordEventCount): void {
+            static function () use (&$importExportBeforeExportRecordEventCount): void {
                 ++$importExportBeforeExportRecordEventCount;
             }
         );
@@ -306,7 +306,7 @@ class ImportExportTest extends TestCase
 
         $pipe = $this->createMock(AbstractPipe::class);
         $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
-            function (Config $config, array $originalRecord): iterable {
+            static function (Config $config, array $originalRecord): iterable {
                 $serializedRecord = [];
 
                 $serializedRecord['id'] = $originalRecord['id'];
@@ -389,13 +389,13 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             EnrichExportCriteriaEvent::class,
-            function () use (&$enrichExportCriteriaEventCount): void {
+            static function () use (&$enrichExportCriteriaEventCount): void {
                 ++$enrichExportCriteriaEventCount;
             }
         );
         $eventDispatcher->addListener(
             ImportExportBeforeExportRecordEvent::class,
-            function () use (&$importExportBeforeExportRecordEventCount): void {
+            static function () use (&$importExportBeforeExportRecordEventCount): void {
                 ++$importExportBeforeExportRecordEventCount;
             }
         );
@@ -405,7 +405,7 @@ class ImportExportTest extends TestCase
         /** @var StaticEntityRepository<OrderCollection> */
         $repository = new StaticEntityRepository(
             [
-                function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
+                static function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
                     $sortings = $criteria->getSorting();
 
                     static::assertNotEmpty($sortings, 'Expected export to add at least one sorting');
@@ -435,7 +435,7 @@ class ImportExportTest extends TestCase
 
         $pipe = $this->createMock(AbstractPipe::class);
         $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
-            function (Config $config, array $originalRecord): iterable {
+            static function (Config $config, array $originalRecord): iterable {
                 $serializedRecord = [];
 
                 $serializedRecord['id'] = $originalRecord['id'];
@@ -517,7 +517,7 @@ class ImportExportTest extends TestCase
             );
         $importExportService->expects($this->exactly(1))->method('prepareExport')
             ->willReturnCallback(
-                fn () => (new ImportExportLogEntity())->assign([
+                static fn () => (new ImportExportLogEntity())->assign([
                     'id' => $invalidRecordsLogId,
                     'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
                     'state' => Progress::STATE_PROGRESS,
@@ -537,19 +537,19 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             EnrichExportCriteriaEvent::class,
-            function () use (&$enrichExportCriteriaEventCount): void {
+            static function () use (&$enrichExportCriteriaEventCount): void {
                 ++$enrichExportCriteriaEventCount;
             }
         );
         $eventDispatcher->addListener(
             ImportExportBeforeExportRecordEvent::class,
-            function () use (&$importExportBeforeExportRecordEventCount): void {
+            static function () use (&$importExportBeforeExportRecordEventCount): void {
                 ++$importExportBeforeExportRecordEventCount;
             }
         );
         $eventDispatcher->addListener(
             ImportExportExceptionExportRecordEvent::class,
-            function () use (&$importExportExceptionExportRecordEventCount): void {
+            static function () use (&$importExportExceptionExportRecordEventCount): void {
                 ++$importExportExceptionExportRecordEventCount;
             }
         );
@@ -571,7 +571,7 @@ class ImportExportTest extends TestCase
 
         $pipe = $this->createMock(AbstractPipe::class);
         $pipe->expects($this->exactly(2))->method('in')->willReturnCallback(
-            function (Config $config, array $originalRecord): iterable {
+            static function (Config $config, array $originalRecord): iterable {
                 $serializedRecord = [];
 
                 foreach ($originalRecord as $key => $value) {
@@ -656,7 +656,7 @@ class ImportExportTest extends TestCase
             );
         $importExportService->expects($this->exactly(1))->method('prepareExport')
             ->willReturnCallback(
-                fn () => (new ImportExportLogEntity())->assign([
+                static fn () => (new ImportExportLogEntity())->assign([
                     'id' => $invalidRecordsLogId,
                     'activity' => ImportExportLogEntity::ACTIVITY_EXPORT,
                     'state' => Progress::STATE_PROGRESS,
@@ -674,14 +674,14 @@ class ImportExportTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             ImportExportBeforeExportRecordEvent::class,
-            function () use (&$importExportBeforeExportRecordEventCount): void {
+            static function () use (&$importExportBeforeExportRecordEventCount): void {
                 ++$importExportBeforeExportRecordEventCount;
             }
         );
 
         $pipe = $this->createMock(AbstractPipe::class);
         $pipe->expects($this->exactly(1))->method('in')->willReturnCallback(
-            function (Config $config, iterable $originalRecord) use ($errorMessage): iterable {
+            static function (Config $config, iterable $originalRecord) use ($errorMessage): iterable {
                 static::assertSame(['_error' => $errorMessage], $originalRecord);
 
                 $serializedRecord = [];

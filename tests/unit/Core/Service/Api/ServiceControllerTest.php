@@ -118,7 +118,7 @@ class ServiceControllerTest extends TestCase
 
     public function testUpdateIsTriggered(): void
     {
-        $this->bus->expects($this->once())->method('dispatch')->willReturnCallback(function (UpdateServiceMessage $msg) {
+        $this->bus->expects($this->once())->method('dispatch')->willReturnCallback(static function (UpdateServiceMessage $msg) {
             static::assertSame('MyCoolService', $msg->name);
 
             return new Envelope($msg, []);
@@ -236,10 +236,10 @@ class ServiceControllerTest extends TestCase
     {
         $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
-        $source = new AdminApiSource('AABB', 'EEFF');
+        $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
 
-        $this->appLifecycle->expects($this->once())->method('delete')->with($this->appId, ['id' => $this->appId], $context);
+        $this->appLifecycle->expects($this->once())->method('uninstall')->with($this->appId, ['id' => $this->appId], $context);
         $controller->uninstall('MyCoolService', $context);
     }
 

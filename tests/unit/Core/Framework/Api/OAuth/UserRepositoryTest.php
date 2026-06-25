@@ -113,7 +113,7 @@ class UserRepositoryTest extends TestCase
         $queryBuilder->method('from')->willReturnSelf();
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('setParameter')->willReturnSelf();
-        $queryBuilder->method('fetchAssociative')->willReturnCallback(function () use ($user) {
+        $queryBuilder->method('fetchAssociative')->willReturnCallback(static function () use ($user) {
             if ($user !== null) {
                 return $user->jsonSerialize();
             }

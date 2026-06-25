@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Test;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\After;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -18,6 +21,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait AppSystemTestBehaviour
 {
+    /**
+     * @var list<string>
+     */
+    private array $appSystemBehaviourAppsInstalledInThisTest = [];
+
     abstract protected static function getContainer(): ContainerInterface;
 
     protected function getAppLoader(string $appDir): AppLoader
@@ -30,6 +38,8 @@ trait AppSystemTestBehaviour
 
     protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void
     {
+        $before = $this->appSystemBehaviourFetchInstalledAppNames();
+
         $appService = new AppService(
             new AppLifecycleIterator(
                 static::getContainer()->get('app.repository'),
@@ -41,12 +51,15 @@ trait AppSystemTestBehaviour
         $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext());
 
         if ($fails !== []) {
-            $errors = \array_map(function (array $fail): string {
+            $errors = \array_map(static function (array $fail): string {
                 return $fail['exception']->getMessage();
             }, $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
         }
+
+        $after = $this->appSystemBehaviourFetchInstalledAppNames();
+        $this->appSystemBehaviourAppsInstalledInThisTest = \array_values(\array_diff($after, $before));
     }
 
     protected function reloadAppSnippets(): void
@@ -70,5 +83,47 @@ trait AppSystemTestBehaviour
     protected function deleteShopIdAndResetShopIdProvider(): void
     {
         static::getContainer()->get(ShopIdProvider::class)->deleteShopId();
+    }
+
+    /**
+     * Apps installed via loadAppsFromDir populate two in-memory caches the
+     * surrounding transaction rollback cannot reach: SnippetFileCollection
+     * (shared singleton) and ActiveAppsLoader::$activeApps. Reset them so
+     * fixture snippets (e.g. swagtheme.en.json overriding document.serviceDateNotice)
+     * don't leak into unrelated tests through the Translator catalogue.
+     *
+     * Done via a local DELETE so the re-scan gets a clean snapshot regardless
+     * of whether a transactional behavior's #[After] fires before or after this one.
+     */
+    #[After]
+    protected function cleanUpAppsInstalledInThisTest(): void
+    {
+        if ($this->appSystemBehaviourAppsInstalledInThisTest === []) {
+            return;
+        }
+
+        $container = static::getContainer();
+
+        $container->get(Connection::class)->executeStatement(
+            'DELETE FROM app WHERE name IN (:names)',
+            ['names' => $this->appSystemBehaviourAppsInstalledInThisTest],
+            ['names' => ArrayParameterType::STRING]
+        );
+
+        $container->get(ActiveAppsLoader::class)->reset();
+        $this->reloadAppSnippets();
+
+        $this->appSystemBehaviourAppsInstalledInThisTest = [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function appSystemBehaviourFetchInstalledAppNames(): array
+    {
+        /** @var list<string> $names */
+        $names = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT name FROM app');
+
+        return $names;
     }
 }

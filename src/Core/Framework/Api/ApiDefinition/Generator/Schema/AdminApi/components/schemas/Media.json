@@ -1,0 +1,38 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "MediaId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{32}$",
+                "description": "Media entity ID"
+            },
+            "ExternalThumbnail": {
+                "type": "object",
+                "description": "An external thumbnail URL with its dimensions. Used when a CDN provides pre-generated thumbnails alongside the main media file.",
+                "required": ["url", "width", "height"],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "Absolute HTTP/HTTPS URL of the thumbnail",
+                        "example": "https://cdn.example.com/image-200x200.jpg"
+                    },
+                    "width": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Width of the thumbnail in pixels",
+                        "example": 200
+                    },
+                    "height": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Height of the thumbnail in pixels",
+                        "example": 200
+                    }
+                }
+            }
+        }
+    }
+}

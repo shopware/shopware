@@ -48,7 +48,7 @@ class ProductExportControllerTest extends TestCase
     public function testInvalidData(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
-        $client->request('GET', getenv('APP_URL') . '/store-api/product-export/foo/bar');
+        $client->request('GET', '/store-api/product-export/foo/bar');
 
         static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
@@ -76,7 +76,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelId,
             $salesChannelDomainId
         );
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -130,7 +130,7 @@ class ProductExportControllerTest extends TestCase
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -170,7 +170,7 @@ class ProductExportControllerTest extends TestCase
             $deSalesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
         static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
@@ -202,7 +202,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -233,7 +233,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
 
@@ -300,7 +300,7 @@ class ProductExportControllerTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $productExportId,
-                'fileName' => 'Testexport',
+                'fileName' => Uuid::randomHex(),
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => $encoding,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
@@ -332,7 +332,7 @@ class ProductExportControllerTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $productExportId,
-                'fileName' => 'Testexport',
+                'fileName' => Uuid::randomHex(),
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => $encoding,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
@@ -363,13 +363,17 @@ class ProductExportControllerTest extends TestCase
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts($salesChannelId), 'id'), 0, 2));
 
         $connection->executeStatement("
-            REPLACE INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
+            INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
-                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
+                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL)
+            ON DUPLICATE KEY UPDATE
+                `api_filter` = VALUES(`api_filter`),
+                `invalid` = VALUES(`invalid`),
+                `updated_at` = NOW();
         ");
 
         $connection->executeStatement("
-            REPLACE INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
+            INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
                 (UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), 'multi', NULL, 'AND', NULL, NULL, 1, NULL, '2019-08-16 08:43:57.478', NULL),
@@ -379,7 +383,12 @@ class ProductExportControllerTest extends TestCase
                 (UNHEX('56C5DF0B41954334A7B0CDFEDFE1D7E9'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('272B4392E7B34EF2ABB4827A33630C1D'), 'range', 'width', NULL, NULL, '{\"lte\":932,\"gte\":221}', 1, NULL, '2019-08-16 08:43:57.488', NULL),
                 (UNHEX('6382E03A768F444E9C2A809C63102BD4'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('BB87D86524FB4E7EA01EE548DD43A5AC'), 'range', 'height', NULL, NULL, '{\"gte\":182}', 2, NULL, '2019-08-16 08:43:57.485', NULL),
                 (UNHEX('7CBC1236ABCD43CAA697E9600BF1DF6E'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('4A7AEB36426A482A8BFFA049F795F5E7'), 'range', 'width', NULL, NULL, '{\"lte\":245}', 1, NULL, '2019-08-16 08:43:57.476', NULL),
-                (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), 'equalsAny', 'id', NULL, '{$randomProductIds}', NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL);
+                (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), 'equalsAny', 'id', NULL, '{$randomProductIds}', NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL)
+            ON DUPLICATE KEY UPDATE
+                `type` = VALUES(`type`),
+                `value` = VALUES(`value`),
+                `parameters` = VALUES(`parameters`),
+                `updated_at` = NOW();
         ");
     }
 

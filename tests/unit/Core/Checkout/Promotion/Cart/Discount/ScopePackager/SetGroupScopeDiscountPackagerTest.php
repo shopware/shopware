@@ -28,7 +28,7 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
         $builder = $this->createMock(LineItemGroupBuilder::class);
         $builder
             ->method('findGroupPackages')
-            ->willReturnCallback(function (array $groupDefinitions) {
+            ->willReturnCallback(static function (array $groupDefinitions) {
                 static::assertCount(4, $groupDefinitions);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[0]);
                 static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[1]);

@@ -152,7 +152,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                         create: () => ({
                             search: () => {
                                 if (options.error) {
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({
                                         response: {
                                             data: {

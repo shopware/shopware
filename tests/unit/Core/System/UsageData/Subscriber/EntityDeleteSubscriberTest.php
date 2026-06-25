@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -26,14 +25,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -60,7 +60,7 @@ class EntityDeleteSubscriberTest extends TestCase
         $usageDataAllowListServiceMock->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListServiceMock->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return $definition->getFields();
             });
 
@@ -83,10 +83,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         $statementMock->expects($this->exactly(4))
@@ -120,14 +118,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -162,36 +153,10 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $productId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit')
+            ->method('transactional')
             ->willThrowException($this->createMock(DeadlockException::class));
-
-        $connection->expects($this->once())
-            ->method('rollBack');
-
-        $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects($this->exactly(4))
-            ->method('bindValue')
-            ->withAnyParameters()
-            ->willReturnCallback(function ($key, $value) use ($productId): void {
-                if ($key === ':entity_name') {
-                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
-                    $this->requiredParameter[':entity_name'] = true;
-                }
-
-                if ($key === ':entity_ids') {
-                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
-                    $this->requiredParameter[':entity_ids'] = true;
-                }
-            });
-
-        $connection->expects($this->once())
-            ->method('prepare')
-            ->willReturn($statementMock);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -205,14 +170,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -237,10 +195,8 @@ class EntityDeleteSubscriberTest extends TestCase
         $subscriber->handleEntityDeleteEvent($event);
 
         // marks the event as successful --> we write the deletion into the expected table
+        // the exception from transactional is silently caught, so no exception is expected
         $event->success();
-
-        static::assertTrue($this->requiredParameter[':entity_name']);
-        static::assertTrue($this->requiredParameter[':entity_ids']);
     }
 
     public function testHandleDeletedEventStoresDataMultipleEntities(): void
@@ -251,10 +207,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         // assert bindValue to be called 2 * 4 times (2 entities with 5 parameters)
@@ -278,14 +232,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -323,7 +270,7 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -337,14 +284,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -378,14 +318,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock(),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
         );
 
@@ -405,16 +338,9 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
-            ]),
-            $this->createMock(EntityRepository::class),
-            new CollectingEventDispatcher(),
-            new MockClock(),
-        );
+        $consentService = $this->createConsentService(ConsentStatus::REVOKED);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -443,14 +369,14 @@ class EntityDeleteSubscriberTest extends TestCase
         $subscriber->handleEntityDeleteEvent($event);
         $event->success();
 
-        static::assertFalse($consentService->isConsentAccepted());
+        static::assertSame(ConsentStatus::REVOKED, $consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->status);
     }
 
     public function testIfDeletionsAreNotStoredWhenCollectionIsDisabled(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -464,14 +390,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new EntityDefinitionService([$definition], $this->usageDataAllowListServiceMock),
             $connection,
             new MockClock('2023-09-01 12:00:00'),
-            new ConsentService(
-                new StaticSystemConfigService([
-                    ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ]),
-                $this->createMock(EntityRepository::class),
-                new CollectingEventDispatcher(),
-                new MockClock(),
-            ),
+            $this->createConsentService(ConsentStatus::ACCEPTED),
             false,
         );
 
@@ -485,6 +404,22 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $subscriber->handleEntityDeleteEvent($event);
         $event->success();
+    }
+
+    private function createConsentService(ConsentStatus $status): ConsentService
+    {
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getConsentState')
+            ->willReturn(new ConsentState(
+                BackendData::NAME,
+                ConsentScope\System::NAME,
+                ConsentScope\System::NAME,
+                $status,
+                'actor',
+                '2023-09-01 12:00:00',
+            ));
+
+        return $consentService;
     }
 }
 

@@ -7,9 +7,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -29,7 +31,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<ProductReviewCollection> */
+    /**
+     * @var MockObject&EntityRepository<ProductReviewCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&DataValidator $validator;
@@ -37,6 +41,8 @@ class ProductReviewSaveRouteTest extends TestCase
     private StaticSystemConfigService $config;
 
     private MockObject&EventDispatcherInterface $eventDispatcher;
+
+    private MockObject&ProductProvider $productProvider;
 
     private ProductReviewSaveRoute $route;
 
@@ -55,12 +61,14 @@ class ProductReviewSaveRouteTest extends TestCase
             ],
         ]);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->productProvider = $this->createMock(ProductProvider::class);
 
         $this->route = new ProductReviewSaveRoute(
             $this->repository,
             $this->validator,
             $this->config,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->productProvider
         );
     }
 
@@ -84,13 +92,16 @@ class ProductReviewSaveRouteTest extends TestCase
         $customer->setEmail('foo@example.com');
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId('test');
+        $product = new ProductEntity();
+        $product->setId($productId);
 
         $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($customer);
         $salesChannelContext->expects($this->exactly(1))->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $salesChannelContext->expects($this->exactly(1))->method('getLanguageId')->willReturn($context->getLanguageId());
-        $salesChannelContext->expects($this->exactly(3))->method('getContext')->willReturn($context);
+        $salesChannelContext->expects($this->exactly(4))->method('getContext')->willReturn($context);
 
         $this->validator->expects($this->once())->method('getViolations')->willReturn(new ConstraintViolationList());
+        $this->productProvider->expects($this->once())->method('getData')->with($productId, $context)->willReturn($product);
 
         $this->repository
             ->expects($this->once())
@@ -127,7 +138,8 @@ class ProductReviewSaveRouteTest extends TestCase
                 'id' => $id,
             ]),
             $productId,
-            $customer->getId()
+            $customer->getId(),
+            $product
         );
 
         $this->eventDispatcher

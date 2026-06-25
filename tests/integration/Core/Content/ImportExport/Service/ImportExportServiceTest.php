@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -27,7 +26,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(ImportExportService::class)]
 class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -54,78 +52,74 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{clientMimeType: string, fileExtension: string, expectedMimeType: string|false}>
+     * @return iterable<string, array{clientMimeType: string, fileExtension: string, expectedMimeType: string|false}>
      */
-    public static function mimeTypeProvider(): array
+    public static function mimeTypeProvider(): iterable
     {
-        return [
-            [
-                'clientMimeType' => 'text/csv',
-                'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'text/x-csv',
-                'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'application/vnd.ms-excel',
-                'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv',
-            ],
-
-            [
-                'clientMimeType' => 'text/csv',
-                'fileExtension' => '',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'text/x-csv',
-                'fileExtension' => '',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'text/csv',
-                'fileExtension' => 'txt',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'text/x-csv',
-                'fileExtension' => 'txt',
-                'expectedMimeType' => 'text/csv',
-            ],
-
-            [
-                'clientMimeType' => 'application/octet-stream',
-                'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv',
-            ],
-            [
-                'clientMimeType' => 'text/xml',
-                'fileExtension' => 'xml',
-                'expectedMimeType' => false,
-            ],
-            [
-                'clientMimeType' => 'text/xml',
-                'fileExtension' => '',
-                'expectedMimeType' => false,
-            ],
-            [
-                'clientMimeType' => 'application/xml',
-                'fileExtension' => 'xml',
-                'expectedMimeType' => false,
-            ],
-            [
-                'clientMimeType' => 'application/xml',
-                'fileExtension' => '',
-                'expectedMimeType' => false,
-            ],
-            [
-                'clientMimeType' => 'application/vnd.ms-excel',
-                'fileExtension' => 'xls',
-                'expectedMimeType' => false,
-            ],
+        yield 'text csv upload with csv extension is accepted as csv' => [
+            'clientMimeType' => 'text/csv',
+            'fileExtension' => 'csv',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text x-csv upload with csv extension is normalized to csv' => [
+            'clientMimeType' => 'text/x-csv',
+            'fileExtension' => 'csv',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'Excel client mime with csv extension is treated as csv' => [
+            'clientMimeType' => 'application/vnd.ms-excel',
+            'fileExtension' => 'csv',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text csv upload without extension is accepted as csv' => [
+            'clientMimeType' => 'text/csv',
+            'fileExtension' => '',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text x-csv upload without extension is normalized to csv' => [
+            'clientMimeType' => 'text/x-csv',
+            'fileExtension' => '',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text csv upload with txt extension still uses csv mime type' => [
+            'clientMimeType' => 'text/csv',
+            'fileExtension' => 'txt',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text x-csv upload with txt extension still uses csv mime type' => [
+            'clientMimeType' => 'text/x-csv',
+            'fileExtension' => 'txt',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'octet stream upload with csv extension is detected as csv' => [
+            'clientMimeType' => 'application/octet-stream',
+            'fileExtension' => 'csv',
+            'expectedMimeType' => 'text/csv',
+        ];
+        yield 'text xml upload with xml extension is rejected' => [
+            'clientMimeType' => 'text/xml',
+            'fileExtension' => 'xml',
+            'expectedMimeType' => false,
+        ];
+        yield 'text xml upload without extension is rejected' => [
+            'clientMimeType' => 'text/xml',
+            'fileExtension' => '',
+            'expectedMimeType' => false,
+        ];
+        yield 'application xml upload with xml extension is rejected' => [
+            'clientMimeType' => 'application/xml',
+            'fileExtension' => 'xml',
+            'expectedMimeType' => false,
+        ];
+        yield 'application xml upload without extension is rejected' => [
+            'clientMimeType' => 'application/xml',
+            'fileExtension' => '',
+            'expectedMimeType' => false,
+        ];
+        yield 'Excel client mime with xls extension is rejected' => [
+            'clientMimeType' => 'application/vnd.ms-excel',
+            'fileExtension' => 'xls',
+            'expectedMimeType' => false,
         ];
     }
 
@@ -263,131 +257,129 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
+     * @return iterable<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
      */
-    public static function profileProvider(): array
+    public static function profileProvider(): iterable
     {
-        return [
-            'Import with export type should throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+        yield 'Import with export type should throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_IMPORT,
-                true,
             ],
-            'Export with export type should not throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_IMPORT,
+            true,
+        ];
+        yield 'Export with export type should not throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_EXPORT,
-                false,
             ],
-            'Export with import type should not throw exception if invalid records should be exported' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_IMPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_EXPORT,
+            false,
+        ];
+        yield 'Export with import type should not throw exception if invalid records should be exported' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_IMPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_EXPORT,
-                false,
-                ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT,
             ],
-            'Import with import-export type should not throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_EXPORT,
+            false,
+            ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT,
+        ];
+        yield 'Import with import-export type should not throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_IMPORT,
-                false,
             ],
-            'Export with import-export type should not throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_IMPORT,
+            false,
+        ];
+        yield 'Export with import-export type should not throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_EXPORT,
-                false,
             ],
-            'Import with import type should not throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_IMPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_EXPORT,
+            false,
+        ];
+        yield 'Import with import type should not throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_IMPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_IMPORT,
-                false,
             ],
-            'Export with import type should throw exception' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
-                    'sourceEntity' => 'product',
-                    'type' => ImportExportProfileEntity::TYPE_IMPORT,
-                    'fileType' => 'text/csv',
-                    'delimiter' => ';',
-                    'enclosure' => '"',
-                    'config' => [],
-                    'mapping' => [
-                        ['key' => 'foo', 'mappedKey' => 'bar'],
-                    ],
+            ImportExportProfileEntity::TYPE_IMPORT,
+            false,
+        ];
+        yield 'Export with import type should throw exception' => [
+            [
+                'id' => Uuid::randomHex(),
+                'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
+                'sourceEntity' => 'product',
+                'type' => ImportExportProfileEntity::TYPE_IMPORT,
+                'fileType' => 'text/csv',
+                'delimiter' => ';',
+                'enclosure' => '"',
+                'config' => [],
+                'mapping' => [
+                    ['key' => 'foo', 'mappedKey' => 'bar'],
                 ],
-                ImportExportProfileEntity::TYPE_EXPORT,
-                true,
             ],
+            ImportExportProfileEntity::TYPE_EXPORT,
+            true,
         ];
     }
 }

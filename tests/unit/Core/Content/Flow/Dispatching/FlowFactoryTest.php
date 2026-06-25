@@ -5,14 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -35,7 +34,11 @@ class FlowFactoryTest extends TestCase
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
-        $orderStorer = new OrderStorer($this->createMock(EntityRepository::class), $this->createMock(EventDispatcherInterface::class));
+        $orderStorer = new OrderStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(OrderProvider::class),
+        );
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
@@ -50,21 +53,18 @@ class FlowFactoryTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects($this->once())
-            ->method('getEntities')
-            ->willReturn(new OrderCollection([$order]));
-
-        $orderRepo = $this->createMock(EntityRepository::class);
-        $orderRepo->expects($this->once())
-            ->method('search')
-            ->willReturn($entitySearchResult);
+        $orderProvider = $this->createMock(OrderProvider::class);
+        $orderProvider->method('getData')->willReturn($order);
 
         $context = Generator::generateSalesChannelContext();
 
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
-        $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
+        $orderStorer = new OrderStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $orderProvider,
+        );
         $flowFactory = new FlowFactory([$orderStorer]);
 
         $storedData = [

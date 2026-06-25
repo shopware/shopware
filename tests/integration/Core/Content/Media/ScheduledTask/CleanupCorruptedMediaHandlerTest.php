@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\ScheduledTask;
 
 use Doctrine\DBAL\ArrayParameterType;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler;
@@ -22,7 +21,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(CleanupCorruptedMediaHandler::class)]
 class CleanupCorruptedMediaHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

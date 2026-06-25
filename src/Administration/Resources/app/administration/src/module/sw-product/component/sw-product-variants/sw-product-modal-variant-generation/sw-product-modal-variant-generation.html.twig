@@ -1,7 +1,7 @@
 {% block sw_product_modal_variant_generation %}
 <sw-modal
     v-if="!showUploadModal"
-    :title="$tc('sw-product.variations.configuratorModal.title')"
+    :title="$t('sw-product.variations.configuratorModal.title')"
     class="sw-product-modal-variant-generation"
     @modal-close="$emit('modal-close')"
 >
@@ -21,7 +21,7 @@
                 :active="activeTab == 'options'"
                 @click="activeTab = 'options'"
             >
-                {{ $tc('sw-product.variations.configuratorModal.selectOptions') }}
+                {{ $t('sw-product.variations.configuratorModal.selectOptions') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -32,7 +32,7 @@
                 :active="activeTab == 'prices'"
                 @click="activeTab = 'prices'"
             >
-                {{ $tc('sw-product.variations.configuratorModal.priceSurcharges') }}
+                {{ $t('sw-product.variations.configuratorModal.priceSurcharges') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -43,7 +43,7 @@
                 :active="activeTab == 'restrictions'"
                 @click="activeTab = 'restrictions'"
             >
-                {{ $tc('sw-product.variations.configuratorModal.defineRestrictions') }}
+                {{ $t('sw-product.variations.configuratorModal.defineRestrictions') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -54,12 +54,12 @@
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}
         {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
         <div v-if="activeTab == 'options'">
-            <p>{{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
+            <p>{{ $t('sw-product.variations.configuratorModal.selectOptionsExplanation') }}</p>
             {% block sw_product_modal_variant_generation_sidebar_add_only_selected %}
 
             <mt-switch
                 v-model="isAddOnly"
-                :label="$tc('sw-product.variations.configuratorModal.addVariantsOnly')"
+                :label="$t('sw-product.variations.configuratorModal.addVariantsOnly')"
             />
             {% endblock %}
         </div>
@@ -67,13 +67,13 @@
 
         {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
         <p v-else-if="activeTab == 'restrictions'">
-            {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
+            {{ $t('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
         </p>
         {% endblock %}
 
         {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
         <p v-else-if="activeTab == 'prices'">
-            {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
+            {{ $t('sw-product.variations.configuratorModal.selectPricesExplanation') }}
         </p>
         {% endblock %}
         {% endblock %}
@@ -122,7 +122,7 @@
             variant="secondary"
             @click="onModalCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
         {% block sw_product_modal_variant_generation_footer_generate %}
@@ -132,7 +132,7 @@
             size="small"
             @click="showNextStep"
         >
-            {{ $tc('sw-product.variations.nextModalButton') }}
+            {{ $t('sw-product.variations.nextModalButton') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -142,35 +142,35 @@
 
 <sw-modal
     v-else
-    :title="$tc('sw-product.variations.configuratorModal.title')"
+    :title="$t('sw-product.variations.configuratorModal.title')"
     class="sw-product-modal-variant-generation sw-product-modal-variant-generation__upload_files"
     @modal-close="$emit('modal-close')"
 >
     <div class="sw-product-modal-variant-generation__infoBox">
-        {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxHeader') }}
+        {{ $t('sw-product.variations.configuratorModal.uploadInfoBoxHeader') }}
         <div class="sw-product-modal-variant-generation__infoBoxContent">
             <span class="sw-product-modal-variant-generation__variant-amount">
-                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
+                {{ $t('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
             </span>
-            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCreateLabel', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
+            {{ $t('sw-product.variations.configuratorModal.uploadInfoBoxCreateLabel', { count: variantGenerationQueue.createQueue.length }, variantGenerationQueue.createQueue.length) }}
 
             <span class="sw-product-modal-variant-generation__variant-amount">
-                {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
+                {{ $t('sw-product.variations.configuratorModal.uploadInfoBoxCount', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
             </span>
-            {{ $tc('sw-product.variations.configuratorModal.uploadInfoBoxDeleteLabel', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
+            {{ $t('sw-product.variations.configuratorModal.uploadInfoBoxDeleteLabel', { count: variantGenerationQueue.deleteQueue.length }, variantGenerationQueue.deleteQueue.length) }}
         </div>
     </div>
 
     <template v-if="variantGenerationQueue.createQueue.length > 0">
         <div class="sw-product-modal-variant-generation__upload-card">
             <div class="sw-product-modal-variant-generation__card-title">
-                {{ $tc('sw-product.variations.configuratorModal.uploadCardDescription') }}
+                {{ $t('sw-product.variations.configuratorModal.uploadCardDescription') }}
             </div>
 
             <div class="sw-product-modal-variant-generation__upload-all-container">
 
                 <mt-switch
-                    :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
+                    :label="$t('sw-product.variations.configuratorModal.digitalVariantSwitch')"
                     @update:model-value="onChangeAllVariantValues"
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
@@ -181,8 +181,8 @@
                     />
                     <sw-media-compact-upload-v2
                         v-if="productDownloadFolderId"
-                        :button-label="$tc('sw-product.variations.configuratorModal.uploadAllButton')"
-                        :remove-button-label="$tc('sw-product.variations.configuratorModal.removeAllButton')"
+                        :button-label="$t('sw-product.variations.configuratorModal.uploadAllButton')"
+                        :remove-button-label="$t('sw-product.variations.configuratorModal.removeAllButton')"
                         upload-tag="upload_all"
                         private-filesystem
                         :source-multiselect="downloadFilesForAllVariants.length > 0 ? downloadFilesForAllVariants : null"
@@ -197,7 +197,7 @@
 
             <div class="sw-product-modal-variant-generation__toolbar">
                 <sw-card-filter
-                    :placeholder="$tc('sw-product.variations.configuratorModal.uploadCardSearchPlaceholder')"
+                    :placeholder="$t('sw-product.variations.configuratorModal.uploadCardSearchPlaceholder')"
                     @sw-card-filter-term-change="onTermChange"
                 />
             </div>
@@ -279,7 +279,7 @@
             variant="secondary"
             @click="showUploadModal = false"
         >
-            {{ $tc('sw-product.variations.backVariationsButton') }}
+            {{ $t('sw-product.variations.backVariationsButton') }}
         </mt-button>
 
         <mt-button
@@ -307,7 +307,7 @@
                 />
 
                 <span class="generate-variant-progress-bar__description">
-                    {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
+                    {{ actualProgress }} {{ $t('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $t('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
                 </span>
             </div>
         </transition>

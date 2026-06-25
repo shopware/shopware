@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -107,7 +108,16 @@ class SystemConfigController extends AbstractController
         }
 
         $kvs = $request->request->all();
-        $this->systemConfig->setMultiple($kvs, $salesChannelId);
+
+        // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+        // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
+        } elseif ($request->query->has('silent')) {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+        } else {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+        }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -131,7 +141,15 @@ class SystemConfigController extends AbstractController
                 $salesChannelId = null;
             }
 
-            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+            // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
+            if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
+            } elseif ($request->query->has('silent')) {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+            } else {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            }
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

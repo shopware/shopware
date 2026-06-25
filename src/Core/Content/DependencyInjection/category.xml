@@ -56,6 +56,7 @@
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
@@ -105,6 +106,7 @@
         <service id="Shopware\Core\Content\Category\Subscriber\CategorySubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -121,6 +123,11 @@
         <service id="Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
 
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNameCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
     </services>

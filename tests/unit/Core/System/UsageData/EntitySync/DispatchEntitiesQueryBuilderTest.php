@@ -49,8 +49,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         $this->connection->expects($this->never())
             ->method('createQueryBuilder');
-        $this->connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $this->connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($this->connection));
 
         $this->queryHelper = new DispatchEntitiesQueryBuilder($this->connection);
@@ -197,21 +196,21 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame(
             $this->queryHelper,
-            $this->queryHelper->withLastApprovalDateConstraint($message, $runDate),
+            $this->queryHelper->withCollectUntilConstraint($message, $runDate),
         );
 
         static::assertEquals(
             CompositeExpression::or(
                 '`updated_at` IS NULL',
-                '`updated_at` <= :lastApprovalDate',
+                '`updated_at` <= :collectUntil',
             ),
             QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
-        static::assertArrayHasKey('lastApprovalDate', $parameters);
-        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
+        static::assertArrayHasKey('collectUntil', $parameters);
+        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['collectUntil']);
     }
 
     public function testWithRunDateConstraintUpdatedOperation(): void
@@ -222,20 +221,20 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame(
             $this->queryHelper,
-            $this->queryHelper->withLastApprovalDateConstraint($message, $runDate),
+            $this->queryHelper->withCollectUntilConstraint($message, $runDate),
         );
 
         static::assertEquals(
             CompositeExpression::and(
-                '`updated_at` <= :lastApprovalDate',
+                '`updated_at` <= :collectUntil',
             ),
             QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()),
         );
 
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
-        static::assertArrayHasKey('lastApprovalDate', $parameters);
-        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
+        static::assertArrayHasKey('collectUntil', $parameters);
+        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['collectUntil']);
     }
 }
 

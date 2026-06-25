@@ -180,7 +180,7 @@ class CustomEntityTest extends TestCase
 
         foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
             // we keep user data, uninstall with removing user data is tested in the cleanupAppData() method
-            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+            $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
         }
 
         // with keepUserData=true the custom entity schema is not removed during app uninstall,
@@ -209,7 +209,7 @@ class CustomEntityTest extends TestCase
         $exceptionThrown = false;
         try {
             foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
-                $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
+                $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context, true);
             }
         } catch (AppException $e) {
             static::assertSame(AppException::APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION, $e->getErrorCode());
@@ -881,7 +881,7 @@ class CustomEntityTest extends TestCase
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -905,7 +905,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -923,7 +923,7 @@ class CustomEntityTest extends TestCase
             ['HTTP_ACCEPT' => 'application/json'],
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -945,7 +945,7 @@ class CustomEntityTest extends TestCase
             ['HTTP_ACCEPT' => 'application/json'],
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -1123,7 +1123,7 @@ class CustomEntityTest extends TestCase
         $context = Context::createDefaultContext();
 
         foreach ($appRepository->search(new Criteria(), $context)->getEntities() as $installedApp) {
-            $appLifecycle->delete($installedApp->getName(), ['id' => $installedApp->getId()], $context);
+            $appLifecycle->uninstall($installedApp->getName(), ['id' => $installedApp->getId()], $context);
         }
 
         $connection = $container->get(Connection::class);

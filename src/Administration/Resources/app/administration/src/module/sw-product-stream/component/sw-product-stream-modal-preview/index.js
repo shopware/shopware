@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
@@ -11,6 +7,7 @@ const { Criteria } = Shopware.Data;
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -102,27 +99,27 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturerId'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];

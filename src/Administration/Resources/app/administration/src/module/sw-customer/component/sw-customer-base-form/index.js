@@ -1,5 +1,4 @@
 import template from './sw-customer-base-form.html.twig';
-import './sw-customer-base-form.scss';
 import errorConfig from '../../error-config.json';
 
 /**
@@ -45,11 +44,11 @@ export default {
             return [
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
-                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                    label: this.$t('sw-customer.customerType.labelPrivate'),
                 },
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
-                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                    label: this.$t('sw-customer.customerType.labelBusiness'),
                 },
             ];
         },

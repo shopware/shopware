@@ -115,14 +115,12 @@ export default {
         bordered: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         rounded: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -318,9 +316,8 @@ export default {
             const link = this.isImageObject(image) ? image.src : image;
 
             try {
-                // eslint-disable-next-line no-new
                 new URL(link);
-            } catch (e) {
+            } catch (_e) {
                 return Filter.getByName('asset')(link);
             }
 
@@ -328,7 +325,7 @@ export default {
         },
 
         imageAlt(index) {
-            return this.$tc(
+            return this.$t(
                 'sw-image-slider.imageAlt',
                 {
                     index: index + 1,

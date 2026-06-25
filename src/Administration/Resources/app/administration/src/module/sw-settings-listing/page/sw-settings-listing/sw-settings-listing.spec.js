@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -587,7 +589,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
-                        $tc: (param) => {
+                        $t: (param) => {
                             if (snippets[param]) {
                                 return snippets[param];
                             }

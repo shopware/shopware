@@ -107,7 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.$refs.systemConfig.saveAll();
 
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
+                    message: this.$t('sw-extension-store.component.sw-extension-config.messageSaveSuccess'),
                 });
             } catch (err) {
                 this.createNotificationError({

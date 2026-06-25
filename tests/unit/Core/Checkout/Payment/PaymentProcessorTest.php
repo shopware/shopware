@@ -46,6 +46,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(PaymentProcessor::class)]
 class PaymentProcessorTest extends TestCase
 {
+    private const INITIAL_STATE_ID = 'initial-state-id';
+
     private PaymentProcessor $processor;
 
     /**
@@ -69,6 +71,9 @@ class PaymentProcessorTest extends TestCase
 
     protected function setUp(): void
     {
+        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
+        $initialStateIdLoader->method('get')->willReturn(self::INITIAL_STATE_ID);
+
         $this->processor = new PaymentProcessor(
             $this->tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class),
             $this->tokenGenerator = $this->createMock(PaymentTokenGenerator::class),
@@ -78,7 +83,7 @@ class PaymentProcessorTest extends TestCase
             $this->stateHandler = $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(LoggerInterface::class),
             $this->structFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class),
-            $this->createMock(InitialStateIdLoader::class),
+            $initialStateIdLoader,
             $this->router = $this->createMock(RouterInterface::class),
             $this->createMock(SystemConfigService::class),
         );
@@ -93,6 +98,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -149,6 +155,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -176,7 +183,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -223,6 +230,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -279,6 +287,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -306,7 +315,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -352,15 +361,14 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $response = $this->processor->pay(
+        $this->expectExceptionObject(PaymentException::invalidOrder('order-id'));
+        $this->processor->pay(
             'order-id',
             $request,
             $salesChannelContext,
             'finish-url',
             'error-url',
         );
-
-        static::assertNull($response);
     }
 
     public function testPayWithInvalidOrder(): void
@@ -371,8 +379,7 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The order with id order-id is invalid or could not be found.');
+        $this->expectExceptionObject(PaymentException::invalidOrder('order-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -391,6 +398,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -427,6 +435,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -440,7 +449,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -481,6 +490,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -501,8 +511,7 @@ class PaymentProcessorTest extends TestCase
             ->method('invalidateToken')
             ->with('token');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -516,6 +525,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -529,7 +539,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -550,8 +560,7 @@ class PaymentProcessorTest extends TestCase
             ->method('invalidateToken')
             ->with('token-id');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -599,7 +608,7 @@ class PaymentProcessorTest extends TestCase
             ->with('token-id');
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
@@ -618,8 +627,7 @@ class PaymentProcessorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeWithInvalidToken(): void
     {
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token  is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken(''));
 
         $this->processor->finalize(
             new TokenStruct(),
@@ -648,13 +656,12 @@ class PaymentProcessorTest extends TestCase
         $token->transactionId = 'order-transaction-id';
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->finalize(
             $fakeTokenStruct,
             $request,
@@ -873,7 +880,7 @@ class PaymentProcessorTest extends TestCase
             ->with('order-transaction-id', $salesChannelContext->getContext());
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
@@ -929,8 +936,7 @@ class PaymentProcessorTest extends TestCase
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn(null);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->validate(
             $cart,
             $requestDataBag,
@@ -958,9 +964,7 @@ class PaymentProcessorTest extends TestCase
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn($handler);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The validation process of the prepared payment was interrupted due to the following error:
-failed');
+        $this->expectExceptionObject(PaymentException::validatePreparedPaymentInterrupted('failed'));
         $this->processor->validate(
             $cart,
             $requestDataBag,

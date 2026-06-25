@@ -53,8 +53,8 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
         $event = new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
             new NestedEventCollection([
-                new EntityWrittenEvent('product_stream', [
-                    new EntityWriteResult(['productStreamId' => $id], ['name' => 'PS'], 'product_stream', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWrittenEvent('product_stream_translation', [
+                    new EntityWriteResult(['productStreamId' => $id], ['name' => 'PS'], 'product_stream_translation', EntityWriteResult::OPERATION_UPDATE),
                 ], Context::createDefaultContext()),
             ]),
             []

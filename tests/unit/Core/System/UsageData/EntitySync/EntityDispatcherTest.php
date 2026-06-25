@@ -38,7 +38,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsShopIdHeader(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
             static::assertContains('Shopware-Shop-Id: shop-id', $headers);
 
@@ -65,7 +65,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsContentEncodingHeader(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
 
             static::assertContains('Content-Encoding: gzip', $headers);
@@ -93,7 +93,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsShopIdToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -124,7 +124,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsContentTypeHeader(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
 
             static::assertContains('Content-Type: application/json', $headers);
@@ -154,7 +154,7 @@ class EntityDispatcherTest extends TestCase
     {
         $entities = [['name' => 'entity-a'], ['name' => 'entity-b']];
 
-        $client = new MockHttpClient(function ($method, $url, $options) use ($entities): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options) use ($entities): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -196,7 +196,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsOperationToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -230,7 +230,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsShopwareVersionToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -261,7 +261,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsEnvironmentToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -294,7 +294,7 @@ class EntityDispatcherTest extends TestCase
     {
         $runDate = new \DateTimeImmutable();
 
-        $client = new MockHttpClient(function ($method, $url, $options) use ($runDate): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options) use ($runDate): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -358,7 +358,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsLicenseHostToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -391,7 +391,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testAddsBatchIdToPayload(): void
     {
-        $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
+        $client = new MockHttpClient(static function ($method, $url, $options): MockResponse {
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -424,7 +424,7 @@ class EntityDispatcherTest extends TestCase
 
     public function testItThrowsExceptionsWhichMightBeRecoverable(): void
     {
-        $client = new MockHttpClient(function (): MockResponse {
+        $client = new MockHttpClient(static function (): MockResponse {
             return new MockResponse('', ['http_code' => 300]);
         });
 
@@ -452,7 +452,7 @@ class EntityDispatcherTest extends TestCase
     #[DataProvider('recoverableResponseCodesDataProvider')]
     public function testItThrowsRecoverableServerException(int $responseCode): void
     {
-        $client = new MockHttpClient(function () use ($responseCode): MockResponse {
+        $client = new MockHttpClient(static function () use ($responseCode): MockResponse {
             return new MockResponse('', ['http_code' => $responseCode]);
         });
 
@@ -480,7 +480,7 @@ class EntityDispatcherTest extends TestCase
     #[DataProvider('unrecoverableResponseCodesDataProvider')]
     public function testItThrowsUnrecoverableMessageHandlingException(int $responseCode): void
     {
-        $client = new MockHttpClient(function () use ($responseCode): MockResponse {
+        $client = new MockHttpClient(static function () use ($responseCode): MockResponse {
             return new MockResponse('', ['http_code' => $responseCode]);
         });
 
@@ -556,44 +556,40 @@ class EntityDispatcherTest extends TestCase
     }
 
     /**
-     * @return array<string, array{responseCode: int}>
+     * @return iterable<string, array{responseCode: int}>
      */
-    public static function recoverableResponseCodesDataProvider(): array
+    public static function recoverableResponseCodesDataProvider(): iterable
     {
-        return [
-            'HTTP_BAD_GATEWAY' => [
-                'responseCode' => 502,
-            ],
-            'HTTP_SERVICE_UNAVAILABLE' => [
-                'responseCode' => 503,
-            ],
-            'HTTP_GATEWAY_TIMEOUT' => [
-                'responseCode' => 504,
-            ],
+        yield 'HTTP_BAD_GATEWAY' => [
+            'responseCode' => 502,
+        ];
+        yield 'HTTP_SERVICE_UNAVAILABLE' => [
+            'responseCode' => 503,
+        ];
+        yield 'HTTP_GATEWAY_TIMEOUT' => [
+            'responseCode' => 504,
         ];
     }
 
     /**
-     * @return array<string, array{responseCode: int}>
+     * @return iterable<string, array{responseCode: int}>
      */
-    public static function unrecoverableResponseCodesDataProvider(): array
+    public static function unrecoverableResponseCodesDataProvider(): iterable
     {
-        return [
-            'HTTP_BAD_REQUEST' => [
-                'responseCode' => 400,
-            ],
-            'HTTP_UNAUTHORIZED' => [
-                'responseCode' => 401,
-            ],
-            'HTTP_FORBIDDEN' => [
-                'responseCode' => 403,
-            ],
-            'HTTP_INTERNAL_SERVER_ERROR' => [
-                'responseCode' => 500,
-            ],
-            'HTTP_VERSION_NOT_SUPPORTED' => [
-                'responseCode' => 505,
-            ],
+        yield 'HTTP_BAD_REQUEST' => [
+            'responseCode' => 400,
+        ];
+        yield 'HTTP_UNAUTHORIZED' => [
+            'responseCode' => 401,
+        ];
+        yield 'HTTP_FORBIDDEN' => [
+            'responseCode' => 403,
+        ];
+        yield 'HTTP_INTERNAL_SERVER_ERROR' => [
+            'responseCode' => 500,
+        ];
+        yield 'HTTP_VERSION_NOT_SUPPORTED' => [
+            'responseCode' => 505,
         ];
     }
 }

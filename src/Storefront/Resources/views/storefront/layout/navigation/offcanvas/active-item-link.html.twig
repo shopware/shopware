@@ -1,10 +1,13 @@
 {% block layout_navigation_offcanvas_navigation_category_headline %}
+    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
     <a class="nav-item nav-link navigation-offcanvas-headline"
        href="{{ item.seoUrl }}"
        {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-       itemprop="url">
+       {% if not feature('JSON_LD_DATA') %}
+       itemprop="url"
+       {% endif %}>
         {% block layout_navigation_offcanvas_navigation_category_headline_text %}
-            <span itemprop="name">
+            <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>
                 {{ item.translated.name }}
             </span>
         {% endblock %}

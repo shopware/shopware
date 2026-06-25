@@ -52,9 +52,8 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
         $result = new MediaCollection();
 
-        /** @var list<string> $mediaIds */
         $mediaIds = array_keys($mediaItems);
-        if (!empty($mediaIds)) {
+        if ($mediaIds !== []) {
             $criteria = (new Criteria($mediaIds))
                 ->setTitle('theme-service::resolve-media');
 

@@ -86,6 +86,11 @@ Reduce worker count
 npx playwright test --workers 4
 ```
 
+Running tests in UI Mode
+```
+npx playwright test --ui --project="Platform" product.spec.ts
+```
+
 ### Running with admin watcher
 
 You can point playwright to a different admin url by setting `ADMIN_URL`. The default is `${APP_URL}admin/`.

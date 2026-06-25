@@ -24,7 +24,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(MeasurementUnitProvider::class)]
 class MeasurementUnitProviderTest extends TestCase
 {
-    /** @var EntityRepository<EntityCollection<MeasurementDisplayUnitEntity>>&MockObject */
+    /**
+     * @var EntityRepository<EntityCollection<MeasurementDisplayUnitEntity>>&MockObject
+     */
     private EntityRepository&MockObject $repository;
 
     private MeasurementUnitProvider $provider;
@@ -93,8 +95,7 @@ class MeasurementUnitProviderTest extends TestCase
             ->with(static::isInstanceOf(Criteria::class), static::isInstanceOf(Context::class))
             ->willReturn($searchResult);
 
-        static::expectException(MeasurementSystemException::class);
-        static::expectExceptionMessage('The measurement system unit "nonexistent" is not supported. Possible units are: mm');
+        $this->expectExceptionObject(MeasurementSystemException::unsupportedMeasurementUnit('nonexistent', ['mm']));
 
         $this->provider->getUnitInfo('nonexistent');
     }

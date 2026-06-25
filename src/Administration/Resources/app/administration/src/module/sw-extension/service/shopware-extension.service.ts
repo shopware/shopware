@@ -103,7 +103,6 @@ export default class ShopwareExtensionService {
                 await this.extensionStoreActionService.refresh();
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();
 
             Shopware.Store.get('shopwareExtensions').setMyExtensions(myExtensions);
@@ -149,7 +148,6 @@ export default class ShopwareExtensionService {
     public getPriceFromVariant(variant: ExtensionVariant) {
         if (this.isVariantDiscounted(variant)) {
             // null assertion is fine here because we do all checks in isVariantDiscounted
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             return variant.discountCampaign!.discountedPrice!;
         }
 
@@ -183,7 +181,6 @@ export default class ShopwareExtensionService {
             return null;
         }
 
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
         const entryRoutes = Shopware.Store.get('extensionEntryRoutes').routes;
 
         if (entryRoutes[extension.name] !== undefined) {
@@ -192,7 +189,6 @@ export default class ShopwareExtensionService {
                 label: entryRoutes[extension.name].label ?? null,
             } as LabeledLocation;
         }
-        /* eslint-enable */
 
         return null;
     }

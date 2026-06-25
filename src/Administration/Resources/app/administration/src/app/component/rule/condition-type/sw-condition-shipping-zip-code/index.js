@@ -1,9 +1,6 @@
 import template from './sw-condition-shipping-zip-code.html.twig';
 import './sw-condition-shipping-zip-code.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -57,29 +54,20 @@ export default {
         },
 
         taggedFieldPlaceholder() {
-            const defaultPlaceholder = this.$tc('global.sw-tagged-field.text-default-placeholder');
+            const defaultPlaceholder = this.$t('global.sw-tagged-field.text-default-placeholder');
 
-            return `${defaultPlaceholder} ${this.$tc('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.zipCodes',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueZipCodesError;
+            return `${defaultPlaceholder} ${this.$t('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
         numericOptions() {
             return [
                 {
                     value: false,
-                    label: this.$tc('sw-property.detail.alphanumericSortingType'),
+                    label: this.$t('sw-property.detail.alphanumericSortingType'),
                 },
                 {
                     value: true,
-                    label: this.$tc('sw-property.detail.numericSortingType'),
+                    label: this.$t('sw-property.detail.numericSortingType'),
                 },
             ];
         },

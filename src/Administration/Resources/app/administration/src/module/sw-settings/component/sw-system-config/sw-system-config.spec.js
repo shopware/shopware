@@ -1,9 +1,10 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /* eslint-disable jest/no-conditional-expect */
 
 /**
  * @sw-package framework
  */
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
@@ -15,7 +16,19 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}) {
+async function createWrapper(defaultValues = {}, config = createConfig()) {
+    const systemConfigApiService = {
+        getConfig: jest.fn(() => Promise.resolve(config)),
+        getValues: jest.fn((domain, salesChannelId) => {
+            if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
+                return Promise.resolve(defaultValues[domain][salesChannelId]);
+            }
+
+            return Promise.resolve({});
+        }),
+        batchSave: jest.fn(() => Promise.resolve()),
+    };
+
     return mount(await wrapTestComponent('sw-system-config'), {
         props: {
             salesChannelSwitchable: true,
@@ -104,16 +117,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-time-ago': true,
             },
             provide: {
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve(createConfig()),
-                    getValues: (domain, salesChannelId) => {
-                        if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
-                            return Promise.resolve(defaultValues[domain][salesChannelId]);
-                        }
-
-                        return Promise.resolve({});
-                    },
-                },
+                systemConfigApiService,
                 repositoryFactory: {
                     create: (entity) => ({
                         search: (criteria) => {
@@ -720,6 +724,20 @@ function createConfig() {
     ];
 }
 
+function createConfigWithCacheRelevantField(fieldName) {
+    const config = createConfig();
+
+    config.forEach((card) => {
+        card.elements.forEach((element) => {
+            if (element.name === fieldName) {
+                element.config.cacheRelevant = true;
+            }
+        });
+    });
+
+    return config;
+}
+
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
@@ -756,6 +774,41 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Headless');
+    });
+
+    it('should allow removing inheritance from disabled Meteor switch fields', async () => {
+        const fieldName = 'ConfigRenderer.config.boolField';
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [fieldName]: true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        let field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        const switchInput = field.find('input[type="checkbox"]');
+        expect(switchInput.element.disabled).toBe(true);
+
+        let inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+        expect(inheritanceSwitch.attributes('disabled')).toBeUndefined();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBeUndefined();
+        expect(switchInput.element.checked).toBe(true);
+
+        await inheritanceSwitch.trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
     });
 
     it('should return ShopwareError when has error', async () => {
@@ -1081,12 +1134,282 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
     });
 
+    async function switchToHeadless() {
+        const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+        await salesChannelSwitch.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+        await salesChannelSwitch.find('.sw-select-option--2').trigger('click');
+        await flushPromises();
+    }
+
+    it('should keep an sw-entity-single-select empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.entitySelectField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('pullover'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent value and can unlink
+        let field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-entity-single-select__selection-text').text()).toBe('Pullover');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value, becomes editable
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('pullover'));
+
+        // Clear the selection -> emits null
+        await field.find('.sw-select__select-indicator-clear').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null, inheritance NOT restored,
+        // and the inherited value is no longer displayed.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(field.find('.sw-entity-single-select__selection-text').text()).not.toBe('Pullover');
+    });
+
+    it('should keep an sw-media-field empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.mediaField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('funny-image'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent media and can unlink
+        let field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(field.find('.sw-media-base-item__name').text()).toBe('funny-image.jpg');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('funny-image'));
+
+        // Unlink the media -> emits null
+        await field.find('.sw-media-field__toggle-button').trigger('click');
+        await flushPromises();
+        await field.find('.sw-media-field__action-button.is--remove').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null and inheritance NOT restored.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+    });
+
     it('should contain ai badge in second card', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-system-config__card--0 sw-ai-copilot-badge-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
+    });
+
+    it('should set hideClearableButton for required single-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should set hideClearableButton for required multi-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should not mutate source config in meteor bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        expect(element.config.hideClearableButton).toBeUndefined();
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+
+        expect(bind.config.hideClearableButton).toBe(true);
+        expect(element.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should set hideClearableButton for required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should not save unchanged config data', async () => {
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    'ConfigRenderer.config.textField': 'Original value',
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).not.toHaveBeenCalled();
+    });
+
+    it('should save only changed config data without silent parameter for non cache relevant fields', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.textField': 'Original value',
+                        'ConfigRenderer.config.textareaField': 'Original textarea',
+                    },
+                },
+            },
+            createConfigWithCacheRelevantField('ConfigRenderer.config.textField'),
+        );
+        await flushPromises();
+
+        wrapper.vm.actualConfigData.null['ConfigRenderer.config.textareaField'] = 'Changed textarea';
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledWith(
+            {
+                null: {
+                    'ConfigRenderer.config.textareaField': 'Changed textarea',
+                },
+            },
+            {},
+        );
+    });
+
+    it('should save cache relevant config changes with explicit non-silent parameter', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.textField': 'Original value',
+                    },
+                },
+            },
+            createConfigWithCacheRelevantField('ConfigRenderer.config.textField'),
+        );
+        await flushPromises();
+
+        wrapper.vm.actualConfigData.null['ConfigRenderer.config.textField'] = 'Changed value';
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledWith(
+            {
+                null: {
+                    'ConfigRenderer.config.textField': 'Changed value',
+                },
+            },
+            { silent: false },
+        );
+
+        wrapper.vm.systemConfigApiService.batchSave.mockClear();
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).not.toHaveBeenCalled();
     });
 
     it('should reinitialize on domain change', async () => {

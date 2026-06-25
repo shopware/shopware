@@ -132,6 +132,9 @@
                                     {% endblock %}
 
                                     {% block layout_search_suggest_result_total_count %}
+                                        {# duplicate id is fine in this case, because
+                                            the other use is in different if branch #}
+                                        {# ludtwig-ignore html-duplicate-id #}
                                         <div class="col-auto search-suggest-total-count" id="search-suggest-result-info">
                                             {{ 'header.searchResults'|trans({
                                                 '%count%': page.searchResult.total,

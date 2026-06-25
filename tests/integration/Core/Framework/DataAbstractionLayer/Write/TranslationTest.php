@@ -277,13 +277,13 @@ class TranslationTest extends TestCase
                 'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-tst_DE2',
+                    'code' => 'de-DE-1',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-tst_DE3',
+                    'code' => 'de-DE-2',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -382,7 +382,7 @@ class TranslationTest extends TestCase
             'id' => $germanLanguageId,
             'translationCode' => [
                 'name' => 'Niederländisch',
-                'code' => 'x-nl_NL',
+                'code' => 'nl-NL-2',
                 'territory' => 'Niederlande',
             ],
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
@@ -407,7 +407,7 @@ class TranslationTest extends TestCase
                     'name' => 'default',
                     'shortName' => 'def',
                 ],
-                'x-nl_NL' => [
+                'nl-NL-2' => [
                     'name' => $nlName,
                     'shortName' => $nlShortName,
                 ],
@@ -480,13 +480,13 @@ class TranslationTest extends TestCase
                 'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-de_DE',
+                    'code' => 'de-DE-1',
                     'name' => 'locale',
                     'territory' => 'territory',
                 ],
                 'translationCode' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-de_DE2',
+                    'code' => 'de-DE-2',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -1043,7 +1043,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'name' => 'parent',
                 'locale' => [
                     'id' => $this->ids->get('language-locale'),
-                    'code' => 'language-locale',
+                    'code' => 'de-DE-1',
                     'name' => 'language-locale',
                     'territory' => 'language-locale',
                 ],
@@ -1065,7 +1065,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             'id' => $id,
             'name' => [
                 'en-GB' => 'default',
-                'language-locale' => 'parent language',
+                'de-DE-1' => 'parent language',
             ],
         ];
 
@@ -1105,7 +1105,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'name' => 'parent',
                 'locale' => [
                     'id' => $this->ids->get('language-locale'),
-                    'code' => 'language-locale',
+                    'code' => 'de-DE-1',
                     'name' => 'language-locale',
                     'territory' => 'language-locale',
                 ],
@@ -1127,7 +1127,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             'id' => $id,
             'name' => [
                 'en-GB' => 'default',
-                'language-locale' => 'parent language',
+                'de-DE-1' => 'parent language',
                 $this->ids->get('language-child') => 'child language',
             ],
         ];

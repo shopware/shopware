@@ -1090,8 +1090,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $product
-     * @param array<string, string> $expected
+     * @param array<string, mixed> $product
+     * @param list<array<string, string>> $expected
      */
     #[DataProvider('optionCases')]
     public function testOptionSorting(array $product, array $expected, Criteria $criteria): void
@@ -1122,7 +1122,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
 
-        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+        $names = $options->map(static fn (PropertyGroupOptionEntity $option) => [
             'name' => $option->getName(),
         ]);
 
@@ -1130,7 +1130,7 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{array<string, mixed>, list<array<string, string>>}>
      */
     public static function optionCases(): array
     {
@@ -1154,7 +1154,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $optionsDescCriteria->getAssociation('options')->addSorting(new FieldSorting('name', 'DESC'));
 
         return [
-            1 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -1181,7 +1181,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 ],
                 $optionsAscCriteria,
             ],
-            2 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [

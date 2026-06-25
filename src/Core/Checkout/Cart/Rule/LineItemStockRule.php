@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+ *
  * @final
  */
 #[Package('fundamentals@after-sales')]
@@ -33,6 +35,9 @@ class LineItemStockRule extends Rule
         parent::__construct();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     */
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
@@ -46,6 +51,9 @@ class LineItemStockRule extends Rule
         return false;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     */
     public function getConstraints(): array
     {
         return [
@@ -54,6 +62,9 @@ class LineItemStockRule extends Rule
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     */
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())

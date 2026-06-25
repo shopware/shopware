@@ -21,7 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(ChangeCustomerStatusAction::class)]
 class ChangeCustomerStatusActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<CustomerCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private ChangeCustomerStatusAction $action;

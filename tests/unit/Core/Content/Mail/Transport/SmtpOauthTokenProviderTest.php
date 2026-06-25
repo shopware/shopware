@@ -48,7 +48,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 
@@ -108,7 +108,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 
@@ -135,8 +135,7 @@ class SmtpOauthTokenProviderTest extends TestCase
 
         $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
 
-        $this->expectException(MailException::class);
-        $this->expectExceptionMessage('Failed to fetch oauth token: Error details');
+        $this->expectExceptionObject(MailException::oauthError('Failed to fetch oauth token: Error details'));
 
         $provider->getToken();
     }

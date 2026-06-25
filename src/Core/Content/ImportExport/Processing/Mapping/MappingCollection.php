@@ -90,7 +90,7 @@ class MappingCollection extends Collection
     {
         $mappings = $this->getElements();
 
-        usort($mappings, fn (Mapping $firstMapping, Mapping $secondMapping) => $firstMapping->getPosition() - $secondMapping->getPosition());
+        usort($mappings, static fn (Mapping $firstMapping, Mapping $secondMapping) => $firstMapping->getPosition() - $secondMapping->getPosition());
 
         return $mappings;
     }

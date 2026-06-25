@@ -51,8 +51,8 @@
                 {% block sw_app_action_modal_close_button %}
                 <button
                     class="sw-modal__close"
-                    :title="$tc('global.sw-modal.labelClose')"
-                    :aria-label="$tc('global.sw-modal.labelClose')"
+                    :title="$t('global.sw-modal.labelClose')"
+                    :aria-label="$t('global.sw-modal.labelClose')"
                     @click.prevent="onCloseModal"
                 >
                     {% block sw_app_action_modal_close_icon %}
@@ -84,19 +84,19 @@
         <sw-modal
             v-if="isOpenConfirmModal"
             class="sw-app-action-button-modal-confirm"
-            :title="$tc('sw-app.component.sw-app-actions.closeWindow')"
+            :title="$t('sw-app.component.sw-app-actions.closeWindow')"
             variant="small"
             @modal-close="onCloseModalConfirm"
         >
-            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessage', { title: action.app }, 0) }}</p>
-            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessageDescription') }}</p>
+            <p>{{ $t('sw-app.component.sw-app-actions.iframeModalConfirmMessage', { title: action.app }, 0) }}</p>
+            <p>{{ $t('sw-app.component.sw-app-actions.iframeModalConfirmMessageDescription') }}</p>
 
             {% block sw_app_action_modal_confirm_footer %}
             <template #modal-footer>
                 {% block sw_app_action_modal_confirm_checkbox %}
                 <mt-checkbox
                     :checked="!isShowModalConfirm"
-                    :label="$tc('sw-app.component.sw-app-actions.dontAskMeAgain')"
+                    :label="$t('sw-app.component.sw-app-actions.dontAskMeAgain')"
                     @update:checked="onChangeCheckboxShow()"
                 />
                 {% endblock %}
@@ -109,7 +109,7 @@
                         variant="secondary"
                         @click="onCloseModalConfirm"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -119,7 +119,7 @@
                         size="small"
                         @click="onConfirmClose"
                     >
-                        {{ $tc('global.default.close') }}
+                        {{ $t('global.default.close') }}
                     </mt-button>
                     {% endblock %}
                 </div>

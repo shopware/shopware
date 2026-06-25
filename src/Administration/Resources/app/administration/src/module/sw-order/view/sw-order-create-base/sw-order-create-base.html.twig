@@ -26,7 +26,7 @@
 
     {% block sw_order_create_details %}
     <mt-card
-        :title="$tc('sw-order.createBase.labelDetailsCard')"
+        :title="$t('sw-order.createBase.labelDetailsCard')"
         :is-loading="isLoadingDetail"
         position-identifier="sw-order-create-base-details"
         class="sw-order-create__card"
@@ -75,7 +75,7 @@
 
     {% block sw_order_create_base_line_items_card %}
     <mt-card
-        :title="$tc('sw-order.createBase.cardTitleLineItems')"
+        :title="$t('sw-order.createBase.cardTitleLineItems')"
         :is-loading="isLoading"
         position-identifier="sw-order-create-base-line-items"
         class="sw-order-create__card sw-order-create-base__line-item-grid-card"
@@ -114,7 +114,7 @@
                             <mt-switch
                                 v-model="disabledAutoPromotionVisibility"
                                 class="sw-order-create-summary__switch-promotions"
-                                :label="$tc('sw-order.promotionModal.labelTitle')"
+                                :label="$t('sw-order.promotionModal.labelTitle')"
                             />
                             {% endblock %}
                             {% block sw_order_create_base_line_items_voucher_field %}
@@ -122,8 +122,8 @@
                                 v-model:value="promotionCodeTags"
                                 :disabled="!hasLineItem"
                                 :currency="currency"
-                                :label="$tc('sw-order.createBase.labelAddPromotion')"
-                                :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                                :label="$t('sw-order.createBase.labelAddPromotion')"
+                                :placeholder="$t('sw-order.createBase.placeholderAddPromotion')"
                                 :error="promotionError"
                                 @on-remove-code="onRemoveExistingCode"
                             />
@@ -135,13 +135,13 @@
                         >
                             {% block sw_order_create_base_line_items_summary_entries %}
                             {% block sw_order_create_base_line_items_summary_amount %}
-                            <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
+                            <dt>{{ $t('sw-order.createBase.summaryLabelAmount') }}</dt>
                             <dd>{{ currencyFilter(cartPrice ? cartPrice.positionPrice : 0, currency.isoCode) }}</dd>
                             {% endblock %}
 
                             {% block sw_order_create_base_line_items_summary_shipping_cost %}
                             <template v-if="cartDelivery">
-                                <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
+                                <dt>{{ $t('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
                                 <dd>
                                     <sw-order-saveable-field
                                         v-tooltip="{
@@ -164,7 +164,7 @@
                                 :key="index"
                             >
                                 <dt>
-                                    {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
+                                    {{ $t('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
                                 <dd>
                                     {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode) }}
@@ -174,7 +174,7 @@
 
                             {% block sw_order_create_base_line_items_summary_amount_without_tax %}
                             <template v-if="taxStatus !== 'tax-free'">
-                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                <dt><strong>{{ $t('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
                                 <dd><strong>{{ currencyFilter(cartPrice ? cartPrice.netPrice : 0, currency.isoCode) }}</strong></dd>
                             </template>
                             {% endblock %}
@@ -186,7 +186,7 @@
                                     :key="index"
                                 >
                                     <dt>
-                                        {{ $tc('sw-order.createBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
+                                        {{ $t('sw-order.createBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
                                     </dt>
                                     <dd>
                                         {{ currencyFilter(calculatedTax.tax, currency.isoCode) }}
@@ -197,10 +197,10 @@
 
                             {% block sw_order_create_base_line_items_summary_amount_total %}
                             <template v-if="taxStatus !== 'tax-free'">
-                                <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
+                                <dt><strong>{{ $t('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
                                 <dd><strong>{{ currencyFilter(orderTotal, currency.isoCode) }}</strong></dd>
                                 <template v-if="displayRounded">
-                                    <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                    <dt><strong>{{ $t('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong></dt>
                                     <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.isoCode) }}</strong></dd>
                                 </template>
                             </template>
@@ -208,7 +208,7 @@
 
                             {% block sw_order_create_base_line_items_summary_amount_free_tax %}
                             <template v-if="taxStatus === 'tax-free'">
-                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                                <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                                 <dd><strong>{{ currencyFilter(cart.price.totalPrice, currency.isoCode) }}</strong></dd>
                             </template>
                             {% endblock %}

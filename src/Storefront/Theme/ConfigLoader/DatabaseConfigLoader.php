@@ -123,9 +123,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     {
         // add configured parent themes
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName))->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName))->first();
 
-            if (!($parentTheme instanceof ThemeEntity)) {
+            if (!$parentTheme instanceof ThemeEntity) {
                 continue;
             }
 
@@ -144,9 +144,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         // add database defined parent theme
-        $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
+        $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
-        if (!($parentTheme instanceof ThemeEntity)) {
+        if (!$parentTheme instanceof ThemeEntity) {
             return $parentThemes;
         }
 
@@ -232,7 +232,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-            if (isset($configValue['value'])) {
+            if (\array_key_exists('value', $configValue)) {
                 $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
             }
         }

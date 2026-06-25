@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
@@ -99,7 +101,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
             wrapper.vm.orderId,
             oldVersionContext.versionId,
-            oldVersionContext,
         );
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
@@ -133,6 +134,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBeTruthy();
     });
 
+    it('should reset pending address selections when creating a new version', async () => {
+        wrapper = await createWrapper();
+
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: 'old-order-address-id',
+            customerAddressId: 'customer-address-id',
+            type: 'billing',
+        });
+
+        await wrapper.vm.createNewVersionId();
+
+        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
+    });
+
     it('should clean up unsaved version when component gets destroyed', async () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
@@ -141,6 +156,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await wrapper.vm.beforeDestroyComponent();
 
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
+    it('should reset pending address selections when component gets destroyed', async () => {
+        wrapper = await createWrapper();
+
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: 'old-order-address-id',
+            customerAddressId: 'customer-address-id',
+            type: 'billing',
+        });
+
+        await wrapper.vm.beforeDestroyComponent();
+
+        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
     it('should remove version context immediately when cancelling', async () => {
@@ -175,6 +204,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'tags',
             'billingAddress',
         ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
+        expect(criteria.getAssociation('orderCustomer').hasAssociation('customer')).toBe(true);
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {

@@ -33,4 +33,9 @@ class ProductAnalytics implements ConsentDefinition
     {
         return ['user.update_profile'];
     }
+
+    public function getLatestRevision(): ?string
+    {
+        return null;
+    }
 }

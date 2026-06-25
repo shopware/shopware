@@ -62,7 +62,7 @@ async function createWrapper(customPropsData = {}) {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',

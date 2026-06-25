@@ -1,0 +1,32 @@
+{% block layout_structured_data_item_list %}
+    {#
+        ItemList describes the products shown on the current page to Google.
+        Only the products visible on this page/page-number are listed; this is
+        the recommended approach for paginated content — each page describes its
+        own slice and Google assembles the full catalogue from the individual pages.
+        searchResult is an EntitySearchResult<ProductCollection>.
+    #}
+    {% if searchResult is defined and searchResult and searchResult.total > 0 %}
+        {% set itemListElements = [] %}
+        {% for product in searchResult %}
+            {% set itemListElements = itemListElements|merge([{
+                '@type': 'ListItem',
+                position: loop.index,
+                url: seoUrl('frontend.detail.page', { productId: product.id })
+            }]) %}
+        {% endfor %}
+
+        {% set itemListData = {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: itemListElements
+        } %}
+
+        {% block layout_structured_data_item_list_script %}
+            <script type="application/ld+json">
+            {# ludtwig-ignore twig-json-encode-escape-js #}
+            {{ itemListData|json_encode(jsonLdFlags)|raw }}
+            </script>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

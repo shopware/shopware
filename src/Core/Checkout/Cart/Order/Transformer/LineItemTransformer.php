@@ -82,17 +82,17 @@ class LineItemTransformer
         ];
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use (&$data, $lineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use (&$data, $lineItem): void {
                 $data['states'] = $lineItem->getStates();
             });
         }
 
         $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         if ($downloads instanceof OrderLineItemDownloadCollection) {
-            $data['downloads'] = array_values($downloads->map(fn (OrderLineItemDownloadEntity $download): array => ['id' => $download->getId()]));
+            $data['downloads'] = array_values($downloads->map(static fn (OrderLineItemDownloadEntity $download): array => ['id' => $download->getId()]));
         }
 
-        $output[$lineItem->getId()] = array_filter($data, fn ($value) => $value !== null);
+        $output[$lineItem->getId()] = array_filter($data, static fn ($value) => $value !== null);
 
         if ($lineItem->hasChildren()) {
             $output = [...$output, ...self::transformCollection($lineItem->getChildren(), $id)];
@@ -198,7 +198,7 @@ class LineItemTransformer
         $isDownloadState = $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL;
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use (&$isDownloadState, $entity): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use (&$isDownloadState, $entity): void {
                 $isDownloadState = $isDownloadState || \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
             });
         }
@@ -241,7 +241,7 @@ class LineItemTransformer
         $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, &$isPhysicalLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($lineItem, &$isPhysicalLineItem): void {
                 $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
             });
         }

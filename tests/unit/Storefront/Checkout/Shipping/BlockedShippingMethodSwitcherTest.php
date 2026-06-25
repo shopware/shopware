@@ -13,8 +13,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -70,7 +68,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -87,7 +85,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -120,7 +118,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -146,7 +144,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(2, $errorCollectionFiltered);
 
@@ -186,7 +184,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(1, $errorCollectionFiltered);
@@ -197,6 +195,49 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             'oldShippingMethodName' => 'original-shipping-method-name',
             'newShippingMethodId' => 'any-other-shipping-method-id',
             'newShippingMethodName' => 'any-other-shipping-method-name',
+            'reason' => 'Shipping method blocked',
+        ], $error->getParameters());
+    }
+
+    public function testSwitchWithProvidedShippingMethodsDoesNotLoadRoute(): void
+    {
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-shipping-method-id', 'name' => 'original-shipping-method-name'],
+        ]);
+
+        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $switcher = new BlockedShippingMethodSwitcher($shippingMethodRoute);
+        $anyOtherShippingMethod = $this->shippingMethodCollection->get('any-other-shipping-method-id');
+        $defaultShippingMethod = $this->shippingMethodCollection->get('default-shipping-method-id');
+        static::assertInstanceOf(ShippingMethodEntity::class, $anyOtherShippingMethod);
+        static::assertInstanceOf(ShippingMethodEntity::class, $defaultShippingMethod);
+
+        $newShippingMethod = $switcher->switch(
+            $errorCollection,
+            $this->salesChannelContext,
+            new ShippingMethodCollection([
+                $anyOtherShippingMethod,
+                $defaultShippingMethod,
+            ])
+        );
+
+        static::assertSame('default-shipping-method-id', $newShippingMethod->getId());
+
+        $errorCollectionFiltered = $errorCollection->filter(
+            static fn ($error) => $error instanceof ShippingMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
+        static::assertSame([
+            'oldShippingMethodId' => 'original-shipping-method-id',
+            'oldShippingMethodName' => 'original-shipping-method-name',
+            'newShippingMethodId' => 'default-shipping-method-id',
+            'newShippingMethodName' => 'default-shipping-method-name',
             'reason' => 'Shipping method blocked',
         ], $error->getParameters());
     }
@@ -216,7 +257,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
+            static fn ($error) => $error instanceof ShippingMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -224,57 +265,22 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
     public function callbackLoadShippingMethods(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        $searchIds = $criteria->getIds();
-
-        if ($searchIds === []) {
-            static::assertCount(1, $criteria->getFilters());
-
-            $notEqualsAnyFilter = $criteria->getFilters()[0];
-
-            static::assertInstanceOf(NotEqualsAnyFilter::class, $notEqualsAnyFilter);
-            static::assertCount(1, $notEqualsAnyFilter->getQueries());
-
-            $idsFilter = $notEqualsAnyFilter->getQueries()[0];
-
-            static::assertInstanceOf(EqualsAnyFilter::class, $idsFilter);
-
-            $ids = $idsFilter->getValue();
-
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
-            );
-        } else {
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
             ->expects($this->once())
             ->method('getShippingMethods')
-            ->willReturn($collection);
+            ->willReturn($this->shippingMethodCollection);
 
         return $shippingMethodResponse;
     }
 
     public function callbackLoadShippingMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        $searchIds = $criteria->getIds();
-
-        if ($searchIds === []) {
-            $collection = new ShippingMethodCollection();
-        } else {
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
             ->expects($this->once())
             ->method('getShippingMethods')
-            ->willReturn($collection);
+            ->willReturn(new ShippingMethodCollection());
 
         return $shippingMethodResponse;
     }
@@ -290,7 +296,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::equalTo(new Request(['onlyAvailable' => true])),

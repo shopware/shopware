@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
+use Shopware\Core\Test\Assert\Serialization;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
@@ -26,10 +27,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector([]);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
         static::assertSame(['default'], $c->getConnections());
     }
 
@@ -38,10 +36,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector([]);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
         static::assertSame(0, $c->getQueryCount());
 
         $queries = [
@@ -50,10 +45,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
         static::assertSame(1, $c->getQueryCount());
     }
 
@@ -62,10 +54,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector([]);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
         static::assertSame(0.0, $c->getTime());
 
         $queries = [
@@ -74,10 +63,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
         static::assertSame(10.0, $c->getTime());
 
         $queries = [
@@ -87,10 +73,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         static::assertGreaterThanOrEqual(30, $c->getTime());
     }
@@ -103,10 +86,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         $collectedQueries = $c->getQueries();
         static::assertSame([], $collectedQueries['default'][0]['types']);
@@ -123,10 +103,7 @@ class ConnectionProfilerTest extends TestCase
         $c->reset();
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         static::assertSame([], $c->getQueries());
     }
@@ -143,10 +120,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         $collectedQueries = $c->getQueries()['default'][0];
 
@@ -169,16 +143,14 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: mixed, 1: array<mixed>, 2: mixed}>
+     * @return iterable<array{0: mixed, 1: array<mixed>, 2: mixed}>
      */
-    public static function paramProvider(): array
+    public static function paramProvider(): iterable
     {
-        return [
-            ['some value', [], 'some value'],
-            [1, [], 1],
-            [true, [], true],
-            [null, [], null],
-        ];
+        yield 'string profiling parameter stays unchanged' => ['some value', [], 'some value'];
+        yield 'integer profiling parameter stays unchanged' => [1, [], 1];
+        yield 'profiling enabled parameter stays true' => [true, [], true];
+        yield 'missing profiling parameter stays null' => [null, [], null];
     }
 
     public function testCollectQueryWithNoParams(): void
@@ -190,10 +162,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         $collectedQueries = $c->getQueries();
         static::assertInstanceOf(Data::class, $collectedQueries['default'][0]['params']);
@@ -218,10 +187,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $c = \unserialize(\serialize($c));
-
-        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        $c = Serialization::assertRoundTrip($c);
 
         $collectedQueries = $c->getQueries()['default'][0];
 
@@ -252,19 +218,15 @@ class ConnectionProfilerTest extends TestCase
         $config = new Configuration();
         $config->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = $this->createMock(Query::class);
+            $query = static::createStub(Query::class);
             $query->method('getSql')
                 ->willReturn($queryData['sql'] ?? '');
             $query->method('getTypes')

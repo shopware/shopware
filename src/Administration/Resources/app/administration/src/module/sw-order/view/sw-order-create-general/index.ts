@@ -43,7 +43,6 @@ export default Component.wrapComponentConfig({
         },
 
         isCustomerActive(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').isCustomerActive;
         },
 
@@ -73,7 +72,6 @@ export default Component.wrapComponentConfig({
                         tax: format.currency(
                             item.tax,
                             this.currency.isoCode,
-                            // eslint-disable-next-line max-len
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
                             (this.currency.totalRounding as any)?.decimals,
                         ),
@@ -82,7 +80,7 @@ export default Component.wrapComponentConfig({
                 );
             });
 
-            return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
+            return `${this.$t('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
         },
 
         filteredCalculatedTaxes(): CalculatedTax[] {

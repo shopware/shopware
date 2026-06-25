@@ -146,6 +146,7 @@
             <argument type="service" id="Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -212,6 +213,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -257,6 +259,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
+            <argument>%shopware.storefront.redirect_on_single_hit_fields%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -336,6 +339,14 @@
 
         <service id="Shopware\Storefront\Controller\RobotsController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Robots\RobotsPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\StorybookController" public="true">
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Storefront\Storybook\StorybookService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -8,14 +8,13 @@ const utils = Shopware.Utils;
 /**
  * @private
  */
-// eslint-disable-next-line no-use-before-define,sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ErrorStore = ReturnType<typeof errorStore>;
 
 /**
  * @private
  * @description Creates a path to the error in the error store
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createPathToError(expression: string, store: ErrorStore['api']): { field: string; deepState: string } {
     const path = expression.split('.');
     const field = path.pop();
@@ -27,11 +26,9 @@ function createPathToError(expression: string, store: ErrorStore['api']): { fiel
             currentStore[next] = {};
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return currentStore[next];
     }, store);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return { field: field!, deepState };
 }
 
@@ -56,7 +53,6 @@ function removeApiError(expression: string, store: ErrorStore) {
     // @ts-expect-error
     const deepState = path.reduce((currentStore, next) => {
         if (currentStore?.[next]) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return currentStore[next];
         }
 
@@ -164,7 +160,6 @@ const errorStore = Shopware.Store.register({
         },
 
         getApiError() {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return (entity: GivenEntity, field: string) => {
                 const path = field.split('.');
 

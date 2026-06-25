@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -47,7 +48,7 @@ class CreateMigrationCommandTest extends TestCase
         $coreDir = '/path/to/core';
         $shopwareVersion = '6.5.0';
 
-        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, $now);
+        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, new MockClock($now));
 
         $commandTester = new CommandTester($command);
 
@@ -67,7 +68,7 @@ class CreateMigrationCommandTest extends TestCase
         $migrationFileRenderer
             ->expects($fileRendererInvocation)
             ->method('render')
-            ->willReturnCallback(function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
+            ->willReturnCallback(static function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
                 static::assertSame($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
                 static::assertSame($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
 
@@ -79,7 +80,7 @@ class CreateMigrationCommandTest extends TestCase
         $filesystem
             ->expects($filesystemInvocation)
             ->method('dumpFile')
-            ->willReturnCallback(function (string $path) use ($filesystemInvocation, $expectedPaths): void {
+            ->willReturnCallback(static function (string $path) use ($filesystemInvocation, $expectedPaths): void {
                 static::assertSame($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
             });
 

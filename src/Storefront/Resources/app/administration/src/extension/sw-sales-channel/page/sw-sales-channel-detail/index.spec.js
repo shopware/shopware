@@ -72,7 +72,7 @@ describe('sw-sales-channel-detail extension', () => {
                 extensions: { themes: [{ id: 'new-theme-id' }] },
             },
             createNotificationError: jest.fn(),
-            $tc: (key) => key,
+            $t: (key) => key,
         };
 
         await overrideConfig.methods.assignSalesChannelTheme.call(vm);

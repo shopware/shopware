@@ -16,12 +16,12 @@ class SalesChannelTypeTranslationCollection extends EntityCollection
      */
     public function getSalesChannelTypeIds(): array
     {
-        return $this->fmap(fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId());
+        return $this->fmap(static fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId());
     }
 
     public function filterBySalesChannelId(string $id): self
     {
-        return $this->filter(fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId() === $id);
+        return $this->filter(static fn (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) => $salesChannelTypeTranslation->getSalesChannelTypeId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class SalesChannelTypeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId());
+        return $this->fmap(static fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (SalesChannelTypeTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

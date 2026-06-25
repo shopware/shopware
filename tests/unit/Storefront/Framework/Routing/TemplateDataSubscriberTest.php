@@ -168,10 +168,11 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
+        $shopId = ShopId::v2('123');
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('123');
+            ->willReturn($shopId);
 
         $this->subscriber->addShopIdParameter($event);
 

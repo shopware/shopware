@@ -266,7 +266,7 @@
           },
           "helpText": {
             "ariaLabel": "This text will be read out by screen readers as link text.",
-            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "minHeight": "Enter the minimum height. A plain number is treated as pixels. For example, \"200\" becomes \"200px\".",
             "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
             "useFetchPriorityOnFirstItem": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
@@ -534,6 +534,7 @@
             "type": "Form type",
             "typeContact": "Contact",
             "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Revocation",
             "confirmationText": "Confirmation text"
           },
           "placeholder": {
@@ -553,7 +554,9 @@
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
             "subject": "Subject line*",
-            "subscribeToNewsletter": "Subscribe to newsletter"
+            "subscribeToNewsletter": "Subscribe to newsletter",
+            "contractNumber": "Contract number (order number, subscription number, ...)*    ",
+            "comment": "Comment"
           },
           "placeholder": {
             "firstName": "John",
@@ -561,7 +564,9 @@
             "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
-            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
             "requiredFields": "Fields marked with asterisks (*) are required."
@@ -645,7 +650,10 @@
         }
       },
       "productName": {
-        "label": "Product Name"
+        "label": "Product name"
+      },
+      "categoryName": {
+        "label": "Category name"
       },
       "html": {
         "label": "HTML",
@@ -657,6 +665,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Category name"
+        },
         "productHeading": {
           "label": "Product name & manufacturer logo"
         },
@@ -844,6 +855,7 @@
           "404Page": "404 pages",
           "maintenancePage": "Maintenance pages",
           "contactPage": "Contact forms",
+          "revocationRequestPage": "Revocation request form",
           "newsletterPage": "Newsletter pages"
         },
         "products": {

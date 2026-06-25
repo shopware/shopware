@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaLocationBuilderTest;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -18,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @codeCoverageIgnore
  *
- * @see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaLocationBuilderTest
+ * @see MediaLocationBuilderTest
  */
 #[Package('discovery')]
 class SqlMediaLocationBuilder implements MediaLocationBuilder

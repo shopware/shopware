@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 
@@ -15,6 +16,11 @@ use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 #[CoversClass(SearchKeywordReplacement::class)]
 class SearchKeywordReplacementTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
+
     public function testSearchKeywordReplacement(): void
     {
         $decorated = $this->createMock(SearchKeywordUpdater::class);

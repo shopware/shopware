@@ -25,6 +25,11 @@ class Migration1689084023AdminElasticsearchIndexTaskTest extends TestCase
         $this->rollback();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1689084023, (new Migration1689084023AdminElasticsearchIndexTask())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1689084023AdminElasticsearchIndexTask();

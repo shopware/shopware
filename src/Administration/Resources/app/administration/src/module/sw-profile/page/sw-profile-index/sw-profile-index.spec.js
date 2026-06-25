@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@framework
  */
@@ -5,7 +7,12 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
 
-async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunction = () => Promise.resolve({})) {
+async function createWrapper(
+    privileges = [],
+    isSso = { isSso: false },
+    saveFunction = () => Promise.resolve({}),
+    loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
+) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
             stubs: {
@@ -64,10 +71,11 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunc
                             getSyncChangeset: () => ({
                                 changeset: [{ changes: { id: '1337' } }],
                             }),
+                            save: () => Promise.resolve(),
                         };
                     },
                 },
-                loginService: {},
+                loginService,
                 userService: {
                     getUser: () => Promise.resolve({ data: { id: '87923' } }),
                     updateUser: saveFunction,
@@ -100,6 +108,11 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunc
                 ssoSettingsService: {
                     isSso: () => {
                         return Promise.resolve(isSso);
+                    },
+                },
+                validationApiService: {
+                    validateEmailAddress: () => {
+                        return Promise.resolve(true);
                     },
                 },
             },
@@ -283,5 +296,223 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.saveMinSearchTermLength.mockRestore();
         wrapper.vm.saveUserSearchPreferences.mockRestore();
+    });
+
+    it('should re-login before updateCurrentUser when password changes (user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+
+        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'NewPassword123',
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        let updateCurrentUserCalled = false;
+        let loginCalledBeforeUpdate = false;
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {
+            updateCurrentUserCalled = true;
+            loginCalledBeforeUpdate = loginByUsername.mock.calls.length > 0;
+        });
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).toHaveBeenCalledWith('admin', 'NewPassword123');
+        expect(updateCurrentUserCalled).toBe(true);
+        expect(loginCalledBeforeUpdate).toBe(true);
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should NOT re-login when no password change (user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+
+        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: null,
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should re-login before updateCurrentUser when password changes (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.resolve({}));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'NewPassword123',
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        let updateCurrentUserCalled = false;
+        let loginCalledBeforeUpdate = false;
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {
+            updateCurrentUserCalled = true;
+            loginCalledBeforeUpdate = loginByUsername.mock.calls.length > 0;
+        });
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).toHaveBeenCalledWith('admin', 'NewPassword123');
+        expect(updateCurrentUserCalled).toBe(true);
+        expect(loginCalledBeforeUpdate).toBe(true);
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should NOT re-login when no password change (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.resolve({}));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: null,
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should show an error and not succeed when save fails (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.reject(new Error('Save failed')));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+    });
+
+    it('should log out and not show a save error when re-login fails after password change (user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.reject(new Error('Network error')));
+        const logout = jest.fn();
+        const loginService = { loginByUsername, logout };
+
+        const wrapper = await createWrapper(['user:editor'], { isSso: false }, () => Promise.resolve({}), loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'NewPassword123',
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+        wrapper.vm.handleUserSaveError = jest.fn();
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).toHaveBeenCalledWith('admin', 'NewPassword123');
+        expect(logout).toHaveBeenCalled();
+        expect(wrapper.vm.handleUserSaveError).not.toHaveBeenCalled();
+    });
+
+    it('should log out and not show a save error when re-login fails after password change (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.reject(new Error('Network error')));
+        const logout = jest.fn();
+        const loginService = { loginByUsername, logout };
+        const updateUser = jest.fn(() => Promise.resolve({}));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'NewPassword123',
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(loginByUsername).toHaveBeenCalledWith('admin', 'NewPassword123');
+        expect(logout).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
     });
 });

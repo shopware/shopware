@@ -106,11 +106,11 @@ export default {
             return [
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
-                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                    label: this.$t('sw-customer.customerType.labelPrivate'),
                 },
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
-                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                    label: this.$t('sw-customer.customerType.labelBusiness'),
                 },
             ];
         },
@@ -147,28 +147,28 @@ export default {
 
         customerImitationWarning() {
             if (this.customer.guest) {
-                return this.$tc('sw-customer.card.tooltipImitateCustomerGuest');
+                return this.$t('sw-customer.card.tooltipImitateCustomerGuest');
             }
 
             if (!this.customer.active) {
-                return this.$tc('sw-customer.card.tooltipImitateCustomerInactive');
+                return this.$t('sw-customer.card.tooltipImitateCustomerInactive');
             }
 
             if (this.customer.boundSalesChannel) {
                 if (!this.customer.boundSalesChannel.active) {
-                    return this.$tc('sw-customer.card.tooltipImitateCustomerInactiveSalesChannel');
+                    return this.$t('sw-customer.card.tooltipImitateCustomerInactiveSalesChannel');
                 }
 
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
-                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoStorefront');
+                    return this.$t('sw-customer.card.tooltipImitateCustomerNoStorefront');
                 }
 
                 if (!this.customer.boundSalesChannel.domains?.length) {
-                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoDomain');
+                    return this.$t('sw-customer.card.tooltipImitateCustomerNoDomain');
                 }
             }
 
-            return this.$tc('sw-privileges.tooltip.warning');
+            return this.$t('sw-privileges.tooltip.warning');
         },
 
         hasSingleBoundSalesChannelUrl() {
@@ -215,7 +215,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                            message: this.$t('sw-customer.detail.notificationImitateCustomerErrorMessage'),
                         });
                     });
                 return;

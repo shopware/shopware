@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -48,7 +50,9 @@ class StateMachineRegistry implements ResetInterface
         private readonly EntityRepository $stateMachineStateRepository,
         private readonly EntityRepository $stateMachineHistoryRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly StateMachineLocker $stateMachineLocker,
+        private readonly Connection $connection
     ) {
     }
 
@@ -113,113 +117,149 @@ class StateMachineRegistry implements ResetInterface
     public function transition(Transition $transition, Context $context): StateMachineStateCollection
     {
         return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($transition): StateMachineStateCollection {
-            $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
-
-            $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
-            $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
-
-            $fromPlace = $this->getFromPlace(
-                $transition->getEntityName(),
-                $transition->getEntityId(),
-                $transition->getStateFieldName(),
+            $result = $this->stateMachineLocker->locked(
+                $transition,
                 $context,
-                $repository
+                fn (): StateMachineTransitionResult => $this->transitionState($transition, $context)
             );
 
-            if ($transition->getTransitionName() === '') {
-                $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-                $transitionNames = array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
-
-                throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
+            if ($result->hasTransitioned) {
+                $this->dispatchTransitionEvents($transition, $context, $result);
             }
 
-            try {
-                $toPlace = $this->getTransitionDestinationById(
-                    $stateMachine->getTechnicalName(),
-                    $fromPlace->getId(),
-                    $transition->getTransitionName(),
-                    $context
-                );
-            } catch (UnnecessaryTransitionException) {
-                // No transition needed, therefore don't create a history entry and return
-                $stateMachineStateCollection = new StateMachineStateCollection();
-
-                $stateMachineStateCollection->set('fromPlace', $fromPlace);
-                $stateMachineStateCollection->set('toPlace', $fromPlace);
-
-                return $stateMachineStateCollection;
-            }
-
-            $stateMachineHistoryEntity = [
-                'stateMachineId' => $toPlace->getStateMachineId(),
-                'entityName' => $transition->getEntityName(),
-                'fromStateId' => $fromPlace->getId(),
-                'toStateId' => $toPlace->getId(),
-                'transitionActionName' => $transition->getTransitionName(),
-                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-                'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
-                'referencedId' => $transition->getEntityId(),
-                'referencedVersionId' => $context->getVersionId(),
-                'internalComment' => $transition->getInternalComment(),
-            ];
-
-            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
-
-            $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
-
-            $repository->upsert($data, $context);
-
-            $this->eventDispatcher->dispatch(
-                new StateMachineTransitionEvent(
-                    $transition->getEntityName(),
-                    $transition->getEntityId(),
-                    $fromPlace,
-                    $toPlace,
-                    $context,
-                    $transition->getInternalComment(),
-                )
-            );
-
-            $leaveEvent = new StateMachineStateChangeEvent(
-                $context,
-                StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
-                $transition,
-                $stateMachine,
-                $fromPlace,
-                $toPlace
-            );
-
-            $this->eventDispatcher->dispatch(
-                $leaveEvent,
-                $leaveEvent->getName()
-            );
-
-            $enterEvent = new StateMachineStateChangeEvent(
-                $context,
-                StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
-                $transition,
-                $stateMachine,
-                $fromPlace,
-                $toPlace
-            );
-
-            $this->eventDispatcher->dispatch(
-                $enterEvent,
-                $enterEvent->getName()
-            );
-
-            $stateMachineStateCollection = new StateMachineStateCollection();
-
-            $stateMachineStateCollection->set('fromPlace', $fromPlace);
-            $stateMachineStateCollection->set('toPlace', $toPlace);
-
-            return $stateMachineStateCollection;
+            return $result->stateMachineStates;
         });
     }
 
     public function reset(): void
     {
         $this->stateMachines = [];
+    }
+
+    private function transitionState(Transition $transition, Context $context): StateMachineTransitionResult
+    {
+        $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
+
+        $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
+        $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
+
+        $fromPlace = $this->getFromPlace(
+            $transition->getEntityName(),
+            $transition->getEntityId(),
+            $transition->getStateFieldName(),
+            $context,
+            $repository
+        );
+
+        if ($transition->getTransitionName() === '') {
+            $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
+            $transitionNames = \array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+
+            throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
+        }
+
+        try {
+            $toPlace = $this->getTransitionDestinationById(
+                $stateMachine->getTechnicalName(),
+                $fromPlace->getId(),
+                $transition->getTransitionName(),
+                $context
+            );
+        } catch (UnnecessaryTransitionException) {
+            // No transition needed, therefore don't create a history entry and return
+            $stateMachineStateCollection = new StateMachineStateCollection();
+
+            $stateMachineStateCollection->set('fromPlace', $fromPlace);
+            $stateMachineStateCollection->set('toPlace', $fromPlace);
+
+            return new StateMachineTransitionResult(
+                false,
+                $stateMachineStateCollection,
+                $stateMachine,
+                $fromPlace,
+                $fromPlace,
+            );
+        }
+
+        $stateMachineHistoryEntity = [
+            'stateMachineId' => $toPlace->getStateMachineId(),
+            'entityName' => $transition->getEntityName(),
+            'fromStateId' => $fromPlace->getId(),
+            'toStateId' => $toPlace->getId(),
+            'transitionActionName' => $transition->getTransitionName(),
+            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+            'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
+            'referencedId' => $transition->getEntityId(),
+            'referencedVersionId' => $context->getVersionId(),
+            'internalComment' => $transition->getInternalComment(),
+        ];
+
+        $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
+
+        // Record the history entry and apply the new state atomically, so a failure of either write
+        // cannot leave the entity state and the state_machine_history out of sync. The history is written
+        // first on purpose: if it fails, the state update (and its entity-written events for indexers,
+        // cache invalidation and webhooks) is never performed. Nested DAL transactions are handled via
+        // DBAL savepoints.
+        RetryableTransaction::transactional($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
+            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
+            $repository->upsert($data, $context);
+        });
+
+        $stateMachineStateCollection = new StateMachineStateCollection();
+
+        $stateMachineStateCollection->set('fromPlace', $fromPlace);
+        $stateMachineStateCollection->set('toPlace', $toPlace);
+
+        return new StateMachineTransitionResult(
+            true,
+            $stateMachineStateCollection,
+            $stateMachine,
+            $fromPlace,
+            $toPlace,
+        );
+    }
+
+    private function dispatchTransitionEvents(Transition $transition, Context $context, StateMachineTransitionResult $result): void
+    {
+        $this->eventDispatcher->dispatch(
+            new StateMachineTransitionEvent(
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $result->fromPlace,
+                $result->toPlace,
+                $context,
+                $transition->getInternalComment(),
+            )
+        );
+
+        $leaveEvent = new StateMachineStateChangeEvent(
+            $context,
+            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
+            $transition,
+            $result->stateMachine,
+            $result->fromPlace,
+            $result->toPlace,
+        );
+
+        $this->eventDispatcher->dispatch(
+            $leaveEvent,
+            $leaveEvent->getName()
+        );
+
+        $enterEvent = new StateMachineStateChangeEvent(
+            $context,
+            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
+            $transition,
+            $result->stateMachine,
+            $result->fromPlace,
+            $result->toPlace,
+        );
+
+        $this->eventDispatcher->dispatch(
+            $enterEvent,
+            $enterEvent->getName()
+        );
     }
 
     /**
@@ -307,7 +347,7 @@ class StateMachineRegistry implements ResetInterface
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+        $transitionNames = \array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
         throw StateMachineException::illegalStateTransition(
             $fromStateId,

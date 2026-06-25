@@ -13,11 +13,11 @@
                 :is-inheritance-field="props.isInheritField"
                 :is-inherited="props.isInherited"
                 :disabled="props.isInherited || !allowEdit"
-                :label="$tc('sw-product.basicForm.labelTitle')"
+                :label="$t('sw-product.basicForm.labelTitle')"
                 :required="isTitleRequired"
                 name="sw-field--product-name"
                 :error="productNameError"
-                :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
+                :placeholder="placeholder(product, 'name', $t('sw-product.basicForm.placeholderName'))"
                 @inheritance-restore="props.restoreInheritance"
                 @inheritance-remove="props.removeInheritance"
                 @update:model-value="props.updateCurrentValue"
@@ -29,14 +29,14 @@
 
     <sw-container
         columns="2fr 1fr"
-        gap="0px 30px"
+        gap="0 var(--scale-size-30)"
     >
         {% block sw_product_basic_form_manufacturer_field %}
         <sw-inherit-wrapper
             v-model:value="product.manufacturerId"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.manufacturerId"
-            :label="$tc('sw-product.basicForm.labelManufacturer')"
+            :label="$t('sw-product.basicForm.labelManufacturer')"
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
@@ -48,10 +48,10 @@
                     :disabled="isInherited || !allowEdit"
                     class="sw-select-product__select_manufacturer"
                     :error="productManufacturerIdError"
-                    :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
+                    :placeholder="$t('sw-product.basicForm.placeholderManufacturer')"
                     show-clearable-button
                     allow-entity-creation
-                    :entity-creation-label="$tc('sw-product.basicForm.labelManufacturerCreation')"
+                    :entity-creation-label="$t('sw-product.basicForm.labelManufacturerCreation')"
                     @update:value="updateCurrentValue"
                 />
 
@@ -66,11 +66,23 @@
             required
             :error="productProductNumberError"
             :disabled="!allowEdit"
-            :label="$tc('sw-product.basicForm.labelProductNumber')"
+            :label="$t('sw-product.basicForm.labelProductNumber')"
             :help-text="productNumberHelpText"
         />
         {% endblock %}
     </sw-container>
+
+    {% block sw_product_basic_form_cover_image_description_hint %}
+    <mt-banner
+        v-if="!hideCoverImageDescriptionHint"
+        class="sw-product-basic-form__cover-image-description-hint"
+        variant="info"
+        closable
+        @close="onCloseCoverImageDescriptionHint"
+    >
+        {{ $t('sw-product.basicForm.hintCoverImageDescription') }}
+    </mt-banner>
+    {% endblock %}
 
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
@@ -78,13 +90,13 @@
         class="sw-product-basic-form__inheritance-wrapper-description"
         :has-parent="!!parentProduct.id"
         :inherited-value="getInheritValue('translated', 'description')"
-        :label="$tc('sw-product.basicForm.labelDescription')"
+        :label="$t('sw-product.basicForm.labelDescription')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
             <sw-text-editor
                 v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                 :key="isInherited"
-                :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
+                :placeholder="placeholder(product, 'description', $t('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"
                 :value="currentValue"
@@ -95,7 +107,7 @@
             <mt-text-editor
                 v-else
                 :key="'meteor-' + isInherited"
-                :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
+                :placeholder="placeholder(product, 'description', $t('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"
                 :model-value="currentValue"
@@ -125,7 +137,7 @@
                     :is-inherited="props.isInherited"
                     :inherited-value="parentProduct.markAsTopseller"
                     :help-text="highlightHelpText"
-                    :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
+                    :label="$t('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="!allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"

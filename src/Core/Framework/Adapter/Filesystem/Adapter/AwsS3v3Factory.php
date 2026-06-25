@@ -7,6 +7,7 @@ use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use League\Flysystem\FilesystemAdapter;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Package('framework')]
 class AwsS3v3Factory implements AdapterFactoryInterface
@@ -17,7 +18,8 @@ class AwsS3v3Factory implements AdapterFactoryInterface
      * @param int<1, max> $batchWriteSize
      */
     public function __construct(
-        private readonly int $batchWriteSize = 250
+        private readonly int $batchWriteSize = 250,
+        private readonly ?HttpClientInterface $httpClient = null,
     ) {
     }
 
@@ -28,7 +30,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
     {
         $this->validateDependencies();
 
-        $result = S3ClientFactory::create($config);
+        $result = S3ClientFactory::create($config, $this->httpClient);
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($result['client'], $result['bucket'], $result['root'], new PortableVisibilityConverter());
         $adapter->batchSize = $this->batchWriteSize;

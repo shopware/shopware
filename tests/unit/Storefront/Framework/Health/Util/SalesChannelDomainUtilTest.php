@@ -10,6 +10,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -44,7 +45,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         $util = $this->getUtil();
 
-        $result = $util->runAsSalesChannelRequest(function () {
+        $result = $util->runAsSalesChannelRequest(static function () {
             return new Result(
                 'test',
                 Status::OK,
@@ -64,7 +65,7 @@ class SalesChannelDomainUtilTest extends TestCase
     {
         $util = $this->getUtil();
 
-        $result = $util->runAsSalesChannelRequest(function () {
+        $result = $util->runAsSalesChannelRequest(static function () {
             return new Result(
                 'test',
                 Status::OK,
@@ -83,7 +84,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         $util = $this->getUtil();
 
-        $result = $util->runWhileTrustingAllHosts(function () {
+        $result = $util->runWhileTrustingAllHosts(static function () {
             // check that trusted hosts are empty during the callback
             static::assertSame([], Request::getTrustedHosts());
 
@@ -171,6 +172,7 @@ class SalesChannelDomainUtilTest extends TestCase
             $this->requestStack,
             $this->kernel,
             new NullLogger(),
+            new NativeClock()
         );
     }
 }

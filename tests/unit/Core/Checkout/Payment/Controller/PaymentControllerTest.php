@@ -134,7 +134,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 
@@ -223,7 +223,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 
@@ -312,7 +312,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 
@@ -391,8 +391,7 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token test-token is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken('test-token'));
         $this->controller->finalizeTransaction($request);
     }
 
@@ -428,8 +427,7 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token token-id is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken('token-id'));
         $this->controller->finalizeTransaction($request);
     }
 
@@ -482,8 +480,7 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Parameter "_sw_payment_token" is missing.');
+        $this->expectExceptionObject(PaymentException::missingRequestParameter('_sw_payment_token'));
         $this->controller->finalizeTransaction(new Request());
     }
 }

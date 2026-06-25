@@ -44,7 +44,7 @@ class RatingAverageUpdater
             'AVG(product_review.points) as average',
         );
         $query->from('product_review');
-        $query->leftJoin('product_review', 'product', 'product', 'product.id = product_review.product_id OR product.parent_id = product_review.product_id');
+        $query->innerJoin('product_review', 'product', 'product', 'product.id = product_review.product_id');
         $query->andWhere('product_review.status = 1');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');

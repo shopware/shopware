@@ -91,7 +91,7 @@ class CustomerTokenSubscriberTest extends TestCase
 
         $newToken = null;
 
-        $context->method('assign')->withAnyParameters()->willReturnCallback(function ($array) use ($context, &$newToken) {
+        $context->method('assign')->withAnyParameters()->willReturnCallback(static function ($array) use ($context, &$newToken) {
             $newToken = $array['token'];
 
             return $context;

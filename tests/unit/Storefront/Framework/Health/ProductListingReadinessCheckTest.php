@@ -134,16 +134,16 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $this->util = $this->createMock(SalesChannelDomainUtil::class);
         $this->util->method('runAsSalesChannelRequest')
-            ->willReturnCallback(function (callable $callback): mixed {
+            ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();
             });
 
         $this->util->method('runWhileTrustingAllHosts')
-            ->willReturnCallback(function (callable $callback): mixed {
+            ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();
             });
 
-        $this->util->method('generateDomainUrl')->willReturnCallback(function ($domain, $routeName) {
+        $this->util->method('generateDomainUrl')->willReturnCallback(static function ($domain, $routeName) {
             return $domain . $routeName;
         });
     }

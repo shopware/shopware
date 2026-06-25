@@ -6,9 +6,10 @@ use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
+ */
 #[Package('framework')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
@@ -22,20 +23,8 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
             return;
         }
 
-        $clientDecorator = new Definition(ClientProfiler::class);
-        $clientDecorator->setArguments([
-            new Reference('shopware.es.profiled.client.inner'),
-        ]);
-        $clientDecorator->setDecoratedService(Client::class);
-
-        $container->setDefinition('shopware.es.profiled.client', $clientDecorator);
-
-        $adminClientDecorator = new Definition(ClientProfiler::class);
-        $adminClientDecorator->setArguments([
-            new Reference('shopware.es.profiled.adminClient.inner'),
-        ]);
-        $adminClientDecorator->setDecoratedService('admin.openSearch.client');
-
-        $container->setDefinition('shopware.es.profiled.adminClient', $adminClientDecorator);
+        // we need direct access to the ClientProfiler, so it cannot be wrapped in a lazy proxy
+        $container->getDefinition(Client::class)->setLazy(false);
+        $container->getDefinition('admin.openSearch.client')->setLazy(false);
     }
 }

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
@@ -116,7 +117,7 @@ class SystemConfigLimiterTest extends TestCase
             ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
             ->method('get')
             ->willReturnCallback(
-                fn (string $domain) => $domainLimits[$domain] ?? null
+                static fn (string $domain) => $domainLimits[$domain] ?? null
             );
 
         $cacheStorage = $this->createMock(CacheStorage::class);
@@ -144,6 +145,7 @@ class SystemConfigLimiterTest extends TestCase
             $this->config,
             $cacheStorage,
             $systemConfig,
+            new MockClock(),
             $this->createMock(LockFactory::class),
         );
 

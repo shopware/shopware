@@ -8,7 +8,7 @@ async function createWrapper(propsData = {}) {
         {
             global: {
                 mocks: {
-                    $tc: (path, values) => {
+                    $t: (path, values) => {
                         if (values) {
                             return path + Object.values(values);
                         }
@@ -34,7 +34,6 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
     it('should show the correct remove hint (is licensed)', async () => {
         const wrapper = await createWrapper();
 
-        // eslint-disable-next-line max-len
         expect(wrapper.vm.removeHint).toBe(
             'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel',
         );
@@ -46,7 +45,6 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
         await wrapper.setProps({
             isLicensed: false,
         });
-        // eslint-disable-next-line max-len
         expect(wrapper.vm.removeHint).toBe(
             'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel',
         );

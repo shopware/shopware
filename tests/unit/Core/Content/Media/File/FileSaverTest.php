@@ -12,8 +12,10 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -23,12 +25,15 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -51,11 +56,13 @@ class FileSaverTest extends TestCase
 
     private MockObject&AbstractMediaPathStrategy $mediaPathStrategy;
 
+    private MockObject&FilesystemOperator $filesystemPublic;
+
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([], new MediaDefinition());
 
-        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
         $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
         $metadataLoader = $this->createMock(MetadataLoader::class);
@@ -67,17 +74,17 @@ class FileSaverTest extends TestCase
 
         $this->fileSaver = new FileSaver(
             $this->mediaRepository,
-            $filesystemPublic,
+            $this->filesystemPublic,
             $filesystemPrivate,
-            $thumbnailService,
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $metadataLoader,
             $typeDetector,
-            $this->messageBus,
             $eventDispatcher,
             $this->locationBuilder,
             $this->mediaPathStrategy,
-            ['png'],
-            ['png']
+            new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
+            new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
+            new NativeClock()
         );
     }
 
@@ -113,8 +120,7 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "foo.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('foo', 'png'));
 
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
     }
@@ -200,16 +206,16 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SqlMediaLocationBuilder::class),
             $this->createMock(AbstractMediaPathStrategy::class),
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            new NativeClock(),
+            true,
         );
 
         $media = new MediaEntity();
@@ -263,8 +269,7 @@ class FileSaverTest extends TestCase
         $mediaCollection = new MediaCollection([$media]);
         $this->mediaRepository->addSearch($mediaCollection);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not find file for media with id \"{$media->getId()}\"");
+        $this->expectExceptionObject(MediaException::missingFile($media->getId()));
         $this->fileSaver->renameMedia($media->getId(), 'foo.png', $context);
     }
 
@@ -277,15 +282,15 @@ class FileSaverTest extends TestCase
 
         $this->mediaRepository->addSearch($mediaCollection);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not find media with id \"{$mediaId}\"");
+        $this->expectExceptionObject(MediaException::mediaNotFound($mediaId));
         $this->fileSaver->renameMedia($mediaId, 'foo.png', $context);
     }
 
     public function testRenameMedia(): void
     {
         $mediaId = Uuid::randomHex();
-        $thumbnailId = Uuid::randomHex();
+        $thumbnail1Id = Uuid::randomHex();
+        $thumbnail2Id = Uuid::randomHex();
 
         $mediaLocation = new MediaLocationStruct(
             Uuid::randomHex(),
@@ -299,7 +304,13 @@ class FileSaverTest extends TestCase
         ]);
 
         $this->locationBuilder->method('thumbnails')->willReturn([
-            $thumbnailId => new ThumbnailLocationStruct(
+            $thumbnail1Id => new ThumbnailLocationStruct(
+                Uuid::randomHex(),
+                100,
+                100,
+                $mediaLocation
+            ),
+            $thumbnail2Id => new ThumbnailLocationStruct(
                 Uuid::randomHex(),
                 100,
                 100,
@@ -309,24 +320,47 @@ class FileSaverTest extends TestCase
 
         $this->mediaPathStrategy->method('generate')->willReturn(
             [
-                $mediaId => 'foo.png',
+                $mediaId => 'foobar.png',
             ],
             [
-                $thumbnailId => 'foo.png',
+                $thumbnail1Id => 'foobar_100x100.png',
+                $thumbnail2Id => 'foobar_100x100.png',
             ]
         );
 
-        $thumbnail = new MediaThumbnailEntity();
-        $thumbnail->setId($thumbnailId);
+        $matcher = $this->exactly(2);
+        $this->filesystemPublic->expects($matcher)
+            ->method('move')
+            ->willReturnCallback(static function (string $from, string $to) use ($matcher): void {
+                if ($matcher->numberOfInvocations() === 1) {
+                    static::assertSame('foo.png', $from);
+                    static::assertSame('foobar.png', $to);
+
+                    return;
+                }
+
+                static::assertSame('foo_100x100.png', $from);
+                static::assertSame('foobar_100x100.png', $to);
+            });
+
+        $thumbnail1 = new MediaThumbnailEntity();
+        $thumbnail1->setId($thumbnail1Id);
+        $thumbnail1->setPath('foo_100x100.png');
+
+        $thumbnail2 = new MediaThumbnailEntity();
+        $thumbnail2->setId(Uuid::randomHex());
+        $thumbnail2->setPath('foo_100x100.png');
 
         $thumbnails = new MediaThumbnailCollection();
-        $thumbnails->add($thumbnail);
+        $thumbnails->add($thumbnail1);
+        $thumbnails->add($thumbnail2);
 
         $media = new MediaEntity();
         $media->setId($mediaId);
         $media->setMimeType('image/png');
         $media->setFileName('foo');
         $media->setFileExtension('png');
+        $media->setPath('foo.png');
         $media->setPrivate(false);
         $media->setThumbnails($thumbnails);
 
@@ -387,8 +421,7 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not rename file for media with id: {$mediaId}. Rollback to filename: \"foo\"");
+        $this->expectExceptionObject(MediaException::couldNotRenameFile($mediaId, 'foo'));
 
         $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
     }
@@ -401,16 +434,16 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $locationBuilder,
             $mediaPathStrategy,
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            new NativeClock(),
+            true,
         );
 
         $mediaId = Uuid::randomHex();
@@ -461,5 +494,10 @@ class FileSaverTest extends TestCase
         static::assertCount(1, $update);
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foobar', $update[0]['fileName']);
+    }
+
+    private function createSvgContentValidator(): SvgContentValidator
+    {
+        return SvgValidatorTestDefaults::createValidator();
     }
 }

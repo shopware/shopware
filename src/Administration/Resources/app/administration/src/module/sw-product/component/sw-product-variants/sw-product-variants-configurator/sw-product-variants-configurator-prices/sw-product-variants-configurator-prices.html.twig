@@ -4,7 +4,7 @@
         class="sw-product-variants-configurator-prices__alert"
         variant="info"
     >
-        {{ $tc('sw-product.variations.configuratorModal.surchargeNotice') }}
+        {{ $t('sw-product.variations.configuratorModal.surchargeNotice') }}
     </mt-banner>
     <div class="sw-product-variants-configurator-prices__table">
         {% block sw_product_variants_configurator_prices_groups %}
@@ -22,7 +22,7 @@
                 >
                     <mt-icon
                         name="regular-folder"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     {{ group.translated.name }}
                 </li>
@@ -39,7 +39,7 @@
                     v-model:value="term"
                     size="small"
                     variant="form"
-                    :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')"
+                    :placeholder="$t('sw-product.variations.configuratorModal.searchPlaceholder')"
                 />
                 {% endblock %}
             </div>
@@ -90,7 +90,7 @@
                             variant="danger"
                             @click="resetSurcharges(item, true)"
                         >
-                            {{ $tc('sw-product.variations.configuratorModal.resetSurcharges') }}
+                            {{ $t('sw-product.variations.configuratorModal.resetSurcharges') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>

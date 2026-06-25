@@ -66,8 +66,8 @@ class JoinGroupBuilderTest extends TestCase
     }
 
     /**
-     * @param array<Filter> $filters
-     * @param array<CriteriaPartInterface> $expected
+     * @param list<Filter> $filters
+     * @param list<CriteriaPartInterface> $expected
      */
     #[DataProvider('nestedGroupingProvider')]
     public function testNestedGrouping(array $filters, array $expected): void

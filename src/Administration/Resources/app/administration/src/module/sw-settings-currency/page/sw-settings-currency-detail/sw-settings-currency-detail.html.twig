@@ -3,7 +3,7 @@
 
     {% block sw_settings_currency_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(currency, 'name', $t('sw-settings-currency.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -17,7 +17,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -32,7 +32,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-currency.detail.buttonSave') }}
+            {{ $t('sw-settings-currency.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -61,7 +61,7 @@
             <template v-else>
                 {% block sw_settings_currency_detail_content_language_info %}
                 <sw-language-info
-                    :entity-description="placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline'))"
+                    :entity-description="placeholder(currency, 'name', $t('sw-settings-currency.detail.textHeadline'))"
                 />
                 {% endblock %}
 
@@ -69,7 +69,7 @@
                 <mt-card
                     position-identifier="sw-settings-currency-detail-content"
                     :is-loading="isLoading"
-                    :title="$tc('sw-settings-currency.detail.titleCard')"
+                    :title="$t('sw-settings-currency.detail.titleCard')"
                 >
                     <sw-container
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
@@ -83,8 +83,8 @@
                             name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
-                            :label="$tc('sw-settings-currency.detail.labelName')"
-                            :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
+                            :label="$t('sw-settings-currency.detail.labelName')"
+                            :placeholder="placeholder(currency, 'name', $t('sw-settings-currency.detail.placeholderName'))"
                             :error="currencyNameError"
                         />
                         {% endblock %}
@@ -96,8 +96,8 @@
                             name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
-                            :label="$tc('sw-settings-currency.detail.labelIsoCode')"
-                            :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
+                            :label="$t('sw-settings-currency.detail.labelIsoCode')"
+                            :placeholder="placeholder(currency, 'isoCode', $t('sw-settings-currency.detail.placeholderIsoCode'))"
                             :error="currencyIsoCodeError"
                         />
                         {% endblock %}
@@ -109,8 +109,8 @@
                             name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
-                            :label="$tc('sw-settings-currency.detail.labelShortName')"
-                            :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
+                            :label="$t('sw-settings-currency.detail.labelShortName')"
+                            :placeholder="placeholder(currency, 'shortName', $t('sw-settings-currency.detail.placeholderShortName'))"
                             :error="currencyShortNameError"
                         />
                         {% endblock %}
@@ -122,8 +122,8 @@
                             name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"
-                            :label="$tc('sw-settings-currency.detail.labelSymbol')"
-                            :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
+                            :label="$t('sw-settings-currency.detail.labelSymbol')"
+                            :placeholder="$t('sw-settings-currency.detail.placeholderSymbol')"
                             :error="currencySymbolError"
                         />
                         {% endblock %}
@@ -134,8 +134,8 @@
                             name="sw-field--currency-factor"
                             required
                             :digits="14"
-                            :label="$tc('sw-settings-currency.detail.labelFactor')"
-                            :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
+                            :label="$t('sw-settings-currency.detail.labelFactor')"
+                            :placeholder="$t('sw-settings-currency.detail.placeholderFactor')"
                             :error="currencyFactorError"
                             :disabled="currency.isSystemDefault || !acl.can('currencies.editor')"
                         />
@@ -146,8 +146,8 @@
                             v-model="currency.taxFreeFrom"
                             name="sw-field--currency-taxFreeFrom"
                             :min="0"
-                            :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
-                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', { currencyName: `${currency.name}` }, 0)"
+                            :label="$t('sw-settings-currency.detail.taxFreeFrom')"
+                            :help-text="$t('sw-settings-currency.detail.taxFreeFromHelpText', { currencyName: `${currency.name}` }, 0)"
                             :disabled="!currency.factor"
                         >
                             <template #suffix>
@@ -164,7 +164,7 @@
                 <mt-card
                     position-identifier="sw-settings-currency-detail-price-rounding"
                     :is-loading="isLoading"
-                    :title="$tc('sw-settings-currency.detail.titleRoundingCard')"
+                    :title="$t('sw-settings-currency.detail.titleRoundingCard')"
                 >
                     <sw-settings-price-rounding
                         :item-rounding="currency.itemRounding"
@@ -176,7 +176,7 @@
                 {% block sw_settings_currency_detail_content_card_country_price_rounding %}
                 <mt-card
                     position-identifier="sw-settings-currency-detail-country-price-rounding"
-                    :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
+                    :title="$t('sw-settings-currency.detail.titleCountryRoundingCard')"
                     :is-loading="currencyCountryLoading"
                 >
                     <template
@@ -187,7 +187,7 @@
                         <div class="sw-settings-currency-detail__currency-country-toolbar">
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
                             <sw-card-filter
-                                :placeholder="$tc('sw-settings-currency.detail.searchbarPlaceholder')"
+                                :placeholder="$t('sw-settings-currency.detail.searchbarPlaceholder')"
                                 @sw-card-filter-term-change="onChangeCountrySearch"
                             />
                             {% endblock %}
@@ -199,7 +199,7 @@
                                 variant="secondary"
                                 @click="onAddCountry"
                             >
-                                {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
+                                {{ $t('sw-settings-currency.detail.buttonAddCountry') }}
                             </mt-button>
                             {% endblock %}
                         </div>
@@ -232,7 +232,7 @@
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column %}
                         <template #column-itemRounding.interval="{ item }">
                             <template v-if="item.itemRounding.interval === 0.01">
-                                {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                                {{ $t('sw-settings-currency.price-rounding.labelIntervalNone') }}
                             </template>
                             <template v-if="item.itemRounding.interval !== 0.01">
                                 {{ item.itemRounding.interval }}
@@ -243,7 +243,7 @@
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_interval_column %}
                         <template #column-totalRounding.interval="{ item }">
                             <template v-if="item.totalRounding.interval === 0.01">
-                                {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                                {{ $t('sw-settings-currency.price-rounding.labelIntervalNone') }}
                             </template>
                             <template v-if="item.totalRounding.interval !== 0.01">
                                 {{ item.totalRounding.interval }}
@@ -266,7 +266,7 @@
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_more_actions %}
                         <template #more-actions="{ item }">
                             <sw-context-menu-item @click="onClickEdit(item)">
-                                {{ $tc('global.default.edit') }}
+                                {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
                         </template>
                         {% endblock %}
@@ -297,7 +297,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-currency-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

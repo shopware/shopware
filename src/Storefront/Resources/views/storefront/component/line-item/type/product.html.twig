@@ -153,6 +153,12 @@
                                 </div>
                             {% endblock %}
                         {% endif %}
+
+                        {% if lineItem.children.count > 0 %}
+                            {% block component_line_item_type_product_children %}
+                                {% sw_include '@Storefront/storefront/component/line-item/element/children-wrapper.html.twig' %}
+                            {% endblock %}
+                        {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}

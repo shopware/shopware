@@ -18,6 +18,7 @@
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
       "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\"."
     },
     "default": {
@@ -49,7 +50,8 @@
       "back": "Zurück",
       "discard": "Verwerfen",
       "submit": "Absenden",
-      "attention": "Warnung"
+      "attention": "Warnung",
+      "configure": "Konfigurieren"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -181,7 +183,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
-        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden. Stelle sicher, dass du über eine sichere Verbindung (HTTPS) auf die Administration zugreifst, und versuche es erneut."
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
@@ -201,6 +203,9 @@
       "notification": {
         "invalidFileType": {
           "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileExtension": {
+          "message": "Die gewählte Datei \"{name}\" hat eine nicht unterstützte Dateiendung. Bitte benutze eine der folgenden Dateiendungen: {supportedExtensions}."
         },
         "invalidFileSize": {
           "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
@@ -663,7 +668,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",
@@ -697,7 +702,38 @@
         "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer | Sind leer"
+        "empty": "Ist leer | Sind leer",
+        "between": "Ist zwischen | Sind zwischen"
+      },
+      "field": {
+        "amount": "Betrag",
+        "operator": "Operator",
+        "type": "Bedingung",
+        "count": "Anzahl",
+        "quantity": "Menge",
+        "isNet": "Netto / Brutto",
+        "isNumeric": "Vergleichsmodus",
+        "fromDate": "Von",
+        "toDate": "Bis",
+        "fromTime": "Von",
+        "toTime": "Bis",
+        "useTime": "Zeitmodus",
+        "timezone": "Zeitzone",
+        "categoryIds": "Kategorie",
+        "identifiers": "Auswahl",
+        "zipCodes": "Postleitzahl",
+        "selectedField": "Zusatzfeld",
+        "selectedFieldSet": "Zusatzfeld-Set",
+        "renderedField": "Zusatzfeld",
+        "renderedFieldValue": "Wert",
+        "isAlwaysValid": "Immer gültig"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Produkt"
+      },
+      "errors": {
+        "prefix": "Ungültiger Wert:",
+        "andMore": "+{count} weitere"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -749,11 +785,11 @@
         "customerCampaignCodeRule": "Kampagnen-Code (Kunde)",
         "orderAffiliateCodeRule": "Affiliate-Code (Bestellung)",
         "orderCampaignCodeRule": "Kampagnen-Code (Bestellung)",
-        "cartAmountRule": "Gesamtsumme",
-        "cartPositionPrice": "Summe",
-        "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
-        "goodsPriceRule": "Zwischensumme aller Positionen",
-        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
+        "cartAmountRule": "Warenkorb-Gesamtsumme (inkl. Versand)",
+        "cartPositionPrice": "Summe der Positionen (ohne Versand)",
+        "goodsCountRule": "Anzahl unterschiedlicher Produkte",
+        "goodsPriceRule": "Zwischensumme der Warenpositionen (ohne Rabatte/Zuschläge)",
+        "cartTotalPurchasePrice": "Summe der Einkaufspreise",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",
@@ -763,12 +799,13 @@
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
-        "lineItemTotalPriceRule": "Positionszwischensumme",
-        "lineItemWithQuantityRule": "Positionsanzahl",
+        "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
+        "lineItemWithQuantityRule": "Position mit Menge",
+        "lineItemPerItemQuantityRule": "Menge pro Position",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
-        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
-        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
@@ -834,7 +871,7 @@
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
-        "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
+        "lineItemGoodsTotalRule": "Gesamtmenge der Produkte (Stück)",
         "orderTotalAmountRule": "Gesamtwert aller abgeschlossenen Bestellungen",
         "promotionValueRule": "Zwischensumme aller Rabatte",
         "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
@@ -895,6 +932,14 @@
         }
       },
       "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "cartLineItemPurchasePrice": {
         "type": {
           "options": {
             "gross": "Brutto",
@@ -1099,6 +1144,7 @@
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
       "customer_password_changed": "Kunden-Passwort wurde geändert",
+      "revocation_request_sent": "Das Widerrufsformular wurde verschickt",
       "mail_after_create_message": "E-Mail wurde erzeugt",
       "mail_before_send": "E-Mail wird gesendet",
       "mail_sent": "E-Mail wurde gesendet",
@@ -1604,7 +1650,6 @@
   },
   "sw-wizard": {
     "backButton": "Zurück",
-    "closeButton": "Schließen",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
   },
@@ -1721,5 +1766,40 @@
   },
   "sw-context-button": {
     "ariaLabel": "Kontextmenü öffnen"
+  },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Gleichmäßige Skalierung sperren",
+    "unlock-uniform-scale": "Gleichmäßige Skalierung entsperren"
+  },
+  "sw-model-editor": {
+      "titleModal": "Model Editor",
+      "open-model-editor-tooltip": "Model Editor öffnen",
+      "edit-options": {
+        "move-tooltip": "Objekt verschieben",
+        "rotate-tooltip": "Objekt drehen",
+        "scale-tooltip": "Objekt skalieren"
+      },
+      "properties": {
+        "transformation": {
+          "label":"Transformation",
+          "position": {
+            "label": "Position"
+          },
+          "rotation": {
+            "label": "Rotation"
+          },
+          "scale": {
+            "label": "Skalierung"
+          }
+        }
+      }
+    },
+  "sw-request-consent-modal": {
+    "title": "Zustimmung erforderlich",
+    "message": "Die Erweiterung {appName} bittet um Ihre Zustimmung für das folgende Thema: {consentName}",
+    "readMore": "Weitere Informationen finden Sie hier:",
+    "acceptButton": "Zustimmen",
+    "declineButton": "Ablehnen",
+    "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird Deine vorherige Entscheidung, falls vorhanden, beibehalten."
   }
 }

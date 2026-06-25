@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,7 +23,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(PluginListCommand::class)]
 class PluginListCommandTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<PluginCollection> */
+    /**
+     * @var MockObject&EntityRepository<PluginCollection>
+     */
     private MockObject&EntityRepository $pluginRepoMock;
 
     private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
@@ -113,7 +116,7 @@ class PluginListCommandTest extends TestCase
     {
         $filterValue = 'shopware-is-love';
 
-        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(static function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             // must be MultiFilter
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
@@ -150,6 +153,30 @@ class PluginListCommandTest extends TestCase
         static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
     }
 
+    public function testFormatJsonOutput(): void
+    {
+        $entities = [
+            $plugin1 = new PluginEntity(),
+            $plugin2 = new PluginEntity(),
+        ];
+
+        $plugin1->setUniqueIdentifier('1');
+        $plugin2->setUniqueIdentifier('2');
+
+        $this->setupEntityCollection($entities);
+
+        $options = ['--format' => 'json'];
+        $json = json_encode([$plugin1->jsonSerialize(), $plugin2->jsonSerialize()], \JSON_THROW_ON_ERROR);
+
+        $commandTester = $this->executeCommand($options);
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame($json, trim($commandTester->getDisplay()));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--json` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testJsonOutput(): void
     {
         $entities = [
@@ -168,6 +195,15 @@ class PluginListCommandTest extends TestCase
         $commandTester = $this->executeCommand($options);
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertSame($json, trim($commandTester->getDisplay()));
+    }
+
+    public function testInvalidFormatReturnsError(): void
+    {
+        $this->setupEntityCollection([]);
+
+        $commandTester = $this->executeCommand(['--format' => 'xml']);
+        static::assertSame(2, $commandTester->getStatusCode());
+        static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());
     }
 
     /**

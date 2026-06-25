@@ -531,7 +531,7 @@ class ApiControllerCreateTest extends TestCase
         static::assertCount(2, $included);
 
         // sort the included entities alphabetically by type
-        usort($included, fn ($a, $b) => $a['type'] <=> $b['type']);
+        usort($included, static fn ($a, $b) => $a['type'] <=> $b['type']);
 
         $extension = $included[0];
         static::assertSame('extension', $extension['type']);
@@ -603,7 +603,7 @@ class ApiControllerCreateTest extends TestCase
         static::assertCount(2, $included);
 
         // sort the included entities alphabetically by type
-        usort($included, fn ($a, $b) => $a['type'] <=> $b['type']);
+        usort($included, static fn ($a, $b) => $a['type'] <=> $b['type']);
 
         $extension = $included[0];
         static::assertSame('extension', $extension['type']);
@@ -657,12 +657,12 @@ class ApiControllerCreateTest extends TestCase
                 'id' => $parentId,
                 'name' => 'Parent Language',
                 'locale' => [
-                    'code' => 'x-tst_' . Uuid::randomHex(),
+                    'code' => 'de-DE-' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
-                    'code' => 'x-tst_' . Uuid::randomHex(),
+                    'code' => 'de-DE-' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

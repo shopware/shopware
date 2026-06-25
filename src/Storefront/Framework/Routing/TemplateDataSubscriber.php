@@ -61,7 +61,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $shopId = $this->shopIdProvider->getShopId();
+            $shopId = $this->shopIdProvider->getShopId()->id;
         } catch (ShopIdChangeSuggestedException) {
             return;
         }

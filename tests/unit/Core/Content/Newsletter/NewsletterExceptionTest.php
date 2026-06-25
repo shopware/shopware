@@ -25,16 +25,6 @@ class NewsletterExceptionTest extends TestCase
         static::assertSame(['identifier' => 'id-1', 'value' => 'value-1'], $exception->getParameters());
     }
 
-    public function testNewsletterThrottled(): void
-    {
-        $exception = NewsletterException::newsletterThrottled(2);
-
-        static::assertSame(Response::HTTP_TOO_MANY_REQUESTS, $exception->getStatusCode());
-        static::assertSame(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $exception->getErrorCode());
-        static::assertSame('Too many requests, try again in 2 seconds.', $exception->getMessage());
-        static::assertSame(['seconds' => 2], $exception->getParameters());
-    }
-
     public function testMissingEmailParameter(): void
     {
         $exception = NewsletterException::missingEmailParameter();

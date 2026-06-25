@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -5,7 +7,9 @@
 import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
+import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -107,6 +111,12 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.getNormalizedTemplateRegistry().clear();
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
+
+        const entries = [...Object.keys(_overridesMap)];
+        entries.forEach((key) => {
+            delete _overridesMap[key];
+        });
+        twigBlockIndex.resetBlockIndex();
     });
 
     it('test the component matrix', async () => {
@@ -894,7 +904,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(base.template).toBe('<div>This is a test template.</div>');
                 expect(child.template).toBe('<div><div>This is a test template.</div>I am a child.</div>');
 
-                // eslint-disable-next-line max-len
                 expect(grandchild.template).toBe(
                     '<div><div><div>This is a test template.</div>I am a child.</div>I am a grandchild.</div>',
                 );
@@ -1017,7 +1026,6 @@ describe('core/factory/async-component.factory.ts', () => {
                         return 'This is the second override.';
                     },
                 },
-                // eslint-disable-next-line max-len
                 template:
                     '{% block content %}<div>{% parent %}This is an override of an overridden template.</div>{% endblock %}',
             }),
@@ -1037,7 +1045,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(componentAfterFirstOverride.methods).toBeInstanceOf(Object);
                 expect(typeof componentAfterFirstOverride.methods.doubleOverride).toBe('function');
                 expect(componentAfterFirstOverride.methods.doubleOverride()).toBe('This is the first override.');
-                // eslint-disable-next-line max-len
                 expect(componentAfterFirstOverride.template).toBe(
                     '<div><div>This is a test template.</div>This is an override of a template.</div>',
                 );
@@ -1046,7 +1053,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(componentAfterSecondOverride.methods).toBeInstanceOf(Object);
                 expect(typeof componentAfterSecondOverride.methods.doubleOverride).toBe('function');
                 expect(componentAfterSecondOverride.methods.doubleOverride()).toBe('This is the second override.');
-                // eslint-disable-next-line max-len
                 expect(componentAfterSecondOverride.template).toBe(
                     '<div><div><div>This is a test template.</div>This is an override of a template.</div>This is an override of an overridden template.</div>',
                 );
@@ -1668,7 +1674,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
             }),
@@ -1694,12 +1699,10 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
             }),
             D: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}',
             }),
@@ -1714,7 +1717,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.build('second-component');
                 ComponentFactory.build('third-component');
                 const fourthComponent = await ComponentFactory.build('fourth-component');
-                // eslint-disable-next-line max-len
                 expect(fourthComponent.template).toBe(
                     '<div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div>',
                 );
@@ -1731,17 +1733,14 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
             }),
             D: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}',
             }),
             E: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}',
             }),
@@ -1759,7 +1758,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.build('fourth-component');
                 const fifthComponent = await ComponentFactory.build('fifth-component');
 
-                // eslint-disable-next-line max-len
                 expect(fifthComponent.template).toBe(
                     '<div><div>Fifth.</div><div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div></div>',
                 );
@@ -2085,7 +2083,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 const firstComponent = await ComponentFactory.build('detail-component');
                 const secondComponent = await ComponentFactory.build('create-component');
 
-                // eslint-disable-next-line max-len
                 expect(firstComponent.template).toBe(
                     '<div><div>First.</div><div>First overridden.</div><div>Second overridden.</div></div>',
                 );
@@ -2419,6 +2416,55 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
+    it('indexes sync Twig override templates before async override resolution starts', async () => {
+        let resolveAsyncOverride;
+        const asyncOverride = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    resolveAsyncOverride = resolve;
+                }),
+        );
+
+        ComponentFactory.override('component', {
+            template: '{% block test %}Sync override{% endblock %}',
+        });
+        const asyncOverrideRegistration = ComponentFactory.override('component', asyncOverride);
+
+        expect(asyncOverride).not.toHaveBeenCalled();
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+        ]);
+
+        const asyncOverridePromise = asyncOverrideRegistration();
+
+        expect(asyncOverride).toHaveBeenCalledTimes(1);
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+        ]);
+
+        resolveAsyncOverride({
+            template: '{% block test %}Async override{% endblock %}',
+        });
+        await asyncOverridePromise;
+
+        expect(twigBlockIndex.getBlockEntries('test')).toEqual([
+            {
+                componentName: 'component',
+                innerTemplate: 'Sync override',
+            },
+            {
+                componentName: 'component',
+                innerTemplate: 'Async override',
+            },
+        ]);
+    });
+
     describe('extends a component which is also an extension without a template', () => {
         createComponentMatrix({
             A: () => ({
@@ -2462,7 +2508,6 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('override should redeclare blocks if parent is used', () => {
         createComponentMatrix({
             A: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}',
             }),
@@ -2479,7 +2524,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('base-component', components.C());
 
                 const component = await ComponentFactory.build('base-component');
-                // eslint-disable-next-line max-len
                 const expected =
                     '<div>This is the outer override. <div>This is the base content. This is the inner override.</div></div>';
 
@@ -2491,7 +2535,6 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('allows to override nested blocks', () => {
         createComponentMatrix({
             A: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>',
             }),
@@ -2506,7 +2549,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('root-component', components.B());
 
                 const component = await ComponentFactory.build('root-component');
-                // eslint-disable-next-line max-len
                 const expected =
                     '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div>  </div>';
 
@@ -2518,7 +2560,6 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('allows to override nested blocks with parent call', () => {
         createComponentMatrix({
             A: () => ({
-                // eslint-disable-next-line max-len
                 template:
                     '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>',
             }),
@@ -2533,7 +2574,6 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('root-component', components.B());
 
                 const component = await ComponentFactory.build('root-component');
-                // eslint-disable-next-line max-len
                 const expected =
                     '<div class="root-component">Overriding outer block Im the outer block Overriding inner block <div>I\'m nested</div>  </div>';
 
@@ -3183,8 +3223,7 @@ describe('core/factory/async-component.factory.ts', () => {
             B: () => ({
                 methods: {
                     createdComponent() {
-                        // eslint-disable-next-line no-unused-vars
-                        const salesChannel = this.salesChannelRepository.create();
+                        this.salesChannelRepository.create();
                         this.$super('createdComponent');
                     },
                 },

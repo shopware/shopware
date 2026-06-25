@@ -33,7 +33,9 @@ class ThemeDumpCommandTest extends TestCase
 
     private ThemeFileResolver&MockObject $themeFileResolver;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepository;
 
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;

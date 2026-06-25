@@ -29,55 +29,100 @@ class ConfigSetCommandTest extends TestCase
         $this->configSetCommand = new ConfigSet($this->systemConfigService);
     }
 
-    public static function configValueProvider(): \Generator
-    {
-        /* value, expected_value, decode */
-        yield 'String false' => ['false', 'false', false];
-        yield 'Decode string false' => ['false', false, true];
-        yield 'String int' => ['4', '4', false];
-        yield 'Decode String int' => ['5', 5, true];
-        yield 'String float' => ['2.2', '2.2', false];
-        yield 'Decode String float' => ['3.3', 3.3, true];
-        yield 'String json' => [
-            '{"name":"abc","place":"xyz"}',
-            '{"name":"abc","place":"xyz"}',
-            false,
-        ];
-        yield 'Decode String json' => [
-            '{"name":"abc","place":"xyz"}',
-            ['name' => 'abc', 'place' => 'xyz'],
-            true,
-        ];
-        yield 'Decode string remains string' => ['random string', 'random string', true];
-    }
-
     /**
-     * @param string $expectedValue
+     * @param array<string, mixed> $input
      */
-    #[DataProvider('configValueProvider')]
-    public function testConfigSetValue(string $value, $expectedValue, bool $json = false): void
+    #[DataProvider('configSetProvider')]
+    public function testConfigSet(array $input, string $expectedKey, mixed $expectedValue, ?string $expectedSalesChannelId, bool $expectedSilent): void
     {
-        $key = 'fake_config_key';
-
         $this->systemConfigService->expects($this->once())
             ->method('set')
-            ->with(
-                $key,
-                static::identicalTo($expectedValue),
-                TestDefaults::SALES_CHANNEL
-            );
+            ->with($expectedKey, static::identicalTo($expectedValue), $expectedSalesChannelId, $expectedSilent);
 
         $commandTester = new CommandTester($this->configSetCommand);
-        $command = [
-            'key' => $key,
-            'value' => $value,
-            '--salesChannelId' => TestDefaults::SALES_CHANNEL,
+        $commandTester->execute($input);
+    }
+
+    public static function configSetProvider(): \Generator
+    {
+        yield 'string false' => [
+            'input' => ['key' => 'my.key', 'value' => 'false', '--salesChannelId' => TestDefaults::SALES_CHANNEL],
+            'expectedKey' => 'my.key',
+            'expectedValue' => 'false',
+            'expectedSalesChannelId' => TestDefaults::SALES_CHANNEL,
+            'expectedSilent' => false,
         ];
 
-        if ($json) {
-            $command['--json'] = true;
-        }
+        yield 'json decoded false' => [
+            'input' => ['key' => 'my.key', 'value' => 'false', '--json' => true, '--salesChannelId' => TestDefaults::SALES_CHANNEL],
+            'expectedKey' => 'my.key',
+            'expectedValue' => false,
+            'expectedSalesChannelId' => TestDefaults::SALES_CHANNEL,
+            'expectedSilent' => false,
+        ];
 
-        $commandTester->execute($command);
+        yield 'string int' => [
+            'input' => ['key' => 'my.key', 'value' => '4'],
+            'expectedKey' => 'my.key',
+            'expectedValue' => '4',
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'json decoded int' => [
+            'input' => ['key' => 'my.key', 'value' => '5', '--json' => true],
+            'expectedKey' => 'my.key',
+            'expectedValue' => 5,
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'string float' => [
+            'input' => ['key' => 'my.key', 'value' => '2.2'],
+            'expectedKey' => 'my.key',
+            'expectedValue' => '2.2',
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'json decoded float' => [
+            'input' => ['key' => 'my.key', 'value' => '3.3', '--json' => true],
+            'expectedKey' => 'my.key',
+            'expectedValue' => 3.3,
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'string json' => [
+            'input' => ['key' => 'my.key', 'value' => '{"name":"abc","place":"xyz"}'],
+            'expectedKey' => 'my.key',
+            'expectedValue' => '{"name":"abc","place":"xyz"}',
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'json decoded object' => [
+            'input' => ['key' => 'my.key', 'value' => '{"name":"abc","place":"xyz"}', '--json' => true],
+            'expectedKey' => 'my.key',
+            'expectedValue' => ['name' => 'abc', 'place' => 'xyz'],
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'json decoded non-json string remains string' => [
+            'input' => ['key' => 'my.key', 'value' => 'random string', '--json' => true],
+            'expectedKey' => 'my.key',
+            'expectedValue' => 'random string',
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => false,
+        ];
+
+        yield 'silent flag' => [
+            'input' => ['key' => 'my.key', 'value' => 'value', '--silent' => true],
+            'expectedKey' => 'my.key',
+            'expectedValue' => 'value',
+            'expectedSalesChannelId' => null,
+            'expectedSilent' => true,
+        ];
     }
 }

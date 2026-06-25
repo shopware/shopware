@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -104,7 +105,6 @@ class ThemeCompilerTest extends TestCase
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
-
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
     }
 
@@ -198,7 +198,7 @@ class ThemeCompilerTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void
@@ -699,7 +699,7 @@ PHP_EOL,
 
         $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
             ->method('getFilesystemForStorefrontConfig')
-            ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
+            ->willReturnCallback(static fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
@@ -826,6 +826,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
+            $this->createMock(FilesystemOperator::class),
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
             true,

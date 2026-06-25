@@ -3,14 +3,21 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -20,6 +27,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('fundamentals@after-sales')]
 class DownloadService
 {
+    private const EXPIRATION_TIME = '+120 minutes';
+
     /**
      * @internal
      *
@@ -27,7 +36,11 @@ class DownloadService
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
-        private readonly EntityRepository $fileRepository
+        private readonly EntityRepository $fileRepository,
+        private readonly LoggerInterface $logger,
+        private readonly string $localDownloadStrategy,
+        private readonly string $localPathPrefix,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -58,26 +71,122 @@ class DownloadService
             $context
         );
 
-        $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
+        try {
+            $url = $this->filesystem->temporaryUrl(
+                $entity->getPath(),
+                $this->clock->now()->modify(self::EXPIRATION_TIME),
+                $this->getTemporaryUrlConfig($entity)
+            );
 
-        $headers = [
-            'Content-Disposition' => HeaderUtils::makeDisposition(
-                'attachment',
-                $originalName,
-                // only printable ascii
-                (string) preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $originalName)
-            ),
-            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
-            'Content-Type' => 'application/octet-stream',
-        ];
+            return new RedirectResponse($url);
+        } catch (UnableToGenerateTemporaryUrl $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+        }
+
+        return $this->createResponse($entity, $fileId);
+    }
+
+    private function createResponse(ImportExportFileEntity $entity, string $fileId): Response
+    {
+        switch ($this->localDownloadStrategy) {
+            case DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY:
+                $location = $entity->getPath();
+
+                $stream = $this->filesystem->readStream($location);
+                if (!\is_resource($stream)) {
+                    throw ImportExportException::fileNotFound($fileId);
+                }
+
+                $location = stream_get_meta_data($stream)['uri'] ?? $location;
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+                $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
+
+                return $response;
+            case DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY:
+                $location = $entity->getPath();
+
+                if ($this->localPathPrefix !== '') {
+                    $location = $this->localPathPrefix . '/' . ltrim($location, '/');
+                }
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+                $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
+
+                return $response;
+            default:
+                return $this->createStreamedResponse($entity, $fileId);
+        }
+    }
+
+    private function createStreamedResponse(ImportExportFileEntity $entity, string $fileId): StreamedResponse
+    {
         $stream = $this->filesystem->readStream($entity->getPath());
         if (!\is_resource($stream)) {
             throw ImportExportException::fileNotFound($fileId);
         }
 
-        return new StreamedResponse(function () use ($stream): void {
+        return new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
-        }, Response::HTTP_OK, $headers);
+        }, Response::HTTP_OK, $this->getStreamHeaders($entity));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getStreamHeaders(ImportExportFileEntity $entity): array
+    {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'Content-Disposition' => $downloadHeaders['Content-Disposition'],
+            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
+            'Content-Type' => $downloadHeaders['Content-Type'],
+        ];
+    }
+
+    /**
+     * S3 temporary URLs use GetObject response overrides to preserve the download
+     * filename and content type after redirecting away from Shopware.
+     *
+     * @return array{get_object_options: array{ResponseContentDisposition: string, ResponseContentType: string}}
+     */
+    private function getTemporaryUrlConfig(ImportExportFileEntity $entity): array
+    {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'get_object_options' => [
+                'ResponseContentDisposition' => $downloadHeaders['Content-Disposition'],
+                'ResponseContentType' => $downloadHeaders['Content-Type'],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{'Content-Disposition': string, 'Content-Type': string}
+     */
+    private function getDownloadHeaders(ImportExportFileEntity $entity): array
+    {
+        $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
+
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($originalName);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
+        return [
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                'attachment',
+                $originalName,
+                // only printable ascii
+                $filenameFallback
+            ),
+            'Content-Type' => $this->resolveContentType($originalName),
+        ];
     }
 
     private function findFile(Context $context, string $fileId): ImportExportFileEntity
@@ -97,8 +206,16 @@ class DownloadService
             return false;
         }
 
-        $diff = time() - $entity->getUpdatedAt()->getTimestamp();
+        $diff = $this->clock->now()->getTimestamp() - $entity->getUpdatedAt()->getTimestamp();
 
         return $diff < 300;
+    }
+
+    private function resolveContentType(string $originalName): string
+    {
+        return match (strtolower((string) pathinfo($originalName, \PATHINFO_EXTENSION))) {
+            'csv' => 'text/csv',
+            default => 'application/octet-stream',
+        };
     }
 }

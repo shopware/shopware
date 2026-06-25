@@ -28,8 +28,6 @@ export default Shopware.Mixin.register(
 
                 return repository.search(criteria, context).then((result) => {
                     // @ts-expect-error - maxPosition is defined in addAggregation
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
                     const position = parseInt(result?.aggregations?.maxPosition?.max, 10);
 
                     if (Number.isNaN(position)) {

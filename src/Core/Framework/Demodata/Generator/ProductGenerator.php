@@ -109,7 +109,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             if ($mediaIds) {
                 $product['cover'] = ['mediaId' => Random::getRandomArrayElement($mediaIds)];
 
-                $product['media'] = array_map(fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
+                $product['media'] = array_map(static fn (string $id): array => ['mediaId' => $id], $this->faker->randomElements($mediaIds, random_int(2, 5)));
             }
 
             $product['properties'] = $this->buildProperties($properties);
@@ -196,7 +196,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
                 'prices' => $this->faker->randomElement($prices),
-                'options' => array_map(fn ($id) => ['id' => $id], $options),
+                'options' => array_map(static fn ($id) => ['id' => $id], $options),
             ];
 
             $configurator = [...$configurator, ...array_values($options)];
@@ -204,7 +204,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'children' => $variants,
-            'configuratorSettings' => array_map(fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
+            'configuratorSettings' => array_map(static fn (string $id) => ['optionId' => $id], array_filter(array_unique($configurator))),
         ];
     }
 
@@ -361,7 +361,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    fn ($id) => ['id' => $id],
+                    static fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -392,7 +392,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
 
-        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
+        return array_map(static fn ($id) => ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids);
     }
 
     /**
@@ -450,7 +450,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $productProperties = \array_slice($productProperties, 0, random_int(4, 10));
 
-        return array_map(fn ($config) => ['id' => (string) $config], $productProperties);
+        return array_map(static fn ($config) => ['id' => (string) $config], $productProperties);
     }
 
     private function getInstantDeliveryId(): ?string

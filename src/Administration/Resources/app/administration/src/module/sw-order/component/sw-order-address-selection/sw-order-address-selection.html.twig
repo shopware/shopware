@@ -9,9 +9,10 @@
         {% block sw_order_address_modal_content %}
         <sw-customer-address-form
             :address="currentAddress"
-            :customer="customer"
+            :customer="customer || orderCustomer"
         >
             <sw-customer-address-form-options
+                v-if="customer?.id"
                 :address="currentAddress"
                 :customer="customer"
                 :custom-field-sets="customerAddressCustomFieldSets"
@@ -29,7 +30,7 @@
                 data-analytics-id="sw-order-address-selection.cancel"
                 @click="currentAddress = null"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -40,7 +41,7 @@
                 data-analytics-id="sw-order-address-selection.save-address"
                 @click="onSaveAddress"
             >
-                {{ $tc('global.default.apply') }}
+                {{ $t('global.default.apply') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -55,13 +56,16 @@
         :options="addressOptions"
         value-property="id"
         :label="label"
-        :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
+        :placeholder="$t('sw-order.createBase.detailsBody.placeholderAddress')"
         :popover-classes="['sw-order-address-selection__popover']"
         :disabled="disabled"
         @update:value="onAddressChange"
     >
         <template #before-item-list>
-            <ul class="sw-select-result__item-list">
+            <ul
+                v-if="customer?.id"
+                class="sw-select-result__item-list"
+            >
                 <li
                     class="sw-select-result sw-select-result__add-new-address"
                     role="button"
@@ -69,7 +73,7 @@
                     @click="onCreateNewAddress"
                     @keydown.enter="onCreateNewAddress"
                 >
-                    {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
+                    {{ $t('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
                 </li>
             </ul>
         </template>
@@ -104,12 +108,26 @@
                         data-analytics-id="sw-order-address-selection.edit-address"
                         @click="onEditAddress(item.id)"
                     >
-                        {{ $tc('global.default.edit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>
             </sw-select-result>
         </template>
     </sw-single-select>
+    {% endblock %}
+
+    {% block sw_order_address_selection_selected_address %}
+    <div
+        v-if="selectedAddress"
+        class="sw-order-address-selection__selected-address"
+    >
+
+        <sw-address
+            class="sw-order-address-selection__selected-address-content"
+            :address="selectedAddress"
+            :formatting-address="selectedAddressFormatting"
+        />
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

@@ -2,7 +2,7 @@
 <sw-modal
     class="sw-condition-modal"
     variant="large"
-    :title="$tc('sw-settings-rule.conditionModal.modalTitle')"
+    :title="$t('sw-settings-rule.conditionModal.modalTitle')"
     @modal-close="closeModal"
 >
     {% block sw_condition_modal_tree %}
@@ -24,7 +24,7 @@
             variant="secondary"
             @click="$emit('modal-close')"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -34,7 +34,7 @@
             size="small"
             @click="saveAndCloseModal"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

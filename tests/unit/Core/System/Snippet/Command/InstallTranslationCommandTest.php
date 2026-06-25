@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
@@ -52,9 +53,56 @@ class InstallTranslationCommandTest extends TestCase
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('You must specify either --all or --locales to run the InstallTranslationCommand.');
-        $tester->execute([]);
+        $this->expectExceptionObject(SnippetException::noArgumentsProvided());
+        $tester->execute([], ['interactive' => false]);
+    }
+
+    public function testExecutePromptsInteractivelyWhenNoLocalesProvided(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB', 'es-ES', 'de-DE'],
+            [],
+            new LanguageCollection([
+                new Language('en-GB', 'English'),
+                new Language('es-ES', 'Español'),
+                new Language('de-DE', 'Deutsch'),
+            ]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
+
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'de-DE',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+        $collection->get('de-DE')?->markForUpdate();
+        $collection->get('es-ES')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
+        $this->translationLoader->expects($this->exactly(2))
+            ->method('load')
+            ->willReturnCallback(static function (string $locale): void {
+                static::assertContains($locale, ['de-DE', 'es-ES']);
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->setInputs(['de-DE,es-ES']);
+
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertStringContainsString('Select one or more locales to install', $tester->getDisplay());
     }
 
     public function testExecuteThrowsExceptionWithInvalidLocales(): void
@@ -89,7 +137,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $this->translationLoader->expects($this->exactly(2))
             ->method('load')
-            ->willReturnCallback(function (string $locale, Context $context, bool $activate): void {
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate): void {
                 $expectedLocales = ['en-GB', 'es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
@@ -129,7 +177,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $this->translationLoader->expects($this->exactly(1))
             ->method('load')
-            ->willReturnCallback(function (string $locale): void {
+            ->willReturnCallback(static function (string $locale): void {
                 $expectedLocales = ['es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
@@ -211,7 +259,7 @@ class InstallTranslationCommandTest extends TestCase
         $this->translationLoader
             ->expects($this->once())
             ->method('load')
-            ->willReturnCallback(function (string $locale, Context $context, bool $activate): void {
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate): void {
                 static::assertSame('en-GB', $locale);
                 static::assertFalse($activate, 'Should pass activate=false when --skip-activation is used');
             });

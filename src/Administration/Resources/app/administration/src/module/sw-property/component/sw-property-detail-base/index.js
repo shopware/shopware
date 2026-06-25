@@ -30,7 +30,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -40,29 +39,29 @@ export default {
             sortingTypes: [
                 {
                     value: 'alphanumeric',
-                    label: this.$tc('sw-property.detail.alphanumericSortingType'),
+                    label: this.$t('sw-property.detail.alphanumericSortingType'),
                 },
                 {
                     value: 'position',
-                    label: this.$tc('sw-property.detail.positionSortingType'),
+                    label: this.$t('sw-property.detail.positionSortingType'),
                 },
             ],
             displayTypes: [
                 {
                     value: 'media',
-                    label: this.$tc('sw-property.detail.mediaDisplayType'),
+                    label: this.$t('sw-property.detail.mediaDisplayType'),
                 },
                 {
                     value: 'text',
-                    label: this.$tc('sw-property.detail.textDisplayType'),
+                    label: this.$t('sw-property.detail.textDisplayType'),
                 },
                 {
                     value: 'select',
-                    label: this.$tc('sw-property.detail.selectDisplayType'),
+                    label: this.$t('sw-property.detail.selectDisplayType'),
                 },
                 {
                     value: 'color',
-                    label: this.$tc('sw-property.detail.colorDisplayType'),
+                    label: this.$t('sw-property.detail.colorDisplayType'),
                 },
             ],
         };

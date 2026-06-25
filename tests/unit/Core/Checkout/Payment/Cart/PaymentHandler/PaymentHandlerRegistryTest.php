@@ -99,7 +99,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([
-                AbstractPaymentHandler::class => fn () => new class {
+                AbstractPaymentHandler::class => static fn () => new class {
                 },
             ]),
             $this->connection,
@@ -199,6 +199,6 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $this->registeredHandlers[Uuid::fromHexToBytes($this->ids->get($handler))] = $class;
 
-        return new ServiceLocator([$class::class => fn () => $class]);
+        return new ServiceLocator([$class::class => static fn () => $class]);
     }
 }

@@ -242,7 +242,7 @@ class ShopConfigurationControllerTest extends TestCase
         ];
         $this->adminConfigService->expects($this->once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
 
         $this->router->expects($this->once())->method('generate')
             ->with('installer.finish', ['completed' => true], UrlGeneratorInterface::ABSOLUTE_PATH)
@@ -367,7 +367,7 @@ class ShopConfigurationControllerTest extends TestCase
             }
         );
 
-        $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
+        $this->twig->expects($this->once())->method('render')->willReturnCallback(static function (string $view, array $parameters): string {
             static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);
             static::assertArrayHasKey('countryIsos', $parameters);
 

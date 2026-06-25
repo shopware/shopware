@@ -87,7 +87,7 @@ class DeliveryTransformer
             $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
         }
 
-        $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
+        $deliveryData = array_filter($deliveryData, static fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
             if (!isset($lineItems[$position->getIdentifier()])) {

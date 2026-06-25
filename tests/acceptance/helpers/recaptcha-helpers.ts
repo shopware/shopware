@@ -32,7 +32,7 @@ export async function waitForRecaptchaScriptLoaded(page: Page, retries = 3): Pro
         try {
             await page.waitForSelector('script[src*="recaptcha"]', {
                 state: 'attached',
-                timeout: 5000
+                timeout: 5000,
             });
             break;
         } catch (error) {

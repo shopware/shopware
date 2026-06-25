@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package after-sales
  */
@@ -61,6 +63,14 @@ const repositoryMockFactory = (entity) => {
                 Promise.resolve({
                     id: '1a2b3c',
                     name: 'Storefront',
+                    mailHeaderFooter: {
+                        translated: {
+                            headerHtml: '<div>Header</div>',
+                            footerHtml: '<div>Footer</div>',
+                            headerPlain: 'Header plain',
+                            footerPlain: 'Footer plain',
+                        },
+                    },
                     languages: new EntityCollection(
                         '/language',
                         'language',
@@ -108,7 +118,28 @@ class SyntaxValidationTemplateError extends Error {
     };
 }
 
+function createSimulationResponse(mailTemplateContent) {
+    return Object.fromEntries(
+        Object.entries(mailTemplateContent).map(
+            ([
+                key,
+                content,
+            ]) => [
+                key,
+                {
+                    type: 'success',
+                    content,
+                },
+            ],
+        ),
+    );
+}
+
 async function createWrapper(privileges = []) {
+    const simulateMailTemplate = jest.fn((mailTemplateContent) =>
+        Promise.resolve(createSimulationResponse(mailTemplateContent)),
+    );
+
     return mount(await wrapTestComponent('sw-mail-template-detail', { sync: true }), {
         global: {
             provide: {
@@ -116,8 +147,9 @@ async function createWrapper(privileges = []) {
                     create: repositoryMockFactory,
                 },
                 mailService: {
-                    testMailTemplate: jest.fn(() => Promise.resolve()),
-                    buildRenderPreview: jest.fn(() => Promise.reject(new SyntaxValidationTemplateError())),
+                    simulateMailTemplate,
+                    sendMailTemplate: jest.fn(() => Promise.resolve({ size: 1 })),
+                    loadAvailableVariables: jest.fn(() => Promise.resolve({})),
                 },
                 entityMappingService: {
                     getEntityMapping: () => [],
@@ -130,6 +162,17 @@ async function createWrapper(privileges = []) {
 
                         return privileges.includes(identifier);
                     },
+                },
+                businessEventService: {
+                    getBusinessEvents: jest.fn(() =>
+                        Promise.resolve([
+                            {
+                                name: 'checkout.order.placed',
+                                aware: ['mailAware'],
+                                data: {},
+                            },
+                        ]),
+                    ),
                 },
             },
             mocks: {
@@ -151,6 +194,24 @@ async function createWrapper(privileges = []) {
                 'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
+                'mt-button': {
+                    props: ['disabled'],
+                    template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
+                },
+                'mt-text-field': {
+                    props: ['disabled'],
+                    template: '<input type="text" :disabled="disabled" />',
+                },
+                'mt-textarea': {
+                    props: ['disabled'],
+                    template: '<textarea :disabled="disabled"></textarea>',
+                },
+                'mt-select': {
+                    template: '<div><slot name="hint"></slot></div>',
+                },
+                'mt-banner': {
+                    template: '<div><slot></slot></div>',
+                },
                 'mt-icon': true,
                 'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),
                 'sw-container': {
@@ -162,6 +223,9 @@ async function createWrapper(privileges = []) {
                 'sw-entity-multi-select': true,
                 'sw-textarea-field': true,
                 'sw-modal': true,
+                'sw-mail-template-preview-modal': {
+                    template: '<div class="sw-mail-template-preview-modal-stub"></div>',
+                },
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-code-editor': {
@@ -452,9 +516,61 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await wrapper.setData({ mailTemplate: mailTemplateTypeMock });
 
-        const sidebarItem = wrapper.find('[icon=regular-eye]');
+        const previewButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar button');
 
-        expect(sidebarItem.attributes().disabled).toBeTruthy();
+        expect(previewButton.attributes().disabled).toBeDefined();
+    });
+
+    it('should render a sales channel select in the preview sidebar', async () => {
+        const wrapper = await createWrapper();
+
+        const previewSalesChannelSelect = wrapper.find('[name="sw-field--previewSalesChannelId"]');
+
+        expect(previewSalesChannelSelect.exists()).toBe(true);
+    });
+
+    it('should use one shared sales channel value for send and preview', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            testMailSalesChannelId: 'sales-channel-id-1',
+        });
+
+        expect(wrapper.vm.testMailSalesChannelId).toBe('sales-channel-id-1');
+    });
+
+    it('should send the selected preview sales channel id when simulating', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            testMailSalesChannelId: 'sales-channel-id',
+            triggerEvents: [
+                {
+                    name: 'checkout.order.placed',
+                },
+            ],
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
+        });
+
+        await flushPromises();
+        await wrapper.vm.simulateMailPreview();
+
+        expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                subject: undefined,
+                senderName: undefined,
+                contentHtml: undefined,
+                contentPlain: undefined,
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
+            }),
+            'checkout.order.placed',
+            'sales-channel-id',
+        );
     });
 
     it('should not be able to send test mails when values are missing', async () => {
@@ -481,7 +597,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -489,6 +604,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
@@ -496,15 +614,42 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(sendTestMail.attributes().disabled).toBeUndefined();
 
         await sendTestMail.trigger('click');
+        await flushPromises();
 
-        expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
+        expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(
+            {
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                senderName: '{{ salesChannel.name }}',
+                contentHtml:
+                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
+            },
+            'checkout.order.placed',
+            '1a2b3c',
+        );
+        expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
-            wrapper.vm.mailTemplate,
+            'foo@bar.com',
+            expect.objectContaining({
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                senderName: '{{ salesChannel.name }}',
+                contentHtml:
+                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+            }),
             expect.anything(),
             '1a2b3c',
+            true,
+            [],
+            {},
             undefined,
             '6666673yd1ssd299si1d837dy1ud628',
         );
+        expect(wrapper.vm.mailPreview).toBeNull();
     });
 
     it('should be able to send test mails when only inherited values are filled', async () => {
@@ -515,13 +660,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: undefined,
                 contentPlain: undefined,
-                // eslint-disable-next-line max-len
                 contentHtml: undefined,
                 senderName: undefined,
                 translated: {
                     subject: 'Your order with {{ salesChannel.name }} is partially paid',
                     contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                    // eslint-disable-next-line max-len
                     contentHtml:
                         '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                     senderName: '{{ salesChannel.name }}',
@@ -530,6 +673,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
@@ -537,12 +683,23 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(sendTestMail.attributes().disabled).toBeUndefined();
 
         await sendTestMail.trigger('click');
+        await flushPromises();
 
-        expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
+        expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
-            wrapper.vm.mailTemplate,
+            'foo@bar.com',
+            expect.objectContaining({
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                senderName: '{{ salesChannel.name }}',
+                contentHtml:
+                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+            }),
             expect.anything(),
             '1a2b3c',
+            true,
+            [],
+            {},
             undefined,
             '6666673yd1ssd299si1d837dy1ud628',
         );
@@ -551,44 +708,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     it('should copy variables to clipboard', async () => {
         Object.defineProperty(navigator, 'clipboard', {
             value: {
-                writeText: () => new Promise(() => {}),
+                writeText: () => Promise.resolve(),
             },
         });
 
         const clipboardSpy = jest.spyOn(navigator.clipboard, 'writeText');
 
         const wrapper = await createWrapper();
-
         const spyOnCopyVariable = jest.spyOn(wrapper.vm, 'onCopyVariable');
 
-        wrapper.vm.addVariables([
-            {
-                id: 'order',
-                name: 'order',
-                childCount: 1,
-                parentId: null,
-                afterId: null,
-            },
-            {
-                id: 'salesChannel',
-                name: 'salesChannel',
-                childCount: 1,
-                parentId: null,
-                afterId: null,
-            },
-        ]);
-
-        wrapper.vm.mailTemplateType = {
-            availableEntities: true,
-            templateData: {
-                test: 'test',
-            },
-        };
-
-        await flushPromises();
-
-        const icon = await wrapper.find('.sw-mail-template-detail__copy_icon');
-        await icon.trigger('click');
+        await wrapper.vm.onCopyVariable('order.orderNumber');
 
         await flushPromises();
 
@@ -596,51 +725,45 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(clipboardSpy).toHaveBeenCalled();
     });
 
-    it('should have schema in variables', async () => {
+    it('should load variable schemas from the backend', async () => {
         const wrapper = await createWrapper();
-
-        const spyIsToManyAssociationVariable = jest.spyOn(wrapper.vm, 'isToManyAssociationVariable');
-
-        wrapper.vm.addVariables([
-            {
-                id: 'order',
-                schema: 'order',
-                name: 'order',
-                childCount: 2,
-                parentId: null,
-                afterId: null,
-            },
-        ]);
-
-        wrapper.vm.mailTemplateType = {
-            availableEntities: true,
-            templateData: {
-                order: {
-                    deleveries: {
-                        trackingCodes: {},
-                    },
+        wrapper.vm.mailService.loadAvailableVariables = jest.fn(() =>
+            Promise.resolve({
+                orderNumber: {
+                    fieldName: 'orderNumber',
+                    hasChildren: false,
                 },
+            }),
+        );
+
+        await wrapper.setData({
+            triggerEvent: {
+                name: 'checkout.order.placed',
             },
-        };
+        });
 
+        wrapper.vm.loadAvailableVariables('order');
         await flushPromises();
-        const icon = await wrapper.find('.sw-tree-item__toggle');
-        await icon.trigger('click');
 
-        expect(spyIsToManyAssociationVariable).toHaveBeenCalled();
+        expect(wrapper.vm.mailService.loadAvailableVariables).toHaveBeenCalledWith('checkout.order.placed', 'order');
+        expect(wrapper.vm.availableVariables['order.orderNumber']).toEqual({
+            id: 'order.orderNumber',
+            schema: 'order.orderNumber',
+            name: 'orderNumber',
+            childCount: 0,
+            parentId: 'order',
+            afterId: null,
+        });
     });
 
-    it('should replace variables in html content when send mail test', async () => {
+    it('should send the original template content to the simulator when sending a test mail', async () => {
         const wrapper = await createWrapper(['api_send_email']);
-
-        const spyMailPreviewContent = jest.spyOn(wrapper.vm, 'mailPreviewContent');
 
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -648,28 +771,33 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
         await sendTestMail.trigger('click');
+        await flushPromises();
 
-        const contentHtmlAfterReplace =
-            '{{ order.deliveries.0.stateMachineState.translated.name }} {{ order.deliveries.1.trackingCodes.0 }},<br/><br/>';
-        const mailTemplate = { ...wrapper.vm.mailTemplate };
-        mailTemplate.contentHtml = contentHtmlAfterReplace;
-
-        expect(spyMailPreviewContent).toHaveBeenCalled();
-        expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
-            'foo@bar.com',
-            mailTemplate,
-            expect.anything(),
+        expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(
+            {
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                senderName: '{{ salesChannel.name }}',
+                contentHtml:
+                    '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
+            },
+            'checkout.order.placed',
             '1a2b3c',
-            undefined,
-            '6666673yd1ssd299si1d837dy1ud628',
         );
     });
 
-    it('should get specific error notification if using preview function with invalid template', async () => {
+    it('should normalize preview errors when simulation returns an invalid template result', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -677,7 +805,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -686,27 +813,108 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
-        wrapper.vm.createNotificationError = jest.fn();
-        const notificationMock = wrapper.vm.createNotificationError;
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'success',
+                    content: 'Rendered subject',
+                },
+                senderName: {
+                    type: 'success',
+                    content: 'Rendered sender',
+                },
+                contentPlain: {
+                    type: 'success',
+                    content: 'Rendered plain',
+                },
+                contentHtml: {
+                    type: 'error',
+                    content: 'Twig syntax error: unexpected end of template.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'unexpected end of template.',
+                },
+            }),
+        );
 
-        const previewSidebarButton = wrapper.findComponent('.sw-mail-template-detail__show-preview-sidebar');
+        await wrapper.vm.onClickShowPreview();
 
-        expect(previewSidebarButton.attributes().disabled).toBe('true');
-        await previewSidebarButton.vm.$emit('click');
-
-        await flushPromises();
-
-        expect(notificationMock).toHaveBeenCalledTimes(1);
-        expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
+        expect(wrapper.vm.mailPreview.contentHtml.errorTitle).toBe('Twig syntax error');
+        expect(wrapper.vm.mailPreview.contentHtml.errorMessage).toBe('unexpected end of template.');
     });
 
-    it('should get general error notification if using preview function with invalid template', async () => {
+    it('should identify header and footer simulation errors separately in the preview', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Subject',
+                contentPlain: 'Body plain',
+                contentHtml: '<div>Body html</div>',
+                senderName: 'Sender',
+                mailTemplateTypeId: 'typeId',
+            },
+            testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
+        });
+
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'success',
+                    content: 'Rendered subject',
+                },
+                senderName: {
+                    type: 'success',
+                    content: 'Rendered sender',
+                },
+                headerPlain: {
+                    type: 'success',
+                    content: 'Rendered header plain',
+                },
+                contentPlain: {
+                    type: 'success',
+                    content: 'Rendered body plain',
+                },
+                footerPlain: {
+                    type: 'error',
+                    content: 'Twig syntax error: plain footer failed.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'plain footer failed.',
+                },
+                headerHtml: {
+                    type: 'error',
+                    content: 'Twig syntax error: html header failed.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'html header failed.',
+                },
+                contentHtml: {
+                    type: 'success',
+                    content: 'Rendered body html',
+                },
+                footerHtml: {
+                    type: 'success',
+                    content: 'Rendered footer html',
+                },
+            }),
+        );
+
+        await wrapper.vm.onClickShowPreview();
+
+        expect(wrapper.vm.mailPreview.headerHtml.errorTitle).toBe('Twig syntax error');
+        expect(wrapper.vm.mailPreview.headerHtml.errorMessage).toBe('html header failed.');
+        expect(wrapper.vm.mailPreview.footerPlain.errorTitle).toBe('Twig syntax error');
+        expect(wrapper.vm.mailPreview.footerPlain.errorMessage).toBe('plain footer failed.');
+    });
+
+    it('should reset preview when simulation request fails', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -714,7 +922,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -723,25 +930,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
-        wrapper.vm.mailService.buildRenderPreview = jest.fn(() => Promise.reject(new Error('Oops')));
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() => Promise.reject(new SyntaxValidationTemplateError()));
 
-        wrapper.vm.createNotificationError = jest.fn();
-        const notificationMock = wrapper.vm.createNotificationError;
+        await wrapper.vm.onClickShowPreview();
 
-        const previewSidebarButton = wrapper.findComponent('.sw-mail-template-detail__show-preview-sidebar');
-
-        expect(previewSidebarButton.attributes().disabled).toBe('true');
-        await previewSidebarButton.vm.$emit('click');
-
-        await flushPromises();
-
-        expect(notificationMock).toHaveBeenCalledTimes(1);
-        expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
+        expect(wrapper.vm.mailPreview).toBeNull();
     });
 
     it('should get error notification if using test mail function with invalid template', async () => {
@@ -752,7 +949,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -760,31 +956,33 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.attributes().disabled).toBeUndefined();
-        wrapper.vm.mailService.testMailTemplate = jest.fn(() => Promise.resolve({ size: 0 }));
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'error',
+                    content: 'Twig syntax error: unexpected end of template.',
+                },
+            }),
+        );
 
         wrapper.vm.createNotificationError = jest.fn();
         const notificationMock = wrapper.vm.createNotificationError;
 
         await sendTestMail.trigger('click');
+        await flushPromises();
 
-        expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
-            'foo@bar.com',
-            wrapper.vm.mailTemplate,
-            expect.anything(),
-            '1a2b3c',
-            undefined,
-            '6666673yd1ssd299si1d837dy1ud628',
-        );
-
-        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage',
         });
+        expect(wrapper.vm.mailService.sendMailTemplate).not.toHaveBeenCalled();
 
         wrapper.vm.createNotificationError.mockRestore();
         await flushPromises();
@@ -807,13 +1005,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: undefined,
                 contentPlain: undefined,
-                // eslint-disable-next-line max-len
                 contentHtml: undefined,
                 senderName: undefined,
                 translated: {
                     subject: 'Your order with {{ salesChannel.name }} is partially paid',
                     contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                    // eslint-disable-next-line max-len
                     contentHtml:
                         '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                     senderName: '{{ salesChannel.name }}',
@@ -822,6 +1018,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
@@ -844,7 +1043,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: wrapper.vm.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+            message: wrapper.vm.$t('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -852,13 +1051,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should display an notification if content language is not assigned to selected sales channel', async () => {
         const wrapper = await createWrapper(['api_send_email']);
+        const originalLanguageId = Shopware.Context.api.languageId;
 
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -866,36 +1065,61 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testerMail: 'foo@bar.com',
             isLoading: false,
             testMailSalesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.attributes().disabled).toBeUndefined();
 
-        await sendTestMail.trigger('click');
-
-        expect(wrapper.vm.showLanguageNotAssignedToSalesChannelWarning).toBeFalsy();
-
         Shopware.Context.api.languageId = 'foo';
         await sendTestMail.trigger('click');
 
-        await flushPromises();
-
         expect(wrapper.vm.showLanguageNotAssignedToSalesChannelWarning).toBeTruthy();
+
+        Shopware.Context.api.languageId = originalLanguageId;
     });
 
     it('should not render copy icon if variable has children', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            mailTemplateType: {
-                availableEntities: true,
-                templateData: {
-                    order: {
-                        orderNumber: 'test',
-                        price: {
-                            totalPrice: 100,
-                        },
-                    },
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
+            availableVariables: {
+                order: {
+                    id: 'order',
+                    schema: 'order',
+                    name: 'order',
+                    childCount: 2,
+                    parentId: null,
+                    afterId: null,
+                },
+                'order.orderNumber': {
+                    id: 'order.orderNumber',
+                    schema: 'order.orderNumber',
+                    name: 'orderNumber',
+                    childCount: 0,
+                    parentId: 'order',
+                    afterId: null,
+                },
+                'order.price': {
+                    id: 'order.price',
+                    schema: 'order.price',
+                    name: 'price',
+                    childCount: 1,
+                    parentId: 'order',
+                    afterId: null,
+                },
+                'order.price.totalPrice': {
+                    id: 'order.price.totalPrice',
+                    schema: 'order.price.totalPrice',
+                    name: 'totalPrice',
+                    childCount: 0,
+                    parentId: 'order.price',
+                    afterId: null,
                 },
             },
         });

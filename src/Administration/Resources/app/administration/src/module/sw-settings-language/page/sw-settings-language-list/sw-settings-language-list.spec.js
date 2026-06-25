@@ -51,7 +51,7 @@ async function createWrapper(privileges = []) {
                     },
 
                     detailPageLinkText(allowEdit) {
-                        return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+                        return allowEdit ? this.$t('global.default.edit') : this.$t('global.default.view');
                     },
 
                     searchRankingService: {

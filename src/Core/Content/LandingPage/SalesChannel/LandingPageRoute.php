@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -34,6 +35,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
     public function __construct(
         private readonly SalesChannelRepository $landingPageRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly LandingPageDefinition $landingPageDefinition,
         private readonly CacheTagCollector $cacheTagCollector,
     ) {
@@ -73,7 +75,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $request,
             $this->createCriteria($pageId, $request),
             $context,
-            $landingPage->getTranslation('slotConfig'),
+            $this->buildMergedCmsSlotConfig($landingPage, $context),
             $resolverContext
         );
 
@@ -94,6 +96,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
 
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
+        $criteria->addAssociation('translations');
 
         $landingPage = $this->landingPageRepository->search($criteria, $context)->getEntities()->get($landingPageId);
         if (!$landingPage instanceof LandingPageEntity) {
@@ -121,5 +124,16 @@ class LandingPageRoute extends AbstractLandingPageRoute
         }
 
         return $criteria;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(LandingPageEntity $landingPage, SalesChannelContext $context): ?array
+    {
+        return $this->cmsSlotConfigInheritanceBuilder->build(
+            $landingPage->getTranslations(),
+            $context,
+        );
     }
 }

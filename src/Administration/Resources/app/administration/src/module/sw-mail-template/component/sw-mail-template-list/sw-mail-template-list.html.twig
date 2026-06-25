@@ -1,13 +1,13 @@
 {% block sw_mail_template_list_grid %}
 <mt-card
-    :title="$tc('sw-mail-template.list.titleMailTemplateList')"
+    :title="$t('sw-mail-template.list.titleMailTemplateList')"
     position-identifier="sw-mail-template-list"
 >
     {% block sw_mail_template_list_grid_empty_state %}
     <sw-empty-state
         v-if="!isLoading && !showListing"
-        :title="$tc('sw-mail-template.list.emptyStateTitle')"
-        :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
+        :title="$t('sw-mail-template.list.emptyStateTitle')"
+        :subline="$t('sw-mail-template.list.emptyStateSubTitle')"
         :absolute="false"
     >
         {% block sw_mail_template_list_grid_empty_state_icon %}
@@ -52,7 +52,7 @@
                     :disabled="!acl.can('mail_templates.creator') || undefined"
                     @click="onDuplicate(item.id)"
                 >
-                    {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
+                    {{ $t('sw-mail-template.list.contextMenuDuplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>

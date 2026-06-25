@@ -120,6 +120,7 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "The billing address must be a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "The shipping address must be either null or a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
+    "VIOLATION::PASSWORD_IS_TOO_SHORT": "The chosen password is too short.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Please accept the technically required cookies to enable the reCAPTCHA verification.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "There was an error with the captcha verification.",
     "message-default": "Unfortunately, something went wrong.",
@@ -129,6 +130,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
     "VIOLATION::TOO_SHORT_ERROR": "Input is too short.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "The input does not match the required format.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
@@ -463,6 +465,7 @@
     "cartItemInfoId": "Product number:",
     "addPromotionLabel": "Promo code",
     "addPromotionPlaceholder": "Enter promo code...",
+    "addPromotionApplyAction": "Apply promo code",
     "addProductLabel": "Product number",
     "addProductPlaceholder": "Enter product number...",
     "summaryPositionPrice": "Total",
@@ -472,6 +475,7 @@
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "summaryTaxLabeled": "plus %rate%% %label%",
+    "summaryTaxInclude": "incl. %rate%% VAT",
     "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",
@@ -617,6 +621,22 @@
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
+  "revocationRequest": {
+    "headline": "Revocation",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Enter first name...",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Enter last name...",
+    "eMailLabel": "Email address",
+    "eMailPlaceholder": "Enter email address...",
+    "contractNumberLabel": "Contract number (order number, subscription number, ...)",
+    "contractNumberPlaceholder": "Enter contract number...",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "Enter comment...",
+    "privacyNoticeTextModal": "Our Privacy Notice is available %privacyModalTagOpen%here%privacyModalTagClose%.",
+    "formSubmit": "Confirm revocation",
+    "success": "We have received your revocation request and will process it as soon as possible."
+  },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
     "metaTitle": "Search results"
@@ -721,6 +741,10 @@
           "solution": "Please try again or contact our support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation play/pause",
+      "select": "Select animation"
     }
   },
   "wishlist": {
@@ -748,6 +772,8 @@
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
     "serviceContactTextPage": "Or via our <a href=\"%url%\" title=\"Contact form\">contact form</a>.",
+    "serviceRevocationRequestText": "<a class=\"btn btn-primary\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
+    "serviceRevocationRequestTextPage": "<a class=\"btn btn-primary\" href=\"%url%\" title=\"Revoke a Contract\">Revoke a contract</a>",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
     "includeVatText": "%star%All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
@@ -830,7 +856,9 @@
         "increase": "Increase quantity",
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
-        "decreaseOfProduct": "Decrease quantity of %product%"
+        "decreaseOfProduct": "Decrease quantity of %product%",
+        "stockAdjusted": "Your quantity has been updated to %quantity%.",
+        "outOfStock": "The product is no longer available."
       },
       "configurator": {
         "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"

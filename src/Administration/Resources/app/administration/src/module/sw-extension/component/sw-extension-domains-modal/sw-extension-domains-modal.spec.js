@@ -5,7 +5,6 @@ async function createWrapper(propsData) {
         global: {
             mocks: {
                 $t: (...args) => JSON.stringify([...args]),
-                $tc: (...args) => JSON.stringify([...args]),
             },
         },
         props: {

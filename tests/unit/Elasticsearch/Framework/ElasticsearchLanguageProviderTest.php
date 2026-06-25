@@ -26,7 +26,7 @@ class ElasticsearchLanguageProviderTest extends TestCase
 
         $languageRepository
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) {
+            ->willReturnCallback(static function (Criteria $criteria) {
                 static::assertTrue($criteria->hasEqualsFilter('fooo'));
                 $sortings = $criteria->getSorting();
                 static::assertCount(1, $sortings);
@@ -36,7 +36,7 @@ class ElasticsearchLanguageProviderTest extends TestCase
             });
 
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ElasticsearchIndexerLanguageCriteriaEvent::class, function (ElasticsearchIndexerLanguageCriteriaEvent $event): void {
+        $dispatcher->addListener(ElasticsearchIndexerLanguageCriteriaEvent::class, static function (ElasticsearchIndexerLanguageCriteriaEvent $event): void {
             $event->getCriteria()->addFilter(new EqualsFilter('fooo', null));
         });
 

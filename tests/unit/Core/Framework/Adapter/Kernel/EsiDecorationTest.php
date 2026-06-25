@@ -39,7 +39,7 @@ class EsiDecorationTest extends TestCase
     {
         $this->kernel
             ->method('handle')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(static function (Request $request) {
                 static::assertTrue($request->attributes->getBoolean('_sw_esi'));
 
                 return new Response('foo');
@@ -62,8 +62,7 @@ class EsiDecorationTest extends TestCase
             return new Response();
         });
 
-        static::expectException(AdapterException::class);
-        static::expectExceptionMessage('Circular ESI request detected: Request call stack: /foo, /foo');
+        $this->expectExceptionObject(AdapterException::circularReferenceEsi(['/foo', '/foo']));
 
         // this is the first call
         $esi->handle($this->cache, '/foo', '', false);
@@ -77,8 +76,7 @@ class EsiDecorationTest extends TestCase
 
         $esi = new EsiDecoration();
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Error when rendering "http://localhost/foo" (Status code is 500).');
+        $this->expectExceptionObject(new \RuntimeException('Error when rendering "http://localhost/foo" (Status code is 500).'));
 
         $esi->handle($this->cache, '/foo', '', false);
     }
@@ -87,7 +85,7 @@ class EsiDecorationTest extends TestCase
     {
         $this->kernel
             ->method('handle')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(static function (Request $request) {
                 if ($request->getPathInfo() === '/foo') {
                     return new Response('foo', Response::HTTP_INTERNAL_SERVER_ERROR);
                 }

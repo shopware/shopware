@@ -1,11 +1,3 @@
-@import "~scss/variables";
-
-$sw-order-state-card-neutral: $color-gray-700;
-$sw-order-state-card-progress: $color-shopware-brand-500;
-$sw-order-state-card-danger: $color-crimson-500;
-$sw-order-state-card-success: $color-emerald-500;
-$sw-order-state-card-warning: $color-pumpkin-spice-500;
-
 .sw-order-state-history-card-entry {
     .sw-order-state-card__history-entry {
         display: block;
@@ -13,8 +5,8 @@ $sw-order-state-card-warning: $color-pumpkin-spice-500;
 
         .sw-order-state-card__date {
             float: right;
-            line-height: $line-height-md;
-            font-size: $font-size-xxs;
+            line-height: var(--font-line-height-m);
+            font-size: var(--font-size-2xs);
         }
 
         .sw-order-state-card__text {
@@ -24,43 +16,43 @@ $sw-order-state-card-warning: $color-pumpkin-spice-500;
         }
 
         .sw-order-state__neutral-icon-bg {
-            background: lighten($sw-order-state-card-neutral, 40%);
+            background: var(--color-background-tertiary-default);
         }
 
         .sw-order-state__progress-icon-bg {
-            background: lighten($sw-order-state-card-progress, 40%);
+            background: var(--color-background-brand-default);
         }
 
         .sw-order-state__danger-icon-bg {
-            background: lighten($sw-order-state-card-danger, 42%);
+            background: var(--color-background-critical-default);
         }
 
         .sw-order-state__warning-icon-bg {
-            background: lighten($sw-order-state-card-warning, 42%);
+            background: var(--color-background-attention-default);
         }
 
         .sw-order-state__success-icon-bg {
-            background: lighten($sw-order-state-card-success, 40%);
+            background: var(--color-background-positive-default);
         }
 
         .sw-order-state__neutral-icon {
-            color: $sw-order-state-card-neutral;
+            color: var(--color-icon-secondary-default);
         }
 
         .sw-order-state__progress-icon {
-            color: $sw-order-state-card-progress;
+            color: var(--color-icon-brand-default);
         }
 
         .sw-order-state__warning-icon {
-            color: $sw-order-state-card-warning;
+            color: var(--color-icon-attention-default);
         }
 
         .sw-order-state__danger-icon {
-            color: $sw-order-state-card-danger;
+            color: var(--color-icon-critical-default);
         }
 
         .sw-order-state__success-icon {
-            color: $sw-order-state-card-success;
+            color: var(--color-icon-positive-default);
         }
 
         .icon--regular-chevron-down-xxs {

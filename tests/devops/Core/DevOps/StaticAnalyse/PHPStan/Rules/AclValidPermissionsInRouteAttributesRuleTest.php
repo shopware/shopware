@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule;
@@ -14,7 +13,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteA
  *
  * @extends  RuleTestCase<AclValidPermissionsInRouteAttributesRule>
  */
-#[CoversClass(AclValidPermissionsInRouteAttributesRule::class)]
 class AclValidPermissionsInRouteAttributesRuleTest extends RuleTestCase
 {
     private static ?AclValidPermissionsInRouteAttributesRule $rule = null;
@@ -36,15 +34,15 @@ class AclValidPermissionsInRouteAttributesRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/AclValidPermissionsRule/invalid-acl-name-in-route-attribute.php'], [
             [
                 'Permission "class-non-existing-permission" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.',
-                6,
+                9,
             ],
             [
                 'Permission "system:create" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.',
-                9,
+                12,
             ],
             [
                 'Permission "non-existing-permission" is not a valid backend ACL key. If it\'s an entity based permission, please check if entity is listed in the entity-schema.json. If it\'s a custom permissions, please check if it should be added to the allowlist.',
-                9,
+                12,
             ],
         ]);
 

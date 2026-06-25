@@ -44,18 +44,17 @@ class StatesUpdater
 
         $sql = 'SELECT LOWER(HEX(`product`.`id`)) as id,
                 IF(`product_download`.`id` IS NOT NULL, 1, 0) as hasDownloads,
+                `product`.`type`,
                 `product`.`states`
                 FROM `product`
                 LEFT JOIN `product_download` ON `product`.`id` = `product_download`.`product_id`
                 AND `product`.`version_id` = `product_download`.`product_version_id`
                 WHERE `product`.`id` IN (:ids)
-                AND `type` = :currentType
                 AND `product`.`version_id` = :versionId
                 GROUP BY `product`.`id`';
 
         $params = [
             'ids' => Uuid::fromHexToBytesList($ids),
-            'currentType' => ProductDefinition::TYPE_PHYSICAL,
             'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
         ];
 
@@ -67,6 +66,11 @@ class StatesUpdater
 
         $updates = [];
         foreach ($products as $product) {
+            // Only update states for physical and digital products, as the states are only relevant for these types. For other types, the states will be left unchanged.
+            if (isset($product['type']) && $product['type'] !== ProductDefinition::TYPE_PHYSICAL && $product['type'] !== ProductDefinition::TYPE_DIGITAL) {
+                continue;
+            }
+
             $newStates = $this->getNewStates($product);
             $oldStates = $product['states'] ? json_decode((string) $product['states'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
@@ -110,7 +114,7 @@ class StatesUpdater
     {
         $states = [];
 
-        if ((int) $product['hasDownloads'] === 1) {
+        if ($product['type'] === ProductDefinition::TYPE_DIGITAL || (int) $product['hasDownloads'] === 1) {
             $states[] = State::IS_DOWNLOAD;
         } else {
             $states[] = State::IS_PHYSICAL;

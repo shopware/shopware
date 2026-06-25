@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package inventory
  */
@@ -99,6 +101,106 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             },
         );
         expect(result).toBe(true);
+    });
+
+    it('should preserve base price fields (gross/net/linked) when only listPrice is changed', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+        const originalBasePrice = {
+            currencyId,
+            gross: 50,
+            net: 42.02,
+            linked: true,
+            listPrice: { currencyId, gross: 80, net: 67.23, linked: true },
+        };
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                price: [originalBasePrice],
+            },
+        ];
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            ['product_1'],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: { currencyId, gross: 100, net: 84.03, linked: true },
+                            regulationPrice: null,
+                        },
+                    ],
+                },
+            ],
+        );
+
+        const syncPayload = syncSpy.mock.calls[0][0];
+        const productPayload = syncPayload['upsert-product'].payload[0];
+
+        expect(productPayload.price[0].gross).toBe(50);
+        expect(productPayload.price[0].net).toBe(42.02);
+        expect(productPayload.price[0].linked).toBe(true);
+        expect(productPayload.price[0].listPrice.gross).toBe(100);
+    });
+
+    it('should preserve base price fields (gross/net/linked) when only regulationPrice is changed', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+        const originalBasePrice = {
+            currencyId,
+            gross: 75,
+            net: 63.03,
+            linked: true,
+            regulationPrice: { currencyId, gross: 90, net: 75.63, linked: true },
+        };
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                price: [originalBasePrice],
+            },
+        ];
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            ['product_1'],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: null,
+                            regulationPrice: { currencyId, gross: 150, net: 126.05, linked: true },
+                        },
+                    ],
+                },
+            ],
+        );
+
+        const syncPayload = syncSpy.mock.calls[0][0];
+        const productPayload = syncPayload['upsert-product'].payload[0];
+
+        expect(productPayload.price[0].gross).toBe(75);
+        expect(productPayload.price[0].net).toBe(63.03);
+        expect(productPayload.price[0].linked).toBe(true);
+        expect(productPayload.price[0].regulationPrice.gross).toBe(150);
     });
 
     describe('test buildBulkSyncPayload', () => {
@@ -575,14 +677,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             {
                                 productId: 'product_1',
                                 mediaId: 'media_1',
+                                position: 1,
                             },
                             {
                                 productId: 'product_2',
                                 mediaId: 'media_1',
+                                position: 0,
                             },
                             {
                                 productId: 'product_2',
                                 mediaId: 'media_2',
+                                position: 1,
                             },
                         ],
                     },
@@ -995,6 +1100,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             .map((v, k) => ({
                                 productId: 'product_1',
                                 mediaId: `media_${k}`,
+                                position: k,
                             })),
                     },
                 },
@@ -1271,6 +1377,9 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         id: {
                             type: 'uuid',
                         },
+                        position: {
+                            type: 'int',
+                        },
                         media: {
                             type: 'association',
                             relation: 'many_to_one',
@@ -1352,6 +1461,85 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             expect(await handler.buildBulkSyncPayload(input)).toEqual(output);
 
             spy.mockRestore();
+
+            spyRepository.mockRestore();
+        });
+
+        it('appends bulk-added media at each product own next position', async () => {
+            // Scenario: product_1 & product_2 have 2 images (positions 1, 2), product_3 has 3 images
+            // (positions 1, 2, 3). Adding one image via bulk edit must append it at position 3 for product_1 and
+            // product_2, but at position 4 for product_3 - a per-product position, not a single shared one.
+            const scopedHandler = getBulkEditProductHandler();
+            scopedHandler.groupedPayload = { upsert: {}, delete: {} };
+            scopedHandler.entityName = 'product';
+            scopedHandler.entityIds = [
+                'product_1',
+                'product_2',
+                'product_3',
+            ];
+
+            Shopware.EntityDefinition = EntityDefinitionFactory;
+            Shopware.EntityDefinition.add('product', {
+                entity: 'product',
+                properties: {
+                    id: { type: 'uuid' },
+                    media: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product_media',
+                        localField: 'id',
+                        referenceField: 'productId',
+                    },
+                },
+            });
+            Shopware.EntityDefinition.add('product_media', {
+                entity: 'product_media',
+                properties: {
+                    id: { type: 'uuid' },
+                    position: { type: 'int' },
+                    media: { type: 'association', relation: 'many_to_one', entity: 'media' },
+                },
+            });
+            Shopware.EntityDefinition.add('media', {
+                entity: 'media',
+                properties: { id: { type: 'uuid' } },
+            });
+
+            const existingMedia = [
+                { id: 'pm_1_1', productId: 'product_1', mediaId: 'media_a', position: 1 },
+                { id: 'pm_1_2', productId: 'product_1', mediaId: 'media_b', position: 2 },
+                { id: 'pm_2_1', productId: 'product_2', mediaId: 'media_a', position: 1 },
+                { id: 'pm_2_2', productId: 'product_2', mediaId: 'media_b', position: 2 },
+                { id: 'pm_3_1', productId: 'product_3', mediaId: 'media_a', position: 1 },
+                { id: 'pm_3_2', productId: 'product_3', mediaId: 'media_b', position: 2 },
+                { id: 'pm_3_3', productId: 'product_3', mediaId: 'media_c', position: 3 },
+            ];
+
+            const spyRepository = jest.spyOn(scopedHandler.repositoryFactory, 'create').mockImplementation(() => {
+                return {
+                    search: async (criteria) => {
+                        const response = paginate(existingMedia, criteria);
+                        response.total = existingMedia.length;
+
+                        return Promise.resolve(response);
+                    },
+                };
+            });
+
+            const payload = await scopedHandler.buildBulkSyncPayload([
+                {
+                    type: 'add',
+                    field: 'media',
+                    mappingReferenceField: 'mediaId',
+                    value: [{ mediaId: 'media_new' }],
+                },
+            ]);
+
+            expect(payload['upsert-product_media'].payload).toEqual([
+                { productId: 'product_1', mediaId: 'media_new', position: 3 },
+                { productId: 'product_2', mediaId: 'media_new', position: 3 },
+                { productId: 'product_3', mediaId: 'media_new', position: 4 },
+            ]);
 
             spyRepository.mockRestore();
         });

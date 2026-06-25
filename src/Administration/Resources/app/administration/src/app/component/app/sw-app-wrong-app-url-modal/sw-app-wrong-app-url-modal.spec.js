@@ -72,7 +72,11 @@ describe('sw-app-wrong-app-url-modal', () => {
                 },
             }),
         });
+    });
 
+    beforeEach(() => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
         removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 

@@ -10,7 +10,7 @@
         {% block sw_settings_customer_group_detail_smart_bar_header_title %}
         <h2>
             {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
-            {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
+            {{ placeholder(customerGroup, 'name', $t('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -36,7 +36,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -50,7 +50,7 @@
             :disabled="!allowSave || undefined"
             @click="onSave"
         >
-            {{ $tc('sw-settings-customer-group.general.buttonSave') }}
+            {{ $t('sw-settings-customer-group.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -69,7 +69,7 @@
                 {% block sw_settings_customer_group_detail_content_card %}
                 <mt-card
                     :is-loading="isLoading"
-                    :title="$tc('sw-settings-customer-group.detail.cardTitle')"
+                    :title="$t('sw-settings-customer-group.detail.cardTitle')"
                     position-identifier="sw-settings-customer-group-detail-content"
                 >
                     <template v-if="!isLoading">
@@ -86,9 +86,9 @@
                                 class="sw-settings-customer-group-detail__name"
                                 required
                                 validation="required"
-                                :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
+                                :label="$t('sw-settings-customer-group.detail.fieldNameLabel')"
                                 :error="customerGroupNameError"
-                                :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
+                                :placeholder="placeholder(customerGroup, 'name', $t('sw-settings-customer-group.detail.placeholderName'))"
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
@@ -97,9 +97,9 @@
                             <sw-boolean-radio-group
                                 v-model:value="customerGroup.displayGross"
                                 bordered
-                                :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
-                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
+                                :label="$t('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
+                                :label-option-true="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
+                                :label-option-false="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
@@ -111,7 +111,7 @@
                                 v-model="customerGroup.registrationActive"
                                 name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
-                                :label="$tc('sw-settings-customer-group.detail.registrationForm')"
+                                :label="$t('sw-settings-customer-group.detail.registrationForm')"
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
@@ -125,10 +125,10 @@
                     v-if="customerGroup && customerGroup.registrationActive"
                     position-identifier="sw-settings-customer-group-detail-content-registration-card"
                     :is-loading="isLoading"
-                    :title="$tc('sw-settings-customer-group.registration.formTitle')"
+                    :title="$t('sw-settings-customer-group.registration.formTitle')"
                 >
                     <div class="sw-settings-customer-group-detail-content-registration-card__info-text">
-                        {{ $tc('sw-settings-customer-group.registration.infoText') }}
+                        {{ $t('sw-settings-customer-group.registration.infoText') }}
                     </div>
 
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
@@ -138,8 +138,8 @@
                         name="sw-field--customerGroup-registrationTitle"
                         required
                         validation="required"
-                        :label="$tc('sw-settings-customer-group.registration.title')"
-                        :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))"
+                        :label="$t('sw-settings-customer-group.registration.title')"
+                        :placeholder="placeholder(customerGroup, 'registrationTitle', $t('sw-settings-customer-group.registration.placeholderTitle'))"
                         :error="registrationTitleError"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
@@ -149,8 +149,8 @@
                     <sw-text-editor
                         v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                         v-model:value="customerGroup.registrationIntroduction"
-                        :label="$tc('sw-settings-customer-group.registration.introduction')"
-                        :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
+                        :label="$t('sw-settings-customer-group.registration.introduction')"
+                        :placeholder="placeholder(customerGroup, 'registrationIntroduction', $t('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                         sanitize-input
                         sanitize-field-name="customer_group_translation.registrationIntroduction"
@@ -158,8 +158,8 @@
                     <mt-text-editor
                         v-else
                         v-model="customerGroup.registrationIntroduction"
-                        :label="$tc('sw-settings-customer-group.registration.introduction')"
-                        :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
+                        :label="$t('sw-settings-customer-group.registration.introduction')"
+                        :placeholder="placeholder(customerGroup, 'registrationIntroduction', $t('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                         sanitize-input
                         sanitize-field-name="customer_group_translation.registrationIntroduction"
@@ -170,8 +170,8 @@
                     <mt-textarea
                         v-model="customerGroup.registrationSeoMetaDescription"
                         name="sw-field--customerGroup-registrationSeoMetaDescription"
-                        :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
-                        :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
+                        :label="$t('sw-settings-customer-group.registration.seoMetaDescription')"
+                        :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $t('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
@@ -182,8 +182,8 @@
                         v-model="customerGroup.registrationOnlyCompanyRegistration"
                         name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
                         class="sw-settings-customer-group-detail__registration-only-companies-can-register"
-                        :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
-                        :help-text="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
+                        :label="$t('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
+                        :help-text="$t('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                     />
                     {% endblock %}
@@ -196,7 +196,7 @@
                     v-if="customerGroup && customerGroup.registrationActive"
                     position-identifier="sw-settings-customer-group-detail-content-registration-url-card"
                     :is-loading="isLoading"
-                    :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')"
+                    :title="$t('sw-settings-customer-group.registration.linkUrlsTitle')"
                 >
 
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
@@ -204,7 +204,7 @@
                         v-model:entity-collection="customerGroup.registrationSalesChannels"
                         name="sw-field--customerGroup-registrationSalesChannels"
                         class="sw-settings-customer-group-detail__sales-channel"
-                        :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
+                        :label="$t('sw-settings-customer-group.registration.availabilitySalesChannel')"
                         :disabled="!acl.can('customer_groups.editor') || undefined"
                         :criteria="registrationSalesChannelCriteria"
                     />
@@ -216,10 +216,10 @@
                         v-if="customerGroupId"
                         v-model="technicalUrl"
                         name="sw-field--technicalUrl"
-                        :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
+                        :label="$t('sw-settings-customer-group.registration.technicalUrl')"
                         :copyable="true"
                         :disabled="true"
-                        :help-text="$tc('sw-settings-customer-group.registration.technicalUrlHelpText')"
+                        :help-text="$t('sw-settings-customer-group.registration.technicalUrlHelpText')"
                     />
                     {% endblock %}
 
@@ -239,7 +239,7 @@
                                     <mt-text-field
                                         :key="`${seoUrl.id}-${domain.id}`"
                                         :model-value="`${domain.url}/${seoUrl.seoPathInfo}`"
-                                        :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', {
+                                        :label="$t('sw-settings-customer-group.registration.seoUrlLabel', {
                                             salesChannelName: salesChannel.translated.name,
                                             languageName: seoUrl.language.name
                                         })"
@@ -259,7 +259,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-customer-group-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

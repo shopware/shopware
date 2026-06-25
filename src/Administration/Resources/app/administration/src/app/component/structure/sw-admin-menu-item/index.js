@@ -65,7 +65,6 @@ export default {
 
         displayIcon: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -76,13 +75,11 @@ export default {
         },
         collapsibleText: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
         sidebarExpanded: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -109,9 +106,9 @@ export default {
 
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
-                return this.entry.label.translated ? this.entry.label.label : this.$tc(this.entry.label.label);
+                return this.entry.label.translated ? this.entry.label.label : this.$t(this.entry.label.label);
             }
-            return this.$tc(this.entry.label);
+            return this.$t(this.entry.label);
         },
 
         showMenuItem() {
@@ -271,15 +268,9 @@ export default {
 
     methods: {
         hasAccessToRoute(path) {
-            let route = '';
-            let match = false;
+            const match = this.$router.getRoutes().find((route) => route.name === path);
 
-            route = `/${path.replace(/[\.\-]/g, '/')}`;
-            match = this.$router.resolve({
-                path: route,
-            });
-
-            if (!match.meta) {
+            if (!match?.meta) {
                 return true;
             }
 

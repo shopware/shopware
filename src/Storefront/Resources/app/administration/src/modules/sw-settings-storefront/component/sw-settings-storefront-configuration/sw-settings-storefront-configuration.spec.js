@@ -2,9 +2,14 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
+import swSettingsStorefrontConfiguration from './index';
+
+Shopware.Component.register('sw-settings-storefront-configuration', swSettingsStorefrontConfiguration);
 
 describe('sw-settings-storefront-configuration', () => {
+    /**
+     * @deprecated tag:v6.8.0 - This test will be removed with the deprecated component.
+     */
     it('renders with required storefront settings', async () => {
         const component = await Shopware.Component.build('sw-settings-storefront-configuration');
 
@@ -16,7 +21,7 @@ describe('sw-settings-storefront-configuration', () => {
             },
             global: {
                 stubs: {
-                    'sw-switch-field': true,
+                    'mt-switch': true,
                 },
                 provide: {
                     feature: {},

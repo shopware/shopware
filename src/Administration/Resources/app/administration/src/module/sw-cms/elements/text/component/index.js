@@ -1,6 +1,5 @@
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
-// eslint-disable-next-line max-len
 import SwTextEditorToolbarButtonCmsDataMappingButton from '../../../../../app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 
 const { Mixin } = Shopware;

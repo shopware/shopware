@@ -43,9 +43,12 @@ export default {
 
     props: {
         value: {
-            type: String,
+            type: [
+                String,
+                null,
+            ],
             required: false,
-            default: '',
+            default: null,
         },
 
         isInlineEdit: {
@@ -440,13 +443,12 @@ export default {
 
     methods: {
         createdComponent() {
-            this.content = this.value;
+            this.content = this.value ?? '';
 
             if (!this.$options.buttonConfig) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
-                    title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
+                    title: this.$t('sw-text-editor-toolbar.title.insert-table'),
                     icon: 'regular-table-xs',
                     tag: 'table',
                     expanded: false,
@@ -454,10 +456,9 @@ export default {
                 });
 
                 if (!this.isInlineEdit) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
-                        title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
+                        title: this.$t('sw-text-editor-toolbar.title.code-switch'),
                         icon: 'regular-code-xs',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
@@ -468,7 +469,7 @@ export default {
                 if (this.allowInlineDataMapping && this.availableDataMappings.length > 0) {
                     const dataMappingButton = {
                         type: 'data-mapping',
-                        title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
+                        title: this.$t('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
@@ -485,7 +486,6 @@ export default {
 
                     dataMappingButton.children = buttonConfigs;
 
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -591,7 +591,6 @@ export default {
         resetForeColor() {
             Object.keys(this.buttonConfig).forEach((key) => {
                 if (this.buttonConfig[key].type === 'foreColor') {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig[key].value = '';
                 }
             });
@@ -766,7 +765,6 @@ export default {
         },
 
         setTableSelectorListeners(selector) {
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             selector.addEventListener('mousedown', (e) => {
                 this.tableData.curCol = e.target.parentElement;
@@ -780,7 +778,6 @@ export default {
         },
 
         setTableListeners() {
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mousemove', (e) => {
                 if (this.tableData.curCol) {
@@ -794,7 +791,6 @@ export default {
                 }
             });
 
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mouseup', () => {
                 this.tableData.curCol = null;

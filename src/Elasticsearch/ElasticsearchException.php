@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -24,8 +25,11 @@ class ElasticsearchException extends HttpException
     public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+    public const INVALID_HOST_CONFIGURATION = 'ELASTICSEARCH__INVALID_HOST_CONFIGURATION';
 
     public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
+
+    public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
 
     public static function definitionNotFound(string $definition): self
     {
@@ -128,11 +132,7 @@ class ElasticsearchException extends HttpException
 
     public static function emptyQuery(): self
     {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::EMPTY_QUERY,
-            'Empty query provided'
-        );
+        return new EmptyQueryException();
     }
 
     public static function awsCredentialsNotFound(): self
@@ -141,6 +141,16 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::AWS_CREDENTIALS_NOT_FOUND,
             'Could not get AWS credentials'
+        );
+    }
+
+    public static function invalidHostConfiguration(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_HOST_CONFIGURATION,
+            'Invalid OpenSearch host configuration. Reason: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 
@@ -180,6 +190,19 @@ class ElasticsearchException extends HttpException
             self::OPERATOR_NOT_ALLOWED,
             'Operator {{ operator }} not allowed',
             ['operator' => $operator]
+        );
+    }
+
+    /**
+     * @param array<string> $privilege
+     */
+    public static function missingPrivilege(array $privilege): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            'Missing privilege: {{ missingPrivileges }}',
+            ['missingPrivileges' => \json_encode($privilege)],
         );
     }
 }

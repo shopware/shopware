@@ -99,7 +99,7 @@ class CustomFieldsSerializer extends FieldSerializer
      */
     private function decodeCustomFields(array $customFields, Field $field): ?array
     {
-        $customFields = json_encode(array_filter($customFields, fn ($value) => $value !== ''), \JSON_THROW_ON_ERROR);
+        $customFields = json_encode(array_filter($customFields, static fn ($value) => $value !== ''), \JSON_THROW_ON_ERROR);
 
         if (!$customFields) {
             return null;

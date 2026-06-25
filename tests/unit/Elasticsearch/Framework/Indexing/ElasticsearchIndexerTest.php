@@ -26,6 +26,7 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEv
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -124,7 +125,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
             $eventDispatched = true;
             static::assertSame($query, $event->iterator);
         });
@@ -154,8 +155,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $offset = new IndexerOffset(['foo'], null);
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition foo not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('foo'));
 
         $indexer->iterate($offset);
     }
@@ -222,8 +222,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition not_existing not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('not_existing'));
 
         $indexer($message);
     }
@@ -242,8 +241,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty indexing request provided');
+        $this->expectExceptionObject(ElasticsearchException::emptyIndexingRequest());
 
         $indexer($message);
     }
@@ -344,7 +342,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $eventDispatched = false;
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function () use (&$eventDispatched): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function () use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 
@@ -424,6 +422,8 @@ class ElasticsearchIndexerTest extends TestCase
             $logger,
             $eventDispatcher,
             1,
+            new NativeClock(),
+            true
         );
     }
 

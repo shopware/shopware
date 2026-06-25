@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -51,7 +52,9 @@ class SearchKeywordUpdater implements ResetInterface
         private readonly Connection $connection,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $productRepository,
-        private readonly ProductSearchKeywordAnalyzerInterface $analyzer
+        private readonly ProductSearchKeywordAnalyzerInterface $analyzer,
+        private readonly ClockInterface $clock,
+        private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
 
@@ -60,6 +63,10 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function update(array $ids, Context $context): void
     {
+        if (!$this->searchKeywordIndexingEnabled) {
+            return;
+        }
+
         if ($ids === []) {
             return;
         }
@@ -104,7 +111,7 @@ class SearchKeywordUpdater implements ResetInterface
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
 
@@ -120,6 +127,8 @@ class SearchKeywordUpdater implements ResetInterface
                 $existingProducts[$product->getId()] = $product;
             }
         }
+
+        $this->assignParentProducts($existingProducts, $configFields, $context);
 
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
@@ -234,7 +243,7 @@ class SearchKeywordUpdater implements ResetInterface
         foreach ($accessors as $accessor) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor);
 
-            $fields = array_filter($fields, fn (Field $field) => $field instanceof AssociationField);
+            $fields = array_filter($fields, static fn (Field $field) => $field instanceof AssociationField);
 
             if ($fields === []) {
                 continue;
@@ -242,9 +251,14 @@ class SearchKeywordUpdater implements ResetInterface
 
             $lastAssociationField = $fields[\count($fields) - 1];
 
-            $path = array_map(fn (Field $field) => $field->getPropertyName(), $fields);
+            $path = array_map(static fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
+            if ($association === 'parent') {
+                // Product parent associations cannot be loaded inline and must be fetched separately.
+                continue;
+            }
+
             if ($criteria->hasAssociation($association)) {
                 continue;
             }
@@ -284,6 +298,61 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
+     * @param array<string, ProductEntity> $existingProducts
+     * @param array<int, ConfigField> $configFields
+     */
+    private function assignParentProducts(array $existingProducts, array $configFields, Context $context): void
+    {
+        if (!\in_array('parent.name', array_column($configFields, 'field'), true)) {
+            return;
+        }
+
+        /** @var array<string, list<ProductEntity>> $productsByParentId */
+        $productsByParentId = [];
+        foreach ($existingProducts as $product) {
+            $parentId = $product->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
+
+            $productsByParentId[$parentId][] = $product;
+        }
+
+        $this->hydrateParentProducts($productsByParentId, $context);
+    }
+
+    /**
+     * @param array<string, list<ProductEntity>> $productsByParentId
+     */
+    private function hydrateParentProducts(array $productsByParentId, Context $context): void
+    {
+        if ($productsByParentId === []) {
+            return;
+        }
+
+        $criteria = new Criteria(array_keys($productsByParentId));
+        $criteria->setLimit(50);
+        $criteria->addFields(['name']);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+
+        while ($parentProducts = $iterator->fetch()) {
+            foreach ($parentProducts->getEntities() as $parent) {
+                $parentProduct = new ProductEntity();
+                $parentProduct->setId($parent->getId());
+                $parentProduct->setTranslated($parent->getTranslated());
+
+                $name = $parent->get('name');
+                $parentProduct->setName(\is_string($name) ? $name : null);
+
+                foreach ($productsByParentId[$parentProduct->getId()] ?? [] as $product) {
+                    $product->setParent($parentProduct);
+                }
+            }
+        }
+    }
+
+    /**
      * @return array<int, ConfigField>
      */
     private function getConfigFields(string $languageId): array
@@ -304,7 +373,7 @@ class SearchKeywordUpdater implements ResetInterface
         /** @var list<ConfigField> $all */
         $all = $query->executeQuery()->fetchAllAssociative();
 
-        $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);
+        $fields = array_filter($all, static fn (array $field) => $field['language_id'] === $languageId);
 
         if ($fields !== []) {
             $this->config[$languageId] = $fields;
@@ -312,7 +381,7 @@ class SearchKeywordUpdater implements ResetInterface
             return $fields;
         }
 
-        $fields = array_filter($all, fn (array $field) => $field['language_id'] === Defaults::LANGUAGE_SYSTEM);
+        $fields = array_filter($all, static fn (array $field) => $field['language_id'] === Defaults::LANGUAGE_SYSTEM);
         $this->config[$languageId] = $fields;
 
         return $fields;
@@ -331,7 +400,7 @@ class SearchKeywordUpdater implements ResetInterface
         return array_filter(array_merge(
             [$defaultLanguage],
             $languages->filterByProperty('parentId', null)->getElements(),
-            $languages->filter(fn (LanguageEntity $language) => $language->getParentId() !== null)->getElements()
+            $languages->filter(static fn (LanguageEntity $language) => $language->getParentId() !== null)->getElements()
         ));
     }
 }

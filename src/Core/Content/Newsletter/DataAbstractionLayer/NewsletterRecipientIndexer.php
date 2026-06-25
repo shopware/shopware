@@ -69,7 +69,7 @@ class NewsletterRecipientIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
+        $ids = array_values(array_unique(array_filter($ids)));
 
         if ($ids === [] || !$message instanceof NewsletterRecipientIndexingMessage) {
             return;
@@ -85,7 +85,7 @@ class NewsletterRecipientIndexer extends EntityIndexer
             }
         }
 
-        $this->eventDispatcher->dispatch(new NewsletterRecipientIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new NewsletterRecipientIndexerEvent($ids, $context, array_values($message->getSkip())));
     }
 
     public function getOptions(): array

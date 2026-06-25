@@ -23,6 +23,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -38,7 +39,9 @@ class RegisterConfirmRouteTest extends TestCase
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /** @var EntityRepository<CustomerCollection>&MockObject */
+    /**
+     * @var EntityRepository<CustomerCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRepository;
 
     protected DataValidator&MockObject $validator;
@@ -71,7 +74,8 @@ class RegisterConfirmRouteTest extends TestCase
             $this->eventDispatcher,
             $this->validator,
             $this->salesChannelContextPersister,
-            $this->salesChannelContextService
+            $this->salesChannelContextService,
+            new NativeClock()
         );
     }
 
@@ -117,7 +121,7 @@ class RegisterConfirmRouteTest extends TestCase
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->willReturnCallback(function (array $data, DataValidationDefinition $definition): void {
+            ->willReturnCallback(static function (array $data, DataValidationDefinition $definition): void {
                 $properties = $definition->getProperties();
                 static::assertArrayHasKey('doubleOptInRegistration', $properties);
                 static::assertContainsOnlyInstancesOf(IsTrue::class, $properties['doubleOptInRegistration']);

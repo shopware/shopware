@@ -2,13 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\EventListener;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelAuthenticationListener::class)]
-#[CoversClass(MaintenanceModeResolver::class)]
 class SalesChannelAuthenticationListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,7 +67,7 @@ class SalesChannelAuthenticationListenerTest extends TestCase
 
     public function testMaintenanceSalesChannelAndClientInAllowedIps(): void
     {
-        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpWhitelist' => self::MAINTENANCE_ALLOWED_IPS]);
+        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpAllowlist' => self::MAINTENANCE_ALLOWED_IPS]);
         $browser->request(Request::METHOD_GET, '/store-api/test/sales-channel-authentication-listener/default', server: ['REMOTE_ADDR' => '192.168.0.1']);
 
         $this->assertResponseSuccess($browser);
@@ -80,7 +75,7 @@ class SalesChannelAuthenticationListenerTest extends TestCase
 
     public function testMaintenanceSalesChannelAndClientNotInAllowedIps(): void
     {
-        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpWhitelist' => self::MAINTENANCE_ALLOWED_IPS]);
+        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpAllowlist' => self::MAINTENANCE_ALLOWED_IPS]);
         $browser->request(Request::METHOD_GET, '/store-api/test/sales-channel-authentication-listener/default', server: ['REMOTE_ADDR' => '192.168.0.4']);
 
         $this->assertExceptionResponse(
@@ -112,7 +107,7 @@ class SalesChannelAuthenticationListenerTest extends TestCase
 
     public function testMaintenanceSalesChannelWithMaintenanceDisallowedRouteAndClientNotInAllowedIps(): void
     {
-        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpWhitelist' => self::MAINTENANCE_ALLOWED_IPS]);
+        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpAllowlist' => self::MAINTENANCE_ALLOWED_IPS]);
         $browser->request(Request::METHOD_GET, '/store-api/test/sales-channel-authentication-listener/maintenance-disallowed', server: ['REMOTE_ADDR' => '192.168.0.1']);
 
         $this->assertResponseSuccess($browser);
@@ -120,7 +115,7 @@ class SalesChannelAuthenticationListenerTest extends TestCase
 
     public function testMaintenanceSalesChannelWithMaintenanceDisallowedRouteAndClientInAllowedIps(): void
     {
-        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpWhitelist' => self::MAINTENANCE_ALLOWED_IPS]);
+        $browser = $this->createSalesChannelBrowser(salesChannelOverrides: ['active' => true, 'maintenance' => true, 'maintenanceIpAllowlist' => self::MAINTENANCE_ALLOWED_IPS]);
         $browser->request(Request::METHOD_GET, '/store-api/test/sales-channel-authentication-listener/maintenance-disallowed', server: ['REMOTE_ADDR' => '192.168.0.4']);
 
         $this->assertExceptionResponse(

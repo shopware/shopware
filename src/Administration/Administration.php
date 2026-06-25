@@ -7,8 +7,9 @@ use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerP
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -26,7 +27,11 @@ class Administration extends Bundle
         parent::build($container);
         $this->buildDefaultConfig($container);
 
-        $container->addCompilerPass(new AdministrationMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('services.xml');
+        $loader->load('framework.xml');
+
+        $container->addCompilerPass(new AdministrationMigrationCompilerPass());
     }
 
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array

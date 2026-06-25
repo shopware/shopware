@@ -1,29 +1,32 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import { DOCUMENT_MAIL_TEMPLATE_MAPPING } from './index';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 /**
  * @sw-package checkout
  */
 
-const mockOrderWithMailHeaderFooter = {
+const mockOrder = {
+    id: uuid.get('orderId0'),
+    languageId: uuid.get('languageId0'),
     orderCustomer: {
         email: 'test@shopware.com',
         firstName: 'Test',
         lastName: 'Tester',
     },
-    salesChannel: {
-        mailHeaderFooterId: uuid.get('headerFooter'),
-    },
     salesChannelId: uuid.get('salesChannelId0'),
 };
 
-const mockOrderWithoutMailHeaderFooter = {
+const mockOrderWithoutCustomerName = {
+    id: uuid.get('orderId1'),
+    languageId: uuid.get('languageId1'),
     orderCustomer: {
         email: 'test@shopware.com',
-    },
-    salesChannel: {
-        mailHeaderFooterId: null,
     },
     salesChannelId: uuid.get('salesChannelId1'),
 };
@@ -72,6 +75,22 @@ const mockDocuments = [
     },
 ];
 
+const makeDocument = (technicalName) => ({
+    id: uuid.get(technicalName),
+    documentNumber: 1000,
+    documentType: { name: technicalName, technicalName },
+    config: { documentNumber: '1000' },
+    createdAt: '2024-01-23T14:00:00.000+00:00',
+});
+
+const makeMailTemplate = (technicalName, overrides = {}) => ({
+    id: uuid.get(technicalName),
+    subject: `${technicalName} subject`,
+    contentHtml: '',
+    mailTemplateType: { name: technicalName, technicalName },
+    ...overrides,
+});
+
 const mockUnknownDocument = {
     config: {
         documentNumber: '1003',
@@ -96,6 +115,18 @@ const mockMailTemplates = [
         },
         contentHtml: '<div>Cancellation email template content.</div>\n',
         subject: 'Nex document for your order',
+        media: new EntityCollection('/mail-template-media', 'mail-template-media', null, null, [
+            new Entity(
+                'mail-template-media-id',
+                'mail-template-media',
+                {
+                    id: 'mail-template-media-is',
+                    languageId: Shopware.Context.api.languageId,
+                    media: new Entity('media-id', 'media', { id: 'media-id' }, []),
+                },
+                [],
+            ),
+        ]),
     },
     {
         id: uuid.get('delivery_mail'),
@@ -126,51 +157,34 @@ const mockMailTemplates = [
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice_mail',
-            templateData: {
-                order: {
-                    ...mockOrderWithoutMailHeaderFooter,
-                    orderCustomer: {
-                        email: 'personal@ema.il',
-                        firstName: 'Personal',
-                        lastName: 'Data',
-                    },
-                },
-            },
         },
         contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
         subject: 'Personal data from order',
     },
 ];
 
-const mockMailHeaderFooter = {
-    headerHtml: '<div>Header</div>\n',
-    footerHtml: '<div>Footer</div>\n',
-};
-
 const mockRepositoryFactory = (entity, mailTemplates) => {
     if (entity === 'mail_template') {
         return {
-            search: jest.fn(() =>
-                Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, mailTemplates, 2)),
-            ),
+            search: jest.fn((criteria) => {
+                const typeFilter = criteria?.filters.find(
+                    (filter) => filter.field === 'mailTemplateType.technicalName' && !filter.value.includes('|'),
+                );
+
+                const filtered = typeFilter
+                    ? mailTemplates.filter((template) => template.mailTemplateType?.technicalName === typeFilter.value)
+                    : mailTemplates;
+
+                return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, filtered, filtered.length));
+            }),
             get: jest.fn((value) => Promise.resolve(mailTemplates.filter((mailTemplate) => mailTemplate.id === value)[0])),
-        };
-    }
-    if (entity === 'mail_header_footer') {
-        return {
-            search: (criteria) => {
-                if (criteria.filters[0].value === null) {
-                    return Promise.reject(new Error('mailHeaderFooterId should not be null in criteria filter!'));
-                }
-                return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [mockMailHeaderFooter], 1));
-            },
         };
     }
     return {};
 };
 
 const defaultProps = {
-    order: mockOrderWithMailHeaderFooter,
+    order: mockOrder,
     document: mockDocuments[0],
 };
 
@@ -178,6 +192,7 @@ const replaceTemplateVariables = (template = '', variables = {}) => {
     if (Object.keys(variables).length === 0) {
         return template;
     }
+
     return template.replace(/\{\{(.*?)}}/g, (match, p1) => {
         const keys = p1.trim().split('.');
         return keys.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ''), variables);
@@ -185,6 +200,23 @@ const replaceTemplateVariables = (template = '', variables = {}) => {
 };
 
 async function createWrapper(props = defaultProps, sendingSucceds = true, mailTemplates = mockMailTemplates) {
+    const previewMailTemplate = jest.fn((mailTemplateId) => {
+        const mailTemplate = mailTemplates.find((template) => template.id === mailTemplateId) ?? mailTemplates[0];
+        const entities = {
+            order: props.order,
+            salesChannel: props.order.salesChannel,
+        };
+
+        return Promise.resolve({
+            contentHtml: {
+                content: replaceTemplateVariables(mailTemplate.contentHtml, entities),
+            },
+        });
+    });
+    const getDataAndSendMailTemplate = jest.fn(() => {
+        return sendingSucceds ? Promise.resolve({ size: 1 }) : Promise.reject();
+    });
+
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
         global: {
             stubs: {
@@ -218,11 +250,8 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                     },
                 },
                 mailService: {
-                    buildRenderPreview: (_, mailTemplate) =>
-                        Promise.resolve(
-                            replaceTemplateVariables(mailTemplate.contentHtml, mailTemplate?.mailTemplateType?.templateData),
-                        ),
-                    sendMailTemplate: jest.fn(sendingSucceds ? () => Promise.resolve() : () => Promise.reject()),
+                    previewMailTemplate,
+                    getDataAndSendMailTemplate,
                 },
             },
         },
@@ -245,7 +274,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         );
 
         const textFields = wrapper.findAllComponents('.mt-text-field');
-        expect(textFields[0].props('modelValue')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
+        expect(textFields[0].props('modelValue')).toBe(String(mockOrder.orderCustomer.email));
         expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[0].subject);
     });
 
@@ -279,20 +308,42 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(text.endsWith('...')).toBe(true);
     });
 
-    it('should display the email content preview between a header and footer with existing mailHeaderFooterId', async () => {
+    it('should display the email content preview from preview endpoint', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
-        expect(previewContent.element.innerHTML).toBe(
-            mockMailHeaderFooter.headerHtml + mockMailTemplates[0].contentHtml + mockMailHeaderFooter.footerHtml,
+        expect(wrapper.vm.mailService.previewMailTemplate).toHaveBeenCalledWith(
+            mockMailTemplates[0].id,
+            {
+                order: mockOrder.id,
+                salesChannel: mockOrder.salesChannelId,
+            },
+            {
+                a11yDocuments: [
+                    {
+                        documentId: mockDocuments[0].id,
+                        deepLinkCode: mockDocuments[0].deepLinkCode,
+                        fileExtension: 'html',
+                    },
+                ],
+            },
+            mockOrder.salesChannelId,
+            true,
+            true,
+            {
+                ...Shopware.Context.api,
+                languageId: mockOrder.languageId,
+            },
         );
+
+        const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
+        expect(previewContent.element.innerHTML).toBe(mockMailTemplates[0].contentHtml);
     });
 
-    it('should not display the email content preview between a header and footer with missing mailHeaderFooterId', async () => {
+    it('should display the email content preview for an order without customer name data', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithoutMailHeaderFooter,
+            order: mockOrderWithoutCustomerName,
         });
         await flushPromises();
 
@@ -313,14 +364,21 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(
-            mockMailHeaderFooter.headerHtml +
-                replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps) +
-                mockMailHeaderFooter.footerHtml,
+            replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps),
         );
     });
 
     it('should update the email template information when changing the email template', async () => {
-        const wrapper = await createWrapper();
+        const altCancellationTemplate = makeMailTemplate('cancellation_mail', {
+            id: uuid.get('alt-cancellation-mail'),
+            contentHtml: '<div>Alt cancellation email template content.</div>\n',
+            subject: 'Alt cancellation subject',
+        });
+
+        const wrapper = await createWrapper(defaultProps, true, [
+            mockMailTemplates[0],
+            altCancellationTemplate,
+        ]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
@@ -330,16 +388,14 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
-            mockMailTemplates[1].mailTemplateType.name,
+            altCancellationTemplate.mailTemplateType.name,
         );
 
         const textFields = wrapper.findAllComponents('.mt-text-field');
-        expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[1].subject);
+        expect(textFields[1].props('modelValue')).toBe(altCancellationTemplate.subject);
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
-        expect(previewContent.element.innerHTML).toBe(
-            mockMailHeaderFooter.headerHtml + mockMailTemplates[1].contentHtml + mockMailHeaderFooter.footerHtml,
-        );
+        expect(previewContent.element.innerHTML).toBe(altCancellationTemplate.contentHtml);
     });
 
     it('should emit the modal closing message', async () => {
@@ -355,7 +411,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     it('should not search the mailTemplateRepository for a not configured document type on loading', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithMailHeaderFooter,
+            order: mockOrder,
             document: mockUnknownDocument,
         });
         await flushPromises();
@@ -366,7 +422,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     it('should not try to set the mailTemplateId, subject and content, when not finding a mail template', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithMailHeaderFooter,
+            order: mockOrder,
             document: mockDocuments[1],
         });
         await flushPromises();
@@ -378,7 +434,11 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     it('should not try to load the subject and content of a mail template with missing mail template', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(defaultProps, true, [
+            mockMailTemplates[0],
+            makeMailTemplate('cancellation_mail', { subject: 'Alt cancellation subject' }),
+            makeMailTemplate('cancellation_mail', { id: null }),
+        ]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
@@ -399,37 +459,39 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledWith(
-            mockOrderWithMailHeaderFooter.orderCustomer.email,
-            `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
+        expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenLastCalledWith(
             {
-                ...mockMailTemplates[0],
-                ...{
-                    recipient: mockOrderWithMailHeaderFooter.orderCustomer.email,
+                recipients: {
+                    [mockOrder.orderCustomer.email]:
+                        `${mockOrder.orderCustomer.firstName} ${mockOrder.orderCustomer.lastName}`,
+                },
+                salesChannelId: mockOrder.salesChannelId,
+                mediaIds: [mockMailTemplates[0].media.first().media.id],
+                subject: mockMailTemplates[0].subject,
+                senderMail: mockMailTemplates[0].senderMail,
+                senderName: mockMailTemplates[0].senderName ?? mockMailTemplates[0].translated?.senderName,
+                documentIds: [mockDocuments[0].id],
+                testMode: false,
+                mailTemplateId: mockMailTemplates[0].id,
+                entities: {
+                    order: mockOrder.id,
+                    salesChannel: mockOrder.salesChannelId,
+                },
+                templateData: {
+                    a11yDocuments: [
+                        {
+                            documentId: mockDocuments[0].id,
+                            deepLinkCode: mockDocuments[0].deepLinkCode,
+                            fileExtension: 'html',
+                        },
+                    ],
                 },
             },
             {
-                getIds: expect.any(Function),
+                ...Shopware.Context.api,
+                languageId: mockOrder.languageId,
             },
-            mockOrderWithMailHeaderFooter.salesChannelId,
-            false,
-            [mockDocuments[0].id],
-            {
-                order: mockOrderWithMailHeaderFooter,
-                salesChannel: mockOrderWithMailHeaderFooter.salesChannel,
-                document: mockDocuments[0],
-                a11yDocuments: [
-                    {
-                        documentId: mockDocuments[0].id,
-                        deepLinkCode: mockDocuments[0].deepLinkCode,
-                        fileExtension: 'html',
-                    },
-                ],
-            },
-            null,
-            null,
-            Shopware.Context.api,
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
     });
@@ -438,7 +500,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper(
             {
                 ...defaultProps,
-                order: mockOrderWithMailHeaderFooter,
+                order: mockOrder,
                 document: mockDocuments[0],
             },
             false,
@@ -451,6 +513,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
+        expect(wrapper.emitted('document-sent')).toBeUndefined();
     });
 
     it('should load the link with a11y documents', async () => {
@@ -463,6 +526,88 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             documentId: mockDocuments[0].id,
             deepLinkCode: '12345',
             fileExtension: 'html',
+        });
+    });
+
+    describe('auto select mail template by document type', () => {
+        it('should have a mapping entry for every DOCUMENT_TYPES value', () => {
+            Object.values(DOCUMENT_TYPES).forEach((docType) => {
+                expect(DOCUMENT_MAIL_TEMPLATE_MAPPING).toHaveProperty(docType);
+            });
+        });
+
+        it.each([
+            [
+                'invoice',
+                'invoice_mail',
+            ],
+            [
+                'delivery_note',
+                'delivery_mail',
+            ],
+            [
+                'credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'storno',
+                'cancellation_mail',
+            ],
+            [
+                'zugferd_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_embedded_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_embedded_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_cancellation_invoice',
+                'cancellation_mail',
+            ],
+            [
+                'zugferd_embedded_cancellation_invoice',
+                'cancellation_mail',
+            ],
+        ])('should map document type "%s" to mail template type "%s"', (docType, mailTemplateType) => {
+            expect(DOCUMENT_MAIL_TEMPLATE_MAPPING[docType]).toBe(mailTemplateType);
+        });
+
+        it.each([
+            [
+                'zugferd_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_embedded_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_cancellation_invoice',
+                'cancellation_mail',
+            ],
+        ])('should auto select correct template for %s document', async (docType, mailType) => {
+            const document = makeDocument(docType);
+            const template = makeMailTemplate(mailType);
+
+            const wrapper = await createWrapper({ ...defaultProps, document }, true, [template]);
+
+            await flushPromises();
+
+            expect(wrapper.vm.mailTemplateId).toBe(template.id);
+            expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(mailType);
         });
     });
 });

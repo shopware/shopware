@@ -24,7 +24,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(RemoveOrderTagAction::class)]
 class RemoveOrderTagActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
+    /**
+     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     */
     private MockObject&EntityRepository $repository;
 
     private RemoveOrderTagAction $action;
@@ -63,7 +65,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->repository->expects($this->once())
             ->method('delete')
-            ->with(array_map(fn ($id) => [
+            ->with(array_map(static fn ($id) => [
                 'orderId' => $orderId,
                 'tagId' => $id['id'],
             ], $expected));

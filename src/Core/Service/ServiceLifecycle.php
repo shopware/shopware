@@ -95,7 +95,7 @@ class ServiceLifecycle
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }

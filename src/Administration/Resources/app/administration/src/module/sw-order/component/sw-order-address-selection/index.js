@@ -15,7 +15,10 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'customSnippetApiService',
+        'repositoryFactory',
+    ],
 
     emits: ['change-address'],
 
@@ -61,6 +64,7 @@ export default {
             currentAddress: null,
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
+            selectedAddressFormatting: '',
         };
     },
 
@@ -117,7 +121,6 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            // eslint-disable-next-line no-unused-expressions
             this.address &&
                 addresses.unshift({
                     label: this.addressLabel(this.address),
@@ -128,7 +131,7 @@ export default {
         },
 
         modalTitle() {
-            return this.$tc(
+            return this.$t(
                 `sw-order.addressSelection.${
                     this.currentAddress?._isNew ? 'modalTitleEditAddress' : 'modalTitleSelectAddress'
                 }`,
@@ -137,6 +140,19 @@ export default {
 
         selectedAddressId() {
             return this.address?.customerAddressId ?? this.addressId;
+        },
+
+        selectedAddress() {
+            return this.addressOptions.find((item) => item.id === this.selectedAddressId) ?? this.address;
+        },
+    },
+
+    watch: {
+        selectedAddress: {
+            handler() {
+                return this.renderSelectedAddress();
+            },
+            immediate: true,
         },
     },
 
@@ -152,9 +168,7 @@ export default {
 
         onEditAddress(id) {
             if (id === this.address.id) {
-                // clone, to prevent side effects when closing the modal
-                this.currentAddress = cloneDeep(this.address);
-
+                this.currentAddress = this.address;
                 return;
             }
 
@@ -181,7 +195,7 @@ export default {
 
             if (!this.isValidAddress(this.currentAddress)) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
+                    message: this.$t('sw-customer.notification.requiredFields'),
                 });
 
                 return Promise.reject();
@@ -189,7 +203,6 @@ export default {
 
             // edit order address
             if (this.currentAddress.id === this.address.id) {
-                this.address = cloneDeep(this.address);
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {
@@ -199,7 +212,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-order.detail.messageSaveError'),
+                            message: this.$t('sw-order.detail.messageSaveError'),
                         });
                     });
             }
@@ -218,6 +231,8 @@ export default {
 
             return this.customerRepository.save(this.customer).then(() => {
                 this.currentAddress = null;
+
+                this.onAddressChange(address.id);
             });
         },
 
@@ -247,11 +262,11 @@ export default {
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.customer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;
@@ -295,6 +310,29 @@ export default {
             return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
             });
+        },
+
+        renderSelectedAddress() {
+            if (!this.selectedAddress || !this.customSnippetApiService) {
+                this.selectedAddressFormatting = '';
+
+                return Promise.resolve();
+            }
+
+            const selectedAddressId = this.selectedAddress.id;
+
+            return this.customSnippetApiService
+                .render(this.selectedAddress, this.selectedAddress.country?.addressFormat)
+                .then((response) => {
+                    if (this.selectedAddress?.id !== selectedAddressId) {
+                        return;
+                    }
+
+                    this.selectedAddressFormatting = response.rendered;
+                })
+                .catch(() => {
+                    this.selectedAddressFormatting = '';
+                });
         },
 
         addressLabel(address) {

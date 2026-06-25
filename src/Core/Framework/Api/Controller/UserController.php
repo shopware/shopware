@@ -129,6 +129,27 @@ class UserController extends AbstractController
     }
 
     #[Route(
+        path: '/api/_action/user/logout',
+        name: 'api.action.user.logout',
+        methods: [Request::METHOD_POST]
+    )]
+    public function logout(Context $context): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($context->getSource()::class);
+        }
+
+        $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw ApiException::userNotLoggedIn();
+        }
+
+        $this->ssoService->revokeUserTokens($userId);
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
         path: '/api/user/{userId}',
         name: 'api.user.delete',
         defaults: [
@@ -197,16 +218,27 @@ class UserController extends AbstractController
         $data['id'] = $userId ?: $data['id'];
 
         $source = $context->getSource();
-        if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id'])
-        ) {
+        if (!$source instanceof AdminApiSource) {
+            throw new PermissionDeniedException();
+        }
+
+        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $canUpdateUsers = $source->isAllowed('user:update');
+
+        if (!$canUpdateUsers && !$isSelfUpdate) {
+            throw new PermissionDeniedException();
+        }
+
+        $isTryingToChangeAdmin = isset($data['admin']);
+
+        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
             throw new PermissionDeniedException();
         }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
         $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
+        \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }

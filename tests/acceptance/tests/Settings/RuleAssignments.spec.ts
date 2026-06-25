@@ -17,9 +17,11 @@ test('As an admin user, I want to have an overview of my assigned rules, so that
     await ShopAdmin.expects(AdminRuleDetail.promotionCustomerRulesCardEmptyState).toHaveText('This rule is not in use');
     await ShopAdmin.expects(AdminRuleDetail.promotionCartRulesCardEmptyState).toHaveText('This rule is not in use');
     await AdminRuleDetail.shippingMethodAvailabilityRulesCardLink.getByText(shippingMethod.name).click();
+    await AdminShippingDetail.page.waitForLoadState('domcontentloaded');
     await ShopAdmin.expects(AdminShippingDetail.header).toHaveText(shippingMethod.name);
     await ShopAdmin.expects(AdminShippingDetail.nameField).toHaveValue(shippingMethod.name);
     await ShopAdmin.expects(AdminShippingDetail.availabilityRuleField).toHaveText(rule.name);
     await AdminShippingDetail.availabilityRuleField.click();
+    await AdminShippingDetail.page.waitForLoadState('domcontentloaded');
     await ShopAdmin.expects(AdminShippingDetail.getRuleSelectionCheckmark(rule.name)).toBeVisible();
 })

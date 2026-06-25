@@ -167,8 +167,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Gateway "context" is not configured for app "app_test". Please check the manifest file');
+        $this->expectExceptionObject(AppException::gatewayNotConfigured('app_test', 'context'));
 
         $gateway->process($payload);
     }
@@ -216,8 +215,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Could not find app with name "app_test"');
+        $this->expectExceptionObject(AppException::appNotFoundByName('app_test'));
 
         $gateway->process($payload);
     }

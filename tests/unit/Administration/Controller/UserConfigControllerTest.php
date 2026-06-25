@@ -17,6 +17,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,6 +43,7 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigController = new UserConfigController(
             $this->userConfigRepository,
             $this->createMock(Connection::class),
+            new NativeClock()
         );
         $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
     }

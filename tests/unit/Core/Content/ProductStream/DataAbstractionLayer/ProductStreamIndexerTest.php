@@ -13,15 +13,20 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexe
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -95,10 +100,56 @@ class ProductStreamIndexerTest extends TestCase
 
     public function testUpdate(): void
     {
-        $event = $this->createMock(EntityWrittenContainerEvent::class);
-        $event->expects($this->once())->method('getPrimaryKeys')->willReturn([123]);
+        $streamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
 
-        static::assertInstanceOf(ProductStreamIndexingMessage::class, $this->indexer->update($event));
+        $message = $this->indexer->update(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductStreamDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $streamId,
+                            [],
+                            ProductStreamDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+                new EntityWrittenEvent(
+                    'product_stream_filter',
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            ['productStreamId' => $streamId],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_DELETE,
+                            new EntityExistence(
+                                'product_stream_filter',
+                                ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                                true,
+                                false,
+                                false,
+                                ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                            ),
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        static::assertSame([$streamId, $deletedStreamId], $message->getData());
     }
 
     public function testHandle(): void
@@ -182,7 +233,7 @@ class ProductStreamIndexerTest extends TestCase
         $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });

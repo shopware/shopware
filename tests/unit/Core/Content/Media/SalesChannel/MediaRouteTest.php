@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {
-    /** @var EntityRepository<MediaCollection>&MockObject */
+    /**
+     * @var EntityRepository<MediaCollection>&MockObject
+     */
     private EntityRepository&MockObject $mediaRepository;
 
     private CacheTagCollector&MockObject $cacheTagCollector;
@@ -93,8 +95,7 @@ class MediaRouteTest extends TestCase
 
     public function testLoadThrowsMediaExceptionWhenMediaNotFound(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A media id must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaId());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext

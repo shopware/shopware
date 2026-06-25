@@ -14,7 +14,7 @@ export default function initializeApiServices() {
 
         const apiServiceFactory = factoryContainer.apiService;
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const service = new ApiService(initContainer.httpClient, Shopware.Service('loginService'));
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const serviceName = service.name as keyof ServiceContainer;

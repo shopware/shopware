@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
@@ -66,7 +67,7 @@ class SearchControllerTest extends TestCase
         $this->searchController = new SearchController(
             $this->searchPageLoader,
             $this->suggestPageLoader,
-            $this->productSearchRoute
+            $this->productSearchRoute,
         );
 
         $this->container = new ContainerBuilder();
@@ -277,16 +278,62 @@ class SearchControllerTest extends TestCase
         $this->searchController->search($context, new Request());
     }
 
-    public function testSearchHandleFirstHit(): void
+    /**
+     * @return iterable<string, array{0: callable(ProductEntity): void, 1: string}>
+     */
+    public static function firstHitIdentifierProvider(): iterable
+    {
+        yield 'productNumber' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            'sw-100',
+        ];
+
+        yield 'productNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            'SW-100',
+        ];
+
+        yield 'productNumber matches search term with surrounding whitespace' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            '  SW-100  ',
+        ];
+
+        yield 'ean' => [
+            static fn (ProductEntity $p) => $p->setEan('4006381333931'),
+            '4006381333931',
+        ];
+
+        yield 'ean matches search term with alphabetic characters' => [
+            static fn (ProductEntity $p) => $p->setEan('BC1010'),
+            'bc1010',
+        ];
+
+        yield 'manufacturerNumber' => [
+            static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
+            'mpn-xyz',
+        ];
+
+        yield 'manufacturerNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
+            'MPN-XYZ',
+        ];
+    }
+
+    /**
+     * @param callable(ProductEntity): void $configureProduct
+     */
+    #[DataProvider('firstHitIdentifierProvider')]
+    public function testSearchHandleFirstHit(callable $configureProduct, string $searchTerm): void
     {
         $request = new Request();
-        $request->query->set('search', 'test');
+        $request->query->set('search', $searchTerm);
 
         $context = $this->createMock(SalesChannelContext::class);
 
         $product = new ProductEntity();
-        $product->setProductNumber('test');
+        $product->setProductNumber('different-number');
         $product->setId('123');
+        $configureProduct($product);
 
         $searchPage = new SearchPage();
         $searchPage->setListing(new ProductListingResult(
@@ -301,7 +348,7 @@ class SearchControllerTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         $redirectEvent = null;
-        $dispatcher->addListener(StorefrontRedirectEvent::class, function (StorefrontRedirectEvent $event) use (&$redirectEvent): void {
+        $dispatcher->addListener(StorefrontRedirectEvent::class, static function (StorefrontRedirectEvent $event) use (&$redirectEvent): void {
             $redirectEvent = $event;
         });
 
@@ -331,5 +378,71 @@ class SearchControllerTest extends TestCase
         static::assertSame([
             'productId' => '123',
         ], $redirectEvent->getParameters());
+    }
+
+    public function testSearchDoesNotRedirectWhenFieldExcludedByConfig(): void
+    {
+        $controller = new SearchController(
+            $this->searchPageLoader,
+            $this->suggestPageLoader,
+            $this->productSearchRoute,
+            ['productNumber'],
+        );
+        $controller->setContainer($this->container);
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $product = new ProductEntity();
+        $product->setProductNumber('different-number');
+        $product->setEan('4006381333931');
+        $product->setId('123');
+
+        $searchPage = new SearchPage();
+        $searchPage->setListing(new ProductListingResult(
+            ProductDefinition::ENTITY_NAME,
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            $context->getContext(),
+        ));
+
+        $request = new Request(
+            query: ['search' => '4006381333931'],
+            attributes: [
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+                RequestTransformer::STOREFRONT_URL => 'http://localhost/search?search=4006381333931',
+            ],
+        );
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+        $this->container->set('request_stack', $requestStack);
+        $this->container->set(ScriptExecutor::class, $this->createMock(ScriptExecutor::class));
+
+        $templateFinder = $this->createMock(TemplateFinder::class);
+        $templateFinder
+            ->expects($this->once())
+            ->method('find')
+            ->with('@Storefront/storefront/page/search/index.html.twig')
+            ->willReturn('@Storefront/storefront/page/search/index.html.twig');
+        $this->container->set(TemplateFinder::class, $templateFinder);
+
+        $twig = static::createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->willReturn('rendered');
+        $this->container->set('twig', $twig);
+
+        $router = static::createMock(RouterInterface::class);
+        $router->expects($this->never())->method('generate');
+        $this->container->set('router', $router);
+
+        $this->searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+
+        $response = $controller->search($context, $request);
+
+        static::assertNotInstanceOf(RedirectResponse::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 }

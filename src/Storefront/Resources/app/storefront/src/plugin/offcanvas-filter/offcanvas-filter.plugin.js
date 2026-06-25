@@ -50,7 +50,7 @@ export default class OffCanvasFilter extends Plugin {
             true,
             OffCanvas.REMOVE_OFF_CANVAS_DELAY(),
             true,
-            'offcanvas-filter'
+            'offcanvas-filter',
         );
 
         // remove filter content from original place

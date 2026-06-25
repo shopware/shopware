@@ -275,7 +275,6 @@ export default {
             const totalPages = Math.ceil(totalGroups / limit);
 
             const promises = [];
-            // eslint-disable-next-line no-plusplus
             for (let page = 2; page <= totalPages; page++) {
                 const nextCriteria = Criteria.fromCriteria(criteria).setPage(page).setLimit(limit);
                 promises.push(this.groupRepository.search(nextCriteria));

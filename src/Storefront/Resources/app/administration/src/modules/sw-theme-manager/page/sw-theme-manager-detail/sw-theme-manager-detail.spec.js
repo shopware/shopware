@@ -16,7 +16,7 @@ describe('sw-theme-manager-detail', () => {
         ensureThemeMixinRegistered();
 
         jest.isolateModules(() => {
-            require('./index');
+            Shopware.Component.register('sw-theme-manager-detail', require('./index').default);
         });
     });
 
@@ -127,7 +127,6 @@ describe('sw-theme-manager-detail', () => {
                 },
                 mocks: {
                     $t: (key) => key,
-                    $tc: (key) => key,
                     $route: { params: { id: 'theme-id' } },
                     $router: { push: jest.fn() },
                     $createTitle: jest.fn(() => 'title'),
@@ -258,6 +257,105 @@ describe('sw-theme-manager-detail', () => {
         expect(selectBind.config.options[0].label).toBe('Translated');
         expect(selectBind.config.custom).toBeUndefined();
         expect(selectBind.config.componentName).toBe('sw-single-select');
+    });
+
+    it('builds meteor inheritance config for fields handling their own label and help text', async () => {
+        const wrapper = await createWrapper();
+        const removeInheritance = jest.fn();
+        const restoreInheritance = jest.fn();
+
+        const bind = wrapper.vm.getBind(
+            {
+                type: 'checkbox',
+                custom: { componentName: 'sw-checkbox-field' },
+            },
+            {
+                isInheritField: true,
+                isInherited: true,
+                removeInheritance,
+                restoreInheritance,
+            },
+            'parent',
+        );
+
+        expect(bind.config).toEqual(expect.objectContaining({
+            isInheritanceField: true,
+            isInherited: true,
+            inheritanceRemove: removeInheritance,
+            inheritanceRestore: restoreInheritance,
+            inheritedValue: 'parent',
+        }));
+    });
+
+    it('passes inheritance bindings to boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: true,
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const bind = wrapper.vm.getBind({
+            type: 'switch',
+            label: 'Switch',
+            helpText: 'Switch help',
+        }, inheritance, false);
+
+        expect(bind).toEqual({
+            type: 'switch',
+            config: expect.objectContaining({
+                label: 'Switch',
+                helpText: 'Switch help',
+                mapInheritance: inheritance,
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: inheritance.removeInheritance,
+                inheritanceRestore: inheritance.restoreInheritance,
+                inheritedValue: false,
+            }),
+        });
+    });
+
+    it('attaches inheritance event listeners to fields handling inheritance themselves', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const eventListeners = wrapper.vm.getElementEventListeners({ type: 'checkbox' }, inheritance);
+
+        expect(eventListeners).toEqual({
+            'inheritance-remove': inheritance.removeInheritance,
+            'inheritance-restore': inheritance.restoreInheritance,
+        });
+    });
+
+    it('does not pass inheritance bindings to non-meteor theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: 'parent',
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const textBind = wrapper.vm.getBind({ type: 'text' }, inheritance, 'parent');
+
+        expect(textBind.config.mapInheritance).toBeUndefined();
+    });
+
+    it('does not attach inheritance event listeners to regular theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
     });
 
     it('gets snippets with prefix fallback and warns when missing', async () => {

@@ -29,7 +29,7 @@ class NodeExtensionTest extends TestCase
             ExtendsTokenParser::class,
             IncludeTokenParser::class,
             ReturnNodeTokenParser::class,
-        ], array_map(fn (TokenParserInterface $parser) => $parser::class, $extension->getTokenParsers()));
+        ], array_map(static fn (TokenParserInterface $parser) => $parser::class, $extension->getTokenParsers()));
     }
 
     public function testGetFinder(): void

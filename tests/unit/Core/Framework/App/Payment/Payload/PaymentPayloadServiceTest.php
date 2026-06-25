@@ -21,6 +21,7 @@ use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -64,10 +66,11 @@ class PaymentPayloadServiceTest extends TestCase
             ->method('getByEntityName')
             ->willReturn($definition);
 
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $entityEncoder = new JsonEntityEncoder(
             new Serializer([new StructNormalizer()], [new JsonEncoder()])
@@ -78,7 +81,8 @@ class PaymentPayloadServiceTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://test-shop.com'
+            'https://test-shop.com',
+            new MockClock(),
         );
 
         $response = \json_encode(['status' => 'paid'], \JSON_THROW_ON_ERROR);

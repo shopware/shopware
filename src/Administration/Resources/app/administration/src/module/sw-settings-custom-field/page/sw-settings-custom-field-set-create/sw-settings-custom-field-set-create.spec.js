@@ -13,7 +13,7 @@ async function createWrapper() {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $tc() {
+                    $t() {
                         return 'translation';
                     },
                 },

@@ -8,21 +8,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ListField as ListFieldAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Password;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
@@ -35,16 +40,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited as ReverseInheritedFlag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking as SearchRankingFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
@@ -52,105 +60,125 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithSearchRanking;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
 
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(AttributeEntityCompiler::class)]
 class AttributeEntityCompilerTest extends TestCase
 {
     public function testCompile(): void
     {
-        $compiler = new AttributeEntityCompiler();
-
-        $compiledResult = $compiler->compile(AttributeEntity::class);
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntity::class);
 
         static::assertSame($this->getExpectedCompilationResult(), $compiledResult);
     }
 
     public function testInheritedAttributeCompilesCorrectly(): void
     {
-        $compiler = new AttributeEntityCompiler();
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithInheritance::class);
 
-        $compiledResult = $compiler->compile(AttributeEntityWithInheritance::class);
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'attribute_entity_inheritance');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
 
-        // Find the main entity definition (not mapping tables)
-        $entityDefinition = null;
-        foreach ($compiledResult as $result) {
-            if ($result['type'] === 'entity' && $result['entity_name'] === 'attribute_entity_inheritance') {
-                $entityDefinition = $result;
-                break;
-            }
-        }
+        $inheritedStringField = $fields['inheritedString'] ?? null;
+        $inheritedCurrencyIdField = $fields['currencyId'] ?? null;
+        $inheritedCurrencyField = $fields['currency'] ?? null;
+        $inheritedWithForeignKeyField = $fields['inheritedWithForeignKey'] ?? null;
+        $inheritedProductField = $fields['product'] ?? null;
 
-        static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
-
-        // Find fields with Inherited and ReverseInherited flag
-        $inheritedStringField = null;
-        $inheritedCurrencyIdField = null;
-        $inheritedCurrencyField = null;
-        $inheritedWithForeignKeyField = null;
-        $inheritedProductField = null;
-
-        foreach ($entityDefinition['fields'] as $field) {
-            switch ($field['name'] ?? null) {
-                case 'inheritedString':
-                    $inheritedStringField = $field;
-                    break;
-                case 'currencyId':
-                    $inheritedCurrencyIdField = $field;
-                    break;
-                case 'currency':
-                    $inheritedCurrencyField = $field;
-                    break;
-                case 'inheritedWithForeignKey':
-                    $inheritedWithForeignKeyField = $field;
-                    break;
-                case 'product':
-                    $inheritedProductField = $field;
-                    break;
-            }
-        }
-
-        // Verify inherited string field has Inherited flag with correct class
         static::assertNotNull($inheritedStringField, 'inheritedString field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedStringField['flags'], 'inheritedString should have Inherited flag');
         static::assertIsArray($inheritedStringField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedStringField['flags'][InheritedFlag::class]['class']);
-        static::assertSame([null], $inheritedStringField['flags'][InheritedFlag::class]['args']);
+        static::assertSame(['foreignKey' => null], $inheritedStringField['flags'][InheritedFlag::class]['args'] ?? null);
 
-        // Verify inherited FK field has Inherited flag
         static::assertNotNull($inheritedCurrencyIdField, 'currencyId field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyIdField['flags'], 'currencyId should have Inherited flag');
         static::assertIsArray($inheritedCurrencyIdField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedCurrencyIdField['flags'][InheritedFlag::class]['class']);
 
-        // Verify inherited association field has Inherited flag
         static::assertNotNull($inheritedCurrencyField, 'currency field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyField['flags'], 'currency should have Inherited flag');
         static::assertIsArray($inheritedCurrencyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedCurrencyField['flags'][InheritedFlag::class]['class']);
 
-        // Verify inherited field with custom foreignKey parameter
         static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedWithForeignKeyField['flags'], 'inheritedWithForeignKey should have Inherited flag');
         static::assertIsArray($inheritedWithForeignKeyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['class']);
-        static::assertSame(['custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'], 'foreignKey parameter should be passed through');
+        static::assertSame(['foreignKey' => 'custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'] ?? null, 'foreignKey parameter should be passed through');
 
-        // Verify inherited association field has ReverseInherited flag
         static::assertNotNull($inheritedProductField, 'product field not found');
         static::assertArrayHasKey(ReverseInheritedFlag::class, $inheritedProductField['flags'], 'product should have ReverseInherited flag');
         static::assertIsArray($inheritedProductField['flags'][ReverseInheritedFlag::class]);
         static::assertSame(ReverseInheritedFlag::class, $inheritedProductField['flags'][ReverseInheritedFlag::class]['class']);
-        static::assertSame(['propertyName' => 'attributed'], $inheritedProductField['flags'][ReverseInheritedFlag::class]['args']);
+        static::assertSame(['propertyName' => 'attributed'], $inheritedProductField['flags'][ReverseInheritedFlag::class]['args'] ?? null);
+    }
+
+    public function testSearchRankingAttributeCompilesCorrectly(): void
+    {
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithSearchRanking::class);
+
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'attribute_entity_search_ranking');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
+
+        $currencyField = $fields['currency'] ?? null;
+        $middleRankedStringField = $fields['middleRankedString'] ?? null;
+        $lowRankedStringField = $fields['lowRankedString'] ?? null;
+        $highRankedStringField = $fields['highRankedString'] ?? null;
+
+        static::assertNotNull($currencyField, 'currency field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $currencyField['flags'], 'currency should have SearchRanking flag');
+        static::assertIsArray($currencyField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $currencyField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::ASSOCIATION_SEARCH_RANKING, 'tokenize' => true], $currencyField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        static::assertNotNull($middleRankedStringField, 'middle ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $middleRankedStringField['flags'], 'middle ranked string field should have SearchRanking flag');
+        static::assertIsArray($middleRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $middleRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::MIDDLE_SEARCH_RANKING, 'tokenize' => false], $middleRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        static::assertNotNull($lowRankedStringField, 'low ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $lowRankedStringField['flags'], 'low ranked string field should have SearchRanking flag');
+        static::assertIsArray($lowRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $lowRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::LOW_SEARCH_RANKING, 'tokenize' => true], $lowRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        static::assertNotNull($highRankedStringField, 'high ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $highRankedStringField['flags'], 'high ranked string field should have SearchRanking flag');
+        static::assertIsArray($highRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $highRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::HIGH_SEARCH_RANKING, 'tokenize' => false], $highRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+    }
+
+    public function testCompileReturnsEmptyArrayForClassWithoutEntityAttribute(): void
+    {
+        $result = (new AttributeEntityCompiler())->compile(Entity::class);
+
+        static::assertSame([], $result);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $compiledResult
+     *
+     * @return array<string, mixed>
+     */
+    private function findEntityDefinition(array $compiledResult, string $entityName): array
+    {
+        $filtered = array_filter(
+            $compiledResult,
+            static fn (array $result) => $result['type'] === 'entity' && $result['entity_name'] === $entityName
+        );
+
+        return array_values($filtered)[0] ?? static::fail('Entity definition "' . $entityName . '" not found');
     }
 
     /**
@@ -397,6 +425,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'string',
                             'string',
+                            255,
                         ],
                     ],
                     [
@@ -541,7 +570,7 @@ class AttributeEntityCompilerTest extends TestCase
                         ],
                     ],
                     [
-                        'type' => PriceField::class,
+                        'type' => FieldType::PRICE,
                         'name' => 'price',
                         'class' => PriceField::class,
                         'flags' => [],
@@ -564,6 +593,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'trans_string',
                             'transString',
+                            255,
                         ],
                     ],
                     [
@@ -674,6 +704,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'another_column_name',
                             'differentName',
+                            255,
                         ],
                     ],
                     [
@@ -719,6 +750,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'empty_string',
                             'emptyString',
+                            255,
                         ],
                     ],
                     [
@@ -905,6 +937,57 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'html_string',
                             'htmlString',
+                            255,
+                        ],
+                    ],
+                    [
+                        'type' => FieldType::EMAIL,
+                        'name' => 'email',
+                        'class' => EmailField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'email',
+                            'email',
+                            255,
+                        ],
+                    ],
+                    [
+                        'type' => FieldType::STRING,
+                        'name' => 'longString',
+                        'class' => StringField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'long_string',
+                            'longString',
+                            4096,
+                        ],
+                    ],
+                    [
+                        'type' => Password::TYPE,
+                        'name' => 'password',
+                        'class' => PasswordField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'password',
+                            'password',
+                            \PASSWORD_DEFAULT,
+                            [],
+                            'customer',
+                        ],
+                    ],
+                    [
+                        'type' => ListFieldAttr::TYPE,
+                        'name' => 'tags',
+                        'class' => ListField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'tags',
+                            'tags',
+                            StringField::class,
                         ],
                     ],
                     [

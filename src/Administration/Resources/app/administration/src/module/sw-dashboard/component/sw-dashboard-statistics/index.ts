@@ -128,7 +128,6 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 xaxis: {
                     type: 'datetime',
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.ordersDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -150,7 +149,6 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 xaxis: {
                     type: 'datetime',
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.turnoverDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -193,7 +191,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return [
                 {
-                    name: this.$tc('sw-dashboard.monthStats.numberOfOrders'),
+                    name: this.$t('sw-dashboard.monthStats.numberOfOrders'),
                     data: seriesData,
                 },
             ];
@@ -230,7 +228,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return [
                 {
-                    name: this.$tc('sw-dashboard.monthStats.totalTurnover'),
+                    name: this.$t('sw-dashboard.monthStats.totalTurnover'),
                     data: seriesData,
                 },
             ];
@@ -462,11 +460,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         getVariantFromOrderState(order: OrderEntity): string {
             const state = order.stateMachineState?.technicalName;
+
             if (!state) {
-                return '';
+                return 'neutral';
             }
 
-            return this.stateStyleDataProviderService.getStyle('order.state', state).variant;
+            return this.stateStyleDataProviderService.getStyle('order.state', state).meteorVariant;
         },
 
         parseDate(date: string): number {

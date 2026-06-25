@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package inventory
  */
@@ -194,7 +196,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-bulk-edit-product-media': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs-item': {
+                        template: '<div><slot></slot></div>',
+                    },
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
@@ -325,6 +329,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             return Promise.resolve();
                         },
                     },
+                    syncService: {},
                 },
             },
             props: {
@@ -472,6 +477,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
+    });
+
+    it('should set active to false when root products are bulk deactivated', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.active.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'active',
+            type: 'overwrite',
+            value: false,
+        });
     });
 
     it('should close confirm modal', async () => {
@@ -661,6 +680,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
+    it('should add default taxId when price is changed without selecting tax change', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
+        const priceGrossInput = priceFieldsForm.find('input');
+        await priceGrossInput.setValue('6');
+        await flushPromises();
+
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
+
+        wrapper.vm.onProcessData();
+
+        const taxChangeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId');
+        expect(taxChangeField).toBeDefined();
+        expect(taxChangeField.type).toBe('overwrite');
+        expect(taxChangeField.value).toBe('rate1');
+    });
+
     it('should be getting the list price when the price field is exists', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -716,6 +755,128 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0]).toHaveProperty('linked');
         expect(changeField.value[0]).toHaveProperty('gross');
         expect(changeField.value[0]).toHaveProperty('listPrice');
+    });
+
+    it('should send listPrice in request when only listPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.listPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 100,
+                net: 84.03,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.listPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('listPrice');
+        expect(changeField.value[0].listPrice.gross).toBe(100);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should send regulationPrice in request when only regulationPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.regulationPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 150,
+                net: 126.05,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.regulationPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('regulationPrice');
+        expect(changeField.value[0].regulationPrice.gross).toBe(150);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should preserve child price inheritance when restoring inherited prices', async () => {
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'productId' },
+            },
+            {
+                productRepositoryMock: {
+                    create: jest.fn(() => ({
+                        isNew: () => true,
+                    })),
+                    get: jest.fn(() => {
+                        return Promise.resolve({
+                            id: 'productId',
+                            name: 'parentProduct',
+                            tax: {
+                                id: 'rate1',
+                                taxRate: 19,
+                            },
+                            price: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 10,
+                                    net: 8.4,
+                                    linked: true,
+                                    listPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 12,
+                                        net: 10.08,
+                                        linked: true,
+                                    },
+                                    regulationPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 11,
+                                        net: 9.24,
+                                        linked: true,
+                                    },
+                                },
+                            ],
+                            purchasePrices: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 8,
+                                    net: 6.72,
+                                    linked: true,
+                                },
+                            ],
+                        });
+                    }),
+                },
+            },
+        );
+
+        await flushPromises();
+
+        wrapper.vm.onInheritanceRemove({ name: 'isPriceInherited' });
+        wrapper.vm.bulkEditProduct.isPriceInherited.isChanged = true;
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onInheritanceRestore({ name: 'isPriceInherited' });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProcessData();
+
+        const priceChanges = wrapper.vm.bulkEditSelected.filter((field) => field.field === 'price');
+        expect(priceChanges).toHaveLength(1);
+        expect(priceChanges[0].value).toBeNull();
     });
 
     it('should be correct data when select categories', async () => {
@@ -885,6 +1046,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         wrapper.vm.setRouteMetaModule.mockRestore();
     });
 
+    it('should provide bulk-edit specific property empty-state copy', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle).toBe(
+            'sw-bulk-edit.product.property.titleEmptyState',
+        );
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription).toBe(
+            'sw-bulk-edit.product.property.descriptionEmptyState',
+        );
+    });
+
     it('should disable processing button', async () => {
         const wrapper = await createWrapper();
 
@@ -960,6 +1132,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         ],
         [
+            false,
+            'price',
+            [
+                {
+                    currencyId: 'currencyId',
+                    gross: '1',
+                    net: '2',
+                },
+            ],
+        ],
+        [
             true,
             'price',
             true,
@@ -997,7 +1180,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         let expected;
         if (value && typeof value !== 'boolean') {
-            expected = [value];
+            expected = Array.isArray(value) ? value : [value];
         }
 
         expect(wrapper.vm.product[item]).toEqual(expected);
@@ -1021,6 +1204,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     it('should get parent product successful', async () => {
         const wrapper = await createWrapper(undefined, undefined, {
             productRepositoryMock: {
+                create: jest.fn(() => ({
+                    isNew: () => true,
+                })),
                 get: jest.fn(() => {
                     return Promise.resolve({
                         id: 'productId',

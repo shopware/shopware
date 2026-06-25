@@ -10,7 +10,7 @@
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
-      "privacyNotice": "I have acknowledged our <a href=\"%privacyUrl%\">data protection information</a> and have read and agree to our <a href=\"%tosUrl%\">general terms and conditions</a>."
+      "privacyNotice": "I have acknowledged our <a href=\"%privacyUrl%\">privacy policy</a> and have read and agree to our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
     "inherit": {
       "tooltip": "This field does not exist on the base layout and cannot be inherited.",

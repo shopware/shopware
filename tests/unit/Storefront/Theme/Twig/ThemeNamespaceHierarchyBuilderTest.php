@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
@@ -43,6 +44,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
+            SalesChannelFileTemplateResolveEvent::class,
         ], array_keys($events));
     }
 
@@ -113,6 +115,27 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             'Storefront' => true,
             'TestTheme' => true,
         ], $this->builder);
+    }
+
+    public function testOnSalesChannelFileTemplateResolveLoadsThemeForSalesChannel(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'themeName' => 'SwagTheme',
+                'parentThemeName' => null,
+                'themeId' => Uuid::randomHex(),
+            ]);
+
+        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), new DatabaseSalesChannelThemeLoader($connectionMock));
+        $builder->onSalesChannelFileTemplateResolve(new SalesChannelFileTemplateResolveEvent(Uuid::randomHex()));
+
+        $this->assertThemes([
+            'SwagTheme' => true,
+            'Storefront' => true,
+        ], $builder);
     }
 
     public function testThemesIfBaseNameIsSet(): void

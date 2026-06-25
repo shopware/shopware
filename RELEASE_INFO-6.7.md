@@ -1,5 +1,154 @@
 # 6.7.13.0 (upcoming)
 
+## Storefront
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
+## Core
+
+### Deprecated `maintenanceIpWhitelist` wording of the sales channel
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.
+The deprecated members keep working and will be replaced in Shopware 6.8. Migrate your code now:
+
+- DAL: use the new field `maintenanceIpAllowlist` instead of `maintenanceIpWhitelist`. Both fields are available and kept in sync during the transition.
+- `Shopware\Core\System\SalesChannel\SalesChannelEntity`: use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead of `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()`.
+- `Shopware\Core\SalesChannelRequest`: use the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead of `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST`.
+- `Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: use the constant `MAINTENANCE_ALLOWLIST_HEADER` instead of `MAINTENANCE_WHITELIST_HEADER`.
+
+The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
+
+### Deprecated core script response rendering
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.
+The method remains available in 6.7 for backwards compatibility when the Storefront bundle and a `SalesChannelContext` are available.
+
+Extension authors should type the script `response` service for the hook they implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and avoid `render()` there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
+
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
+### Declarative custom fields via `Resources/config/custom-fields.xml`
+
+Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
+
+This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+
+The XML format is the same one already used by apps in the manifest:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>my_plugin_fields</name>
+        <label>My Fields</label>
+        <label lang="de-DE">Meine Felder</label>
+        <related-entities>
+            <product/>
+        </related-entities>
+        <fields>
+            <int name="my_plugin_weight">
+                <label>Weight</label>
+                <position>1</position>
+            </int>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+New classes:
+- `Shopware\Core\System\CustomField\CustomFieldSetPersister` — shared persistence logic for custom field sets
+- `Shopware\Core\System\CustomField\CustomFieldXmlLoader` — loads and validates `custom-fields.xml` files
+
+The custom field XML DTO classes have been moved from `Shopware\Core\Framework\App\Manifest\Xml\CustomField` to `Shopware\Core\System\CustomField\Xml` to make them properly reusable outside the app system.
+
+### Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The orchestration logic of `ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) has moved into the new `ScheduledTaskExecutor` service.
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the new `ScheduledTaskExecutorCompilerPass`.
+Scheduled task handlers registered through the container — the standard way plugins register them — require **no changes** and keep working as before.
+
+The inline execution logic in `ScheduledTaskHandler::__invoke()` is deprecated and will be removed in Shopware 6.8.0.0.
+This only affects code that instantiates a `ScheduledTaskHandler` manually instead of resolving it from the container (for example in tests).
+In that case, set the executor explicitly to opt into the new behaviour, otherwise the handler falls back to the deprecated inline logic and triggers a deprecation warning:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks are deprecated and will be removed in Shopware 6.8.0.0. They remain overridable until then — the executor still routes through an overridden `rescheduleTask()` for backwards compatibility — but new code should not rely on them, as the executor owns the status transitions and rescheduling.
+
+If you need to control when a task runs next (instead of the default `now + runInterval` schedule), implement the new `DynamicallyScheduledTaskHandler` interface rather than overriding `rescheduleTask()`. The executor asks the handler for the next execution time via `getNextExecutionTime()` and persists it, so the handler only answers the "when", not the "how":
+
+```php
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+
+class MyScheduledTaskHandler extends ScheduledTaskHandler implements DynamicallyScheduledTaskHandler
+{
+    public function getNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity): ?\DateTimeInterface
+    {
+        // return the next execution time, or null to fall back to the default `now + runInterval` schedule
+        return $this->nextPendingRecordTimestamp();
+    }
+}
+```
+
+### Sales Channel business timezone
+
+Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone.
+
+Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
+
+## API
+
+### DAL write event listeners no longer expand API ACL requirements
+
+DAL post-write events such as `EntityWrittenContainerEvent` and entity-specific `.written` events are now dispatched in system scope after Admin API and Sync API writes, while preserving the original context source.
+
+This matters for plugins that subscribe to core write events and update their own entities as a side effect.
+Previously, a listener on an event such as `product.written` still ran in the CRUD context of the triggering API request.
+When that listener wrote an extension-owned entity, the API user also needed permissions for that extension entity, even though the submitted request only changed products.
+Activating such a plugin could therefore change the required ACL permissions for existing Admin API or Sync API clients.
+
+With this change, listener-side DAL writes are treated as trusted system-side follow-up work of the original write.
+API consumers only need the privileges required for the submitted write payload; plugin-internal denormalization, synchronization, indexing, or bookkeeping writes performed from DAL write listeners no longer expand the caller's ACL requirements.
+
+Extension authors can still inspect who triggered the write via `$event->getContext()->getSource()`.
+If a listener intentionally wants to make a side effect depend on the triggering user or integration, it should check the source explicitly instead of relying on `$event->getContext()->getScope()` being `Context::USER_SCOPE`.
+No adoption is required for normal write-event listeners; remove any extra API permission requirements that only existed to satisfy listener-internal entity writes.
+
+## App System
+
+### Deprecation of inline `<custom-fields>` in `manifest.xml`
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
+
+When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+## Administration
+
+### Snippet inheritance from JSON language files
+
+The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.
+
+Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
+
 # 6.7.12.0 (upcoming)
 
 ## Features
@@ -167,6 +316,15 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 ### Rule Builder: new "Quantity per item" condition
 
 A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
+
+### Rule Builder: "all / at least one" toggle is now config-driven
+
+Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
+
+### Rule Builder: line item purchase price uses a net/gross type field
+
+`LineItemPurchasePriceRule` (`cartLineItemPurchasePrice`) now stores the price type as a `type` field (`gross` / `net`) instead of an `isNet` boolean, aligning it with the generic rule configuration and rendering it via `sw-condition-generic`.
+
 ### Storefront snippets of self-managed apps are loaded
 
 Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
@@ -1479,8 +1637,6 @@ In addition, we have refactored several places to use direct CSS or SCSS variabl
 Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
 The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
 If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
-
-## App System
 
 ## Hosting & Configuration
 

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Twig\TwigDateRequestListener;
@@ -106,5 +108,33 @@ class TwigDateRequestListenerTest extends TestCase
                 $service->getExtension(CoreExtension::class)->getTimezone()
             );
         }
+    }
+
+    public function testListenerKeepsConfiguredTimezoneAsRenderFallback(): void
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        $request->cookies->set(TwigDateRequestListener::TIMEZONE_COOKIE, 'America/New_York');
+
+        $event = new RequestEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $container = new ContainerBuilder();
+        $twig = new TwigEnvironment(new ArrayLoader(['test' => '{{ testDate|date("Y-m-d") }}']));
+        $twig->getExtension(CoreExtension::class)->setTimezone('Europe/Berlin');
+        $container->set('twig', $twig);
+
+        (new TwigDateRequestListener($container))->__invoke($event);
+
+        static::assertSame('America/New_York', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
+
+        Feature::fake(['v6.8.0.0'], function () use ($twig): void {
+            static::assertSame('2026-01-02', $twig->renderWithTimezoneOverride('test', [
+                'testDate' => new \DateTimeImmutable('2026-01-01 23:30:00', new \DateTimeZone('UTC')),
+            ]));
+        });
     }
 }

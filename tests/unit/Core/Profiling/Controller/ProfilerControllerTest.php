@@ -27,9 +27,9 @@ class ProfilerControllerTest extends TestCase
 {
     public function testErrorIsReturnedIfProfileDoesNotExist(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profiler->expects($this->once())
@@ -43,9 +43,9 @@ class ProfilerControllerTest extends TestCase
 
     public function testErrorIsReturnedIfPanelDoesNotExist(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
@@ -60,9 +60,9 @@ class ProfilerControllerTest extends TestCase
 
     public function testErrorIsReturnedIfPanelIsIncorrect(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
@@ -97,9 +97,9 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware()]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('getConfiguration')
             ->willReturn($config);
@@ -133,9 +133,9 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection
             ->method('getConfiguration')
@@ -183,7 +183,7 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
         $connection = $this->createMock(Connection::class);
 

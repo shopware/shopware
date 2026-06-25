@@ -27,11 +27,16 @@ jobs:
     timeout-minutes: 15
     env:
       SW_IMPACT_ARCHIVE_URL: https://github.com/shopware/sw-impact/releases/download/v0.1.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
-      SW_IMPACT_ARCHIVE: ${{ runner.temp }}/sw-impact-${{ github.run_id }}-${{ github.run_attempt }}.tar.gz
-      SW_IMPACT_BIN_DIR: ${{ runner.temp }}/sw-impact-bin-${{ github.run_id }}-${{ github.run_attempt }}
-      SW_IMPACT_INDEX: ${{ runner.temp }}/sw-impact-index-${{ github.run_id }}-${{ github.run_attempt }}.json
 
     steps:
+      - name: Define sw-impact paths
+        run: |
+          {
+            echo "SW_IMPACT_ARCHIVE=$RUNNER_TEMP/sw-impact-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}.tar.gz"
+            echo "SW_IMPACT_BIN_DIR=$RUNNER_TEMP/sw-impact-bin-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}"
+            echo "SW_IMPACT_INDEX=$RUNNER_TEMP/sw-impact-index-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}.json"
+          } >> "$GITHUB_ENV"
+
       - name: Install sw-impact
         run: |
           set -euo pipefail

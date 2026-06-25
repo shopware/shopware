@@ -3,7 +3,12 @@ import { satisfies } from 'compare-versions';
 
 test(
     'As a merchant, I would be able to adjust storefront rounding for defined country',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -66,17 +71,15 @@ test(
 
         const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
         await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(
-            currency.isoCode + ' 22.556'
+            currency.isoCode + ' 22.556',
         );
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(
-            currency.isoCode + ' 22.556'
-        );
+        await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode + ' 22.556');
 
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(
-            currency.isoCode + ' 22.556'
+            currency.isoCode + ' 22.556',
         );
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
@@ -84,17 +87,13 @@ test(
         await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
         await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
-        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(
-            currency.isoCode + ' 22.556'
-        );
+        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
         await ShopCustomer.attemptsTo(SubmitOrder());
-        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(
-            currency.isoCode + ' 22.556'
-        );
+        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
         const orderId = StorefrontCheckoutFinish.getOrderId();
 
         TestDataService.addCreatedRecord('order', orderId);
-    }
+    },
 );

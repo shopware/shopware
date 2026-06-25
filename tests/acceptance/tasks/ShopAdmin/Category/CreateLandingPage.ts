@@ -4,7 +4,7 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, FixtureTypes>({
     CreateLandingPage: async (
         { ShopAdmin, AdminCategories, AdminLandingPageCreate, AdminLandingPageDetail, TestDataService },
-        use
+        use,
     ) => {
         const task = (layoutName: string, landingPageData) => {
             return async function CreateLandingPage() {
@@ -57,7 +57,7 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });
                 // Wait until landing page is saved via API
                 const response = await AdminLandingPageCreate.page.waitForResponse(
-                    `${process.env['APP_URL']}api/search/landing-page`
+                    `${process.env['APP_URL']}api/search/landing-page`,
                 );
                 expect(response.ok()).toBeTruthy();
                 const url = AdminLandingPageDetail.page.url();

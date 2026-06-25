@@ -3,7 +3,10 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'Shop administrator should be able to upload an image to the product gallery within a product.',
     {
-        tag: ['@Product', '@Media'],
+        tag: [
+            '@Product',
+            '@Media',
+        ],
     },
     async ({ ShopAdmin, TestDataService, AdminProductDetail, UploadImage, SaveProduct, IdProvider }) => {
         await test.slow();
@@ -20,5 +23,5 @@ test(
         await ShopAdmin.expects(AdminProductDetail.productImage).toHaveCount(2);
         await ShopAdmin.expects(AdminProductDetail.productImage.first()).toHaveAttribute('alt', imageName);
         await ShopAdmin.expects(AdminProductDetail.productImage.nth(1)).toHaveAttribute('alt', imageName);
-    }
+    },
 );

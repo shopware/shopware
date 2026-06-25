@@ -2,7 +2,13 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I can request a new password with existing customer email address.',
-    { tag: ['@Account', '@Password', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Password',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccountRecover, TestDataService }) => {
         const customer = await TestDataService.createCustomer();
         await test.step('Navigate to the login page and click on forgot password', async () => {
@@ -20,12 +26,18 @@ test(
             await ShopCustomer.presses(StorefrontAccountRecover.backButton);
             await ShopCustomer.expects(StorefrontAccountLogin.loginButton).toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'As a customer, I can request a new password without existing customer email address.',
-    { tag: ['@Account', '@Password', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Password',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccountRecover }) => {
         const uniqueEmail = `forgot-password-${test.info().repeatEachIndex}-${test.info().retry}-${Date.now()}@email.net`;
 
@@ -45,12 +57,18 @@ test(
             // Verify that the success message is shown for security reasons
             await ShopCustomer.expects(StorefrontAccountRecover.passwordResetEmailSentMessage).toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'As a customer, I can reset my password using the password recovery process for an existing account and successfully log in with the new password.',
-    { tag: ['@Account', '@Password', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Password',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -61,10 +79,7 @@ test(
         Login,
         DefaultSalesChannel,
     }) => {
-        test.skip(
-            InstanceMeta.isSaaS || InstanceMeta.isPaaS,
-            'Skipping test because it requires a local mailpit instance.'
-        );
+        test.skip(InstanceMeta.isSaaS || InstanceMeta.isPaaS, 'Skipping test because it requires a local mailpit instance.');
 
         let passwordResetLink = '';
         const newPassword = 'new-password';
@@ -94,12 +109,12 @@ test(
             ShopCustomer.expects(emailHeaders.toAddress).toContain(customer.email);
             ShopCustomer.expects(emailBody).toContain(`Hello ${customer.firstName} ${customer.lastName},`);
             ShopCustomer.expects(emailBody).toContain(
-                `You have requested a new password for your ${DefaultSalesChannel.salesChannel.name} account.`
+                `You have requested a new password for your ${DefaultSalesChannel.salesChannel.name} account.`,
             );
             ShopCustomer.expects(emailBody).toContain('Click on the following link to reset your password:');
             ShopCustomer.expects(emailBody).toContain('This link is valid for the next 2 hours.');
             ShopCustomer.expects(emailBody).toContain(
-                "If you don't want to reset your password, ignore this email and no changes will be made."
+                "If you don't want to reset your password, ignore this email and no changes will be made.",
             );
             ShopCustomer.expects(emailBody).toContain('Yours sincerely');
             ShopCustomer.expects(emailBody).toContain(`Your ${DefaultSalesChannel.salesChannel.name} team`);
@@ -123,5 +138,5 @@ test(
             await ShopCustomer.expects(StorefrontAccountRecover.emailInput).toBeVisible();
             await ShopCustomer.expects(StorefrontAccountRecover.requestEmailButton).toBeVisible();
         });
-    }
+    },
 );

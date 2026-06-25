@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'Guest customer must be able to register in the Storefront.',
-    { tag: ['@Registration', '@Storefront'] },
+    {
+        tag: [
+            '@Registration',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         StorefrontProductDetail,
@@ -17,7 +22,7 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
-            `${product.translated.name} | ${product.productNumber}`
+            `${product.translated.name} | ${product.productNumber}`,
         );
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
@@ -28,12 +33,17 @@ test(
         await ShopCustomer.presses(StorefrontHome.accountMenuButton);
         await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton);
         await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
-    }
+    },
 );
 
 test(
     'Guest commercial customer must be able to register in the Storefront.',
-    { tag: ['@Registration', '@Storefront'] },
+    {
+        tag: [
+            '@Registration',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         StorefrontHome,
@@ -49,7 +59,7 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
-            `${product.translated.name} | ${product.productNumber}`
+            `${product.translated.name} | ${product.productNumber}`,
         );
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
@@ -62,5 +72,5 @@ test(
         await ShopCustomer.presses(StorefrontHome.accountMenuButton);
         await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton);
         await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
-    }
+    },
 );

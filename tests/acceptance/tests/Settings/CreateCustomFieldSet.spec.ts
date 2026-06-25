@@ -72,10 +72,7 @@ test(
 
         await test.step('Validate the availability of custom fields on a category detail page.', async () => {
             await ShopAdmin.goesTo(AdminCategoryDetail.url(DefaultSalesChannel.salesChannel.navigationCategoryId));
-            customFields = await AdminCategoryDetail.getCustomFieldCardLocators(
-                customFieldSetName,
-                customFieldTextName
-            );
+            customFields = await AdminCategoryDetail.getCustomFieldCardLocators(customFieldSetName, customFieldTextName);
             await ShopAdmin.expects(customFields.customFieldCard).toBeVisible();
             await ShopAdmin.expects(customFields.customFieldSetTab).toBeVisible();
             await ShopAdmin.expects(customFields.customFieldSetTab).toHaveText(customFieldSetName);
@@ -101,21 +98,19 @@ test(
         await test.step('Validate the availability of one custom field on a rule builder page.', async () => {
             await ShopAdmin.goesTo(AdminRuleCreate.url());
             await AdminRuleCreate.conditionTypeSelectionInput.click();
-            await AdminRuleCreate.filtersResultPopoverSelectionList
-                .filter({ hasText: 'Item with custom field' })
-                .click();
+            await AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: 'Item with custom field' }).click();
             await AdminRuleCreate.conditionValueSelectionInput.click();
             await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName).hover();
             await ShopAdmin.expects(
-                AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName)
+                AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldTextName),
             ).not.toHaveClass(/.*is--disabled.*/);
             await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).not.toBeVisible();
             await AdminRuleCreate.filtersResultPopoverSelectionList.getByText(customFieldNumberName).hover();
             await ShopAdmin.expects(
-                AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: customFieldNumberName })
+                AdminRuleCreate.filtersResultPopoverSelectionList.filter({ hasText: customFieldNumberName }),
             ).toHaveClass(/.*is--disabled.*/);
             await ShopAdmin.expects(AdminRuleCreate.valueNotAvailableTooltip).toContainText(
-                'This custom field is currently not available in shopping carts.'
+                'This custom field is currently not available in shopping carts.',
             );
         });
 
@@ -123,5 +118,5 @@ test(
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id), true);
             await ShopAdmin.expects(AdminCustomerDetail.customFieldCard).not.toBeVisible();
         });
-    }
+    },
 );

@@ -62,5 +62,5 @@ test(
             await StorefrontAccountOrder.invoiceHTML.click();
             await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText(formatPrice(1.0));
         });
-    }
+    },
 );

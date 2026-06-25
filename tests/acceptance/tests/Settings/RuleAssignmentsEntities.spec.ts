@@ -15,18 +15,14 @@ test(
 
         await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id, 'assignments'));
         await ShopAdmin.attemptsTo(AssignEntitiesToRule(entities));
-        await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCard).toContainText(
-            shippingMethod1.name
-        );
-        await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCard).toContainText(
-            shippingMethod2.name
-        );
+        await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCard).toContainText(shippingMethod1.name);
+        await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCard).toContainText(shippingMethod2.name);
         await AdminRuleDetail.shippingMethodAvailabilityRulesCardSearchField.fill(shippingMethod1.name);
         await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCardTable).toContainText(
-            shippingMethod1.name
+            shippingMethod1.name,
         );
         await ShopAdmin.expects(AdminRuleDetail.shippingMethodAvailabilityRulesCardTable).not.toContainText(
-            shippingMethod2.name
+            shippingMethod2.name,
         );
-    }
+    },
 );

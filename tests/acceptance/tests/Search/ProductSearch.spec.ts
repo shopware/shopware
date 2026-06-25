@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'Customer is able to search products in shop',
-    { tag: ['@Search', '@Storefront'] },
+    {
+        tag: [
+            '@Search',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -31,7 +36,10 @@ test(
                 await ShopCustomer.expects(productLocator2.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+            intervals: [
+                1_000,
+                2_500,
+            ], // retry after 1 seconds, then every 2.5 seconds
         });
 
         await test.step('Customer searches with an invalid input and sees no results', async () => {
@@ -72,5 +80,5 @@ test(
             const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
             await ShopCustomer.expects(listedItemsCount).toBe(2);
         });
-    }
+    },
 );

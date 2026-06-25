@@ -53,5 +53,5 @@ test(
             });
             await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Documents-Tab.png');
         });
-    }
+    },
 );

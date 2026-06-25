@@ -2,7 +2,13 @@ import { test, expect, getOrderTransactionId } from '@fixtures/AcceptanceTest';
 
 test(
     'Registered shop customer should be able to buy a digital product.',
-    { tag: ['@Checkout', '@DigitalProduct', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@DigitalProduct',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         AdminApiContext,
@@ -43,7 +49,7 @@ test(
             const orderTransactionId = await getOrderTransactionId(orderId, AdminApiContext);
             const orderTransactionUpdateResponse = await AdminApiContext.post(
                 `./_action/order_transaction/${orderTransactionId}/state/paid`,
-                {}
+                {},
             );
             expect(orderTransactionUpdateResponse.ok()).toBeTruthy();
         });
@@ -54,5 +60,5 @@ test(
             // Download the digital product and check if the content is equal to what was uploaded.
             await ShopCustomer.attemptsTo(DownloadDigitalProductFromOrderAndExpectContentToBe(fileContent));
         });
-    }
+    },
 );

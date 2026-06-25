@@ -34,12 +34,17 @@ test(
         const validateVariants = variantTexts.every((variant) => allowedVariants.includes(variant.trim()));
 
         ShopAdmin.expects(validateVariants).toBeTruthy();
-    }
+    },
 );
 
 test(
     'Customer should be able to see a new property displayed on the product detail page',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome, InstanceMeta }) => {
         test.slow(InstanceMeta.isSaaS);
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
@@ -60,15 +65,15 @@ test(
                 propertyGroupsColor,
                 {
                     description: 'Variant description',
-                }
+                },
             );
             await CheckVisibilityInHome(variantProductColor.at(0).name)();
             await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
             await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();
             await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name)).toBeVisible();
             await ShopCustomer.expects(
-                StorefrontProductDetail.propertyRadioGroup(color.name).getByRole('radio')
+                StorefrontProductDetail.propertyRadioGroup(color.name).getByRole('radio'),
             ).toHaveCount(variantProductColor.length);
         });
-    }
+    },
 );

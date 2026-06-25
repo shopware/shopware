@@ -51,5 +51,5 @@ test(
                 fullPage: true,
             });
         });
-    }
+    },
 );

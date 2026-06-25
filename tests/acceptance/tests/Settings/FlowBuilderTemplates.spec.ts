@@ -23,14 +23,11 @@ test(
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
             await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow =
-                await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
+            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
             await adminFlowBuilderTemplatesRow.templateDetailLink.click();
             await ShopAdmin.expects(AdminFlowBuilderDetail.generalTab).toBeVisible();
             await ShopAdmin.expects(AdminFlowBuilderDetail.templateName).toHaveValue(flowTemplateName);
-            await ShopAdmin.expects(AdminFlowBuilderDetail.alertWarning).toContainText(
-                'Flow templates cannot be edited.'
-            );
+            await ShopAdmin.expects(AdminFlowBuilderDetail.alertWarning).toContainText('Flow templates cannot be edited.');
         });
 
         await test.step('Create flow from template and compare it with template', async () => {
@@ -39,8 +36,7 @@ test(
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
             await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow =
-                await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
+            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
             await adminFlowBuilderTemplatesRow.createFlowLink.click();
             await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);
             await AdminFlowBuilderCreate.nameField.fill(flowName);
@@ -51,5 +47,5 @@ test(
             const flowEqualsTemplate = await compareFlowTemplateWithFlow(flowId, flowTemplateId, AdminApiContext);
             ShopAdmin.expects(flowEqualsTemplate).toBe(true);
         });
-    }
+    },
 );

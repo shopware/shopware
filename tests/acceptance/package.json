@@ -2,12 +2,15 @@
   "name": "platform-acceptance-test-suite",
   "version": "1.0.0",
   "private": true,
+  "config": {
+    "prettier_config": "../../src/Administration/Resources/app/administration/.prettierrc.js"
+  },
   "bin": {
     "createTask": "./bin/createTask.js"
   },
   "scripts": {
-    "format": "prettier --check \"**/*.{js,cjs,ts}\"",
-    "format:fix": "prettier --write \"**/*.{js,cjs,ts}\" --cache",
+    "format": "prettier --config \"$npm_package_config_prettier_config\" --check \"**/*.{js,cjs,ts}\"",
+    "format:fix": "prettier --config \"$npm_package_config_prettier_config\" --write \"**/*.{js,cjs,ts}\" --cache",
     "lint": "eslint . --ext .ts",
     "lint:fix": "npm run lint -- --fix",
     "act": "npx playwright test --ui"

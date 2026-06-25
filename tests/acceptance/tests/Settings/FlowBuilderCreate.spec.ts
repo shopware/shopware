@@ -59,11 +59,11 @@ test(
             await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(testConfig.condition);
             await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();
             await ShopAdmin.expects(AdminFlowBuilderDetail.trueBlockActionDescription).toContainText(
-                testConfig.trueActionIdentifier
+                testConfig.trueActionIdentifier,
             );
             await ShopAdmin.expects(AdminFlowBuilderDetail.falseBlockActionDescription).toContainText(
-                testConfig.falseActionIdentifier
+                testConfig.falseActionIdentifier,
             );
         });
-    }
+    },
 );

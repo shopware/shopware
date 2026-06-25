@@ -3,15 +3,13 @@ import { satisfies } from 'compare-versions';
 
 test(
     'As a customer, I must be able to change my email via account.',
-    { tag: ['@Account', '@Storefront'] },
-    async ({
-        IdProvider,
-        ShopCustomer,
-        StorefrontAccount,
-        StorefrontAccountLogin,
-        StorefrontAccountProfile,
-        Register,
-    }) => {
+    {
+        tag: [
+            '@Account',
+            '@Storefront',
+        ],
+    },
+    async ({ IdProvider, ShopCustomer, StorefrontAccount, StorefrontAccountLogin, StorefrontAccountProfile, Register }) => {
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com', password: IdProvider.getIdPair().uuid };
         const invalidEmail = 'invalidEmailWithoutAtSymbol';
         const newEmail = IdProvider.getIdPair().uuid + '@test.com';
@@ -70,12 +68,17 @@ test(
             await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
             await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'As a customer, I must be able to change my password via account.',
-    { tag: ['@Account', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Storefront',
+        ],
+    },
     async ({
         IdProvider,
         InstanceMeta,
@@ -141,5 +144,5 @@ test(
             await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
             await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
         });
-    }
+    },
 );

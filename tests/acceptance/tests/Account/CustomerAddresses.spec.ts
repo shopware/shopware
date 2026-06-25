@@ -4,7 +4,11 @@ import { satisfies } from 'compare-versions';
 test(
     'Make address default for billing.',
     {
-        tag: ['@Account', '@Address', '@Storefront'],
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
         annotation: { type: 'story', description: 'As a shop customer I want to set a default billing address' },
     },
     async ({ InstanceMeta, ShopCustomer, StorefrontAccountAddresses, TestDataService, Login }) => {
@@ -20,13 +24,17 @@ test(
 
         const defaultBillingAddress = await StorefrontAccountAddresses.getDefaultBillingAddress(address);
         await ShopCustomer.expects(defaultBillingAddress).toBeVisible();
-    }
+    },
 );
 
 test(
     'Make address default for shipping.',
     {
-        tag: ['@Account', '@Address', '@Storefront'],
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
         annotation: { type: 'story', description: 'As a shop customer I want to set a default shipping address' },
     },
     async ({ InstanceMeta, ShopCustomer, StorefrontAccountAddresses, TestDataService, Login }) => {
@@ -42,13 +50,17 @@ test(
 
         const defaultShippingAddress = await StorefrontAccountAddresses.getDefaultShippingAddress(address);
         await ShopCustomer.expects(defaultShippingAddress).toBeVisible();
-    }
+    },
 );
 
 test(
     'Edit an existing address.',
     {
-        tag: ['@Account', '@Address', '@Storefront'],
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
         annotation: { type: 'story', description: 'As a shop customer I want to edit an existing address' },
     },
     async ({
@@ -90,13 +102,17 @@ test(
 
         const addressContainerEdited = await StorefrontAccountAddresses.getAvailableAddress(newAddress);
         await ShopCustomer.expects(addressContainerEdited.address).toBeVisible();
-    }
+    },
 );
 
 test(
     'Create a new address.',
     {
-        tag: ['@Account', '@Address', '@Storefront'],
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
         annotation: { type: 'story', description: 'As a shop customer I want to create a new address' },
     },
     async ({
@@ -131,5 +147,5 @@ test(
 
         const addressContainer = await StorefrontAccountAddresses.getAvailableAddress(newAddress);
         await ShopCustomer.expects(addressContainer.address).toBeVisible();
-    }
+    },
 );

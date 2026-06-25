@@ -40,7 +40,10 @@ test(
             visibilities: [{ salesChannelId: DefaultSalesChannel.salesChannel.id, visibility: 30 }],
         });
         const originalProductPrice = unchangedProduct.price[0].gross.toString();
-        const changedProducts = [changedProduct1, changedProduct2];
+        const changedProducts = [
+            changedProduct1,
+            changedProduct2,
+        ];
         const changedManufacturer = await TestDataService.createBasicManufacturer();
         const changedReleaseDate = '20/05/2025, 00:00';
 
@@ -57,7 +60,11 @@ test(
 
         await test.step('Bulk edit two products.', async () => {
             await ShopAdmin.goesTo(
-                AdminProductListing.url([changedProduct1.name, changedProduct2.name, unchangedProduct.name])
+                AdminProductListing.url([
+                    changedProduct1.name,
+                    changedProduct2.name,
+                    unchangedProduct.name,
+                ]),
             );
             await ShopAdmin.attemptsTo(BulkEditProducts(changedProducts, changes));
         });
@@ -71,7 +78,7 @@ test(
                 });
                 await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).not.toBeChecked();
                 await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText(
-                    changes['manufacturer'].value
+                    changes['manufacturer'].value,
                 );
                 await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('20/05/2025, 00:00');
                 await ShopAdmin.expects(AdminProductDetail.stockInput).toHaveValue(changes['stock'].value);
@@ -87,17 +94,15 @@ test(
                 timeout: TIMEOUT,
             });
             await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).toBeChecked();
-            await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText(
-                'Enter product manufacturer...'
-            );
+            await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText('Enter product manufacturer...');
             await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('');
             await ShopAdmin.expects(AdminProductDetail.stockInput).toHaveValue(originalStock.toString());
             await ShopAdmin.expects(AdminProductDetail.restockTimeInput).toHaveValue(originalRestockTime.toString());
             await ShopAdmin.expects(AdminProductDetail.tagsInput).toContainText(originalTag.name);
             await ShopAdmin.expects(AdminProductDetail.tagsInput).not.toContainText(addedTag.name);
             await ShopAdmin.expects(AdminProductDetail.saleChannelsInput).toContainText(
-                DefaultSalesChannel.salesChannel.name
+                DefaultSalesChannel.salesChannel.name,
             );
         });
-    }
+    },
 );

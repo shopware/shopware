@@ -27,7 +27,7 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
         async ({ TestDataService, browser, SalesChannelBaseConfig, InstanceMeta }) => {
             test.skip(
                 satisfies(InstanceMeta.version, '<6.7.9.0'),
-                'Product Analytics is only available since version 6.7.9.0'
+                'Product Analytics is only available since version 6.7.9.0',
             );
 
             const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -232,7 +232,7 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                                 sw_page_full_path: '/sw/dashboard/index',
                             },
                         }),
-                    ])
+                    ]),
                 );
 
                 const linkVisitedEvents = events.filter((e) => e.name === 'link_visited');
@@ -262,7 +262,7 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                                 sw_page_full_path: expect.stringContaining('/sw/order/index?'),
                             }),
                         }),
-                    ])
+                    ]),
                 );
 
                 const buttonClickedEvents = events.filter((e) => e.name === 'button_click');
@@ -280,9 +280,9 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                                 sw_page_full_path: expect.stringContaining('/sw/order/detail/'),
                             }),
                         }),
-                    ])
+                    ]),
                 );
             });
-        }
+        },
     );
 });

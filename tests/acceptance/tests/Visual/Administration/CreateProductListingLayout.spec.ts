@@ -46,7 +46,7 @@ test(
 
             await AdminLayoutCreate.layoutNameInput.fill('test');
             const waitForSearchResponse = AdminLayoutCreate.page.waitForResponse(
-                (response) => response.url().includes('/api/search/cms-page') && response.request().method() === 'POST'
+                (response) => response.url().includes('/api/search/cms-page') && response.request().method() === 'POST',
             );
             await AdminLayoutCreate.createLayoutButton.click();
             const searchResponse = await waitForSearchResponse;
@@ -59,5 +59,5 @@ test(
         await test.step('Delete the created layout.', async () => {
             await AdminApiContext.delete(`cms-page/${createdLayoutId}`);
         });
-    }
+    },
 );

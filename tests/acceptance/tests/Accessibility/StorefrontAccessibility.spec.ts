@@ -80,5 +80,5 @@ test(
             await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
             await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
         });
-    }
+    },
 );

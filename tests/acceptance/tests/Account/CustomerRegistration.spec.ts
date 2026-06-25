@@ -3,19 +3,29 @@ import { satisfies } from 'compare-versions';
 
 test(
     'As a new customer, I must be able to register in the Storefront.',
-    { tag: ['@Registration', '@Storefront'] },
+    {
+        tag: [
+            '@Registration',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider, Register }) => {
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
 
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await ShopCustomer.attemptsTo(Register(customer));
         await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-    }
+    },
 );
 
 test(
     'As a new customer, I should not be able to register with empty postal code when it is required.',
-    { tag: ['@Registration', '@Storefront'] },
+    {
+        tag: [
+            '@Registration',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontAccountLogin, Register, TestDataService, DefaultSalesChannel, InstanceMeta }) => {
         const country = await TestDataService.createCountry({ postalCodeRequired: true });
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, country.id);
@@ -29,19 +39,16 @@ test(
         await test.step('Validate registration is blocked due to missing postal code', async () => {
             await ShopCustomer.expects(StorefrontAccountLogin.page.getByText("I'm a new customer!")).toBeVisible();
             await ShopCustomer.expects(
-                StorefrontAccountLogin.page.locator('label[for="billingAddressAddressZipcode"]')
+                StorefrontAccountLogin.page.locator('label[for="billingAddressAddressZipcode"]'),
             ).toContainText('*');
-            await ShopCustomer.expects(StorefrontAccountLogin.postalCodeInput).toHaveCSS(
-                'border-color',
-                'rgb(194, 0, 23)'
-            );
+            await ShopCustomer.expects(StorefrontAccountLogin.postalCodeInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
             // eslint-disable-next-line playwright/no-conditional-in-test
             if (!satisfies(InstanceMeta.version, '<6.7')) {
                 await ShopCustomer.expects(StorefrontAccountLogin.page.locator('.invalid-feedback')).toContainText(
-                    'Input should not be empty.'
+                    'Input should not be empty.',
                 );
             }
         });
-    }
+    },
 );

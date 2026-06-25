@@ -6,16 +6,10 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'Merchant is able to be guided through the First Run Wizard.',
     { tag: '@FirstRunWizard' },
-    async ({
-        FRWSalesChannelSelectionPossibility,
-        ShopAdmin,
-        DefaultSalesChannel,
-        AdminFirstRunWizard,
-        InstanceMeta,
-    }) => {
+    async ({ FRWSalesChannelSelectionPossibility, ShopAdmin, DefaultSalesChannel, AdminFirstRunWizard, InstanceMeta }) => {
         test.skip(
             InstanceMeta.isSaaS || InstanceMeta.isPaaS,
-            'Skipping test for the first run wizard, because it is disabled on SaaS and PaaS instances.'
+            'Skipping test for the first run wizard, because it is disabled on SaaS and PaaS instances.',
         );
 
         await ShopAdmin.goesTo(AdminFirstRunWizard.url());
@@ -64,9 +58,7 @@ test(
         await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
         await AdminFirstRunWizard.germanRegionSelector.click();
         await AdminFirstRunWizard.toolsSelector.click();
-        await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText(
-            'Migration Assistant'
-        );
+        await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText('Migration Assistant');
         await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible();
         await AdminFirstRunWizard.nextButton.click();
 
@@ -89,5 +81,5 @@ test(
         await ShopAdmin.expects(AdminFirstRunWizard.forumLink).toBeVisible();
         await ShopAdmin.expects(AdminFirstRunWizard.roadmapLink).toBeVisible();
         await AdminFirstRunWizard.finishButton.click();
-    }
+    },
 );

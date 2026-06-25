@@ -24,7 +24,7 @@ test(
             });
             await assertScreenshot(AdminPromotionsListing.page, 'Listing-With-Promotions.png');
         });
-    }
+    },
 );
 
 test(
@@ -75,5 +75,5 @@ test(
             });
             await assertScreenshot(AdminPromotionDetail.page, 'Detail-Discounts-Tab-Additional-Discount.png');
         });
-    }
+    },
 );

@@ -75,5 +75,5 @@ test(
             });
             await assertScreenshot(AdminCustomerDetail.page, 'Detail-Orders-Tab.png');
         });
-    }
+    },
 );

@@ -23,9 +23,7 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                 });
 
                 // Wait until media is saved via API
-                const response = await AdminProductDetail.page.waitForResponse(
-                    `${process.env['APP_URL']}api/search/media`
-                );
+                const response = await AdminProductDetail.page.waitForResponse(`${process.env['APP_URL']}api/search/media`);
                 expect(response.ok()).toBeTruthy();
 
                 const mediaResourceResponse = await response.json();
@@ -36,7 +34,7 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                             fileName: imageName,
                             mimeType: 'image/png',
                         }),
-                    })
+                    }),
                 );
             };
         };

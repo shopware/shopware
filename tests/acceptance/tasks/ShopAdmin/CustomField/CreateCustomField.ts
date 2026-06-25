@@ -13,7 +13,7 @@ export const CreateCustomField = base.extend<{ CreateCustomField: Task }, Fixtur
                     await (
                         await AdminCustomFieldDetail.getSelectFieldListitem(
                             AdminCustomFieldDetail.customFieldTypeSelectionList,
-                            customFieldTypeText
+                            customFieldTypeText,
                         )
                     ).click();
                 }

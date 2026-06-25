@@ -15,7 +15,10 @@ const documentEndpoints: Record<DocumentTypes, string> = {
     zugferd_embedded_credit_note: '_action/order/document/zugferd_embedded_credit_note/create',
 };
 
-const typesRequiringInvoice: DocumentTypes[] = ['credit_note', 'cancellation_invoice'];
+const typesRequiringInvoice: DocumentTypes[] = [
+    'credit_note',
+    'cancellation_invoice',
+];
 
 export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }, FixtureTypes>({
     CreateDocument: async ({ AdminApiContext, ShopAdmin }, use) => {

@@ -25,11 +25,7 @@ test(
             });
             await ShopAdmin.goesTo(AdminCategories.url());
             await ShopAdmin.attemptsTo(
-                CreateLinkTypeCategory(
-                    categoryData,
-                    categoryCustomizableLinkData,
-                    categoryCustomizableLinkData.category
-                )
+                CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category),
             );
 
             // Verify general data
@@ -37,20 +33,14 @@ test(
             await ShopAdmin.expects(AdminCategories.nameInput).toHaveValue(categoryData.name);
             await ShopAdmin.expects(AdminCategories.activeCheckbox).toBeChecked({ checked: categoryData.status });
             // Verify category customisable link data
-            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(
-                categoryCustomizableLinkData.linkType
-            );
-            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(
-                categoryCustomizableLinkData.entity
-            );
-            await ShopAdmin.expects(AdminCategories.categorySelectionList).toHaveText(
-                categoryCustomizableLinkData.category
-            );
+            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
+            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
+            await ShopAdmin.expects(AdminCategories.categorySelectionList).toHaveText(categoryCustomizableLinkData.category);
             await ShopAdmin.expects(AdminCategories.openInNewTabCheckbox).toBeChecked({
                 checked: categoryCustomizableLinkData.openInNewTab,
             });
         });
-    }
+    },
 );
 
 test(
@@ -80,11 +70,7 @@ test(
             });
             await ShopAdmin.goesTo(AdminCategories.url());
             await ShopAdmin.attemptsTo(
-                CreateLinkTypeCategory(
-                    categoryData,
-                    categoryCustomizableLinkData,
-                    categoryCustomizableLinkData.category
-                )
+                CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category),
             );
 
             // Verify general data
@@ -92,20 +78,16 @@ test(
             await ShopAdmin.expects(AdminCategories.nameInput).toHaveValue(categoryData.name);
             await ShopAdmin.expects(AdminCategories.activeCheckbox).toBeChecked({ checked: categoryData.status });
             // Verify category customisable link data
-            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(
-                categoryCustomizableLinkData.linkType
-            );
-            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(
-                categoryCustomizableLinkData.entity
-            );
+            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
+            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
             await ShopAdmin.expects(AdminCategories.productSelectionList).toContainText(
-                categoryCustomizableLinkData.product
+                categoryCustomizableLinkData.product,
             );
             await ShopAdmin.expects(AdminCategories.openInNewTabCheckbox).toBeChecked({
                 checked: categoryCustomizableLinkData.openInNewTab,
             });
         });
-    }
+    },
 );
 
 test(
@@ -146,11 +128,7 @@ test(
             });
             await ShopAdmin.goesTo(AdminCategories.url(), true);
             await ShopAdmin.attemptsTo(
-                CreateLinkTypeCategory(
-                    categoryData,
-                    categoryCustomizableLinkData,
-                    categoryCustomizableLinkData.category
-                )
+                CreateLinkTypeCategory(categoryData, categoryCustomizableLinkData, categoryCustomizableLinkData.category),
             );
 
             // Verify general data
@@ -158,18 +136,14 @@ test(
             await ShopAdmin.expects(AdminCategories.nameInput).toHaveValue(categoryData.name);
             await ShopAdmin.expects(AdminCategories.activeCheckbox).toBeChecked({ checked: categoryData.status });
             // Verify category customisable link data
-            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(
-                categoryCustomizableLinkData.linkType
-            );
-            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(
-                categoryCustomizableLinkData.entity
-            );
+            await ShopAdmin.expects(AdminCategories.linkTypeSelectionList).toHaveText(categoryCustomizableLinkData.linkType);
+            await ShopAdmin.expects(AdminCategories.entitySelectionList).toHaveText(categoryCustomizableLinkData.entity);
             await ShopAdmin.expects(AdminCategories.landingPageSelectionList).toContainText(
-                categoryCustomizableLinkData.landingPage
+                categoryCustomizableLinkData.landingPage,
             );
             await ShopAdmin.expects(AdminCategories.openInNewTabCheckbox).toBeChecked({
                 checked: categoryCustomizableLinkData.openInNewTab,
             });
         });
-    }
+    },
 );

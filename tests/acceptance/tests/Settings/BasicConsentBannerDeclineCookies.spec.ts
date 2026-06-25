@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a shop customer, I want to continue shopping without accepting the cookies in the storefront.',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontHome, TestDataService, CheckVisibilityInHome }) => {
         const COOKIE_BANNER_VISIBILITY_TIMEOUT = 15_000;
 
@@ -43,5 +48,5 @@ test(
                 timeout: COOKIE_BANNER_VISIBILITY_TIMEOUT,
             });
         });
-    }
+    },
 );

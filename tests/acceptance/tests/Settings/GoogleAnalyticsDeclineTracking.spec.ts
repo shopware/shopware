@@ -2,14 +2,16 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a shop customer, I want to accept only the technically required cookies without activating Google Analytics tracking via the basic cookie consent banner in the storefront.',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontHome, TestDataService, DefaultSalesChannel }) => {
         await test.step('Configure sales channel analytics and verify cookie banner visibility', async () => {
             const salesChannelAnalytics = await TestDataService.createSalesChannelAnalytics();
-            await TestDataService.assignSalesChannelAnalytics(
-                DefaultSalesChannel.salesChannel.id,
-                salesChannelAnalytics.id
-            );
+            await TestDataService.assignSalesChannelAnalytics(DefaultSalesChannel.salesChannel.id, salesChannelAnalytics.id);
 
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
@@ -59,5 +61,5 @@ test(
 
             await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
         });
-    }
+    },
 );

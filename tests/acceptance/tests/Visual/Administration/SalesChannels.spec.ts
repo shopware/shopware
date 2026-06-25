@@ -41,5 +41,5 @@ test(
             });
             await assertScreenshot(AdminSalesChannelDetail.page, 'Sales-Channel-Analytics-Tab.png');
         });
-    }
+    },
 );

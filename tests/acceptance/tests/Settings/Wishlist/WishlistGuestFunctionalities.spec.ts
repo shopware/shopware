@@ -7,9 +7,7 @@ test.describe('Wishlist Guest Functionalities', () => {
         // Get and store current config
         const getCurrentConfig = await TestDataService.AdminApiClient.get('_action/system-config?domain=core');
         if (!getCurrentConfig.ok()) {
-            throw new Error(
-                `Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`
-            );
+            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
         }
         originalConfig = await getCurrentConfig.json();
 
@@ -25,9 +23,7 @@ test.describe('Wishlist Guest Functionalities', () => {
             data: updatedConfig,
         });
         if (!updateResponse.ok()) {
-            throw new Error(
-                `Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`
-            );
+            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
         }
 
         await TestDataService.clearCaches();
@@ -45,7 +41,12 @@ test.describe('Wishlist Guest Functionalities', () => {
 
     test(
         'Guest customer is able to add and remove products to the wishlist',
-        { tag: ['@Wishlist', '@Storefront'] },
+        {
+            tag: [
+                '@Wishlist',
+                '@Storefront',
+            ],
+        },
         async ({
             ShopCustomer,
             StorefrontHeader,
@@ -57,7 +58,10 @@ test.describe('Wishlist Guest Functionalities', () => {
             StorefrontOffCanvasCart,
             HomeProducts,
         }) => {
-            const [product1, product2] = HomeProducts;
+            const [
+                product1,
+                product2,
+            ] = HomeProducts;
 
             await test.step('Navigate to home and accept cookies', async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
@@ -74,7 +78,10 @@ test.describe('Wishlist Guest Functionalities', () => {
                     await ShopCustomer.expects(cookiePreference).toBe('1');
                     await ShopCustomer.expects(wishlistCookie).toBe('1');
                 }).toPass({
-                    intervals: [1_000, 2_500],
+                    intervals: [
+                        1_000,
+                        2_500,
+                    ],
                 });
             });
 
@@ -116,6 +123,6 @@ test.describe('Wishlist Guest Functionalities', () => {
                 await ShopCustomer.expects(product1Locators.productName).toBeVisible();
                 await ShopCustomer.expects(product2Locators.productName).toBeVisible();
             });
-        }
+        },
     );
 });

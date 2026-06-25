@@ -29,7 +29,10 @@ test(
         await TestDataService.createTag(tagName2);
         const tagData = {
             changeType: 'Overwrite',
-            tags: [tagName1, tagName2],
+            tags: [
+                tagName1,
+                tagName2,
+            ],
         };
         const accountData = {
             customerGroup: customerGroupToUpdate.name,
@@ -60,12 +63,18 @@ test(
 
         await test.step('Merchant bulk edits two customers', async () => {
             await ShopAdmin.goesTo(AdminCustomerListing.url());
-            const customers = [customer1, customer2];
+            const customers = [
+                customer1,
+                customer2,
+            ];
             await ShopAdmin.attemptsTo(BulkEditCustomers(customers, accountData, tagData, customFieldData));
         });
 
         await test.step('Verifies the changes applied for bulk edited customers', async () => {
-            for (const customer of [customer1, customer2]) {
+            for (const customer of [
+                customer1,
+                customer2,
+            ]) {
                 //verify general information
                 await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
                 const userCustomerGroup = await AdminCustomerDetail.getCustomerGroup();
@@ -87,10 +96,10 @@ test(
                 await customFieldSetTabContent.customFieldSetTab.click();
                 await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
                 await ShopAdmin.expects(
-                    customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)
+                    customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName),
                 ).toBeVisible();
                 await ShopAdmin.expects(
-                    customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)
+                    customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`),
                 ).toHaveValue(customFieldValue, { timeout: TIMEOUT });
             }
         });
@@ -111,11 +120,11 @@ test(
             await customFieldSetTabContent.customFieldSetTab.click();
             await ShopAdmin.expects(customFieldSetTabContent.customFieldSetTabCustomContent).toBeVisible();
             await ShopAdmin.expects(
-                customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName)
+                customFieldSetTabContent.customFieldSetTabCustomContent.getByText(customFieldTextName),
             ).toBeVisible();
             await ShopAdmin.expects(
-                customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`)
+                customFieldSetTabContent.customFieldSetTabCustomContent.locator(`#${customFieldTextName}`),
             ).toHaveValue('', { timeout: TIMEOUT });
         });
-    }
+    },
 );

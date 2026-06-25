@@ -31,7 +31,7 @@ export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureT
                 // Proceed to generate variants
                 await AdminProductDetail.variantsNextButton.click();
                 await ShopAdmin.expects(
-                    AdminProductDetail.page.getByText('4 variants will be added, 0 variants will be deleted.')
+                    AdminProductDetail.page.getByText('4 variants will be added, 0 variants will be deleted.'),
                 ).toBeVisible();
 
                 // Save variants

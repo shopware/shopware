@@ -83,5 +83,5 @@ test(
                 fullPage: true,
             });
         });
-    }
+    },
 );

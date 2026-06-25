@@ -37,5 +37,5 @@ test(
                 await assertScreenshot(AdminYourProfile.page, 'Your-Profile-Privacy-Preferences-Tab.png');
             });
         }
-    }
+    },
 );

@@ -33,5 +33,5 @@ test(
             ]);
             await assertScreenshot(AdminThemesDetail.page, 'Themes-Detail.png', AdminThemesDetail.contentView);
         });
-    }
+    },
 );

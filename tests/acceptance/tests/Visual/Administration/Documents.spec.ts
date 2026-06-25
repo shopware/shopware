@@ -34,7 +34,10 @@ test(
                 'zugferd_embedded_credit_note',
             ];
 
-            const requiresCreditNote: DocumentTypes[] = ['credit_note', 'zugferd_embedded_credit_note'];
+            const requiresCreditNote: DocumentTypes[] = [
+                'credit_note',
+                'zugferd_embedded_credit_note',
+            ];
 
             for (const type of documents) {
                 if (requiresCreditNote.includes(type)) {
@@ -60,7 +63,7 @@ test(
                     `${type}-document`,
                     AdminOrderDetail.contextMenuOpenDocument,
                     ShopAdmin.expects,
-                    type
+                    type,
                 );
             }
         });
@@ -75,7 +78,7 @@ test(
 
             const order = await TestDataService.createOrder(
                 productsForOrder.map((product) => ({ product, quantity: 1 })),
-                DefaultSalesChannel.customer
+                DefaultSalesChannel.customer,
             );
 
             await CreateDocument({
@@ -92,8 +95,8 @@ test(
                 'invoice-document-multiple-pages',
                 AdminOrderDetail.contextMenuOpenDocument,
                 ShopAdmin.expects,
-                'invoice'
+                'invoice',
             );
         });
-    }
+    },
 );

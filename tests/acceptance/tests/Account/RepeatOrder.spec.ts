@@ -2,7 +2,13 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to repeat a previous order via the storefront account.',
-    { tag: ['@Order', '@Account', '@Storefront'] },
+    {
+        tag: [
+            '@Order',
+            '@Account',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontAccountOrder, StorefrontOffCanvasCart, TestDataService, Login }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
@@ -22,5 +28,5 @@ test(
         await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toContainText('1 item');
         const cartProduct = await StorefrontOffCanvasCart.getLineItemByProductNumber(product.productNumber);
         await ShopCustomer.expects(cartProduct.productQuantityInput).toHaveValue(productQuantity.toString());
-    }
+    },
 );

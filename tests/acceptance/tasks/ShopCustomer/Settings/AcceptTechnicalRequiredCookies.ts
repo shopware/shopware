@@ -14,7 +14,7 @@ export const AcceptTechnicalRequiredCookies = base.extend<AcceptTechnicalRequire
             await ShopCustomer.expects(cookiePermissionButton).toBeVisible();
             await ShopCustomer.presses(cookiePermissionButton);
             await ShopCustomer.expects(
-                StorefrontHome.page.getByRole('region', { name: 'Cookie preferences' })
+                StorefrontHome.page.getByRole('region', { name: 'Cookie preferences' }),
             ).not.toBeVisible();
         };
         await use(acceptTechnicalRequiredCookies);

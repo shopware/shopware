@@ -19,5 +19,5 @@ test(
             }
             await assertScreenshot(AdminDataSharing.page, 'Privacy.png');
         });
-    }
+    },
 );

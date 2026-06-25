@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'Customer is able to verify that wishlist icons disappear when it is disabled.',
-    { tag: ['@Wishlist', '@Storefront'] },
+    {
+        tag: [
+            '@Wishlist',
+            '@Storefront',
+        ],
+    },
     async ({
         TestDataService,
         ShopCustomer,
@@ -41,5 +46,5 @@ test(
             await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).not.toBeVisible();
             await ShopCustomer.expects(offcanvasItem.wishlistNotAddedButton).not.toBeVisible();
         });
-    }
+    },
 );

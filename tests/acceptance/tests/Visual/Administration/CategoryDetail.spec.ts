@@ -19,7 +19,7 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({ ShopAd
         await assertScreenshot(
             AdminCategories.page,
             'Category-Modal.png',
-            AdminCategories.page.locator('.sw-modal__dialog')
+            AdminCategories.page.locator('.sw-modal__dialog'),
         );
         await AdminCategories.configureModalCancelButton.click();
     });

@@ -17,12 +17,10 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
 
         // Get and store current config
         const getCurrentConfig = await TestDataService.AdminApiClient.get(
-            '_action/system-config?domain=core.basicInformation'
+            '_action/system-config?domain=core.basicInformation',
         );
         if (!getCurrentConfig.ok()) {
-            throw new Error(
-                `Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`
-            );
+            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
         }
         originalConfig = await getCurrentConfig.json();
 
@@ -50,9 +48,7 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
             data: updatedConfig,
         });
         if (!updateResponse.ok()) {
-            throw new Error(
-                `Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`
-            );
+            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
         }
 
         await TestDataService.clearCaches();
@@ -71,7 +67,14 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
 
     test(
         'As a customer, I can perform a registration by validating to be not a robot via the invisible Google reCaptcha V2.',
-        { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
+        {
+            tag: [
+                '@Form',
+                '@Registration',
+                '@Captcha',
+                '@Storefront',
+            ],
+        },
         async ({
             ShopCustomer,
             StorefrontAccountLogin,
@@ -96,7 +99,10 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
                     const grecaptchaCookie = cookies.find((c) => c.name === '_GRECAPTCHA');
                     await ShopCustomer.expects(grecaptchaCookie).toBeTruthy();
                 }).toPass({
-                    intervals: [1_000, 2_500],
+                    intervals: [
+                        1_000,
+                        2_500,
+                    ],
                 });
 
                 await waitForRecaptchaScriptLoaded(StorefrontAccountLogin.page);
@@ -105,10 +111,8 @@ test.describe('Google reCAPTCHA V2 Login Tests', () => {
 
             await test.step('Customer attempts to register and is automatically validated via the invisible reCaptcha V2', async () => {
                 await ShopCustomer.attemptsTo(Register(customer));
-                await ShopCustomer.expects(
-                    StorefrontAccount.page.getByText(customer.email, { exact: true })
-                ).toBeVisible();
+                await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
             });
-        }
+        },
     );
 });

@@ -3,7 +3,12 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Shop customers should be able to view products in different languages.',
-    { tag: ['@Languages', '@Storefront'] },
+    {
+        tag: [
+            '@Languages',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, StorefrontHeader, StorefrontHome, InstanceMeta }) => {
         const product = await TestDataService.createBasicProduct();
 
@@ -34,7 +39,10 @@ test(
                 await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
             });
         }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+            intervals: [
+                1_000,
+                2_500,
+            ], // retry after 1 seconds, then every 2.5 seconds
         });
 
         await test.step('Customer can select a different language', async () => {
@@ -53,5 +61,5 @@ test(
             await ShopCustomer.expects(languageDropdown).toContainText('English');
             await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
         });
-    }
+    },
 );

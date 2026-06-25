@@ -13,7 +13,7 @@ export const CustomerGroupActivation = base.extend<{ CustomerGroupActivation: Ta
                 await ShopAdmin.expects(customerGroupAlert).toContainText(customerGroupName);
                 await ShopAdmin.expects(AdminCustomerDetail.customerGroupRequestMessage).toBeVisible();
                 const responsePromise = AdminCustomerDetail.page.waitForResponse(
-                    '**/api/_action/customer-group-registration/accept'
+                    '**/api/_action/customer-group-registration/accept',
                 );
                 await AdminCustomerDetail.customerGroupAcceptButton.click();
                 const customerGroupResponse = await responsePromise;

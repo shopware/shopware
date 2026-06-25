@@ -3,13 +3,7 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'As an admin, I can create and verify customer groups in the admin.',
     { tag: '@CustomerGroups' },
-    async ({
-        TestDataService,
-        ShopAdmin,
-        AdminCustomerGroupListing,
-        AdminCustomerGroupDetail,
-        DefaultSalesChannel,
-    }) => {
+    async ({ TestDataService, ShopAdmin, AdminCustomerGroupListing, AdminCustomerGroupDetail, DefaultSalesChannel }) => {
         const customerGroup = await TestDataService.createCustomerGroup();
 
         await test.step('Verify the created customer group in the admin', async () => {
@@ -24,23 +18,21 @@ test(
             await ShopAdmin.expects(AdminCustomerGroupDetail.customSignupFormToggle).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormTitle).toHaveValue(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormIntroduction).toContainText(
-                `${customerGroup.name}-Introduction`
+                `${customerGroup.name}-Introduction`,
             );
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormSeoDescription).toHaveValue(
-                `${customerGroup.name}-SEO-Description`
+                `${customerGroup.name}-SEO-Description`,
             );
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormCompanySignupToggle).not.toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.selectedSalesChannel).toContainText(
-                DefaultSalesChannel.salesChannel.name
+                DefaultSalesChannel.salesChannel.name,
             );
-            await ShopAdmin.expects(AdminCustomerGroupDetail.technicalUrl).toHaveValue(
-                new RegExp(`${customerGroup.id}`)
-            );
+            await ShopAdmin.expects(AdminCustomerGroupDetail.technicalUrl).toHaveValue(new RegExp(`${customerGroup.id}`));
             await ShopAdmin.expects(AdminCustomerGroupDetail.saleschannelUrl).toHaveValue(
-                new RegExp(`${customerGroup.name}`)
+                new RegExp(`${customerGroup.name}`),
             );
         });
-    }
+    },
 );
 test(
     'As a customer, I can register under a customer group in the Storefront.',
@@ -72,7 +64,7 @@ test(
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
             await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
         });
-    }
+    },
 );
 
 test(
@@ -109,5 +101,5 @@ test(
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo)).toBeVisible();
             await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
         });
-    }
+    },
 );

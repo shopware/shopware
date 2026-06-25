@@ -1,12 +1,16 @@
 import { test, setViewport, assertScreenshot, hideElements } from '@fixtures/AcceptanceTest';
 
 const hideProfilerToolbar = async (page: Parameters<typeof assertScreenshot>[0]) => {
-    await hideElements(page, ['[id^="sfwdt"]', '.sf-toolbar', '.sf-minitoolbar']);
+    await hideElements(page, [
+        '[id^="sfwdt"]',
+        '.sf-toolbar',
+        '.sf-minitoolbar',
+    ]);
 };
 
 const prepareDetailScreenshot = async (
     page: Parameters<typeof assertScreenshot>[0],
-    waitForSelector: Parameters<typeof setViewport>[1]['waitForSelector']
+    waitForSelector: Parameters<typeof setViewport>[1]['waitForSelector'],
 ) => {
     await setViewport(page, {
         width: 1440,
@@ -68,5 +72,5 @@ test(
         await test.step('Delete the created layout.', async () => {
             await AdminApiContext.delete(`cms-page/${createdLayoutId}`);
         });
-    }
+    },
 );

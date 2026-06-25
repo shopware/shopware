@@ -27,7 +27,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
         async ({ SalesChannelBaseConfig, browser, TestDataService, InstanceMeta }) => {
             test.skip(
                 satisfies(InstanceMeta.version, '<6.7.9.0'),
-                'Data sharing consent modal only available since version 6.7.9.0'
+                'Data sharing consent modal only available since version 6.7.9.0',
             );
 
             const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -99,10 +99,13 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
                     expect.arrayContaining([
                         expect.objectContaining({
                             properties: expect.objectContaining({
-                                consents_shown: expect.arrayContaining(['backend_data', 'product_analytics']),
+                                consents_shown: expect.arrayContaining([
+                                    'backend_data',
+                                    'product_analytics',
+                                ]),
                             }),
                         }),
-                    ])
+                    ]),
                 );
 
                 expect(consentStatusChangeEvents).toEqual(
@@ -119,7 +122,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
                                 status: 'declined',
                             }),
                         }),
-                    ])
+                    ]),
                 );
 
                 expect(consentModalDecisionEvents).toEqual(
@@ -132,7 +135,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
                                 product_analytics_state: 'revoked',
                             }),
                         }),
-                    ])
+                    ]),
                 );
             });
 
@@ -163,7 +166,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             await test.step('Cleanup created user.', async () => {
                 await page.close();
             });
-        }
+        },
     );
 
     test(
@@ -172,7 +175,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
         async ({ SalesChannelBaseConfig, browser, TestDataService, InstanceMeta }) => {
             test.skip(
                 satisfies(InstanceMeta.version, '<6.7.9.0'),
-                'Data sharing consent modal only available since version 6.7.9.0'
+                'Data sharing consent modal only available since version 6.7.9.0',
             );
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
@@ -206,7 +209,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             await test.step('Cleanup.', async () => {
                 await page.close();
             });
-        }
+        },
     );
 
     test(
@@ -215,7 +218,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
         async ({ TestDataService, SalesChannelBaseConfig, browser, InstanceMeta }) => {
             test.skip(
                 satisfies(InstanceMeta.version, '<6.7.9.0'),
-                'Data sharing consent modal only available since version 6.7.9.0'
+                'Data sharing consent modal only available since version 6.7.9.0',
             );
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
@@ -275,7 +278,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             await test.step('Cleanup.', async () => {
                 await page.close();
             });
-        }
+        },
     );
 
     test(
@@ -284,7 +287,7 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
         async ({ SalesChannelBaseConfig, browser, TestDataService, InstanceMeta }) => {
             test.skip(
                 satisfies(InstanceMeta.version, '<6.7.9.0'),
-                'Data sharing consent modal only available since version 6.7.9.0'
+                'Data sharing consent modal only available since version 6.7.9.0',
             );
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
@@ -332,6 +335,6 @@ test.describe('Product Analytics - Consent Modal Validation', { tag: '@ProductAn
             await test.step('Cleanup.', async () => {
                 await page.close();
             });
-        }
+        },
     );
 });

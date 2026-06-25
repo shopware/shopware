@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'Customers can add or remove products from their wishlist.',
-    { tag: ['@Wishlist', '@Storefront'] },
+    {
+        tag: [
+            '@Wishlist',
+            '@Storefront',
+        ],
+    },
     async ({
         TestDataService,
         ShopCustomer,
@@ -18,7 +23,11 @@ test(
     }) => {
         await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
 
-        const [product1, product2, product3] = HomeProducts;
+        const [
+            product1,
+            product2,
+            product3,
+        ] = HomeProducts;
 
         const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
         const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
@@ -64,5 +73,5 @@ test(
             await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
             await ShopCustomer.expects(itemPrice).toBe(expectedPrice);
         });
-    }
+    },
 );

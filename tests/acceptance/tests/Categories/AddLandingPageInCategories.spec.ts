@@ -37,7 +37,7 @@ test(
                 checked: landingPageData.status,
             });
             await ShopAdmin.expects(AdminLandingPageDetail.salesChannelSelectionList).toHaveText(
-                landingPageData.salesChannel
+                landingPageData.salesChannel,
             );
             await ShopAdmin.expects(AdminLandingPageDetail.seoUrlInput).toHaveValue(landingPageData.seoUrl);
             // Verify layout tab detail
@@ -55,5 +55,5 @@ test(
             const deleteButton = ShopAdmin.page.locator('.sw-category-detail-layout__layout-reset').first();
             await ShopAdmin.expects(deleteButton).toBeVisible();
         });
-    }
+    },
 );

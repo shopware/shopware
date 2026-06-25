@@ -3,7 +3,12 @@ import { Product } from '@shopware-ag/acceptance-test-suite';
 
 test(
     'Product is visible in listing and storefront search when set to "Visible".',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -41,12 +46,17 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
         });
-    }
+    },
 );
 
 test(
     'Product is visible in storefront search but hidden from listing when set to "Hide in listings".',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -80,30 +90,38 @@ test(
             await test.step('Verify the product appears in storefront search results.', async () => {
                 await ShopCustomer.attemptsTo(SearchForTerm(product.name));
                 await ShopCustomer.expects(
-                    StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)
+                    StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name),
                 ).toBeVisible();
                 const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
 
                 // if we create other products in parallel - for example by using workers - we might find multiple results
                 await ShopCustomer.expects(totalCount1).toBeGreaterThanOrEqual(1);
                 await ShopCustomer.expects(
-                    StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)
+                    StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name),
                 ).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+            intervals: [
+                1_000,
+                2_500,
+            ], // retry after 1 seconds, then every 2.5 seconds
         });
 
         await test.step('Verify the product can be accessed directly via its URL.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
         });
-    }
+    },
 );
 
 test(
     'Product is hidden from both listing and storefront search when set to "Hide in listings and search".',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -137,7 +155,7 @@ test(
             await ShopCustomer.attemptsTo(SearchForTerm(product.name));
             // if we have other test products the result might not be empty but our product should not be in the list
             await ShopCustomer.expects(
-                StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)
+                StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name),
             ).not.toBeVisible();
         });
 
@@ -145,12 +163,17 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
         });
-    }
+    },
 );
 
 test(
     'Product is not visible without adding it to the sales channel.',
-    { tag: ['@Product', '@Storefront'] },
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -178,15 +201,15 @@ test(
             await ShopCustomer.attemptsTo(SearchForTerm(product.name));
             // if we have other test products the result might not be empty but our product should not be in the list
             await ShopCustomer.expects(
-                StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)
+                StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name),
             ).not.toBeVisible();
         });
 
         await test.step('Verify the product can still be accessed directly via its URL.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.expects(
-                StorefrontProductDetail.page.locator('h1', { hasText: product.name })
+                StorefrontProductDetail.page.locator('h1', { hasText: product.name }),
             ).not.toBeVisible();
         });
-    }
+    },
 );

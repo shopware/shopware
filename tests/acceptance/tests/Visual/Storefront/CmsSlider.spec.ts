@@ -12,8 +12,24 @@ test(
     async ({ ShopCustomer, TestDataService, IdProvider, StorefrontHome }) => {
         await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
-        const firstMedia = await TestDataService.createMediaPNGSolid(1200, 800, [255, 0, 0]);
-        const secondMedia = await TestDataService.createMediaPNGSolid(1000, 700, [0, 150, 255]);
+        const firstMedia = await TestDataService.createMediaPNGSolid(
+            1200,
+            800,
+            [
+                255,
+                0,
+                0,
+            ],
+        );
+        const secondMedia = await TestDataService.createMediaPNGSolid(
+            1000,
+            700,
+            [
+                0,
+                150,
+                255,
+            ],
+        );
 
         const imageSliderBlockId = IdProvider.getIdPair().uuid;
         const imageGalleryBlockId = IdProvider.getIdPair().uuid;
@@ -39,7 +55,10 @@ test(
                                     config: {
                                         sliderItems: {
                                             source: 'static',
-                                            value: [{ mediaId: firstMedia.id }, { mediaId: secondMedia.id }],
+                                            value: [
+                                                { mediaId: firstMedia.id },
+                                                { mediaId: secondMedia.id },
+                                            ],
                                         },
                                         displayMode: {
                                             source: 'static',
@@ -90,7 +109,10 @@ test(
                                     config: {
                                         sliderItems: {
                                             source: 'static',
-                                            value: [{ mediaId: firstMedia.id }, { mediaId: secondMedia.id }],
+                                            value: [
+                                                { mediaId: firstMedia.id },
+                                                { mediaId: secondMedia.id },
+                                            ],
                                         },
                                         displayMode: {
                                             source: 'static',
@@ -142,18 +164,16 @@ test(
             await ShopCustomer.goesTo(`/navigation/${category.id}`);
 
             const imageSliderContainer = StorefrontHome.page.locator(
-                '.image-slider-container.has-vertical-align.is-align-center'
+                '.image-slider-container.has-vertical-align.is-align-center',
             );
             const gallerySliderContainer = StorefrontHome.page.locator(
-                '.gallery-slider-container.has-vertical-align.is-align-bottom'
+                '.gallery-slider-container.has-vertical-align.is-align-bottom',
             );
 
             await expect(imageSliderContainer).toBeVisible();
             await expect(gallerySliderContainer).toBeVisible();
 
-            await expect(StorefrontHome.page.locator('main .cms-section')).toHaveScreenshot(
-                'Cms-Slider-Vertical-Align.png'
-            );
+            await expect(StorefrontHome.page.locator('main .cms-section')).toHaveScreenshot('Cms-Slider-Vertical-Align.png');
         });
-    }
+    },
 );

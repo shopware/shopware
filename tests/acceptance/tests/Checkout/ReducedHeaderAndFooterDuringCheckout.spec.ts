@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to see a reduced header and footer during checkout.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -38,5 +43,5 @@ test(
             await ShopCustomer.expects(StorefrontFooter.footerHotline).not.toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerContactForm).not.toBeVisible();
         });
-    }
+    },
 );

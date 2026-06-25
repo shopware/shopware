@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a shop customer, I want use a basic cookie consent banner in the storefront.',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontHome }) => {
         await test.step('Navigate to homepage and verify initial cookie banner visibility and content', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
@@ -12,14 +17,12 @@ test(
             const isAcceptAllVisible = await acceptAllButton.isVisible().catch(() => false);
             // The button might be visible if acceptAllCookies config is enabled from a previous test
             if (isAcceptAllVisible) {
-                console.warn(
-                    'Accept All Cookies button is visible - this may indicate config bleed from previous test'
-                );
+                console.warn('Accept All Cookies button is visible - this may indicate config bleed from previous test');
             }
             await ShopCustomer.expects(StorefrontHome.consentOnlyTechnicallyRequiredButton).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.consentConfigureButton).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.consentCookiePermissionContent).toContainText(
-                'This website uses cookies to ensure the best experience possible.'
+                'This website uses cookies to ensure the best experience possible.',
             );
         });
 
@@ -56,5 +59,5 @@ test(
             ShopCustomer.expects(cookiePreference?.value).toEqual('1');
             await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
         });
-    }
+    },
 );

@@ -14,5 +14,5 @@ test(
                 fullPage: true,
             });
         });
-    }
+    },
 );

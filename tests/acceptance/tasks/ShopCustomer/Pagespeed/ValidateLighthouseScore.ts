@@ -11,13 +11,10 @@ type ValidateLighthouseScoreType = (
         'best-practices': number;
         seo: number;
     },
-    port: number
+    port: number,
 ) => () => Promise<void>;
 
-export const ValidateLighthouseScore = base.extend<
-    { ValidateLighthouseScore: ValidateLighthouseScoreType },
-    FixtureTypes
->({
+export const ValidateLighthouseScore = base.extend<{ ValidateLighthouseScore: ValidateLighthouseScoreType }, FixtureTypes>({
     ValidateLighthouseScore: async ({}, use) => {
         const task: ValidateLighthouseScoreType = (
             page: Page,
@@ -28,7 +25,7 @@ export const ValidateLighthouseScore = base.extend<
                 'best-practices': 50,
                 seo: 30,
             },
-            port = 9222
+            port = 9222,
         ) => {
             return async function ValidateLighthouseScore() {
                 await playAudit({

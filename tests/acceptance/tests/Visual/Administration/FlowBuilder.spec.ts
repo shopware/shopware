@@ -1,11 +1,4 @@
-import {
-    test,
-    setViewport,
-    replaceElements,
-    hideElements,
-    assertScreenshot,
-    FlowConfig,
-} from '@fixtures/AcceptanceTest';
+import { test, setViewport, replaceElements, hideElements, assertScreenshot, FlowConfig } from '@fixtures/AcceptanceTest';
 
 test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({ ShopAdmin, AdminFlowBuilderListing }) => {
     await test.step('Create a screenshot of the flow listing.', async () => {
@@ -75,5 +68,5 @@ test(
             ]);
             await assertScreenshot(AdminFlowBuilderDetail.page, 'Flow-Builder-Detail-Flow-Tab.png');
         });
-    }
+    },
 );

@@ -3,7 +3,12 @@ import { satisfies } from 'compare-versions';
 
 test(
     'As a merchant, I would be able to adjust free tax for defined currency.',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -69,5 +74,5 @@ test(
         const orderId = StorefrontCheckoutFinish.getOrderId();
 
         TestDataService.addCreatedRecord('order', orderId);
-    }
+    },
 );

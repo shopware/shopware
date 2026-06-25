@@ -22,7 +22,7 @@ test(
     async ({ TestDataService, browser, SalesChannelBaseConfig, InstanceMeta }) => {
         test.skip(
             satisfies(InstanceMeta.version, '<6.7.9.0'),
-            'Data sharing consent modal only available since version 6.7.9.0'
+            'Data sharing consent modal only available since version 6.7.9.0',
         );
 
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
@@ -60,5 +60,5 @@ test(
 
             await assertScreenshot(AdminDataSharingConsentModal.page, 'Modal-Data-Sharing-Consent.png');
         });
-    }
+    },
 );

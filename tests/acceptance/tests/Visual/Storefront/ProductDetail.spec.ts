@@ -18,7 +18,7 @@ test(
                 fullPage: true,
             });
         });
-    }
+    },
 );
 
 test(
@@ -56,5 +56,5 @@ test(
                 fullPage: true,
             });
         });
-    }
+    },
 );

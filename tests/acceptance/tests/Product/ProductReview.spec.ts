@@ -3,7 +3,11 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'As a shop customer, I want to see reviews of a product.',
     {
-        tag: ['@Product', '@Reviews', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Reviews',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail }) => {
         const productWithRating1 = await TestDataService.createBasicProduct();
@@ -17,13 +21,17 @@ test(
         await ShopCustomer.expects(StorefrontProductDetail.productReviewsLink).toHaveText('2 Reviews');
         await ShopCustomer.expects(StorefrontProductDetail.reviewCounter).toContainText('2 reviews');
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
-    }
+    },
 );
 
 test(
     'As a shop customer, I want to submit a review, so that I can share my experience with the product',
     {
-        tag: ['@Product', '@Reviews', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Reviews',
+            '@Storefront',
+        ],
         annotation: {
             type: 'issue',
             description: 'https://github.com/shopware/shopware/issues/13219',
@@ -42,7 +50,7 @@ test(
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toBeVisible();
             await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(0);
             await ShopCustomer.expects(StorefrontProductDetail.reviewEmptyListingText).toContainText(
-                'No reviews found. Share your insights with others.'
+                'No reviews found. Share your insights with others.',
             );
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserText).toHaveText('Leave a review!');
         });
@@ -66,17 +74,23 @@ test(
                 //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
                 await StorefrontProductDetail.reviewRatingPoints.nth(i).click();
                 await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass(
-                    'product-detail-review-form-star is-active'
+                    'product-detail-review-form-star is-active',
                 );
                 await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))
+                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
                 ).not.toHaveClass('d-none');
                 await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))
+                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
                 ).toBeVisible();
-                const expectedTexts = ['Unsatisfactory', 'Acceptable', 'Good', 'Very good', 'Excellent'];
+                const expectedTexts = [
+                    'Unsatisfactory',
+                    'Acceptable',
+                    'Good',
+                    'Very good',
+                    'Excellent',
+                ];
                 await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))
+                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
                 ).toHaveText(expectedTexts[i]);
             }
         });
@@ -101,7 +115,7 @@ test(
 
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toContainText('Edit review');
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserText).toContainText(
-                'You have already reviewed this product!'
+                'You have already reviewed this product!',
             );
         });
 
@@ -114,17 +128,22 @@ test(
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserButton).toContainText('Write review');
             await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(0);
             await ShopCustomer.expects(StorefrontProductDetail.reviewEmptyListingText).toContainText(
-                'No reviews found. Share your insights with others.'
+                'No reviews found. Share your insights with others.',
             );
             await ShopCustomer.expects(StorefrontProductDetail.reviewTeaserText).toContainText('Leave a review!');
         });
-    }
+    },
 );
 
+// eslint-disable-next-line playwright/no-skipped-test
 test.skip(
     'As a shop customer, I want to filter reviews, so that I can find the content of a specific rating',
     {
-        tag: ['@Product', '@Reviews', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Reviews',
+            '@Storefront',
+        ],
         annotation: {
             type: 'issue',
             description: 'https://github.com/shopware/shopware/issues/14414',
@@ -175,13 +194,17 @@ test.skip(
 
             await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
         });
-    }
+    },
 );
 
 test(
     'As a shop customer, I want to filter reviews by rating, log in and come back to the product detail page.',
     {
-        tag: ['@Product', '@Reviews', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Reviews',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, LoginViaReviewsTab }) => {
         const customer = await TestDataService.createCustomer();
@@ -200,8 +223,7 @@ test(
         });
 
         await test.step('Filter down the reviews of the product by rating', async () => {
-            const reviewFilterRowOptions =
-                await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent (2)');
+            const reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent (2)');
             await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
             await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
             await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
@@ -215,5 +237,5 @@ test(
 
             await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
         });
-    }
+    },
 );

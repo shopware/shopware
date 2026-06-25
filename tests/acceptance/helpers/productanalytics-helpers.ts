@@ -63,7 +63,10 @@ const JSON_HEADERS = {
     'Content-Type': 'application/json',
 };
 
-const CONSENT_NAMES: ConsentName[] = ['backend_data', 'product_analytics'];
+const CONSENT_NAMES: ConsentName[] = [
+    'backend_data',
+    'product_analytics',
+];
 
 export function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
     const requests: ProductAnalyticsRequestPayload[] = [];
@@ -265,12 +268,16 @@ export async function waitForEventCount(
     options?: {
         timeout?: number;
         intervals?: number[];
-    }
+    },
 ) {
     await expect
         .poll(() => getEvents().length, {
             timeout: options?.timeout ?? 10_000,
-            intervals: options?.intervals ?? [1000, 2000, 3000],
+            intervals: options?.intervals ?? [
+                1000,
+                2000,
+                3000,
+            ],
         })
         .toBe(expectedCount);
 }

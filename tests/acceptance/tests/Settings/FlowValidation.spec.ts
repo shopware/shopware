@@ -56,5 +56,5 @@ test(
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             await ShopAdmin.expects(AdminCustomerDetail.tagList).toContainText(tagTrue.name);
         });
-    }
+    },
 );

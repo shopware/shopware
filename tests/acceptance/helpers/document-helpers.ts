@@ -41,16 +41,31 @@ const baseCreditNoteMasks: MaskRegion[] = [
 ];
 
 const documentMasks: Record<DocumentTypes, MaskRegion[]> = {
-    invoice: [...baseInvoiceMasks, { x: 110, y: 18, width: 45, height: 20 }],
-    zugferd_embedded_invoice: [...baseInvoiceMasks, { x: 182, y: 18, width: 115, height: 20 }],
+    invoice: [
+        ...baseInvoiceMasks,
+        { x: 110, y: 18, width: 45, height: 20 },
+    ],
+    zugferd_embedded_invoice: [
+        ...baseInvoiceMasks,
+        { x: 182, y: 18, width: 115, height: 20 },
+    ],
     cancellation_invoice: [
         ...baseCancellationInvoiceMasks,
         { x: 144, y: 18, width: 45, height: 20 },
         { x: 245, y: 18, width: 45, height: 20 },
     ],
-    zugferd_embedded_cancellation_invoice: [...baseCancellationInvoiceMasks, { x: 182, y: 18, width: 115, height: 20 }],
-    credit_note: [...baseCreditNoteMasks, { x: 130, y: 18, width: 70, height: 20 }],
-    zugferd_embedded_credit_note: [...baseCreditNoteMasks, { x: 182, y: 18, width: 115, height: 20 }],
+    zugferd_embedded_cancellation_invoice: [
+        ...baseCancellationInvoiceMasks,
+        { x: 182, y: 18, width: 115, height: 20 },
+    ],
+    credit_note: [
+        ...baseCreditNoteMasks,
+        { x: 130, y: 18, width: 70, height: 20 },
+    ],
+    zugferd_embedded_credit_note: [
+        ...baseCreditNoteMasks,
+        { x: 182, y: 18, width: 115, height: 20 },
+    ],
     delivery_note: [
         { x: 145, y: 18, width: 45, height: 20 },
         { x: 238, y: 18, width: 45, height: 20 },
@@ -65,13 +80,19 @@ export async function screenshotDocument(
     triggerLocator: Locator,
     expects: typeof expect,
     documentType: DocumentTypes,
-    additionalMasks: MaskRegion[] = []
+    additionalMasks: MaskRegion[] = [],
 ) {
     const page = triggerLocator.page();
 
-    const maskRegions = [...documentMasks[documentType], ...additionalMasks];
+    const maskRegions = [
+        ...documentMasks[documentType],
+        ...additionalMasks,
+    ];
 
-    const [pdfPage] = await Promise.all([page.context().waitForEvent('page'), triggerLocator.click()]);
+    const [pdfPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        triggerLocator.click(),
+    ]);
 
     await pdfPage.setViewportSize({ width: 1000, height: 1000 });
 

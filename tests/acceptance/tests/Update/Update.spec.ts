@@ -54,5 +54,5 @@ test(
         await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
             timeout: 60000,
         });
-    }
+    },
 );

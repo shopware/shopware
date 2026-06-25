@@ -16,7 +16,7 @@ We need a documentation model that:
 - keeps always-needed agent instructions visible,
 - keeps reusable coding rules in one durable place,
 - avoids duplicate agent-specific guidance and README-only stubs,
-- keeps task-specific rules out of the always-loaded root context while versioning them with the platform docs and code they describe,
+- keeps task-specific rules out of the always-loaded root context,
 - keeps local setup, tool preferences, Docker setup, and approval rules out of tracked project documentation.
 
 ## Decision
@@ -25,11 +25,18 @@ We need a documentation model that:
 2. Main subtree `AGENTS.md` files are allowed when they hold real subtree rules or route to substantial existing guidance.
 3. Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
    **Exception:** every tracked `AGENTS.md` has a sibling `CLAUDE.md` whose only body is `@AGENTS.md`, so Claude Code loads the same guidance without duplicating rules.
-4. Shopware-specific task guidance lives in Agent Skills under `.claude/skills/` in this repository, not in a dedicated skills repository. These skills depend on branch-local `AGENTS.md`, `coding-guidelines/`, ADRs, and PR conventions, so they should be reviewed and versioned with the platform code they describe.
+4. Task-specific guidance lives in Agent Skills under `.claude/skills/`, where it loads only when the task asks for it.
 5. Reusable normative rules belong in `coding-guidelines/`.
 6. Folder-specific human guidance may live in an existing README when contributors naturally read that README for the work.
 7. ADRs capture durable decisions, trade-offs, and consequences; they should not become living checklists.
 8. Local-only agent mechanics stay in untracked override files such as `AGENTS.override.md`.
+
+## Skill Location
+
+Shopware-specific skills live in this repository under `.claude/skills/`.
+They are branch-local guidance tied to `AGENTS.md`, `coding-guidelines/`, ADRs, PR conventions, and the platform code they describe. Keeping them here makes guidance changes reviewable with the related platform change and avoids a separate install or sync step for agents working from this checkout.
+
+The accepted downsides are that exact reuse across plugin or other repositories is harder, and skill experiments create normal product-repo PR noise. A dedicated skills repository is reserved for genuinely generic skills that do not depend on branch-local Shopware guidance.
 
 ## Initial Skills
 
@@ -49,19 +56,6 @@ We need a documentation model that:
 - Humans and agents still share durable coding rules through `AGENTS.md`, `coding-guidelines/`, and existing README files.
 - Rules that only matter for certain tasks can trigger as skills instead of occupying every session.
 - The repository accepts one-line Claude bridge files only where real `AGENTS.md` guidance exists, while avoiding duplicated agent-specific guidance.
-- Keeping skills in this repository makes exact reuse across plugin repositories harder. As a lightweight workaround, plugin repositories may point their own `AGENTS.md` at a neighbouring platform checkout's `AGENTS.md` and selected platform skills. This is a hint for agents, not skill installation; copy or sync selected skills only when another repository needs reliable triggering.
-
-Example plugin `AGENTS.md`:
-
-```md
-## Shopware Guidance
-
-This plugin follows Shopware platform guidance. If available, read:
-- `../platform/AGENTS.md`
-- `../platform/.claude/skills/shopware-php-code/SKILL.md`
-- `../platform/.claude/skills/shopware-phpunit-tests/SKILL.md`
-- `../platform/.claude/skills/shopware-pr-hygiene/SKILL.md`
-```
 
 ## Rejected Alternatives
 

@@ -24,8 +24,7 @@ Put knowledge in the smallest durable home where future readers will naturally f
 - `coding-guidelines/`: durable normative coding rules, rationale, and examples useful to humans and agents.
 - Existing README: folder-specific human guidance when contributors naturally read that README for the work.
 - ADR: durable decisions with real trade-offs, consequences, or future compatibility impact.
-- Skill: task triggers, short workflows, and non-obvious rules that help an agent decide what to do next. Keep Shopware-specific skills in this repository so they stay versioned with platform guidance.
-- Plugin repository `AGENTS.md`: may point at a neighbouring platform checkout's `AGENTS.md` and selected platform skills as a reuse workaround.
+- Skill: task triggers, short workflows, and non-obvious rules that help an agent decide what to do next.
 - Local untracked notes: personal setup, Docker worktree notes, approval rules, tool preferences, and other machine-local knowledge.
 
 ## Skills And Coding Guidelines
@@ -41,8 +40,6 @@ Put knowledge in the smallest durable home where future readers will naturally f
 
 - Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
 - Do not put independent guidance in `CLAUDE.md`; it only imports the sibling `AGENTS.md`.
-- Do not assume parent-repo skills auto-load in plugin repositories; copy or sync selected skills only when reliable triggering is needed.
-- Do not move Shopware-specific skills to a dedicated shared skills repository just for reuse; use that only for genuinely generic skills.
 - Do not duplicate ADR or coding-guideline content in READMEs.
 - Do not add README or AGENTS files just to index `coding-guidelines/`.
 - Keep local setup, Docker worktree notes, approval rules, and personal tool preferences in untracked local notes, not tracked project docs.

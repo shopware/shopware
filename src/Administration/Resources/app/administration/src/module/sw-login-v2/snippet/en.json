@@ -1,0 +1,19 @@
+{
+    "sw-login-v2": {
+        "general": {
+            "moduleTitle": "Login"
+        },
+        "credentials": {
+            "title": "Log in to Shopware",
+            "buttonSsoLogin": "With Shopware Account",
+            "orContinueWith": "or continue with",
+            "labelUsername": "Username",
+            "labelPassword": "Password",
+            "labelKeepLoggedIn": "Keep me logged in",
+            "buttonLogin": "Log in",
+            "forgotPassword": "Forgot password?",
+            "warningTooManyAttempts": "Too many login attempts. Please try again later.",
+            "errorInvalidCredentials": "Incorrect username or password"
+        }
+    }
+}

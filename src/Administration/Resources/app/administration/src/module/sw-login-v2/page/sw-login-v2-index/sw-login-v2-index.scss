@@ -1,0 +1,18 @@
+.sw-login-v2-index {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: var(--color-elevation-surface-sunken);
+    gap: var(--scale-size-32);
+
+    &__card {
+        width: 100%;
+        max-width: 33.75rem;
+        background: var(--color-elevation-surface-raised);
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-card);
+        padding: var(--scale-size-40);
+    }
+}

@@ -50,7 +50,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
 
         $routeParams = $request->attributes->get('_route_params', []);
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page');
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 

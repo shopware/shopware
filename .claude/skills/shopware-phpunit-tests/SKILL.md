@@ -1,9 +1,6 @@
 ---
 name: shopware-phpunit-tests
-description: Write or update Shopware PHPUnit tests. Use when adding unit, integration, migration, or BC tests; working with data providers, feature flags, filesystem scenarios, Doctrine DBAL boundaries, coverage annotations, or exception assertions.
-paths:
-  - "**/tests/**/*.php"
-  - "**/*Test.php"
+description: Write or update Shopware PHPUnit tests. Use when adding or changing tests under tests/ (unit, integration, migration, BC) — including data providers, feature flags, and coverage annotations.
 license: MIT
 ---
 

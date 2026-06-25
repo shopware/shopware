@@ -66,6 +66,8 @@
             "labelInputShippingMethods": "Shipping methods",
             "labelInputPaymentMethods": "Payment methods",
             "labelInputCountries": "Countries",
+            "labelBusinessTimeZone": "Business timezone",
+            "helpTextBusinessTimeZone": "Timezone used whenever a date or time is printed in documents of this Sales Channel. If empty, no business timezone override is applied.",
             "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
             "helpTextTaxCalculation": {
                 "label": "If a tax provider is activated, these settings may be overwritten. You can check this in {link}.",

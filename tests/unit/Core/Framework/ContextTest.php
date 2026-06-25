@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -51,6 +52,19 @@ class ContextTest extends TestCase
         });
 
         static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
+    }
+
+    public function testExplicitSystemScopeSuppressesDalWriteEventState(): void
+    {
+        $context = Context::createDefaultContext(new AdminApiSource('user-id'));
+        $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context): void {
+            static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
+        });
+
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertTrue($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
     }
 
     public function testVersionChange(): void

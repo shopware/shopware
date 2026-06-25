@@ -21,11 +21,21 @@ That is not enough as a platform behavior because existing extensions do not alw
 
 DAL post-write event dispatch runs in `Context::SYSTEM_SCOPE`, while preserving the same `Context` instance and source.
 The context source must not be replaced with `SystemSource`.
+While dispatching these events, the context is marked with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT`.
+The marker identifies system scope that was added by DAL post-write dispatch, not by explicit application code.
 
 Conceptually:
 
 ```php
-$context->scope(Context::SYSTEM_SCOPE, fn () => $eventDispatcher->dispatch($event));
+$context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($event): void {
+    $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+    try {
+        $eventDispatcher->dispatch($event);
+    } finally {
+        $context->removeState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+    }
+});
 ```
 
 API ACL validation remains attached to the original write commands and payload.
@@ -33,6 +43,9 @@ Listeners that use the event context for follow-up DAL writes execute those writ
 
 The original caller identity stays available through the preserved context source.
 Listeners that intentionally need a user permission decision can still check the source or call `Context::isAllowed()` explicitly.
+Subsystems that use system scope for non-ACL behavior can use `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` to distinguish implicit DAL write-event system scope from an explicit system-scope opt-in.
+For example, private media visibility restrictions still apply during implicit DAL write-event dispatch.
+If a listener deliberately needs private media access, it can still wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; re-entering system scope suppresses the DAL write-event marker for that callback.
 
 ## Affected Events
 
@@ -71,6 +84,7 @@ Moving pre-write validation events to system scope would skip the caller's actua
 - Listener writes using the event context bypass DAL write ACL because the scope is system.
 - Nested writes triggered by listeners inherit system scope while dispatch is running.
 - Listeners that branch on `Context::getScope()` may observe `system` instead of `crud` during DAL write events.
+- Private media visibility is not implicitly widened by this change; extensions still need an explicit system-scope read when they intentionally access private media.
 
 ## Rejected Alternatives
 
@@ -78,5 +92,5 @@ Moving pre-write validation events to system scope would skip the caller's actua
 - **Only document the best practice:** keeps the model clean, but does not fix existing extensions that already break API clients.
 - **Require plugins to declare listener permissions:** makes permission impact visible, but keeps API permissions coupled to plugin internals.
 - **Expand roles when plugins are installed:** avoids some runtime failures, but grants extension entity access outside the specific side effect.
-- **Use a custom "skip listener ACL" flag:** is narrower in name, but duplicates the existing `SYSTEM_SCOPE` mechanism without a clear extra benefit.
+- **Use a custom "skip listener ACL" flag instead of system scope:** is narrower in name, but would introduce a second ACL bypass path for write validation. The accepted state is only a marker for subsystems that must distinguish implicit DAL write-event system scope from explicit system scope.
 - **Move listener side effects to async jobs:** is useful for indexing and denormalized data, but not a general fix for synchronous invariants.

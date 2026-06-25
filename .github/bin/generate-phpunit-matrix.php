@@ -1,9 +1,40 @@
 <?php
 
+$nightly = $_SERVER['argv'][1] ?? false;
+$major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
+
+// Integration shards: the paths + framework batches together cover the whole tests/integration tree.
+$integrationTests = [
+    ['path' => 'Core/Checkout'],
+    ['path' => 'Core/Content'],
+    ['testsuite' => 'core-framework-batch1'],
+    ['testsuite' => 'core-framework-batch2'],
+    ['testsuite' => 'core-framework-batch3'],
+    ['path' => 'Storefront'],
+    ['path' => '{Administration,Elasticsearch}'],
+    ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
+];
+
+if ($major) {
+    // Nightly major-flagged integration run: every integration shard once on a single PHP/DB/OpenSearch.
+    // FEATURE_ALL=major coverage is about the flag (and the matching major-migrated schema), not the
+    // PHP/DB cross-product, which the regular nightly matrix already exercises. The migration suite is
+    // excluded here because php.yml already runs it under FEATURE_ALL=major.
+    echo \json_encode([
+        'fail-fast' => false,
+        'matrix' => [
+            'test' => $integrationTests,
+            'php' => ['8.2'],
+            'db' => ['mysql:8.0'],
+            'opensearch' => ['opensearchproject/opensearch:3'],
+        ],
+    ], \JSON_THROW_ON_ERROR);
+
+    return;
+}
+
 $php = ['8.2'];
 $db = ['mysql:8.0'];
-
-$nightly = $_SERVER['argv'][1] ?? false;
 
 if ($nightly) {
     $php = ['8.2', '8.5'];
@@ -13,17 +44,9 @@ if ($nightly) {
 $matrix = [
     'fail-fast' => false,
     'matrix' => [
-        'test' => [
-            ['path' => 'Core/Checkout'],
-            ['path' => 'Core/Content'],
-            ['testsuite' => 'core-framework-batch1'],
-            ['testsuite' => 'core-framework-batch2'],
-            ['testsuite' => 'core-framework-batch3'],
-            ['path' => 'Storefront'],
-            ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
+        'test' => array_merge($integrationTests, [
             ['testsuite' => 'migration'],
-        ],
+        ]),
         'php' => $php,
         'db' => $db,
         'opensearch' => ['opensearchproject/opensearch:3'],

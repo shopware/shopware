@@ -51,6 +51,17 @@
         />
         {% endblock %}
 
+        {% block sw_cms_layout_assignment_modal_mt_tabs_permission_warning %}
+        {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips. #}
+        <mt-banner
+            v-if="!acl.can('system.system_config') && (page.type === 'page' || page.type === 'landingpage')"
+            class="sw-cms-layout-assignment-modal__tab-permission-warning"
+            variant="attention"
+        >
+            {{ $t('sw-privileges.tooltip.warning') }}
+        </mt-banner>
+        {% endblock %}
+
         {% block sw_cms_layout_assignment_modal_mt_landing_page_select %}
         <template v-if="activeTab === 'landing_pages'">
 

@@ -146,6 +146,11 @@ async function createWrapper(
                         },
                         template: '<div class="mt-tabs"></div>',
                     },
+                    'mt-banner': {
+                        name: 'mt-banner',
+                        props: ['variant'],
+                        template: '<div class="mt-banner"><slot /></div>',
+                    },
                     'sw-category-tree-field': {
                         template: `
                         <div class="sw-category-tree-field-stub">
@@ -302,6 +307,34 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             },
         ]);
     });
+
+    it.each([
+        'page',
+        'landingpage',
+    ])(
+        'should render a tab permission warning banner for %s meteor tabs without system config permission',
+        async (layoutType) => {
+            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+            const banner = wrapper.get('.sw-cms-layout-assignment-modal__tab-permission-warning');
+
+            expect(banner.text()).toBe('sw-privileges.tooltip.warning');
+            expect(wrapper.getComponent({ name: 'mt-banner' }).props('variant')).toBe('attention');
+        },
+    );
+
+    it.each([
+        'page',
+        'landingpage',
+    ])(
+        'should not render a tab permission warning banner for %s meteor tabs with system config permission',
+        async (layoutType) => {
+            global.activeAclRoles = ['system.system_config'];
+
+            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+
+            expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').exists()).toBe(false);
+        },
+    );
 
     it('should switch meteor tab content when the active tab changes', async () => {
         global.activeAclRoles = ['system.system_config'];

@@ -65,6 +65,11 @@ async function createWrapper({
                         },
                     },
                 },
+                'mt-banner': {
+                    name: 'mt-banner',
+                    template: '<div class="mt-banner"><slot /></div>',
+                    props: ['variant'],
+                },
                 'router-view': {
                     template: '<div class="router-view"></div>',
                     props: ['isLoading'],
@@ -176,6 +181,26 @@ describe('src/module/sw-category/component/sw-landing-page-view', () => {
                 disabled: true,
             }),
         );
+    });
+
+    it('should render a cms permission warning banner for meteor tabs without landing page editor permission', async () => {
+        const wrapper = await createWrapper({
+            featureActive: true,
+            canEditLandingPage: false,
+        });
+        const banner = wrapper.get('.sw-landing-page-view__cms-permission-warning');
+
+        expect(banner.text()).toBe('sw-privileges.tooltip.warning');
+        expect(wrapper.getComponent({ name: 'mt-banner' }).props('variant')).toBe('attention');
+    });
+
+    it('should not render a cms permission warning banner for meteor tabs with landing page editor permission', async () => {
+        const wrapper = await createWrapper({
+            featureActive: true,
+            canEditLandingPage: true,
+        });
+
+        expect(wrapper.find('.sw-landing-page-view__cms-permission-warning').exists()).toBe(false);
     });
 
     it('should navigate when a meteor tab item is clicked', async () => {

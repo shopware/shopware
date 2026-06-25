@@ -26,6 +26,14 @@ export default {
         },
     },
 
+    props: {
+        isEditing: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     computed: {
         isLoading: () => Store.get('swOrderDetail').isLoading,
 

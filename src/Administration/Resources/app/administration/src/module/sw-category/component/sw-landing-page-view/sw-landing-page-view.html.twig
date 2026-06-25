@@ -21,6 +21,17 @@
             :items="landingPageViewTabs"
         />
         {% endblock %}
+
+        {% block sw_landing_page_view_mt_tabs_permission_warning %}
+        {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips. #}
+        <mt-banner
+            v-if="!acl.can('landing_page.editor')"
+            class="sw-landing-page-view__cms-permission-warning"
+            variant="attention"
+        >
+            {{ $t('sw-privileges.tooltip.warning') }}
+        </mt-banner>
+        {% endblock %}
     </template>
 
     <template v-else>

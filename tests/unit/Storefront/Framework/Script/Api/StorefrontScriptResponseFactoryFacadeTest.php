@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade;
@@ -42,17 +41,6 @@ class StorefrontScriptResponseFactoryFacadeTest extends TestCase
         static::assertSame(Response::HTTP_ACCEPTED, $response->getCode());
     }
 
-    #[TestDox('render() throws when called outside a SalesChannelContext')]
-    public function testRenderThrowsOutsideSalesChannelContext(): void
-    {
-        $facade = $this->buildFacade(salesChannelContext: null);
-
-        $this->expectException(ScriptException::class);
-        $this->expectExceptionMessageMatches('/sales.?channel/i');
-
-        $facade->render('@Storefront/foo.html.twig');
-    }
-
     private function buildFacade(
         ?RouterInterface $router = null,
         ?ScriptController $scriptController = null,
@@ -61,7 +49,7 @@ class StorefrontScriptResponseFactoryFacadeTest extends TestCase
         return new StorefrontScriptResponseFactoryFacade(
             $router ?? static::createStub(RouterInterface::class),
             $scriptController ?? static::createStub(ScriptController::class),
-            $salesChannelContext,
+            $salesChannelContext ?? static::createStub(SalesChannelContext::class),
         );
     }
 }

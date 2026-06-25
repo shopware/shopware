@@ -93,17 +93,17 @@ export default {
             },
         },
 
-        isDateTime() {
-            return this.useTime ? 'datetime' : 'date';
-        },
-
         timezoneOptions() {
             return Shopware.Service('timezoneService').getTimezoneOptions();
         },
     },
 
     methods: {
-        formatDate(date, timeModifier) {
+        formatDate(date, timeModifier, extraRequired) {
+            if (extraRequired) {
+                return;
+            }
+
             if (!date) {
                 return null;
             }

@@ -53,6 +53,8 @@
             <argument type="service" id="Shopware\Administration\Framework\App\ActiveAdminAppLoader"/>
             <argument type="service" id="filesystem"/>
             <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator"/>
+            <argument type="service" id="logger"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

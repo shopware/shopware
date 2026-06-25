@@ -6,13 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber;
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -22,6 +25,16 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(AdminInfoConfigBundlesSubscriber::class)]
 class AdminInfoConfigBundlesSubscriberTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    private array $temporaryDirectories = [];
+
+    protected function tearDown(): void
+    {
+        (new Filesystem())->remove($this->temporaryDirectories);
+    }
+
     #[TestDox('Subscribes to AdminInfoConfigEvent via the enrichBundles handler')]
     public function testSubscribesToAdminInfoConfigEvent(): void
     {
@@ -71,6 +84,90 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         static::assertSame(['/bundles/acmebundle/main.css'], $bundles['AcmeBundle']['css']);
         static::assertSame(['/bundles/acmebundle/main.js'], $bundles['AcmeBundle']['js']);
         static::assertSame('plugin', $bundles['AcmeBundle']['type']);
+    }
+
+    public function testMissingCssIsFilteredAndLoggedWhileJsRemains(): void
+    {
+        $bundle = $this->createBundleWithAdministrationFiles([
+            'assets/app.js' => '',
+        ]);
+
+        $viteAccessor = static::createStub(ViteFileAccessorDecorator::class);
+        $viteAccessor->method('getBundleData')->willReturn([
+            'entryPoints' => [
+                'acme-bundle' => [
+                    'css' => ['/bundles/acme/administration/assets/missing.css'],
+                    'js' => ['/bundles/acme/administration/assets/app.js'],
+                ],
+            ],
+        ]);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Skipping missing Administration extension asset.',
+                static::callback(static function (array $context): bool {
+                    static::assertSame('AcmeBundle', $context['bundleName']);
+                    static::assertSame('acme-bundle', $context['technicalBundleName']);
+                    static::assertSame('css', $context['assetType']);
+                    static::assertSame('/bundles/acme/administration/assets/missing.css', $context['assetUrl']);
+                    static::assertIsString($context['expectedFilePath']);
+                    static::assertStringEndsWith('/Resources/public/administration/assets/missing.css', $context['expectedFilePath']);
+
+                    return true;
+                })
+            );
+
+        $bundles = $this->collectBundles(new StubKernel([$bundle]), viteAccessor: $viteAccessor, logger: $logger);
+
+        static::assertSame([], $bundles['AcmeBundle']['css']);
+        static::assertSame(['/bundles/acme/administration/assets/app.js'], $bundles['AcmeBundle']['js']);
+    }
+
+    public function testBundleIsSkippedWhenMissingJsLeavesNoScriptOrBaseUrl(): void
+    {
+        $bundle = $this->createBundleWithAdministrationFiles();
+
+        $viteAccessor = static::createStub(ViteFileAccessorDecorator::class);
+        $viteAccessor->method('getBundleData')->willReturn([
+            'entryPoints' => [
+                'acme-bundle' => [
+                    'css' => [],
+                    'js' => ['/bundles/acme/administration/assets/missing.js'],
+                ],
+            ],
+        ]);
+
+        $bundles = $this->collectBundles(new StubKernel([$bundle]), viteAccessor: $viteAccessor);
+
+        static::assertSame([], $bundles);
+    }
+
+    public function testUnreadableViteEntrypointsDoNotBreakConfigEndpoint(): void
+    {
+        $bundle = new BundleFixture('AcmeBundle', '/tmp/AcmeBundle');
+
+        $viteAccessor = static::createStub(ViteFileAccessorDecorator::class);
+        $viteAccessor->method('getBundleData')->willThrowException(new \JsonException('broken entrypoints'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Skipping Administration extension asset metadata because it could not be read.',
+                static::callback(static function (array $context): bool {
+                    static::assertSame('AcmeBundle', $context['bundleName']);
+                    static::assertSame('acme-bundle', $context['technicalBundleName']);
+                    static::assertInstanceOf(\JsonException::class, $context['exception']);
+
+                    return true;
+                })
+            );
+
+        $bundles = $this->collectBundles(new StubKernel([$bundle]), viteAccessor: $viteAccessor, logger: $logger);
+
+        static::assertSame([], $bundles);
     }
 
     #[TestDox('Bundle::getAdminBaseUrl() short-circuits getBaseUrl and is used verbatim')]
@@ -171,6 +268,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         ?RouterInterface $router = null,
         ?Filesystem $filesystem = null,
         ?ViteFileAccessorDecorator $viteAccessor = null,
+        ?LoggerInterface $logger = null,
     ): array {
         $event = $this->dispatchEnrichBundles(
             $kernel,
@@ -178,6 +276,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
             $router,
             $filesystem,
             $viteAccessor,
+            $logger,
         );
 
         return $event->getConfig()['bundles'];
@@ -189,16 +288,20 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         ?RouterInterface $router = null,
         ?Filesystem $filesystem = null,
         ?ViteFileAccessorDecorator $viteAccessor = null,
+        ?LoggerInterface $logger = null,
     ): AdminInfoConfigEvent {
         $loader ??= $this->emptyLoader();
         $viteAccessor ??= $this->emptyViteAccessor();
+        $filesystem ??= new Filesystem();
 
         $subscriber = new AdminInfoConfigBundlesSubscriber(
             $kernel,
             $router ?? static::createStub(RouterInterface::class),
             $loader,
-            $filesystem ?? new Filesystem(),
+            $filesystem,
             $viteAccessor,
+            new AdministrationExtensionAssetValidator($filesystem),
+            $logger ?? static::createStub(LoggerInterface::class),
         );
 
         $event = new AdminInfoConfigEvent([]);
@@ -221,5 +324,24 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         $vite->method('getBundleData')->willReturn(['entryPoints' => []]);
 
         return $vite;
+    }
+
+    /**
+     * @param array<string, string> $files
+     */
+    private function createBundleWithAdministrationFiles(array $files = []): BundleFixture
+    {
+        $bundlePath = Path::join(sys_get_temp_dir(), uniqid('sw-admin-info-config-bundles-', true));
+        $this->temporaryDirectories[] = $bundlePath;
+
+        $filesystem = new Filesystem();
+        foreach ($files as $relativePath => $contents) {
+            $filesystem->dumpFile(
+                Path::join($bundlePath, AdministrationExtensionAssetValidator::ADMINISTRATION_PUBLIC_PATH, $relativePath),
+                $contents
+            );
+        }
+
+        return new BundleFixture('AcmeBundle', $bundlePath);
     }
 }

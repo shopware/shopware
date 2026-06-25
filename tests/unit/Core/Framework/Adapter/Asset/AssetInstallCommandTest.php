@@ -11,9 +11,11 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator;
 use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -42,7 +44,8 @@ class AssetInstallCommandTest extends TestCase
         $command = new AssetInstallCommand(
             $kernel,
             $this->createMock(AssetService::class),
-            $this->createMock(ActiveAppsLoader::class)
+            $this->createMock(ActiveAppsLoader::class),
+            new AdministrationExtensionAssetValidator($fs),
         );
 
         $runner = new CommandTester($command);
@@ -82,11 +85,98 @@ class AssetInstallCommandTest extends TestCase
         $command = new AssetInstallCommand(
             $kernel,
             $service,
-            $appLoader
+            $appLoader,
+            new AdministrationExtensionAssetValidator(new Filesystem()),
         );
 
         $runner = new CommandTester($command);
         $runner->execute(['--force' => true]);
+    }
+
+    public function testMissingAdministrationExtensionAssetsWarnWithoutFailingInDefaultMode(): void
+    {
+        $fs = new Filesystem();
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('shopware', true);
+        $fs->dumpFile(
+            Path::join($tmpDir, 'Resources/public/administration/.vite/entrypoints.json'),
+            json_encode([
+                'entryPoints' => [
+                    'acme-bundle' => [
+                        'css' => [
+                            '/bundles/acme/administration/assets/missing.css',
+                        ],
+                        'js' => [],
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $bundle = new BundleFixture('AcmeBundle', $tmpDir);
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn([$bundle]);
+        $kernel->method('getProjectDir')->willReturn($tmpDir);
+
+        $service = $this->createMock(AssetService::class);
+        $appLoader = $this->createMock(ActiveAppsLoader::class);
+        $appLoader->method('getActiveApps')->willReturn([]);
+
+        $command = new AssetInstallCommand(
+            $kernel,
+            $service,
+            $appLoader,
+            new AdministrationExtensionAssetValidator($fs),
+        );
+
+        $runner = new CommandTester($command);
+        $status = $runner->execute([]);
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertStringContainsString('The referenced Administration extension asset is missing.', $runner->getDisplay());
+
+        $fs->remove($tmpDir);
+    }
+
+    public function testStrictExtensionAssetsFailsOnMissingAdministrationExtensionAssets(): void
+    {
+        $fs = new Filesystem();
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('shopware', true);
+        $fs->dumpFile(
+            Path::join($tmpDir, 'Resources/public/administration/.vite/entrypoints.json'),
+            json_encode([
+                'entryPoints' => [
+                    'acme-bundle' => [
+                        'css' => [],
+                        'js' => [
+                            '/bundles/acme/administration/assets/missing.js',
+                        ],
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $bundle = new BundleFixture('AcmeBundle', $tmpDir);
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn([$bundle]);
+        $kernel->method('getProjectDir')->willReturn($tmpDir);
+
+        $service = $this->createMock(AssetService::class);
+        $appLoader = $this->createMock(ActiveAppsLoader::class);
+        $appLoader->method('getActiveApps')->willReturn([]);
+
+        $command = new AssetInstallCommand(
+            $kernel,
+            $service,
+            $appLoader,
+            new AdministrationExtensionAssetValidator($fs),
+        );
+
+        $runner = new CommandTester($command);
+        $status = $runner->execute(['--strict-extension-assets' => true]);
+
+        static::assertSame(Command::FAILURE, $status);
+        static::assertStringContainsString('Administration extension asset validation failed.', $runner->getDisplay());
+
+        $fs->remove($tmpDir);
     }
 
     public function testItInstallsAppAssets(): void
@@ -121,7 +211,8 @@ class AssetInstallCommandTest extends TestCase
                 $this->createMock(ParameterBagInterface::class),
                 new EventDispatcher()
             ),
-            $activeAppsLoaderMock
+            $activeAppsLoaderMock,
+            new AdministrationExtensionAssetValidator(new Filesystem()),
         );
 
         $runner = new CommandTester($command);

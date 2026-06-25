@@ -58,7 +58,12 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator"/>
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator">
+            <argument type="service" id="filesystem"/>
         </service>
 
         <!-- Assets -->

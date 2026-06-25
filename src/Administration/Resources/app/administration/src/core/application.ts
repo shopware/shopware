@@ -42,6 +42,8 @@ class ApplicationBootstrapper {
 
     public view: null | VueAdapter;
 
+    private readonly extensionAssetLoadTimeout = 15000;
+
     /**
      * Provides the necessary class properties for the class to work probably
      */
@@ -757,15 +759,18 @@ class ApplicationBootstrapper {
             script.src = scriptSrc;
             script.async = true;
             script.type = 'module';
+            const timeout = this.createAssetLoadTimeout('JavaScript', scriptSrc, reject);
 
             // resolve when script was loaded successfully
             script.onload = (): void => {
+                window.clearTimeout(timeout);
                 resolve();
             };
 
             // when script get not loaded successfully
             script.onerror = (): void => {
-                reject();
+                window.clearTimeout(timeout);
+                reject(new Error(`Failed to load Administration extension JavaScript asset: ${scriptSrc}`));
             };
 
             // Append the script to the end of body
@@ -782,20 +787,37 @@ class ApplicationBootstrapper {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = styleSrc;
+            const timeout = this.createAssetLoadTimeout('CSS', styleSrc, reject);
 
             // resolve when script was loaded succcessfully
             link.onload = (): void => {
+                window.clearTimeout(timeout);
                 resolve();
             };
 
             // when style get not loaded successfully
             link.onerror = (): void => {
-                reject();
+                window.clearTimeout(timeout);
+                reject(new Error(`Failed to load Administration extension CSS asset: ${styleSrc}`));
             };
 
             // Append the style to the end of head
             document.head.appendChild(link);
         });
+    }
+
+    private createAssetLoadTimeout(
+        assetType: 'CSS' | 'JavaScript',
+        assetSrc: string,
+        reject: (reason?: unknown) => void,
+    ): number {
+        return window.setTimeout(() => {
+            reject(
+                new Error(
+                    `Loading Administration extension ${assetType} asset timed out after ${this.extensionAssetLoadTimeout}ms: ${assetSrc}`,
+                ),
+            );
+        }, this.extensionAssetLoadTimeout);
     }
 
     /**

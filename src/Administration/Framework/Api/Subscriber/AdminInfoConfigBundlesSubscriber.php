@@ -2,11 +2,14 @@
 
 namespace Shopware\Administration\Framework\Api\Subscriber;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetViolation;
 use Shopware\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -25,6 +28,8 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
         private ActiveAdminAppLoader $activeAdminAppLoader,
         private Filesystem $filesystem,
         private ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private AdministrationExtensionAssetValidator $administrationExtensionAssetValidator,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -65,12 +70,36 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
                 continue;
             }
 
-            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
+            try {
+                $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Skipping Administration extension asset metadata because it could not be read.', [
+                    'bundleName' => $bundle->getName(),
+                    'technicalBundleName' => $this->administrationExtensionAssetValidator->getTechnicalBundleName($bundle),
+                    'entrypointsFilePath' => $this->administrationExtensionAssetValidator->getEntrypointsFilePath($bundle),
+                    'exception' => $exception,
+                ]);
 
-            $technicalBundleName = $this->getTechnicalBundleName($bundle);
-            $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];
-            $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
+                continue;
+            }
+
+            $technicalBundleName = $this->administrationExtensionAssetValidator->getTechnicalBundleName($bundle);
+            $styles = $this->filterAssetUrls($bundle, $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [], 'css');
+            $scripts = $this->filterAssetUrls($bundle, $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [], 'js');
+            $this->logValidationViolations(
+                $this->administrationExtensionAssetValidator->validateEntrypointsData($bundle, $viteEntryPoints),
+            );
             $baseUrl = $this->getBaseUrl($bundle);
+
+            if (($viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? []) !== [] && $scripts === [] && $baseUrl === null) {
+                $this->logger->warning('Skipping Administration extension asset bundle because no JavaScript asset remains after validation.', [
+                    'bundleName' => $bundle->getName(),
+                    'technicalBundleName' => $technicalBundleName,
+                    'entrypointsFilePath' => $this->administrationExtensionAssetValidator->getEntrypointsFilePath($bundle),
+                ]);
+
+                continue;
+            }
 
             if ($styles === [] && $scripts === [] && $baseUrl === null) {
                 continue;
@@ -128,8 +157,25 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
         }
     }
 
-    private function getTechnicalBundleName(Bundle $bundle): string
+    /**
+     * @return list<string>
+     */
+    private function filterAssetUrls(Bundle $bundle, mixed $assetUrls, string $assetType): array
     {
-        return str_replace('_', '-', $bundle->getContainerPrefix());
+        return $this->administrationExtensionAssetValidator->filterAssetUrls($bundle, $assetUrls, $assetType)->assets;
+    }
+
+    /**
+     * @param list<AdministrationExtensionAssetViolation> $violations
+     */
+    private function logValidationViolations(array $violations): void
+    {
+        foreach ($violations as $violation) {
+            $message = $violation->isMissingAsset()
+                ? 'Skipping missing Administration extension asset.'
+                : 'Skipping invalid Administration extension asset.';
+
+            $this->logger->warning($message, $violation->toLogContext());
+        }
     }
 }

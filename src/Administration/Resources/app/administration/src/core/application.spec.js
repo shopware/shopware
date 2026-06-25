@@ -4,16 +4,28 @@
 
 describe('core/application.js', () => {
     const originalInjectJs = Shopware.Application.injectJs;
+    const originalInjectCss = Shopware.Application.injectCss;
+    const originalInjectPlugin = Shopware.Application.injectPlugin;
     const originalInjectIframe = Shopware.Application.injectIframe;
     const originalNodeEnv = process.env.NODE_ENV;
 
     beforeEach(() => {
         jest.clearAllMocks();
         Shopware.Application.injectJs = originalInjectJs;
+        Shopware.Application.injectCss = originalInjectCss;
+        Shopware.Application.injectPlugin = originalInjectPlugin;
         Shopware.Application.injectIframe = originalInjectIframe;
         process.env.NODE_ENV = originalNodeEnv;
         Shopware.Context.app.config.bundles = {};
         global.fetch = jest.fn(() => Promise.resolve());
+        document.head.innerHTML = '';
+        document.body.innerHTML = '';
+        jest.useRealTimers();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+        jest.useRealTimers();
     });
 
     it("should be error tolerant if loading a plugin's files fails", async () => {
@@ -97,6 +109,7 @@ describe('core/application.js', () => {
     it('should load plugins correctly in prod', async () => {
         // Mock injectIframe method
         Shopware.Application.injectIframe = jest.fn();
+        Shopware.Application.injectPlugin = jest.fn(() => Promise.resolve());
 
         // Mock plugins
         Shopware.Context.app.config.bundles = {
@@ -194,5 +207,87 @@ describe('core/application.js', () => {
             integrationId: undefined,
             active: undefined,
         });
+    });
+
+    it('should resolve CSS injection before timeout', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectCss('/bundles/acme/administration/assets/app.css');
+        const link = document.head.querySelector('link');
+
+        expect(link).not.toBeNull();
+        expect(link.getAttribute('href')).toBe('/bundles/acme/administration/assets/app.css');
+
+        link.dispatchEvent(new Event('load'));
+
+        await expect(result).resolves.toBeUndefined();
+    });
+
+    it('should reject CSS injection on load error before timeout', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectCss('/bundles/acme/administration/assets/app.css');
+        const link = document.head.querySelector('link');
+
+        expect(link).not.toBeNull();
+
+        link.dispatchEvent(new Event('error'));
+
+        await expect(result).rejects.toThrow(
+            'Failed to load Administration extension CSS asset: /bundles/acme/administration/assets/app.css',
+        );
+    });
+
+    it('should reject CSS injection after timeout when request stays pending', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectCss('/bundles/acme/administration/assets/pending.css');
+
+        jest.advanceTimersByTime(15000);
+
+        await expect(result).rejects.toThrow(
+            'Loading Administration extension CSS asset timed out after 15000ms: /bundles/acme/administration/assets/pending.css',
+        );
+    });
+
+    it('should resolve JS injection before timeout', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectJs('/bundles/acme/administration/assets/app.js');
+        const script = document.body.querySelector('script');
+
+        expect(script).not.toBeNull();
+        expect(script.getAttribute('src')).toBe('/bundles/acme/administration/assets/app.js');
+
+        script.dispatchEvent(new Event('load'));
+
+        await expect(result).resolves.toBeUndefined();
+    });
+
+    it('should reject JS injection on load error before timeout', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectJs('/bundles/acme/administration/assets/app.js');
+        const script = document.body.querySelector('script');
+
+        expect(script).not.toBeNull();
+
+        script.dispatchEvent(new Event('error'));
+
+        await expect(result).rejects.toThrow(
+            'Failed to load Administration extension JavaScript asset: /bundles/acme/administration/assets/app.js',
+        );
+    });
+
+    it('should reject JS injection after timeout when request stays pending', async () => {
+        jest.useFakeTimers();
+
+        const result = Shopware.Application.injectJs('/bundles/acme/administration/assets/pending.js');
+
+        jest.advanceTimersByTime(15000);
+
+        await expect(result).rejects.toThrow(
+            'Loading Administration extension JavaScript asset timed out after 15000ms: /bundles/acme/administration/assets/pending.js',
+        );
     });
 });

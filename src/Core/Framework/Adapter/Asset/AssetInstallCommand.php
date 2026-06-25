@@ -8,8 +8,11 @@ use League\Flysystem\UnableToCreateDirectory;
 use League\Flysystem\UnableToDeleteDirectory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetValidator;
+use Shopware\Core\Framework\Plugin\Util\AssetValidation\AdministrationExtensionAssetViolation;
 use Shopware\Core\Installer\Installer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -32,6 +35,7 @@ class AssetInstallCommand extends Command
         private readonly KernelInterface $kernel,
         private readonly AssetService $assetService,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly AdministrationExtensionAssetValidator $administrationExtensionAssetValidator,
     ) {
         parent::__construct();
     }
@@ -39,6 +43,7 @@ class AssetInstallCommand extends Command
     protected function configure(): void
     {
         $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force the install of assets regardless of the manifest state');
+        $this->addOption('strict-extension-assets', null, InputOption::VALUE_NONE, 'Fail when Administration extension asset metadata references missing or invalid local files');
     }
 
     /**
@@ -53,9 +58,15 @@ class AssetInstallCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('Copying assets');
 
+        $assetViolations = [];
+
         foreach ($this->kernel->getBundles() as $bundle) {
             $io->writeln(\sprintf('Copying files for bundle: %s', $bundle->getName()));
             $this->assetService->copyAssets($bundle, $input->getOption('force'));
+
+            if ($bundle instanceof Bundle) {
+                array_push($assetViolations, ...$this->validateAdministrationExtensionAssets($bundle, $io));
+            }
         }
 
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
@@ -72,8 +83,28 @@ class AssetInstallCommand extends Command
             copy($publicDir . '/.htaccess.dist', $publicDir . '/.htaccess');
         }
 
+        if ($assetViolations !== [] && $input->getOption('strict-extension-assets')) {
+            $io->error('Administration extension asset validation failed.');
+
+            return self::FAILURE;
+        }
+
         $io->success('Successfully copied all bundle files');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return list<AdministrationExtensionAssetViolation>
+     */
+    private function validateAdministrationExtensionAssets(Bundle $bundle, ShopwareStyle $io): array
+    {
+        $violations = $this->administrationExtensionAssetValidator->validateEntrypointsFile($bundle);
+
+        foreach ($violations as $violation) {
+            $io->warning($violation->toConsoleMessage());
+        }
+
+        return $violations;
     }
 }

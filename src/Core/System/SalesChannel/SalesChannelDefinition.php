@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
@@ -48,7 +49,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -134,6 +134,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new BoolField('hreflang_active', 'hreflangActive'))->addFlags(new ApiAware())->setDescription('When set to true, the sales channel pages are available in different languages.'),
             (new BoolField('maintenance', 'maintenance'))->addFlags(new ApiAware())->setDescription('When `true`, it indicates that the sales channel is undergoing maintenance, and shopping is temporarily unavailable during this period.'),
             (new ListField('maintenance_ip_allowlist', 'maintenanceIpAllowlist', StringField::class))->setDescription('List of IP addresses allowed to access the sales channel while the maintenance mode is active.'),
+            // @deprecated tag:v6.8.0 - Will be removed, use `maintenanceIpAllowlist` instead.
+            (new ListField('maintenance_ip_whitelist', 'maintenanceIpWhitelist', StringField::class))->addFlags(new Deprecated('v6.7.13.0', 'v6.8.0.0', 'maintenanceIpAllowlist'))->setDescription('List of IP addresses used when the maintenance mode is active.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, 'sales_channel_id', 'currency_id'),
@@ -188,13 +190,6 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
         ]);
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - Will be removed, use `maintenanceIpAllowlist` instead.
-            $fields->add(
-                (new ListField('maintenance_ip_whitelist', 'maintenanceIpWhitelist', StringField::class))->setDescription('List of IP addresses used when the maintenance mode is active.')
-            );
-        }
 
         return $fields;
     }

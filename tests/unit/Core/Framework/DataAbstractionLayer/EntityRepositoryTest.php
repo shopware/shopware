@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEven
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -31,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Event\NestedEventDispatcher;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -408,6 +411,53 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
 
         static::assertSame(['test'], $event->getPrimaryKeys('product'));
+    }
+
+    public function testWrittenEventsAreDispatchedInSystemScopeWithOriginalSource(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $eventDispatcher = new NestedEventDispatcher($dispatcher);
+
+        $source = new AdminApiSource('user-id');
+        $context = Context::createDefaultContext($source);
+
+        $containerListenerWasCalled = false;
+        $dispatcher->addListener(EntityWrittenContainerEvent::class, static function (EntityWrittenContainerEvent $event) use (&$containerListenerWasCalled, $source): void {
+            $containerListenerWasCalled = true;
+
+            static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertSame($source, $event->getContext()->getSource());
+        });
+
+        $nestedListenerWasCalled = false;
+        $dispatcher->addListener('product.written', static function (EntityWrittenEvent $event) use (&$nestedListenerWasCalled, $source): void {
+            $nestedListenerWasCalled = true;
+
+            static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertSame($source, $event->getContext()->getSource());
+        });
+
+        $versionManager = $this->createMock(VersionManager::class);
+        $versionManager
+            ->expects($this->once())
+            ->method('update')
+            ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
+
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            $this->createMock(EntityReaderInterface::class),
+            $versionManager,
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(EntityAggregatorInterface::class),
+            $eventDispatcher,
+            $this->createMock(EntityLoadedEventFactory::class),
+        );
+
+        $repo->update([['name' => 'foo']], $context);
+
+        static::assertTrue($containerListenerWasCalled);
+        static::assertTrue($nestedListenerWasCalled);
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
     }
 
     public function testUpsert(): void

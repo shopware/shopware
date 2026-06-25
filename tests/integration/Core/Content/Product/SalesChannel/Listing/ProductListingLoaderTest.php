@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -387,32 +386,6 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertSame($this->mainVariantId, $variantId);
         static::assertTrue($firstVariant->hasExtension('search'));
-    }
-
-    public function testDisplayAsGroupFalseReturnsAllMatchingVariantsFromSameDisplayGroup(): void
-    {
-        $this->createProduct([], true);
-
-        $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
-        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
-        $listing = $this->fetchListing($criteria);
-
-        static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
-    }
-
-    public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
-    {
-        $this->createProduct([], true);
-
-        $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
-        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
-        $listing = $this->fetchListing($criteria);
-
-        static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
     }
 
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void

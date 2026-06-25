@@ -2,36 +2,21 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
-use Shopware\Core\System\CustomField\CustomFieldCollection;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 
 /**
  * @internal only for use by the app-system
- *
- * @phpstan-import-type CustomFieldSetArray from CustomFieldSet
  */
 #[Package('framework')]
 class CustomFieldLifecycleHandler extends AbstractLifecycleHandler
 {
-    /**
-     * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
-     * @param EntityRepository<CustomFieldSetRelationCollection> $customFieldSetRelationRepository
-     * @param EntityRepository<CustomFieldCollection> $customFieldRepository
-     */
     public function __construct(
-        private readonly EntityRepository $customFieldSetRepository,
-        private readonly Connection $connection,
-        private readonly EntityRepository $customFieldSetRelationRepository,
-        private readonly EntityRepository $customFieldRepository,
+        private readonly CustomFieldSetPersister $customFieldSetPersister,
     ) {
     }
 
@@ -47,116 +32,24 @@ class CustomFieldLifecycleHandler extends AbstractLifecycleHandler
 
     private function persist(AppPersistContext $context): void
     {
-        $context->context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($context): void {
-            $this->upsertCustomFieldSets($context->manifest->getCustomFields(), $context->app->getId(), $innerContext);
-        });
-    }
+        $customFields = null;
 
-    private function upsertCustomFieldSets(?CustomFields $customFields, string $appId, Context $context): void
-    {
-        /** @var array<string, string> $allCustomFields */
-        $allCustomFields = $this->connection->fetchAllKeyValue(
-            'SELECT id, name FROM custom_field_set WHERE app_id = :appId',
-            ['appId' => Uuid::fromHexToBytes($appId)]
-        );
-
-        $groupedByName = [];
-        foreach ($allCustomFields as $id => $name) {
-            $groupedByName[$name][] = Uuid::fromBytesToHex($id);
-        }
-
-        $existingCustomFieldSets = [];
-        foreach ($groupedByName as $name => $ids) {
-            if (\count($ids) > 1) {
-                // If there are multiple custom field sets with the same name, we need to delete all the custom field sets
-                // as we can not map the fields to the correct set anymore, see https://github.com/shopware/shopware/issues/10738
-                $this->deleteObsoleteIds($ids, [], [], $context);
-            } else {
-                $existingCustomFieldSets[$name] = $ids[0];
-            }
-        }
-
-        if (!$customFields || $customFields->getCustomFieldSets() === []) {
-            if ($existingCustomFieldSets !== []) {
-                $this->deleteObsoleteIds(
-                    array_values($existingCustomFieldSets),
-                    [],
-                    [],
-                    $context
-                );
-            }
-
-            return;
-        }
-
-        $payload = [];
-        $obsoleteRelations = [];
-        $obsoleteFields = [];
-
-        foreach ($customFields->getCustomFieldSets() as $customFieldSet) {
-            if (!\array_key_exists($customFieldSet->getName(), $existingCustomFieldSets)) {
-                $existingRelations = $existingFields = [];
-                $payload[] = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
-
-                continue;
-            }
-
-            $customFieldSetId = $existingCustomFieldSets[$customFieldSet->getName()];
-
-            $existingRelations = Uuid::fromBytesToHexList(
-                $this->connection->fetchAllKeyValue(
-                    'SELECT entity_name, id FROM custom_field_set_relation WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
-                )
+        // Prefer Resources/config/custom-fields.xml file over inline manifest definition
+        if ($context->appFilesystem->hasFile('Resources', 'config', 'custom-fields.xml')) {
+            $customFields = CustomFieldXmlLoader::load(
+                $context->appFilesystem->path('Resources', 'config', 'custom-fields.xml')
             );
-            $existingFields = Uuid::fromBytesToHexList(
-                $this->connection->fetchAllKeyValue(
-                    'SELECT name, id FROM custom_field WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
-                )
-            );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
+        } elseif ($context->manifest->getCustomFields() !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Defining custom fields inline in manifest.xml is deprecated, use Resources/config/custom-fields.xml instead.');
 
-            $obsoleteRelations = array_merge($obsoleteRelations, array_values($existingRelations));
-            $obsoleteFields = array_merge($obsoleteFields, array_values($existingFields));
-
-            $payload[] = $entityData;
-            unset($existingCustomFieldSets[$customFieldSet->getName()]);
+            $customFields = $context->manifest->getCustomFields();
         }
 
-        $this->deleteObsoleteIds(
-            array_values($existingCustomFieldSets),
-            $obsoleteRelations,
-            $obsoleteFields,
-            $context
+        $this->customFieldSetPersister->sync(
+            $customFields ?? CustomFields::fromArray([]),
+            $context->app->getId(),
+            $context->app->getName(),
+            $context->context
         );
-
-        $this->customFieldSetRepository->upsert($payload, $context);
-    }
-
-    /**
-     * @param list<string> $obsoleteFieldSets
-     * @param list<string> $obsoleteRelations
-     * @param list<string> $obsoleteFields
-     */
-    private function deleteObsoleteIds(array $obsoleteFieldSets, array $obsoleteRelations, array $obsoleteFields, Context $context): void
-    {
-        if ($obsoleteFieldSets !== []) {
-            $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFieldSets);
-
-            $this->customFieldSetRepository->delete($ids, $context);
-        }
-
-        if ($obsoleteRelations !== []) {
-            $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteRelations);
-
-            $this->customFieldSetRelationRepository->delete($ids, $context);
-        }
-
-        if ($obsoleteFields !== []) {
-            $ids = array_map(static fn (string $id): array => ['id' => $id], $obsoleteFields);
-
-            $this->customFieldRepository->delete($ids, $context);
-        }
     }
 }

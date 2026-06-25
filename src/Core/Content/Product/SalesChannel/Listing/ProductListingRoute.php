@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -101,19 +102,20 @@ class ProductListingRoute extends AbstractProductListingRoute
 
     private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, PartialEntity $category): void
     {
-        $hasProductStream = $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
-            && $category->get('productStreamId') !== null;
+        $productAssignmentType = $category->get('productAssignmentType');
+        $productStreamId = $category->get('productStreamId');
 
-        if ($hasProductStream) {
+        if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && \is_string($productStreamId) && $productStreamId !== '') {
             $this->cacheTagCollector->addTag(
-                EntityCacheKeyGenerator::buildStreamTag($category->get('productStreamId'))
+                EntityCacheKeyGenerator::buildStreamTag($productStreamId)
             );
 
-            $filters = $this->productStreamBuilder->buildFilters(
-                $category->get('productStreamId'),
-                $salesChannelContext->getContext()
-            );
-            $criteria->addFilter(...$filters);
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+                $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+            }
 
             return;
         }

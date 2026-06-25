@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -149,9 +150,14 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             EntityCacheKeyGenerator::buildStreamTag($productStreamId)
         );
 
-        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
+        $productStreamBuilder = $this->productStreamBuilder;
+        if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+            $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
+        } else {
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
+        }
 
-        $criteria->addFilter(...$filters)
+        $criteria
             ->addFilter(new NotEqualsFilter('product.id', $crossSelling->getProductId()))
             ->setOffset(0)
             ->setLimit($crossSelling->getLimit())

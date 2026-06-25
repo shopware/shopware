@@ -86,9 +86,8 @@ class EntityReader implements EntityReaderInterface
 
         $fieldsForPartialLoading = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
-        $basicFields = $definition->getFields()->getBasicFields();
         if ($criteria->getExcludedFields() !== []) {
-            $basicFields = $this->removeExcludedFields($basicFields, $definition, $criteria->getExcludedFields());
+            $this->assertExcludableFields($definition, $criteria->getExcludedFields());
         }
 
         return $this->_read(
@@ -96,7 +95,7 @@ class EntityReader implements EntityReaderInterface
             $definition,
             $context,
             new $collectionClass(),
-            $basicFields,
+            $definition->getFields()->getBasicFields(),
             true,
             $fieldsForPartialLoading,
             $fieldsForPartialLoading !== [],
@@ -109,13 +108,14 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * Removes the excluded storage fields from a full read (see {@see Criteria::excludeFields()}).
-     * Primary keys are always kept. Only nullable/defaulted properties may be excluded — otherwise
-     * the loaded typed entity would have an uninitialized property — so excluding others throws.
+     * Validates that the fields requested via {@see Criteria::excludeFields()} may be omitted from a
+     * full read: only properties that are nullable or have a default can be left unset, otherwise the
+     * loaded typed entity would have an uninitialized property. The actual omission happens in
+     * {@see joinBasic()} (root + translated columns) via the excluded field list.
      *
      * @param list<string> $excludedFields
      */
-    private function removeExcludedFields(FieldCollection $fields, EntityDefinition $definition, array $excludedFields): FieldCollection
+    private function assertExcludableFields(EntityDefinition $definition, array $excludedFields): void
     {
         $reflection = new \ReflectionClass($definition->getEntityClass());
 
@@ -131,11 +131,6 @@ class EntityReader implements EntityReaderInterface
                 throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName());
             }
         }
-
-        return $fields->filter(
-            static fn (Field $field): bool => $field->getFlag(PrimaryKey::class) !== null
-                || !\in_array($field->getPropertyName(), $excludedFields, true)
-        );
     }
 
     /**
@@ -225,6 +220,7 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading = [],
     ): void {
         $isPartial = $fieldsForPartialLoading !== [];
+        $excludedFields = $criteria?->getExcludedFields() ?? [];
         $filtered = $fields->filter(static function (Field $field) use ($isPartial, $fieldsForPartialLoading) {
             if ($field->is(Runtime::class)) {
                 return false;
@@ -250,6 +246,11 @@ class EntityReader implements EntityReaderInterface
         $addTranslation = false;
 
         foreach ($filtered as $field) {
+            // skip fields excluded via Criteria::excludeFields() (primary keys are always kept)
+            if ($excludedFields !== [] && !$field->getFlag(PrimaryKey::class) && \in_array($field->getPropertyName(), $excludedFields, true)) {
+                continue;
+            }
+
             // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
@@ -379,6 +380,7 @@ class EntityReader implements EntityReaderInterface
                 $query,
                 $context,
                 $fieldsForPartialLoading,
+                $excludedFields,
             );
         }
     }

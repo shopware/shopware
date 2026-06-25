@@ -26,7 +26,7 @@ class CriteriaExcludeFieldsTest extends TestCase
     {
         $criteria = (new Criteria())->excludeFields(['description']);
 
-        static::assertSame(['description'], $criteria->cloneForRead()->getExcludedFields());
+        static::assertSame(['description'], $criteria->cloneForRead(['test-id'])->getExcludedFields());
     }
 
     public function testExcludeFieldsThrowsWhenAllowlistFieldsAlreadySet(): void

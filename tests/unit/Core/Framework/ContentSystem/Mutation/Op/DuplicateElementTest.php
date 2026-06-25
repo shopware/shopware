@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -81,6 +82,17 @@ class DuplicateElementTest extends TestCase
 
         static::assertSame(['product' => $requirement], $result[1]->getDataRequirements());
         static::assertSame($contextDefinitions, $result[1]->getContextDefinitions());
+    }
+
+    #[TestDox('carries the source style over to the clone')]
+    public function testDuplicateCarriesStyleToClone(): void
+    {
+        $style = new ElementStyle(['col-span' => ['md' => 6]]);
+        $tree = [new ContentElement('original', 'Sw:Card', [], [], [], new ContextDefinitions([], []), $style)];
+
+        $result = (new DuplicateElement('original'))->apply($tree);
+
+        static::assertSame($style->toArray(), $result[1]->getStyle()->toArray());
     }
 
     #[TestDox('duplicates a nested element into the same parent slot')]

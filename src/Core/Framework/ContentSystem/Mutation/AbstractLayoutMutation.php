@@ -206,6 +206,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             $node->getProperties(),
             $this->mapSlots($node, fn (array $children): array => array_values(array_map($this->cloneWithNewIds(...), $children))),
             $node->getContextDefinitions(),
+            $node->getStyle(),
         );
     }
 
@@ -331,6 +332,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             $node->getProperties(),
             $newSlots,
             $node->getContextDefinitions(),
+            $node->getStyle(),
         );
     }
 }

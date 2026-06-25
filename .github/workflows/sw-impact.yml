@@ -77,4 +77,4 @@ jobs:
           persist-credentials: false
 
       - name: Check impact
-        run: sw-impact check . --index "$SW_IMPACT_INDEX"
+        run: sw-impact check . --index "$SW_IMPACT_INDEX" --format github

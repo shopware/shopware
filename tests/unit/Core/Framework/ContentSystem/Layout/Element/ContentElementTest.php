@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -277,6 +278,30 @@ class ContentElementTest extends TestCase
         static::assertArrayHasKey('properties', $data);
         static::assertSame($struct, $data['properties']['myStruct']);
         static::assertSame('hello', $data['properties']['title']);
+    }
+
+    #[TestDox('an element built without a style carries an empty style')]
+    public function testStyleDefaultsToEmpty(): void
+    {
+        static::assertTrue(ContentElementBuilder::create('test-component', 'test-id')->build()->getStyle()->isEmpty());
+    }
+
+    #[TestDox('jsonSerialize emits the style array when the element carries a non-empty style')]
+    public function testJsonSerializeEmitsNonEmptyStyle(): void
+    {
+        $element = ContentElementBuilder::create('test-component', 'test-id')
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        static::assertSame(['col-span' => ['md' => 6]], $element->jsonSerialize()['style']);
+    }
+
+    #[TestDox('jsonSerialize omits the style key entirely when the style is empty')]
+    public function testJsonSerializeOmitsEmptyStyle(): void
+    {
+        $data = ContentElementBuilder::create('test-component', 'test-id')->build()->jsonSerialize();
+
+        static::assertArrayNotHasKey('style', $data);
     }
 
     /**

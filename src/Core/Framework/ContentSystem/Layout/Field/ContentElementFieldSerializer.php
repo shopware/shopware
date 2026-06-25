@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -33,7 +34,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   data_requirements?: array<string, DataRequirementData>,
  *   slots?: array<string, list<array<string, mixed>>>,
  *   provides_context?: array<string, array<string, mixed>>,
- *   accepts_context?: array<string, ContextConsumerData>
+ *   accepts_context?: array<string, ContextConsumerData>,
+ *   style?: array<string, array<string, string|int|float|bool>>
  * }
  *
  * @internal
@@ -47,7 +49,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         private readonly DataRequirementsFieldSerializer $dataRequirementsSerializer,
         private readonly ContextProvidersFieldSerializer $contextProvidersSerializer,
         private readonly ContextConsumersFieldSerializer $contextConsumersSerializer,
-        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer
+        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer,
+        private readonly ElementStyleFieldSerializer $elementStyleSerializer
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -162,13 +165,19 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
             : [];
 
+        // Read stays lenient: deserialize() drops options no longer in the registry
+        $style = \array_key_exists('style', $data) && \is_array($data['style'])
+            ? $this->elementStyleSerializer->deserialize($data['style'])
+            : new ElementStyle();
+
         return new ContentElement(
             $data['id'],
             $data['component'],
             $dataRequirements ?? [],
             $data['properties'] ?? [],
             $slots,
-            $contextDefinitions
+            $contextDefinitions,
+            $style
         );
     }
 
@@ -214,6 +223,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $array['accepts_context'] = $serializedConsumers;
         }
 
+        // Omitted when empty so it never encodes as an empty {} / [] in the stored JSON or the response
+        if (!$element->getStyle()->isEmpty()) {
+            $array['style'] = $element->getStyle()->toArray();
+        }
+
         return $array;
     }
 
@@ -251,6 +265,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $acceptsContextConstraints
             : new Optional($acceptsContextConstraints);
 
+        $styleConstraints = $this->elementStyleSerializer->buildConstraints($nestedFields['style']);
+        $styleField = $nestedFields['style']->is(Required::class)
+            ? $styleConstraints
+            : new Optional($styleConstraints);
+
         $constraints = [
             new Type('array'),
             new Collection(
@@ -262,6 +281,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'slots' => $slotsField,
                     'provides_context' => $providesContextField,
                     'accepts_context' => $acceptsContextField,
+                    'style' => $styleField,
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

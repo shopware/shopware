@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -47,11 +48,14 @@ class ContentElementBuilder
      */
     private array $slots = [];
 
+    private ElementStyle $style;
+
     private function __construct(
         private readonly string $component,
         ?string $id = null
     ) {
         $this->id = $id ?? Uuid::randomHex();
+        $this->style = new ElementStyle();
     }
 
     public static function create(string $component, ?string $id = null): self
@@ -113,6 +117,13 @@ class ContentElementBuilder
         return $this;
     }
 
+    public function withStyle(ElementStyle $style): self
+    {
+        $this->style = $style;
+
+        return $this;
+    }
+
     public function build(): ContentElement
     {
         $slots = [];
@@ -130,7 +141,8 @@ class ContentElementBuilder
             dataRequirements: $this->dataRequirements,
             properties: $this->properties,
             slots: $slots,
-            contextDefinitions: new ContextDefinitions($this->providers, $this->consumers)
+            contextDefinitions: new ContextDefinitions($this->providers, $this->consumers),
+            style: $this->style
         );
     }
 }

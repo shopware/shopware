@@ -77,6 +77,14 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -84,6 +92,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -133,6 +134,7 @@ class SchemaBuilder
         ContentElementListField::class => Types::JSON,
         DataRequirementsField::class => Types::JSON,
         ElementSlotsField::class => Types::JSON,
+        ElementStyleField::class => Types::JSON,
         ContextProvidersField::class => Types::JSON,
         ContextConsumersField::class => Types::JSON,
 

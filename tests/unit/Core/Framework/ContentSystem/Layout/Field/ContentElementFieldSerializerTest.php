@@ -17,12 +17,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -227,6 +230,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertFalse($result->hasSlots());
         static::assertSame([], $result->getProvidesContext());
         static::assertSame([], $result->getAcceptsContext());
+        static::assertTrue($result->getStyle()->isEmpty());
     }
 
     #[TestDox('decodes element with properties into a ContentElement with accessible property values')]
@@ -380,6 +384,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('slots', $result);
         static::assertArrayNotHasKey('provides_context', $result);
         static::assertArrayNotHasKey('accepts_context', $result);
+        static::assertArrayNotHasKey('style', $result);
     }
 
     #[TestDox('serializes ContentElement with data requirements to array')]
@@ -510,6 +515,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayHasKey('slots', $collection->fields);
         static::assertArrayHasKey('provides_context', $collection->fields);
         static::assertArrayHasKey('accepts_context', $collection->fields);
+        static::assertArrayHasKey('style', $collection->fields);
         static::assertFalse($collection->allowExtraFields);
         static::assertFalse($collection->allowMissingFields);
 
@@ -517,6 +523,7 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(Optional::class, $collection->fields['slots']);
         static::assertInstanceOf(Optional::class, $collection->fields['provides_context']);
         static::assertInstanceOf(Optional::class, $collection->fields['accepts_context']);
+        static::assertInstanceOf(Optional::class, $collection->fields['style']);
     }
 
     #[TestDox('appends NotBlank constraint when field has Required flag')]
@@ -584,7 +591,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $contextConsumersSerializer,
             // ElementSlotsFieldSerializer needs ContentElementFieldSerializer — build placeholder first
             // and inject after construction via closure binding
-            new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->buildPlaceholderElementSerializer($validator, $definitionRegistry))
+            new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->buildPlaceholderElementSerializer($validator, $definitionRegistry)),
+            $this->buildStyleSerializer($validator, $definitionRegistry)
         );
 
         // Build the canonical serializer with a real ElementSlotsFieldSerializer that references back
@@ -595,7 +603,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializer,
             $contextProvidersSerializer,
             $contextConsumersSerializer,
-            $slotsSerializer
+            $slotsSerializer,
+            $this->buildStyleSerializer($validator, $definitionRegistry)
         );
 
         // Passthrough validator - never raises violations for ContentElement objects
@@ -616,7 +625,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializerPassthrough,
             $contextProvidersSerializerPassthrough,
             $contextConsumersSerializerPassthrough,
-            new ElementSlotsFieldSerializer($passthroughValidator, $definitionRegistry, $canonicalSerializer)
+            new ElementSlotsFieldSerializer($passthroughValidator, $definitionRegistry, $canonicalSerializer),
+            $this->buildStyleSerializer($passthroughValidator, $definitionRegistry)
         );
 
         return [$canonicalSerializer, $passthroughSerializer];
@@ -642,8 +652,22 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializer,
             $contextProvidersSerializer,
             $contextConsumersSerializer,
-            $slotsSerializer
+            $slotsSerializer,
+            $this->buildStyleSerializer($validator, $definitionRegistry)
         );
+    }
+
+    /**
+     * No style options registered: an empty constraint set, and deserialize yields an empty ElementStyle.
+     */
+    private function buildStyleSerializer(
+        ValidatorInterface $validator,
+        DefinitionInstanceRegistry $definitionRegistry
+    ): ElementStyleFieldSerializer {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        return new ElementStyleFieldSerializer($validator, $definitionRegistry, $registry, new StyleOptionConstraintDeriver());
     }
 }
 

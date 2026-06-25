@@ -44,7 +44,7 @@ shopware/
 
 ## AI Skills
 
-This repo ships Agent Skills under `.claude/skills/`. Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
+This repo ships Agent Skills under `.agents/skills/`. Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
 
 ### Definition of Done — mandatory for every change
 
@@ -56,7 +56,7 @@ Before you commit or hand work back:
 - **After review feedback or CI failures**, create a follow-up commit; do not amend or force-push unless explicitly asked.
 - **Lint every file you touched** per the File Linting table below.
 
-When a task matches a skill, open `.claude/skills/<name>/SKILL.md` and follow it **before** implementing.
+When a task matches a skill, open `.agents/skills/<name>/SKILL.md` and follow it **before** implementing.
 
 ### Guidance Skills
 

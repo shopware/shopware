@@ -14,7 +14,7 @@ repository ships several skills; the same pattern applies to any new skill.
 
 Each skill has up to two surfaces — keep them in lockstep:
 
-1. **Interactive** — `.claude/skills/<name>/SKILL.md`. Loaded into a developer's
+1. **Interactive** — `.agents/skills/<name>/SKILL.md`. Loaded into a developer's
    editor session. Emits whatever output format is most useful to a human
    (typically Markdown).
 2. **Unattended (optional)** — a [GitHub Agentic Workflow](https://github.com/githubnext/gh-aw)
@@ -25,7 +25,7 @@ Each skill has up to two surfaces — keep them in lockstep:
 
 When both surfaces exist, they share the same rubric under
 `.github/aw/shared/<name>-policy.md` so they cannot drift in policy. Keep
-interactive-only references under `.claude/skills/<name>/references/` when the
+interactive-only references under `.agents/skills/<name>/references/` when the
 gh aw workflow does not need to import them.
 
 ## Prerequisite
@@ -38,7 +38,7 @@ install command live in [`.github/aw/README.md`](../../.github/aw/README.md) →
 ## File layout
 
 ```
-.claude/skills/<name>/
+.agents/skills/<name>/
 ├── SKILL.md                   # required — frontmatter + body
 ├── references/                # optional — on-demand context for the agent
 │   ├── CLASSIFICATION.md
@@ -62,7 +62,7 @@ skills — never per-skill.
 
 ## Adding a new skill — checklist
 
-1. **Skill body.** Create `.claude/skills/<name>/SKILL.md` with at minimum
+1. **Skill body.** Create `.agents/skills/<name>/SKILL.md` with at minimum
    `name` and `description` in the frontmatter (see the
    [Agent Skills spec](https://agentskills.io/specification)). Keep SKILL.md
    short; push detail into `references/`.
@@ -73,7 +73,7 @@ skills — never per-skill.
 
    **If you build both an interactive surface and an unattended twin,**
    the shared policy must live under `.github/aw/shared/<name>-policy.md`,
-   not inside `.claude/skills/<name>/references/`. gh aw's runtime-import
+   not inside `.agents/skills/<name>/references/`. gh aw's runtime-import
    security validation forbids importing files outside `.github/`. The
    interactive skill references the same file via its repo-root path; the
    gh aw policy fragment imports it via
@@ -87,7 +87,7 @@ skills — never per-skill.
    engine model pin, registration trick, output validation — live in
    [`.github/aw/README.md`](../../.github/aw/README.md).
 
-4. **Update the catalogue.** Add a row to `.claude/skills/README.md`
+4. **Update the catalogue.** Add a row to `.agents/skills/README.md`
    describing the trigger phrases and the deliverable.
 
 5. **Run it once.** `gh aw run <name> -f …` and inspect with
@@ -108,7 +108,7 @@ skills — never per-skill.
 
 - [`.github/aw/README.md`](../../.github/aw/README.md) — gh aw setup,
   pinning, secrets, registration, output validation.
-- [`.claude/skills/README.md`](../../.claude/skills/README.md) — interactive
+- [`.agents/skills/README.md`](../../.agents/skills/README.md) — interactive
   skill catalogue.
 - [`gh aw` Reference](https://github.github.com/gh-aw/) — upstream docs.
 - [Agent Skills specification](https://agentskills.io/specification) — the

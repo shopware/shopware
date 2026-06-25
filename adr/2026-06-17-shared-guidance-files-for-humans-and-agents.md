@@ -25,7 +25,7 @@ We need a documentation model that:
 2. Main subtree `AGENTS.md` files are allowed when they hold real subtree rules or route to substantial existing guidance.
 3. Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
    **Exception:** every tracked `AGENTS.md` has a sibling `CLAUDE.md` whose only body is `@AGENTS.md`, so Claude Code loads the same guidance without duplicating rules.
-4. Task-specific guidance lives in Agent Skills under `.claude/skills/`, where it loads only when the task asks for it.
+4. Task-specific guidance lives in Agent Skills under `.agents/skills/`, where it loads only when the task asks for it.
 5. Reusable normative rules belong in `coding-guidelines/`.
 6. Folder-specific human guidance may live in an existing README when contributors naturally read that README for the work.
 7. ADRs capture durable decisions, trade-offs, and consequences; they should not become living checklists.
@@ -33,7 +33,7 @@ We need a documentation model that:
 
 ## Skill Location
 
-Shopware-specific skills live in this repository under `.claude/skills/`.
+Shopware-specific skills live in this repository under `.agents/skills/`.
 They are branch-local guidance tied to `AGENTS.md`, `coding-guidelines/`, ADRs, PR conventions, and the platform code they describe. Keeping them here makes guidance changes reviewable with the related platform change and avoids a separate install or sync step for agents working from this checkout.
 
 The accepted downside is that exact reuse across plugin or other repositories is harder. That trade-off is intentional: Shopware-specific skills should stay close to the branch-local platform guidance they depend on instead of becoming a second source of truth.

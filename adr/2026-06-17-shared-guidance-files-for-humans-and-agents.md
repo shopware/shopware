@@ -36,7 +36,7 @@ We need a documentation model that:
 Shopware-specific skills live in this repository under `.claude/skills/`.
 They are branch-local guidance tied to `AGENTS.md`, `coding-guidelines/`, ADRs, PR conventions, and the platform code they describe. Keeping them here makes guidance changes reviewable with the related platform change and avoids a separate install or sync step for agents working from this checkout.
 
-The accepted downsides are that exact reuse across plugin or other repositories is harder, and skill experiments create normal product-repo PR noise. A dedicated skills repository is reserved for genuinely generic skills that do not depend on branch-local Shopware guidance.
+The accepted downside is that exact reuse across plugin or other repositories is harder. That trade-off is intentional: Shopware-specific skills should stay close to the branch-local platform guidance they depend on instead of becoming a second source of truth.
 
 ## Initial Skills
 
@@ -60,7 +60,7 @@ The accepted downsides are that exact reuse across plugin or other repositories 
 ## Rejected Alternatives
 
 - **Duplicate guidance into every agent file:** makes startup easy, but guarantees drift.
-- **Dedicated skills repository:** improves reuse across repositories, but creates install/sync work and lets skills drift from branch-local platform docs.
+- **Dedicated skills repository:** separates the skills from the branch-local platform docs they rely on and creates install/sync work.
 - **Use README stubs everywhere:** helps humans and some agents, but relies on agents following references that are not always auto-loaded.
 - **Put all guidance in root `AGENTS.md`:** maximizes visibility, but wastes context and makes task-specific rules feel mandatory for every change.
 

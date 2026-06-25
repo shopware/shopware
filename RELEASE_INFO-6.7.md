@@ -113,6 +113,10 @@ Extension authors can still inspect who triggered the write via `$event->getCont
 If a listener intentionally wants to make a side effect depend on the triggering user or integration, it should check the source explicitly instead of relying on `$event->getContext()->getScope()` being `Context::USER_SCOPE`.
 No adoption is required for normal write-event listeners; remove any extra API permission requirements that only existed to satisfy listener-internal entity writes.
 
+Private media visibility is not implicitly widened by this change.
+During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
+If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`

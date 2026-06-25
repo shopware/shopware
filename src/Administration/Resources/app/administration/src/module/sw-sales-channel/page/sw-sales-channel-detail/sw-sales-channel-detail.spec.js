@@ -14,6 +14,14 @@ const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
     typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    name: 'Storefront',
+    customerGroupId: 'customer-group-id',
+    currencyId: 'currency-id',
+    languageId: 'language-id',
+    paymentMethodId: 'payment-method-id',
+    shippingMethodId: 'shipping-method-id',
+    countryId: 'country-id',
+    navigationCategoryId: 'navigation-category-id',
     analyticsId: '1a2b3c',
     analytics: {
         id: '1a2b3c',
@@ -127,6 +135,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockGet.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -381,7 +390,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).resolves.toBe(true);
         await flushPromises();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
@@ -401,7 +410,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+    it('should reject saveOnLanguageChange without reloading entity data when saving fails', async () => {
         mockSave.mockRejectedValueOnce(new Error('Save failed'));
 
         const wrapper = await createWrapper();
@@ -409,12 +418,31 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
         await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should reject saveOnLanguageChange without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should handle errors in onSave without reloading entity data', async () => {
@@ -431,6 +459,68 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should show validation errors without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should keep backend validation errors when product comparison local validation fails', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const resetApiErrorsSpy = jest.spyOn(errorStore, 'resetApiErrors');
+
+        errorStore.addApiError({
+            expression: 'product_export.product-export-id.fileName',
+            error: new Shopware.Classes.ShopwareError({
+                code: 'PRODUCT_EXPORT_FILE_NAME_REQUIRED',
+                detail: 'File name is required',
+            }),
+        });
+
+        wrapper.vm.salesChannel.name = '';
+
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(resetApiErrorsSpy).not.toHaveBeenCalled();
+        expect(errorStore.api.product_export['product-export-id'].fileName).toBeDefined();
+        expect(errorStore.api.sales_channel['1a2b3c4d'].name).toBeDefined();
+    });
+
+    it('should clear required field errors when missing values are filled', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.languageId = null;
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+
+        wrapper.vm.salesChannel.languageId = 'language-id';
+        await wrapper.vm.$nextTick();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });
 
     it('should detect current template on load when product export bodyTemplate matches', async () => {

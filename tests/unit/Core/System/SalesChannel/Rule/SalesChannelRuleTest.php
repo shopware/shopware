@@ -101,7 +101,7 @@ class SalesChannelRuleTest extends TestCase
                         '=',
                         '!=',
                     ],
-                    'isMatchAny' => true,
+                    'isMatchAny' => false,
                 ],
                 'fields' => [
                     'salesChannelIds' => [

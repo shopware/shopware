@@ -46,7 +46,7 @@ class PaymentMethodRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField('paymentMethodIds', PaymentMethodDefinition::ENTITY_NAME, true);
     }
 }

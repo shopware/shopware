@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -65,7 +66,7 @@ class MaintenanceController extends StorefrontController
             $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
             $response->headers->set('Retry-After', '3600');
 
-            $this->addWhitelistIpHeader($request, $response);
+            $this->addAllowlistIpHeader($request, $response);
 
             return $response;
         }
@@ -82,7 +83,7 @@ class MaintenanceController extends StorefrontController
         $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
         $response->headers->set('Retry-After', '3600');
 
-        $this->addWhitelistIpHeader($request, $response);
+        $this->addAllowlistIpHeader($request, $response);
 
         return $response;
     }
@@ -114,16 +115,22 @@ class MaintenanceController extends StorefrontController
             ['page' => $cmsPage]
         );
 
-        $this->addWhitelistIpHeader($request, $response);
+        $this->addAllowlistIpHeader($request, $response);
 
         return $response;
     }
 
-    private function addWhitelistIpHeader(Request $request, Response $response): void
+    private function addAllowlistIpHeader(Request $request, Response $response): void
     {
-        if ($ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST)) {
-            $ips = implode(',', json_decode($ips, true, flags: \JSON_THROW_ON_ERROR));
+        $ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)
+            // @deprecated tag:v6.8.0 - remove the fallback to the deprecated attribute
+            ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
 
+        if ($ips) {
+            $ips = implode(',', Json::decodeToList((string) $ips));
+
+            $response->headers->set(HttpCacheKernel::MAINTENANCE_ALLOWLIST_HEADER, $ips);
+            // @deprecated tag:v6.8.0 - remove setting the deprecated header
             $response->headers->set(HttpCacheKernel::MAINTENANCE_WHITELIST_HEADER, $ips);
         }
     }

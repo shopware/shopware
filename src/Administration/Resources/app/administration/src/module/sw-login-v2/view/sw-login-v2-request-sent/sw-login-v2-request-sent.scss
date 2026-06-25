@@ -1,5 +1,46 @@
 .sw-login-v2-request-sent {
     display: flex;
     flex-direction: column;
+    align-items: center;
     height: 100%;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--scale-size-56);
+        height: var(--scale-size-56);
+        border-radius: var(--border-radius-round);
+        background: var(--color-background-positive-default);
+        margin-bottom: var(--scale-size-16);
+
+        .mt-icon {
+            color: var(--color-icon-positive-default);
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--scale-size-12);
+    }
+
+    &__title {
+        text-align: center;
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xl);
+    }
+
+    &__description {
+        text-align: center;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+
+        &-email {
+            font-weight: var(--font-weight-semibold);
+        }
+    }
 }

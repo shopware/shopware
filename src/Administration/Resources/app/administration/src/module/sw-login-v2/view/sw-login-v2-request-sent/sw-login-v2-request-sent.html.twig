@@ -1,3 +1,26 @@
 <div class="sw-login-v2-request-sent">
-    <!-- recovery email confirmation goes here -->
+    <div class="sw-login-v2-request-sent__icon">
+        <mt-icon
+            name="check-circle"
+            mode="solid"
+            size="var(--scale-size-24)"
+        />
+    </div>
+
+    <div class="sw-login-v2-request-sent__content">
+        <h1 class="sw-login-v2-request-sent__title">
+            {{ $t('sw-login-v2.requestSent.title') }}
+        </h1>
+
+        <i18n-t
+            keypath="sw-login-v2.requestSent.description"
+            tag="p"
+            scope="local"
+            class="sw-login-v2-request-sent__description"
+        >
+            <template #email>
+                <span class="sw-login-v2-request-sent__description-email">{{ email }}</span>
+            </template>
+        </i18n-t>
+    </div>
 </div>

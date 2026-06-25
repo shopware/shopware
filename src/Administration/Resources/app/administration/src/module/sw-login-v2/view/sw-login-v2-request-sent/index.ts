@@ -7,4 +7,10 @@ import template from './sw-login-v2-request-sent.html.twig';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    data() {
+        return {
+            email: 'j.johnson@company.com',
+        };
+    },
 });

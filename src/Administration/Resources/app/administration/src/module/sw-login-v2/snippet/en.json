@@ -26,6 +26,10 @@
             "errorLinkExpired": "This password recovery link is expired or invalid. Please request a new link.",
             "warningTooManyAttempts": "Too many attempts. Please try again later."
         },
+        "requestSent": {
+            "title": "Email sent",
+            "description": "If {email} is linked to an account, you'll receive a password reset email shortly."
+        },
         "accessDenied": {
             "title": "No access to this store",
             "description": "Your login was successful, but you don't have access to this Shopware store.",

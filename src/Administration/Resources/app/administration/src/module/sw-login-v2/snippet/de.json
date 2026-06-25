@@ -26,6 +26,10 @@
             "errorLinkExpired": "Dieser Link zum Zurücksetzen des Passworts ist abgelaufen oder ungültig. Bitte fordere einen neuen Link an.",
             "warningTooManyAttempts": "Zu viele Versuche. Bitte versuche es später erneut."
         },
+        "requestSent": {
+            "title": "E-Mail gesendet",
+            "description": "Falls {email} mit einem Konto verknüpft ist, erhältst du in Kürze eine E-Mail zum Zurücksetzen des Passworts."
+        },
         "accessDenied": {
             "title": "Kein Zugriff auf diesen Shop",
             "description": "Deine Anmeldung war erfolgreich, aber du hast keinen Zugriff auf diesen Shopware-Shop.",

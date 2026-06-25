@@ -27,6 +27,8 @@ class ContentElementField extends JsonField
 
     private ContextConsumersField $acceptsContextField;
 
+    private ElementStyleField $styleField;
+
     public function __construct(
         string $storageName,
         string $propertyName
@@ -42,6 +44,7 @@ class ContentElementField extends JsonField
         $this->slotsField = new ElementSlotsField('slots', 'slots');
         $this->providesContextField = new ContextProvidersField('provides_context', 'providesContext');
         $this->acceptsContextField = new ContextConsumersField('accepts_context', 'acceptsContext');
+        $this->styleField = new ElementStyleField('style', 'style');
 
         parent::__construct($storageName, $propertyName, [
             $this->idField,
@@ -51,6 +54,7 @@ class ContentElementField extends JsonField
             $this->slotsField,
             $this->providesContextField,
             $this->acceptsContextField,
+            $this->styleField,
         ]);
     }
 
@@ -62,7 +66,8 @@ class ContentElementField extends JsonField
      *     dataRequirements: DataRequirementsField,
      *     slots: ElementSlotsField,
      *     providesContext: ContextProvidersField,
-     *     acceptsContext: ContextConsumersField
+     *     acceptsContext: ContextConsumersField,
+     *     style: ElementStyleField
      * }
      */
     public function getNamedPropertyMapping(): array
@@ -75,6 +80,7 @@ class ContentElementField extends JsonField
             'slots' => $this->slotsField,
             'providesContext' => $this->providesContextField,
             'acceptsContext' => $this->acceptsContextField,
+            'style' => $this->styleField,
         ];
     }
 

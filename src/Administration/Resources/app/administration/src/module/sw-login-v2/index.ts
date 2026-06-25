@@ -54,6 +54,7 @@ Shopware.Module.register('sw-login-v2', {
                 reset: {
                     component: 'sw-login-v2-reset',
                     path: 'reset/:hash',
+                    props: true,
                     meta: {
                         backToLogin: true,
                     },

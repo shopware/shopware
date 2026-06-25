@@ -22,11 +22,11 @@
         line-height: var(--font-line-height-xs);
     }
 
-    &__password {
+    &__password.mt-password-field {
         margin-bottom: var(--scale-size-16);
     }
 
-    &__repeat-password {
+    &__repeat-password.mt-password-field {
         margin-bottom: var(--scale-size-24);
     }
 }

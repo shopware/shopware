@@ -13,10 +13,10 @@
         border-radius: var(--border-radius-round);
         background: var(--color-background-positive-default);
         margin-bottom: var(--scale-size-16);
+    }
 
-        .mt-icon {
-            color: var(--color-icon-positive-default);
-        }
+    &__icon-symbol {
+        color: var(--color-icon-positive-default);
     }
 
     &__content {

@@ -1,4 +1,7 @@
-<div class="sw-login-v2-recovery">
+<form
+    class="sw-login-v2-recovery"
+    @submit.prevent
+>
     <div class="sw-login-v2-recovery__content">
         <h1 class="sw-login-v2-recovery__title">
             {{ $t('sw-login-v2.recovery.title') }}
@@ -28,15 +31,17 @@
     <mt-email-field
         class="sw-login-v2-recovery__email"
         :label="$t('sw-login-v2.recovery.labelEmail')"
+        autocomplete="email"
         required
     />
 
     <mt-button
         class="sw-login-v2-recovery__submit"
+        type="submit"
         variant="primary"
         size="default"
         block
     >
         {{ $t('sw-login-v2.recovery.buttonSubmit') }}
     </mt-button>
-</div>
+</form>

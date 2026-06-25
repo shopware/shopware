@@ -1,4 +1,7 @@
-<div class="sw-login-v2-reset">
+<form
+    class="sw-login-v2-reset"
+    @submit.prevent
+>
     <div class="sw-login-v2-reset__content">
         <h1 class="sw-login-v2-reset__title">
             {{ $t('sw-login-v2.reset.title') }}
@@ -12,21 +15,24 @@
     <mt-password-field
         class="sw-login-v2-reset__password"
         :label="$t('sw-login-v2.reset.labelNewPassword')"
+        autocomplete="new-password"
         required
     />
 
     <mt-password-field
         class="sw-login-v2-reset__repeat-password"
         :label="$t('sw-login-v2.reset.labelRepeatPassword')"
+        autocomplete="new-password"
         required
     />
 
     <mt-button
         class="sw-login-v2-reset__reset"
+        type="submit"
         variant="primary"
         size="default"
         block
     >
         {{ $t('sw-login-v2.reset.buttonSubmit') }}
     </mt-button>
-</div>
+</form>

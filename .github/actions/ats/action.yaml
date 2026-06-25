@@ -171,14 +171,11 @@ runs:
           with:
               working-directory: ${{ inputs.directory }}
 
-        - name: Refresh Package List
-          shell: bash
-          run: sudo apt-get update --allow-releaseinfo-change
-
         - name: Install Playwright Browsers
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npx playwright install --with-deps chromium
+          uses: ./.github/actions/npm-ci-retry
+          with:
+              working-directory: ${{ inputs.directory }}
+              command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
 
         - name: Run your tests
           shell: bash

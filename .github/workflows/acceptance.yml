@@ -323,7 +323,7 @@ jobs:
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
-  check:
+  acceptance-check:
     if: always()
     needs:
       - acceptance

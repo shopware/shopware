@@ -1,8 +1,6 @@
 ---
 name: shopware-php-code
-description: Apply Shopware PHP/server-side coding guidance. Use when editing PHP application, domain, framework, migration, API schema, deprecation, or BC-sensitive code under src/Core, src/Administration PHP, src/Storefront PHP, or PHP tests that exercise those contracts.
-paths:
-  - "src/**/*.php"
+description: Apply Shopware PHP/server-side coding guidance. Use when editing PHP under src/Core, src/Administration, or src/Storefront — including migrations, API schema, deprecations, or BC-sensitive code.
 license: MIT
 ---
 

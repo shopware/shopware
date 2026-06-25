@@ -12,7 +12,7 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             error: false,
             warning: false,
-            showSso: false,
+            showSso: true,
         };
     },
 });

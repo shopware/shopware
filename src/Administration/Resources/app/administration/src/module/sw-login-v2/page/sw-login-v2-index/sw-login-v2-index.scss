@@ -9,6 +9,7 @@
 
     &__card {
         width: 100%;
+        position: relative;
         max-width: 33.75rem;
         background: var(--color-elevation-surface-raised);
         border: 1px solid var(--color-border-secondary-default);

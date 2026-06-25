@@ -7,4 +7,10 @@ import template from './sw-login-v2-index.html.twig';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    data() {
+        return {
+            isLoading: false,
+        };
+    },
 });

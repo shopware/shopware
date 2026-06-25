@@ -21,7 +21,7 @@ class SeoUrlRouteConfigExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SeoUrlRouteConfigException::ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY, $exception->getErrorCode());
-        static::assertSame('Missing parameter key for primary key of entity "product".', $exception->getMessage());
+        static::assertSame('Missing parameter key for primary key in route config of entity "product".', $exception->getMessage());
         static::assertSame(['entityName' => 'product'], $exception->getParameters());
     }
 

@@ -17,7 +17,7 @@ class SeoUrlRouteConfigException extends SeoException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY,
-            'Missing parameter key for primary key of entity "{{ entityName }}".',
+            'Missing parameter key for primary key in route config of entity "{{ entityName }}".',
             ['entityName' => $entityName]
         );
     }

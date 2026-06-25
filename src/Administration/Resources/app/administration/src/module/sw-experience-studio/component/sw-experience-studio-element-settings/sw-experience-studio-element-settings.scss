@@ -30,17 +30,15 @@
         display: grid;
         gap: 8px;
         margin-bottom: var(--scale-size-32);
+
+        > .sw-experience-studio-element-settings__radio-panel-label {
+            margin-bottom: 0;
+        }
     }
 
-    &__radio-panel-headline {
-        color: var(--color-text-primary-default);
-        font-weight: var(--font-weight-semibold);
-        font-size: var(--font-size-s);
-    }
-
-    &__radio-panel-description {
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
+    &__radio-panel-label {
+        margin-bottom: 0;
+        cursor: default;
     }
 
     &__radio-panel-options {

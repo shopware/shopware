@@ -133,7 +133,7 @@
         color: var(--color-text-secondary-default);
         opacity: 0;
         pointer-events: none;
-        transform: translateY(-50%);
+        translate: 0 -50%;
     }
 
     &:not(.is--dragging-snippet, .is--row-dragging) {

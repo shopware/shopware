@@ -64,8 +64,7 @@ class QuantityPriceCalculatorTest extends TestCase
         );
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects($this->any())
-            ->method('getItemRounding')
+        $context->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
@@ -88,8 +87,7 @@ class QuantityPriceCalculatorTest extends TestCase
         );
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects($this->any())
-            ->method('getItemRounding')
+        $context->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 

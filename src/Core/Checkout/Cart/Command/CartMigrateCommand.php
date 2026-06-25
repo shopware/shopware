@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
@@ -50,7 +51,8 @@ class CartMigrateCommand extends Command
         private readonly Connection $connection,
         private readonly int $expireDays,
         private readonly RedisConnectionFactory $factory,
-        private readonly CartCompressor $cartCompressor
+        private readonly CartCompressor $cartCompressor,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct();
     }
@@ -119,7 +121,7 @@ class CartMigrateCommand extends Command
 
         $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
 
-        $created = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $created = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach ($keys as $index => $key) {
             if (\method_exists($this->redis, '_prefix')) {

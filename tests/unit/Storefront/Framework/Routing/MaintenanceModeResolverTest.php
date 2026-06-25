@@ -84,6 +84,22 @@ class MaintenanceModeResolverTest extends TestCase
         );
     }
 
+    public function testIsMaintenanceRequestFallsBackToDeprecatedAllowlistAttribute(): void
+    {
+        $request = self::getRequest(false, false, false, false, true, true);
+
+        // a consumer still providing only the deprecated request attribute must keep working
+        $request->attributes->remove(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST);
+        $request->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
+            json_encode(['192.168.1.16'], \JSON_THROW_ON_ERROR)
+        );
+
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
+
+        static::assertFalse($resolver->isMaintenanceRequest($request));
+    }
+
     /**
      * @return iterable<string, array{0: Request, 1: bool}>
      */
@@ -247,7 +263,7 @@ class MaintenanceModeResolverTest extends TestCase
 
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $isSalesChannelRequest);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $isMaintenanceModeActive);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
 
         return $request;
     }

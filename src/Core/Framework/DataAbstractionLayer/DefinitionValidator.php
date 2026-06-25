@@ -48,7 +48,6 @@ class DefinitionValidator
         'product_configurator_setting.selected',
         'sales_channel.wishlists',
         'product.wishlists',
-        'order.billingAddress',
         'product_search_config.excludedTerms',
         'media.metaDataRaw',
         'product.sortedProperties',
@@ -65,6 +64,8 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer_address.defaultBillingAddressCustomer',
         'customer_address.defaultShippingAddressCustomer',
+        'order.billingAddress',
+        'order_address.billingAddressOrder',
     ];
 
     private const PLURAL_EXCEPTIONS = [
@@ -118,6 +119,9 @@ class DefinitionValidator
         'theme_runtime_config',
         'consent_state',
         'consent_log',
+        'mcp_tool_result_cache',
+        'webhook_delivery',
+        'webhook_stream',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

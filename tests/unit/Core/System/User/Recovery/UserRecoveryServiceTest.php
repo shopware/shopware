@@ -27,6 +27,7 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -83,7 +84,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -93,8 +95,7 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithNoSalesChannel(): void
     {
-        static::expectException(UserException::class);
-        static::expectExceptionMessage('No sales channel found.');
+        $this->expectExceptionObject(UserException::salesChannelNotFound());
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
@@ -138,7 +139,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -203,7 +205,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -274,7 +277,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);

@@ -32,7 +32,9 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->handler = static::getContainer()->get(CleanupCustomerRecoveryTaskHandler::class);
+        /** @var CleanupCustomerRecoveryTaskHandler $handler */
+        $handler = static::getContainer()->get(CleanupCustomerRecoveryTaskHandler::class);
+        $this->handler = $handler;
         $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
     }

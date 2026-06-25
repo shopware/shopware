@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -340,6 +341,7 @@ class ZugferdCreditNoteRendererTest extends TestCase
             new ReferenceInvoiceLoader($referenceInvoiceLoaderConnection),
             $connection,
             $builder ?? $this->createMock(ZugferdBuilder::class),
+            new NativeClock()
         );
     }
 }

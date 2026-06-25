@@ -3,21 +3,26 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
@@ -82,6 +87,91 @@ class AssetServiceTest extends TestCase
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
         static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
         static::assertTrue($filesystem->has('bundles/featurea'));
+    }
+
+    public function testCopyAssetsUsesTopLevelAssetFilesystemVisibility(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PRIVATE,
+                'shopware.filesystem.asset.config' => [
+                    'visibility' => Visibility::PUBLIC,
+                ],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCopyAssetsUsesDeprecatedAssetFilesystemConfigVisibilityBeforeNextMajor(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [
+                    'visibility' => Visibility::PRIVATE,
+                ],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCopyAssetsUsesTopLevelAssetFilesystemVisibilityWhenDeprecatedConfigVisibilityIsUnset(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PRIVATE,
+                'shopware.filesystem.asset.config' => [],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    public function testCopyAssetsFallsBackToPublicAssetFilesystemVisibility(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.config' => [],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PUBLIC], array_values(array_unique($adapter->visibilities)));
     }
 
     public function testCopyAssetsFromBundlePluginInactivePlugin(): void
@@ -340,7 +430,11 @@ class AssetServiceTest extends TestCase
             staticSourceResolver: new StaticSourceResolver([
                 'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
             ]),
-            parameterBag: new ParameterBag(['shopware.filesystem.asset.type' => 'local', 'shopware.filesystem.asset.config' => []])
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 'local',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [],
+            ])
         );
 
         $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle');
@@ -452,7 +546,11 @@ class AssetServiceTest extends TestCase
             $pluginLoader ?? new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $cacheInvalidator ?? $this->createMock(CacheInvalidator::class),
             $staticSourceResolver ?? new StaticSourceResolver(),
-            $parameterBag ?? new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []]),
+            $parameterBag ?? new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [],
+            ]),
             new EventDispatcher(),
         );
     }
@@ -471,5 +569,32 @@ class Administration extends ShopwareAdministration
     public function getPath(): string
     {
         return __DIR__ . '/../_fixtures/AdminBundle';
+    }
+}
+
+/**
+ * @internal
+ */
+class CapturingWriteBatchAdapter extends InMemoryFilesystemAdapter implements WriteBatchInterface
+{
+    /**
+     * @var list<string>
+     */
+    public array $visibilities = [];
+
+    public function writeBatch(CopyBatchInput ...$files): void
+    {
+        foreach ($files as $file) {
+            $this->visibilities[] = $file->visibility;
+
+            $sourceFile = $file->getSourceFile();
+            $content = \is_string($sourceFile) ? file_get_contents($sourceFile) : stream_get_contents($sourceFile);
+
+            \assert(\is_string($content));
+
+            foreach ($file->getTargetFiles() as $targetFile) {
+                $this->write($targetFile, $content, new Config());
+            }
+        }
     }
 }

@@ -20,11 +20,16 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" class="Shopware\Storefront\Theme\BundleConfig\StorefrontBundleConfigStyleFileResolver">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.debug%</argument>
@@ -63,6 +68,8 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">
@@ -110,13 +117,13 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-
         <service id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
 
-            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.app_lifecycle.handler"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
@@ -138,6 +145,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
@@ -174,6 +182,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -270,6 +279,7 @@
         <service id="Shopware\Storefront\Theme\Command\ThemeCompileCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>
@@ -309,13 +319,6 @@
         <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
                  class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
-        </service>
-
-        <service id="Shopware\Storefront\Theme\Subscriber\AppLifecycleSubscriber">
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
-            <argument type="service" id="app.repository"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber">

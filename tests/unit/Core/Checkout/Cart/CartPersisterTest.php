@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class CartPersisterTest extends TestCase
     {
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $connection = $this->createMock(Connection::class);
-        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
         $this->expectException(DecorationPatternException::class);
         $persister->getDecorated();
     }
@@ -49,7 +50,7 @@ class CartPersisterTest extends TestCase
             ->with('invalid serialized data', 0)
             ->willThrowException(new \TypeError('Unserialization failed'));
 
-        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, $cartCompressor);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, $cartCompressor, new NativeClock());
 
         $this->expectException(CartTokenNotFoundException::class);
         $persister->load('token', Generator::generateSalesChannelContext());
@@ -73,7 +74,7 @@ class CartPersisterTest extends TestCase
 
         $eventDispatcher = new CollectingEventDispatcher();
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());
 
@@ -102,7 +103,7 @@ class CartPersisterTest extends TestCase
 
         $eventDispatcher = new CollectingEventDispatcher();
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());
 

@@ -55,8 +55,14 @@ const context = {
     salesChannel: {
         id: '1',
     },
+    shippingMethod: {
+        id: 'shipping-method-1',
+    },
     customer: {
         ...customerData,
+    },
+    context: {
+        currencyId: '1',
     },
     currency: {
         isoCode: 'EUR',
@@ -334,6 +340,22 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('$');
+    });
+
+    it('should not update cart context while hydrating existing sales channel values', async () => {
+        const wrapper = await createWrapper();
+        const updateOrderContextSpy = jest.spyOn(Shopware.Store.get('swOrder'), 'updateOrderContext');
+
+        await wrapper.setProps({
+            context: {
+                ...wrapper.vm.context,
+                currencyId: '1',
+                shippingMethodId: 'shipping-method-1',
+            },
+        });
+        await flushPromises();
+
+        expect(updateOrderContextSpy).not.toHaveBeenCalled();
     });
 
     it('should emit shipping-cost-change event when edit shipping cost field', async () => {

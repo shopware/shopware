@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\AbstractShopIdChangeStrategy;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
@@ -57,8 +57,7 @@ class ResolverTest extends TestCase
         $this->secondStrategy->expects($this->never())
             ->method('resolve');
 
-        $this->expectException(ShopIdChangeStrategyNotFoundException::class);
-        $this->expectExceptionMessage('Shop ID change resolver with name "ThirdStrategy" not found.');
+        $this->expectExceptionObject(AppException::shopIdChangeResolveStrategyNotFound('ThirdStrategy'));
         $this->appUrlChangedResolverStrategy->resolve('ThirdStrategy', Context::createDefaultContext());
     }
 

@@ -26,9 +26,13 @@ export default {
             isLoading: true,
             cacheInfo: null,
             processes: {
+                refreshCache: false,
                 normalClearCache: false,
                 updateIndexes: false,
             },
+            /**
+             * @deprecated tag:v6.8.0 - will be removed.
+             */
             processSuccess: {
                 normalClearCache: false,
                 updateIndexes: false,
@@ -151,6 +155,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed.
+         */
         resetButtons() {
             this.processSuccess = {
                 normalClearCache: false,
@@ -171,7 +178,7 @@ export default {
                 message: this.$t('sw-settings-cache.notifications.clearDataCache.started'),
             });
 
-            this.processes.normalClearCache = true;
+            this.processes.refreshCache = true;
             this.cacheApiService
                 .delayed()
                 .then(() => {
@@ -189,7 +196,7 @@ export default {
                     });
                 })
                 .finally(() => {
-                    this.processes.normalClearCache = false;
+                    this.processes.refreshCache = false;
                 });
         },
 

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundExcep
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\DataAbstractionLayer\TestEntityDefinition;
-use Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element\Fixtures\TestCmsElementResolver;
+use Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element\Fixtures\StubCmsElementResolver;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -41,7 +41,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
     public function testResolveEmptyValue(): void
     {
-        $actual = (new TestCmsElementResolver())->runResolveEntityValue(null, 'parent.manufacturer.description');
+        $actual = (new StubCmsElementResolver())->runResolveEntityValue(null, 'parent.manufacturer.description');
 
         static::assertNull($actual);
     }
@@ -51,7 +51,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier('product');
 
-        $actual = (new TestCmsElementResolver())->runResolveEntityValue($product, 'parent.manufacturer.description');
+        $actual = (new StubCmsElementResolver())->runResolveEntityValue($product, 'parent.manufacturer.description');
 
         static::assertNull($actual);
     }
@@ -70,7 +70,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $childProduct->setUniqueIdentifier('childProduct');
         $childProduct->setParent($product);
 
-        $actual = (new TestCmsElementResolver())->runResolveEntityValue($childProduct, 'parent.manufacturer.description');
+        $actual = (new StubCmsElementResolver())->runResolveEntityValue($childProduct, 'parent.manufacturer.description');
 
         static::assertSame($expected, $actual);
     }
@@ -85,7 +85,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $product->setUniqueIdentifier('product');
         $product->setManufacturer($manufacturer);
 
-        $actual = (new TestCmsElementResolver())->runResolveEntityValue($product, 'manufacturer.description');
+        $actual = (new StubCmsElementResolver())->runResolveEntityValue($product, 'manufacturer.description');
 
         static::assertSame($expected, $actual);
     }
@@ -106,7 +106,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $childProduct->setParent($product);
         $childProduct->setTranslated(['translatedDescription' => 'something went wrong']);
 
-        $cmsElementResolver = new TestCmsElementResolver();
+        $cmsElementResolver = new StubCmsElementResolver();
         $actualTranslation = $cmsElementResolver->runResolveEntityValue($childProduct, 'parent.manufacturer.description');
         $actualName = $cmsElementResolver->runResolveEntityValue($childProduct, 'parent.manufacturer.name');
 
@@ -127,7 +127,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $entity = new Entity();
         $entity->addExtension('imageSlider', $imageSliderStruct);
 
-        $actual = (new TestCmsElementResolver())->runResolveEntityValue($entity, 'imageSlider.sliderItems.0.url');
+        $actual = (new StubCmsElementResolver())->runResolveEntityValue($entity, 'imageSlider.sliderItems.0.url');
 
         static::assertSame($expected, $actual);
     }
@@ -137,9 +137,8 @@ class AbstractCmsElementResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier('product');
 
-        $this->expectException(PropertyNotFoundException::class);
-        $this->expectExceptionMessage('Property "doesntActuallyExist" does not exist in entity "Shopware\Core\Content\Product\ProductEntity".');
-        (new TestCmsElementResolver())->runResolveEntityValue($product, 'that.doesntActuallyExist');
+        $this->expectExceptionObject(new PropertyNotFoundException('doesntActuallyExist', ProductEntity::class));
+        (new StubCmsElementResolver())->runResolveEntityValue($product, 'that.doesntActuallyExist');
     }
 
     public function testResolveEntityValueToString(): void
@@ -157,7 +156,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
         $context = $this->getEntityResolverContext($product);
 
-        $actual = (new TestCmsElementResolver())->runResolveEntityValueToString(
+        $actual = (new StubCmsElementResolver())->runResolveEntityValueToString(
             $childProduct,
             'parent.manufacturer.updatedAt',
             $context

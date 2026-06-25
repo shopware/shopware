@@ -1,10 +1,61 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-async function createWrapper(categories = null) {
+function createCategory({ id, name, parentId = null, childCount = 0, afterCategoryId = null, path = null }) {
+    return {
+        id,
+        name,
+        translated: { name },
+        parentId,
+        childCount,
+        afterCategoryId,
+        path,
+        active: true,
+        navigationSalesChannels: [],
+        footerSalesChannels: [],
+        serviceSalesChannels: [],
+    };
+}
+
+const interactiveCategories = {
+    firstRoot: createCategory({
+        id: 'first-root',
+        name: 'First root',
+        childCount: 1,
+    }),
+    secondRoot: createCategory({
+        id: 'second-root',
+        name: 'Second root',
+        childCount: 1,
+        afterCategoryId: 'first-root',
+    }),
+    firstChild: createCategory({
+        id: 'first-child',
+        name: 'First child',
+        parentId: 'first-root',
+        path: '|first-root|',
+    }),
+    secondChild: createCategory({
+        id: 'second-child',
+        name: 'Second child',
+        parentId: 'second-root',
+        childCount: 1,
+        path: '|second-root|',
+    }),
+    secondGrandChild: createCategory({
+        id: 'second-grand-child',
+        name: 'Second grandchild',
+        parentId: 'second-child',
+        path: '|second-root|second-child|',
+    }),
+};
+
+async function createWrapper(categories = null, props = {}) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -26,9 +77,15 @@ async function createWrapper(categories = null) {
                 'sw-loader': true,
                 'sw-skeleton': true,
                 'sw-tree': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'initiallyExpandedRoot',
+                    ],
                     template: `
-                        <div class="sw-tree">
+                        <div
+                            class="sw-tree"
+                            :data-initially-expanded-root="String(initiallyExpandedRoot)"
+                        >
                           <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                         </div>
                     `,
@@ -66,11 +123,82 @@ async function createWrapper(categories = null) {
         },
         props: {
             currentLanguageId: '1a2b3c',
+            ...props,
+        },
+    });
+}
+
+async function createInteractiveWrapper({ props = {} } = {}) {
+    const routes = [
+        {
+            name: 'sw.category.detail',
+            path: '/category/detail/:id',
+        },
+    ];
+
+    const router = createRouter({
+        routes,
+        history: createWebHashHistory(),
+    });
+
+    return mount(await wrapTestComponent('sw-category-tree', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            mocks: {
+                $router: router,
+            },
+            stubs: {
+                'sw-loader': true,
+                'sw-skeleton': true,
+                'sw-tree': await wrapTestComponent('sw-tree'),
+                'sw-tree-item': await wrapTestComponent('sw-tree-item'),
+                'sw-tree-input-field': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-confirm-field': true,
+                'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer', { sync: true }),
+            },
+            provide: {
+                syncService: {},
+                validationService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        search: (criteria) => {
+                            const parentId = criteria.filters.find((filter) => filter.field === 'parentId')?.value ?? null;
+
+                            return Promise.resolve(
+                                Object.values(interactiveCategories).filter((category) => category.parentId === parentId),
+                            );
+                        },
+                        get: (id) => {
+                            const children = Object.values(interactiveCategories).filter((category) => {
+                                return category.parentId === id;
+                            });
+
+                            return Promise.resolve({
+                                ...interactiveCategories[id],
+                                children,
+                            });
+                        },
+                        delete: () => Promise.resolve(),
+                        saveAll: () => Promise.resolve(),
+                        syncDeleted: () => Promise.resolve(),
+                    }),
+                },
+            },
+        },
+        props: {
+            currentLanguageId: '1a2b3c',
+            ...props,
         },
     });
 }
 
 describe('src/module/sw-category/component/sw-category-tree', () => {
+    beforeEach(() => {
+        Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
     it('should be able to sort the items', async () => {
         const wrapper = await createWrapper();
 
@@ -248,6 +376,37 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(itemUrl).not.toBe('#/detail/1a2b');
     });
 
+    it('should keep the first root category closed when loading children in another root category', async () => {
+        const wrapper = await createInteractiveWrapper();
+        await flushPromises();
+
+        const getFirstRoot = () => wrapper.get('[data-item-id="first-root"]');
+
+        expect(getFirstRoot().attributes('aria-expanded')).toBe('true');
+
+        await getFirstRoot().get('.sw-tree-item__toggle').trigger('click');
+        await flushPromises();
+
+        expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
+
+        await wrapper.get('[data-item-id="second-child"] .sw-tree-item__toggle').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.get('[data-item-id="second-grand-child"]').isVisible()).toBe(true);
+        expect(getFirstRoot().attributes('aria-expanded')).toBe('false');
+    });
+
+    it('should not initially expand root categories when a category is selected', async () => {
+        Shopware.Store.get('swCategoryDetail').category = interactiveCategories.secondChild;
+
+        const wrapper = await createWrapper(interactiveCategories, {
+            categoryId: 'second-child',
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-tree').attributes('data-initially-expanded-root')).toBe('false');
+    });
+
     [
         { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
         {
@@ -362,6 +521,33 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(emitted).toBeTruthy();
         expect(emitted).toEqual([[1]]);
         expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(1);
+    });
+
+    it('should not allow checked elements count to become negative when deleting the last checked category', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            isLoadingInitialData: false,
+        });
+
+        wrapper.vm.$refs.categoryTree.checkedElementsCount = 0;
+
+        const category = {
+            id: '1a',
+            isNew: () => false,
+        };
+
+        await wrapper.vm.onDeleteCategory({
+            data: category,
+            children: [],
+            checked: true,
+        });
+
+        const emitted = wrapper.emitted()['category-checked-elements-count'];
+
+        expect(emitted).toBeTruthy();
+        expect(emitted).toEqual([[0]]);
+        expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(0);
     });
 
     it('should fix the sorting right after deleting a single category', async () => {

@@ -7,11 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 #[Package('framework')]
@@ -80,6 +80,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/installer',
         '/_fragment/',
         '/robots.txt',
+        '/storybook/',
     ];
 
     /**
@@ -120,13 +121,21 @@ class RequestTransformer implements RequestTransformerInterface
          * getBaseUrl()  = /subdir/index.php (includes script name when explicitly in the url)
          */
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
-        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel->url);
+        // if no replacement occurred, consider punycode urls
+        if ($baseUrl === $salesChannel->url) {
+            $baseUrl = str_replace(
+                $this->getSchemeAndAsciiHttpHost($request) . $request->getBasePath(),
+                '',
+                $salesChannel->url
+            );
+        }
 
         $resolved = $this->resolveSeoUrl(
             $request,
             $baseUrl,
-            $salesChannel['languageId'],
-            $salesChannel['salesChannelId']
+            $salesChannel->languageId,
+            $salesChannel->salesChannelId
         );
 
         $currentRequestUri = $request->getRequestUri();
@@ -178,28 +187,34 @@ class RequestTransformer implements RequestTransformerInterface
         );
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
-        $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
+        $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel->salesChannelId);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel->locale);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel->snippetSetId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel->currencyId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel->id);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel->themeId);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel->themeName);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel->parentThemeName);
 
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,
-            (bool) $salesChannel['maintenance']
+            (bool) $salesChannel->maintenance
         );
 
         $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST,
+            $salesChannel->maintenanceIpAllowlist
+        );
+
+        // @deprecated tag:v6.8.0 - remove this block, the deprecated attribute is kept in sync for backwards compatibility only
+        $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
-            $salesChannel['maintenanceIpWhitelist']
+            $salesChannel->maintenanceIpAllowlist
         );
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $urlPath = parse_url($salesChannel['url'], \PHP_URL_PATH);
+            $urlPath = parse_url($salesChannel->url, \PHP_URL_PATH);
             if ($urlPath === false || $urlPath === null) {
                 $urlPath = '';
             }
@@ -215,7 +230,7 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
-        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->languageId);
         // add all headers from the original request, overrides the headers from the domain mapping if they are passed on the request directly
         $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
@@ -261,46 +276,49 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
-    /**
-     * @return Domain|null
-     */
-    private function findSalesChannel(Request $request): ?array
+    private function findSalesChannel(Request $request): ?DomainStruct
     {
-        $domains = $this->domainLoader->load();
+        $domains = $this->domainLoader->loadDomains();
 
-        if ($domains === []) {
+        if ($domains->count() === 0) {
             return null;
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = $this->getNormalizedRequestUrl($request);
+
+        if ($this->isHttpHostPunycode($request)) {
+            $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
+            $domain = $domains->get($requestUrl) ?? $domains->get($asciiRequestUrl);
+            // append the trailing slash to keep the base url a full path segment (so `/de` does not match `/destination`)
+            $filter = static fn (DomainStruct $candidate): bool => str_starts_with($requestUrl, $candidate->url . '/')
+                || str_starts_with($asciiRequestUrl, $candidate->url . '/');
+        } else {
+            $domain = $domains->get($requestUrl);
+            $filter = static fn (DomainStruct $candidate): bool => str_starts_with($requestUrl, $candidate->url . '/');
+        }
 
         // direct hit
-        if (\array_key_exists($requestUrl, $domains)) {
-            $domain = $domains[$requestUrl];
-            $domain['url'] = rtrim($domain['url'], '/');
-
+        if ($domain !== null) {
             return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
+        $matches = $domains->filter($filter);
 
-        if ($domains === []) {
+        if ($matches->count() === 0) {
             return null;
         }
 
         // determine most matching shop base url
         $lastBaseUrl = '';
-        $bestMatch = current($domains);
-        foreach ($domains as $baseUrl => $urlConfig) {
+        $bestMatch = $matches->first();
+        foreach ($matches as $baseUrl => $match) {
             if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
-                $bestMatch = $urlConfig;
+                $bestMatch = $match;
                 $lastBaseUrl = $baseUrl;
             }
         }
-
-        $bestMatch['url'] = rtrim($bestMatch['url'], '/');
 
         return $bestMatch;
     }
@@ -324,6 +342,24 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
+        // Strip the front-controller script name (e.g. `index.php`) when Symfony left it embedded
+        // in the path info. This happens when the script name follows a virtual base URL such as
+        // `/de/index.php/navigation/{id}` — Symfony's base-URL auto-detection requires the script
+        // name to sit at the start of the request URI, fails to match it after the language prefix
+        // and so leaks the script name *basename* (never the full script path) into getPathInfo().
+        // Without this strip, the SEO resolver receives `index.php/navigation/{id}` and never finds
+        // the canonical SEO URL, so the redirect to the SEO-friendly path is skipped.
+        //
+        // We use basename() because getScriptName() can include a subdirectory prefix
+        // (e.g. `/sw6/public/index.php`) while Symfony only leaks the bare filename when its
+        // base-url auto-detection failed to align. The comparison is case-sensitive — matches
+        // Symfony/PHP behavior on POSIX hosts. The trailing `/` on the str_starts_with check
+        // guards against false-positives like `/index.php-shop` slugs.
+        $scriptName = basename($request->getScriptName());
+        if ($scriptName !== '' && (str_starts_with($seoPathInfo, $scriptName . '/') || $seoPathInfo === $scriptName)) {
+            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($scriptName));
+        }
+
         $resolved = $this->resolver->resolve($languageId, $salesChannelId, $seoPathInfo);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
@@ -334,6 +370,28 @@ class RequestTransformer implements RequestTransformerInterface
     private function getSchemeAndHttpHost(Request $request): string
     {
         return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
+    }
+
+    private function getSchemeAndAsciiHttpHost(Request $request): string
+    {
+        return $request->getScheme() . '://' . $request->getHttpHost();
+    }
+
+    private function isHttpHostPunycode(Request $request): bool
+    {
+        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost());
+    }
+
+    /**
+     * domain urls and request uri should be in same format, all with trailing slash
+     */
+    private function getNormalizedRequestUrl(Request $request, bool $unicode = true): string
+    {
+        $schemeAndHost = $unicode === true
+            ? $this->getSchemeAndHttpHost($request)
+            : $this->getSchemeAndAsciiHttpHost($request);
+
+        return rtrim($schemeAndHost . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
     }
 
     /**

@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -478,6 +479,7 @@ class CreditNoteRendererTest extends TestCase
             $connection,
             $this->createMock(DocumentFileRendererRegistry::class),
             $this->createMock(ValidatorInterface::class),
+            new NativeClock()
         );
     }
 }

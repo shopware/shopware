@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -100,8 +101,7 @@ class OrderPersisterTest extends TestCase
             $this->createMock(CartSerializationCleaner::class),
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CartException::customerNotLoggedIn());
 
         $persister->persist($cart, $context);
     }
@@ -118,8 +118,7 @@ class OrderPersisterTest extends TestCase
             $this->createMock(CartSerializationCleaner::class),
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Cart is empty');
+        $this->expectExceptionObject(new EmptyCartException());
 
         $persister->persist($cart, $context);
     }

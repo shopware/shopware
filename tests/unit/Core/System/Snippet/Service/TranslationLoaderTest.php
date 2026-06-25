@@ -34,7 +34,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -103,8 +102,7 @@ class TranslationLoaderTest extends TestCase
 
         $loader = $this->getTranslationLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
         $loader->load('es-ES', $this->context);
     }
 
@@ -317,8 +315,7 @@ class TranslationLoaderTest extends TestCase
 
         $loader = $this->getTranslationLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
         $loader->load('es-ES', $this->context);
     }
 
@@ -411,7 +408,6 @@ class TranslationLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: $this->client,
             config: $this->config,
-            validator: Validation::createValidator(),
         );
     }
 

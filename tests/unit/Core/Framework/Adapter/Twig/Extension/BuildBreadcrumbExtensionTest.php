@@ -83,6 +83,28 @@ class BuildBreadcrumbExtensionTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetFullBreadcrumbUsesSalesChannelContextFallback(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $category = new CategoryEntity();
+
+        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder
+            ->expects($this->once())
+            ->method('build')
+            ->with($category, $salesChannelContext->getSalesChannel())
+            ->willReturn([]);
+
+        $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
+            ->getFullBreadcrumb([
+                'context' => Context::createDefaultContext(),
+                'salesChannelContext' => $salesChannelContext,
+            ], $category, Context::createDefaultContext());
+
+        static::assertSame([], $breadCrumb);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbByIdWithNonExistingCategoryId(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

@@ -25,6 +25,8 @@ abstract class Rule extends Struct
 
     public const OPERATOR_EMPTY = 'empty';
 
+    public const OPERATOR_BETWEEN = 'between';
+
     /**
      * Factor to convert from m^3 to mm^3.
      * The product volume is calculated in cubic millimeters, but the rule value is stored in cubic meters.

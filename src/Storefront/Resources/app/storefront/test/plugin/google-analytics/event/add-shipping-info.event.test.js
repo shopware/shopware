@@ -25,6 +25,7 @@ describe('plugin/google-analytics/events/add-shipping-info.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
                     data-id="product-123"
+                    data-sku="product-123"
                     data-name="Test Product"
                     data-quantity="2"
                     data-price="99.99"

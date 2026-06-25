@@ -95,8 +95,7 @@ class MediaRouteTest extends TestCase
 
     public function testLoadThrowsMediaExceptionWhenMediaNotFound(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A media id must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaId());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext

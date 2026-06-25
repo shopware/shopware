@@ -249,11 +249,15 @@ class RequestTransformerTest extends TestCase
         yield 'punycode' => [
             [
                 self::getGermanSalesChannel($germanId, $gerDomainId, 'http://würmer.test'),
+                self::getEnglishSalesChannel($englishId, $ukDomainId, 'http://xn--shpwre-eua5l.test'),
             ],
             [
                 new ExpectedRequest('http://xn--wrmer-kva.test', '', '/', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
                 new ExpectedRequest('http://xn--wrmer-kva.test/', '', '/', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
                 new ExpectedRequest('http://xn--wrmer-kva.test/foobar', '', '/foobar', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                new ExpectedRequest('http://xn--shpwre-eua5l.test', '', '/', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                new ExpectedRequest('http://xn--shpwre-eua5l.test/', '', '/', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                new ExpectedRequest('http://xn--shpwre-eua5l.test/foobar', '', '/foobar', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
             ],
         ];
     }

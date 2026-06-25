@@ -16,10 +16,12 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -140,6 +142,32 @@ class CacheHeadersServiceTest extends TestCase
         // all logged in customer should share the same cache hash if no rules match
         yield 'Test with logged in customer' => [$customer, $emptyCart, true, 'logged-in'];
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
+    }
+
+    public function testStorefrontCacheHashDoesNotContainLanguageId(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStoreApiCacheHashContainsLanguageId(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
     }
 
     public function testCurrencyChangeLeadsToDifferentCacheHash(): void
@@ -312,5 +340,27 @@ class CacheHeadersServiceTest extends TestCase
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when custom cookie is different
         static::assertNotSame($firstHash, $secondHash);
+    }
+
+    private function createCacheHashContext(string $languageId): SalesChannelContext
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(null);
+        $salesChannelContext->method('getRuleIds')->willReturn([]);
+        $salesChannelContext->method('getRuleIdsByAreas')->willReturn([]);
+        $salesChannelContext->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $salesChannelContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $salesChannelContext->method('getLanguageId')->willReturn($languageId);
+        $salesChannelContext->method('getTaxState')->willReturn('gross');
+
+        return $salesChannelContext;
+    }
+
+    private function createFilledCart(): Cart
+    {
+        $cart = new Cart('filled');
+        $cart->add(new LineItem('test', 'test', 'test'));
+
+        return $cart;
     }
 }

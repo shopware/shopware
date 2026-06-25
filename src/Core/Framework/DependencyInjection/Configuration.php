@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -59,6 +60,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
             ->end();
 
@@ -78,7 +80,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('public')
-                    ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -87,7 +88,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('temp')
-                    ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('visibility')->end()
@@ -95,7 +95,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('theme')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -104,7 +105,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('asset')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -113,7 +115,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('sitemap')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -341,6 +344,13 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
                     ->end()
                 ->end()
+                ->scalarNode('thumbnail_processor')
+                    ->defaultValue('gd')
+                    ->validate()
+                        ->ifNotInArray(['gd', 'imagick'])
+                        ->thenInvalid('Invalid thumbnail processor "%s". Allowed values are "gd" or "imagick".')
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
@@ -355,6 +365,175 @@ class Configuration implements ConfigurationInterface
                             ->min(1)
                             ->max(10080)
                             ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('svg')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('allowed_elements')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'a',
+                                'circle',
+                                'clippath',
+                                'defs',
+                                'desc',
+                                'ellipse',
+                                'g',
+                                'image',
+                                'line',
+                                'lineargradient',
+                                'marker',
+                                'mask',
+                                'metadata',
+                                'path',
+                                'pattern',
+                                'polygon',
+                                'polyline',
+                                'radialgradient',
+                                'rect',
+                                'stop',
+                                'style',
+                                'svg',
+                                'switch',
+                                'symbol',
+                                'text',
+                                'title',
+                                'tspan',
+                                'use',
+                                'view',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('allowed_attributes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'alignment-baseline',
+                                'aria-describedby',
+                                'aria-hidden',
+                                'aria-label',
+                                'aria-labelledby',
+                                'aria-roledescription',
+                                'baseline-shift',
+                                'class',
+                                'clip-path',
+                                'clip-rule',
+                                'clippathunits',
+                                'color',
+                                'color-interpolation',
+                                'color-interpolation-filters',
+                                'cursor',
+                                'cx',
+                                'cy',
+                                'd',
+                                'direction',
+                                'display',
+                                'dominant-baseline',
+                                'dx',
+                                'dy',
+                                'fill',
+                                'fill-opacity',
+                                'fill-rule',
+                                'filter',
+                                'flood-color',
+                                'flood-opacity',
+                                'font-family',
+                                'font-size',
+                                'font-size-adjust',
+                                'font-stretch',
+                                'font-style',
+                                'font-variant',
+                                'font-weight',
+                                'fx',
+                                'fy',
+                                'gradienttransform',
+                                'gradientunits',
+                                'height',
+                                'href',
+                                'id',
+                                'image-rendering',
+                                'lang',
+                                'letter-spacing',
+                                'lighting-color',
+                                'marker',
+                                'marker-end',
+                                'marker-mid',
+                                'marker-start',
+                                'markerheight',
+                                'markerunits',
+                                'markerwidth',
+                                'mask',
+                                'mask-type',
+                                'maskcontentunits',
+                                'maskunits',
+                                'offset',
+                                'opacity',
+                                'orient',
+                                'overflow',
+                                'paint-order',
+                                'patterncontentunits',
+                                'patterntransform',
+                                'patternunits',
+                                'pointer-events',
+                                'points',
+                                'preserveaspectratio',
+                                'r',
+                                'refx',
+                                'refy',
+                                'role',
+                                'rx',
+                                'ry',
+                                'shape-rendering',
+                                'spreadmethod',
+                                'stop-color',
+                                'stop-opacity',
+                                'stroke',
+                                'stroke-dasharray',
+                                'stroke-dashoffset',
+                                'stroke-linecap',
+                                'stroke-linejoin',
+                                'stroke-miterlimit',
+                                'stroke-opacity',
+                                'stroke-width',
+                                'style',
+                                'text-anchor',
+                                'text-decoration',
+                                'text-overflow',
+                                'text-rendering',
+                                'transform',
+                                'transform-origin',
+                                'type',
+                                'unicode-bidi',
+                                'vector-effect',
+                                'version',
+                                'viewbox',
+                                'visibility',
+                                'white-space',
+                                'width',
+                                'word-spacing',
+                                'writing-mode',
+                                'x',
+                                'x1',
+                                'x2',
+                                'xlink:href',
+                                'xml:lang',
+                                'xml:space',
+                                'xmlns',
+                                'xmlns:xlink',
+                                'y',
+                                'y1',
+                                'y2',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('allowed_reference_attributes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'href',
+                                'xlink:href',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();
@@ -431,8 +610,16 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('redis_prefix')->end()
-                ->booleanNode('cache_compression')->defaultTrue()->end()
-                ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('cache_compression')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead.')
+                ->end()
+                ->booleanNode('compress')->defaultTrue()->end()
+                ->scalarNode('cache_compression_method')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead.')
+                ->end()
+                ->scalarNode('compression_method')->defaultValue('gzip')->end()
                 ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
@@ -687,6 +874,10 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                 ->children()
                     ->booleanNode('indexing')->defaultTrue()->end()
+                    ->integerNode('relevant_keyword_count')
+                        ->min(1)
+                        ->defaultValue(8)
+                    ->end()
                 ->end()
             ->end();
 
@@ -1211,9 +1402,18 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('metrics')
                 ->children()
                     ->scalarNode('namespace')->end()
-                    ->booleanNode('allow_unknown_labels')->defaultFalse()->end()
-                    ->booleanNode('allow_unknown_label_values')->defaultFalse()->end()
-                    ->booleanNode('enable_internal_metrics')->defaultFalse()->end()
+                    ->booleanNode('allow_unknown_labels')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Unknown label names are now always validated.')
+                        ->defaultFalse()
+                    ->end()
+                    ->booleanNode('allow_unknown_label_values')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Use per-label "policy" in metric definitions instead.')
+                        ->defaultFalse()
+                    ->end()
+                    ->booleanNode('enable_internal_metrics')
+                        ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. Use per-metric "enabled" instead.')
+                        ->defaultFalse()
+                    ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
                     ->arrayNode('definitions')
@@ -1234,10 +1434,29 @@ class Configuration implements ConfigurationInterface
                                 ->arrayNode('labels')
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
+                                        ->validate()
+                                            ->ifTrue(static function (array $label): bool {
+                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
+                                                $hasPolicy = isset($label['policy']);
+
+                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
+                                                    return true;
+                                                }
+                                                if (!$hasAllowedValues && !$hasPolicy) {
+                                                    return true;
+                                                }
+
+                                                return false;
+                                            })
+                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                        ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
-                                                ->scalarPrototype()
+                                                ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
                                             ->end()
+                                            ->enumNode('policy')
+                                                ->values(LabelPolicy::values())
                                             ->end()
                                         ->end()
                                     ->end()
@@ -1280,6 +1499,27 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createMcpSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('mcp'))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_tools')
+                    ->info('Restrict which MCP tools are exposed. Empty array means all tools are allowed.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->integerNode('app_tool_timeout')
+                    ->info('Timeout in seconds for app webhook MCP tool calls.')
+                    ->defaultValue(10)
+                    ->min(1)
+                ->end()
             ->end();
 
         return $rootNode;

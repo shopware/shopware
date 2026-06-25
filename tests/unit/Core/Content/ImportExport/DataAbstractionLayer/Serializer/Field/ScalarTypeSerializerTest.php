@@ -53,8 +53,7 @@ class ScalarTypeSerializerTest extends TestCase
         $field = new IntField('foo', 'bar');
         $value = 'as1268ds';
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage('Deserialization failed for field "bar" with value "as1268ds" to type "integer"');
+        $this->expectExceptionObject(ImportExportException::deserializationFailed('bar', 'as1268ds', 'integer'));
 
         ScalarTypeSerializer::deserializeInt($config, $field, $value);
     }
@@ -65,8 +64,7 @@ class ScalarTypeSerializerTest extends TestCase
         $field = new IntField('foo', 'bar');
         $value = 'as1268ds';
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage('Deserialization failed for field "bar" with value "as1268ds" to type "integer"');
+        $this->expectExceptionObject(ImportExportException::deserializationFailed('bar', 'as1268ds', 'integer'));
 
         ScalarTypeSerializer::deserializeInt($config, $field, $value);
     }
@@ -122,8 +120,7 @@ class ScalarTypeSerializerTest extends TestCase
         $field = new BoolField('foo', 'bar');
         $value = 'NotABoolValue';
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage('Deserialization failed for field "bar" with value "NotABoolValue" to type "boolean"');
+        $this->expectExceptionObject(ImportExportException::deserializationFailed('bar', 'NotABoolValue', 'boolean'));
 
         ScalarTypeSerializer::deserializeBool($config, $field, $value);
     }
@@ -134,8 +131,7 @@ class ScalarTypeSerializerTest extends TestCase
         $field = new BoolField('foo', 'bar');
         $value = 'NotABoolValue';
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage('Deserialization failed for field "bar" with value "NotABoolValue" to type "boolean"');
+        $this->expectExceptionObject(ImportExportException::deserializationFailed('bar', 'NotABoolValue', 'boolean'));
 
         ScalarTypeSerializer::deserializeBool($config, $field, $value);
     }

@@ -13,6 +13,7 @@
     <import resource="../../NumberRange/**/*Controller.php" type="attribute" />
     <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="attribute" />
     <import resource="../../SalesChannel/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../SalesChannel/File/**/*Controller.php" type="attribute" />
     <import resource="../../StateMachine/Api/*Controller.php" type="attribute" />
     <import resource="../../Currency/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Language/SalesChannel/**/*Route.php" type="attribute" />

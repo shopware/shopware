@@ -18,6 +18,9 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -297,6 +300,65 @@ class InfoControllerTest extends TestCase
         static::assertSame('core', $data['types'][0]['source']);
     }
 
+    #[TestDox('folds the registered style options into the element types response')]
+    public function testContentSystemElementTypesFoldsInStyleOptions(): void
+    {
+        $styleOptionRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $styleOptionRegistry->method('all')->willReturn(['col-span' => $this->styleOption()]);
+
+        $controller = $this->createController(styleOptionRegistry: $styleOptionRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('styleOptions', $data);
+        static::assertArrayHasKey('col-span', $data['styleOptions']);
+    }
+
+    #[TestDox('returns empty style options object when none are registered')]
+    public function testContentSystemStyleOptionsReturnsEmptyWhenNoneRegistered(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemStyleOptions();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([], $data['styleOptions']);
+    }
+
+    #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
+    public function testContentSystemStyleOptions(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn(['col-span' => $this->styleOption()]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemStyleOptions();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'col-span' => [
+                'type' => 'integer',
+                'enum' => null,
+                'range' => ['min' => 1, 'max' => 12],
+                'maxLength' => null,
+                'default' => null,
+                'adminUI' => null,
+            ],
+        ], $data['styleOptions']);
+    }
+
     #[TestDox('returns empty data loader types when no loaders are registered')]
     public function testContentSystemDataLoaderTypesReturnsEmptyWhenNoLoaders(): void
     {
@@ -351,6 +413,16 @@ class InfoControllerTest extends TestCase
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
+    private function styleOption(): StyleOptionSpecification
+    {
+        return new StyleOptionSpecification(
+            'col-span',
+            new StyleOptionValueType(StyleOptionValueType::TYPE_INTEGER, null, ['min' => 1, 'max' => 12], null, null),
+            null,
+            'core',
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -372,6 +444,7 @@ class InfoControllerTest extends TestCase
         array $adminWorkerTransports = ['slow'],
         ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null,
         ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
+        ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
@@ -404,6 +477,7 @@ class InfoControllerTest extends TestCase
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
             $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
+            $styleOptionRegistry ?? static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             null,
         );

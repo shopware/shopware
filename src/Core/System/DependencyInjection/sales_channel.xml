@@ -355,5 +355,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

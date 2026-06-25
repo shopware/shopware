@@ -28,7 +28,7 @@ class ServiceStorage
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->addAssociation('app.acl_role');
+        $criteria->addAssociation('aclRole');
         $criteria->addFilter(new EqualsFilter('name', $name));
         $criteria->setLimit(1);
 
@@ -39,7 +39,7 @@ class ServiceStorage
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->addAssociation('app.acl_role');
+        $criteria->addAssociation('aclRole');
         $criteria->addFilter(new EqualsFilter('name', $name));
         $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
         $criteria->setLimit(1);
@@ -51,7 +51,7 @@ class ServiceStorage
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->addAssociation('app.acl_role');
+        $criteria->addAssociation('aclRole');
         $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
         $criteria->setLimit(1);
 
@@ -65,7 +65,7 @@ class ServiceStorage
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->addAssociation('app.acl_role');
+        $criteria->addAssociation('aclRole');
 
         return array_values($this->repository->search($criteria, $context)->getEntities()->map(
             static fn (AppEntity $app): Service => Service::fromApp($app)

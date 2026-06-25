@@ -22,8 +22,6 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
 use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
@@ -390,34 +388,24 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('Reloaded sales channel: 1/1', $renderer->render($file, $context));
     }
 
-    public function testSalesChannelFileContextUsesCurrentDomainForTwig(): void
+    public function testDefaultParametersDoNotCreateFileSpecificContext(): void
     {
         $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
         $loader = new ChainLoader([
             $templateOverrideLoader,
             new ArrayLoader([
-                '@Framework/files/agentic/.well-known/ai-catalog.json.twig' => '{{ salesChannelFileContext.baseUrl }}|{{ salesChannelFileContext.publisher }}|{{ salesChannelFileContext.storeApiMcpServerUrl|default("none") }}',
+                '@Framework/files/agentic/.well-known/ai-catalog.json.twig' => '{{ salesChannelFileContext|default("none") }}',
             ]),
         ]);
         $twig = new Environment($loader);
         $templateFinder = $this->createTemplateFinder($twig, $loader, ['Framework' => 0]);
-
-        $currentDomain = $this->createDomain('https://shop.example.com/en/');
-        $fallbackDomain = $this->createDomain('https://fallback.example.com');
-
-        $contextSalesChannel = $this->createSalesChannel('Context sales channel');
-        $context = $this->createSalesChannelContext($contextSalesChannel, $currentDomain->getId());
-        $reloadedSalesChannel = $this->createSalesChannel(
-            'Reloaded sales channel',
-            domains: new SalesChannelDomainCollection([$fallbackDomain, $currentDomain])
-        );
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
             $this->createTemplateResolver($templateFinder, $loader, ['Framework' => 0]),
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
-            $this->createSalesChannelRepository($reloadedSalesChannel),
+            $this->createSalesChannelRepository(),
             $this->createExtensionDispatcher()
         );
 
@@ -433,8 +421,8 @@ class SalesChannelFileRendererTest extends TestCase
         );
 
         static::assertSame(
-            'https://shop.example.com/en|shop.example.com|none',
-            $renderer->render($file, $context)
+            'none',
+            $renderer->render($file, $this->createSalesChannelContext())
         );
     }
 
@@ -597,7 +585,6 @@ class SalesChannelFileRendererTest extends TestCase
         string $name,
         ?LanguageCollection $languages = null,
         ?CurrencyCollection $currencies = null,
-        ?SalesChannelDomainCollection $domains = null,
     ): SalesChannelEntity {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
@@ -611,20 +598,7 @@ class SalesChannelFileRendererTest extends TestCase
             $salesChannel->setCurrencies($currencies);
         }
 
-        if ($domains !== null) {
-            $salesChannel->setDomains($domains);
-        }
-
         return $salesChannel;
-    }
-
-    private function createDomain(string $url): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId(Uuid::randomHex());
-        $domain->setUrl($url);
-
-        return $domain;
     }
 
     private function createLanguage(): LanguageEntity

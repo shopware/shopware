@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
@@ -149,7 +148,6 @@ class SalesChannelFileRenderer
             'context' => $context,
             'salesChannel' => $salesChannel,
             'salesChannelFile' => $file,
-            'salesChannelFileContext' => $this->buildSalesChannelFileContext($salesChannel, $context),
         ];
     }
 
@@ -171,47 +169,5 @@ class SalesChannelFileRenderer
         }
 
         return $salesChannel;
-    }
-
-    /**
-     * @return array{baseUrl: string|null, publisher: string|null}
-     */
-    private function buildSalesChannelFileContext(SalesChannelEntity $salesChannel, SalesChannelContext $context): array
-    {
-        $baseUrl = $this->resolveBaseUrl($salesChannel, $context);
-        $publisher = $baseUrl === null ? null : $this->extractPublisher($baseUrl);
-
-        return [
-            'baseUrl' => $baseUrl,
-            'publisher' => $publisher,
-        ];
-    }
-
-    private function resolveBaseUrl(SalesChannelEntity $salesChannel, SalesChannelContext $context): ?string
-    {
-        $domains = $salesChannel->getDomains();
-        if ($domains === null || $domains->count() === 0) {
-            return null;
-        }
-
-        $domainId = $context->getDomainId();
-        if ($domainId !== null) {
-            $domain = $domains->get($domainId);
-
-            if ($domain instanceof SalesChannelDomainEntity) {
-                return rtrim($domain->getUrl(), '/');
-            }
-        }
-
-        $domain = $domains->first();
-
-        return $domain instanceof SalesChannelDomainEntity ? rtrim($domain->getUrl(), '/') : null;
-    }
-
-    private function extractPublisher(string $baseUrl): ?string
-    {
-        $host = parse_url($baseUrl, \PHP_URL_HOST);
-
-        return \is_string($host) && $host !== '' ? strtolower($host) : null;
     }
 }

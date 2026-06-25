@@ -37,6 +37,8 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnoreEvaluationRule
 
     # rules from https://github.com/symplify/phpstan-rules

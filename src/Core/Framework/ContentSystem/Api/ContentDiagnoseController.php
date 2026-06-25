@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -48,26 +46,11 @@ class ContentDiagnoseController
     ): Response {
         [$tree, $decodeViolations] = $this->decoder->decodeLintable($payload->layout);
 
-        $analysis = $this->diagnostics->analyze($tree, $this->resolveRootContext($payload, $context), $context);
+        $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
+        $analysis = $this->diagnostics->analyze($tree, $rootContext, $context);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
         return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report));
-    }
-
-    /**
-     * @return list<ProvidedContext>|null
-     */
-    private function resolveRootContext(ContentDiagnoseRequest $payload, Context $context): ?array
-    {
-        if ($payload->rootSource === null || $payload->rootSource === '') {
-            return null;
-        }
-
-        if (!\in_array($payload->rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
-            throw ContentSystemException::unknownRootSource($payload->rootSource);
-        }
-
-        return $this->rootSourceRegistry->resolve($payload->rootSource, $context);
     }
 }

@@ -82,8 +82,7 @@ class ContentDiagnoseControllerTest extends TestCase
         )];
 
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->method('resolve')->willReturn($rootContext);
+        $registry->method('resolveGated')->willReturn($rootContext);
 
         $threadedRootContext = false;
         $diagnostics = static::createStub(LayoutDiagnostics::class);
@@ -109,11 +108,11 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame($rootContext, $threadedRootContext);
     }
 
-    #[TestDox('evaluates only well-formedness when no root source is supplied')]
+    #[TestDox('threads a null root context into the analysis when the registry resolves no bound source')]
     public function testDiagnoseWithoutRootSourceThreadsNullContext(): void
     {
-        $registry = static::createMock(RootSourceRegistry::class);
-        $registry->expects($this->never())->method('resolve');
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturn(null);
 
         $threadedRootContext = 'unset';
         $diagnostics = static::createStub(LayoutDiagnostics::class);
@@ -136,12 +135,13 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertNull($threadedRootContext);
     }
 
-    #[TestDox('rejects an unknown root source with unknownRootSource before reaching resolve')]
+    #[TestDox('propagates the registry unknownRootSource exception instead of swallowing it into a 200')]
     public function testDiagnoseRejectsUnknownRootSource(): void
     {
-        $registry = static::createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->expects($this->never())->method('resolve');
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willThrowException(
+            ContentSystemException::unknownRootSource('definitely-not-a-root-source')
+        );
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),

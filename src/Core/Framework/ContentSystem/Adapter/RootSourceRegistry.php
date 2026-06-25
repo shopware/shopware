@@ -44,7 +44,7 @@ class RootSourceRegistry
     public function knownRootSources(): array
     {
         return array_values([
-            ...$this->entityTypes,
+            ...array_unique($this->entityTypes),
             ...array_keys($this->sectionSources->getProvidedServices()),
             NoneSpecificationSource::ROOT_SOURCE,
         ]);
@@ -58,7 +58,7 @@ class RootSourceRegistry
      */
     public function entityRootSources(): array
     {
-        return array_values($this->entityTypes);
+        return array_values(array_unique($this->entityTypes));
     }
 
     /**
@@ -71,6 +71,26 @@ class RootSourceRegistry
     public function resolve(string $rootSource, Context $context): array
     {
         return $this->sourceFor($rootSource)->providedRootContext($context);
+    }
+
+    /**
+     * Membership-gated resolve shared by the diagnose and draft-mutation routes: null/empty → no bound source
+     * (intrinsic-only); a non-member → unknownRootSource 400; a member → its root-ambient context. This is the
+     * membership gate resolve()'s docblock pushes onto callers, hosted once so the routes no longer duplicate it.
+     *
+     * @return list<ProvidedContext>|null
+     */
+    public function resolveGated(?string $rootSource, Context $context): ?array
+    {
+        if ($rootSource === null || $rootSource === '') {
+            return null;
+        }
+
+        if (!\in_array($rootSource, $this->knownRootSources(), true)) {
+            throw ContentSystemException::unknownRootSource($rootSource);
+        }
+
+        return $this->resolve($rootSource, $context);
     }
 
     public function sourceFor(string $rootSource): AbstractSpecificationSource

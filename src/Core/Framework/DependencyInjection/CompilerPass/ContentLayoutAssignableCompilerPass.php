@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
+use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
@@ -35,8 +36,49 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
             $entityTypes[] = $this->extractEntityType($container, $serviceId, $sourceDefinition->getArguments());
         }
 
+        $this->assertDisjointFromReservedRootSources($container, $entityTypes);
+
         $registry = $container->getDefinition(RootSourceRegistry::class);
         $registry->setArgument('$entityTypes', $entityTypes);
+    }
+
+    /**
+     * RootSourceRegistry::sourceFor() probes the entity branch before the section locator and special-cases "none",
+     * so an entity type sharing a section id or "none" would silently shadow it. The convention is documented on the
+     * registry; enforce it here so a collision is a container-compile error, not a wrong-root-context resolution at
+     * the first request.
+     *
+     * @param list<string> $entityTypes
+     */
+    private function assertDisjointFromReservedRootSources(ContainerBuilder $container, array $entityTypes): void
+    {
+        $reserved = [...$this->sectionIds($container), NoneSpecificationSource::ROOT_SOURCE];
+
+        foreach ($entityTypes as $entityType) {
+            if (\in_array($entityType, $reserved, true)) {
+                throw DependencyInjectionException::rootSourceNamespaceCollision($entityType);
+            }
+        }
+    }
+
+    /**
+     * The section ids the registry's section locator is keyed by — the "section" attribute of each
+     * content_system.specification_source tagged service (header/footer; none in a headless deployment).
+     *
+     * @return list<string>
+     */
+    private function sectionIds(ContainerBuilder $container): array
+    {
+        $sections = [];
+        foreach ($container->findTaggedServiceIds('content_system.specification_source') as $tags) {
+            foreach ($tags as $tag) {
+                if (isset($tag['section']) && \is_string($tag['section'])) {
+                    $sections[] = $tag['section'];
+                }
+            }
+        }
+
+        return $sections;
     }
 
     /**

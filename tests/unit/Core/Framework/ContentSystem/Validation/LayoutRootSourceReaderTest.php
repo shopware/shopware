@@ -96,6 +96,24 @@ class LayoutRootSourceReaderTest extends TestCase
         static::assertNull($reader->read($layoutId, [], Context::createDefaultContext()));
     }
 
+    #[TestDox('falls back to the committed root source when the matching in-batch command sets a non-string root_source')]
+    public function testFallsBackToStoreForNonStringInBatchRootSource(): void
+    {
+        $layoutId = Uuid::randomHex();
+
+        $layout = static::createStub(ContentLayoutEntity::class);
+        $layout->method('getRootSource')->willReturn('category');
+
+        $reader = new LayoutRootSourceReader($this->registryReturning($this->searchResult($layout), $layoutId));
+
+        // hasField(ROOT_SOURCE_FIELD) is true, but the payload value is a non-string (a malformed array), so the
+        // reader's \is_string() guard must skip it and defer to the committed store. A non-null value is required:
+        // null would fall through the `?? fromStore()` regardless and would not catch the guard's removal.
+        $command = $this->layoutCommand(InsertCommand::class, ContentLayoutDefinition::ENTITY_NAME, $layoutId, true, ['not' => 'a string']);
+
+        static::assertSame('category', $reader->read($layoutId, [$command], Context::createDefaultContext()));
+    }
+
     /**
      * @return iterable<string, array{?string}>
      */

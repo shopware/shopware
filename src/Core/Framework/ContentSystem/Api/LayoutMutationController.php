@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
-use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -137,24 +135,9 @@ class LayoutMutationController
     private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
         $tree = $this->decoder->decode($layout);
-        $result = $this->pipeline->run($mutation, $tree, $this->resolveRootContext($rootSource, $context), $context);
+        $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
+        $result = $this->pipeline->run($mutation, $tree, $rootContext, $context);
 
         return new JsonResponse(MutationResponse::fromResult($result, $this->elementSerializer));
-    }
-
-    /**
-     * @return list<ProvidedContext>|null
-     */
-    private function resolveRootContext(?string $rootSource, Context $context): ?array
-    {
-        if ($rootSource === null || $rootSource === '') {
-            return null;
-        }
-
-        if (!\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
-            throw ContentSystemException::unknownRootSource($rootSource);
-        }
-
-        return $this->rootSourceRegistry->resolve($rootSource, $context);
     }
 }

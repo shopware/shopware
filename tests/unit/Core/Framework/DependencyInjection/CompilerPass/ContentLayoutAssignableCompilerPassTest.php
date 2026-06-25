@@ -96,6 +96,34 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
         $pass->process($container);
     }
 
+    #[TestDox('throws when an assignable entity type collides with a section id')]
+    public function testThrowsOnEntityTypeSectionCollision(): void
+    {
+        [$container] = $this->createContainerWithRegistry();
+
+        $this->addSpecificationSource($container, 'product_source', ProductContentLayoutDefinition::class);
+        $this->addSectionSource($container, 'colliding_section', 'product');
+
+        $this->expectExceptionObject(DependencyInjectionException::rootSourceNamespaceCollision('product'));
+
+        $pass = new ContentLayoutAssignableCompilerPass();
+        $pass->process($container);
+    }
+
+    #[TestDox('bakes the entity types when they are disjoint from the section ids')]
+    public function testAcceptsEntityTypesDisjointFromSections(): void
+    {
+        [$container, $registryDefinition] = $this->createContainerWithRegistry();
+
+        $this->addSpecificationSource($container, 'product_source', ProductContentLayoutDefinition::class);
+        $this->addSectionSource($container, 'header_section', 'header');
+
+        $pass = new ContentLayoutAssignableCompilerPass();
+        $pass->process($container);
+
+        static::assertSame(['product'], $registryDefinition->getArgument('$entityTypes'));
+    }
+
     /**
      * @param list<mixed> $sourceArguments
      * @param array<string, Definition> $extraDefinitions
@@ -178,5 +206,12 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
         if (!$container->hasDefinition('some.factory')) {
             $container->setDefinition('some.factory', new Definition(\stdClass::class));
         }
+    }
+
+    private function addSectionSource(ContainerBuilder $container, string $serviceId, string $section): void
+    {
+        $definition = new Definition(\stdClass::class);
+        $definition->addTag('content_system.specification_source', ['section' => $section]);
+        $container->setDefinition($serviceId, $definition);
     }
 }

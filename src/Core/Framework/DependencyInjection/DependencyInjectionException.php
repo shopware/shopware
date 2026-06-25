@@ -15,6 +15,7 @@ class DependencyInjectionException extends HttpException
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
     public const MISSING_ASSIGNABLE_DEFINITION = 'FRAMEWORK__MISSING_ASSIGNABLE_DEFINITION';
+    public const ROOT_SOURCE_NAMESPACE_COLLISION = 'FRAMEWORK__ROOT_SOURCE_NAMESPACE_COLLISION';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -55,6 +56,19 @@ class DependencyInjectionException extends HttpException
                 $service,
                 $tag,
                 AbstractContentLayoutAssignableDefinition::class
+            )
+        );
+    }
+
+    public static function rootSourceNamespaceCollision(string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ROOT_SOURCE_NAMESPACE_COLLISION,
+            \sprintf(
+                'The content-layout entity type "%s" collides with a reserved root-source id (a section id or "none"). '
+                . 'Entity-type ids, section ids, and "none" must remain disjoint so RootSourceRegistry resolves each to one source.',
+                $rootSource
             )
         );
     }

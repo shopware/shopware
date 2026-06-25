@@ -152,8 +152,7 @@ class LayoutMutationControllerTest extends TestCase
         )];
 
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->method('resolve')->willReturn($rootContext);
+        $registry->method('resolveGated')->willReturn($rootContext);
 
         $threadedRootContext = false;
         $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
@@ -163,11 +162,11 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame($rootContext, $threadedRootContext);
     }
 
-    #[TestDox('threads a null context into the pipeline when no root source is supplied')]
+    #[TestDox('threads a null context into the pipeline when the registry resolves no bound source')]
     public function testWithoutRootSourceThreadsNullContext(): void
     {
-        $registry = static::createMock(RootSourceRegistry::class);
-        $registry->expects($this->never())->method('resolve');
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturn(null);
 
         $threadedRootContext = 'unset';
         $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
@@ -190,12 +189,13 @@ class LayoutMutationControllerTest extends TestCase
         static::assertStringContainsString('"resolutions":{}', $content);
     }
 
-    #[TestDox('rejects an unknown root source with unknownRootSource before reaching the pipeline')]
+    #[TestDox('propagates the registry unknownRootSource exception instead of reaching the pipeline')]
     public function testRejectsUnknownRootSource(): void
     {
-        $registry = static::createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->expects($this->never())->method('resolve');
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willThrowException(
+            ContentSystemException::unknownRootSource('definitely-not-a-root-source')
+        );
 
         $controller = $this->controller(rootSourceRegistry: $registry);
 

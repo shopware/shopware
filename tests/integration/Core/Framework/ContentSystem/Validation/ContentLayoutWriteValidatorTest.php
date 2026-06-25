@@ -144,7 +144,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertSame('renamed-layout', $layout->getName());
     }
 
-    #[TestDox('rejects an update that changes the immutable root source')]
+    #[TestDox('rejects an update that changes the immutable root source and leaves the stored value unchanged')]
     public function testRejectsRootSourceChange(): void
     {
         $context = Context::createDefaultContext();
@@ -155,8 +155,16 @@ class ContentLayoutWriteValidatorTest extends TestCase
             $this->repository()->update([['id' => $layoutId, 'rootSource' => 'product']], $context);
             static::fail('Expected the DAL to reject the change of the immutable root source.');
         } catch (WriteException $exception) {
+            // Pin the rejection to the root_source field: the EntityWriteGateway immutable-violation message is
+            // 'The field "root_source" of "content_layout" is immutable and cannot be updated.'
             static::assertStringContainsString('immutable', $exception->getMessage());
+            static::assertStringContainsString('root_source', $exception->getMessage());
         }
+
+        // The gate aborts the batch pre-commit, so the stored value must still be the original.
+        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
+        static::assertSame('category', $persisted->getRootSource());
     }
 
     /**

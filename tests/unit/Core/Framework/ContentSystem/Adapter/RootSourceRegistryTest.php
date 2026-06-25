@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Adapter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
@@ -107,6 +108,103 @@ class RootSourceRegistryTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::rootSourceResolutionUnsupported('main'));
 
         $registry->resolve('main', Context::createDefaultContext());
+    }
+
+    #[DataProvider('returnsNullForBlankRootSourceProvider')]
+    #[TestDox('resolveGated returns null for $_dataName without gating membership')]
+    public function testResolveGatedReturnsNullForBlankRootSource(?string $rootSource): void
+    {
+        $registry = new RootSourceRegistry(
+            entityTypes: ['product'],
+            sectionSources: $this->sectionLocator(['header']),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [$this->entitySource('product', [$this->providedContext('product')])],
+        );
+
+        static::assertNull($registry->resolveGated($rootSource, Context::createDefaultContext()));
+    }
+
+    #[TestDox('resolveGated resolves a member root source to its root-ambient context')]
+    public function testResolveGatedResolvesMemberRootSource(): void
+    {
+        $rootContext = [$this->providedContext('product')];
+
+        $registry = new RootSourceRegistry(
+            entityTypes: ['product'],
+            sectionSources: $this->sectionLocator(['header']),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [$this->entitySource('product', $rootContext)],
+        );
+
+        static::assertSame($rootContext, $registry->resolveGated('product', Context::createDefaultContext()));
+    }
+
+    #[TestDox('resolveGated rejects a non-member root source with the unknownRootSource 400 before resolving')]
+    public function testResolveGatedRejectsNonMemberRootSource(): void
+    {
+        $registry = new RootSourceRegistry(
+            entityTypes: ['product'],
+            sectionSources: $this->sectionLocator(['header']),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [$this->entitySource('product', [])],
+        );
+
+        $this->expectExceptionObject(ContentSystemException::unknownRootSource('definitely-not-a-root-source'));
+
+        $registry->resolveGated('definitely-not-a-root-source', Context::createDefaultContext());
+    }
+
+    #[TestDox('sourceFor returns the registered section source for a section id')]
+    public function testSourceForSectionReturnsTheRegisteredSectionSource(): void
+    {
+        $sectionSource = static::createStub(AbstractSpecificationSource::class);
+
+        $registry = new RootSourceRegistry(
+            entityTypes: [],
+            sectionSources: new ServiceLocator(['header' => fn (): AbstractSpecificationSource => $sectionSource]),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [],
+        );
+
+        static::assertSame($sectionSource, $registry->sourceFor('header'));
+    }
+
+    #[TestDox('sourceFor fails hard when an entity type is declared but no source claims it')]
+    public function testSourceForEntityTypeWithoutMatchingSourceFailsHard(): void
+    {
+        $registry = new RootSourceRegistry(
+            entityTypes: ['custom'],
+            sectionSources: $this->sectionLocator([]),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [$this->entitySource('product', [])],
+        );
+
+        $this->expectExceptionObject(ContentSystemException::rootSourceResolutionUnsupported('custom'));
+
+        $registry->sourceFor('custom');
+    }
+
+    #[TestDox('de-duplicates an entity type baked by two sources in both known-set accessors')]
+    public function testDeduplicatesRepeatedEntityTypeInKnownSetAccessors(): void
+    {
+        $registry = new RootSourceRegistry(
+            entityTypes: ['product', 'product', 'category'],
+            sectionSources: $this->sectionLocator(['header']),
+            noneSource: new NoneSpecificationSource(),
+            entitySources: [],
+        );
+
+        static::assertSame(['product', 'category', 'header', 'none'], $registry->knownRootSources());
+        static::assertSame(['product', 'category'], $registry->entityRootSources());
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function returnsNullForBlankRootSourceProvider(): iterable
+    {
+        yield 'a null root source' => [null];
+        yield 'an empty-string root source' => [''];
     }
 
     /**

@@ -15,21 +15,29 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -319,6 +327,7 @@ class StorefrontCartFacadeTest extends TestCase
             static::createMock(ContextSwitchRoute::class),
             static::createMock(CartCalculator::class),
             static::createMock(AbstractCartPersister::class),
+            static::createMock(AbstractCheckoutGatewayRoute::class),
         );
 
         $cartFacade->get(
@@ -327,6 +336,208 @@ class StorefrontCartFacadeTest extends TestCase
             false,
             true
         );
+    }
+
+    public function testGetWithCheckoutGatewaySwitchesBlockedPaymentMethodToGatewayDefault(): void
+    {
+        $cart = $this->getCart();
+        $paymentMethods = new PaymentMethodCollection([
+            $this->createPaymentMethod('gateway-default-payment-method-id', 'Gateway default payment method'),
+            $this->createPaymentMethod('gateway-other-payment-method-id', 'Gateway other payment method'),
+        ]);
+        $shippingMethods = new ShippingMethodCollection([
+            $this->createShippingMethod('original-shipping-method-id', 'Original shipping method'),
+        ]);
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Request $request, Cart $loadedCart, SalesChannelContext $context) use ($paymentMethods, $shippingMethods): CheckoutGatewayRouteResponse {
+                $loadedCart->getErrors()->add(new PaymentMethodBlockedError('original-payment-method-name', 'not allowed'));
+
+                return new CheckoutGatewayRouteResponse($paymentMethods, $shippingMethods, $loadedCart->getErrors());
+            });
+
+        $salesChannelContext = $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'gateway-default-payment-method-id',
+            defaultShippingMethodId: 'original-shipping-method-id',
+        );
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $result = $cartFacade->getWithCheckoutGateway(new Request(), 'token', $salesChannelContext);
+
+        static::assertSame($cart, $result->cart);
+        static::assertSame($paymentMethods, $result->gatewayResponse->getPaymentMethods());
+
+        $errors = $result->cart->getErrors();
+        static::assertCount(0, $errors->filterInstance(PaymentMethodBlockedError::class));
+        $changedErrors = $errors->filterInstance(PaymentMethodChangedError::class);
+        static::assertCount(1, $changedErrors);
+        $changedError = $changedErrors->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $changedError);
+        static::assertSame('original-payment-method-name', $changedError->getOldPaymentMethodName());
+        static::assertSame('Gateway default payment method', $changedError->getNewPaymentMethodName());
+    }
+
+    public function testGetWithCheckoutGatewayUsesSwitchedContextForGatewayLoad(): void
+    {
+        $cart = $this->getCart();
+        $cart->setErrors($this->getCartErrorCollection(blockPaymentMethod: true));
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Request $request, Cart $loadedCart, SalesChannelContext $context): CheckoutGatewayRouteResponse {
+                static::assertSame('fallback-payment-method-id', $context->getPaymentMethod()->getId());
+
+                return new CheckoutGatewayRouteResponse(
+                    new PaymentMethodCollection([
+                        $context->getPaymentMethod(),
+                    ]),
+                    new ShippingMethodCollection([
+                        $context->getShippingMethod(),
+                    ]),
+                    $loadedCart->getErrors(),
+                );
+            });
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            paymentSwitcherCallbackMethod: $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...),
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $cartFacade->getWithCheckoutGateway(new Request(), 'token', $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'original-payment-method-id',
+            defaultShippingMethodId: 'original-shipping-method-id',
+        ));
+    }
+
+    public function testGetWithCheckoutGatewaySwitchesBlockedPaymentMethodToFirstGatewayMethodWhenDefaultIsUnavailable(): void
+    {
+        $cart = $this->getCart();
+        $firstGatewayMethod = $this->createPaymentMethod('gateway-first-payment-method-id', 'Gateway first payment method');
+        $paymentMethods = new PaymentMethodCollection([
+            $firstGatewayMethod,
+            $this->createPaymentMethod('gateway-second-payment-method-id', 'Gateway second payment method'),
+        ]);
+        $shippingMethods = new ShippingMethodCollection([
+            $this->createShippingMethod('original-shipping-method-id', 'Original shipping method'),
+        ]);
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Request $request, Cart $loadedCart, SalesChannelContext $context) use ($paymentMethods, $shippingMethods): CheckoutGatewayRouteResponse {
+                $loadedCart->getErrors()->add(new PaymentMethodBlockedError('original-payment-method-name', 'not allowed'));
+
+                return new CheckoutGatewayRouteResponse($paymentMethods, $shippingMethods, $loadedCart->getErrors());
+            });
+
+        $salesChannelContext = $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'unavailable-default-payment-method-id',
+            defaultShippingMethodId: 'original-shipping-method-id',
+        );
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $result = $cartFacade->getWithCheckoutGateway(new Request(), 'token', $salesChannelContext);
+
+        static::assertSame($cart, $result->cart);
+        $changedErrors = $result->cart->getErrors()->filterInstance(PaymentMethodChangedError::class);
+        static::assertCount(1, $changedErrors);
+        $changedError = $changedErrors->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $changedError);
+        static::assertSame($firstGatewayMethod->getTranslation('name'), $changedError->getNewPaymentMethodName());
+    }
+
+    public function testGetWithCheckoutGatewayKeepsBlockedPaymentMethodWhenGatewayHasNoFallback(): void
+    {
+        $cart = $this->getCart();
+        $paymentMethods = new PaymentMethodCollection();
+        $shippingMethods = new ShippingMethodCollection([
+            $this->createShippingMethod('original-shipping-method-id', 'Original shipping method'),
+        ]);
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Request $request, Cart $loadedCart, SalesChannelContext $context) use ($paymentMethods, $shippingMethods): CheckoutGatewayRouteResponse {
+                $loadedCart->getErrors()->add(new PaymentMethodBlockedError('original-payment-method-name', 'not allowed'));
+
+                return new CheckoutGatewayRouteResponse($paymentMethods, $shippingMethods, $loadedCart->getErrors());
+            });
+
+        $salesChannelContext = $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'gateway-default-payment-method-id',
+            defaultShippingMethodId: 'original-shipping-method-id',
+        );
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $result = $cartFacade->getWithCheckoutGateway(new Request(), 'token', $salesChannelContext);
+
+        static::assertSame($cart, $result->cart);
+        static::assertSame('original-payment-method-id', $salesChannelContext->getPaymentMethod()->getId());
+        static::assertCount(1, $result->cart->getErrors()->filterInstance(PaymentMethodBlockedError::class));
+        static::assertCount(0, $result->cart->getErrors()->filterInstance(PaymentMethodChangedError::class));
+    }
+
+    public function testGetWithCheckoutGatewayReturnsGatewayResponseWithoutSwitchWhenNoMethodIsBlocked(): void
+    {
+        $cart = $this->getCart();
+        $paymentMethods = new PaymentMethodCollection([
+            $this->createPaymentMethod('original-payment-method-id', 'Original payment method'),
+        ]);
+        $shippingMethods = new ShippingMethodCollection([
+            $this->createShippingMethod('original-shipping-method-id', 'Original shipping method'),
+        ]);
+
+        $response = new CheckoutGatewayRouteResponse($paymentMethods, $shippingMethods, $cart->getErrors());
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($response);
+
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator
+            ->expects($this->never())
+            ->method('calculate');
+
+        $salesChannelContext = $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'original-payment-method-id',
+            defaultShippingMethodId: 'original-shipping-method-id',
+        );
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            cartCalculator: $cartCalculator,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $result = $cartFacade->getWithCheckoutGateway(new Request(), 'token', $salesChannelContext);
+
+        static::assertSame($cart, $result->cart);
+        static::assertSame($paymentMethods, $result->gatewayResponse->getPaymentMethods());
+        static::assertSame($shippingMethods, $result->gatewayResponse->getShippingMethods());
+        static::assertSame($cart->getErrors(), $result->gatewayResponse->getErrors());
+        static::assertSame('original-payment-method-id', $salesChannelContext->getPaymentMethod()->getId());
     }
 
     public function callbackShippingMethodSwitcherReturnOriginalMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
@@ -470,21 +681,36 @@ class StorefrontCartFacadeTest extends TestCase
      * @param callable(ErrorCollection, SalesChannelContext): ShippingMethodEntity|null $shippingSwitcherCallbackMethod
      * @param callable(ErrorCollection, SalesChannelContext): PaymentMethodEntity|null $paymentSwitcherCallbackMethod
      */
-    private function getStorefrontCartFacade(Cart $cart, ?callable $shippingSwitcherCallbackMethod = null, ?callable $paymentSwitcherCallbackMethod = null): StorefrontCartFacade
-    {
+    private function getStorefrontCartFacade(
+        Cart $cart,
+        ?callable $shippingSwitcherCallbackMethod = null,
+        ?callable $paymentSwitcherCallbackMethod = null,
+        ?CartCalculator $cartCalculator = null,
+        ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
+    ): StorefrontCartFacade {
         $cartService = $this->createMock(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
+        $shippingCallback = $shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...);
+        $realShippingSwitcher = new BlockedShippingMethodSwitcher($this->createMock(ShippingMethodRoute::class));
         $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
-        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...));
+        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback(
+            static fn (ErrorCollection $errors, SalesChannelContext $context, ?ShippingMethodCollection $methods = null): ShippingMethodEntity => $methods === null ? $shippingCallback($errors, $context) : $realShippingSwitcher->switch($errors, $context, $methods),
+        );
 
+        $paymentCallback = $paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...);
+        $realPaymentSwitcher = new BlockedPaymentMethodSwitcher($this->createMock(PaymentMethodRoute::class));
         $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
-        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...));
+        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback(
+            static fn (ErrorCollection $errors, SalesChannelContext $context, ?PaymentMethodCollection $methods = null): PaymentMethodEntity => $methods === null ? $paymentCallback($errors, $context) : $realPaymentSwitcher->switch($errors, $context, $methods),
+        );
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
 
-        $cartCalculator = $this->createMock(CartCalculator::class);
-        $cartCalculator->method('calculate')->willReturnArgument(0);
+        if ($cartCalculator === null) {
+            $cartCalculator = $this->createMock(CartCalculator::class);
+            $cartCalculator->method('calculate')->willReturnArgument(0);
+        }
 
         $cartPersister = $this->createMock(CartPersister::class);
 
@@ -495,7 +721,40 @@ class StorefrontCartFacadeTest extends TestCase
             $contextSwitchRoute,
             $cartCalculator,
             $cartPersister,
+            $checkoutGatewayRoute ?? $this->createMock(AbstractCheckoutGatewayRoute::class),
         );
+    }
+
+    private function getSalesChannelContextWithDefaults(string $defaultPaymentMethodId, string $defaultShippingMethodId): SalesChannelContext
+    {
+        $shippingMethod = $this->createShippingMethod('original-shipping-method-id', 'original-shipping-method-name');
+        $paymentMethod = $this->createPaymentMethod('original-payment-method-id', 'original-payment-method-name');
+
+        $salesChannelContext = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod, shippingMethod: $shippingMethod);
+        $salesChannelContext->getSalesChannel()->setPaymentMethodId($defaultPaymentMethodId);
+        $salesChannelContext->getSalesChannel()->setShippingMethodId($defaultShippingMethodId);
+
+        return $salesChannelContext;
+    }
+
+    private function createPaymentMethod(string $id, string $name): PaymentMethodEntity
+    {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId($id);
+        $paymentMethod->setName($name);
+        $paymentMethod->setTranslated(['name' => $name]);
+
+        return $paymentMethod;
+    }
+
+    private function createShippingMethod(string $id, string $name): ShippingMethodEntity
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($id);
+        $shippingMethod->setName($name);
+        $shippingMethod->setTranslated(['name' => $name]);
+
+        return $shippingMethod;
     }
 
     /**

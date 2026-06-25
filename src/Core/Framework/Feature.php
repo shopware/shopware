@@ -252,7 +252,8 @@ class Feature
             return;
         }
 
-        trigger_deprecation('shopware/core', '', $message);
+        // empty package avoids the malformed "Since shopware/core : " prefix that a non-empty package with an empty version would render
+        trigger_deprecation('', '', $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

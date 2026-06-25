@@ -95,7 +95,7 @@ class EntityRepository
 
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         return $event;
     }
@@ -109,7 +109,7 @@ class EntityRepository
 
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         return $event;
     }
@@ -123,7 +123,7 @@ class EntityRepository
 
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         return $event;
     }
@@ -146,7 +146,7 @@ class EntityRepository
             }
         }
 
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         return $event;
     }
@@ -191,7 +191,7 @@ class EntityRepository
         );
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, [], true);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         return $event;
     }

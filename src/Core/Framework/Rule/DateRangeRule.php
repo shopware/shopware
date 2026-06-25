@@ -102,4 +102,32 @@ class DateRangeRule extends Rule
             'useTime' => [new NotNull(), new Type('bool')],
         ];
     }
+
+    public function assign(array $options)
+    {
+        parent::assign($options);
+
+        try {
+            // convert string dates to DateTime objects
+            $this->__wakeup();
+        } catch (\Exception) {
+            // let validators handle invalid formats
+        }
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        if ($this->fromDate instanceof \DateTimeInterface) {
+            $data['fromDate'] = $this->fromDate->format(\DateTime::ATOM);
+        }
+        if ($this->toDate instanceof \DateTimeInterface) {
+            $data['toDate'] = $this->toDate->format(\DateTime::ATOM);
+        }
+
+        return $data;
+    }
 }

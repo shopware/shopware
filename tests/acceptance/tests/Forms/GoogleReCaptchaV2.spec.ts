@@ -207,6 +207,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         DefaultSalesChannel,
         TestDataService,
         InstanceMeta,
+        StorefrontFooter,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -228,7 +229,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await ShopCustomer.presses(StorefrontHome.contactFormLink);
+            await ShopCustomer.presses(StorefrontFooter.footerContactFormLink);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
             const reCaptchaNotice = StorefrontContactForm.page.getByText('This site is protected by reCAPTCHA');
@@ -253,13 +254,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
                     `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
                 );
 
-                // eslint-disable-next-line playwright/no-conditional-in-test
-                if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-                    await ShopCustomer.presses(StorefrontContactForm.submitButton);
-                } else {
-                    await StorefrontContactForm.submitButton.click();
-                }
-
+                await ShopCustomer.presses(StorefrontContactForm.submitButton);
                 const contactFormResponse = await contactFormPromise;
 
                 expect(contactFormResponse.ok()).toBeTruthy();

@@ -3,6 +3,7 @@ import './sw-data-grid.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -37,6 +38,10 @@ Component.register('sw-data-grid', {
         'acl',
         'repositoryFactory',
         'feature',
+    ],
+
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
     ],
 
     emits: [
@@ -578,6 +583,10 @@ Component.register('sw-data-grid', {
                 `sw-data-grid__cell--${index}`,
                 `sw-data-grid__cell--align-${column.align}`,
             ];
+        },
+
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
         },
 
         getRowClasses(item, itemIndex) {

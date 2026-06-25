@@ -22,7 +22,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
@@ -65,7 +65,7 @@ jobs:
       - name: Run Jest Admin ${{ matrix.test-type }}
         run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         if: ${{ matrix.test-type == 'unit' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -80,7 +80,7 @@ jobs:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*

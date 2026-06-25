@@ -2,6 +2,7 @@
 
 .sw-cms-el-text {
     height: 100%;
+    overflow: auto;
     position: relative;
     width: 100%;
     word-break: break-word;
@@ -51,5 +52,10 @@
 
     .sw-text-editor.is--disabled .sw-text-editor__content {
         background-color: $color-white;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
     }
 }

@@ -81,7 +81,7 @@
             {% block sw_data_grid_settings_column_visibility_checkbox %}
             <sw-checkbox-field
                 :disabled="column.primary"
-                :label="$te(column.label) ? $tc(column.label) : column.label"
+                :label="getColumnLabel(column)"
                 :value="currentColumns[index].visible"
                 @update:value="onChangeColumnVisibility($event, index)"
             />

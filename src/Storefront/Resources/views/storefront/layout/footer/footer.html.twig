@@ -13,7 +13,7 @@
                 role="list"
             >
                 {% block layout_footer_navigation_hotline %}
-                    <div class="col-md-4 footer-column js-footer-column">
+                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0">
                         {% block layout_footer_navigation_hotline_headline %}
                             {% if feature('ACCESSIBILITY_TWEAKS') %}
 
@@ -88,39 +88,25 @@
                                         '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
                                     })|raw }}
                                 </div>
-
-                                {% block layout_footer_navigation_revocation_button %}
-                                    {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestText' %}
-                                    {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
-                                    {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
-
-                                    {% if revocationRequestCmsPageId and showRevocationButton %}
-                                        {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
-
-                                        {# Check for seoUrl and use it if present #}
-                                        {% for serviceMenuItem in footer.serviceMenu %}
-                                            {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        {# Check footer navigation #}
-                                        {% if footer.navigation and footer.navigation.tree %}
-                                            {% for footerItem in footer.navigation.tree %}
-                                                {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
-                                                    {% set revocationRequestUrl = footerItem.category.seoUrl %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-
-                                        <div class="footer-revocation-button mt-4">
-                                            {{ revocationRequestSnippetKey|trans({
-                                                '%url%': revocationRequestUrl
-                                            })|raw }}
-                                        </div>
-                                    {% endif %}
-                                {% endblock %}
                             </div>
+
+                            {% block layout_footer_navigation_revocation_button %}
+                                {% set cmsPath = cmsPath|default('frontend.cms.page.full') %}
+                                {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
+                                {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
+                                {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
+
+                                {% if revocationRequestCmsPageId and showRevocationButton %}
+                                    <div class="mb-3 text-center">
+                                        {% sw_include '@Storefront/storefront/component/footer/revocation-button.html.twig' with {
+                                            cmsPath: 'frontend.cms.page.full',
+                                            revocationRequestSnippetKey: revocationRequestSnippetKey,
+                                            revocationRequestCmsPageId: revocationRequestCmsPageId,
+                                            showRevocationButton: showRevocationButton
+                                        } %}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}

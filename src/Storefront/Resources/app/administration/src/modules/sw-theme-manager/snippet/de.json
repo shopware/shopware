@@ -205,6 +205,12 @@
           "title": "Ungültige Konfiguration",
           "message": "Die Konfiguration ist fehlerhaft. Das Theme kann nicht gespeichert werden."
         }
+      },
+      "asyncCompilation": {
+        "startedTitle": "Theme-Kompilierung gestartet",
+        "started": "Die Kompilierung der Änderungen wird im Hintergrund gestartet. Die Änderungen werden möglicherweise mit Verzögerung sichtbar (ca. 1 Minute). Du erhältst eine Benachrichtigung, sobald die Kompilierung abgeschlossen ist.",
+        "completedTitle": "Theme-Kompilierung abgeschlossen",
+        "completed": "Die Theme-Kompilierung wurde abgeschlossen."
       }
     },
     "themeModal": {

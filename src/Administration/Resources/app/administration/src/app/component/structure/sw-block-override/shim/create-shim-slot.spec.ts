@@ -99,8 +99,8 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             const shimComponent = vnode.type as { setup: () => Record<string, unknown> };
             const setupContext = shimComponent.setup();
 
-            expect('$swLegacyBlockElse' in setupContext).toBe(true);
-            expect('$store' in setupContext).toBe(false);
+            expect(setupContext).toHaveProperty('$swLegacyBlockElse');
+            expect(setupContext).not.toHaveProperty('$store');
             expect((setupContext.$swLegacyBlockElse as () => boolean)()).toBe(true);
             expect(legacyElse).toHaveBeenCalledTimes(1);
         });

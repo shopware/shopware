@@ -148,7 +148,7 @@ class VersionManager
         $versionContext = $context->createWithVersionId($versionId);
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $versionContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
+        $this->dispatchWriteEvents($event, $versionContext->getContext());
 
         $this->writeAuditLog($affected, $context, $versionId, true);
 
@@ -206,7 +206,7 @@ class VersionManager
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
-        $liveContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes));
+        $this->dispatchWriteEvents($writes, $liveContext->getContext());
 
         $versionContext->removeState(self::MERGE_SCOPE);
         $liveContext->addState(self::MERGE_SCOPE);
@@ -224,6 +224,22 @@ class VersionManager
         CloneBehavior $behavior
     ): array {
         return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $behavior, true);
+    }
+
+    private function dispatchWriteEvents(EntityWrittenContainerEvent $event, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($event): void {
+            $hadState = $context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+            $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+            try {
+                $this->eventDispatcher->dispatch($event);
+            } finally {
+                if (!$hadState) {
+                    $context->removeState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+                }
+            }
+        });
     }
 
     /**

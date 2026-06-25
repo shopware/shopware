@@ -23,6 +23,7 @@ class Context extends Struct
     final public const CRUD_API_SCOPE = 'crud';
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
+    final public const SYSTEM_SCOPE_DAL_WRITE_EVENT = 'system-scope-dal-write-event';
 
     protected string $scope = self::USER_SCOPE;
 
@@ -155,11 +156,21 @@ class Context extends Struct
     public function scope(string $scope, \Closure $callback)
     {
         $currentScope = $this->getScope();
+        $removeDalWriteEventState = $scope === self::SYSTEM_SCOPE && $this->hasState(self::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
         $this->scope = $scope;
+
+        if ($removeDalWriteEventState) {
+            $this->removeState(self::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+        }
 
         try {
             $result = $callback($this);
         } finally {
+            if ($removeDalWriteEventState) {
+                $this->addState(self::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+            }
+
             $this->scope = $currentScope;
         }
 

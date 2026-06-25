@@ -64,7 +64,7 @@ class SyncService implements SyncServiceInterface
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes));
+        $this->dispatchWriteEvents($writes, $context);
 
         $ids = $this->getWrittenEntities($result->getWritten());
 
@@ -116,6 +116,22 @@ class SyncService implements SyncServiceInterface
         ksort($entities);
 
         return $entities;
+    }
+
+    private function dispatchWriteEvents(EntityWrittenContainerEvent $event, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($event): void {
+            $hadState = $context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+            $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+
+            try {
+                $this->eventDispatcher->dispatch($event);
+            } finally {
+                if (!$hadState) {
+                    $context->removeState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
+                }
+            }
+        });
     }
 
     /**

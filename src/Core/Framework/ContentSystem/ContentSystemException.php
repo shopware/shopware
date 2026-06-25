@@ -59,6 +59,7 @@ class ContentSystemException extends HttpException
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
+    public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -571,6 +572,19 @@ class ContentSystemException extends HttpException
     // header/footer validator: both reject a content-layout assignment whose bound layout's immutable root source
     // is a different page kind, with the identical ConstraintViolation shape. $assignmentType is the entity type
     // (Core) or the section id (Storefront); $propertyPath is the assignment's content_layout_id field path.
+    // The internal 500 fail-hard when StyleOptionConstraintDeriver is handed a value type whose primitive is not one
+    // of StyleOptionValueType::PRIMITIVE_TYPES. Unreachable in practice: every registered option passes the DTO's
+    // Choice/TypedStyleOption validation first, so reaching this is a programming error in a new, ungated caller.
+    public static function unsupportedStyleValueType(string $type): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_STYLE_VALUE_TYPE,
+            'Style option value type "{{ type }}" is not a supported primitive (string, integer, number, boolean).',
+            ['type' => $type]
+        );
+    }
+
     public static function rootSourceAssignmentMismatchViolation(string $rootSource, string $assignmentType, string $propertyPath): ConstraintViolation
     {
         $exception = self::rootSourceAssignmentMismatch($rootSource, $assignmentType);

@@ -939,6 +939,14 @@
           }
         }
       },
+      "cartLineItemPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
       "promotionCodeOfType": {
         "promotionCodeType": {
           "options": {

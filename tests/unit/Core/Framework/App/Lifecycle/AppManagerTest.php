@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
@@ -249,6 +251,9 @@ class AppManagerTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+        $aclRole = new AclRoleEntity();
+        $aclRole->setId($app->getAclRoleId());
+        $aclRole->setPrivileges(['customer:read', 'order:read', 'product:read']);
 
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
@@ -264,16 +269,27 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->exactly(2))->method('execute');
 
-        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app), aclRole: $aclRole);
 
         $appManager->reregister($app, $context);
         $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
         static::assertCount(1, $installedEvents);
         static::assertSame($app, $installedEvents[0]->getApp());
 
+        $permissionEvents = $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class);
+        static::assertCount(1, $permissionEvents);
+        static::assertSame($app->getId(), $permissionEvents[0]->appId);
+        static::assertSame(['customer:read', 'order:read', 'product:read'], $permissionEvents[0]->permissions);
+        static::assertSame($context, $permissionEvents[0]->getContext());
+
         $activatedEvents = $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class);
         static::assertCount(1, $activatedEvents);
         static::assertSame($app, $activatedEvents[0]->getApp());
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertInstanceOf(AppInstalledEvent::class, $events[0]);
+        static::assertInstanceOf(AppPermissionsUpdated::class, $events[1]);
+        static::assertInstanceOf(AppActivatedEvent::class, $events[2]);
     }
 
     public function testReregisterDoesNotReplayActivationForInactiveApps(): void
@@ -303,6 +319,7 @@ class AppManagerTest extends TestCase
         static::assertCount(1, $installedEvents);
         static::assertSame($app, $installedEvents[0]->getApp());
 
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
     }
 
@@ -326,6 +343,7 @@ class AppManagerTest extends TestCase
         $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
     }
 
     public function testActivateDoesNothingIfAppIsAlreadyActive(): void
@@ -554,9 +572,10 @@ XML,
     private function createAppManager(
         StaticEntityRepository $appRepository,
         array $persisters = [],
+        ?AclRoleEntity $aclRole = null,
     ): AppManager {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepository */
-        $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection()]);
+        $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
         return new AppManager(
             $persisters,

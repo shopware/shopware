@@ -1,15 +1,15 @@
 /** @private */
-Shopware.Component.register('sw-login-v2-index', () => import('./page/sw-login-v2-index'));
+Shopware.Component.register('sw-login-v2', () => import('./page/index'));
 /** @private */
-Shopware.Component.register('sw-login-v2-credentials', () => import('./view/sw-login-v2-credentials'));
+Shopware.Component.register('sw-login-login-v2', () => import('./view/sw-login-login-v2'));
 /** @private */
-Shopware.Component.register('sw-login-v2-access-denied', () => import('./view/sw-login-v2-access-denied'));
+Shopware.Component.register('sw-login-access-denied-v2', () => import('./view/sw-login-access-denied-v2'));
 /** @private */
-Shopware.Component.register('sw-login-v2-recovery', () => import('./view/sw-login-v2-recovery'));
+Shopware.Component.register('sw-login-recovery-v2', () => import('./view/sw-login-recovery-v2'));
 /** @private */
-Shopware.Component.register('sw-login-v2-request-sent', () => import('./view/sw-login-v2-request-sent'));
+Shopware.Component.register('sw-login-recovery-info-v2', () => import('./view/sw-login-recovery-info-v2'));
 /** @private */
-Shopware.Component.register('sw-login-v2-reset', () => import('./view/sw-login-v2-reset'));
+Shopware.Component.register('sw-login-recovery-recovery-v2', () => import('./view/sw-login-recovery-recovery-v2'));
 
 /**
  * @sw-package framework
@@ -23,36 +23,36 @@ Shopware.Module.register('sw-login-v2', {
     routes: {
         index: {
             path: '/login-v2',
-            component: 'sw-login-v2-index',
+            component: 'sw-login-v2',
             coreRoute: true,
             redirect: {
                 name: 'sw.login.v2.index.credentials',
             },
             children: {
                 credentials: {
-                    component: 'sw-login-v2-credentials',
+                    component: 'sw-login-login-v2',
                     path: '',
                 },
                 accessDenied: {
-                    component: 'sw-login-v2-access-denied',
+                    component: 'sw-login-access-denied-v2',
                     path: 'access-denied',
                 },
                 recovery: {
-                    component: 'sw-login-v2-recovery',
+                    component: 'sw-login-recovery-v2',
                     path: 'recovery',
                     meta: {
                         backToLogin: true,
                     },
                 },
                 requestSent: {
-                    component: 'sw-login-v2-request-sent',
+                    component: 'sw-login-recovery-info-v2',
                     path: 'request-sent',
                     meta: {
                         backToLogin: true,
                     },
                 },
                 reset: {
-                    component: 'sw-login-v2-reset',
+                    component: 'sw-login-recovery-recovery-v2',
                     path: 'reset/:hash',
                     props: true,
                     meta: {

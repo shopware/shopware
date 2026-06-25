@@ -1,15 +1,20 @@
+{% block sw_login_recovery %}
 <form
     class="sw-login-v2-recovery"
     @submit.prevent
 >
     <div class="sw-login-v2-recovery__content">
+        {% block sw_login_recovery_headline %}
         <h1 class="sw-login-v2-recovery__title">
             {{ $t('sw-login-v2.recovery.title') }}
         </h1>
+        {% endblock %}
 
+        {% block sw_login_recovery_text %}
         <p class="sw-login-v2-recovery__description">
             {{ $t('sw-login-v2.recovery.description') }}
         </p>
+        {% endblock %}
     </div>
 
     <mt-banner
@@ -28,13 +33,17 @@
         {{ $t('sw-login-v2.recovery.warningTooManyAttempts') }}
     </mt-banner>
 
+    {% block sw_login_recovery_form %}
+    {% block sw_login_recovery_form_email_field %}
     <mt-email-field
         class="sw-login-v2-recovery__email"
         :label="$t('sw-login-v2.recovery.labelEmail')"
         autocomplete="email"
         required
     />
+    {% endblock %}
 
+    {% block sw_login_recovery_form_submit %}
     <mt-button
         class="sw-login-v2-recovery__submit"
         type="submit"
@@ -44,4 +53,7 @@
     >
         {{ $t('sw-login-v2.recovery.buttonSubmit') }}
     </mt-button>
+    {% endblock %}
+    {% endblock %}
 </form>
+{% endblock %}

@@ -1,5 +1,5 @@
-import './sw-login-v2-reset.scss';
-import template from './sw-login-v2-reset.html.twig';
+import './sw-login-recovery-recovery-v2.scss';
+import template from './sw-login-recovery-recovery-v2.html.twig';
 
 /**
  * @sw-package framework

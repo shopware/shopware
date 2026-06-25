@@ -1,3 +1,4 @@
+{% block sw_login_recovery_info %}
 <div class="sw-login-v2-request-sent">
     <div class="sw-login-v2-request-sent__icon">
         <mt-icon
@@ -9,10 +10,13 @@
     </div>
 
     <div class="sw-login-v2-request-sent__content">
+        {% block sw_login_recovery_info_headline %}
         <h1 class="sw-login-v2-request-sent__title">
             {{ $t('sw-login-v2.requestSent.title') }}
         </h1>
+        {% endblock %}
 
+        {% block sw_login_recovery_info_info %}
         <i18n-t
             keypath="sw-login-v2.requestSent.description"
             tag="p"
@@ -23,5 +27,7 @@
                 <span class="sw-login-v2-request-sent__description-email">{{ email }}</span>
             </template>
         </i18n-t>
+        {% endblock %}
     </div>
 </div>
+{% endblock %}

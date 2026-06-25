@@ -12,6 +12,16 @@ The following Administration rule builder condition components are deprecated an
 * `sw-condition-line-item-in-category`
 * `sw-condition-line-item-purchase-price`
 * `sw-condition-is-net-select`
+
+## Deprecation of login promo panel twig blocks
+
+The redesigned login (`sw-login-v2`) has no promo/marketing panel. The following blocks in `src/Administration/Resources/app/administration/src/module/sw-login-v2/page/sw-login-v2-index/sw-login-v2-index.html.twig` are kept only as no-op override hooks (rendered behind `v-if="false"`) for backwards compatibility and will be removed in v6.8.0:
+
+- `sw_login_image`
+- `sw_login_image_headlines`
+- `sw_login_headline`
+- `sw_login_sub_headline`
+
 ## `sw-product-stream-filter` now reuses `sw-condition-base` styling
 
 The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.

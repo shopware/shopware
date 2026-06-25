@@ -1,10 +1,13 @@
+{% block sw_login_login %}
 <form
     class="sw-login-v2-credentials"
     @submit.prevent
 >
+    {% block sw_login_login_form_headline %}
     <h1 class="sw-login-v2-credentials__title">
         {{ $t('sw-login-v2.credentials.title') }}
     </h1>
+    {% endblock %}
 
     <mt-banner
         v-if="warning"
@@ -44,20 +47,25 @@
         </div>
     </div>
 
+    {% block sw_login_login_user_field %}
     <mt-text-field
         class="sw-login-v2-credentials__username"
         :label="$t('sw-login-v2.credentials.labelUsername')"
         autocomplete="username"
         required
     />
+    {% endblock %}
 
+    {% block sw_login_login_password_field %}
     <mt-password-field
         class="sw-login-v2-credentials__password"
         :label="$t('sw-login-v2.credentials.labelPassword')"
         autocomplete="current-password"
         required
     />
+    {% endblock %}
 
+    {% block sw_login_login_alert %}
     <mt-banner
         v-if="error"
         class="sw-login-v2-credentials__error"
@@ -65,12 +73,15 @@
     >
         {{ $t('sw-login-v2.credentials.errorInvalidCredentials') }}
     </mt-banner>
+    {% endblock %}
 
+    {% block sw_login_login_submit %}
     <mt-checkbox
         class="sw-login-v2-credentials__remember-me"
         :label="$t('sw-login-v2.credentials.labelKeepLoggedIn')"
     />
 
+    {% block sw_login_login_submit_button %}
     <mt-button
         class="sw-login-v2-credentials__login-button"
         type="submit"
@@ -80,11 +91,16 @@
     >
         {{ $t('sw-login-v2.credentials.buttonLogin') }}
     </mt-button>
+    {% endblock %}
 
+    {% block sw_login_login_forgot_password %}
     <mt-link
         class="sw-login-v2-credentials__forgot-password"
         :to="{ name: 'sw.login.v2.index.recovery' }"
     >
         {{ $t('sw-login-v2.credentials.forgotPassword') }}
     </mt-link>
+    {% endblock %}
+    {% endblock %}
 </form>
+{% endblock %}

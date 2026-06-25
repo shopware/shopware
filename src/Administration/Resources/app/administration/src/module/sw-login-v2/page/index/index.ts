@@ -1,5 +1,5 @@
-import './sw-login-v2-request-sent.scss';
-import template from './sw-login-v2-request-sent.html.twig';
+import './sw-login-v2.scss';
+import template from './sw-login-v2.html.twig';
 
 /**
  * @sw-package framework
@@ -10,7 +10,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            email: 'j.johnson@company.com',
+            isLoading: false,
         };
     },
 });

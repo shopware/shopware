@@ -1,5 +1,5 @@
-import './sw-login-v2-credentials.scss';
-import template from './sw-login-v2-credentials.html.twig';
+import './sw-login-login-v2.scss';
+import template from './sw-login-login-v2.html.twig';
 
 /**
  * @sw-package framework

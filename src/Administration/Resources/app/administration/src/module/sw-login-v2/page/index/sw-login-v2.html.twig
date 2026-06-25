@@ -1,5 +1,9 @@
+{% block sw_login %}
 <div class="sw-login-v2-index">
+    {% block sw_login_container %}
+    {% block sw_login_badge %}
     <div class="sw-login-v2-index__logo">
+        {% block sw_login_badge_image %}
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="149px"
@@ -56,15 +60,23 @@
                 fill="#0870FF"
             />
         </svg>
+        {% endblock %}
     </div>
+    {% endblock %}
 
+    {% block sw_login_form %}
     <div class="sw-login-v2-index__card">
+        {% block sw_login_loader %}
         <mt-loader v-if="isLoading" />
+        {% endblock %}
 
+        {% block sw_login_view %}
         <router-view v-slot="{Component}">
             <component :is="Component" />
         </router-view>
+        {% endblock %}
     </div>
+    {% endblock %}
 
     <mt-link
         v-if="$route.meta.backToLogin"
@@ -73,4 +85,21 @@
     >
         {{ $t('sw-login-v2.index.backToLogin') }}
     </mt-link>
+
+    {# @deprecated tag:v6.8.0 - The promo panel was removed in the new login. These
+    blocks are kept as no-op override hooks for backwards compatibility and will be
+    removed. They render nothing. #}
+    <div
+        v-if="false"
+        class="sw-login__legacy-image"
+    >
+        {% block sw_login_image %}
+        {% block sw_login_image_headlines %}
+        {% block sw_login_headline %}{% endblock %}
+        {% block sw_login_sub_headline %}{% endblock %}
+        {% endblock %}
+        {% endblock %}
+    </div>
+    {% endblock %}
 </div>
+{% endblock %}

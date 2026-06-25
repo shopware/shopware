@@ -1,5 +1,5 @@
-import './sw-login-v2-index.scss';
-import template from './sw-login-v2-index.html.twig';
+import './sw-login-recovery-v2.scss';
+import template from './sw-login-recovery-v2.html.twig';
 
 /**
  * @sw-package framework
@@ -10,7 +10,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            isLoading: false,
+            error: false,
+            warning: false,
         };
     },
 });

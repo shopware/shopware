@@ -1,5 +1,5 @@
-import './sw-login-v2-access-denied.scss';
-import template from './sw-login-v2-access-denied.html.twig';
+import './sw-login-access-denied-v2.scss';
+import template from './sw-login-access-denied-v2.html.twig';
 
 /**
  * @sw-package framework

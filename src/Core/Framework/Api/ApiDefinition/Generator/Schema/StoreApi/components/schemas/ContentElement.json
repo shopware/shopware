@@ -51,6 +51,16 @@
                             }
                         ]
                     },
+                    "style": {
+                        "type": "object",
+                        "description": "Universal presentation options keyed by option wire name, then by breakpoint (xs, sm, md, lg, xl, xxl). Omitted when empty.",
+                        "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": ["string", "integer", "number", "boolean"]
+                            }
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
                         "enum": ["content_element"]

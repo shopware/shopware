@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssign
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemStyleOptionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
@@ -145,6 +146,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new ContentRouteCompilerPass());
         $container->addCompilerPass(new ContentSystemDataLoaderTypeCompilerPass());
         $container->addCompilerPass(new ContentSystemElementTypeCompilerPass());
+        $container->addCompilerPass(new ContentSystemStyleOptionCompilerPass());
         $container->addCompilerPass(new ContentLayoutAssignableCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());

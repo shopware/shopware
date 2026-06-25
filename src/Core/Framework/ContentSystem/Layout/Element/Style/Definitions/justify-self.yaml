@@ -1,0 +1,12 @@
+type: string
+default: "auto"
+enum:
+  - "auto"
+  - "start"
+  - "center"
+  - "end"
+  - "stretch"
+adminUI:
+  component: "select"
+  label: "Justify Self"
+  description: "Main-axis alignment of the element within its parent."

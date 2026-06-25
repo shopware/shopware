@@ -269,6 +269,40 @@
             <argument type="service" id="cache.system"/>
         </service>
 
+        <!-- Universal Style Option System -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver"/>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
+            <argument key="$directories" type="collection"/>
+            <tag name="content_system.style_option_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+            <tag name="content_system.style_option_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry">
+            <argument type="tagged_iterator" tag="content_system.style_option_loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\CachedContentSystemStyleOptionRegistry"
+                 decorates="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\CachedContentSystemStyleOptionRegistry.inner"/>
+            <argument type="service" id="cache.system"/>
+        </service>
+
         <!-- Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution -->
         <service id="Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource"/>
 

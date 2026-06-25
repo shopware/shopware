@@ -346,6 +346,11 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
         </service>
 
+        <!-- Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes -->
+        <service id="Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- Layout Validation -->
         <service id="Shopware\Core\Framework\ContentSystem\DraftLayoutChecker">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics"/>

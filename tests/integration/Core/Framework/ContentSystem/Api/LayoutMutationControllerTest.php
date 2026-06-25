@@ -207,6 +207,24 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects an unknown request field on a draft mutation with a 400 and the unknownRequestField code')]
+    public function testRejectsUnknownRequestField(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-element', [
+            'layout' => [$this->element('block-a', $component)],
+            'type' => $component,
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+    }
+
     #[TestDox('treats an empty rootSource as absent and evaluates only well-formedness without gating')]
     public function testTreatsEmptyRootSourceAsAbsent(): void
     {

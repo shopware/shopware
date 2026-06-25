@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
  * Exposes the layout mutation actions. Each binds its request DTO, builds one {@see LayoutMutation}, and
@@ -49,7 +50,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/insert-element', name: 'api.action.content_system.layout.insert_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function insert(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         InsertElementRequest $payload,
         Context $context,
     ): Response {
@@ -60,7 +61,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/remove-element', name: 'api.action.content_system.layout.remove_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function remove(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         RemoveElementRequest $payload,
         Context $context,
     ): Response {
@@ -69,7 +70,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/move-element', name: 'api.action.content_system.layout.move_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function move(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         MoveElementRequest $payload,
         Context $context,
     ): Response {
@@ -80,7 +81,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/replace-element', name: 'api.action.content_system.layout.replace_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function replace(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ReplaceElementRequest $payload,
         Context $context,
     ): Response {
@@ -91,7 +92,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/duplicate-element', name: 'api.action.content_system.layout.duplicate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function duplicate(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         DuplicateElementRequest $payload,
         Context $context,
     ): Response {
@@ -100,7 +101,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/wrap-elements', name: 'api.action.content_system.layout.wrap_elements', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function wrap(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         WrapElementsRequest $payload,
         Context $context,
     ): Response {
@@ -111,7 +112,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/unwrap-element', name: 'api.action.content_system.layout.unwrap_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function unwrap(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         UnwrapElementRequest $payload,
         Context $context,
     ): Response {
@@ -120,7 +121,7 @@ class LayoutMutationController
 
     #[Route(path: '/api/_action/content-system/layout/attach-element', name: 'api.action.content_system.layout.attach_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function attach(
-        #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         AttachElementRequest $payload,
         Context $context,
     ): Response {

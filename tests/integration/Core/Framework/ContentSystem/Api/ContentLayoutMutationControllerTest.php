@@ -279,6 +279,25 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame($committed, $this->layoutIds($layoutId));
     }
 
+    #[TestDox('rejects an unknown request field on a persisted mutation with a 400 and the unknownRequestField code without writing')]
+    public function testRejectsUnknownRequestField(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('insert-element', $layoutId, [
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'expectedVersion' => null,
+            'entityType' => 'product',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
     #[TestDox('rejects a structurally impossible persisted op (unknown element id) with a 400 without writing')]
     public function testStructuralImpossibilityReturnsBadRequest(): void
     {

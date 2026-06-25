@@ -58,6 +58,7 @@ class ContentSystemException extends HttpException
     public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
+    public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -496,6 +497,24 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PREVIEW_PAYLOAD_STORE_FAILED,
             'Could not store the content preview payload.'
+        );
+    }
+
+    /**
+     * The client-facing 400 for an admin content request that carries a field its payload DTO does not declare
+     * (e.g. the removed entityType/section, or a typo). The draft/mutation routes opt into strict request mapping,
+     * and UnknownRequestFieldExceptionListener remaps the serializer's ExtraAttributesException to this so a stale
+     * or mistyped field fails fast rather than being silently dropped.
+     *
+     * @param list<string> $fields
+     */
+    public static function unknownRequestField(array $fields): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_REQUEST_FIELD,
+            'The request contains unknown field(s): {{ fields }}. This endpoint rejects fields it does not declare.',
+            ['fields' => implode(', ', $fields)]
         );
     }
 

@@ -66,6 +66,21 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects an unknown request field with a 400 and the unknownRequestField code')]
+    public function testDiagnoseRejectsUnknownRequestField(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::DIAGNOSE_URL, [
+            'layout' => [$this->element($this->registeredComponent())],
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+    }
+
     #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
     public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
     {

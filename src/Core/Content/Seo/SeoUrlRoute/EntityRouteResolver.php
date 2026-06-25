@@ -52,11 +52,9 @@ class EntityRouteResolver
 
     private function getRouteConfig(string $entityName): SeoUrlRouteConfig
     {
-        $routes = $this->registry->findByDefinition($entityName);
-        $key = array_key_first($routes);
-        $route = $key !== null ? $routes[$key] : null;
+        $route = array_first($this->registry->findByDefinition($entityName));
 
-        if ($route) {
+        if ($route instanceof EntitySeoUrlRouteInterface) {
             return $route->getConfig();
         }
 

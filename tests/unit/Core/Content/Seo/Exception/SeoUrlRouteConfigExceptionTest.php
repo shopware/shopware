@@ -21,7 +21,7 @@ class SeoUrlRouteConfigExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SeoUrlRouteConfigException::ROUTE_CONFIG_MISSING_PARAMETER_KEY_FOR_PRIMARY_KEY, $exception->getErrorCode());
-        static::assertSame('Missing key for primary key.', $exception->getMessage());
+        static::assertSame('Missing parameter key for primary key of entity "product".', $exception->getMessage());
         static::assertSame(['entityName' => 'product'], $exception->getParameters());
     }
 
@@ -31,7 +31,7 @@ class SeoUrlRouteConfigExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SeoUrlRouteConfigException::ROUTE_CONFIG_NOT_FOUND_FOR_ENTITY_NAME, $exception->getErrorCode());
-        static::assertSame('No route config found for given entity name.', $exception->getMessage());
+        static::assertSame('No route config found for given entity name "product".', $exception->getMessage());
         static::assertSame(['entityName' => 'product'], $exception->getParameters());
     }
 }

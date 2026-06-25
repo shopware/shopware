@@ -90,7 +90,7 @@ class VersionManagerTest extends TestCase
                 return true;
             }));
 
-        $writeContextMockWithVersionId->expects($this->any())->method('getContext')->willReturn(Context::createDefaultContext());
+        $writeContextMockWithVersionId->method('getContext')->willReturn(Context::createDefaultContext());
 
         $registry = new StaticDefinitionInstanceRegistry(
             [

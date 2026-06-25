@@ -106,9 +106,7 @@ class CustomFieldsetGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([CustomFieldsetGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
-                'src/Service/CustomFieldsInstaller.php',
-                'src/TestPlugin.php',
+                'src/Resources/config/custom-fields.xml',
             ],
         ];
     }

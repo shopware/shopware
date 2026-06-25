@@ -29,7 +29,8 @@
       "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveErrorNumericKey": "Textbaustein-Namen dürfen nicht nur aus Zahlen bestehen.",
       "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
-      "textHeadline": "Neuer Textbaustein"
+      "textHeadline": "Neuer Textbaustein",
+      "labelOriginal": "Original:"
     },
     "list": {
       "identifier": "{setName} | Textbaustein-Set-Vergleich",

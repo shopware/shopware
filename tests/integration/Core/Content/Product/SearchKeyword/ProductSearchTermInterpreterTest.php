@@ -60,7 +60,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEqualsCanonicalizing($expected, $keywords);
+        static::assertEqualsCanonicalizing(array_values($expected), array_values($keywords));
     }
 
     public function testNumericInputIsNotMatchingWithInfixPlaceholders(): void
@@ -86,7 +86,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $keywords = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        static::assertEqualsCanonicalizing($expected, $keywords);
+        static::assertEqualsCanonicalizing(array_values($expected), array_values($keywords));
     }
 
     /**
@@ -101,7 +101,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         static::assertCount(\count($expected), $tokenTerms);
         foreach ($tokenTerms as $index => $tokenTerm) {
-            static::assertEqualsCanonicalizing($expected[$index], $tokenTerm);
+            static::assertEqualsCanonicalizing(array_values($expected[$index]), array_values($tokenTerm));
         }
     }
 

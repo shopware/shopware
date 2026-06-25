@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
@@ -11,6 +7,7 @@ const { Criteria } = Shopware.Data;
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {

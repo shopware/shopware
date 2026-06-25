@@ -11,7 +11,7 @@
         display: flex;
         justify-content: center;
         background-color: var(--color-elevation-surface-raised);
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-card);
         text-align: center;
         padding: 44px;
@@ -36,7 +36,7 @@
         flex-direction: column;
 
         h2 {
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
         }
 
         p {
@@ -48,7 +48,7 @@
         color: var(--color-text-positive-default);
         background-color: var(--color-background-positive-default);
         border-radius: $border-radius-default;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         padding: 3px 5px;
         margin-bottom: 12px;
     }

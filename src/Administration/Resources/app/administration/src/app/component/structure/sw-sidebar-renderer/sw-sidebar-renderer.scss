@@ -1,28 +1,27 @@
 .sw-sidebar-renderer-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 30%);
+    background: var(--color-elevation-backdrop-default);
     z-index: 999;
     cursor: pointer;
-    animation: fadeIn 0.3s ease-in-out;
 
     &.is-resizing {
         cursor: col-resize;
     }
+}
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
+// Fade the backdrop on open, close and the resize threshold.
+.sw-sidebar-renderer-backdrop-enter-active,
+.sw-sidebar-renderer-backdrop-leave-active {
+    transition: opacity 0.3s ease-in-out;
+}
 
-        to {
-            opacity: 1;
-        }
-    }
+.sw-sidebar-renderer-backdrop-enter-from,
+.sw-sidebar-renderer-backdrop-leave-to {
+    opacity: 0;
 }
 
 .sw-sidebar-renderer {
-    background: var(--color-elevation-surface-raised);
     transition: all 0.3s ease-in-out;
     will-change: width;
     display: none;
@@ -50,6 +49,50 @@
 
     &.is-active {
         display: block;
+
+        // Animate the column width so the content resizes in sync with the slide-in.
+        animation: expandSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+
+        .sw-sidebar-renderer__overlay {
+            animation: slideInFromRight 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+    }
+
+    // Reverse animations played while closing; the element stays mounted until they finish.
+    &.is-active.is-closing {
+        animation: shrinkSidebar 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+
+        .sw-sidebar-renderer__overlay {
+            animation: slideOutToRight 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+        }
+    }
+
+    @keyframes slideInFromRight {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOutToRight {
+        to {
+            transform: translateX(100%);
+        }
+    }
+
+    @keyframes expandSidebar {
+        from {
+            width: 0;
+        }
+    }
+
+    @keyframes shrinkSidebar {
+        to {
+            width: 0;
+        }
     }
 
     &__overlay {
@@ -59,10 +102,13 @@
         top: 0;
         right: 0;
         bottom: 0;
-        border-left: 1px solid var(--color-border-primary-default);
-        height: 100%;
-        max-width: 90vw;
-        transition: all 0.3s ease-in-out;
+        margin: var(--scale-size-8) var(--scale-size-8) var(--scale-size-8) 0;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-l);
+        background: var(--color-elevation-surface-default);
+        height: calc(100% - 2 * var(--scale-size-8));
+        max-width: 90dvw;
+        transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
         overflow: hidden;
 
         &-resizable {
@@ -71,38 +117,32 @@
     }
 
     &.is-overlay .sw-sidebar-renderer__overlay {
-        box-shadow: -4px 0 16px rgba(0, 0, 0, 15%);
-        border-left: 1px solid var(--color-border-primary-default);
-        border-radius: 8px 0 0 8px;
+        box-shadow: 0 0 80px var(--color-elevation-shadow-default);
     }
 
     &__resize-handle {
         position: absolute;
         left: 0;
-        top: 0;
-        bottom: 0;
-        width: 6px;
+        top: 12px;
+        bottom: 12px;
+        width: 2px;
         cursor: col-resize;
         background: transparent;
         z-index: 10;
+        border-radius: var(--border-radius-round);
+        transition: background 0.2s ease;
 
         &:hover {
-            background: var(--color-interaction-primary-default);
-            opacity: 0.3;
-        }
-
-        &:active {
-            background: var(--color-interaction-primary-default);
-            opacity: 0.5;
+            background: var(--color-border-primary-default);
         }
 
         &::before {
             content: "";
             position: absolute;
-            left: -3px;
-            right: -3px;
-            top: 0;
-            bottom: 0;
+            left: -8px;
+            right: -8px;
+            top: -12px;
+            bottom: -12px;
         }
     }
 
@@ -124,6 +164,12 @@
             align-items: center;
             gap: 16px;
         }
+
+        &-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     }
 
     .sw-iframe-renderer {
@@ -134,26 +180,10 @@
         height: 100%;
     }
 
-    &__button-close {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        transition: background-color 0.2s ease-in-out;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        &-active {
-            background: var(--color-interaction-secondary-hover);
-        }
-    }
-
-    &__close-icon {
-        cursor: pointer;
-    }
-
     &__title {
         margin: 0;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
     }
 }

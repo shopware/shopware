@@ -14,11 +14,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     setup() {
         const MAIN_CONTENT_MIN_SIZE = 1300;
-        const MIN_SIDEBAR_WIDTH = 545;
+        const DEFAULT_SIDEBAR_WIDTH = 512;
+        const MIN_SIDEBAR_WIDTH = 400;
+        const SIDEBAR_MARGIN = 8;
 
-        const sidebarSetWidth = ref(545);
+        const sidebarSetWidth = ref(DEFAULT_SIDEBAR_WIDTH);
         const isResizing = ref(false);
         const windowWidth = ref(window.innerWidth);
+
+        const closingSidebar = computed(() => Shopware.Store.get('sidebar').closingSidebar);
 
         const activeSidebar = computed(() => {
             return Shopware.Store.get('sidebar').getActiveSidebar;
@@ -31,31 +35,34 @@ export default Shopware.Component.wrapComponentConfig({
         const sidebarDisplayOptions = computed(() => {
             const availableWidth = activeSidebar.value?.resizable
                 ? windowWidth.value - MAIN_CONTENT_MIN_SIZE
-                : MIN_SIDEBAR_WIDTH;
+                : DEFAULT_SIDEBAR_WIDTH;
 
             const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
+            const isOverlayMode = availableWidth < currentWidth;
+
             return {
                 availableWidth: `${Math.max(availableWidth, 0)}px`,
                 currentWidth: `${currentWidth}px`,
-                isOverlayMode: availableWidth < currentWidth,
-                isCollapsable: availableWidth > MIN_SIDEBAR_WIDTH,
+                panelWidth: isOverlayMode ? `${currentWidth}px` : `${currentWidth - SIDEBAR_MARGIN}px`,
+                isOverlayMode,
+                isCollapsable: availableWidth > DEFAULT_SIDEBAR_WIDTH,
                 isResizing: isResizing.value,
             };
         });
 
         const closeSidebar = (locationId: string) => {
-            Shopware.Store.get('sidebar').closeSidebar(locationId);
+            Shopware.Store.get('sidebar').requestCloseSidebar(locationId);
         };
 
         const collapseSidebar = () => {
-            sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
-            localStorage.setItem('sw-sidebar-width', MIN_SIDEBAR_WIDTH.toString());
+            sidebarSetWidth.value = DEFAULT_SIDEBAR_WIDTH;
+            localStorage.setItem('sw-sidebar-width', DEFAULT_SIDEBAR_WIDTH.toString());
         };
 
         const handleSidebarResize = (event: MouseEvent) => {
             if (!isResizing.value) return;
 
-            sidebarSetWidth.value = windowWidth.value - event.clientX;
+            sidebarSetWidth.value = Math.max(MIN_SIDEBAR_WIDTH, windowWidth.value - event.clientX);
         };
 
         const stopSidebarResize = () => {
@@ -85,8 +92,8 @@ export default Shopware.Component.wrapComponentConfig({
         };
 
         onUpdated(() => {
-            if (activeSidebar.value && !activeSidebar.value?.resizable && sidebarSetWidth.value !== MIN_SIDEBAR_WIDTH) {
-                sidebarSetWidth.value = MIN_SIDEBAR_WIDTH;
+            if (activeSidebar.value && !activeSidebar.value?.resizable && sidebarSetWidth.value !== DEFAULT_SIDEBAR_WIDTH) {
+                sidebarSetWidth.value = DEFAULT_SIDEBAR_WIDTH;
             }
         });
 
@@ -107,6 +114,7 @@ export default Shopware.Component.wrapComponentConfig({
             activeSidebar,
             sidebars,
             sidebarDisplayOptions,
+            closingSidebar,
             closeSidebar,
             startSidebarResize,
             collapseSidebar,

@@ -2,18 +2,21 @@
     v-for="sidebar in sidebars"
     :key="sidebar.locationId"
 >
-    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
-    <div
-        v-if="activeSidebar && activeSidebar.resizable && activeSidebar.locationId === sidebar.locationId && sidebarDisplayOptions.isOverlayMode"
-        class="sw-sidebar-renderer-backdrop"
-        :class="{ 'is-resizing': sidebarDisplayOptions.isResizing }"
-        @click="closeSidebar(sidebar.locationId)"
-    ></div>
+    <transition name="sw-sidebar-renderer-backdrop">
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
+        <div
+            v-if="activeSidebar && activeSidebar.resizable && activeSidebar.locationId === sidebar.locationId && sidebarDisplayOptions.isOverlayMode && closingSidebar !== sidebar.locationId"
+            class="sw-sidebar-renderer-backdrop"
+            :class="{ 'is-resizing': sidebarDisplayOptions.isResizing }"
+            @click="closeSidebar(sidebar.locationId)"
+        ></div>
+    </transition>
 
     <aside
         class="sw-sidebar-renderer"
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
+            'is-closing': closingSidebar === sidebar.locationId,
             'is-resizing': sidebarDisplayOptions.isResizing,
             'is-overlay': activeSidebar && activeSidebar.resizable && sidebarDisplayOptions.isOverlayMode,
         }"
@@ -28,7 +31,7 @@
                 'sw-sidebar-renderer__overlay-resizable': activeSidebar && activeSidebar.resizable,
             }"
             :style="{
-                width: sidebarDisplayOptions.currentWidth
+                width: sidebarDisplayOptions.panelWidth
             }"
         >
             <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
@@ -42,37 +45,38 @@
                     <h3 class="sw-sidebar-renderer__title">
                         {{ $tc(sidebar.title) }}
                     </h3>
-                    <mt-button
-                        v-if="sidebarDisplayOptions.isOverlayMode && sidebarDisplayOptions.isCollapsable"
-                        show-front-icon="true"
-                        class="sw-sidebar-renderer__button-collapse"
-                        :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
-                        variant="secondary"
-                        @click="collapseSidebar"
-                    >
-
-                        <template #iconFront>
-                            <mt-icon
-                                name="regular-long-arrow-right"
-                                size="12px"
-                            />
-                        </template>
-
-                        {{ $tc('sidebar.buttonCollapse') }}
-
-                    </mt-button>
                 </div>
 
-                <button
-                    class="sw-sidebar-renderer__button-close"
-                    :aria-label="$tc('sidebar.ariaLabelButtonClose')"
-                    @click="closeSidebar(sidebar.locationId)"
-                >
-                    <mt-icon
-                        name="regular-times-xs"
-                        size="12px"
-                    />
-                </button>
+                <div class="sw-sidebar-renderer__header-actions">
+                    <mt-button
+                        v-if="sidebarDisplayOptions.isOverlayMode && sidebarDisplayOptions.isCollapsable"
+                        class="sw-sidebar-renderer__button-collapse"
+                        :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                        variant="tertiary"
+                        size="default"
+                        square
+                        @click="collapseSidebar"
+                    >
+                        <mt-icon
+                            name="solid-sidebar"
+                            size="16px"
+                        />
+                    </mt-button>
+
+                    <mt-button
+                        class="sw-sidebar-renderer__button-close"
+                        :aria-label="$tc('sidebar.ariaLabelButtonClose')"
+                        variant="tertiary"
+                        size="default"
+                        square
+                        @click="closeSidebar(sidebar.locationId)"
+                    >
+                        <mt-icon
+                            name="regular-times-s"
+                            size="12px"
+                        />
+                    </mt-button>
+                </div>
             </header>
 
             <section class="sw-sidebar-renderer__content">

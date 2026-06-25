@@ -1,16 +1,27 @@
 <template v-if="sidebars && sidebars.length === 1">
-    <button
-        v-tooltip="{ message: sidebars[0].title, placement: 'right' }"
-        class="sw-app-topbar-sidebar__icon"
-        :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
-        :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
-        @click="setActiveSidebar(sidebars[0].locationId)"
+    <mt-tooltip
+        :content="$tc(sidebars[0].title)"
+        placement="bottom"
+        :delay-duration-in-ms="500"
     >
-        <mt-icon
-            :name="sidebars[0].icon"
-            :size="20"
-        />
-    </button>
+        <template #default="{ ...tooltipProps }">
+            <mt-button
+                v-bind="tooltipProps"
+                class="sw-app-topbar-sidebar__icon"
+                :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
+                :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
+                variant="tertiary"
+                size="default"
+                square
+                @click="toggleSidebar(sidebars[0].locationId)"
+            >
+                <mt-icon
+                    :name="sidebars[0].icon"
+                    :size="20"
+                />
+            </mt-button>
+        </template>
+    </mt-tooltip>
 </template>
 
 <template v-if="sidebars.length && sidebars.length > 1">

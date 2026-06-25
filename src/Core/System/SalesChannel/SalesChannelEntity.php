@@ -28,6 +28,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -117,7 +118,14 @@ class SalesChannelEntity extends Entity
     protected bool $maintenance;
 
     /**
-     * @var array<mixed>|null
+     * @var list<string>|null
+     */
+    protected ?array $maintenanceIpAllowlist = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use $maintenanceIpAllowlist instead.
+     *
+     * @var list<string>|null
      */
     protected ?array $maintenanceIpWhitelist = null;
 
@@ -371,19 +379,50 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<string>|null
      */
-    public function getMaintenanceIpWhitelist(): ?array
+    public function getMaintenanceIpAllowlist(): ?array
     {
-        return $this->maintenanceIpWhitelist;
+        return $this->maintenanceIpAllowlist;
     }
 
     /**
-     * @param array<mixed>|null $maintenanceIpWhitelist
+     * @param list<string>|null $maintenanceIpAllowlist
+     */
+    public function setMaintenanceIpAllowlist(?array $maintenanceIpAllowlist): void
+    {
+        $this->maintenanceIpAllowlist = $maintenanceIpAllowlist;
+        $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getMaintenanceIpAllowlist() instead.
+     *
+     * @return list<string>|null
+     */
+    public function getMaintenanceIpWhitelist(): ?array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getMaintenanceIpAllowlist()')
+        );
+
+        return $this->getMaintenanceIpAllowlist();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use setMaintenanceIpAllowlist() instead.
+     *
+     * @param list<string>|null $maintenanceIpWhitelist
      */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
-        $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'setMaintenanceIpAllowlist()')
+        );
+
+        $this->setMaintenanceIpAllowlist($maintenanceIpWhitelist);
     }
 
     public function getCurrency(): ?CurrencyEntity

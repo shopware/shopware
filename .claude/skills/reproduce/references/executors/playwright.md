@@ -28,6 +28,20 @@ assemble a customer-create payload at RUNTIME in the spec (store-api register or
 "This value should not be blank", killing the run at `PRECONDITION_NOT_FOUND` (hit live on
 #33). seed.sh validates + resolves the fixture deterministically; runtime creation does not.
 
+**Admin *precondition entities* — SEED them via `fixtures.json`, never POST them at runtime.**
+The same rule generalizes beyond customers to ANY entity a spec needs in place before the UI
+interaction (media, product_manufacturer, product, category, …): declare it in `fixtures.json`
+and let seed.sh upsert it through the **sync API** (`/api/_action/sync`), which accepts a
+client-supplied 32-char-hex `id` and upserts deterministically. Do NOT create it at runtime in
+the spec with `request.post('/api/<entity>/<id>')` — POST is the COLLECTION verb, so posting to
+an item path is **405 Method Not Allowed** and the run dies at
+`PRECONDITION_NOT_FOUND: … create failed (405)` (hit live on #29: `POST /api/media/<id>`). If an
+entity truly must be created from inside the spec, the admin-API verbs are `POST /api/<entity>`
+(id in the BODY) or `PATCH /api/<entity>/<id>` (upsert a known id) — never `POST /api/<entity>/<id>`.
+The one thing sync CANNOT do is attach a binary, so a media FILE still needs one runtime call —
+`POST /api/_action/media/<id>/upload?extension=…&fileName=…` — AFTER the (seeded) media row exists;
+seed everything else.
+
 **Storefront CMS-block specs — reach the block via a CATEGORY page.** For a bug in a CMS
 element (product slider, image, text) on the storefront, seed the block on a **category** and
 navigate to its SEO URL (e.g. `await page.goto('/Repro-Category/')`) — categories render

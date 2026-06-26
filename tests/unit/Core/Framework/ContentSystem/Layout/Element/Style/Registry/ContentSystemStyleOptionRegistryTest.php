@@ -2,9 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style\Registry;
 
+use Monolog\Handler\TestHandler;
+use Monolog\Level;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
@@ -24,7 +28,7 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
         $registry = new ContentSystemStyleOptionRegistry([
             $this->loader($this->option('col-span', 'core')),
             $this->loader($this->option('brand-accent', 'plugin:Acme')),
-        ]);
+        ], new NullLogger());
 
         $all = $registry->all();
 
@@ -38,7 +42,7 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
         $registry = new ContentSystemStyleOptionRegistry([
             $this->loader($this->option('col-span', 'core')),
             $this->loader($this->option('col-span', 'app:Acme')),
-        ]);
+        ], new NullLogger());
 
         $this->expectExceptionObject(ContentSystemException::styleOptionDuplicate('col-span', 'core', 'app:Acme'));
 
@@ -50,7 +54,63 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
     {
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemStyleOptionRegistry::class));
 
-        (new ContentSystemStyleOptionRegistry([]))->getDecorated();
+        (new ContentSystemStyleOptionRegistry([], new NullLogger()))->getDecorated();
+    }
+
+    #[TestDox('allResolved aggregates non-colliding options from every loader')]
+    public function testAllResolvedAggregatesNonCollidingOptions(): void
+    {
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('col-span', 'core')),
+            $this->loader($this->option('brand-accent', 'plugin:Acme')),
+        ], new NullLogger());
+
+        $resolved = $registry->allResolved();
+
+        static::assertSame(['col-span', 'brand-accent'], array_keys($resolved));
+        static::assertSame('plugin:Acme', $resolved['brand-accent']->source());
+    }
+
+    #[TestDox('allResolved resolves a cross-loader duplicate to the higher-precedence source, not the first registered')]
+    public function testAllResolvedPrefersHigherPrecedenceSource(): void
+    {
+        // The app source is registered first, yet core wins: precedence beats registration order.
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('col-span', 'app:Acme')),
+            $this->loader($this->option('col-span', 'core')),
+        ], new NullLogger());
+
+        static::assertSame('core', $registry->allResolved()['col-span']->source());
+    }
+
+    #[TestDox('allResolved keeps the first-registered option when two sources share the same precedence tier')]
+    public function testAllResolvedKeepsFirstRegisteredWithinSameTier(): void
+    {
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('brand-accent', 'plugin:First')),
+            $this->loader($this->option('brand-accent', 'plugin:Second')),
+        ], new NullLogger());
+
+        static::assertSame('plugin:First', $registry->allResolved()['brand-accent']->source());
+    }
+
+    #[TestDox('allResolved logs a warning naming the option and both colliding sources')]
+    public function testAllResolvedLogsWarningNamingBothSources(): void
+    {
+        $handler = new TestHandler();
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('col-span', 'core')),
+            $this->loader($this->option('col-span', 'app:Acme')),
+        ], new Logger('test', [$handler]));
+
+        $registry->allResolved();
+
+        static::assertCount(1, $handler->getRecords());
+        $record = $handler->getRecords()[0];
+        static::assertSame(Level::Warning, $record->level);
+        static::assertStringContainsString('col-span', $record->message);
+        static::assertStringContainsString('core', $record->message);
+        static::assertStringContainsString('app:Acme', $record->message);
     }
 
     private function option(string $name, string $source): StyleOptionSpecification

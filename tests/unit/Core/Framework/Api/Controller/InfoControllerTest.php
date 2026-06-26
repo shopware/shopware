@@ -304,7 +304,7 @@ class InfoControllerTest extends TestCase
     public function testContentSystemElementTypesFoldsInStyleOptions(): void
     {
         $styleOptionRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $styleOptionRegistry->method('all')->willReturn(['col-span' => $this->styleOption()]);
+        $styleOptionRegistry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
 
         $controller = $this->createController(styleOptionRegistry: $styleOptionRegistry);
         $response = $controller->getContentSystemElementTypes();
@@ -323,7 +323,7 @@ class InfoControllerTest extends TestCase
     public function testContentSystemStyleOptionsReturnsEmptyWhenNoneRegistered(): void
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturn([]);
+        $registry->method('allResolved')->willReturn([]);
 
         $controller = $this->createController(styleOptionRegistry: $registry);
         $response = $controller->getContentSystemStyleOptions();
@@ -339,7 +339,7 @@ class InfoControllerTest extends TestCase
     public function testContentSystemStyleOptions(): void
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturn(['col-span' => $this->styleOption()]);
+        $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
 
         $controller = $this->createController(styleOptionRegistry: $registry);
         $response = $controller->getContentSystemStyleOptions();

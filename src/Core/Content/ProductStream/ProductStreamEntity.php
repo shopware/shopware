@@ -34,8 +34,6 @@ class ProductStreamEntity extends Entity
 
     protected bool $internal = false;
 
-    protected bool $displayAsGroup = true;
-
     protected ?ProductStreamTranslationCollection $translations = null;
 
     protected ?ProductExportCollection $productExports = null;
@@ -110,16 +108,6 @@ class ProductStreamEntity extends Entity
     public function setInternal(bool $internal): void
     {
         $this->internal = $internal;
-    }
-
-    public function isDisplayAsGroup(): bool
-    {
-        return $this->displayAsGroup;
-    }
-
-    public function setDisplayAsGroup(bool $displayAsGroup): void
-    {
-        $this->displayAsGroup = $displayAsGroup;
     }
 
     public function getTranslations(): ?ProductStreamTranslationCollection

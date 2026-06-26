@@ -554,8 +554,6 @@ class ProductSortingStreamSearchTest extends TestCase
             ]
         );
 
-        $this->refreshIndex();
-
         $index = $this->helper->getIndexName($this->productDefinition);
 
         $exists = $this->client->indices()->exists(['index' => $index]);

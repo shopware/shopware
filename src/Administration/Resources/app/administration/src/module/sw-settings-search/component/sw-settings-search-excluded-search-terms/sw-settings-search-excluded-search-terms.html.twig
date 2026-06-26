@@ -6,28 +6,21 @@
 >
     <template #grid>
         {% block sw_settings_search_excluded_search_terms_empty_state %}
-        <sw-empty-state
-            v-if="showEmptyState"
-            :title="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
-            :show-description="false"
-            :has-action-slot="true"
-            :absolute="false"
-            class="sw-empty-state"
-        >
-            <template #icon>
-                {% block sw_settings_search_excluded_search_terms_empty_state_image %}
-                <img
-                    :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                    :alt="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
-                >
-                {% endblock %}
-            </template>
 
-            <template #actions>
+        {# @deprecated tag:v6.8.0 - Will be removed. #}
+        {% block sw_settings_search_excluded_search_terms_empty_state_image %}
+        {% endblock %}
+
+        <mt-empty-state
+            v-if="showEmptyState"
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
+            :description="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTermsDescription')"
+        >
+            <template #button>
                 {% block sw_settings_search_excluded_search_terms_empty_state_action %}
                 <mt-button
                     class="sw-settings-search-excluded-search-terms__action-add"
-                    ghost
                     size="small"
                     :disabled="!acl.can('product_search_config.creator')"
                     variant="secondary"
@@ -37,18 +30,13 @@
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_settings_search_excluded_search_terms_grid %}
         <div v-if="!showEmptyState">
             {% block sw_settings_search_excluded_search_terms_header_bar %}
-            <sw-container
-                class="sw-settings-search-excluded-search-terms__header-bar"
-                columns="1fr auto"
-                gap="var(--scale-size-10)"
-                align="center"
-            >
+            <div class="sw-settings-search-excluded-search-terms__header-bar">
                 {% block sw_settings_search_excluded_search_terms_filter %}
                 <sw-card-filter
                     ref="itemFilter"
@@ -78,7 +66,7 @@
                         size="small"
                         :disabled="!acl.can('product_search_config.creator')"
                         :is-loading="isLoading"
-                        variant="secondary"
+                        variant="critical"
                         @click="onResetExcludedSearchTermDefault"
                     >
                         {{ $t('sw-settings-search.generalTab.buttonResetDefault') }}
@@ -86,7 +74,7 @@
                     {% endblock %}
                 </div>
                 {% endblock %}
-            </sw-container>
+            </div>
             {% endblock %}
 
             {% block sw_settings_search_excluded_search_terms_grid_list %}
@@ -98,20 +86,20 @@
                     :allow-inline-edit="acl.can('product_search_config.editor')"
                     :is-loading="isLoading || isExcludedTermsLoading"
                     :columns="getSearchableGeneralColumns"
-                    class="sw-settings-search__grid sw-settings-search-excluded-search-terms_grid"
+                    class="sw-settings-search__grid"
                     @inline-edit-save="onSaveEdit"
                     @inline-edit-cancel="onCancelEdit"
                     @select-item="selectionChanged"
                 >
                     <template #bulk>
-                        <mt-button
+                        <mt-link
+                            as="button"
                             variant="critical"
-                            size="small"
                             :disabled="!acl.can('product_search_config.deleter')"
                             @click="onBulkDeleteExcludedTerm()"
                         >
                             {{ $t('global.default.delete') }}
-                        </mt-button>
+                        </mt-link>
                     </template>
 
                     <template #actions="{ item }">
@@ -138,12 +126,14 @@
                         {% endblock %}
                     </template>
                 </sw-data-grid>
+
                 {% block sw_search_excliuded_terms_no_results %}
-                <div v-if="items.length === 0">
-                    <p class="sw-settings-search__no-data-results">
-                        {{ $t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
-                    </p>
-                </div>
+                <mt-empty-state
+                    v-else
+                    :icon="$route.meta.$module.icon"
+                    :headline="$t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults')"
+                    :description="$t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResultsDescription')"
+                />
                 {% endblock %}
             </sw-container>
             {% endblock %}

@@ -1,26 +1,20 @@
 {% block sw_settings_search_searchable_content_customfields %}
 <div class="sw-settings-search__searchable-content-customfields">
     {% block sw_settings_search_searchable_content_customfields_empty_state %}
-    <sw-empty-state
-        v-if="isEmpty"
-        :title="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-        :show-description="false"
-        :has-action-slot="true"
-        :absolute="false"
-    >
-        <template #icon>
-            {% block sw_settings_search_searchable_content_customfields_state_image %}
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-            >
-            {% endblock %}
-        </template>
 
-        <template #actions>
+    {# @deprecated tag:v6.8.0 - Will be removed. #}
+    {% block sw_settings_search_searchable_content_customfields_state_image %}
+    {% endblock %}
+
+    <mt-empty-state
+        v-if="isEmpty"
+        :icon="$route.meta.$module.icon"
+        :headline="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :description="$t('sw-settings-search.generalTab.textEmptyStateSearchableContentDescription')"
+    >
+        <template #button>
             {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
             <mt-button
-                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
                 variant="secondary"
@@ -30,12 +24,12 @@
             </mt-button>
             {% endblock %}
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
 
     {% block sw_settings_search_searchable_content_customfields_grid %}
     <sw-entity-listing
-        v-if="!isEmpty"
+        v-else
         ref="customGrid"
         class="sw-settings-search__searchable-content-list"
         :columns="columns"
@@ -64,7 +58,6 @@
                     show-clearable-button
                     @update:value="(id, customfield) => onSelectCustomField(customfield)"
                 >
-
                     <template #selection-label-property="{ item }">
                         {{ showCustomFieldWithSet(item) }}
                     </template>
@@ -72,7 +65,6 @@
                     <template #result-label-property="{ item }">
                         {{ showCustomFieldWithSet(item) }}
                     </template>
-
                 </sw-entity-single-select>
                 {% endblock %}
             </template>
@@ -117,6 +109,7 @@
                     name="regular-checkmark-xs"
                     size="var(--scale-size-16)"
                 />
+
                 <mt-icon
                     v-else
                     class="is--inactive"
@@ -146,6 +139,7 @@
                     name="regular-checkmark-xs"
                     size="var(--scale-size-16)"
                 />
+
                 <mt-icon
                     v-else
                     class="is--inactive"
@@ -163,6 +157,7 @@
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
                 :disabled="!acl.can('product_search_config.editor')"
+                variant="danger"
                 @click="onResetRanking(item)"
             >
                 {{ $t('sw-settings-search.generalTab.list.textResetRanking') }}
@@ -173,6 +168,7 @@
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-remove"
                 :disabled="!acl.can('product_search_config.deleter')"
+                variant="danger"
                 @click="onRemove(item)"
             >
                 {{ $t('sw-settings-search.generalTab.list.textRemove') }}

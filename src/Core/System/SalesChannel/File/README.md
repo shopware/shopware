@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `File` namespace provides generic public files scoped to a sales channel. Agentic files such as `llms.txt` and `agents.md` are the first file family, but the backend is intentionally not tied to agentic use cases.
+The `File` namespace provides generic public files scoped to a sales channel. Agentic files such as `llms.txt`, `agents.md`, and `.well-known/ai-catalog.json` are the first file family, but the backend is intentionally not tied to agentic use cases.
 
 Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. The current default file family is `agentic`, so `Resources/views/files/agentic/llms.txt.twig` is served as `/llms.txt` when enabled for a sales channel.
 
@@ -19,8 +19,10 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 - Shipped template content is never copied into the database. When code templates change, no migration is needed to update stored rows.
 - Public serving is a fallback. Normal routes keep precedence because `SalesChannelFileNotFoundSubscriber` only handles unresolved 404s for main `GET` and `HEAD` requests that already have a sales channel context.
 - Request paths are validated before they are mapped to a template path. Template discovery paths come from code and registered template storage.
-- Discovery is cached per file family because it can run during 404 handling. Runtime responses are tagged with the matching `sales_channel_file.id`; template discovery changes are code changes and require a full cache clear.
+- Discovery is cached per file family because it can run during 404 handling. Runtime responses are tagged with the matching `sales_channel_file.id`; discovery caches are cleared when app, plugin, app-template, or system update events can change registered templates.
 - Merchant overrides are rendered through `SalesChannelFileTemplateOverrideLoader`, a high-priority Twig loader that is activated only for the duration of one render. The loader does not read the database, so public rendering and Administration previews use the same renderer without coupling Twig to request state.
+- Additional render-time data for core templates, such as the public base URL or Store API MCP endpoint, is passed through the scoped `salesChannelFileContext` Twig variable instead of extending the exposed `salesChannelFile` metadata object.
+- Extensions that need more Twig data can subscribe to `SalesChannelFileRenderParametersExtension::onPost()` and add values only for the files they handle.
 
 ## Namespace Layout
 
@@ -116,6 +118,14 @@ classDiagram
         +render(file, context, templateOverrides) string
     }
 
+    class ExtensionDispatcher {
+        +publish(name, extension, function) mixed
+    }
+
+    class SalesChannelFileStoreApiMcpSubscriber {
+        +addStoreApiMcpContext(extension) void
+    }
+
     class SalesChannelFileTemplateOverrideLoader {
         +withTemplateOverrides(templateOverrides, callback) mixed
     }
@@ -144,6 +154,8 @@ classDiagram
     SalesChannelFileLoader --> SalesChannelFileConfigurationLoader : loads enabled row
     SalesChannelFileLoader --> CacheTagCollector : tags public response
     SalesChannelFileLoader --> SalesChannelFileRenderer : renders file
+    SalesChannelFileRenderer --> ExtensionDispatcher : publishes render parameters
+    ExtensionDispatcher --> SalesChannelFileStoreApiMcpSubscriber : dispatches render-parameters post event
     SalesChannelFileRenderer --> SalesChannelFileTemplateOverrideLoader : activates overrides
     SalesChannelFileRenderer --> TemplateFinder : resolves base template
     SalesChannelFileRenderer --> Environment : renders Twig

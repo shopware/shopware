@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationTem
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -51,6 +52,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertEquals([
@@ -94,6 +96,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertEquals(new SalesChannelFileAdministrationDetail(
@@ -103,16 +106,16 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'text/plain; charset=utf-8',
             [
                 new SalesChannelFileAdministrationTemplate(
+                    'Ucp',
+                    '@Ucp/files/agentic/llms.txt.twig',
+                    '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
+                    'extension',
+                ),
+                new SalesChannelFileAdministrationTemplate(
                     'Framework',
                     '@Framework/files/agentic/llms.txt.twig',
                     'Core template',
                     'base',
-                ),
-                new SalesChannelFileAdministrationTemplate(
-                    'Ucp',
-                    '@Ucp/files/agentic/llms.txt.twig',
-                    '{% block user_provided_content %}{% endblock %}',
-                    'extension',
                 ),
             ],
             true,
@@ -146,6 +149,7 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
+            $this->createTemplateResolver(),
         );
 
         static::assertNull($reader->detail('agentic', 'missing.txt', Uuid::randomHex(), $context));
@@ -182,8 +186,21 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
     private function createTwigEnvironment(): Environment
     {
         return new Environment(new ArrayLoader([
-            '@Ucp/files/agentic/llms.txt.twig' => '{% block user_provided_content %}{% endblock %}',
+            '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block user_provided_content %}{% endblock %}',
             '@Framework/files/agentic/llms.txt.twig' => 'Core template',
         ]));
+    }
+
+    private function createTemplateResolver(): SalesChannelFileTemplateResolver
+    {
+        $resolver = $this->createMock(SalesChannelFileTemplateResolver::class);
+        $resolver
+            ->method('resolveTemplateChain')
+            ->willReturn([
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+            ]);
+
+        return $resolver;
     }
 }

@@ -133,7 +133,7 @@ class OrderDocumentTypeSentRuleTest extends TestCase
 
         static::assertSame([
             'operators' => $operators,
-            'isMatchAny' => true,
+            'isMatchAny' => false,
         ], $configData['operatorSet']);
     }
 

@@ -22,14 +22,16 @@ class StyleOptionSpecificationSerializer
      */
     public function denormalize(array $data): StyleOptionSpecificationDto
     {
-        // Non-array enum/range/adminUI are coerced to null (like the is_string/is_int guards on type/maxLength)
-        // so a malformed app declaration surfaces as a clean validation error, not a TypeError on the DTO.
+        // Every facet is coerced to a safe value of its expected PHP type, so a wrong-typed value in a raw
+        // app declaration can never raise a TypeError on the DTO constructor. A correctly-typed but malformed
+        // declaration (a non-list enum, non-numeric range bounds, a default of the wrong primitive) is rejected
+        // with a clean TypedStyleOption violation downstream.
         return new StyleOptionSpecificationDto(
             type: \is_string($data['type'] ?? null) ? $data['type'] : '',
             enum: \is_array($data['enum'] ?? null) ? $data['enum'] : null,
             range: \is_array($data['range'] ?? null) ? $data['range'] : null,
             maxLength: \is_int($data['maxLength'] ?? null) ? $data['maxLength'] : null,
-            default: $data['default'] ?? null,
+            default: \is_scalar($data['default'] ?? null) ? $data['default'] : null,
             adminUI: \is_array($data['adminUI'] ?? null) ? $data['adminUI'] : null,
         );
     }

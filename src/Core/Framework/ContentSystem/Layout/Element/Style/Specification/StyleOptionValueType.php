@@ -31,8 +31,8 @@ final readonly class StyleOptionValueType
     public const PRIMITIVE_TYPES = [self::TYPE_STRING, self::TYPE_INTEGER, self::TYPE_NUMBER, self::TYPE_BOOLEAN];
 
     /**
-     * Cap applied to a string option that declares no maxLength, so a client can never store an
-     * unbounded string in the layout JSON column.
+     * Cap applied to a string or number option that declares no maxLength, so a client can never store an
+     * unbounded value (including a long numeric string) in the layout JSON column.
      */
     public const DEFAULT_STRING_MAX_LENGTH = 255;
 
@@ -71,8 +71,8 @@ final readonly class StyleOptionValueType
     }
 
     /**
-     * The effective string cap: the declared maxLength, or DEFAULT_STRING_MAX_LENGTH for a string
-     * option that declares none. Null for non-string types.
+     * The effective length cap: the declared maxLength, or DEFAULT_STRING_MAX_LENGTH for a string or number
+     * option that declares none. Null for integer and boolean, whose serialized form cannot exceed the cap.
      */
     public function maxLength(): ?int
     {
@@ -80,7 +80,9 @@ final readonly class StyleOptionValueType
             return $this->maxLength;
         }
 
-        if ($this->type === self::TYPE_STRING) {
+        // A number validates as is_numeric input, so a numeric string of unbounded length would pass the type
+        // check; cap its serialized length like a string so it cannot bloat the layout JSON column.
+        if ($this->type === self::TYPE_STRING || $this->type === self::TYPE_NUMBER) {
             return self::DEFAULT_STRING_MAX_LENGTH;
         }
 

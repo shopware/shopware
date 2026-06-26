@@ -155,6 +155,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     public static function invalidStyleProvider(): iterable
     {
         yield 'an unknown option key' => [['unknown-option' => ['md' => 1]], '[unknown-option]'];
+        yield 'an empty breakpoint map' => [['col-span' => []], '[col-span]'];
         yield 'an unknown breakpoint key' => [['col-span' => ['zz' => 6]], '[col-span][zz]'];
         yield 'an integer outside the declared range' => [['col-span' => ['md' => 99]], '[col-span][md]'];
         yield 'a non-integer value for an integer option' => [['col-span' => ['md' => 'six']], '[col-span][md]'];

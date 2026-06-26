@@ -47,12 +47,28 @@ class StyleOptionValueTypeTest extends TestCase
         static::assertSame(64, $valueType->maxLength());
     }
 
-    #[TestDox('a non-string option reports no maxLength')]
-    public function testNonStringHasNoMaxLength(): void
+    #[TestDox('a number option without a declared maxLength reports the effective cap in its schema')]
+    public function testNumberToSchemaReportsEffectiveCap(): void
     {
-        $valueType = new StyleOptionValueType('integer', null, null, null, null);
+        $valueType = new StyleOptionValueType('number', null, null, null, null);
 
-        static::assertNull($valueType->maxLength());
+        static::assertSame(StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH, $valueType->toSchema()['maxLength']);
+    }
+
+    #[DataProvider('uncappedTypeProvider')]
+    #[TestDox('a $type option reports no maxLength')]
+    public function testUncappedTypesReportNoMaxLength(string $type): void
+    {
+        static::assertNull((new StyleOptionValueType($type, null, null, null, null))->maxLength());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function uncappedTypeProvider(): iterable
+    {
+        yield 'integer' => ['integer'];
+        yield 'boolean' => ['boolean'];
     }
 
     #[DataProvider('isPrimitiveProvider')]

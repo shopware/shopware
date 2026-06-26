@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -168,6 +169,8 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer
 
             $optionFields[$name] = new Optional([
                 new Type('array'),
+                // Reject an empty breakpoint map on write; the read path drops it structurally instead
+                new Count(min: 1),
                 new Collection(
                     fields: $breakpointFields,
                     allowExtraFields: false,

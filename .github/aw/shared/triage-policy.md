@@ -49,12 +49,40 @@ skip only if the issue is fundamentally unclear (then emit `disposition: needs-i
    that is the strongest signal for `needs-info` — skip Steps 2–5 and emit
    `needs-info` with reasoning that names which template field is missing.
 
-   **Tie-break against `needs-info`:** a short or sloppy issue body is NOT
-   `needs-info` if you can still describe the defect. Concretely:
-   - "Cart total wrong" + version + screenshot → `valid-bug`.
-   - "Doesn't work" with no other context → `needs-info`.
-   - Missing `expected_behaviour` but `actual_behaviour` is unambiguous →
-     `valid-bug`; list the missing field in `missing_template_fields`.
+   **Empty-template short-circuit (cost saver).** Before any investigation,
+   scan the structured template fields (`shopware_version`, affected
+   area/extension, `actual_behaviour`, `expected_behaviour`,
+   `reproduction_steps`). Count a field as empty ONLY after trimming
+   whitespace and markdown — also treat a placeholder value (`.`, `-`, `_`,
+   `n/a`, `na`, `none`, `tbd`, `xxx`, or a single stray character) as empty.
+   Reporters are expected to fill the whole template, so if **2 or more** of
+   these fields are empty/placeholder, emit `needs-info` immediately (severity
+   `low`, confidence ≤ 0.5), list the empty ones in `missing_template_fields`,
+   and **skip Steps 2–5** — do NOT open the codebase or run a single search
+   first. This is the cheapest exit; the whole point is to spend no
+   investigation budget on an unfillable report.
+
+   **Tie-break — the one exception.** Hitting 2+ empty fields means
+   `needs-info` by default. Rescue the issue as `valid-bug` instead **only if
+   BOTH** `actual_behaviour` AND `expected_behaviour` are filled in (not
+   empty/placeholder) and together they describe a concrete, locatable defect:
+   - `actual_behaviour` names a specific symptom — tied to a nameable feature,
+     screen, error message, or endpoint, not a vague complaint like "doesn't
+     work"; and
+   - `expected_behaviour` says what should have happened instead.
+
+   You need both: without the symptom you don't know what broke, and without
+   the expected result you can't tell a defect from intended behaviour. If
+   either is missing or vague, emit `needs-info`. When you do rescue, it is a
+   borderline `valid-bug`: lower confidence by 0.10 and still list every empty
+   field in `missing_template_fields`. Examples:
+   - actual "Cart total is wrong" + expected "total should include line-item
+     tax", version filled, area/reproduction blank → rescue to `valid-bug`
+     (−0.10; list the blanks).
+   - "Doesn't work", everything else blank → `needs-info` — no symptom, no
+     expected result.
+   - `actual_behaviour` filled but `expected_behaviour` blank → `needs-info` —
+     can't tell a defect from intended behaviour.
 
 2. **Identify the code area** (`rg`, `find`). Pick 2–4 likely code
    identifiers (class names, methods, error strings, UI labels) and `rg`

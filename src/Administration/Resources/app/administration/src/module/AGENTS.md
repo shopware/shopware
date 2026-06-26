@@ -1,7 +1,7 @@
 # Module Layer - AGENTS.md
 
 > **Full Docs**: `technical-docs/02-architecture/03-module-system.md`
-> **Skill**: Module work → follow `shopware-admin-js` (`.claude/skills/shopware-admin-js/SKILL.md`).
+> **Skill**: Module work → follow `shopware-admin-js` (`.agents/skills/shopware-admin-js/SKILL.md`).
 
 ## Module Structure
 

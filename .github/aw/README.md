@@ -55,7 +55,7 @@ The Bugfixer agent also runs without direct write credentials. Branch creation, 
 
 ## Pinning
 
-- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.80.2`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
+- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.81.2`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
 - **Engine model** — `triage.md` is pinned to `claude-sonnet-4-6`; `bugfixer.md` is pinned to `claude-opus-4-8` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
 - **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
 
@@ -111,6 +111,6 @@ GitHub Actions only exposes `workflow_dispatch` for workflows that have run at l
 
 - `.github/workflows/process-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-triage-output.ts` against the `triage-output.json` payload before applying deterministic issue updates.
 - The validator enforces the field-level limits the agent had only as prompt hints (`reasoning` ≤ 2000 chars, `evidence_quotes[]` ≤ 500 chars × ≤ 5 entries) and scans for accidental or prompt-injection-induced secret leakage (GitHub PATs, Anthropic keys, long base64 blocks). It is TypeScript, run via Node's native type-stripping, no dependencies.
-- The `TriageOutput` shape and field rules live in `.agents/skills/triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
+- The `TriageOutput` shape and field rules live in `.claude/skills/triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
 
 A failed validation appears as a red `Triage Result Processor` run — visible to the maintainer who dispatched the triage. The staging artifact is not deleted on failure (would need `actions: write`); the visibility of the failed check is the gate.

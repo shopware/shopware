@@ -1,47 +1,54 @@
-updates:
-- commit-message:
-    prefix: "ci(deps): "
-  directory: /
-  groups:
-    all:
-      patterns:
-      - "*"
-  ignore:
-  - dependency-name: "github/gh-aw-actions/**"
-  - dependency-name: "github/gh-aw-actions" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
-  labels:
-  - domain/product-ops
-  package-ecosystem: github-actions
-  schedule:
-    interval: weekly
-  target-branch: trunk
-- commit-message:
-    prefix: "ci(deps): "
-  directory: /
-  groups:
-    all:
-      patterns:
-      - "*"
-  ignore:
-  - dependency-name: "github/gh-aw-actions/**"
-  - dependency-name: "github/gh-aw-actions" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
-  labels:
-  - domain/product-ops
-  package-ecosystem: github-actions
-  schedule:
-    interval: weekly
-  target-branch: 6.6.x
-- allow:
-  - dependency-name: "@shopware-ag/acceptance-test-suite"
-    dependency-type: direct
-  commit-message:
-    prefix: "ci(deps): "
-  directory: /tests/acceptance
-  labels:
-  - domain/quality-ops
-  - backport-6.6.x
-  package-ecosystem: npm
-  schedule:
-    interval: daily
-  target-branch: trunk
 version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    target-branch: trunk
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci(deps): "
+    labels:
+      - "domain/product-ops"
+    groups:
+      all:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "github/gh-aw-actions/setup"
+          - "github/gh-aw-actions/setup-cli"
+    ignore:
+      - dependency-name: "github/gh-aw-actions/setup" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+      - dependency-name: "github/gh-aw-actions/setup-cli" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+  - package-ecosystem: "github-actions"
+    target-branch: 6.6.x
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci(deps): "
+    labels:
+      - "domain/product-ops"
+    groups:
+      all:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "github/gh-aw-actions/setup"
+          - "github/gh-aw-actions/setup-cli"
+    ignore:
+      - dependency-name: "github/gh-aw-actions/setup" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+      - dependency-name: "github/gh-aw-actions/setup-cli" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+
+  - package-ecosystem: "npm"
+    target-branch: trunk
+    directory: "/tests/acceptance"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "ci(deps): "
+    labels:
+      - "domain/quality-ops"
+      - "backport-6.6.x"
+    allow:
+      - dependency-name: "@shopware-ag/acceptance-test-suite"
+        dependency-type: "direct"

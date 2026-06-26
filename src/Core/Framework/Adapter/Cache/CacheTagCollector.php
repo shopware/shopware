@@ -63,13 +63,21 @@ class CacheTagCollector
 
         $existingTags = $this->tags[$hash] ?? [];
 
-        $tags = array_diff($tags, array_keys($existingTags));
+        // Filter against the already collected tags via O(1) key lookups instead of
+        // array_diff(array_keys(...)), which is O(n*m) and grows quadratically as more
+        // tags are collected during a single page render (addTag is called many times).
+        $newTags = [];
+        foreach ($tags as $tag) {
+            if (!isset($existingTags[$tag])) {
+                $newTags[] = $tag;
+            }
+        }
 
-        if ($tags === []) {
+        if ($newTags === []) {
             return;
         }
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
+        $this->dispatcher->dispatch(new AddCacheTagEvent(...$newTags));
     }
 
     public static function uri(?Request $request): string

@@ -10,12 +10,16 @@
 
 ## Core
 
-### Reduced overhead on cart, listing and cache-key hot paths
+### Reduced overhead on cart, listing, hydration and cache hot paths
 
-Several frequently executed code paths no longer scale quadratically with the number of active rules, product/shipping prices and listing filters.
-Rule-area resolution (`RuleCollection::getIdsByArea()`, `RuleAreaUpdater`), the sales-channel rule-id collection used during HTTP cache-key generation (`SalesChannelContext::getRuleIdsByAreas()`), product advanced-price selection (`ProductPriceCalculator`) and listing aggregation building (`AggregationListingProcessor`) now run in linear time.
-Shops with many price rules, promotions or filter-heavy category listings benefit from lower CPU usage and faster cart recalculation and listing rendering.
-This is a backwards-compatible internal optimization: the produced results (deduplication, ordering, calculated prices and aggregations) are unchanged, so no adjustments are required.
+Several frequently executed code paths no longer scale quadratically and avoid redundant per-row/per-request work:
+
+- Rule-area resolution (`RuleCollection::getIdsByArea()`, `RuleAreaUpdater`), the sales-channel rule-id collection used during HTTP cache-key generation (`SalesChannelContext::getRuleIdsByAreas()`), product advanced-price selection (`ProductPriceCalculator`) and listing aggregation building (`AggregationListingProcessor`) now run in linear instead of quadratic time.
+- Entity hydration (`EntityHydrator`) skips the per-field primary-key decode when a row is a duplicate of an already hydrated entity (e.g. the same manufacturer or tax shared across thousands of products in one result), and `JsonFieldSerializer` no longer recompiles embedded fields on every decoded row.
+- The HTTP cache tag collector (`CacheTagCollector`) deduplicates collected tags via constant-time lookups instead of an `array_diff` that grew quadratically during a page render.
+
+Shops with many price rules, promotions, large result sets or filter-heavy category listings benefit from lower CPU usage and faster cart recalculation, entity loading and listing rendering.
+This is a backwards-compatible internal optimization: the produced results (deduplication, ordering, calculated prices, hydrated entities, aggregations and cache tags) are unchanged, so no adjustments are required.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 

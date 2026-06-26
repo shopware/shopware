@@ -111,6 +111,36 @@ class EntityHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($extended), $foreignKeys->get('extendedFk'));
     }
 
+    public function testDuplicateRowsAreDeduplicatedByPrimaryKey(): void
+    {
+        $definition = $this->definitionInstanceRegistry->get(FkExtensionFieldTest::class);
+
+        $id = Uuid::randomBytes();
+        $otherId = Uuid::randomBytes();
+
+        $rows = [
+            ['test.id' => $id, 'test.name' => 'first', 'test.normalFk' => Uuid::randomBytes(), 'test.extendedFk' => Uuid::randomBytes()],
+            // same primary key -> must hit the dedupe cache and reuse the first instance
+            ['test.id' => $id, 'test.name' => 'duplicate', 'test.normalFk' => Uuid::randomBytes(), 'test.extendedFk' => Uuid::randomBytes()],
+            ['test.id' => $otherId, 'test.name' => 'second', 'test.normalFk' => Uuid::randomBytes(), 'test.extendedFk' => Uuid::randomBytes()],
+        ];
+
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+
+        // the duplicate primary key collapses to a single entity
+        static::assertCount(2, $structs);
+
+        $first = $structs->get(Uuid::fromBytesToHex($id));
+        static::assertInstanceOf(ArrayEntity::class, $first);
+        static::assertSame(Uuid::fromBytesToHex($id), $first->get('id'));
+        // the cached instance from the first row is reused, so the duplicate row does not overwrite it
+        static::assertSame('first', $first->get('name'));
+
+        $second = $structs->get(Uuid::fromBytesToHex($otherId));
+        static::assertInstanceOf(ArrayEntity::class, $second);
+        static::assertSame('second', $second->get('name'));
+    }
+
     public function testTranslationWithZeroStringField(): void
     {
         $definition = $this->definitionInstanceRegistry->get(TranslatableTestDefinition::class);

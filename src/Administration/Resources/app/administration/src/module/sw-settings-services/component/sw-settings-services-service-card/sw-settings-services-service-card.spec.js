@@ -30,12 +30,9 @@ const createService = (overrides = {}) => ({
 
 describe('src/module/sw-settings-services/component/sw-settings-services-service-card.ts', () => {
     beforeAll(() => {
-        Shopware.Service().register('shopwareExtensionService', () => ({
-            activateExtension: jest.fn(),
-            deactivateExtension: jest.fn(),
-        }));
-
         Shopware.Service().register('shopwareServicesService', () => ({
+            activateService: jest.fn(),
+            deactivateService: jest.fn(),
             getCategorizedPermissions: jest.fn(),
         }));
     });
@@ -138,7 +135,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
     });
 
     it('opens the deactivation modal and deactivates a service', async () => {
-        Shopware.Service('shopwareExtensionService').deactivateExtension.mockImplementationOnce(() => {
+        Shopware.Service('shopwareServicesService').deactivateService.mockImplementationOnce(() => {
             return Promise.resolve();
         });
 
@@ -200,7 +197,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
         await deactivateButton.trigger('click');
 
-        expect(Shopware.Service('shopwareExtensionService').deactivateExtension).toHaveBeenCalledWith('service-name', 'app');
+        expect(Shopware.Service('shopwareServicesService').deactivateService).toHaveBeenCalledWith('service-name');
         expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
@@ -250,7 +247,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
     });
 
     it('activates a service', async () => {
-        Shopware.Service('shopwareExtensionService').activateExtension.mockImplementationOnce(() => {
+        Shopware.Service('shopwareServicesService').activateService.mockImplementationOnce(() => {
             return Promise.resolve();
         });
 
@@ -307,7 +304,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             setTimeout(resolve, 32);
         });
 
-        expect(Shopware.Service('shopwareExtensionService').activateExtension).toHaveBeenCalledWith('service-name', 'app');
+        expect(Shopware.Service('shopwareServicesService').activateService).toHaveBeenCalledWith('service-name');
         expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 

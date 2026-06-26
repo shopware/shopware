@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service\Api;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\Context;
@@ -61,13 +62,12 @@ class ServiceController
         name: 'api.service.activate',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function activate(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
+        $this->validateActivationAccess($context);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
             $this->serviceLifecycle->activate($serviceName, $context);
@@ -81,13 +81,12 @@ class ServiceController
         name: 'api.service.deactivate',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function deactivate(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
+        $this->validateActivationAccess($context);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
             $this->serviceLifecycle->deactivate($serviceName, $context);
@@ -216,6 +215,28 @@ class ServiceController
         \assert($source instanceof AdminApiSource);
 
         return $this->serviceStorage->findByIntegrationId((string) $source->getIntegrationId(), $context);
+    }
+
+    private function validateActivationAccess(Context $context): void
+    {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ServiceException::updateRequiresAdminApiSource($source);
+        }
+
+        if ($source->getIntegrationId() !== null) {
+            if ($context->isAllowed('api_service_toggle')) {
+                return;
+            }
+
+            throw ApiException::missingPrivileges(['api_service_toggle']); // @phpstan-ignore shopware.domainException (Same exception as route ACL listener)
+        }
+
+        if ($context->isAllowed('system.plugin_maintain')) {
+            return;
+        }
+
+        throw ApiException::missingPrivileges(['system.plugin_maintain']); // @phpstan-ignore shopware.domainException (Same exception as route ACL listener)
     }
 
     private function extractIntegrationIdOrFail(Context $context): string

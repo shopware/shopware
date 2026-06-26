@@ -25,14 +25,16 @@
         gap: 12px;
     }
 
-    &__address-preview {
-        .sw-card__title {
-            padding: 32px 0 28px;
-        }
+    &__preview-title {
+        margin: 0;
+        padding: 32px 0 28px;
     }
 
-    &__button-reset.mt-button {
-        margin: 38px 0 28px;
+    &__preview-separator {
+        width: 100%;
+        margin: 32px 0 0;
+        border: 0;
+        border-top: 1px solid var(--color-border-primary-default);
     }
 
     .advanced-postal-code {

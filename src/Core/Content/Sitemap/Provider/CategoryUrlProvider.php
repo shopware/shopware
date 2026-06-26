@@ -71,7 +71,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context)
         );
 
-        if (empty($categoryIdsFetchedEvent->getIds())) {
+        if ($categoryIdsFetchedEvent->getIds() === []) {
             return new UrlResult([], $nextOffset);
         }
 

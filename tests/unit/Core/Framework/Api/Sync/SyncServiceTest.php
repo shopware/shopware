@@ -170,6 +170,7 @@ class SyncServiceTest extends TestCase
             $eventSource = $event->getContext()->getSource();
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertInstanceOf(AdminApiSource::class, $eventSource);
             static::assertSame($source->getUserId(), $eventSource->getUserId());
         });
@@ -180,6 +181,7 @@ class SyncServiceTest extends TestCase
             $eventSource = $event->getContext()->getSource();
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertInstanceOf(AdminApiSource::class, $eventSource);
             static::assertSame($source->getUserId(), $eventSource->getUserId());
         });
@@ -206,6 +208,7 @@ class SyncServiceTest extends TestCase
         static::assertTrue($containerListenerWasCalled);
         static::assertTrue($nestedListenerWasCalled);
         static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
     }
 
     public function testWildcardDeleteForMappingEntities(): void

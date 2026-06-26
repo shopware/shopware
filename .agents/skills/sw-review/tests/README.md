@@ -3,7 +3,7 @@
 > [!WARNING]
 > Running the tests is cost-intensive.
 
-End-to-end evals for the `.claude/skills/sw-review` PR-review skill. Built on
+End-to-end evals for the `.agents/skills/sw-review` PR-review skill. Built on
 [skillgrade](https://github.com/mgechev/skillgrade).
 
 ## Layout

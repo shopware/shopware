@@ -142,7 +142,7 @@ class ProductListingLoader
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
-        if (empty($ids)) {
+        if ($ids === []) {
             $result = new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,

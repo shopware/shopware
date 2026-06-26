@@ -167,18 +167,15 @@ runs:
 
         - name: Install dependencies
           # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
-          uses: ./.github/actions/npm-ci-retry
+          uses: shopware/github-actions/npm-ci-retry@main
           with:
               working-directory: ${{ inputs.directory }}
 
-        - name: Refresh Package List
-          shell: bash
-          run: sudo apt-get update --allow-releaseinfo-change
-
         - name: Install Playwright Browsers
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npx playwright install --with-deps chromium
+          uses: shopware/github-actions/npm-ci-retry@main
+          with:
+              working-directory: ${{ inputs.directory }}
+              command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
 
         - name: Run your tests
           shell: bash

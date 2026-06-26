@@ -24,8 +24,8 @@ class StyleOptionSpecificationSerializer
     {
         // type, default and adminUI are coerced to a safe value of their declared PHP type, so a wrong-typed
         // value in a raw app declaration cannot raise a TypeError on the typed DTO constructor. enum, range and
-        // maxLength are carried raw (the DTO types them as mixed) so a wrong-typed facet — a non-array enum or
-        // range, a non-integer maxLength — is rejected with a clean TypedStyleOption violation rather than
+        // maxLength are carried raw (the DTO types them as mixed) so a wrong-typed facet (a non-array enum or
+        // range, a non-integer maxLength) is rejected with a clean TypedStyleOption violation rather than
         // silently dropped before validation can see it.
         return new StyleOptionSpecificationDto(
             type: \is_string($data['type'] ?? null) ? $data['type'] : '',

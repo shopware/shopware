@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
@@ -23,9 +24,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeDefinition;
@@ -54,6 +55,8 @@ class ThemeLifecycleServiceTest extends TestCase
     private ThemeRuntimeConfigService&MockObject $runtimeConfigService;
 
     private ThemeLifecycleService $lifecycleService;
+
+    private ThemeLifecycleService $devLifecycleService;
 
     /**
      * @var StaticEntityRepository<ThemeCollection>
@@ -85,11 +88,11 @@ class ThemeLifecycleServiceTest extends TestCase
      */
     private StaticEntityRepository $themeChildRepository;
 
-    private StorefrontPluginRegistry&MockObject $pluginRegistry;
+    private StorefrontPluginRegistry&Stub $pluginRegistry;
 
-    private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
+    private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
@@ -148,32 +151,40 @@ class ThemeLifecycleServiceTest extends TestCase
 
         $configurationCollection = new StorefrontPluginConfigurationCollection([$this->configuration]);
 
-        $this->pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
+        $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
         $this->pluginRegistry->method('getConfigurations')->willReturn($configurationCollection);
 
-        $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
         $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new Filesystem($this->assetRoot));
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('fetchAllAssociative')->willReturn([]);
 
-        $this->lifecycleService = new ThemeLifecycleService(
-            $this->pluginRegistry,
-            $this->themeRepository,
-            $this->mediaRepository,
-            $this->mediaFolderRepository,
-            $this->themeMediaRepository,
-            $this->fileSaver,
-            $this->createMock(FileNameProvider::class),
-            $this->themeFilesystemResolver,
-            $this->languageRepository,
-            $this->themeChildRepository,
-            $this->connection,
-            $this->createMock(StorefrontPluginConfigurationFactory::class),
-            $this->runtimeConfigService,
-            $this->logger,
-            'test',
-        );
+        $fileNameProvider = static::createStub(FileNameProvider::class);
+        $pluginConfigurationFactory = static::createStub(AbstractStorefrontPluginConfigurationFactory::class);
+
+        $createLifecycleService = function (string $environment) use ($fileNameProvider, $pluginConfigurationFactory): ThemeLifecycleService {
+            return new ThemeLifecycleService(
+                $this->pluginRegistry,
+                $this->themeRepository,
+                $this->mediaRepository,
+                $this->mediaFolderRepository,
+                $this->themeMediaRepository,
+                $this->fileSaver,
+                $fileNameProvider,
+                $this->themeFilesystemResolver,
+                $this->languageRepository,
+                $this->themeChildRepository,
+                $this->connection,
+                $pluginConfigurationFactory,
+                $this->runtimeConfigService,
+                $this->logger,
+                $environment,
+            );
+        };
+
+        $this->lifecycleService = $createLifecycleService('test');
+        $this->devLifecycleService = $createLifecycleService('dev');
     }
 
     protected function tearDown(): void
@@ -191,12 +202,15 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->logger->expects($this->once())->method('error')->with(
             'Could not import theme media file.',
             static::callback(function (array $logContext) use (&$failedMediaId, $exception): bool {
-                $failedMediaId = $logContext['mediaId'] ?? null;
+                static::assertSame($this->configuration->getTechnicalName(), $logContext['theme'] ?? null);
+                static::assertSame('app/storefront/src/assets/image/shopware_logo.svg', $logContext['path'] ?? null);
+                static::assertSame($exception, $logContext['exception'] ?? null);
+                static::assertArrayHasKey('mediaId', $logContext);
+                static::assertIsString($logContext['mediaId']);
 
-                return $logContext['theme'] === $this->configuration->getTechnicalName()
-                    && $logContext['path'] === 'app/storefront/src/assets/image/shopware_logo.svg'
-                    && $failedMediaId !== null
-                    && $logContext['exception'] === $exception;
+                $failedMediaId = $logContext['mediaId'];
+
+                return true;
             })
         );
 
@@ -225,26 +239,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
         $this->runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
         $this->runtimeConfigService->expects($this->never())->method('resetCaches');
-        $this->lifecycleService = new ThemeLifecycleService(
-            $this->pluginRegistry,
-            $this->themeRepository,
-            $this->mediaRepository,
-            $this->mediaFolderRepository,
-            $this->themeMediaRepository,
-            $this->fileSaver,
-            $this->createMock(FileNameProvider::class),
-            $this->themeFilesystemResolver,
-            $this->languageRepository,
-            $this->themeChildRepository,
-            $this->connection,
-            $this->createMock(StorefrontPluginConfigurationFactory::class),
-            $this->runtimeConfigService,
-            $this->logger,
-            'dev',
-        );
-
         $this->expectExceptionObject($exception);
 
-        $this->lifecycleService->refreshTheme($this->configuration, $this->context);
+        $this->devLifecycleService->refreshTheme($this->configuration, $this->context);
     }
 }

@@ -115,12 +115,12 @@ class BillingZipCodeRuleTest extends TestCase
     {
         $expectedOperators = [
             Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-            Rule::OPERATOR_GTE,
             Rule::OPERATOR_LTE,
+            Rule::OPERATOR_GTE,
+            Rule::OPERATOR_NEQ,
             Rule::OPERATOR_GT,
             Rule::OPERATOR_LT,
+            Rule::OPERATOR_EMPTY,
         ];
 
         $ruleConstraints = (new BillingZipCodeRule())->getConstraints();

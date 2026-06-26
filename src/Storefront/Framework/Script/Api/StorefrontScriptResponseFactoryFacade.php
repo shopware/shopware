@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Script\Api;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponse;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade;
-use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\Routing\RouterInterface;
@@ -25,9 +24,9 @@ class StorefrontScriptResponseFactoryFacade extends ScriptResponseFactoryFacade
     public function __construct(
         RouterInterface $router,
         private readonly ScriptController $scriptController,
-        ?SalesChannelContext $salesChannelContext,
+        SalesChannelContext $salesChannelContext,
     ) {
-        parent::__construct($router, $salesChannelContext);
+        parent::__construct($router, null, $salesChannelContext);
     }
 
     /**
@@ -44,10 +43,6 @@ class StorefrontScriptResponseFactoryFacade extends ScriptResponseFactoryFacade
      */
     public function render(string $view, array $parameters = []): ScriptResponse
     {
-        if ($this->salesChannelContext === null) {
-            throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
-        }
-
         $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);
 
         return new ScriptResponse($inner, $inner->getStatusCode());

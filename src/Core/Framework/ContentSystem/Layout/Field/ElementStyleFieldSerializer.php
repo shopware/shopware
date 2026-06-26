@@ -20,22 +20,17 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * Validates and (de)serializes an element's universal ElementStyle against the style option
- * registry. Write is strict, read is lenient — see deserialize() and buildConstraints().
+ * Validates and (de)serializes an element's universal ElementStyle. The write path is strict and
+ * derives its constraints from the style option registry; the read path is registry-free and keeps
+ * unknown options verbatim — see deserialize() and buildConstraints().
  *
  * @internal
  */
 #[Package('framework')]
-class ElementStyleFieldSerializer extends AbstractFieldSerializer implements ResetInterface
+class ElementStyleFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @var list<Constraint>|null
-     */
-    private ?array $memoizedConstraints = null;
-
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
@@ -98,22 +93,21 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer implements Res
     }
 
     /**
-     * Read-time conversion: keep only registry-known options and canonical breakpoints. No PHP option
-     * classes are instantiated because a style option is data. An option absent from the registry is
-     * dropped rather than erroring, so removing a provider does not break already-stored layouts. Reads
-     * the precedence-resolved view, so a cross-loader name collision does not fail the read path.
+     * Read-time conversion: registry-free structural cleaning only. An option key must be a string, its
+     * value a breakpoint map, each breakpoint a canonical Breakpoint::values() key, each value a scalar;
+     * an empty map is dropped. Unknown option names ride through verbatim — the registry is consulted only
+     * on the write path, so removing a provider does not break an already-stored layout's read.
      *
      * @param array<array-key, mixed> $data
      */
     public function deserialize(array $data): ElementStyle
     {
-        $options = $this->registry->allResolved();
         $breakpoints = Breakpoint::values();
 
         $clean = [];
 
         foreach ($data as $optionName => $breakpointMap) {
-            if (!\is_string($optionName) || !\array_key_exists($optionName, $options) || !\is_array($breakpointMap)) {
+            if (!\is_string($optionName) || !\is_array($breakpointMap)) {
                 continue;
             }
 
@@ -135,8 +129,10 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer implements Res
     }
 
     /**
-     * Can be called by parent serializers to compose constraints. Memoized: the registry is stable
-     * within a request, so the derived Collection is built once and reused across every element.
+     * Can be called by parent serializers to compose constraints. Derived fresh on each call from the
+     * registry's current option set, so an app install/update/activation that changed the set is reflected
+     * on the next write without a process restart. The parent serializer reuses one built Collection across
+     * every element within a single write.
      *
      * @return list<Constraint>
      */
@@ -146,16 +142,7 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer implements Res
             throw ContentSystemException::invalidFieldType(ElementStyleField::class, $field::class);
         }
 
-        return $this->memoizedConstraints ??= $this->deriveConstraints();
-    }
-
-    /**
-     * Drops the per-process constraint memo so a long-running runtime (worker / RoadRunner) re-derives
-     * against the current registry after an app install/update has invalidated the option set.
-     */
-    public function reset(): void
-    {
-        $this->memoizedConstraints = null;
+        return $this->deriveConstraints();
     }
 
     protected function getConstraints(Field $field): array

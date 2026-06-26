@@ -83,7 +83,6 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver"/>
             <tag name="shopware.field_serializer"/>
-            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer">

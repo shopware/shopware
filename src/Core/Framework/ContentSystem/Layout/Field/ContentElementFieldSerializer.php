@@ -158,7 +158,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
             : [];
 
-        // Read stays lenient: deserialize() drops options no longer in the registry
+        // Read is registry-free: deserialize() keeps unknown options verbatim; the strict write rejects them
         $style = \array_key_exists('style', $data) && \is_array($data['style'])
             ? $this->elementStyleSerializer->deserialize($data['style'])
             : new ElementStyle();

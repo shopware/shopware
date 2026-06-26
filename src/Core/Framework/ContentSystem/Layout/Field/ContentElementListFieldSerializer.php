@@ -187,4 +187,14 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
     {
         return $this->buildConstraints($field);
     }
+
+    /**
+     * The composed style constraints derive from a runtime-mutable registry, so they must not be frozen
+     * process-wide as the inherited cache would. Building fresh runs once per content_layout write, and the
+     * All() wrapper still reuses that one built tree across every element in the write.
+     */
+    protected function getCachedConstraints(Field $field): array
+    {
+        return $this->getConstraints($field);
+    }
 }

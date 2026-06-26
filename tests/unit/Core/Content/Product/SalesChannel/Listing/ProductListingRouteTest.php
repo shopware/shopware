@@ -275,7 +275,7 @@ class ProductListingRouteTest extends TestCase
         // adopted ProductStreamCriteriaEnricher). The route must fall back to buildFilters() without a
         // TypeError, add the stream filters, and leave display-as-group enabled (no state set).
         $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $productStreamBuilder->expects(static::once())
+        $productStreamBuilder->expects($this->once())
             ->method('buildFilters')
             ->willReturn([new EqualsFilter('product.product_stream', $streamId)]);
 

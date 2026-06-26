@@ -400,7 +400,7 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
     }
 
     public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
@@ -413,7 +413,7 @@ class ProductListingLoaderTest extends TestCase
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
     }
 
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void

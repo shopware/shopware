@@ -22,6 +22,13 @@ rules:
 
 services:
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
+        arguments:
+            containerXmlPath: %symfony.containerXmlPath%
+        tags:
+            - phpstan.rules.rule
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionCollector
         tags:
             - phpstan.collector

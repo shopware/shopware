@@ -56,13 +56,6 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
 services:
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
-        arguments:
-            containerXmlPath: %symfony.containerXmlPath%
-        tags:
-            - phpstan.rules.rule
-
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 

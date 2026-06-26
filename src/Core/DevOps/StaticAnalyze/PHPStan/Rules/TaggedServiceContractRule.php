@@ -47,6 +47,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFil
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AbstractListingProcessor;
 use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
@@ -70,19 +71,12 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterInterface;
+use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
-use Symfony\Bundle\MonologBundle\DependencyInjection\MonologExtension;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\LoaderResolver;
-use Symfony\Component\DependencyInjection\Argument\BoundArgument;
-use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
-use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use Twig\Extension\ExtensionInterface;
 
@@ -107,6 +101,7 @@ class TaggedServiceContractRule implements Rule
         'flow.storer' => FlowStorer::class,
         'lineitem.group.packager' => LineItemGroupPackagerInterface::class,
         'lineitem.group.sorter' => LineItemGroupSorterInterface::class,
+        'messenger.receiver' => ReceiverInterface::class,
         'promotion.filter.picker' => FilterPickerInterface::class,
         'promotion.filter.sorter' => FilterSorterInterface::class,
         'shopware.api.enum_provider' => FieldEnumProviderInterface::class,
@@ -124,6 +119,7 @@ class TaggedServiceContractRule implements Rule
         'shopware.elastic.admin-searcher-index' => AbstractAdminIndexer::class,
         'shopware.entity.definition' => EntityDefinition::class,
         'shopware.entity.hookable' => EntityDefinition::class,
+        'shopware.entity.seo_url.route' => EntitySeoUrlRouteInterface::class,
         'shopware.entity_indexer' => EntityIndexer::class,
         /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         'shopware.es.definition' => AbstractElasticsearchDefinition::class,
@@ -166,9 +162,8 @@ class TaggedServiceContractRule implements Rule
         'shopware.value_generator_pattern' => AbstractValueGenerator::class,
         /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         'storefront.media.upload.validator' => StorefrontMediaValidatorInterface::class,
+        'tax.rule_type_filter' => TaxRuleTypeFilterInterface::class,
     ];
-
-    private readonly string $projectRoot;
 
     /**
      * @var array<string, list<ServiceDefinition>>|null
@@ -187,9 +182,8 @@ class TaggedServiceContractRule implements Rule
         private readonly ServiceMap $serviceMap,
         private readonly ReflectionProvider $reflectionProvider,
         private readonly ?array $tagContracts = null,
-        ?string $projectRoot = null
+        private readonly ?string $containerXmlPath = null
     ) {
-        $this->projectRoot = $projectRoot ?? (\defined('TEST_PROJECT_DIR') ? TEST_PROJECT_DIR : \dirname(__DIR__, 6));
     }
 
     public function getNodeType(): string
@@ -435,23 +429,63 @@ class TaggedServiceContractRule implements Rule
 
         $this->taggedArgumentsByServiceId = [];
 
-        foreach ($this->getServiceDefinitionFiles() as $file) {
-            try {
-                $container = $this->loadServiceDefinitions($file);
-            } catch (\Throwable) {
+        $container = $this->loadContainerXml();
+
+        if ($container === null || \count($container->services) === 0) {
+            return $this->taggedArgumentsByServiceId;
+        }
+
+        $locatorTagsByServiceId = $this->getLocatorTagsByServiceId($container);
+
+        foreach ($container->services->service as $service) {
+            $serviceId = $this->getXmlAttribute($service, 'id');
+
+            if ($serviceId === null) {
                 continue;
             }
 
-            foreach ($container->getDefinitions() as $serviceId => $definition) {
-                foreach ($definition->getArguments() as $argumentKey => $argument) {
-                    foreach ($this->getTaggedArguments($argument) as $taggedArgument) {
+            $argumentIndex = 0;
+
+            foreach ($service->argument as $argument) {
+                $type = $this->getXmlAttribute($argument, 'type');
+
+                if ($type === 'tagged_iterator') {
+                    $tag = $this->getXmlAttribute($argument, 'tag');
+
+                    if ($tag !== null) {
                         $this->taggedArgumentsByServiceId[$serviceId][] = [
-                            'tag' => $taggedArgument['tag'],
-                            'argument' => $argumentKey,
-                            'kind' => $taggedArgument['kind'],
+                            'tag' => $tag,
+                            'argument' => $argumentIndex,
+                            'kind' => 'iterator',
                         ];
                     }
+
+                    ++$argumentIndex;
+
+                    continue;
                 }
+
+                if ($type !== 'service') {
+                    ++$argumentIndex;
+
+                    continue;
+                }
+
+                $locatorServiceId = $this->getXmlAttribute($argument, 'id');
+
+                if ($locatorServiceId === null) {
+                    continue;
+                }
+
+                foreach ($locatorTagsByServiceId[$locatorServiceId] ?? [] as $tag) {
+                    $this->taggedArgumentsByServiceId[$serviceId][] = [
+                        'tag' => $tag,
+                        'argument' => $argumentIndex,
+                        'kind' => 'locator',
+                    ];
+                }
+
+                ++$argumentIndex;
             }
         }
 
@@ -521,115 +555,76 @@ class TaggedServiceContractRule implements Rule
         return $value->value;
     }
 
-    /**
-     * @return list<array{tag: string, kind: 'iterator'|'locator'}>
-     */
-    private function getTaggedArguments(mixed $argument): array
+    private function loadContainerXml(): ?\SimpleXMLElement
     {
-        if ($argument instanceof TaggedIteratorArgument) {
-            return [['tag' => $argument->getTag(), 'kind' => 'iterator']];
+        if ($this->containerXmlPath === null || !is_file($this->containerXmlPath)) {
+            return null;
         }
 
-        if ($argument instanceof ServiceLocatorArgument) {
-            $taggedIteratorArgument = $argument->getTaggedIteratorArgument();
+        $xml = @simplexml_load_file($this->containerXmlPath);
 
-            if ($taggedIteratorArgument === null) {
-                return [];
-            }
-
-            return [['tag' => $taggedIteratorArgument->getTag(), 'kind' => 'locator']];
-        }
-
-        if ($argument instanceof BoundArgument) {
-            return $this->getTaggedArguments($argument->getValues()[0]);
-        }
-
-        return [];
+        return $xml instanceof \SimpleXMLElement ? $xml : null;
     }
 
     /**
-     * @return list<string>
+     * @return array<string, list<string>>
      */
-    private function getServiceDefinitionFiles(): array
+    private function getLocatorTagsByServiceId(\SimpleXMLElement $container): array
     {
-        return $this->getFiles(fn (string $path): bool => $this->isXmlServiceDefinitionFile($path) || $this->isPhpServiceDefinitionFile($path));
-    }
+        $tagsByServiceId = [];
 
-    private function isXmlServiceDefinitionFile(string $path): bool
-    {
-        return str_ends_with($path, '.xml')
-            && (str_contains($path, '/DependencyInjection/') || preg_match('#/Resources/config/services(?:_[^/]*)?\.xml$#', $path) === 1);
-    }
-
-    private function isPhpServiceDefinitionFile(string $path): bool
-    {
-        if (!str_ends_with($path, '.php')) {
-            return false;
-        }
-
-        if (!str_contains($path, '/DependencyInjection/') && preg_match('#/Resources/config/services(?:_[^/]*)?\.php$#', $path) !== 1) {
-            return false;
-        }
-
-        $content = file_get_contents($path);
-
-        return $content !== false && str_contains($content, 'ContainerConfigurator');
-    }
-
-    /**
-     * @param \Closure(string): bool $filter
-     *
-     * @return list<string>
-     */
-    private function getFiles(\Closure $filter): array
-    {
-        $srcDir = $this->projectRoot . '/src';
-
-        if (!is_dir($srcDir)) {
-            return [];
-        }
-
-        $files = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($srcDir, \FilesystemIterator::SKIP_DOTS));
-
-        foreach ($iterator as $file) {
-            if (!$file instanceof \SplFileInfo || !$file->isFile()) {
+        foreach ($container->services->service as $service) {
+            if ($this->getXmlAttribute($service, 'class') !== 'Symfony\Component\DependencyInjection\ServiceLocator') {
                 continue;
             }
 
-            $path = $file->getPathname();
+            $serviceId = $this->getXmlAttribute($service, 'id');
 
-            if ($filter($path)) {
-                $files[] = $path;
+            if ($serviceId === null) {
+                continue;
+            }
+
+            $tags = [];
+
+            foreach ($service->argument->argument as $locatorEntry) {
+                if ($this->getXmlAttribute($locatorEntry, 'type') !== 'service_closure') {
+                    continue;
+                }
+
+                $referencedServiceId = $this->getXmlAttribute($locatorEntry, 'id');
+
+                if ($referencedServiceId === null) {
+                    continue;
+                }
+
+                $referencedService = $this->serviceMap->getService($referencedServiceId);
+
+                if ($referencedService === null) {
+                    continue;
+                }
+
+                foreach ($referencedService->getTags() as $tag) {
+                    /** @phpstan-ignore phpstanApi.method */
+                    $tagName = $tag->getName();
+
+                    $tags[] = $tagName;
+                }
+            }
+
+            $tags = array_values(array_unique($tags));
+
+            if ($tags !== []) {
+                $tagsByServiceId[$serviceId] = $tags;
             }
         }
 
-        sort($files);
-
-        return $files;
+        return $tagsByServiceId;
     }
 
-    private function loadServiceDefinitions(string $file): ContainerBuilder
+    private function getXmlAttribute(\SimpleXMLElement $element, string $name): ?string
     {
-        $container = new ContainerBuilder();
-        $container->setParameter('kernel.project_dir', $this->projectRoot);
-        $container->setParameter('kernel.environment', 'phpstan_dev');
-        $container->registerExtension(new MonologExtension());
+        $attributes = $element->attributes();
 
-        $locator = new FileLocator(\dirname($file));
-        $xmlLoader = new XmlFileLoader($container, $locator, 'phpstan_dev');
-        $phpLoader = new PhpFileLoader($container, $locator, 'phpstan_dev');
-        $resolver = new LoaderResolver([$xmlLoader, $phpLoader]);
-
-        $xmlLoader->setResolver($resolver);
-        $phpLoader->setResolver($resolver);
-
-        if (str_ends_with($file, '.php')) {
-            $phpLoader->load($file);
-        } else {
-            $xmlLoader->load($file);
-        }
-
-        return $container;
+        return isset($attributes[$name]) ? (string) $attributes[$name] : null;
     }
 }

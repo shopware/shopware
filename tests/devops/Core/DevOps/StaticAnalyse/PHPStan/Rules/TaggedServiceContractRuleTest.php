@@ -57,6 +57,6 @@ class TaggedServiceContractRuleTest extends RuleTestCase
         /** @phpstan-ignore phpstanApi.method */
         return new TaggedServiceContractRule($factory->create(), self::createReflectionProvider(), [
             'test.mapped' => Contract::class,
-        ], $fixtureDir);
+        ], $fixtureDir . '/container.xml');
     }
 }

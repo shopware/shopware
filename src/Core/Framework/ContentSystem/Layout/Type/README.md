@@ -47,7 +47,7 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects directory paths into YamlTypeLoader — no YAML parsing at compile time.
 
-5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation). App activation state is not denormalized onto the type rows — `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its types from the registry without any extra write.
+5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation). App activation state is not denormalized onto the type rows — `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update).
 
 ## Subdirectories
 

@@ -14,3 +14,5 @@ Keep PR metadata predictable.
 - Do not add extra PR description sections such as a separate validation section.
 - Use a conventional PR title when requested, for example `fix: allow TestBootstrapper to activate Composer plugins`.
 - After review feedback or CI failures, create a follow-up commit explaining that specific fix. Do not amend or force-push existing commits unless the user explicitly asks.
+- Use a commit message body when it adds useful context; keep one-line commits when the subject is enough.
+- Never add AI-agent attribution trailers such as `Co-authored-by`, `Co-committed-by`, or `Signed-off-by`.

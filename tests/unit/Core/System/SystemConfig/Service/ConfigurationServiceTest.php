@@ -416,6 +416,39 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCacheRelevantMetadataIsExposedInElementConfig(): void
     {
+       $config = [
+            [
+                'title' => null,
+                'name' => null,
+                'cards' => [
+                    0 => [
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'storefrontVisibility',
+                                'type' => 'bool',
+                                'cacheRelevant' => true,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $actualConfig = $this->getConfiguration($config);
+
+        static::assertTrue($actualConfig[0]->cards[0]->elements[0]->config['cacheRelevant']);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testCacheRelevantMetadataIsExposedInElementConfig will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCacheRelevantMetadataIsExposedInElementConfigDeprecated(): void
+    {
         $config = [
             [
                 'title' => [
@@ -432,7 +465,17 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
-        $actualConfig = $this->getConfiguration($config);
+        if (Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $config = [
+                [
+                    'title' => null,
+                    'name' => null,
+                    'cards' => $config,
+                ],
+            ];
+        }
+
+        $actualConfig = $this->getConfigurationDeprecated($config);
 
         static::assertTrue($actualConfig[0]['elements'][0]['config']['cacheRelevant']);
     }

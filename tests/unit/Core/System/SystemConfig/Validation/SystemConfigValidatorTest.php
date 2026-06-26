@@ -6,11 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -110,20 +114,38 @@ class SystemConfigValidatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $configurationServiceMock
-            ->expects($this->once())
-            ->method('getConfiguration')
-            ->with('core.basicInformation', $context)
-            ->willReturn([
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.foo',
-                            'config' => [],
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $configurationServiceMock
+                ->expects($this->once())
+                ->method('getSystemConfiguration')
+                ->with('core.basicInformation', $context)
+                ->willReturn([
+                    new SystemConfigTab([
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.foo', []),
+                            ],
+                            []
+                        ),
+                    ]),
+                ]);
+        } else {
+            $configurationServiceMock
+                ->expects($this->once())
+                ->method('getConfiguration')
+                ->with('core.basicInformation', $context)
+                ->willReturn([
+                    [
+                        'elements' => [
+                            [
+                                'name' => 'core.basicInformation.foo',
+                                'config' => [],
+                            ],
                         ],
                     ],
-                ],
-            ]);
+                ]);
+        }
 
         $dataValidatorMock = $this->createMock(DataValidator::class);
         $dataValidatorMock

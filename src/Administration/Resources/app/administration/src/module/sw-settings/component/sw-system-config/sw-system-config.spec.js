@@ -808,7 +808,7 @@ function createConfig() {
                                     label: {
                                         'en-GB': 'Custom field 4',
                                     },
-                                    css: 'custom-field-4-color'
+                                    css: 'custom-field-4-color',
                                 },
                             },
                         ],
@@ -1670,7 +1670,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             },
             {
                 label: 'Custom tab',
-                name: customId
+                name: customId,
             },
         ]);
 

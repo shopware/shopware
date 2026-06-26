@@ -416,7 +416,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCacheRelevantMetadataIsExposedInElementConfig(): void
     {
-       $config = [
+        $config = [
             [
                 'title' => null,
                 'name' => null,

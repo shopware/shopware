@@ -52,7 +52,7 @@ class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             new JsonField('home_slot_config', 'homeSlotConfig'),
             (new BoolField('home_enabled', 'homeEnabled'))->addFlags(new Required()),
@@ -62,7 +62,5 @@ class SalesChannelTranslationDefinition extends EntityTranslationDefinition
             new StringField('home_keywords', 'homeKeywords'),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
-
-        return $fields;
     }
 }

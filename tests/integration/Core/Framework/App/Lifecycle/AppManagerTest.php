@@ -1189,7 +1189,9 @@ class AppManagerTest extends TestCase
 
     private function assertDefaultModules(AppEntity $app): void
     {
-        static::assertCount(2, $app->getModules());
+        $modules = $app->getModules();
+        static::assertNotNull($modules);
+        static::assertCount(2, $modules);
 
         static::assertEquals([
             [
@@ -1211,7 +1213,7 @@ class AppManagerTest extends TestCase
                 'source' => null,
                 'position' => 50,
             ],
-        ], $app->getModules());
+        ], $modules);
     }
 
     private function assertDefaultPrivileges(string $roleId): void

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -43,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -239,6 +241,11 @@ class MailDataSimulator
         $fields = $definition->getFields();
 
         foreach ($fields as $field) {
+            // Runtime fields are calculated on demand, so it is hard to assume values for those, although because the value is often converted
+            if ($field->is(Runtime::class)) {
+                continue;
+            }
+
             $entity->assign([$field->getPropertyName() => $this->getEntityField(
                 $definition,
                 $field,
@@ -293,7 +300,9 @@ class MailDataSimulator
             }
 
             return $data;
-        } elseif ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+        }
+
+        if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
             $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
             $entity = $this->getEntityData(
@@ -308,7 +317,9 @@ class MailDataSimulator
             $collection->add($entity);
 
             return $collection;
-        } elseif ($field instanceof AssociationField) {
+        }
+
+        if ($field instanceof AssociationField) {
             return $this->getEntityData(
                 $field->getReferenceDefinition(),
                 $criteria?->getAssociation($propertyName),
@@ -347,6 +358,11 @@ class MailDataSimulator
         $translatedFields = [];
 
         foreach ($fields as $field) {
+            // Runtime fields are calculated on demand, so it is hard to assume values for those, although because the value is often converted
+            if ($field->is(Runtime::class)) {
+                continue;
+            }
+
             $propertyName = $field->getPropertyName();
 
             if ($field instanceof TranslationsAssociationField) {
@@ -432,10 +448,11 @@ class MailDataSimulator
             case $field instanceof BlobField:
                 return $propertyName;
 
-            case $field instanceof BoolField:
             case $field instanceof LockedField:
+            case $field instanceof BoolField:
                 return false;
 
+            case $field instanceof ManyToManyIdField:
             case $field instanceof ParentAssociationField:
             case $field instanceof ParentFkField:
                 return null;
@@ -478,11 +495,10 @@ class MailDataSimulator
                 );
 
             case $field instanceof ChildCountField:
-            case $field instanceof IntField:
             case $field instanceof TreeLevelField:
+            case $field instanceof IntField:
                 return Random::getInteger(1, 999999);
 
-            case $field instanceof ChildrenAssociationField:
             case $field instanceof ManyToOneAssociationField:
             case $field instanceof OneToOneAssociationField:
                 return $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
@@ -490,10 +506,17 @@ class MailDataSimulator
             case $field instanceof MeasurementUnitsField:
                 return MeasurementUnits::createDefaultUnits();
 
+            case $field instanceof PriceDefinitionField:
+                return new AbsolutePriceDefinition(12.34);
+
+            case $field instanceof EnumField:
+            case $field instanceof ListField:
+            case $field instanceof BreadcrumbField:
+                return [];
+
             case $field instanceof ConfigJsonField:
             case $field instanceof CustomFields:
             case $field instanceof ObjectField:
-            case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
             case $field instanceof SlotConfigField:
             case $field instanceof TaxFreeConfigField:
@@ -515,11 +538,10 @@ class MailDataSimulator
                 }
 
                 return $data;
-
             case $field instanceof CreatedAtField:
+            case $field instanceof UpdatedAtField:
             case $field instanceof DateField:
             case $field instanceof DateTimeField:
-            case $field instanceof UpdatedAtField:
                 return $this->clock->now();
 
             case $field instanceof CreatedByField:
@@ -549,6 +571,20 @@ class MailDataSimulator
             case $field instanceof LongTextField:
                 return 'Lorem ipsum dolor sit amet.';
 
+            case $field instanceof TranslationsAssociationField:
+                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
+                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $context);
+                $this->ensureEntityIdentifier($language);
+
+                // Use the language id as the simulated translation key so each language gets a distinct entry
+                $entity->setUniqueIdentifier($language->getUniqueIdentifier());
+
+                $collection = $this->getCollection($field->getReferenceDefinition());
+                $collection->add($entity);
+
+                return $collection;
+
+            case $field instanceof ChildrenAssociationField:
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ManyToManyAssociationField:
                 $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
@@ -560,9 +596,6 @@ class MailDataSimulator
                 $collection->add($entity);
 
                 return $collection;
-
-            case $field instanceof ManyToManyIdField:
-                return null;
 
             case $field instanceof NumberRangeField:
                 return '"' . Random::getInteger(1, 999999) . '"';
@@ -578,24 +611,6 @@ class MailDataSimulator
 
             case $field instanceof StringField:
                 return $this->randomString($propertyName, $entityName);
-
-            case $field instanceof TranslationsAssociationField:
-                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
-                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $context);
-                $this->ensureEntityIdentifier($language);
-
-                // Use the language id as the simulated translation key so each language gets a distinct entry
-                $entity->setUniqueIdentifier($language->getUniqueIdentifier());
-
-                $collection = $this->getCollection($field->getReferenceDefinition());
-                $collection->add($entity);
-
-                return $collection;
-
-            case $field instanceof BreadcrumbField:
-            case $field instanceof EnumField:
-            case $field instanceof ListField:
-                return [];
         }
 
         return null;

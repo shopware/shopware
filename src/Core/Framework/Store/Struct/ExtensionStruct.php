@@ -169,6 +169,8 @@ class ExtensionStruct extends Struct
      */
     public static function fromArray(array $data): ExtensionStruct
     {
+        $data = self::replaceCollections($data);
+
         if (!isset($data['name'])) {
             throw FrameworkException::invalidArgumentException('Entry "name" in payload missing');
         }
@@ -646,5 +648,29 @@ class ExtensionStruct extends Struct
     public function setInAppPurchases(array $inAppPurchases): void
     {
         $this->inAppPurchases = $inAppPurchases;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, StoreCollection|mixed|null>
+     */
+    private static function replaceCollections(array $data): array
+    {
+        $replacements = [
+            'variants' => VariantCollection::class,
+            'faq' => FaqCollection::class,
+            'binaries' => BinaryCollection::class,
+            'images' => ImageCollection::class,
+            'categories' => StoreCategoryCollection::class,
+            'permissions' => PermissionCollection::class,
+            'requestedPermissions' => PermissionCollection::class,
+        ];
+
+        foreach ($replacements as $key => $collectionClass) {
+            $data[$key] = new $collectionClass($data[$key] ?? []);
+        }
+
+        return $data;
     }
 }

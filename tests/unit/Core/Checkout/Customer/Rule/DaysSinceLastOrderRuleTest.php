@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -232,7 +233,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         static::assertArrayHasKey('daysPassed', $ruleConstraints, 'Constraint daysPassed not found in Rule');
         $daysPassed = $ruleConstraints['daysPassed'];
         static::assertEquals(new NotBlank(), $daysPassed[0]);
-        static::assertEquals(new Type('numeric'), $daysPassed[1]);
+        static::assertEquals(new AtLeastOneOf([new Type('float'), new Type('int')]), $daysPassed[1]);
     }
 
     #[DataProvider('getMatchValues')]

@@ -20,7 +20,7 @@ class FlowEntity extends Entity
 
     protected string $eventName;
 
-    protected string $description;
+    protected ?string $description = null;
 
     protected bool $active;
 
@@ -59,12 +59,12 @@ class FlowEntity extends Entity
         $this->eventName = $eventName;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -91,10 +91,8 @@ class FlowEntity extends Entity
 
     /**
      * @internal
-     *
-     * @return string|Flow|null
      */
-    public function getPayload()
+    public function getPayload(): string|Flow|null
     {
         $this->checkIfPropertyAccessIsAllowed('payload');
 
@@ -102,11 +100,9 @@ class FlowEntity extends Entity
     }
 
     /**
-     * @internal
-     *
-     * @param string|Flow|null $payload
+     *@internal
      */
-    public function setPayload($payload): void
+    public function setPayload(string|Flow|null $payload): void
     {
         $this->payload = $payload;
     }

@@ -39,9 +39,9 @@ class OrderTransactionEntity extends Entity
     protected ?OrderEntity $primaryOrder = null;
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, mixed>|null
      */
-    protected array $validationData = [];
+    protected ?array $validationData = [];
 
     public function getOrderId(): string
     {
@@ -134,9 +134,9 @@ class OrderTransactionEntity extends Entity
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getValidationData(): array
+    public function getValidationData(): ?array
     {
         return $this->validationData;
     }
@@ -144,7 +144,7 @@ class OrderTransactionEntity extends Entity
     /**
      * @param array<string, mixed> $validationData
      */
-    public function setValidationData(array $validationData): void
+    public function setValidationData(?array $validationData): void
     {
         $this->validationData = $validationData;
     }

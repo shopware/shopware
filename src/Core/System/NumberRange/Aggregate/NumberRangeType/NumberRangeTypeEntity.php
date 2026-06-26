@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
@@ -24,7 +24,7 @@ class NumberRangeTypeEntity extends Entity
 
     protected ?NumberRangeCollection $numberRanges = null;
 
-    protected ?NumberRangeSalesChannelEntity $numberRangeSalesChannels = null;
+    protected ?NumberRangeSalesChannelCollection $numberRangeSalesChannels = null;
 
     protected ?NumberRangeTypeTranslationCollection $translations = null;
 
@@ -78,12 +78,12 @@ class NumberRangeTypeEntity extends Entity
         $this->technicalName = $technicalName;
     }
 
-    public function getNumberRangeSalesChannels(): ?NumberRangeSalesChannelEntity
+    public function getNumberRangeSalesChannels(): ?NumberRangeSalesChannelCollection
     {
         return $this->numberRangeSalesChannels;
     }
 
-    public function setNumberRangeSalesChannels(NumberRangeSalesChannelEntity $numberRangeSalesChannels): void
+    public function setNumberRangeSalesChannels(NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
     {
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }

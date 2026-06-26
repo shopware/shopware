@@ -97,17 +97,27 @@ class DeliveryCalculator
         }
 
         $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
+        $shippingMethod = $data->get($key);
 
-        if (!$data->has($key)) {
+        if (!$shippingMethod instanceof ShippingMethodEntity) {
             throw CartException::shippingMethodNotFound($delivery->getShippingMethod()->getId());
         }
 
-        /** @var ShippingMethodEntity $shippingMethod */
-        $shippingMethod = $data->get($key);
+        $prices = $shippingMethod->getPrices();
+        if ($prices === null) {
+            $cart->addErrors(
+                new ShippingMethodBlockedError(
+                    name: (string) $shippingMethod->getTranslation('name'),
+                    id: $shippingMethod->getId(),
+                    reason: 'no shipping costs found',
+                )
+            );
+
+            return;
+        }
 
         foreach ($context->getRuleIds() as $ruleId) {
-            /** @var ShippingMethodPriceCollection $shippingPrices */
-            $shippingPrices = $shippingMethod->getPrices()->filterByProperty('ruleId', $ruleId);
+            $shippingPrices = $prices->filterByProperty('ruleId', $ruleId);
 
             $costs = $this->getMatchingPriceOfRule($delivery, $context, $shippingPrices);
             if ($costs !== null) {
@@ -117,16 +127,15 @@ class DeliveryCalculator
 
         // Fetch default price if no rule matched
         if ($costs === null) {
-            /** @var ShippingMethodPriceCollection $shippingPrices */
-            $shippingPrices = $shippingMethod->getPrices()->filterByProperty('ruleId', null);
+            $shippingPrices = $prices->filterByProperty('ruleId', null);
             $costs = $this->getMatchingPriceOfRule($delivery, $context, $shippingPrices);
         }
 
-        if (!$costs) {
+        if ($costs === null) {
             $cart->addErrors(
                 new ShippingMethodBlockedError(
-                    id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
+                    id: $shippingMethod->getId(),
                     reason: 'no shipping costs found',
                 )
             );
@@ -207,8 +216,8 @@ class DeliveryCalculator
 
     private function getCurrencyPrice(PriceCollection $priceCollection, SalesChannelContext $context): float
     {
-        /** @var Price $price */
         $price = $priceCollection->getCurrencyPrice($context->getCurrencyId());
+        \assert($price instanceof Price);
 
         $value = $this->getPriceForTaxState($price, $context);
 

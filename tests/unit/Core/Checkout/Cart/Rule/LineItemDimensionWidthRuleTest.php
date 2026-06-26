@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -555,7 +556,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertArrayHasKey('amount', $ruleConstraints, 'Constraint amount not found in Rule');
         $amount = $ruleConstraints['amount'];
         static::assertEquals(new NotBlank(), $amount[0]);
-        static::assertEquals(new Type('numeric'), $amount[1]);
+        static::assertEquals(new AtLeastOneOf([new Type('float'), new Type('int')]), $amount[1]);
     }
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void

@@ -19,7 +19,7 @@ class ImportExportFileEntity extends Entity
 
     protected \DateTimeInterface $expireDate;
 
-    protected int $size;
+    protected ?int $size = null;
 
     protected ?ImportExportLogEntity $log = null;
 
@@ -55,12 +55,12 @@ class ImportExportFileEntity extends Entity
         $this->expireDate = $expireDate;
     }
 
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }
 
-    public function setSize(int $size): void
+    public function setSize(?int $size): void
     {
         $this->size = $size;
     }

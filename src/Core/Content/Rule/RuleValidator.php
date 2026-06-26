@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\ScriptRule;
+use Shopware\Core\Framework\Struct\Exception\AssignException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -153,7 +154,14 @@ class RuleValidator implements EventSubscriberInterface
             $ruleInstance->assignValues($value);
             $this->setScriptConstraints($ruleInstance, $condition, $payload, $context);
         } else {
-            $ruleInstance->assign($value);
+            try {
+                // Assigning the values is important, as for some operators only null values are allowed.
+                // To check this correctly, the rules need to be initialized with the given values.
+                $ruleInstance->assign($value);
+            } catch (AssignException) {
+                // Do not let bubble up TypeErrors during assignment.
+                // Rule property types are also checked in "validateConsistence" method
+            }
         }
 
         $this->validateConsistence(

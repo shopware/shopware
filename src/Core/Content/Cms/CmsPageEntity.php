@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 #[Package('discovery')]
 class CmsPageEntity extends Entity
@@ -53,7 +54,7 @@ class CmsPageEntity extends Entity
 
     protected ?LandingPageCollection $landingPages = null;
 
-    protected ?CmsPageCollection $homeSalesChannels = null;
+    protected ?SalesChannelCollection $homeSalesChannels = null;
 
     public function getName(): ?string
     {
@@ -204,12 +205,12 @@ class CmsPageEntity extends Entity
         $this->landingPages = $landingPages;
     }
 
-    public function getHomeSalesChannels(): ?CmsPageCollection
+    public function getHomeSalesChannels(): ?SalesChannelCollection
     {
         return $this->homeSalesChannels;
     }
 
-    public function setHomeSalesChannels(CmsPageCollection $homeSalesChannels): void
+    public function setHomeSalesChannels(SalesChannelCollection $homeSalesChannels): void
     {
         $this->homeSalesChannels = $homeSalesChannels;
     }

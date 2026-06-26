@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollect
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -80,7 +80,7 @@ class SalesChannelEntity extends Entity
 
     protected ?CmsPageEntity $homeCmsPage = null;
 
-    protected bool $homeEnabled;
+    protected ?bool $homeEnabled = null;
 
     protected ?string $homeName = null;
 
@@ -181,7 +181,7 @@ class SalesChannelEntity extends Entity
 
     protected ?PromotionSalesChannelCollection $promotionSalesChannels = null;
 
-    protected ?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels = null;
+    protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels = null;
 
     protected ?ProductReviewCollection $productReviews = null;
 
@@ -633,7 +633,7 @@ class SalesChannelEntity extends Entity
 
     public function getHomeEnabled(): bool
     {
-        return $this->homeEnabled;
+        return $this->homeEnabled ?? true;
     }
 
     public function setHomeEnabled(bool $homeEnabled): void
@@ -781,12 +781,12 @@ class SalesChannelEntity extends Entity
         $this->serviceCategory = $serviceCategory;
     }
 
-    public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigDefinition
+    public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigSalesChannelCollection
     {
         return $this->documentBaseConfigSalesChannels;
     }
 
-    public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
+    public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels): void
     {
         $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }

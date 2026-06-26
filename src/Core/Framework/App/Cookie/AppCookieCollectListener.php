@@ -44,7 +44,7 @@ class AppCookieCollectListener
         $apps = $this->appRepository->search($criteria, $event->getContext())->getEntities();
 
         foreach ($apps as $app) {
-            $this->addCookies($event->cookieGroupCollection, $app->getCookies());
+            $this->addCookies($event->cookieGroupCollection, $app->getCookies() ?? []);
         }
     }
 

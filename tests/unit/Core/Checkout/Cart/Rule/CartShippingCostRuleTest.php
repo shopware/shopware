@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -187,7 +188,7 @@ class CartShippingCostRuleTest extends TestCase
         static::assertArrayHasKey('cartShippingCost', $constraints);
         static::assertEquals($constraints['cartShippingCost'], [
             new NotBlank(),
-            new Type(type: 'numeric'),
+            new AtLeastOneOf([new Type('float'), new Type('int')]),
         ]);
 
         static::assertArrayHasKey('operator', $constraints);

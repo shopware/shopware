@@ -57,7 +57,7 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 
     protected ?string $availabilityRuleId = null;
 
-    protected ShippingMethodPriceCollection $prices;
+    protected ?ShippingMethodPriceCollection $prices = null;
 
     protected ?string $mediaId = null;
 
@@ -74,11 +74,6 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
     protected ?TaxEntity $tax = null;
 
     protected ?AppShippingMethodEntity $appShippingMethod = null;
-
-    public function __construct()
-    {
-        $this->prices = new ShippingMethodPriceCollection();
-    }
 
     public function getName(): ?string
     {
@@ -190,7 +185,7 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->salesChannels = $salesChannels;
     }
 
-    public function getPrices(): ShippingMethodPriceCollection
+    public function getPrices(): ?ShippingMethodPriceCollection
     {
         return $this->prices;
     }

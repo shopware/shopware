@@ -16,7 +16,7 @@ class MailTemplateTypeEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected string $name;
+    protected ?string $name = null;
 
     protected string $technicalName;
 
@@ -36,12 +36,12 @@ class MailTemplateTypeEntity extends Entity
      */
     protected ?array $templateData = null;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

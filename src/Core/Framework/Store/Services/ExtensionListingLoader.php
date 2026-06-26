@@ -38,13 +38,12 @@ readonly class ExtensionListingLoader
     {
         try {
             $storeExtensions = $this->client->listMyExtensions($localCollection, $context);
-        } catch (\Throwable) {
+        } catch (StoreApiException) {
             return;
         }
 
         foreach ($storeExtensions->getElements() as $storeExtension) {
             if ($localCollection->has($storeExtension->getName())) {
-                /** @var ExtensionStruct $localExtension */
                 $localExtension = $localCollection->get($storeExtension->getName());
                 $localExtension->setId($storeExtension->getId());
                 $localExtension->setIsTheme($storeExtension->isTheme());

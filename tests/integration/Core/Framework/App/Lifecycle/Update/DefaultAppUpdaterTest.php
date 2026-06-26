@@ -83,6 +83,7 @@ class DefaultAppUpdaterTest extends TestCase
         static::assertNotFalse($licensesJson);
         static::assertNotFalse($swagAppJson);
 
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"not": "relevant"}'));
         $this->getStoreRequestHandler()->append(new Response(200, [], $licensesJson));
         $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getStoreRequestHandler()->append(new Response(200, [], $swagAppJson));

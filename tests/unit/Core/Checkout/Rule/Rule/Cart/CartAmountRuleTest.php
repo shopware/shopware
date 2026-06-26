@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -198,11 +199,19 @@ class CartAmountRuleTest extends TestCase
         $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConstraintsAcceptNumericStringAmount(): void
     {
         $violations = $this->validateConstraint('amount', '0.1');
 
         static::assertCount(0, $violations);
+    }
+
+    public function testConstraintsDoesNotAcceptNumericStringAmount(): void
+    {
+        $violations = $this->validateConstraint('amount', '0.1');
+
+        static::assertCount(1, $violations);
     }
 
     public function testConstraintsAcceptIntegerAmount(): void

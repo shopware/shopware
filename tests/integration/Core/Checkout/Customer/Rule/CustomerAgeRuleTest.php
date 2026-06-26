@@ -7,9 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -69,7 +71,11 @@ class CustomerAgeRuleTest extends TestCase
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
 
             static::assertSame('/0/value/age', $exceptions[1]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
+            if (Feature::isActive('v6.8.0.0')) {
+                static::assertSame(AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $exceptions[1]['code']);
+            } else {
+                static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
+            }
         }
     }
 }

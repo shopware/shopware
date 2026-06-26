@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -81,8 +83,13 @@ class LineItemTotalPriceRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringAmount(): void
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    public function testValidateWithStringAmountDeprecated(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
@@ -105,6 +112,37 @@ class LineItemTotalPriceRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
+    public function testValidateWithStringAmount(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        try {
+            $this->conditionRepository->create([
+                [
+                    'id' => $id,
+                    'type' => (new LineItemTotalPriceRule())->getName(),
+                    'ruleId' => $ruleId,
+                    'value' => [
+                        'operator' => Rule::OPERATOR_EQ,
+                        'amount' => '0.1',
+                    ],
+                ],
+            ], $this->context);
+        } catch (WriteException $stackException) {
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/amount', $exceptions[0]['source']['pointer']);
+            static::assertSame(AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $exceptions[0]['code']);
+        }
+    }
+
     public function testValidateWithIntAmount(): void
     {
         $ruleId = Uuid::randomHex();
@@ -121,7 +159,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,
-                    'amount' => '0.1',
+                    'amount' => 3,
                 ],
             ],
         ], $this->context);

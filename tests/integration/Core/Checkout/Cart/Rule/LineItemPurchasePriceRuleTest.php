@@ -15,12 +15,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -80,7 +82,11 @@ class LineItemPurchasePriceRuleTest extends TestCase
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
 
             static::assertSame('/0/value/amount', $exceptions[1]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
+            if (Feature::isActive('v6.8.0.0')) {
+                static::assertSame(AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $exceptions[1]['code']);
+            } else {
+                static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
+            }
 
             static::assertSame('/0/value/type', $exceptions[2]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[2]['code']);

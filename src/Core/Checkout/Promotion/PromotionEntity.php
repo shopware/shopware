@@ -90,9 +90,9 @@ class PromotionEntity extends Entity
     protected ?array $ordersPerCustomerCount = null;
 
     /**
-     * @var string[]
+     * @var list<string>|null
      */
-    protected array $exclusionIds = [];
+    protected ?array $exclusionIds = [];
 
     public function getName(): ?string
     {
@@ -453,17 +453,17 @@ class PromotionEntity extends Entity
     }
 
     /**
-     * @return string[]
+     * @return list<string>|null
      */
-    public function getExclusionIds(): array
+    public function getExclusionIds(): ?array
     {
         return $this->exclusionIds;
     }
 
     /**
-     * @param array<string> $exclusionIds
+     * @param list<string> $exclusionIds
      */
-    public function setExclusionIds(array $exclusionIds): void
+    public function setExclusionIds(?array $exclusionIds): void
     {
         $this->exclusionIds = $exclusionIds;
     }

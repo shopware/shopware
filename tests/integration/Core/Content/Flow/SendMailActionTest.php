@@ -957,7 +957,6 @@ class SendMailActionTest extends TestCase
                 'mailTemplateId' => $mailTemplateId,
                 'mediaId' => $mediaId,
                 'languageId' => $context->getLanguageId(),
-                'position' => 0,
             ],
         ], $context);
 

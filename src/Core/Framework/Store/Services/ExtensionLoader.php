@@ -16,15 +16,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\Event\ExtensionLoadedEvent;
 use Shopware\Core\Framework\Store\InAppPurchase;
-use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
-use Shopware\Core\Framework\Store\Struct\FaqCollection;
-use Shopware\Core\Framework\Store\Struct\ImageCollection;
-use Shopware\Core\Framework\Store\Struct\PermissionCollection;
-use Shopware\Core\Framework\Store\Struct\StoreCategoryCollection;
 use Shopware\Core\Framework\Store\Struct\StoreCollection;
-use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Symfony\Component\Intl\Languages;
@@ -87,7 +81,7 @@ class ExtensionLoader
     {
         $data = [];
         foreach ($collection as $app) {
-            $data[] = $this->prepareAppData($context, $app);
+            $data[] = $this->prepareAppData($app);
         }
 
         $registeredApps = $this->loadFromListingArray($context, $data);
@@ -104,7 +98,6 @@ class ExtensionLoader
 
         foreach ($localApps as $name => $app) {
             if ($registeredApps->has($name)) {
-                /** @var ExtensionStruct $registeredApp */
                 $registeredApp = $registeredApps->get($name);
 
                 $registeredApp->setIsTheme($app->isTheme());
@@ -194,7 +187,7 @@ class ExtensionLoader
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
 
-        $extension = ExtensionStruct::fromArray($this->replaceCollections($data));
+        $extension = ExtensionStruct::fromArray($data);
 
         $this->eventDispatcher->dispatch(new ExtensionLoadedEvent($plugin, $extension, $context));
 
@@ -253,13 +246,13 @@ class ExtensionLoader
      */
     private function prepareArrayData(array $data, ?string $locale): array
     {
-        return $this->translateExtensionLanguages($this->replaceCollections($data), $locale);
+        return $this->translateExtensionLanguages($data, $locale);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function prepareAppData(Context $context, AppEntity $app): array
+    private function prepareAppData(AppEntity $app): array
     {
         $data = [
             'localId' => $app->getId(),
@@ -282,37 +275,13 @@ class ExtensionLoader
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),
             'allowDisable' => $app->getAllowDisable(),
-            'domains' => $app->getAllowedHosts(),
+            'domains' => $app->getAllowedHosts() ?? [],
         ];
 
         $appTranslations = $app->getTranslations();
 
         if ($appTranslations) {
             $data['languages'] = $this->makeLanguagesArray($appTranslations);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return array<string, StoreCollection|mixed|null>
-     */
-    private function replaceCollections(array $data): array
-    {
-        $replacements = [
-            'variants' => VariantCollection::class,
-            'faq' => FaqCollection::class,
-            'binaries' => BinaryCollection::class,
-            'images' => ImageCollection::class,
-            'categories' => StoreCategoryCollection::class,
-            'permissions' => PermissionCollection::class,
-            'requestedPermissions' => PermissionCollection::class,
-        ];
-
-        foreach ($replacements as $key => $collectionClass) {
-            $data[$key] = new $collectionClass($data[$key] ?? []);
         }
 
         return $data;

@@ -329,7 +329,7 @@ class HookableEventFactoryTest extends TestCase
 
         $event = $hookables[1];
         static::assertSame('product_price.written', $event->getName());
-        static::assertSame([[
+        static::assertEquals([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $productPriceId,
@@ -383,7 +383,7 @@ class HookableEventFactoryTest extends TestCase
 
         $event = $hookables[0];
         static::assertSame('product_price.written', $event->getName());
-        static::assertSame([[
+        static::assertEquals([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $id,

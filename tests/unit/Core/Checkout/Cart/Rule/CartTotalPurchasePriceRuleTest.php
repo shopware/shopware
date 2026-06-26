@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -110,7 +111,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
             ],
             'amount' => [
                 new NotBlank(),
-                new Type('numeric'),
+                new AtLeastOneOf([new Type('float'), new Type('int')]),
             ],
         ], $constraints);
     }

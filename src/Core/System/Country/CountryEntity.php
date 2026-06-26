@@ -78,7 +78,7 @@ class CountryEntity extends Entity
     /**
      * @var list<list<string>>
      */
-    protected array $addressFormat;
+    protected ?array $addressFormat = null;
 
     public function getName(): ?string
     {
@@ -331,17 +331,17 @@ class CountryEntity extends Entity
     }
 
     /**
-     * @return list<list<string>>
+     * @return list<list<string>>|null
      */
-    public function getAddressFormat(): array
+    public function getAddressFormat(): ?array
     {
         return $this->addressFormat;
     }
 
     /**
-     * @param list<list<string>> $addressFormat
+     * @param list<list<string>>|null $addressFormat
      */
-    public function setAddressFormat(array $addressFormat): void
+    public function setAddressFormat(?array $addressFormat): void
     {
         $this->addressFormat = $addressFormat;
     }

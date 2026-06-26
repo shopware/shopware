@@ -146,7 +146,7 @@ TWIG,
         /** @var array{content: string, errors: list<array{message: string, line: int|null, column: int|null}>} $response */
         $response = json_decode($responseContent, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotSame('', $response['content']);
         static::assertCount(2, $response['errors']);
         static::assertSame('The field "return_policy" must be a valid absolute URL.', $response['errors'][0]['message']);

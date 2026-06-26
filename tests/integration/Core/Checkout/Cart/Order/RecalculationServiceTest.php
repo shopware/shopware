@@ -38,7 +38,6 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -360,7 +359,7 @@ class RecalculationServiceTest extends TestCase
                 }
             }
 
-            $delivery->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
+            $delivery->getShippingMethod()->assign(['prices' => null]);
         }
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
@@ -1245,9 +1244,11 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->orderDeliveryRepository->search($criteria, $versionContext)->first()?->getShippingMethod();
         static::assertNotNull($shippingMethod);
 
-        $firstPriceRule = $shippingMethod->getPrices()->first();
+        $prices = $shippingMethod->getPrices();
+        static::assertNotNull($prices);
+        $firstPriceRule = $prices->first();
         static::assertNotNull($firstPriceRule);
-        $secondPriceRule = $shippingMethod->getPrices()->last();
+        $secondPriceRule = $prices->last();
         static::assertNotNull($secondPriceRule);
 
         static::assertSame($firstPriceRule->getRuleId(), $secondPriceRule->getRuleId());
@@ -1732,11 +1733,9 @@ class RecalculationServiceTest extends TestCase
 
         $cart = $this->addProduct($cart, $productId1 ?? Uuid::randomHex());
 
-        $cart = $this->addProduct($cart, $productId2 ?? Uuid::randomHex(), [
+        return $this->addProduct($cart, $productId2 ?? Uuid::randomHex(), [
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 5, 'name' => 'test'],
         ]);
-
-        return $cart;
     }
 
     /**

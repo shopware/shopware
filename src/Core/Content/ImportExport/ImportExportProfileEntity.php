@@ -23,7 +23,7 @@ class ImportExportProfileEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    protected string $label;
+    protected ?string $label = null;
 
     protected bool $systemDefault;
 
@@ -76,7 +76,7 @@ class ImportExportProfileEntity extends Entity
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
-        return $this->label;
+        return $this->label ?? '';
     }
 
     /**

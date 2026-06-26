@@ -21,7 +21,7 @@ class AppCmsBlockEntity extends Entity
 
     protected string $appId;
 
-    protected AppEntity $app;
+    protected ?AppEntity $app = null;
 
     protected string $name;
 
@@ -34,7 +34,7 @@ class AppCmsBlockEntity extends Entity
 
     protected string $styles;
 
-    protected AppCmsBlockTranslationCollection $translations;
+    protected ?AppCmsBlockTranslationCollection $translations = null;
 
     protected ?string $label = null;
 
@@ -48,12 +48,12 @@ class AppCmsBlockEntity extends Entity
         $this->appId = $appId;
     }
 
-    public function getApp(): AppEntity
+    public function getApp(): ?AppEntity
     {
         return $this->app;
     }
 
-    public function setApp(AppEntity $app): void
+    public function setApp(?AppEntity $app): void
     {
         $this->app = $app;
     }
@@ -84,7 +84,7 @@ class AppCmsBlockEntity extends Entity
         $this->block = $block;
     }
 
-    public function getTranslations(): AppCmsBlockTranslationCollection
+    public function getTranslations(): ?AppCmsBlockTranslationCollection
     {
         return $this->translations;
     }

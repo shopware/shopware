@@ -156,6 +156,7 @@ final class CartOrderConversionStub
                             'customFields' => null,
                             'advancedPostalCodePattern' => null,
                             'defaultPostalCodePattern' => null,
+                            'addressFormat' => null,
                         ],
                         'state' => [
                             'countryId' => 'country-id',
@@ -190,7 +191,7 @@ final class CartOrderConversionStub
                         'salesChannels' => null,
                         'availabilityRule' => null,
                         'availabilityRuleId' => null,
-                        'prices' => [],
+                        'prices' => null,
                         'mediaId' => null,
                         'taxId' => null,
                         'media' => null,

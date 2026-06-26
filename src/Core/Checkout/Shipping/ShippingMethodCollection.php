@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ShippingMethodCollection extends EntityCollection
 {
     /**
-     * @deprecated tag:v6.8.0 use RuleIdMatcher instead
+     * @deprecated tag:v6.8.0 - Will be removed, use {@see RuleIdMatcher} instead
      */
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
@@ -37,25 +37,48 @@ class ShippingMethodCollection extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     *
      * @return array<string>
      */
     public function getPriceIds(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $ids[] = $element->getPrices()->getIds();
+            $prices = $element->getPrices();
+            if ($prices === null) {
+                continue;
+            }
+            $ids[] = $prices->getIds();
         }
 
         return array_merge(...$ids);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function getPrices(): ShippingMethodPriceCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPrices()->getElements();
+            $elementPrices = $element->getPrices();
+            if ($elementPrices === null) {
+                continue;
+            }
+            $prices[] = $elementPrices->getElements();
         }
 
         $prices = array_merge(...$prices);

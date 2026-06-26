@@ -24,7 +24,7 @@ class AppFlowActionEntity extends Entity
 
     protected ?string $badge = null;
 
-    protected string $label;
+    protected ?string $label = null;
 
     protected ?string $description = null;
 
@@ -33,22 +33,22 @@ class AppFlowActionEntity extends Entity
     /**
      * @var array<string, mixed>
      */
-    protected array $parameters;
+    protected ?array $parameters = null;
 
     /**
      * @var array<string, mixed>
      */
-    protected array $config;
+    protected ?array $config = null;
 
     /**
      * @var array<string, mixed>
      */
-    protected array $headers;
+    protected ?array $headers = null;
 
     /**
      * @var array<string>
      */
-    protected array $requirements;
+    protected ?array $requirements = null;
 
     protected ?string $iconRaw = null;
 
@@ -104,52 +104,52 @@ class AppFlowActionEntity extends Entity
         $this->badge = $badge;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getParameters(): array
+    public function getParameters(): ?array
     {
         return $this->parameters;
     }
 
     /**
-     * @param array<string, mixed> $parameters
+     * @param array<string, mixed>|null $parameters
      */
-    public function setParameters(array $parameters): void
+    public function setParameters(?array $parameters): void
     {
         $this->parameters = $parameters;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getConfig(): array
+    public function getConfig(): ?array
     {
         return $this->config;
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, mixed>|null $config
      */
-    public function setConfig(array $config): void
+    public function setConfig(?array $config): void
     {
         $this->config = $config;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function getHeaders(): array
+    public function getHeaders(): ?array
     {
         return $this->headers;
     }
@@ -157,23 +157,23 @@ class AppFlowActionEntity extends Entity
     /**
      * @param array<string, mixed> $headers
      */
-    public function setHeaders(array $headers): void
+    public function setHeaders(?array $headers): void
     {
         $this->headers = $headers;
     }
 
     /**
-     * @return array<string>
+     * @return array<string>|null
      */
-    public function getRequirements(): array
+    public function getRequirements(): ?array
     {
         return $this->requirements;
     }
 
     /**
-     * @param array<string> $requirements
+     * @param array<string>|null $requirements
      */
-    public function setRequirements(array $requirements): void
+    public function setRequirements(?array $requirements): void
     {
         $this->requirements = $requirements;
     }

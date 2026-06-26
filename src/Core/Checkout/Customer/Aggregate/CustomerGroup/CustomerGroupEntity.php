@@ -28,13 +28,13 @@ class CustomerGroupEntity extends Entity
 
     protected bool $registrationActive;
 
-    protected string $registrationTitle;
+    protected ?string $registrationTitle;
 
-    protected string $registrationIntroduction;
+    protected ?string $registrationIntroduction;
 
-    protected bool $registrationOnlyCompanyRegistration;
+    protected ?bool $registrationOnlyCompanyRegistration;
 
-    protected string $registrationSeoMetaDescription;
+    protected ?string $registrationSeoMetaDescription;
 
     protected ?SalesChannelCollection $registrationSalesChannels = null;
 
@@ -98,42 +98,42 @@ class CustomerGroupEntity extends Entity
         $this->registrationActive = $registrationActive;
     }
 
-    public function getRegistrationTitle(): string
+    public function getRegistrationTitle(): ?string
     {
         return $this->registrationTitle;
     }
 
-    public function setRegistrationTitle(string $registrationTitle): void
+    public function setRegistrationTitle(?string $registrationTitle): void
     {
         $this->registrationTitle = $registrationTitle;
     }
 
-    public function getRegistrationIntroduction(): string
+    public function getRegistrationIntroduction(): ?string
     {
         return $this->registrationIntroduction;
     }
 
-    public function setRegistrationIntroduction(string $registrationIntroduction): void
+    public function setRegistrationIntroduction(?string $registrationIntroduction): void
     {
         $this->registrationIntroduction = $registrationIntroduction;
     }
 
-    public function getRegistrationOnlyCompanyRegistration(): bool
+    public function getRegistrationOnlyCompanyRegistration(): ?bool
     {
         return $this->registrationOnlyCompanyRegistration;
     }
 
-    public function setRegistrationOnlyCompanyRegistration(bool $registrationOnlyCompanyRegistration): void
+    public function setRegistrationOnlyCompanyRegistration(?bool $registrationOnlyCompanyRegistration): void
     {
         $this->registrationOnlyCompanyRegistration = $registrationOnlyCompanyRegistration;
     }
 
-    public function getRegistrationSeoMetaDescription(): string
+    public function getRegistrationSeoMetaDescription(): ?string
     {
         return $this->registrationSeoMetaDescription;
     }
 
-    public function setRegistrationSeoMetaDescription(string $registrationSeoMetaDescription): void
+    public function setRegistrationSeoMetaDescription(?string $registrationSeoMetaDescription): void
     {
         $this->registrationSeoMetaDescription = $registrationSeoMetaDescription;
     }

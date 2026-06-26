@@ -45,7 +45,7 @@ class UserEntity extends Entity
 
     protected bool $active;
 
-    protected bool $admin;
+    protected ?bool $admin = null;
 
     /**
      * @var array<string, mixed>|null
@@ -273,12 +273,12 @@ class UserEntity extends Entity
         $this->storeToken = $storeToken;
     }
 
-    public function isAdmin(): bool
+    public function isAdmin(): ?bool
     {
         return $this->admin;
     }
 
-    public function setAdmin(bool $admin): void
+    public function setAdmin(?bool $admin): void
     {
         $this->admin = $admin;
     }

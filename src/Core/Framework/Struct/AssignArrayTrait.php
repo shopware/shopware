@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -21,12 +22,7 @@ trait AssignArrayTrait
                 continue;
             }
 
-            try {
-                // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
-                $this->$key = $value;
-            } catch (\Error|\Exception) {
-                // nth
-            }
+            $this->assignPropertyDirectly($key, $value);
         }
 
         return $this;
@@ -84,15 +80,32 @@ trait AssignArrayTrait
         try {
             $setterMethod = 'set' . \ucfirst($propertyName);
             // @phpstan-ignore method.dynamicName (We allow dynamic setter call of all properties)
-            $this->{$setterMethod}($value);
+            $this->$setterMethod($value);
 
             return;
         } catch (\Throwable) {
+            // Direct property assignment will be tried and will fail if type is still incorrect
         }
 
+        $this->assignPropertyDirectly($propertyName, $value);
+    }
+
+    private function assignPropertyDirectly(string $propertyName, mixed $value): void
+    {
         try {
-            // @phpstan-ignore property.dynamicName (We allow dynamic property assignment)
-            $this->{$propertyName} = $value;
+            // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
+            $this->$propertyName = $value;
+        } catch (\TypeError $error) {
+            if (Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (If trait is used directly, PHPStan complains about the wrong domain) */
+                throw StructException::assignTypeError($error);
+            }
+
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Assign will fail with next major: ' . $error->getMessage(),
+                '6.7.13.0'
+            );
         } catch (\Throwable) {
         }
     }

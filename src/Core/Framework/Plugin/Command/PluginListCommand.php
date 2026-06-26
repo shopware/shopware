@@ -120,7 +120,7 @@ class PluginListCommand extends Command
 
             $pluginTable[] = [
                 $plugin->getName(),
-                mb_strimwidth($plugin->getLabel(), 0, 40, '...'),
+                mb_strimwidth($plugin->getLabel() ?? '', 0, 40, '...'),
                 $plugin->getComposerName() ?? '',
                 $plugin->getVersion(),
                 $pluginUpgradeable,

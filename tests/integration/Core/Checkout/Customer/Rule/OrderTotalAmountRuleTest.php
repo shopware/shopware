@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -27,6 +28,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -123,7 +125,11 @@ class OrderTotalAmountRuleTest extends TestCase
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/amount', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
+            if (Feature::isActive('v6.8.0.0')) {
+                static::assertSame(AtLeastOneOf::AT_LEAST_ONE_OF_ERROR, $exceptions[0]['code']);
+            } else {
+                static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
+            }
         }
     }
 

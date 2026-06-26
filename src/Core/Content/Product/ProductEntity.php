@@ -172,7 +172,7 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?UnitEntity $unit = null;
 
-    protected ProductPriceCollection $prices;
+    protected ?ProductPriceCollection $prices = null;
 
     protected ?ProductMediaEntity $cover = null;
 
@@ -268,11 +268,6 @@ class ProductEntity extends Entity implements \Stringable
      * @var array<int, string>
      */
     protected array $states = [];
-
-    public function __construct()
-    {
-        $this->prices = new ProductPriceCollection();
-    }
 
     public function __toString(): string
     {

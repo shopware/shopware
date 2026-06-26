@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -79,7 +80,7 @@ class LineItemGroupRuleTest extends TestCase
         static::assertCount(5, $constraints);
         static::assertEquals([new NotBlank(), new Type('string')], $constraints['groupId']);
         static::assertEquals([new NotBlank(), new Type('string')], $constraints['packagerKey']);
-        static::assertEquals([new NotBlank(), new Type('numeric')], $constraints['value']);
+        static::assertEquals([new NotBlank(), new AtLeastOneOf([new Type('float'), new Type('int')])], $constraints['value']);
         static::assertEquals([new NotBlank(), new Type('string')], $constraints['sorterKey']);
         static::assertEquals([new NotBlank(), new Type('container')], $constraints['rules']);
     }

@@ -72,10 +72,10 @@ class StoreServiceTest extends TestCase
 
     private function fetchUser(Context $context): ?UserEntity
     {
-        /** @var AdminApiSource $adminSource */
         $adminSource = $context->getSource();
-        /** @var string $userId */
+        static::assertInstanceOf(AdminApiSource::class, $adminSource);
         $userId = $adminSource->getUserId();
+        static::assertIsString($userId);
         $criteria = new Criteria([$userId]);
 
         return $this->getUserRepository()->search($criteria, $context)->getEntities()->first();

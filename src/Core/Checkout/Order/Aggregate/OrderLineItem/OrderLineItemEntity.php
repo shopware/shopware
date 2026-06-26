@@ -89,9 +89,9 @@ class OrderLineItemEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement. Use payload.productType instead.
      *
-     * @var array<int, string>
+     * @var array<int, string>|null
      */
-    protected array $states = [];
+    protected ?array $states = [];
 
     protected ?OrderLineItemDownloadCollection $downloads = null;
 
@@ -431,7 +431,7 @@ class OrderLineItemEntity extends Entity
             Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getPayloadValue(\'productType\')')
         );
 
-        return $this->states;
+        return $this->states ?? [];
     }
 
     /**

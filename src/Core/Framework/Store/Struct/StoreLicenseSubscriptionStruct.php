@@ -10,6 +10,33 @@ class StoreLicenseSubscriptionStruct extends Struct
 {
     protected \DateTimeInterface $expirationDate;
 
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $subscription = new self();
+
+        if (isset($data['expirationDate']) && \is_string($data['expirationDate'])) {
+            $subscription->setExpirationDate(new \DateTimeImmutable($data['expirationDate']));
+            unset($data['expirationDate']);
+        }
+
+        $subscription->assign($data);
+
+        return $subscription;
+    }
+
+    public function getExpirationDate(): \DateTimeInterface
+    {
+        return $this->expirationDate;
+    }
+
+    public function setExpirationDate(\DateTimeInterface $expirationDate): void
+    {
+        $this->expirationDate = $expirationDate;
+    }
+
     public function getApiAlias(): string
     {
         return 'store_license_subscription';

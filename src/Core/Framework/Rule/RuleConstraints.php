@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -23,6 +25,10 @@ class RuleConstraints
      */
     public static function float(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [new NotBlank(), new AtLeastOneOf([new Type('float'), new Type('int')])];
+        }
+
         return [new NotBlank(), new Type('numeric')];
     }
 
@@ -109,7 +115,7 @@ class RuleConstraints
     }
 
     /**
-     * @param array<int, string> $choices
+     * @param list<string> $choices
      *
      * @return list<Constraint>
      */

@@ -32,11 +32,14 @@ class VariantStruct extends StoreStruct
      */
     public static function fromArray(array $data): StoreStruct
     {
-        $variant = (new self())->assign($data);
+        $variant = new self();
 
         if (isset($data['discountCampaign']) && \is_array($data['discountCampaign'])) {
             $variant->setDiscountCampaign(DiscountCampaignStruct::fromArray($data['discountCampaign']));
+            unset($data['discountCampaign']);
         }
+
+        $variant->assign($data);
 
         return $variant;
     }

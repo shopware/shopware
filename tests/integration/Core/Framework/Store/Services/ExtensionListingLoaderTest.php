@@ -32,9 +32,10 @@ class ExtensionListingLoaderTest extends TestCase
     public function testServerNotReachable(): void
     {
         $this->getStoreRequestHandler()->reset();
-        $this->getStoreRequestHandler()->append(static function (): void {
-            throw new ClientException('', new Request('GET', ''), new Response(500, [], ''));
-        });
+        $this->getStoreRequestHandler()->append(
+            $this->createStoreClientException(),
+            $this->createStoreClientException(),
+        );
 
         $collection = new ExtensionCollection();
         $collection->set('myPlugin', (new ExtensionStruct())->assign(['name' => 'myPlugin', 'label' => 'Label', 'version' => '1.0.0']));
@@ -54,8 +55,8 @@ class ExtensionListingLoaderTest extends TestCase
         $collection->set('myPlugin2', (new ExtensionStruct())->assign(['name' => 'myPlugin2', 'label' => 'Label', 'version' => '1.0.0', 'installedAt' => new \DateTime()]));
         $collection = $this->extensionListingLoader->load($collection, $this->createAdminStoreContext());
 
-        /** @var ExtensionStruct $extension */
         $extension = $collection->get('SwagApp');
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertSame('app', $extension->getType());
         static::assertSame('store', $extension->getSource());
         static::assertCount(8, $collection);
@@ -71,8 +72,8 @@ class ExtensionListingLoaderTest extends TestCase
         $collection->set('SwagApp', (new ExtensionStruct())->assign(['name' => 'SwagApp', 'label' => 'Label', 'version' => '1.0.0', 'active' => true, 'type' => 'app']));
         $collection = $this->extensionListingLoader->load($collection, $this->createAdminStoreContext());
 
-        /** @var ExtensionStruct $extension */
         $extension = $collection->get('SwagApp');
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertSame('app', $extension->getType());
         static::assertSame('local', $extension->getSource());
         static::assertSame('Description', $extension->getDescription());
@@ -87,5 +88,10 @@ class ExtensionListingLoaderTest extends TestCase
         static::assertIsString($json, 'Could not read my-licenses.json file');
 
         return $json;
+    }
+
+    private function createStoreClientException(): ClientException
+    {
+        return new ClientException('', new Request('GET', ''), new Response(500, [], ''));
     }
 }

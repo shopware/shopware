@@ -65,7 +65,7 @@ class AppEntity extends Entity
     /**
      * @var list<Module>
      */
-    protected array $modules;
+    protected ?array $modules = null;
 
     /**
      * @var Module|null
@@ -75,7 +75,7 @@ class AppEntity extends Entity
     /**
      * @var list<Cookie>
      */
-    protected array $cookies;
+    protected ?array $cookies = null;
 
     /**
      * @var list<string>|null
@@ -156,7 +156,7 @@ class AppEntity extends Entity
 
     protected ?AppMcpResourceCollection $mcpResources = null;
 
-    protected int $templateLoadPriority;
+    protected ?int $templateLoadPriority = null;
 
     protected string $sourceType = 'local';
 
@@ -286,17 +286,17 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return list<Module>
+     * @return list<Module>|null
      */
-    public function getModules(): array
+    public function getModules(): ?array
     {
         return $this->modules;
     }
 
     /**
-     * @param list<Module> $modules
+     * @param list<Module>|null $modules
      */
-    public function setModules(array $modules): void
+    public function setModules(?array $modules): void
     {
         $this->modules = $modules;
     }
@@ -318,17 +318,17 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return list<Cookie>
+     * @return list<Cookie>|null
      */
-    public function getCookies(): array
+    public function getCookies(): ?array
     {
         return $this->cookies;
     }
 
     /**
-     * @param list<Cookie> $cookies
+     * @param list<Cookie>|null $cookies
      */
-    public function setCookies(array $cookies): void
+    public function setCookies(?array $cookies): void
     {
         $this->cookies = $cookies;
     }
@@ -693,7 +693,7 @@ class AppEntity extends Entity
 
     public function getTemplateLoadPriority(): int
     {
-        return $this->templateLoadPriority;
+        return $this->templateLoadPriority ?? 0;
     }
 
     public function setTemplateLoadPriority(int $templateLoadPriority): void

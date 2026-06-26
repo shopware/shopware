@@ -31,14 +31,13 @@ class ExtensionStructTest extends TestCase
     #[DataProvider('badValuesProvider')]
     public function testItThrowsOnMissingData(array $badValues): void
     {
-        static::expectException(FrameworkException::class);
+        $this->expectException(FrameworkException::class);
         ExtensionStruct::fromArray($badValues);
     }
 
     public function testItCategorizesThePermissionCollectionWhenStructIsSerialized(): void
     {
         $detailData = $this->getDetailFixture();
-        $detailData['permissions'] = new PermissionCollection($detailData['permissions']);
 
         $extension = ExtensionStruct::fromArray($detailData);
 

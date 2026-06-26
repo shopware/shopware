@@ -138,7 +138,7 @@ class DeliveryBuilderTest extends TestCase
                 ->assign([
                     'deliveryInformation' => new DeliveryInformation(10, 1, false, 5, $deliveryTime),
                     'price' => null,
-                    'shippingCostAware' => null,
+                    'shippingCostAware' => false,
                 ]),
         ])];
     }

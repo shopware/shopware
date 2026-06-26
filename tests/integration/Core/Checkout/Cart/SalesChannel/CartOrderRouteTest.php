@@ -395,7 +395,9 @@ class CartOrderRouteTest extends TestCase
         $transaction = $transactionRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($transaction);
-        static::assertContains('testValue', $transaction->getValidationData());
+        $validationData = $transaction->getValidationData();
+        static::assertIsArray($validationData);
+        static::assertContains('testValue', $validationData);
     }
 
     public function testTaxProviderAppliedIfGiven(): void

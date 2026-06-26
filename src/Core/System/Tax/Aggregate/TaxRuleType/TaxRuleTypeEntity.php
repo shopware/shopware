@@ -13,7 +13,7 @@ class TaxRuleTypeEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected string $typeName;
+    protected ?string $typeName = null;
 
     protected string $technicalName;
 
@@ -23,12 +23,12 @@ class TaxRuleTypeEntity extends Entity
 
     protected ?TaxRuleTypeTranslationCollection $translations = null;
 
-    public function getTypeName(): string
+    public function getTypeName(): ?string
     {
         return $this->typeName;
     }
 
-    public function setTypeName(string $typeName): void
+    public function setTypeName(?string $typeName): void
     {
         $this->typeName = $typeName;
     }

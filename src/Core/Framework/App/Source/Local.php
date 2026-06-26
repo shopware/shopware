@@ -37,12 +37,14 @@ readonly class Local implements Source
 
     public function filesystem(AppEntity|Manifest $app): Filesystem
     {
+        $appPath = $app->getPath();
+
         return new Filesystem(
             match (true) {
-                $app instanceof AppEntity => str_starts_with($app->getPath(), $this->projectRoot)
-                        ? $app->getPath()
-                        : Path::join($this->projectRoot, $app->getPath()),
-                $app instanceof Manifest => $app->getPath(),
+                $app instanceof AppEntity => str_starts_with($appPath, $this->projectRoot)
+                        ? $appPath
+                        : Path::join($this->projectRoot, $appPath),
+                $app instanceof Manifest => $appPath,
             }
         );
     }

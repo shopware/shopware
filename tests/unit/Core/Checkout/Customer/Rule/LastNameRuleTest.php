@@ -9,16 +9,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Struct\StructException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -106,7 +106,8 @@ class LastNameRuleTest extends TestCase
         static::assertTrue($this->rule->match($scope));
     }
 
-    public function testInvalidLastName(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInvalidLastNameDeprecated(): void
     {
         $customer = new CustomerEntity();
         $customer->setLastName('shopware');
@@ -118,12 +119,14 @@ class LastNameRuleTest extends TestCase
 
         $this->rule->assign(['lastName' => true, 'operator' => Rule::OPERATOR_EQ]);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
-        } else {
-            $this->expectException(CustomerException::class);
-        }
-        static::assertFalse($this->rule->match($scope));
+        $this->expectException(UnsupportedValueException::class);
+        $this->rule->match($scope);
+    }
+
+    public function testInvalidLastName(): void
+    {
+        $this->expectExceptionObject(StructException::assignTypeError(new \TypeError('Cannot assign bool to property Shopware\Core\Checkout\Customer\Rule\LastNameRule::$lastName of type ?string')));
+        $this->rule->assign(['lastName' => true, 'operator' => Rule::OPERATOR_EQ]);
     }
 
     public function testInvalidScopeIsFalse(): void

@@ -186,7 +186,7 @@ class PromotionDeliveryCalculator
             }
 
             // add all exclusions to the stack
-            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
+            foreach ($discountItem->getPayloadValue('exclusions') ?? [] as $id) {
                 // check if the promotion is active by its conditions
                 if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
                     $exclusions[$id] = true;

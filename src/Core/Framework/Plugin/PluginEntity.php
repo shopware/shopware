@@ -52,7 +52,7 @@ class PluginEntity extends Entity
 
     protected ?string $icon = null;
 
-    protected string $label;
+    protected ?string $label = null;
 
     protected ?string $description = null;
 
@@ -243,12 +243,12 @@ class PluginEntity extends Entity
         $this->icon = $icon;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\Struct\StructException;
 
 /**
  * @internal
@@ -115,7 +115,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowIfNonStructGiven(): void
     {
-        $this->expectExceptionObject(new InvalidArgumentException('Unable to unserialize a non-struct class: stdClass'));
+        $this->expectExceptionObject(StructException::normalizeError('Unable to unserialize a non-struct class: stdClass'));
 
         $this->normalizer->denormalize(['_class' => 'stdClass']);
     }
@@ -134,7 +134,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowWithNonProvidedConstructorParameters(): void
     {
-        $this->expectExceptionObject(new InvalidArgumentException('Required constructor parameter missing: "$name".'));
+        $this->expectExceptionObject(StructException::normalizeError('Required constructor parameter missing: "$name".'));
 
         $this->normalizer->denormalize(['_class' => ConstructorStruct::class]);
     }
@@ -183,7 +183,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeWithNonExistingClass(): void
     {
-        $this->expectExceptionObject(new InvalidArgumentException('Class "ThisClass\DoesNot\Exists" does not exist'));
+        $this->expectExceptionObject(StructException::normalizeError('Class "ThisClass\DoesNot\Exists" does not exist'));
 
         $this->normalizer->denormalize(['_class' => 'ThisClass\DoesNot\Exists']);
     }

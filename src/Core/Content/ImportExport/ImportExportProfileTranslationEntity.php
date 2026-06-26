@@ -16,7 +16,7 @@ class ImportExportProfileTranslationEntity extends TranslationEntity
 
     protected ?string $label = null;
 
-    protected ImportExportProfileEntity $importExportProfile;
+    protected ?ImportExportProfileEntity $importExportProfile = null;
 
     public function getImportExportProfileId(): string
     {
@@ -58,7 +58,7 @@ class ImportExportProfileTranslationEntity extends TranslationEntity
         $this->label = $label;
     }
 
-    public function getImportExportProfile(): ImportExportProfileEntity
+    public function getImportExportProfile(): ?ImportExportProfileEntity
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',

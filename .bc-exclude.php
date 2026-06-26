@@ -139,5 +139,10 @@ return [
         preg_quote('REMOVED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$displayAsGroup was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#isDisplayAsGroup() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
+
+        // Properties and getter and setter missed nullable types
+        'CHANGED: The return type of .*Entity#.* changed from .* to .*|null',
+        'CHANGED: The parameter .* of .*Entity#.* changed from .* to',
+        'REMOVED: Method .*Entity#__construct\(\) was removed',
     ],
 ];

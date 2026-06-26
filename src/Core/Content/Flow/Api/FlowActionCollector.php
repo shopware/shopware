@@ -59,7 +59,7 @@ class FlowActionCollector
         foreach ($appActions as $action) {
             $definition = new FlowActionDefinition(
                 $action->getName(),
-                $action->getRequirements(),
+                $action->getRequirements() ?? [],
                 $action->getDelayable()
             );
 

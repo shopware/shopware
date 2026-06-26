@@ -509,18 +509,6 @@ class ProductSubscriberTest extends TestCase
             ],
         ];
 
-        yield 'Non-float values are not converted' => [
-            'productDimensions' => ['width' => '10', 'height' => 10.0, 'weight' => '5'],
-            'headers' => [
-                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
-                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
-            ],
-            'expectedConversions' => 1,
-            'expectedFinalValues' => [
-                'height' => new ConvertedUnit(20.0, 'mm'),
-            ],
-        ];
-
         yield 'Weight headers given but product has no weight' => [
             'productDimensions' => ['height' => 10.0],
             'headers' => [

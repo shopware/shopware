@@ -4,10 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\StructException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestCollection;
 use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct;
 
@@ -19,6 +23,12 @@ class AssignArrayTraitTest extends TestCase
 {
     public function testSerializedAssign(): void
     {
+        $stdClass = new \stdClass();
+        $arrayStruct = new ArrayStruct();
+        $assignTestStruct = (new AssignTestStruct([]))->assign(['string' => 'Hello World', 'float' => 123.456]);
+        $collection = new ProductCollection();
+        $assignTestCollection = new AssignTestCollection([$assignTestStruct]);
+
         $data = [
             'id' => 'some-uuid',
             'int' => 1,
@@ -26,13 +36,13 @@ class AssignArrayTraitTest extends TestCase
             'string' => 'some-string',
             'bool' => true,
             'array' => ['key' => 'value'],
-            'stdClass' => ['property' => 'value'],
-            'struct' => ['property' => 'value'],
-            'assignTestStruct' => ['string' => 'value'],
-            'mixedType' => ['string' => 'other-value'],
-            'collection' => [['firstElementProperty' => 'value'], ['secondElementProperty' => 'value']],
-            'assignCollection' => [['string' => 'Hello World'], ['float' => 123.456]],
-            'doubleTypeCollection' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
+            'stdClass' => $stdClass,
+            'struct' => $arrayStruct,
+            'assignTestStruct' => $assignTestStruct,
+            'mixedType' => $stdClass,
+            'collection' => $collection,
+            'assignCollection' => $assignTestCollection,
+            'doubleTypeCollection' => $collection,
             'randomArrayProperty' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
         ];
 
@@ -45,13 +55,13 @@ class AssignArrayTraitTest extends TestCase
         static::assertSame($data['string'], $struct->getString());
         static::assertSame($data['bool'], $struct->getBool());
         static::assertSame($data['array'], $struct->getArray());
-        static::assertNull($struct->getStdClass());
-        static::assertNull($struct->getStruct());
-        static::assertNull($struct->getAssignTestStruct());
-        static::assertNull($struct->getMixedType());
-        static::assertNull($struct->getCollection());
-        static::assertNull($struct->getAssignCollection());
-        static::assertNull($struct->getDoubleTypeCollection());
+        static::assertSame($stdClass, $struct->getStdClass());
+        static::assertSame($arrayStruct, $struct->getStruct());
+        static::assertSame($assignTestStruct, $struct->getAssignTestStruct());
+        static::assertSame($stdClass, $struct->getMixedType());
+        static::assertSame($collection, $struct->getCollection());
+        static::assertSame($assignTestCollection, $struct->getAssignCollection());
+        static::assertSame($collection, $struct->getDoubleTypeCollection());
     }
 
     public function testAssignObjectNotRecursive(): void
@@ -201,11 +211,18 @@ class AssignArrayTraitTest extends TestCase
         static::assertArrayNotHasKey('_uniqueIdentifier', $empty->getVars());
     }
 
-    public function testAssignWithWrongType(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testAssignWithWrongTypeDeprecated(): void
     {
         $struct = (new AssignTestStruct([]))->assignRecursive(['int' => 'im-a-string']);
 
         static::assertNull($struct->getInt());
+    }
+
+    public function testAssignWithWrongType(): void
+    {
+        $this->expectExceptionObject(StructException::assignTypeError(new \TypeError('Cannot assign string to property Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct::$int of type ?int')));
+        (new AssignTestStruct([]))->assignRecursive(['int' => 'im-a-string']);
     }
 
     public function testIntersectionType(): void
@@ -283,14 +300,22 @@ class AssignArrayTraitTest extends TestCase
         static::assertNull($struct->getStdClass());
     }
 
-    public function testAssignWithDifferentType(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testAssignWithDifferentTypeDeprecated(): void
     {
         $struct = (new AssignTestStruct([]))->assignRecursive(['stdClass' => new AssignTestStruct([])]);
 
         static::assertNull($struct->getStdClass());
     }
 
-    public function testAssignNotNullableProperty(): void
+    public function testAssignWithDifferentType(): void
+    {
+        $this->expectExceptionObject(StructException::assignTypeError(new \TypeError('Cannot assign Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct to property Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct::$stdClass of type ?stdClass')));
+        (new AssignTestStruct([]))->assignRecursive(['stdClass' => new AssignTestStruct([])]);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testAssignNotNullablePropertyDeprecated(): void
     {
         $struct = (new AssignTestStruct([]))->assignRecursive(['notNullableString' => 'some-string']);
 
@@ -299,5 +324,15 @@ class AssignArrayTraitTest extends TestCase
         $struct->assignRecursive(['notNullableString' => null]);
 
         static::assertSame('some-string', $struct->getNotNullableString());
+    }
+
+    public function testAssignNotNullableProperty(): void
+    {
+        $struct = (new AssignTestStruct([]))->assignRecursive(['notNullableString' => 'some-string']);
+
+        static::assertSame('some-string', $struct->getNotNullableString());
+
+        $this->expectExceptionObject(StructException::assignTypeError(new \TypeError('Cannot assign null to property Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct::$notNullableString of type string')));
+        $struct->assignRecursive(['notNullableString' => null]);
     }
 }

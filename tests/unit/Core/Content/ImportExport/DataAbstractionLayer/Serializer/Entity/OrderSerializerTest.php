@@ -59,7 +59,7 @@ class OrderSerializerTest extends TestCase
      * @param array<mixed> $expected
      */
     #[DataProvider('serializeDataProvider')]
-    public function testSerialize($entity, array $expected): void
+    public function testSerialize(array|Struct|null $entity, array $expected): void
     {
         $logEntity = new ImportExportLogEntity();
         $logEntity->setId(Uuid::randomHex());
@@ -377,7 +377,6 @@ class OrderSerializerTest extends TestCase
                     'zipcode' => 'billing-address-zipcode',
                 ]),
             ]),
-            'billingAddressVersionId' => null,
         ];
 
         $mergedData = array_merge_recursive($rawData, $data);
@@ -574,7 +573,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => new StateMachineStateEntity(),
-            'stateId' => null,
         ]);
 
         $transaction2 = (new OrderTransactionEntity())->assign([
@@ -586,7 +584,6 @@ class OrderSerializerTest extends TestCase
                 new TaxRuleCollection(),
             ),
             'stateMachineState' => null,
-            'stateId' => null,
         ]);
 
         return new OrderTransactionCollection([$transaction1, $transaction2]);

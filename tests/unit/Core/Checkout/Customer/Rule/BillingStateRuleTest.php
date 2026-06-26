@@ -13,9 +13,11 @@ use Shopware\Core\Checkout\Customer\Rule\BillingStateRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Struct\StructException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -100,7 +102,8 @@ class BillingStateRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
-    public function testValidationWithInvalidStateIds(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testValidationWithInvalidStateIdsDeprecated(): void
     {
         $customer = new CustomerEntity();
         $address = new CustomerAddressEntity();
@@ -113,6 +116,12 @@ class BillingStateRuleTest extends TestCase
 
         $this->rule->assign(['stateIds' => 'COUNTRY-ID-1', 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($scope));
+    }
+
+    public function testValidationWithInvalidStateIds(): void
+    {
+        $this->expectExceptionObject(StructException::assignTypeError(new \TypeError('Cannot assign string to property Shopware\Core\Checkout\Customer\Rule\BillingStateRule::$stateIds of type ?array')));
+        $this->rule->assign(['stateIds' => 'COUNTRY-ID-1', 'operator' => Rule::OPERATOR_EQ]);
     }
 
     public function testValidationWithArrayOfInvalidStateIdTypes(): void

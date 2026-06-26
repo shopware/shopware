@@ -96,7 +96,7 @@ class ModuleLoader
     {
         $modules = [];
 
-        foreach ($app->getModules() as $module) {
+        foreach ($app->getModules() ?? [] as $module) {
             $module['source'] = $this->getModuleUrlWithQuery($app, $module, $context);
             $modules[] = $module;
         }

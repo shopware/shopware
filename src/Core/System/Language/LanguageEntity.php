@@ -14,9 +14,9 @@ use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationEnt
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
 use Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
-use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
@@ -50,7 +50,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeCollection;
+use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationCollection;
@@ -150,13 +150,13 @@ class LanguageEntity extends Entity
      */
     protected ?EntityCollection $cmsSlotTranslations = null;
 
-    protected ?MailTemplateCollection $mailTemplateTranslations = null;
+    protected ?MailTemplateTranslationCollection $mailTemplateTranslations = null;
 
-    protected ?MailHeaderFooterCollection $mailHeaderFooterTranslations = null;
+    protected ?MailHeaderFooterTranslationCollection $mailHeaderFooterTranslations = null;
 
     protected ?DocumentTypeTranslationCollection $documentTypeTranslations = null;
 
-    protected ?DeliveryTimeCollection $deliveryTimeTranslations = null;
+    protected ?DeliveryTimeTranslationCollection $deliveryTimeTranslations = null;
 
     protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
@@ -168,7 +168,7 @@ class LanguageEntity extends Entity
 
     protected ?ProductKeywordDictionaryCollection $productKeywordDictionaries = null;
 
-    protected ?MailTemplateTypeDefinition $mailTemplateTypeTranslations = null;
+    protected ?MailTemplateTypeTranslationCollection $mailTemplateTypeTranslations = null;
 
     protected ?PromotionTranslationCollection $promotionTranslations = null;
 
@@ -210,12 +210,12 @@ class LanguageEntity extends Entity
 
     protected ?TaxProviderTranslationCollection $taxProviderTranslations = null;
 
-    public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
+    public function getMailHeaderFooterTranslations(): ?MailHeaderFooterTranslationCollection
     {
         return $this->mailHeaderFooterTranslations;
     }
 
-    public function setMailHeaderFooterTranslations(MailHeaderFooterCollection $mailHeaderFooterTranslations): void
+    public function setMailHeaderFooterTranslations(MailHeaderFooterTranslationCollection $mailHeaderFooterTranslations): void
     {
         $this->mailHeaderFooterTranslations = $mailHeaderFooterTranslations;
     }
@@ -604,12 +604,12 @@ class LanguageEntity extends Entity
         $this->cmsSlotTranslations = $cmsSlotTranslations;
     }
 
-    public function getMailTemplateTranslations(): ?MailTemplateCollection
+    public function getMailTemplateTranslations(): ?MailTemplateTranslationCollection
     {
         return $this->mailTemplateTranslations;
     }
 
-    public function setMailTemplateTranslations(MailTemplateCollection $mailTemplateTranslations): void
+    public function setMailTemplateTranslations(MailTemplateTranslationCollection $mailTemplateTranslations): void
     {
         $this->mailTemplateTranslations = $mailTemplateTranslations;
     }
@@ -624,12 +624,12 @@ class LanguageEntity extends Entity
         $this->documentTypeTranslations = $documentTypeTranslations;
     }
 
-    public function getDeliveryTimeTranslations(): ?DeliveryTimeCollection
+    public function getDeliveryTimeTranslations(): ?DeliveryTimeTranslationCollection
     {
         return $this->deliveryTimeTranslations;
     }
 
-    public function setDeliveryTimeTranslations(DeliveryTimeCollection $deliveryTimeTranslations): void
+    public function setDeliveryTimeTranslations(DeliveryTimeTranslationCollection $deliveryTimeTranslations): void
     {
         $this->deliveryTimeTranslations = $deliveryTimeTranslations;
     }
@@ -664,12 +664,12 @@ class LanguageEntity extends Entity
         $this->numberRangeTypeTranslations = $numberRangeTypeTranslations;
     }
 
-    public function getMailTemplateTypeTranslations(): ?MailTemplateTypeDefinition
+    public function getMailTemplateTypeTranslations(): ?MailTemplateTypeTranslationCollection
     {
         return $this->mailTemplateTypeTranslations;
     }
 
-    public function setMailTemplateTypeTranslations(MailTemplateTypeDefinition $mailTemplateTypeTranslations): void
+    public function setMailTemplateTypeTranslations(MailTemplateTypeTranslationCollection $mailTemplateTypeTranslations): void
     {
         $this->mailTemplateTypeTranslations = $mailTemplateTypeTranslations;
     }

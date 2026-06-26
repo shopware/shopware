@@ -86,13 +86,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $criteria = new Criteria([$this->ids->get('order')]);
         $criteria->addAssociation('lineItems');
 
-        /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
             ->search($criteria, $this->salesChannelContext->getContext())
             ->first();
 
-        static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
@@ -114,13 +113,12 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $criteria = new Criteria([$this->ids->create('order')]);
         $criteria->addAssociation('lineItems');
 
-        /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItems = $order->getLineItems();
 
@@ -135,6 +133,8 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNotNull($lineItem2);
         static::assertNotNull($lineItem3);
         static::assertNotNull($lineItem4);
+
+        //        dd($lineItem1, $lineItem2, $lineItem3, $lineItem4);
 
         $event = new EntityWrittenEvent('order_line_item', [
             new EntityWriteResult($lineItem1->getId(), $lineItem1->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),

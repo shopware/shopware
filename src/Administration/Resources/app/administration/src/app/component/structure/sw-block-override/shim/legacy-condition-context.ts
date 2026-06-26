@@ -86,6 +86,7 @@ export type LegacyConditionCaseOptions = {
 export type LegacyConditionCaseReservation = {
     caseStartIndex: number;
     caseCount: number;
+    startsChain?: boolean;
 };
 
 const legacyConditionContext: Record<string, LegacyConditionChain> = {};
@@ -365,12 +366,19 @@ function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): bool
  * reserveLegacyConditionCases('sw_card:0', { caseStartIndex: 1, caseCount: 2 });
  */
 function reserveLegacyConditionCases(chainKey: string, reservation: LegacyConditionCaseReservation): void {
-    const chain = legacyConditionContext[chainKey];
-
-    if (!chain || reservation.caseCount < 1) {
+    if (reservation.caseCount < 1) {
         return;
     }
 
+    if (!legacyConditionContext[chainKey]) {
+        if (reservation.startsChain !== true) {
+            return;
+        }
+
+        legacyConditionContext[chainKey] = createLegacyConditionChain();
+    }
+
+    const chain = legacyConditionContext[chainKey];
     chain.persistent = true;
 
     const caseList = chain.shimExtensionCases;

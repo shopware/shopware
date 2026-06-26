@@ -127,6 +127,33 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         });
     });
 
+    it('creates pending extension cases for a Twig-started shim chain', () => {
+        reserveLegacyConditionCases('test', {
+            caseStartIndex: 0,
+            caseCount: 1,
+            startsChain: true,
+        });
+
+        expect(legacyElse('test', shimCase(1))).toBe(false);
+        expect(legacyIf('test', false, shimCase(0, true))).toBe(false);
+        expect(legacyElse('test', shimCase(1))).toBe(true);
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                defaultSlotCases: [],
+                shimExtensionCases: [
+                    {
+                        result: false,
+                        isStartingCondition: true,
+                    },
+                    caseResult(true),
+                ],
+                nativeExtensionCases: [],
+                persistent: true,
+                keepShimResultsForNextReservation: true,
+            },
+        });
+    });
+
     it('updates parent else cases when reserved extension cases resolve', async () => {
         const { nextTick, watchEffect } = await import('vue');
         const parentElseResults = [];

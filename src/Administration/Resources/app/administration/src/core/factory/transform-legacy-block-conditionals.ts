@@ -53,6 +53,7 @@ export type LegacyConditionCaseReservation = {
     chainKey: string;
     caseCount: number;
     caseStartIndex: number;
+    startsChain?: boolean;
 };
 
 /**
@@ -861,6 +862,7 @@ export function transformLegacyTwigBlockSequenceConditionals(
                         chainKey: getChainKeyForRewrite(chain, 'shimExtension', continuationContext),
                         caseStartIndex: chain.caseStartIndex ?? 0,
                         caseCount: chain.children.length,
+                        ...(chain.starting ? { startsChain: true } : {}),
                     })),
             );
             chains.forEach((chain) => {
@@ -911,9 +913,22 @@ function ensureLegacyTwigBlockIndex(): void {
 
     legacyTwigBlockIndex.clear();
 
-    indexedLegacyTwigBlockEntries.forEach(({ componentName, entries }) => {
+    for (let entryIndex = 0; entryIndex < indexedLegacyTwigBlockEntries.length; entryIndex += 1) {
+        const { componentName } = indexedLegacyTwigBlockEntries[entryIndex];
+        const groupedEntries: LegacyTwigBlockSequenceEntry[] = [];
+
+        while (
+            entryIndex < indexedLegacyTwigBlockEntries.length &&
+            indexedLegacyTwigBlockEntries[entryIndex].componentName === componentName
+        ) {
+            groupedEntries.push(...indexedLegacyTwigBlockEntries[entryIndex].entries);
+            entryIndex += 1;
+        }
+
+        entryIndex -= 1;
+
         const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
-            entries,
+            groupedEntries,
             componentName,
             collectExistingCaseStartIndices(),
         );
@@ -929,7 +944,7 @@ function ensureLegacyTwigBlockIndex(): void {
 
             legacyTwigBlockIndex.set(entry.blockName, existing);
         });
-    });
+    }
 
     legacyTwigBlockIndexDirty = false;
     legacyTwigBlockIndexVersion = legacyConditionContinuationContextVersion;

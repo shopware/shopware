@@ -133,6 +133,54 @@ describe('core/factory/twig-block-index.ts', () => {
             ]);
         });
 
+        it('rewrites Twig-started condition chains across separate overrides', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-if="conditionFromPluginOne" class="plugin-one-condition">Plugin one</h1>
+                {% endblock %}
+            `,
+            );
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-else class="plugin-two-fallback">Plugin two fallback</h1>
+                {% endblock %}
+            `,
+            );
+
+            const [
+                pluginOne,
+                pluginTwo,
+            ] = getBlockEntries('twig_started_condition_block');
+
+            expect(pluginOne.innerTemplate).toContain(
+                `v-if="$swLegacyBlockIf('twig_started_condition_block:0', conditionFromPluginOne, ${options(0, true, 'shimExtension')})"`,
+            );
+            expect(pluginOne.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'twig_started_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                    startsChain: true,
+                },
+            ]);
+            expect(pluginTwo.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('twig_started_condition_block:0', ${options(1, false, 'shimExtension')})"`,
+            );
+            expect(pluginTwo.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'twig_started_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 1,
+                },
+            ]);
+        });
+
         it('rebuilds indexed Twig condition chains with native continuation aliases', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',

@@ -287,4 +287,57 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
 
         expectOnlyBranch(wrapper, branches, null);
     });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('renders a later legacy Twig fallback after an earlier legacy Twig v-if misses', async () => {
+        ComponentFactory.register('native-block-legacy-twig-started-chain', {
+            data() {
+                return {
+                    conditionFromPluginOne: false,
+                };
+            },
+            template: `
+                <div>
+                    <sw-block name="twig_started_condition_block" :data="$dataScope()">
+                        <div class="default-content">Default</div>
+                    </sw-block>
+                </div>
+            `,
+        });
+
+        ComponentFactory.override('native-block-legacy-twig-started-chain', {
+            template: `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-if="conditionFromPluginOne" class="plugin-one-condition">Plugin one</h1>
+                {% endblock %}
+            `,
+        });
+
+        ComponentFactory.override('native-block-legacy-twig-started-chain', {
+            template: `
+                {% block twig_started_condition_block %}
+                    {% parent %}
+                    <h1 v-else class="plugin-two-fallback">Plugin two fallback</h1>
+                {% endblock %}
+            `,
+        });
+
+        const wrapper = await withMutedConsoleWarn(() => {
+            return mountNativeBlockComponent('native-block-legacy-twig-started-chain');
+        });
+        const branches = [
+            '.plugin-one-condition',
+            '.plugin-two-fallback',
+        ];
+
+        await settleLegacyChain(wrapper);
+
+        expectOnlyBranch(wrapper, branches, '.plugin-two-fallback');
+
+        await wrapper.setData({ conditionFromPluginOne: true });
+        await settleLegacyChain(wrapper);
+
+        expectOnlyBranch(wrapper, branches, '.plugin-one-condition');
+    });
 });

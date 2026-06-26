@@ -78,7 +78,7 @@ jobs:
           echo "$SW_IMPACT_BIN_DIR" >> "$GITHUB_PATH"
 
       - name: Checkout base ref
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base_ref }}
           persist-credentials: false
@@ -87,7 +87,7 @@ jobs:
         run: sw-impact index . --index "$SW_IMPACT_INDEX"
 
       - name: Checkout change ref
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.change_ref }}

@@ -167,7 +167,7 @@ jobs:
 
       - name: Run OpenAPI Snapshot Action
         if: github.repository == 'shopware/shopware'
-        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        uses: patzick/explore-openapi-snapshot@4cfd85875214ee1653e0680756b2dddaafde42f2 # v2.1.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware/store-api"
@@ -194,7 +194,7 @@ jobs:
 
       - name: Run OpenAPI Snapshot Action for AdminAPI
         if: github.repository == 'shopware/shopware'
-        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        uses: patzick/explore-openapi-snapshot@4cfd85875214ee1653e0680756b2dddaafde42f2 # v2.1.0
         with:
           schema-file: "./api-types/adminApiSchema.json"
           project: "shopware/admin-api"

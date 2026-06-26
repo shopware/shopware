@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -15,6 +16,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -113,6 +118,59 @@ class ElementStyleFieldSerializerTest extends TestCase
         static::assertSame(['col-span' => ['md' => 6]], $result->toArray());
     }
 
+    #[TestDox('encode yields the JSON-encoded array for an ElementStyle value')]
+    public function testEncodeYieldsJsonForElementStyle(): void
+    {
+        $pair = new KeyValuePair('style', new ElementStyle(['col-span' => ['md' => 6]]), false);
+
+        $result = iterator_to_array(
+            $this->encodingSerializer()->encode($this->field, $this->existence(), $pair, $this->parameters())
+        );
+
+        static::assertArrayHasKey('style', $result);
+        static::assertIsString($result['style']);
+        static::assertSame(['col-span' => ['md' => 6]], json_decode($result['style'], true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    #[TestDox('encode yields null for a null value')]
+    public function testEncodeYieldsNullForNull(): void
+    {
+        $pair = new KeyValuePair('style', null, false);
+
+        $result = iterator_to_array(
+            $this->encodingSerializer()->encode($this->field, $this->existence(), $pair, $this->parameters())
+        );
+
+        static::assertArrayHasKey('style', $result);
+        static::assertNull($result['style']);
+    }
+
+    #[TestDox('encode throws an invalid value type for a non-array non-ElementStyle value')]
+    public function testEncodeThrowsForInvalidValueType(): void
+    {
+        $pair = new KeyValuePair('style', 42, false);
+
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('style', 'array|ElementStyle', 'integer')
+        );
+
+        iterator_to_array(
+            $this->encodingSerializer()->encode($this->field, $this->existence(), $pair, $this->parameters())
+        );
+    }
+
+    #[TestDox('encode rejects a field that is not an ElementStyleField')]
+    public function testEncodeRejectsWrongField(): void
+    {
+        $pair = new KeyValuePair('style', null, false);
+
+        $this->expectExceptionObject(ContentSystemException::invalidFieldType(ElementStyleField::class, StringField::class));
+
+        iterator_to_array(
+            $this->encodingSerializer()->encode(new StringField('x', 'x'), $this->existence(), $pair, $this->parameters())
+        );
+    }
+
     /**
      * @param array<string, mixed> $style
      */
@@ -204,6 +262,36 @@ class ElementStyleFieldSerializerTest extends TestCase
             $registry,
             new StyleOptionConstraintDeriver(),
         );
+    }
+
+    /**
+     * encode() runs validateIfNeeded before serializing; a passthrough validator lets the contract tests
+     * exercise the encode branches without composing the full constraint set.
+     */
+    private function encodingSerializer(): ElementStyleFieldSerializer
+    {
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn($this->options());
+
+        return new ElementStyleFieldSerializer(
+            $validator,
+            static::createStub(DefinitionInstanceRegistry::class),
+            $registry,
+            new StyleOptionConstraintDeriver(),
+        );
+    }
+
+    private function existence(): EntityExistence
+    {
+        return new EntityExistence('content_layout', ['id' => 'test'], true, false, false, []);
+    }
+
+    private function parameters(): WriteParameterBag
+    {
+        return static::createStub(WriteParameterBag::class);
     }
 
     /**

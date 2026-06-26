@@ -119,11 +119,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     &__type {
         &--v2 {
-            background-color: var(--color-background-tertiary-default);
-            color: var(--color-static-white);
+            background-color: var(--color-static-white);
+            color: var(--color-static-black);
             display: flex;
             align-items: center;
             padding: 5px 12px;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $sw-search-bar-border-radius;
             flex-shrink: 0;
             font-weight: var(--font-weight-semibold);

@@ -98,7 +98,7 @@ export default {
             ];
         },
 
-        showGlobalSalesChannelSwitch() {
+        showGlobalSection() {
             if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
                 return this.showTabs || this.config.at(0)?.cards.length > 1;
             }

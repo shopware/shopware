@@ -1,13 +1,29 @@
 {% block sw_system_config %}
 <div class="sw-system-config">
     <div
-        v-if="salesChannelSwitchable && showGlobalSalesChannelSwitch"
-        class="sw-system-config__global-sales-channel-switch"
+        v-if="showGlobalSection"
+        class="sw-system-config__global-section"
     >
-        <sw-sales-channel-switch
-            :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
-            @change-sales-channel-id="onSalesChannelChanged"
-        />
+        <template v-if="hasCssFields">
+            {% block sw_system_config_global_compile_notice %}
+            <mt-banner
+                class="sw-system-config__global-compile-notice"
+                variant="attention"
+            >
+                {{ $t('sw-settings.system-config.compileNotice') }}
+            </mt-banner>
+            {% endblock %}
+        </template>
+
+        <div
+            v-if="salesChannelSwitchable"
+            class="sw-system-config__global-sales-channel-switch"
+        >
+            <sw-sales-channel-switch
+                :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
+                @change-sales-channel-id="onSalesChannelChanged"
+            />
+        </div>
     </div>
 
     {% block sw_system_config_content_tabs %}
@@ -46,7 +62,7 @@
                 ></slot>
 
                 <template
-                    v-if="salesChannelSwitchable && !showGlobalSalesChannelSwitch"
+                    v-if="salesChannelSwitchable && !showGlobalSection"
                     #toolbar
                 >
                     <sw-sales-channel-switch
@@ -55,9 +71,12 @@
                     />
                 </template>
 
-                <template v-if="hasCssFields">
+                <template v-if="hasCssFields && !showGlobalSection">
                     {% block sw_system_config_content_compile_notice %}
-                    <mt-banner variant="attention">
+                    <mt-banner
+                        class="sw-system-config__compile-notice"
+                        variant="attention"
+                    >
                         {{ $t('sw-settings.system-config.compileNotice') }}
                     </mt-banner>
                     {% endblock %}

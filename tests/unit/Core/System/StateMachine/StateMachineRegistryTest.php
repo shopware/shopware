@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\StateMachine;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -42,6 +43,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase
 {
+    private int $transactionalCalls = 0;
+
     public function testTransitionWritesHistoryAndUpdatesEntityInsideLock(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId', 'internal comment');
@@ -81,6 +84,53 @@ class StateMachineRegistryTest extends TestCase
         static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
         static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
         static::assertCount(3, $dispatcher->events);
+    }
+
+    public function testTransitionDoesNotUpdateStateWhenHistoryWriteFails(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+
+        // The history entry is written first inside the transaction; if it fails, the state must not be
+        // updated, so no entity-written events are dispatched for a state change that never commits.
+        $fixture->historyRepository->method('create')
+            ->willThrowException(new \RuntimeException('history write failed'));
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $this->expectExceptionObject(new \RuntimeException('history write failed'));
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    public function testTransitionWritesHistoryAndStateInsideTransaction(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher());
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create');
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert');
+
+        $fixture->registry->transition($transition, $context);
+
+        // The history and state writes must be performed inside a single transaction.
+        static::assertSame(1, $this->transactionalCalls);
     }
 
     public function testTransitionSkipsWritesAndEventsForUnnecessaryTransition(): void
@@ -231,8 +281,22 @@ class StateMachineRegistryTest extends TestCase
             $this->createMock(EntityRepository::class),
             $dispatcher,
             $this->createMock(DefinitionInstanceRegistry::class),
-            $locker
+            $locker,
+            $this->createConnection()
         );
+    }
+
+    private function createConnection(): Connection&MockObject
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('transactional')
+            ->willReturnCallback(function (\Closure $func): mixed {
+                ++$this->transactionalCalls;
+
+                return $func();
+            });
+
+        return $connection;
     }
 
     private function createRegistryFixture(
@@ -290,7 +354,8 @@ class StateMachineRegistryTest extends TestCase
                 $historyRepository,
                 $dispatcher,
                 $definitionRegistry,
-                $locker
+                $locker,
+                $this->createConnection()
             ),
             $entityRepository,
             $historyRepository

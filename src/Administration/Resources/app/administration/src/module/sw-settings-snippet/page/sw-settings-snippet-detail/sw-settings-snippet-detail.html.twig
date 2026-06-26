@@ -84,7 +84,7 @@
                             :placeholder="$t('sw-settings-snippet.detail.labelNamePlaceholder')"
                             :disabled="!(isCreate || isAddedSnippet)"
                             :error="invalidKeyError"
-                            @update:model-value="onChange"
+                            @update:model-value="onChange(null, $event)"
                         />
                         {% endblock %}
                     </div>
@@ -103,15 +103,31 @@
                         <mt-text-field
                             v-for="(snippet, index) in snippets"
                             :key="snippet.setId"
-                            v-model="snippet.value"
                             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                            :model-value="snippetStates[snippet.setId] === 'inherited' ? null : snippet.value"
                             name="sw-field--snippet-value"
                             :class="`sw-settings-snippet-detail__translation-field--${index}`"
                             :disabled="!acl.can('snippet.editor') || isLoadingSnippets"
                             :label="$t('sw-settings-snippet.detail.labelContent', { name: sets.get(snippet.setId).name }, 0)"
-                            :placeholder="snippet.origin || $t('sw-settings-snippet.general.placeholderValue')"
-                            @update:model-value="onChange"
-                        />
+                            :placeholder="getPlaceholder(snippet)"
+                            :is-inherited="snippetStates[snippet.setId] === 'inherited'"
+                            :is-inheritance-field="snippet._hasFileValue"
+                            @inheritance-restore="onResetSnippet(snippet)"
+                            @inheritance-remove="onRemoveInheritance(snippet)"
+                            @update:model-value="onChange(snippet, $event)"
+                        >
+                            <template
+                                v-if="snippetStates[snippet.setId] === 'overridden' || snippetStates[snippet.setId] === 'overriding'"
+                                #hint
+                            >
+                                <span class="sw-settings-snippet-detail__translation-original-label">
+                                    {{ $t('sw-settings-snippet.detail.labelOriginal') }}
+                                </span>
+                                <span class="sw-settings-snippet-detail__translation-original-value">
+                                    {{ snippet.resetTo || snippet.origin }}
+                                </span>
+                            </template>
+                        </mt-text-field>
                         {% endblock %}
                     </div>
                 </mt-card>

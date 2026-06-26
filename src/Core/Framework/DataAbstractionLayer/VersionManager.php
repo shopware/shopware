@@ -152,7 +152,7 @@ class VersionManager
         $versionContext = $context->createWithVersionId($versionId);
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $this->eventDispatcher->dispatch($event);
+        $versionContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event));
 
         $this->writeAuditLog($affected, $context, $versionId, true);
 
@@ -215,7 +215,7 @@ class VersionManager
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
-        $this->eventDispatcher->dispatch($writes);
+        $targetContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes));
 
         $versionContext->removeState(self::MERGE_SCOPE);
         $targetContext->removeState(self::MERGE_SCOPE);

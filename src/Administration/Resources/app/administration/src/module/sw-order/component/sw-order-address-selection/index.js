@@ -231,6 +231,8 @@ export default {
 
             return this.customerRepository.save(this.customer).then(() => {
                 this.currentAddress = null;
+
+                this.onAddressChange(address.id);
             });
         },
 
@@ -260,11 +262,11 @@ export default {
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.customer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;

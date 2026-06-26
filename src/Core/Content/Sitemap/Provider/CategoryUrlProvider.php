@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class CategoryUrlProvider extends AbstractUrlProvider
@@ -36,7 +36,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router,
+        private readonly EntityRouteResolver $entityRouteResolver,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -80,8 +80,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
             static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
         );
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), 'frontend.navigation.page', $context, $this->connection);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -99,8 +99,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category['id']]));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(CategoryDefinition::ENTITY_NAME, $category['id']));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

@@ -97,7 +97,7 @@ Type names must be globally unique across core, bundles, plugins, and apps. Dupl
 
 ### App Lifecycle
 
-App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its element types from the registry on the next request without any extra write. Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
+App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its element types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update). Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
 
 Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (5 core type examples)
 
@@ -184,7 +184,7 @@ Option names must be globally unique across core, bundles, plugins, and apps. Du
 
 ### App Lifecycle
 
-App activation state is read live, not denormalized onto the option rows. `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its options from the registry on the next request without any extra write. Options are persisted on app install/update by `ContentSystemStyleOptionLifecycleHandler` and cascade-deleted with the app.
+App activation state is read live, not denormalized onto the option rows. `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its options from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update). Options are persisted on app install/update by `ContentSystemStyleOptionLifecycleHandler` and cascade-deleted with the app.
 
 ### Validation Posture
 

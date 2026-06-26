@@ -17,9 +17,23 @@ on:
   workflow_run:
     workflows: ["Reproduce: analyze"] # MUST match the analyze workflow's compiled `name:`
     types: [completed]
+  # Re-run the deterministic half against an EXISTING analyze run's plan, with no new analyze
+  # (the analyze edge is gh-aw/LLM-gated; this lets a plan be re-verified after a script/seed
+  # fix without spending the agent budget). The plan + context are pulled from the given run id
+  # exactly as the workflow_run path does.
+  workflow_dispatch:
+    inputs:
+      analyze_run_id:
+        description: "Run id to re-execute the plan from — a 'Reproduce: analyze' run, or a prior 'Reproduce: execute' run (its re-published `analysis` artifact, which outlives the analyze run's short-lived plan)."
+        required: true
+        type: string
+      issue_number:
+        description: "Issue to comment on. Only needed when the source run's reproduce-context artifact has expired (e.g. pulling the plan from an old execute run)."
+        required: false
+        type: string
 
 concurrency:
-  group: reproduce-execute-${{ github.event.workflow_run.id }}
+  group: reproduce-execute-${{ github.event.workflow_run.id || inputs.analyze_run_id }}
   cancel-in-progress: false
 
 env:
@@ -38,7 +52,7 @@ jobs:
   # needs_info / noop there's no analysis.json → nothing to execute, exit clean).
   # --------------------------------------------------------------------------
   bootstrap:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -56,7 +70,19 @@ jobs:
         with:
           name: safe-outputs-upload-artifacts
           path: plan
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id || inputs.analyze_run_id }}
+          github-token: ${{ github.token }}
+      # Fallback for a manual rerun: an analyze run's plan artifact has a short retention, but
+      # every execute run re-publishes the plan as `analysis` (7-day retention). So a dispatch
+      # may also point at a prior execute run and recover the plan from there.
+      - name: Fallback — plan re-published by a prior execute run
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: analysis
+          path: plan
+          run-id: ${{ inputs.analyze_run_id }}
           github-token: ${{ github.token }}
       - name: Download reproduce context (issue number)
         continue-on-error: true
@@ -64,7 +90,7 @@ jobs:
         with:
           name: reproduce-context
           path: ctx
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id || inputs.analyze_run_id }}
           github-token: ${{ github.token }}
       - id: gate
         run: |
@@ -77,7 +103,15 @@ jobs:
           fi
       - id: ctx
         if: steps.gate.outputs.run == 'true'
-        run: echo "issue=$(jq -r '.issue_number' ctx/reproduce-context.json)" >> "$GITHUB_OUTPUT"
+        env:
+          INPUT_ISSUE: ${{ inputs.issue_number }}
+        run: |
+          set -euo pipefail
+          if [ -f ctx/reproduce-context.json ]; then
+            echo "issue=$(jq -r '.issue_number' ctx/reproduce-context.json)" >> "$GITHUB_OUTPUT"
+          else
+            echo "issue=${INPUT_ISSUE}" >> "$GITHUB_OUTPUT"
+          fi
       # Stage the plan + scripts at the workspace root so matrix.sh and the legs find them.
       - if: steps.gate.outputs.run == 'true'
         run: cp plan/* . 2>/dev/null || true

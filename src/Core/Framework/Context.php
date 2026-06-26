@@ -213,15 +213,10 @@ class Context extends Struct
         // States passed to this scope stay active; all other temporary states from parent scopes are hidden for this callback.
         $removeScopeStates = array_values(array_diff($outerScopeStates, $states));
         // Only states that were not already present are removed again when this scope exits.
-        $addScopeStates = array_values(array_filter($states, fn (string $state): bool => !$this->hasState($state)));
+        $addScopeStates = array_values(array_diff($states, $this->getStates()));
 
-        foreach ($removeScopeStates as $state) {
-            $this->removeState($state);
-        }
-
-        foreach ($addScopeStates as $state) {
-            $this->addState($state);
-        }
+        $this->removeStates(...$removeScopeStates);
+        $this->addState(...$addScopeStates);
 
         $this->scope = $scope;
         $this->scopeStates[] = $states;
@@ -231,13 +226,8 @@ class Context extends Struct
         } finally {
             array_pop($this->scopeStates);
 
-            foreach ($addScopeStates as $state) {
-                $this->removeState($state);
-            }
-
-            foreach ($removeScopeStates as $state) {
-                $this->addState($state);
-            }
+            $this->removeStates(...$addScopeStates);
+            $this->addState(...$removeScopeStates);
 
             $this->scope = $currentScope;
         }
@@ -343,5 +333,12 @@ class Context extends Struct
     public function lockRules(): void
     {
         $this->rulesLocked = true;
+    }
+
+    private function removeStates(string ...$states): void
+    {
+        foreach ($states as $state) {
+            $this->removeState($state);
+        }
     }
 }

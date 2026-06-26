@@ -128,7 +128,7 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
             return [];
         }
 
-        // Validate indexed array format (multi-root layout)
+        // Top-level is a list: each entry is an independent root element (multi-root layout)
         if (!\array_is_list($value)) {
             throw ContentSystemException::invalidFieldValueType(
                 $field->getStorageName(),

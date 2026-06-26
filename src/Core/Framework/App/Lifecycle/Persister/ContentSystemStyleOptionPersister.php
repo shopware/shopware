@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Sole write path for app style options into the database. Called during app install and update.
- * DatabaseStyleOptionLoader is the read-side counterpart. App removal is handled by the FK cascade.
+ * DatabaseStyleOptionLoader is the read-side counterpart.
  *
  * @internal
  */

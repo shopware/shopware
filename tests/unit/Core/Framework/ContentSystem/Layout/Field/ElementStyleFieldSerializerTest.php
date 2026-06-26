@@ -224,7 +224,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     #[TestDox('builds constraints fresh on each call so a changed registry is reflected on the next write')]
     public function testBuildConstraintsDerivesFreshPerCall(): void
     {
-        // The S3(c) contract: an app install/update/activation that changed the option set must take effect
+        // An app install/update/activation that changed the option set must take effect
         // on the next write without a process restart, so each call re-reads the registry (never memoizes).
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->exactly(2))->method('all')->willReturnOnConsecutiveCalls(

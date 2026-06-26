@@ -6,10 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Asserts that a style option declaration is internally consistent: enum, range, maxLength, and default
- * agree with the declared primitive type, the default also stays within the declared bounds, and adminUI
- * is an array. Cohesive single constraint rather than one per facet, because the rules share the same
- * primitive-type premise.
+ * Class-level constraint asserting a style option declaration is internally consistent. One cohesive
+ * constraint rather than one per facet, because every rule shares the same primitive-type premise.
  *
  * @internal
  */

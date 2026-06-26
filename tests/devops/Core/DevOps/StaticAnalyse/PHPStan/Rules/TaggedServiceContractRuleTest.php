@@ -7,6 +7,7 @@ use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\Contract;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\WrongContract;
 
 /**
  * @internal
@@ -29,6 +30,7 @@ class TaggedServiceContractRuleTest extends RuleTestCase
             $fixtureDir . '/MappedConsumer.php',
             $fixtureDir . '/UnmappedConsumer.php',
             $fixtureDir . '/UnmappedContract.php',
+            $fixtureDir . '/UnionMappedConsumer.php',
             $fixtureDir . '/WrongContract.php',
             $fixtureDir . '/WrongMappedConsumer.php',
         ], [
@@ -57,6 +59,7 @@ class TaggedServiceContractRuleTest extends RuleTestCase
         /** @phpstan-ignore phpstanApi.method */
         return new TaggedServiceContractRule($factory->create(), self::createReflectionProvider(), [
             'test.mapped' => Contract::class,
+            'test.union' => [Contract::class, WrongContract::class],
         ], $fixtureDir . '/container.xml');
     }
 }

@@ -56,6 +56,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -93,7 +94,7 @@ class TaggedServiceContractRule implements Rule
      * Add tags here once their tagged services are a supported extension contract.
      * Changing a class in this array is a breaking change and must not be done in a minor release.
      *
-     * @var array<string, class-string>
+     * @var array<string, class-string|list<class-string>>
      */
     private const TAG_CONTRACTS = [
         'document.renderer' => AbstractDocumentRenderer::class,
@@ -119,7 +120,7 @@ class TaggedServiceContractRule implements Rule
         /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         'shopware.elastic.admin-searcher-index' => AbstractAdminIndexer::class,
         'shopware.entity.definition' => EntityDefinition::class,
-        'shopware.entity.hookable' => EntityDefinition::class,
+        'shopware.entity.hookable' => [EntityDefinition::class, Entity::class],
         'shopware.entity.seo_url.route' => EntitySeoUrlRouteInterface::class,
         'shopware.entity_indexer' => EntityIndexer::class,
         /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
@@ -177,7 +178,7 @@ class TaggedServiceContractRule implements Rule
     private ?array $taggedArgumentsByServiceId = null;
 
     /**
-     * @param array<string, class-string> $additionalTagContracts
+     * @param array<string, class-string|list<class-string>> $additionalTagContracts
      */
     public function __construct(
         private readonly ServiceMap $serviceMap,
@@ -225,7 +226,7 @@ class TaggedServiceContractRule implements Rule
     }
 
     /**
-     * @return array<string, class-string>
+     * @return array<string, class-string|list<class-string>>
      */
     private function getTagContracts(): array
     {
@@ -253,7 +254,7 @@ class TaggedServiceContractRule implements Rule
                 $service->getId(),
                 $tagName,
                 $class->getName(),
-                $contract
+                $this->formatContracts($contract)
             ))
                 ->identifier('shopware.taggedServiceContract')
                 ->build();
@@ -280,7 +281,7 @@ class TaggedServiceContractRule implements Rule
         $contract = $tagContracts[$argument['tag']] ?? null;
 
         if ($contract !== null) {
-            if (\in_array($contract, $collectionTypes, true)) {
+            if (array_intersect($this->getContractClasses($contract), $collectionTypes) !== []) {
                 return [];
             }
 
@@ -290,7 +291,7 @@ class TaggedServiceContractRule implements Rule
                     $serviceId,
                     $argument['tag'],
                     $parameter->getName(),
-                    $contract
+                    $this->formatContracts($contract)
                 ))
                     ->identifier('shopware.taggedServiceContract')
                     ->build(),
@@ -316,7 +317,24 @@ class TaggedServiceContractRule implements Rule
         return $errors;
     }
 
-    private function isClassCompatibleWithContract(ClassReflection $class, string $contract): bool
+    /**
+     * @param class-string|list<class-string> $contract
+     */
+    private function isClassCompatibleWithContract(ClassReflection $class, string|array $contract): bool
+    {
+        foreach ($this->getContractClasses($contract) as $contractClass) {
+            if ($this->isClassCompatibleWithContractClass($class, $contractClass)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param class-string $contract
+     */
+    private function isClassCompatibleWithContractClass(ClassReflection $class, string $contract): bool
     {
         if ($class->getName() === $contract) {
             return true;
@@ -333,6 +351,24 @@ class TaggedServiceContractRule implements Rule
         }
 
         return $class->isSubclassOfClass($contractReflection);
+    }
+
+    /**
+     * @param class-string|list<class-string> $contract
+     *
+     * @return list<class-string>
+     */
+    private function getContractClasses(string|array $contract): array
+    {
+        return \is_string($contract) ? [$contract] : $contract;
+    }
+
+    /**
+     * @param class-string|list<class-string> $contract
+     */
+    private function formatContracts(string|array $contract): string
+    {
+        return implode('|', $this->getContractClasses($contract));
     }
 
     private function isPublicTaggedContractCandidate(string $className): bool

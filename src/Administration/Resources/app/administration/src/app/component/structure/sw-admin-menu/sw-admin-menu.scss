@@ -103,6 +103,25 @@
         overflow: hidden;
     }
 
+    .sw-admin-menu__off-canvas-close {
+        width: var(--scale-size-32);
+        height: var(--scale-size-32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 0;
+        border: none;
+        border-radius: var(--border-radius-s);
+        background: transparent;
+        color: var(--color-icon-primary-default);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-background-primary-disabled);
+        }
+    }
+
     .sw-admin-menu__header-logo-expand-button {
         position: absolute;
         inset: 0;

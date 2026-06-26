@@ -1,3 +1,9 @@
+parameters:
+    shopwareTaggedServiceContractAdditionalTagContracts: []
+
+parametersSchema:
+    shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(string(), string())
+
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
@@ -24,6 +30,7 @@ services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
         arguments:
+            additionalTagContracts: %shopwareTaggedServiceContractAdditionalTagContracts%
             containerXmlPath: %symfony.containerXmlPath%
         tags:
             - phpstan.rules.rule

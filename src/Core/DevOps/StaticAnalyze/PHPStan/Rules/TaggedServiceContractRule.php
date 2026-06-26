@@ -177,12 +177,12 @@ class TaggedServiceContractRule implements Rule
     private ?array $taggedArgumentsByServiceId = null;
 
     /**
-     * @param array<string, class-string>|null $tagContracts
+     * @param array<string, class-string> $additionalTagContracts
      */
     public function __construct(
         private readonly ServiceMap $serviceMap,
         private readonly ReflectionProvider $reflectionProvider,
-        private readonly ?array $tagContracts = null,
+        private readonly array $additionalTagContracts = [],
         private readonly ?string $containerXmlPath = null
     ) {
     }
@@ -229,7 +229,7 @@ class TaggedServiceContractRule implements Rule
      */
     private function getTagContracts(): array
     {
-        return $this->tagContracts ?? self::TAG_CONTRACTS;
+        return self::TAG_CONTRACTS + $this->additionalTagContracts;
     }
 
     /**
@@ -304,7 +304,7 @@ class TaggedServiceContractRule implements Rule
             }
 
             $errors[] = RuleErrorBuilder::message(\sprintf(
-                'Tagged service tag "%s" is consumed as "%s", but the tag has no declared contract in TaggedServiceContractRule::TAG_CONTRACTS. Add the tag contract or mark "%s" as @internal.',
+                'Tagged service tag "%s" is consumed as "%s", but the tag has no declared contract in TaggedServiceContractRule. Add the tag contract to the rule configuration or mark "%s" as @internal.',
                 $argument['tag'],
                 $collectionType,
                 $collectionType

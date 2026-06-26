@@ -37,7 +37,7 @@ class TaggedServiceContractRuleTest extends RuleTestCase
                 5,
             ],
             [
-                'Tagged service tag "test.unmapped" is consumed as "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedContract", but the tag has no declared contract in TaggedServiceContractRule::TAG_CONTRACTS. Add the tag contract or mark "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedContract" as @internal.',
+                'Tagged service tag "test.unmapped" is consumed as "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedContract", but the tag has no declared contract in TaggedServiceContractRule. Add the tag contract to the rule configuration or mark "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedContract" as @internal.',
                 5,
             ],
             [

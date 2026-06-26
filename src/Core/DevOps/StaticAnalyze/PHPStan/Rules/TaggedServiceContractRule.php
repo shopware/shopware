@@ -103,7 +103,7 @@ class TaggedServiceContractRule implements Rule
         $errors = [];
 
         foreach ($service->getTags() as $tag) {
-            /** @phpstan-ignore phpstanApi.method */
+            /** @phpstan-ignore phpstanApi.method (ServiceTag is returned by the public ServiceDefinition API, but this accessor is not marked API) */
             $tagName = $tag->getName();
             $contract = $this->getTagContracts()[$tagName] ?? null;
 
@@ -503,7 +503,7 @@ class TaggedServiceContractRule implements Rule
                 }
 
                 foreach ($referencedService->getTags() as $tag) {
-                    /** @phpstan-ignore phpstanApi.method */
+                    /** @phpstan-ignore phpstanApi.method (ServiceTag is returned by the public ServiceDefinition API, but this accessor is not marked API) */
                     $tagName = $tag->getName();
 
                     $tags[] = $tagName;

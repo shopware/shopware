@@ -20,7 +20,7 @@ jobs="[]"
 page=1
 while true; do
   response=$(gh api "/repos/${REPO}/actions/runs/${RUN_ID}/jobs?per_page=100&page=${page}")
-  jobs=$(jq --argjson new "$(jq '.jobs' <<<"$response")" '. + $new' <<<"$jobs")
+  jobs=$(jq -s '.[0] + .[1].jobs' <(printf '%s\n' "$jobs") <(printf '%s\n' "$response"))
 
   if [ "$(jq '.jobs | length' <<<"$response")" -lt 100 ]; then
     break

@@ -236,7 +236,7 @@ async function createWrapper(options = {}) {
                         fileName: routeFileName,
                     },
                 },
-                $te: (key) => key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
+                $te: (key) => key.includes('["llms-txt"]') || key.includes('["agents-md"]'),
             },
         },
         props: {
@@ -273,7 +273,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.text()).toContain('/llms.txt');
         expect(wrapper.text()).toContain('text/plain; charset=utf-8');
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.agenticFiles.detail.labelTemplatePath');
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]');
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms-txt"]');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.detail.showContentSources');
         expect(wrapper.text()).not.toContain('@Framework/files/agentic/llms.txt.twig');
 

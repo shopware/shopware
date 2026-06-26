@@ -33,10 +33,10 @@ class ContentSystemStyleOptionLifecycleHandler extends AbstractLifecycleHandler
 
     public function activate(AppActivationContext $context): void
     {
-        // The activating app's persisted options become live now that the app is active. Re-validate them
-        // against the current registry before invalidating, so a name that collided while the app was
-        // inactive fails the activation rather than silently shadowing another source after the refresh.
-        $this->persister->revalidateForActivation($context);
+        // The activating app's persisted options become live now that the app is active; refresh the cache
+        // so they appear immediately. Activation does not pre-validate for a cross-loader name collision: it
+        // cannot fail atomically here (active=1 is already committed before this handler runs), and the
+        // strict all() surfaces such a collision loudly with both source labels on the next write or install.
         $this->registry->invalidate();
     }
 

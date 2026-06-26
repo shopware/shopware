@@ -51,7 +51,7 @@ The type spec declares WHAT properties exist and their types. The element instan
 
 ## Subdirectories
 
-- **Definitions/** - Core YAML type definitions (49 files): seven category subdirectories (content, filter, grid, header, media, product, rating) plus five uncategorized root-level files (`alert`, `button`, `header`, `icon`, `media`)
+- **Definitions/** - Core YAML type definitions, organized into category subdirectories
 - **Loader/** - Type loading: `AbstractContentSystemElementTypeLoader` (base), `YamlTypeLoader` (filesystem), `DatabaseTypeLoader` (app types in prod), `ElementTypeNameResolver` (path-to-name), `ElementTypeSourceDirectory` (source directory VO), `ResolvedElementTypeSpecificationDto` (loading-to-spec bridge)
 - **Registry/** - AbstractContentSystemElementTypeRegistry (decoration pattern contract), ContentSystemElementTypeRegistry (stateless aggregator), CachedContentSystemElementTypeRegistry (cross-request cache decorator)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)

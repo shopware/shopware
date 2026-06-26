@@ -162,7 +162,7 @@ adminUI:
 - **`type`** (required): one of `string`, `integer`, `number`, `boolean`.
 - **`enum`** (optional, primitives): the allowed value set.
 - **`range`** (optional, `integer` / `number`): `min` and/or `max` bounds.
-- **`maxLength`** (optional, `string`): caps the stored string; a string option with none declared is capped at 255 so a client cannot store an unbounded value.
+- **`maxLength`** (optional, declarable on `string` only): caps the stored string. A `string` or `number` with no `maxLength` declared is still capped at 255, so a client cannot store an unbounded value (including a long numeric string); `integer` and `boolean` are unaffected.
 - **`default`** (optional): advisory only — an introspection and Admin pre-fill hint. It is **not** seeded into stored elements and **not** applied at serve time, so an element's `style` stays omitted when empty.
 - **`adminUI`** (optional): an opaque block passed through verbatim to the Administration; the backend never interprets it.
 

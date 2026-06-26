@@ -64,6 +64,10 @@ class TypedStyleOptionValidatorTest extends TestCase
         yield 'a valid adminUI passthrough block' => [
             new StyleOptionSpecificationDto('boolean', null, null, null, null, ['component' => 'switch']),
         ];
+
+        yield 'string default exactly at the implicit 255 cap (no maxLength declared)' => [
+            new StyleOptionSpecificationDto('string', null, null, null, str_repeat('a', 255), null),
+        ];
     }
 
     #[DataProvider('rejectsInvalidOptionProvider')]
@@ -180,6 +184,12 @@ class TypedStyleOptionValidatorTest extends TestCase
 
         yield 'default longer than maxLength' => [
             new StyleOptionSpecificationDto('string', null, null, 4, 'toolong', null),
+            'default',
+            'default must not exceed maxLength',
+        ];
+
+        yield 'string default longer than the implicit 255 cap (no maxLength declared)' => [
+            new StyleOptionSpecificationDto('string', null, null, null, str_repeat('a', 256), null),
             'default',
             'default must not exceed maxLength',
         ];

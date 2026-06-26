@@ -47,6 +47,8 @@
     "app_flow_event.updatedAt",
     "app_content_system_element_type.createdAt",
     "app_content_system_element_type.updatedAt",
+    "app_content_system_style_option.createdAt",
+    "app_content_system_style_option.updatedAt",
     "app_mcp_prompt.createdAt",
     "app_mcp_prompt.updatedAt",
     "app_mcp_prompt.translated",

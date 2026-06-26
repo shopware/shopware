@@ -50,13 +50,13 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
         (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->update($context);
     }
 
-    #[TestDox('activate re-validates the activating app options and then invalidates the registry')]
-    public function testActivateRevalidatesThenInvalidates(): void
+    #[TestDox('activate invalidates the registry so the now-live app options appear immediately')]
+    public function testActivateInvalidates(): void
     {
         $context = $this->buildActivationContext();
 
         $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->once())->method('revalidateForActivation')->with($context);
+        $persister->expects($this->never())->method('persist');
 
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->once())->method('invalidate');
@@ -64,28 +64,13 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
         (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->activate($context);
     }
 
-    #[TestDox('activate does not invalidate the registry when re-validation fails')]
-    public function testActivateDoesNotInvalidateWhenRevalidationFails(): void
-    {
-        $context = $this->buildActivationContext();
-
-        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->method('revalidateForActivation')->willThrowException(new \RuntimeException('collision'));
-
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->never())->method('invalidate');
-
-        $this->expectExceptionObject(new \RuntimeException('collision'));
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->activate($context);
-    }
-
-    #[TestDox('deactivate invalidates the registry without re-validating')]
+    #[TestDox('deactivate invalidates the registry')]
     public function testDeactivateInvalidates(): void
     {
         $context = $this->buildActivationContext();
 
         $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->never())->method('revalidateForActivation');
+        $persister->expects($this->never())->method('persist');
 
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->once())->method('invalidate');

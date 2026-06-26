@@ -319,8 +319,8 @@ class InfoControllerTest extends TestCase
         static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
     }
 
-    #[TestDox('returns empty style options object when none are registered')]
-    public function testContentSystemStyleOptionsReturnsEmptyWhenNoneRegistered(): void
+    #[TestDox('encodes an empty style option set as a JSON object, not an array')]
+    public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('allResolved')->willReturn([]);
@@ -330,9 +330,23 @@ class InfoControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"styleOptions":{}', $content);
+    }
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([], $data['styleOptions']);
+    #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
+    public function testContentSystemElementTypesEncodesEmptyStyleOptionsAsObject(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('allResolved')->willReturn([]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
     #[TestDox('returns the registered style options keyed by wire name with their derived schema')]

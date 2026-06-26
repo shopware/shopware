@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionCollection;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\ResolvedStyleOptionSpecificationDto;
@@ -93,6 +94,37 @@ class ContentSystemStyleOptionPersister
         if ($upserts !== [] || $deleteIds !== []) {
             $this->registry->invalidate();
         }
+    }
+
+    /**
+     * Re-checks the activating app's already-persisted options against the current registry. Activation
+     * makes a previously inactive app's options live (DatabaseStyleOptionLoader filters on app.active),
+     * so a name that did not collide while the app was inactive may collide now; this fails such an
+     * activation hard instead of letting one source silently shadow another.
+     */
+    public function revalidateForActivation(AppActivationContext $context): void
+    {
+        $appId = $context->app->getId();
+
+        $existing = $this->getExistingOptions($appId, $context->context);
+        if ($existing->count() === 0) {
+            return;
+        }
+
+        $source = 'app:' . $context->app->getName();
+
+        $proposedNames = [];
+        foreach ($existing as $entity) {
+            $proposedNames[$entity->getName()] = $source;
+        }
+
+        // Exclude own source so the app's own now-active options do not collide with themselves once the
+        // registry cache rebuilds and starts counting them as registered.
+        $this->collisionDetector->validate(
+            $proposedNames,
+            $source,
+            $this->loadInactiveAppOptionNames($appId, $context->context),
+        );
     }
 
     /**

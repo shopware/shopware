@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContent
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -359,6 +360,77 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         }
     }
 
+    #[TestDox('revalidateForActivation passes when the activating app options do not collide with the registry')]
+    public function testRevalidateForActivationPassesWithoutCollision(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection([$this->buildExistingEntity('opt-gap', 'brand-gap')]),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->once())->method('all')->willReturn([]);
+
+        $persister = $this->buildPersister($repo, registry: $registry);
+        $persister->revalidateForActivation($this->buildActivationContext());
+    }
+
+    #[TestDox('revalidateForActivation fails hard when an activating option collides with a registered option')]
+    public function testRevalidateForActivationThrowsOnRegistryCollision(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection([$this->buildExistingEntity('opt-gap', 'brand-gap')]),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([
+            'brand-gap' => new StyleOptionSpecification('brand-gap', new StyleOptionValueType('integer', null, null, null, null), null, 'core'),
+        ]);
+
+        $persister = $this->buildPersister($repo, registry: $registry);
+
+        $this->expectExceptionObject(ContentSystemException::styleOptionDuplicate('brand-gap', 'core', 'app:DemoApp'));
+        $persister->revalidateForActivation($this->buildActivationContext());
+    }
+
+    #[TestDox('revalidateForActivation does not self-collide on the activating app own now-active options')]
+    public function testRevalidateForActivationToleratesOwnNowActiveOptions(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection([$this->buildExistingEntity('opt-gap', 'brand-gap')]),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        // The rebuilt cache already counts the activating app's own option as registered; the excluded
+        // source must keep that from reading as a self-collision.
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->once())->method('all')->willReturn([
+            'brand-gap' => new StyleOptionSpecification('brand-gap', new StyleOptionValueType('integer', null, null, null, null), null, 'app:DemoApp'),
+        ]);
+
+        $persister = $this->buildPersister($repo, registry: $registry);
+        $persister->revalidateForActivation($this->buildActivationContext());
+    }
+
+    #[TestDox('revalidateForActivation skips the registry check when the app has no persisted options')]
+    public function testRevalidateForActivationReturnsEarlyWithoutPersistedOptions(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->never())->method('all');
+
+        $persister = $this->buildPersister($repo, registry: $registry);
+        $persister->revalidateForActivation($this->buildActivationContext());
+    }
+
     private function buildExistingEntity(string $idKey, string $name): AppContentSystemStyleOptionEntity
     {
         $entity = new AppContentSystemStyleOptionEntity();
@@ -406,5 +478,14 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             appFilesystem: new Filesystem(self::FIXTURES_DIR),
             defaultLocale: 'en-GB',
         );
+    }
+
+    private function buildActivationContext(): AppActivationContext
+    {
+        $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
+        $app->setName('DemoApp');
+
+        return new AppActivationContext($app, Context::createDefaultContext());
     }
 }

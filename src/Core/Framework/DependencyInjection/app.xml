@@ -209,6 +209,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemStyleOptionLifecycleHandler">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
             <tag name="shopware.app_lifecycle.handler" priority="-1401"/>
         </service>
 

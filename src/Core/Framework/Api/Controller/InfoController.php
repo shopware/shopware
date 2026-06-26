@@ -280,14 +280,16 @@ class InfoController extends AbstractController
             array_values($this->elementTypeRegistry->all())
         );
 
-        // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone
-        return new JsonResponse(['types' => $types, 'styleOptions' => $this->styleOptionSchemas()]);
+        // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone.
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['types' => $types, 'styleOptions' => (object) $this->styleOptionSchemas()]);
     }
 
     #[Route(path: '/api/_info/content-system-style-options.json', name: 'api.info.content-system-style-options', methods: ['GET'])]
     public function getContentSystemStyleOptions(): JsonResponse
     {
-        return new JsonResponse(['styleOptions' => $this->styleOptionSchemas()]);
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
     }
 
     /**

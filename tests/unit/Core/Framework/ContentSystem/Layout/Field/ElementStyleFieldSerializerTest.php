@@ -224,10 +224,13 @@ class ElementStyleFieldSerializerTest extends TestCase
     #[TestDox('builds constraints fresh on each call so a changed registry is reflected on the next write')]
     public function testBuildConstraintsDerivesFreshPerCall(): void
     {
-        // Reading the registry on every call is the S3(c) contract: an app install/update/activation that
-        // changed the option set must take effect on the next write without a process restart.
+        // The S3(c) contract: an app install/update/activation that changed the option set must take effect
+        // on the next write without a process restart, so each call re-reads the registry (never memoizes).
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->exactly(2))->method('all')->willReturn($this->options());
+        $registry->expects($this->exactly(2))->method('all')->willReturnOnConsecutiveCalls(
+            ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), null, 'core')],
+            ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), null, 'core')],
+        );
 
         $serializer = new ElementStyleFieldSerializer(
             static::createStub(ValidatorInterface::class),
@@ -236,8 +239,15 @@ class ElementStyleFieldSerializerTest extends TestCase
             new StyleOptionConstraintDeriver(),
         );
 
-        $serializer->buildConstraints($this->field);
-        $serializer->buildConstraints($this->field);
+        $validator = Validation::createValidatorBuilder()->getValidator();
+        $style = ['display' => ['xs' => false]];
+        // The first registry has no `display` option (the write is rejected); after the registry changes to
+        // include it, the very next buildConstraints() accepts the same write.
+        $beforeChange = $validator->validate($style, $serializer->buildConstraints($this->field));
+        $afterChange = $validator->validate($style, $serializer->buildConstraints($this->field));
+
+        static::assertGreaterThanOrEqual(1, $beforeChange->count());
+        static::assertCount(0, $afterChange);
     }
 
     /**

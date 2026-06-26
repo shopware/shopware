@@ -8,10 +8,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
-use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -103,6 +105,14 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testRefreshThemeLogsAndSkipsMediaImportFailuresOutsideDev(): void
     {
+        $themeConfig = $this->configuration->getThemeConfig();
+        static::assertIsArray($themeConfig);
+        $themeConfig['fields']['sameBrokenMedia'] = [
+            'type' => 'media',
+            'value' => 'app/storefront/src/assets/image/shopware_logo.svg',
+        ];
+        $this->configuration->setThemeConfig($themeConfig);
+
         $exception = MediaException::invalidFile('Broken media');
 
         $this->fileSaver->expects($this->once())->method('persistFileToMedia')->willThrowException($exception);
@@ -136,6 +146,91 @@ class ThemeLifecycleServiceTest extends TestCase
         $themePayload = $this->themeRepository->upserts[0][0];
         static::assertSame([], $themePayload['media']);
         static::assertNull($themePayload['baseConfig']['fields']['brokenMedia']['value']);
+        static::assertNull($themePayload['baseConfig']['fields']['sameBrokenMedia']['value']);
+    }
+
+    public function testRefreshThemeRemovesFailedPreviewMediaOutsideDev(): void
+    {
+        $this->configuration->setThemeConfig([]);
+        $this->configuration->setPreviewMedia('app/storefront/src/assets/image/shopware_logo.svg');
+
+        $exception = MediaException::invalidFile('Broken preview media');
+
+        $this->fileSaver->expects($this->once())->method('persistFileToMedia')->willThrowException($exception);
+
+        $failedMediaId = null;
+        $this->logger->expects($this->once())->method('error')->with(
+            'Could not import theme media file.',
+            static::callback(function (array $logContext) use (&$failedMediaId, $exception): bool {
+                static::assertSame($this->configuration->getTechnicalName(), $logContext['theme'] ?? null);
+                static::assertSame('app/storefront/src/assets/image/shopware_logo.svg', $logContext['path'] ?? null);
+                static::assertSame($exception, $logContext['exception'] ?? null);
+                static::assertArrayHasKey('mediaId', $logContext);
+                static::assertIsString($logContext['mediaId']);
+
+                $failedMediaId = $logContext['mediaId'];
+
+                return true;
+            })
+        );
+
+        $this->runtimeConfigService->expects($this->once())->method('refreshRuntimeConfig');
+        $this->runtimeConfigService->expects($this->once())->method('resetCaches');
+
+        $this->lifecycleService->refreshTheme($this->configuration, $this->context);
+
+        static::assertIsString($failedMediaId);
+        static::assertSame($failedMediaId, $this->mediaRepository->creates[0][0]['id']);
+        static::assertSame([['id' => $failedMediaId]], $this->mediaRepository->deletes[0]);
+
+        $themePayload = $this->themeRepository->upserts[0][0];
+        static::assertSame([], $themePayload['media']);
+        static::assertArrayNotHasKey('previewMediaId', $themePayload);
+    }
+
+    public function testRefreshThemeRetriesThemeMediaImportWithNewNameWhenFileNameExists(): void
+    {
+        $existingMedia = new MediaEntity();
+        $existingMedia->setId(Uuid::randomHex());
+        $existingMedia->setFileName('shopware_logo');
+        $existingMedia->setFileExtension('svg');
+        $existingMedia->setMimeType('image/svg+xml');
+
+        $this->mediaRepository->addSearch(new MediaCollection([$existingMedia]));
+
+        $duplicateFileName = MediaException::duplicatedMediaFileName('shopware_logo', 'svg');
+        $failedMediaId = null;
+        $call = 0;
+
+        $this->fileSaver->expects($this->exactly(2))->method('persistFileToMedia')->willReturnCallback(function (MediaFile $mediaFile, string $destination, string $mediaId, Context $context) use (&$call, &$failedMediaId, $duplicateFileName): void {
+            ++$call;
+
+            static::assertSame('svg', $mediaFile->getFileExtension());
+            static::assertSame($this->context, $context);
+
+            if ($call === 1) {
+                static::assertSame('shopware_logo', $destination);
+                $failedMediaId = $mediaId;
+
+                throw $duplicateFileName;
+            }
+
+            static::assertSame('shopware_logo_(1)', $destination);
+            static::assertSame($failedMediaId, $mediaId);
+        });
+
+        $this->logger->expects($this->never())->method('error');
+        $this->runtimeConfigService->expects($this->once())->method('refreshRuntimeConfig');
+        $this->runtimeConfigService->expects($this->once())->method('resetCaches');
+
+        $this->lifecycleService->refreshTheme($this->configuration, $this->context);
+
+        static::assertIsString($failedMediaId);
+        static::assertSame($failedMediaId, $this->mediaRepository->creates[0][0]['id']);
+
+        $themePayload = $this->themeRepository->upserts[0][0];
+        static::assertSame([['id' => $failedMediaId, 'mediaFolderId' => null]], $themePayload['media']);
+        static::assertSame($failedMediaId, $themePayload['baseConfig']['fields']['brokenMedia']['value']);
     }
 
     public function testRefreshThemeRethrowsMediaImportFailuresInDev(): void
@@ -191,7 +286,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([]);
 
-        $fileNameProvider = static::createStub(FileNameProvider::class);
+        $fileNameProvider = new WindowsStyleFileNameProvider($this->mediaRepository);
         $pluginConfigurationFactory = static::createStub(AbstractStorefrontPluginConfigurationFactory::class);
 
         return new ThemeLifecycleService(

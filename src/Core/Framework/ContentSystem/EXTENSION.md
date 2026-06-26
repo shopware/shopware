@@ -1,22 +1,24 @@
 # Extending the ContentSystem
 
-Plugins extend the ContentSystem through four mechanisms.
+Plugins extend the ContentSystem through five mechanisms.
 
 ## Table of Contents
 
 1. [Extension Model](#extension-model)
 2. [Custom Element Types](#custom-element-types)
-3. [Custom Specification Sources](#custom-specification-sources)
-4. [Custom Data Loaders](#custom-data-loaders)
-5. [Event Listeners](#event-listeners)
-6. [Service Tags](#service-tag-reference)
-7. [Type Reference](#type-reference)
+3. [Custom Style Options](#custom-style-options)
+4. [Custom Specification Sources](#custom-specification-sources)
+5. [Custom Data Loaders](#custom-data-loaders)
+6. [Event Listeners](#event-listeners)
+7. [Service Tags](#service-tag-reference)
+8. [Type Reference](#type-reference)
 
 ## Extension Model
 
 | Extension Point           | Purpose                                                                |
 |---------------------------|------------------------------------------------------------------------|
 | **Element Types**         | New content components with declared properties and slots              |
+| **Style Options**         | New universal per-breakpoint presentation attributes for every element |
 | **Specification Sources** | New URL patterns, entity types                                         |
 | **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
@@ -102,6 +104,97 @@ Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type exa
 ### Discoverability
 
 A registered type appears in `GET /api/_info/content-system-element-types.json`, which the Administration reads to offer the type (with its property and slot schema) in the layout editor. See `ADMINISTRATION.md`.
+
+---
+
+## Custom Style Options
+
+Style options are universal presentation attributes — alignment, span, spacing, display — that can be set per breakpoint on **every** element, regardless of its type. Unlike an element type property, an option declares nothing about which elements it applies to: every registered option is valid on every element. Plugins and apps register options by placing YAML files in a style-options directory; the Administration decides where each control is shown from the option's `adminUI` hints.
+
+### Registration
+
+| Source | Directory                                | Name             | Customizable                          |
+|--------|------------------------------------------|------------------|---------------------------------------|
+| Plugin | `Resources/content-system/style-options` | kebab-case filename | No (fixed convention directory)    |
+| App    | `Resources/content-system/style-options` | kebab-case filename | No                                 |
+
+The compiler pass discovers plugin and bundle YAML automatically; app YAML is validated and persisted on install/update. No service registration needed. Unlike element types, the directory is fixed for plugins too, so there is no per-plugin override hook.
+
+### Name Resolution
+
+An option name is the **Store-API wire key** taken directly from the kebab-case filename — there is no source prefix and no directory nesting. `Resources/content-system/style-options/col-span.yaml` registers the option `col-span`. Names are flat and globally unique across core, bundles, plugins, and apps.
+
+**Rules:**
+- One option per YAML file
+- Filenames must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
+- Both `.yaml` and `.yml` extensions accepted
+
+### YAML Structure
+
+The declaration is **flat** — there is no `meta:` wrapper (this differs from element-type YAML):
+
+```yaml
+type: integer
+range:
+  min: 1
+  max: 12
+adminUI:
+  component: "number"
+  label: "Column Span"
+  description: "How many grid columns the element spans."
+```
+
+A string-enum option instead:
+
+```yaml
+type: string
+default: "auto"
+enum:
+  - "auto"
+  - "start"
+  - "center"
+  - "end"
+adminUI:
+  component: "select"
+  label: "Align Self"
+```
+
+- **`type`** (required): one of `string`, `integer`, `number`, `boolean`.
+- **`enum`** (optional, primitives): the allowed value set.
+- **`range`** (optional, `integer` / `number`): `min` and/or `max` bounds.
+- **`maxLength`** (optional, `string`): caps the stored string; a string option with none declared is capped at 255 so a client cannot store an unbounded value.
+- **`default`** (optional): advisory only — an introspection and Admin pre-fill hint. It is **not** seeded into stored elements and **not** applied at serve time, so an element's `style` stays omitted when empty.
+- **`adminUI`** (optional): an opaque block passed through verbatim to the Administration; the backend never interprets it.
+
+There is deliberately no `pattern` / regex: an app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector, so strings are bounded by `maxLength` instead.
+
+### Breakpoints
+
+Values are set per breakpoint. The breakpoint key set is the fixed framework primitive `xs, sm, md, lg, xl, xxl`; it is not extensible. Each breakpoint is optional, so a responsive option may set only some of them. On an element, the stored shape is `option => breakpoint => value`:
+
+```json
+{ "col-span": { "md": 6, "lg": 4 }, "display": { "xs": false } }
+```
+
+### Collision Detection
+
+Option names must be globally unique across core, bundles, plugins, and apps. Duplicates are detected at:
+- **Load time** by the registry when aggregating loaders (core / bundle / plugin)
+- **Persist time** by `StyleOptionCollisionDetector` when syncing app options to the database (also checks inactive app options). The `UNIQUE KEY` on `app_content_system_style_option.name` is the authoritative guard.
+
+### App Lifecycle
+
+App activation state is read live, not denormalized onto the option rows. `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its options from the registry on the next request without any extra write. Options are persisted on app install/update by `ContentSystemStyleOptionLifecycleHandler` and cascade-deleted with the app.
+
+### Validation Posture
+
+Writing an element `style` is strict: an unknown option, an unknown breakpoint, or a value that violates the option's `type` / `enum` / `range` / `maxLength` is rejected (`HTTP 400`). Reading is lenient: an option whose plugin or app has since been removed is dropped from the served `style` so an old layout still renders, but re-saving that layout is rejected until the orphaned option is cleared.
+
+### Discoverability
+
+A registered option appears in `GET /api/_info/content-system-style-options.json` and, folded under a `styleOptions` key, in `GET /api/_info/content-system-element-types.json`. The Administration reads either to render controls from the option's `adminUI` hints. See `ADMINISTRATION.md`.
+
+Reference: `Layout/Element/Style/README.md`, `Layout/Element/Style/Definitions/` (7 core option examples)
 
 ---
 

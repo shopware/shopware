@@ -35,4 +35,5 @@ Internally, `ContentElement` stores properties in two maps (`structProperties` f
 - **Context/** - ContextProvider, ContextConsumer, ContextDefinitions
 - **DataRequirement/** - DataRequirement structure
 - **Slot/** - SlotContent container
+- **Style/** - Universal per-breakpoint style options (alignment, span, spacing, display) settable on every element
 - **Visitor/** - ElementVisitor interface and implementations

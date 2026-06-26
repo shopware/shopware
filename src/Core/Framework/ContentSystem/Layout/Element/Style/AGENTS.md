@@ -1,0 +1,36 @@
+@README.md
+
+## Key Relationship
+
+One declaration, two consumers that cannot drift:
+- `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into the Symfony constraints the write boundary enforces.
+- `StyleOptionSpecification::toSchema()` turns the same declaration into the introspection schema.
+- Both read the one `AbstractContentSystemStyleOptionRegistry`, so an option that is introspected is enforced and vice versa.
+
+## Source Code References
+
+- **Registry**: `Registry/AbstractContentSystemStyleOptionRegistry` (abstract, decoration pattern; `all(): array<string, StyleOptionSpecification>`, `invalidate()`), `Registry/ContentSystemStyleOptionRegistry` (stateless aggregator over loaders tagged `content_system.style_option_loader`), `Registry/CachedContentSystemStyleOptionRegistry` (`cache.system` pool decorator, cache key `content_system.style_options`)
+- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemStyleOptionCompilerPass` (discovers core `Definitions/`, each bundle's and active plugin's fixed `Resources/content-system/style-options`, and dev-only active app directories; injects them into `YamlStyleOptionLoader`)
+- **Loaders**: `Loader/AbstractContentSystemStyleOptionLoader` (base contract, `load(): list<StyleOptionSpecification>`), `Loader/YamlStyleOptionLoader` (filesystem; `loadDtosFromDirectory(string $directory, string $source)` is reused by the app persister), `Loader/DatabaseStyleOptionLoader` (active app options in prod, empty in dev), `Loader/StyleOptionSourceDirectory` (`source`, `path` VO), `Loader/ResolvedStyleOptionSpecificationDto` (`name`, `source`, `dto`; `toSpecification()`)
+- **Serializer**: `Serialization/StyleOptionSpecificationSerializer` (`denormalize` array → DTO, `normalize` DTO → array)
+- **Specification**: `Specification/StyleOptionSpecification` (`name()`, `valueType()`, `source()`, `toSchema()`), `Specification/StyleOptionValueType` (consts `TYPE_STRING|INTEGER|NUMBER|BOOLEAN`, `PRIMITIVE_TYPES`, `DEFAULT_STRING_MAX_LENGTH = 255`; `type()`, `enum()`, `range()`, `maxLength()`, `default()`, `isPrimitive()`, `toSchema()`), DTOs in `Specification/Dto/`
+- **Constraint deriver**: `Validation/StyleOptionConstraintDeriver::derive(StyleOptionValueType): list<Constraint>` — emits via the fluent `DataAbstractionLayer/Write/Validation/ConstraintBuilder`; applies `NotBlank` to every type **except** `boolean` (false is a valid value), plus `Range` / `Length` / `Choice` from the declared bounds
+- **Field serializer**: `Layout/Field/ElementStyleFieldSerializer` (the write boundary; `deserialize(array): ElementStyle` drops unknown options/breakpoints, `buildConstraints()` derives the memoized per-request `Collection`), composed into `Layout/Field/ContentElementFieldSerializer`
+- **API endpoints**: `Api/Controller/InfoController::getContentSystemStyleOptions()` (`GET /api/_info/content-system-style-options.json`) and the folded `styleOptions` key on `getContentSystemElementTypes()`
+- **App integration**: `App/Aggregate/AppContentSystemStyleOption/AppContentSystemStyleOptionDefinition` (DAL entity, table `app_content_system_style_option`, `UNIQUE KEY` on `name`), `App/Lifecycle/Persister/ContentSystemStyleOptionPersister` (const `STYLE_OPTIONS_DIRECTORY = 'Resources/content-system/style-options'`; hash-based upsert/delete, registry invalidation only on change), `App/Lifecycle/Handler/ContentSystemStyleOptionLifecycleHandler`, `App/Validation/ContentSystemStyleOptionAppValidator`
+- **Collision detection**: `Validation/StyleOptionCollisionDetector` (proposed names against the registry plus inactive app options; the DB `UNIQUE KEY` is the authoritative guard)
+- **Value object**: `ElementStyle` (`array<string, array<string, string|int|float|bool>>` of `option => breakpoint => scalar`; `final readonly`, `toArray()`, `isEmpty()`)
+
+## Constraints
+
+- Option names are flat global wire keys (`col-span`), **not** source-prefixed like element type names. The name is the kebab-case filename (`YamlStyleOptionLoader::NAME_PATTERN` = `[a-z0-9]+(-[a-z0-9]+)*`); there is no prefix. Uniqueness is enforced across all sources by `StyleOptionCollisionDetector` and the `app_content_system_style_option.name` `UNIQUE KEY`; duplicates fail hard at load/install with source labels `core` / `bundle:Name` / `plugin:Name` / `app:Name`.
+- One option per YAML file. The file is a **flat** declaration (`type`, optional `enum` / `range` / `maxLength` / `default`, optional `adminUI`) — there is **no** `meta:` wrapper, unlike element-type YAML.
+- `Breakpoint` is a fixed framework primitive (`xs, sm, md, lg, xl, xxl`); it is not plugin- or app-extensible. `Breakpoint::values()` is the allowed key set; per-breakpoint values are individually optional.
+- Value types are limited to the canonical primitives (`string`, `integer`, `number`, `boolean`). No FQCN, no nested object, no regex. A string is bounded by `maxLength` (defaulting to `DEFAULT_STRING_MAX_LENGTH = 255`) so a client cannot store an unbounded string in the JSON column.
+- `default` is advisory only — an introspection/Admin pre-fill hint. It is never seeded into stored element JSON and never applied at serve time, so `style` stays omitted-when-empty.
+- Write is strict (unknown option / unknown breakpoint / constraint-violating value rejected); read (`deserialize`) is lenient (an option absent from the registry is dropped so an old layout still renders). Re-saving a layout whose `style` still references a removed option is rejected until it is cleared.
+- The constraint `Collection` is derived once per request and reused across every element in a write, not rebuilt per element.
+- Registry uses the Shopware decoration pattern: `AbstractContentSystemStyleOptionRegistry` → `ContentSystemStyleOptionRegistry` (leaf) → `CachedContentSystemStyleOptionRegistry` (decorator, `cache.system`). Consumers type-hint the abstract; `invalidate()` throws `DecorationPatternException` except on the cached decorator.
+- `DatabaseStyleOptionLoader` returns empty in dev (apps load from the filesystem via the compiler pass in dev). It joins `app` and filters `WHERE app.active = 1`, so options of a deactivated app leave the registry without any extra write; `StyleOptionCollisionDetector` also considers inactive app options to prevent cross-app name collisions.
+- The `Plugin` base class is untouched: bundles and plugins share the fixed `Resources/content-system/style-options` convention directory (an optional `Plugin::getStyleOptionDirectory()` hook was deliberately deferred).
+- `ElementStyle` immutability is load-bearing: the mutation subsystem aliases an untouched element's `ElementStyle` by reference into rebuilt and cloned nodes, which is only safe because it cannot be changed in place.

@@ -634,8 +634,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializer,
             $contextProvidersSerializer,
             $contextConsumersSerializer,
-            // ElementSlotsFieldSerializer needs ContentElementFieldSerializer — build placeholder first
-            // and inject after construction via closure binding
+            // ElementSlotsFieldSerializer needs a ContentElementFieldSerializer — inject a placeholder
+            // (built with a stubbed slots serializer) to break the circular dependency
             new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->buildPlaceholderElementSerializer($validator, $definitionRegistry)),
             $this->buildStyleSerializer($validator, $definitionRegistry)
         );

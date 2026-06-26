@@ -11,9 +11,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Range;
 
 /**
- * Turns a declarative StyleOptionValueType into the Symfony constraints a single per-breakpoint
- * value must satisfy, via the fluent ConstraintBuilder. NotBlank applies to every type except
- * boolean, where false is a legitimate value.
+ * Turns a declarative StyleOptionValueType into the Symfony constraints a single per-breakpoint value
+ * must satisfy. NotBlank applies to every type except boolean, where false is a legitimate value.
  *
  * @internal
  */

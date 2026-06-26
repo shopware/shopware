@@ -158,7 +158,7 @@ class YamlStyleOptionLoaderTest extends TestCase
     #[TestDox('the shipped core style option definitions all pass declaration validation')]
     public function testShippedCoreDefinitionsValidate(): void
     {
-        // Guards D-default: an out-of-bounds advisory default in a shipped core definition now fails at load.
+        // An out-of-bounds advisory default in a shipped core definition now fails at load.
         $coreDir = \dirname((string) (new \ReflectionClass(ElementStyle::class))->getFileName()) . '/Definitions';
 
         $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();

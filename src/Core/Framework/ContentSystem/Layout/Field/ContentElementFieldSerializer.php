@@ -141,7 +141,6 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         $contextProvidersField = new ContextProvidersField('provides_context', 'providesContext');
         $contextConsumersField = new ContextConsumersField('accepts_context', 'acceptsContext');
 
-        // Null default matches decode() return type; ?? [] used below for type safety
         $providers = \array_key_exists('provides_context', $data) && \is_array($data['provides_context'])
             ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['provides_context'])
             : null;

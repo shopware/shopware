@@ -5,9 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specificati
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Value vocabulary of a single style option: the declared primitive plus its declarative bounds
- * (enum, numeric range, string maxLength) and an advisory default. Style values are always
- * per-breakpoint primitives — no FQCN, no nested properties, no regex; a maxLength bounds strings.
+ * Immutable value vocabulary of a single style option: a primitive type plus its declarative bounds
+ * and an advisory default.
  *
  * @internal
  *
@@ -80,8 +79,8 @@ final readonly class StyleOptionValueType
             return $this->maxLength;
         }
 
-        // A number validates as is_numeric input, so a numeric string of unbounded length would pass the type
-        // check; cap its serialized length like a string so it cannot bloat the layout JSON column.
+        // A numeric string would pass the is_numeric type check at unbounded length, so cap it like a string
+        // (see DEFAULT_STRING_MAX_LENGTH).
         if ($this->type === self::TYPE_STRING || $this->type === self::TYPE_NUMBER) {
             return self::DEFAULT_STRING_MAX_LENGTH;
         }

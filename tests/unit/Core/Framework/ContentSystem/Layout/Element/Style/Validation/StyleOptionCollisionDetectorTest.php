@@ -22,9 +22,8 @@ class StyleOptionCollisionDetectorTest extends TestCase
     {
         $detector = $this->detector(['col-span' => 'core']);
 
-        $detector->validate(['brand-accent' => 'app:Acme'], null, []);
-
         $this->expectNotToPerformAssertions();
+        $detector->validate(['brand-accent' => 'app:Acme'], null, []);
     }
 
     #[TestDox('fails hard when a proposed name collides with a registered option')]
@@ -42,9 +41,8 @@ class StyleOptionCollisionDetectorTest extends TestCase
     {
         $detector = $this->detector(['col-span' => 'app:Acme']);
 
-        $detector->validate(['col-span' => 'app:Acme'], 'app:Acme', []);
-
         $this->expectNotToPerformAssertions();
+        $detector->validate(['col-span' => 'app:Acme'], 'app:Acme', []);
     }
 
     #[TestDox('fails hard when a proposed name collides with an inactive app option')]

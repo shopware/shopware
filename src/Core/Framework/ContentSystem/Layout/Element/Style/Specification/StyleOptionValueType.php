@@ -30,9 +30,6 @@ final readonly class StyleOptionValueType
     public const TYPE_NUMBER = 'number';
     public const TYPE_BOOLEAN = 'boolean';
 
-    /**
-     * @var list<string>
-     */
     public const PRIMITIVE_TYPES = [self::TYPE_STRING, self::TYPE_INTEGER, self::TYPE_NUMBER, self::TYPE_BOOLEAN];
 
     /**

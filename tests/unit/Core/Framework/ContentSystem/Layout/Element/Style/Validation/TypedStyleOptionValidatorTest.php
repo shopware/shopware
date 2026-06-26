@@ -71,9 +71,21 @@ class TypedStyleOptionValidatorTest extends TestCase
     public static function rejectsInvalidOptionProvider(): iterable
     {
         yield 'enum is not a list' => [
-            new StyleOptionSpecificationDto('string', ['a' => 'b'], null, null, null, null), // @phpstan-ignore argument.type (intentionally invalid: associative array instead of list)
+            new StyleOptionSpecificationDto('string', ['a' => 'b'], null, null, null, null),
             'enum',
             'enum must be a list',
+        ];
+
+        yield 'enum is empty' => [
+            new StyleOptionSpecificationDto('string', [], null, null, null, null),
+            'enum',
+            'enum must not be empty',
+        ];
+
+        yield 'enum entry is not a scalar' => [
+            new StyleOptionSpecificationDto('integer', [[1, 2]], null, null, null, null),
+            'enum',
+            'enum values must all match',
         ];
 
         yield 'enum values mismatch declared type' => [
@@ -97,13 +109,19 @@ class TypedStyleOptionValidatorTest extends TestCase
         yield 'range min exceeds max' => [
             new StyleOptionSpecificationDto('integer', null, ['min' => 12, 'max' => 1], null, null, null),
             'range',
-            'range bounds must be numeric',
+            'min must not exceed max',
         ];
 
         yield 'maxLength on a non-string type' => [
             new StyleOptionSpecificationDto('integer', null, null, 10, null, null),
             'maxLength',
             'maxLength is only valid for the "string"',
+        ];
+
+        yield 'maxLength exceeds the declarable bound' => [
+            new StyleOptionSpecificationDto('string', null, null, 70000, null, null),
+            'maxLength',
+            'maxLength must not exceed',
         ];
 
         yield 'default mismatches declared type' => [

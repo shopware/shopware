@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style\Definitions;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
@@ -33,26 +34,42 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
         );
     }
 
-    #[TestDox('col-span and row-span ship as integers bounded to the 1-12 grid range')]
-    public function testSpanOptionsAreBoundedIntegers(): void
+    #[DataProvider('spanOptionProvider')]
+    #[TestDox('$name ships as an integer bounded to the 1-12 grid range')]
+    public function testSpanOptionIsBoundedInteger(string $name): void
     {
-        $options = $this->loadBuiltIns();
+        $option = $this->loadBuiltIns()[$name];
 
-        foreach (['col-span', 'row-span'] as $name) {
-            static::assertSame(StyleOptionValueType::TYPE_INTEGER, $options[$name]->valueType()->type());
-            static::assertSame(['min' => 1, 'max' => 12], $options[$name]->valueType()->range());
-        }
+        static::assertSame(StyleOptionValueType::TYPE_INTEGER, $option->valueType()->type());
+        static::assertSame(['min' => 1, 'max' => 12], $option->valueType()->range());
     }
 
-    #[TestDox('margin and padding ship as bounded strings')]
-    public function testSpacingOptionsAreBoundedStrings(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function spanOptionProvider(): iterable
     {
-        $options = $this->loadBuiltIns();
+        yield 'col-span' => ['col-span'];
+        yield 'row-span' => ['row-span'];
+    }
 
-        foreach (['margin', 'padding'] as $name) {
-            static::assertSame(StyleOptionValueType::TYPE_STRING, $options[$name]->valueType()->type());
-            static::assertSame(64, $options[$name]->valueType()->maxLength());
-        }
+    #[DataProvider('spacingOptionProvider')]
+    #[TestDox('$name ships as a string bounded to 64 characters')]
+    public function testSpacingOptionIsBoundedString(string $name): void
+    {
+        $option = $this->loadBuiltIns()[$name];
+
+        static::assertSame(StyleOptionValueType::TYPE_STRING, $option->valueType()->type());
+        static::assertSame(64, $option->valueType()->maxLength());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function spacingOptionProvider(): iterable
+    {
+        yield 'margin' => ['margin'];
+        yield 'padding' => ['padding'];
     }
 
     #[TestDox('display ships as a boolean defaulting to visible')]
@@ -64,16 +81,24 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
         static::assertTrue($display->valueType()->default());
     }
 
-    #[TestDox('align-self and justify-self ship as string enums defaulting to auto')]
-    public function testAlignmentOptionsAreStringEnums(): void
+    #[DataProvider('alignmentOptionProvider')]
+    #[TestDox('$name ships as a string enum defaulting to auto')]
+    public function testAlignmentOptionIsStringEnum(string $name): void
     {
-        $options = $this->loadBuiltIns();
+        $option = $this->loadBuiltIns()[$name];
 
-        foreach (['align-self', 'justify-self'] as $name) {
-            static::assertSame(StyleOptionValueType::TYPE_STRING, $options[$name]->valueType()->type());
-            static::assertSame('auto', $options[$name]->valueType()->default());
-            static::assertContains('auto', $options[$name]->valueType()->enum() ?? []);
-        }
+        static::assertSame(StyleOptionValueType::TYPE_STRING, $option->valueType()->type());
+        static::assertSame('auto', $option->valueType()->default());
+        static::assertContains('auto', $option->valueType()->enum() ?? []);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function alignmentOptionProvider(): iterable
+    {
+        yield 'align-self' => ['align-self'];
+        yield 'justify-self' => ['justify-self'];
     }
 
     #[TestDox('the breakpoint primitive keeps its canonical six-key set')]

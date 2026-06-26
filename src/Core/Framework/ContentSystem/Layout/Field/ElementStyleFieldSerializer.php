@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Validates and (de)serializes an element's universal style against the style option registry, the
@@ -33,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-class ElementStyleFieldSerializer extends AbstractFieldSerializer
+class ElementStyleFieldSerializer extends AbstractFieldSerializer implements ResetInterface
 {
     /**
      * @var list<Constraint>|null
@@ -150,6 +151,15 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer
         }
 
         return $this->memoizedConstraints ??= $this->deriveConstraints();
+    }
+
+    /**
+     * Drops the per-process constraint memo so a long-running runtime (worker / RoadRunner) re-derives
+     * against the current registry after an app install/update has invalidated the option set.
+     */
+    public function reset(): void
+    {
+        $this->memoizedConstraints = null;
     }
 
     protected function getConstraints(Field $field): array

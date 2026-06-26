@@ -20,11 +20,15 @@ final class TypedStyleOption extends Constraint
 
     public string $enumListMessage = 'enum must be a list';
 
+    public string $enumEmptyMessage = 'enum must not be empty';
+
     public string $rangeTypeMessage = 'range is only valid for the numeric types "integer" and "number"';
 
     public string $rangeBoundsMessage = 'range bounds must be numeric and min must not exceed max';
 
     public string $maxLengthTypeMessage = 'maxLength is only valid for the "string" type';
+
+    public string $maxLengthBoundMessage = 'maxLength must not exceed {{ max }}';
 
     public string $defaultTypeMessage = 'default must match the declared type "{{ type }}"';
 

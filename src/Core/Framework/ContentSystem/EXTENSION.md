@@ -99,7 +99,7 @@ Type names must be globally unique across core, bundles, plugins, and apps. Dupl
 
 App activation state is read live, not denormalized onto the element type rows. `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its element types from the registry on the next request without any extra write. Element types are persisted on app install/update by `ContentSystemElementTypeLifecycleHandler` and cascade-deleted with the app.
 
-Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type examples)
+Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (5 core type examples)
 
 ### Discoverability
 

@@ -205,6 +205,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemStyleOptionLifecycleHandler">

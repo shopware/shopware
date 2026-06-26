@@ -49,4 +49,11 @@ class ContentSystemStyleOptionLifecycleHandler extends AbstractLifecycleHandler
     {
         $this->registry->invalidate();
     }
+
+    public function delete(AppRemovalContext $context): void
+    {
+        // Local removal (AppManager::delete / UninstallAppsStrategy) does not deactivate first, so the
+        // cached registry would keep serving the gone app's options without this invalidation.
+        $this->registry->invalidate();
+    }
 }

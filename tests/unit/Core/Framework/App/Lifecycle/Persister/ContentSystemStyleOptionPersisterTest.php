@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -347,6 +348,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             new StyleOptionCollisionDetector($registry),
             $registry,
             $this->serializer,
+            $this->runTransactionStub(),
         );
 
         try {
@@ -358,6 +360,90 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             static::assertStringContainsString('app:DemoApp', $e->getMessage());
             static::assertSame($dbalException, $e->getPrevious());
         }
+    }
+
+    #[TestDox('routes the upsert and delete through a single transaction')]
+    public function testWritesGoThroughOneTransaction(): void
+    {
+        // The app ships brand-gap (an upsert) while a stored legacy-option is no longer shipped (a delete),
+        // so both write kinds run; the single transactional() call must wrap them together.
+        $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
+
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection([$obsolete]),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('transactional')
+            ->willReturnCallback(static function (\Closure $work) {
+                $work();
+
+                return null;
+            });
+
+        $persister = $this->buildPersister($repo, connection: $connection);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        static::assertCount(1, $repo->deletes);
+    }
+
+    #[TestDox('skips cache invalidation when the delete fails inside the transaction')]
+    public function testSkipsInvalidationWhenDeleteFailsInsideTransaction(): void
+    {
+        // A delete failure must propagate and leave the registry cache untouched, so the cache is never
+        // refreshed from a write that did not commit. (Real rollback is a DB concern, covered by integration.)
+        $resolved = new ResolvedStyleOptionSpecificationDto(
+            'brand-gap',
+            'app:DemoApp',
+            new StyleOptionSpecificationDto('integer', null, null, null, null, null),
+        );
+
+        $loader = static::createStub(YamlStyleOptionLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$resolved]);
+
+        $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
+        $existingResult = new EntitySearchResult(
+            'app_content_system_style_option',
+            1,
+            new AppContentSystemStyleOptionCollection([$obsolete]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+        $inactiveResult = new EntitySearchResult(
+            'app_content_system_style_option',
+            0,
+            new AppContentSystemStyleOptionCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $deleteException = new \RuntimeException('delete failed mid-transaction');
+
+        $repo = static::createStub(EntityRepository::class);
+        $repo->method('search')->willReturnOnConsecutiveCalls($existingResult, $inactiveResult);
+        $repo->method('delete')->willThrowException($deleteException);
+
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->never())->method('invalidate');
+
+        $persister = new ContentSystemStyleOptionPersister(
+            $repo,
+            $loader,
+            new StyleOptionCollisionDetector($registry),
+            $registry,
+            $this->serializer,
+            $this->runTransactionStub(),
+        );
+
+        $this->expectExceptionObject($deleteException);
+        $persister->persist($this->buildContext());
     }
 
     #[TestDox('revalidateForActivation passes when the activating app options do not collide with the registry')]
@@ -450,6 +536,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         StaticEntityRepository $repo,
         ?YamlStyleOptionLoader $loader = null,
         ?AbstractContentSystemStyleOptionRegistry $registry = null,
+        ?Connection $connection = null,
     ): ContentSystemStyleOptionPersister {
         if ($registry === null) {
             $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
@@ -462,7 +549,24 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             new StyleOptionCollisionDetector($registry),
             $registry,
             $this->serializer,
+            $connection ?? $this->runTransactionStub(),
         );
+    }
+
+    /**
+     * A pass-through transaction for unit context: it runs the wrapped closure so the repository writes
+     * still happen and their assertions hold. Real commit/rollback is exercised by the integration suite.
+     */
+    private function runTransactionStub(): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $work) {
+            $work();
+
+            return null;
+        });
+
+        return $connection;
     }
 
     private function buildContext(): AppPersistContext

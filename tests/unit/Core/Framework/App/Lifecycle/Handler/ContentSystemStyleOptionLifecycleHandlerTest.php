@@ -108,6 +108,21 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
         (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->uninstall($context);
     }
 
+    #[TestDox('delete invalidates the registry on local removal without re-deactivating')]
+    public function testDeleteInvalidates(): void
+    {
+        $app = $this->buildApp();
+        $context = new AppRemovalContext($app, Context::createDefaultContext());
+
+        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
+        $persister->expects($this->never())->method('persist');
+
+        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->once())->method('invalidate');
+
+        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->delete($context);
+    }
+
     private function buildApp(): AppEntity
     {
         $app = new AppEntity();

@@ -311,3 +311,39 @@ jobs:
               issue_number: Number('${{ needs.bootstrap.outputs.issue }}'),
               body: fs.readFileSync('comment.md', 'utf8'),
             });
+
+  # --------------------------------------------------------------------------
+  # Analyze-failed notice: when the analyze workflow itself fails (agent crash,
+  # API cap, timeout) there is no plan and no verdict will ever be posted. Leave
+  # ONE concise comment so the issue isn't silent. (gh-aw status-comment was
+  # turned off to drop the start/"analyze complete" chatter — gh-aw can't post a
+  # comment on failure only — so the failure signal lives here, on the
+  # deterministic side that always runs after analyze.)
+  # --------------------------------------------------------------------------
+  analyze-failed-notice:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Comment that analyze did not complete
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ github.token }}
+          retries: 3
+          retry-exempt-status-codes: 400,403,404,422
+          script: |
+            // The analyze run-name is "Reproduce: analyze #<issue>", surfaced verbatim as the
+            // workflow_run display_title — parse the issue number from it (always present, even
+            // when the agent died before uploading any artifact).
+            const title = context.payload.workflow_run.display_title || '';
+            const m = title.match(/#(\d+)/);
+            if (!m) { core.info(`no issue number in run title: "${title}" — skipping notice`); return; }
+            const runUrl = context.payload.workflow_run.html_url;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(m[1]),
+              body: `⚠️ Reproduce: the analyze step did not complete, so no reproduction was produced. See the [run](${runUrl}) for details.`,
+            });

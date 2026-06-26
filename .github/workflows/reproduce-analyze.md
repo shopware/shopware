@@ -31,9 +31,10 @@ on:
     name: reproduce             # `/reproduce` on an issue  (CONFIRM event name vs gh-aw docs)
     events: [issue_comment]
   reaction: none
-  status-comment:
-    issues: true
-    pull-requests: false
+  # Analyze posts NO status comment. The issue's only success-path comment is the downstream
+  # reproduction verdict (from reproduce-execute.yml); a too-vague issue gets the agent's single
+  # needs_info question; an analyze FAILURE gets a one-line notice from the execute workflow.
+  status-comment: false
 
 run-name: "Reproduce: analyze #${{ github.event.issue.number || github.event.inputs.issue_number }}"
 
@@ -188,6 +189,10 @@ If the issue is too vague or contradictory to derive a FAITHFUL repro, do not fa
 plan: emit `needs_info` per the runbook and call **`add_comment`** with the single clarifying
 question. If triage already says the issue is not actionable (`not-a-bug`/`duplicate`), call
 **`noop`** with a one-line reason instead.
+
+`add_comment` is RESERVED for that one `needs_info` clarifying question. Do **NOT** post a
+"done" / "analyze complete" / summary comment on success — the issue's only success-path comment
+is the downstream reproduction verdict. On a normal run, emit just the artifact(s) and no comment.
 
 ## Trust
 

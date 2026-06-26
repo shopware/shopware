@@ -78,7 +78,7 @@ class DataAbstractionLayerValidateCommand extends Command
         $errors = $this->validator->validate();
 
         // Filter errors by namespaces if provided
-        if (!empty($namespaces)) {
+        if ($namespaces !== []) {
             $errors = array_filter(
                 $errors,
                 static function ($_, $class) use ($namespaces) {

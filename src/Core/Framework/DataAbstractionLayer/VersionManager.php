@@ -192,7 +192,7 @@ class VersionManager
 
         $this->eventDispatcher->dispatch($event = new BeforeVersionMergeEvent($writes));
         $writes = $event->filterWrites(static function ($operation) {
-            return !empty($operation);
+            return $operation !== [];
         });
 
         // execute writes and get access to the write result to dispatch events later on

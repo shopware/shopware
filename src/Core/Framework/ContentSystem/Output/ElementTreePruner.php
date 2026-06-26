@@ -136,7 +136,8 @@ class ElementTreePruner
             new ContextDefinitions(
                 $currentElement->getProvidesContext(),
                 $currentElement->getAcceptsContext()
-            )
+            ),
+            $currentElement->getStyle(),
         );
     }
 

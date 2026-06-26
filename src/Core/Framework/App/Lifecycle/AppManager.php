@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
@@ -174,6 +175,7 @@ class AppManager
         );
 
         $this->dispatchInstalled($app, $manifest, $context);
+        $this->dispatchPermissionsUpdated($app, $context);
 
         if ($wasActive) {
             $this->dispatchActivated($app, $context);
@@ -304,6 +306,17 @@ class AppManager
         $event = new AppActivatedEvent($app, $context);
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppActivatedHook($event));
+    }
+
+    private function dispatchPermissionsUpdated(AppEntity $app, Context $context): void
+    {
+        $aclRole = $this->aclRoleRepository->search(new Criteria([$app->getAclRoleId()]), $context)->getEntities()->first();
+
+        $this->eventDispatcher->dispatch(new AppPermissionsUpdated(
+            $app->getId(),
+            $aclRole?->getPrivileges() ?? [],
+            $context
+        ));
     }
 
     /**

@@ -15,6 +15,9 @@ import 'src/app/filter/unicode-uri';
 
 /** @type Wrapper */
 let wrapper;
+let numberOfTabs = 1;
+let numberOfCards = 2;
+let firstCardHasCssField = false;
 
 async function createWrapper(defaultValues = {}, config = createConfig()) {
     const systemConfigApiService = {
@@ -115,6 +118,28 @@ async function createWrapper(defaultValues = {}, config = createConfig()) {
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: [
+                        'new-item-active',
+                    ],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
             },
             provide: {
                 systemConfigApiService,
@@ -486,6 +511,7 @@ function createConfig() {
                 label: {
                     'en-GB': 'colorpicker field',
                 },
+                css: firstCardHasCssField ? 'first-card-colorpicker' : undefined,
             },
             _test: {
                 domValueCheck: (field, domValue) => {
@@ -709,7 +735,7 @@ function createConfig() {
         },
     ];
 
-    return [
+    const cards = [
         {
             name: null,
             title: { 'en-GB': 'First card' },
@@ -721,7 +747,78 @@ function createConfig() {
             elements: [],
             aiBadge: true,
         },
-    ];
+    ].slice(0, numberOfCards);
+
+    if (global.activeFeatureFlags.includes('SYSTEM_CONFIG_TABS')) {
+        return [
+            {
+                name: null,
+                title: null,
+                cards: cards,
+            },
+            {
+                name: 'custom',
+                title: { 'en-GB': 'Custom tab' },
+                cards: [
+                    {
+                        name: null,
+                        title: { 'en-GB': 'Custom card 1' },
+                        elements: [
+                            {
+                                name: 'ConfigRenderer.config.customField1',
+                                type: 'text',
+                                config: {
+                                    defaultValue: 'Custom field 1',
+                                    label: {
+                                        'en-GB': 'Custom field 1',
+                                    },
+                                },
+                            },
+                            {
+                                name: 'ConfigRenderer.config.customField2',
+                                type: 'bool',
+                                config: {
+                                    defaultValue: true,
+                                    label: {
+                                        'en-GB': 'Custom field 2',
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        name: null,
+                        title: { 'en-GB': 'Custom card 2 with css field' },
+                        elements: [
+                            {
+                                name: 'ConfigRenderer.config.customField3',
+                                type: 'text',
+                                config: {
+                                    defaultValue: 'Custom field 3',
+                                    label: {
+                                        'en-GB': 'Custom field 3',
+                                    },
+                                },
+                            },
+                            {
+                                name: 'ConfigRenderer.config.customField4',
+                                type: 'colorpicker',
+                                config: {
+                                    defaultValue: '#bc121b',
+                                    label: {
+                                        'en-GB': 'Custom field 4',
+                                    },
+                                    css: 'custom-field-4-color'
+                                },
+                            },
+                        ],
+                    },
+                ].slice(0, numberOfCards),
+            },
+        ].slice(0, numberOfTabs);
+    }
+
+    return cards;
 }
 
 function createConfigWithCacheRelevantField(fieldName) {
@@ -743,6 +840,12 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
+    beforeEach(() => {
+        numberOfTabs = 1;
+        numberOfCards = 2;
+        firstCardHasCssField = false;
+    });
+
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -1439,5 +1542,182 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
 
         expect(createdSpy).toHaveBeenCalled();
+    });
+
+    it('should display one single card with implemented compile notice when css field exists', async () => {
+        numberOfCards = 1;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-compile-notice').exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(1);
+
+        const card = cards.at(0);
+
+        expect(card.exists()).toBe(true);
+
+        const compileNotice = card.find('.sw-system-config__compile-notice');
+
+        expect(compileNotice.exists()).toBe(true);
+        expect(compileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+    });
+
+    it('should display multiple cards with global compile notice when css field exists', async () => {
+        numberOfCards = 2;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-compile-notice').exists()).toBe(true);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(2);
+
+        cards.forEach((card) => {
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
+    });
+
+    it('should display the legacy card list when SYSTEM_CONFIG_TABS feature is disabled', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+        expect(wrapper.findAll('.mt-card')).toHaveLength(2);
+    });
+
+    it('should display one single card with implemented sales channel switch and compile notice when SYSTEM_CONFIG_TABS feature is enabled', async () => {
+        global.activeFeatureFlags = ['SYSTEM_CONFIG_TABS'];
+        numberOfCards = 1;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(1);
+
+        const card = cards.at(0);
+
+        expect(card.exists()).toBe(true);
+        expect(card.find('.sw-sales-channel-switch').exists()).toBe(true);
+
+        const compileNotice = card.find('.sw-system-config__compile-notice');
+
+        expect(compileNotice.exists()).toBe(true);
+        expect(compileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+    });
+
+    it('should display multiple cards with global sales channel switch and compile notice when SYSTEM_CONFIG_TABS feature is enabled', async () => {
+        global.activeFeatureFlags = ['SYSTEM_CONFIG_TABS'];
+        numberOfCards = 2;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(true);
+
+        const globalCompileNotice = wrapper.find('.sw-system-config__global-compile-notice');
+
+        expect(globalCompileNotice.exists()).toBe(true);
+        expect(globalCompileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(2);
+
+        cards.forEach((card) => {
+            expect(card.find('.sw-sales-channel-switch').exists()).toBe(false);
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
+    });
+
+    it('should display tabs with their cards when SYSTEM_CONFIG_TABS feature is enabled', async () => {
+        global.activeFeatureFlags = ['SYSTEM_CONFIG_TABS'];
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(true);
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const generalId = 'tab-0';
+        const customId = 'tab-custom';
+
+        expect(wrapper.vm.activeTab).toBe(generalId);
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('sw-system-config');
+        expect(tabs.props('defaultItem')).toBe(generalId);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings.system-config.tabGeneral',
+                name: generalId,
+            },
+            {
+                label: 'Custom tab',
+                name: customId
+            },
+        ]);
+
+        let activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+
+        expect(activeCards.at(0).find('.mt-card__title').text()).toBe('First card');
+        expect(activeCards.at(1).find('.mt-card__title').text()).toBe('Card with AI badge');
+
+        await tabs.vm.$emit('new-item-active', customId);
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe(customId);
+
+        activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+        expect(activeCards.at(0).find('.mt-card__title').text()).toBe('Custom card 1');
+        expect(activeCards.at(1).find('.mt-card__title').text()).toBe('Custom card 2 with css field');
+    });
+
+    it('should display global compile notice with existing css field in inactive tab when SYSTEM_CONFIG_TABS feature is enabled', async () => {
+        global.activeFeatureFlags = ['SYSTEM_CONFIG_TABS'];
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const globalCompileNotice = wrapper.find('.sw-system-config__global-compile-notice');
+
+        expect(globalCompileNotice.exists()).toBe(true);
+        expect(globalCompileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const generalId = 'tab-0';
+
+        expect(wrapper.vm.activeTab).toBe(generalId);
+        expect(tabs.exists()).toBe(true);
+
+        const activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+
+        activeCards.forEach((card) => {
+            expect(card.find('.mt-card__title').text()).not.toBe('Custom card 2 with css field');
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
     });
 });

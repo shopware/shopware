@@ -73,6 +73,14 @@ class ElementStyleFieldSerializerTest extends TestCase
         static::assertTrue($style->isEmpty());
     }
 
+    #[TestDox('deserialize drops an option whose value is a scalar rather than a breakpoint map')]
+    public function testDeserializeDropsScalarBreakpointMap(): void
+    {
+        $style = $this->serializer()->deserialize(['col-span' => 6]);
+
+        static::assertTrue($style->isEmpty());
+    }
+
     #[TestDox('deserialize yields an empty style for an empty map')]
     public function testDeserializeEmpty(): void
     {
@@ -128,23 +136,27 @@ class ElementStyleFieldSerializerTest extends TestCase
      * @param array<string, mixed> $style
      */
     #[DataProvider('invalidStyleProvider')]
-    #[TestDox('rejects $_dataName')]
-    public function testRejectsInvalidStyle(array $style): void
+    #[TestDox('rejects $_dataName with a violation at $expectedPath')]
+    public function testRejectsInvalidStyle(array $style, string $expectedPath): void
     {
-        static::assertGreaterThanOrEqual(1, $this->validate($style)->count());
+        $violations = $this->validate($style);
+
+        static::assertGreaterThanOrEqual(1, $violations->count());
+        // The path proves the violation fires on the offending option/breakpoint, not a stray top-level one
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>, string}>
      */
     public static function invalidStyleProvider(): iterable
     {
-        yield 'an unknown option key' => [['unknown-option' => ['md' => 1]]];
-        yield 'an unknown breakpoint key' => [['col-span' => ['zz' => 6]]];
-        yield 'an integer outside the declared range' => [['col-span' => ['md' => 99]]];
-        yield 'a non-integer value for an integer option' => [['col-span' => ['md' => 'six']]];
-        yield 'an enum value outside the vocabulary' => [['align-self' => ['md' => 'sideways']]];
-        yield 'a string exceeding maxLength' => [['margin' => ['md' => 'this-value-is-way-too-long']]];
+        yield 'an unknown option key' => [['unknown-option' => ['md' => 1]], '[unknown-option]'];
+        yield 'an unknown breakpoint key' => [['col-span' => ['zz' => 6]], '[col-span][zz]'];
+        yield 'an integer outside the declared range' => [['col-span' => ['md' => 99]], '[col-span][md]'];
+        yield 'a non-integer value for an integer option' => [['col-span' => ['md' => 'six']], '[col-span][md]'];
+        yield 'an enum value outside the vocabulary' => [['align-self' => ['md' => 'sideways']], '[align-self][md]'];
+        yield 'a string exceeding maxLength' => [['margin' => ['md' => 'this-value-is-way-too-long']], '[margin][md]'];
     }
 
     #[TestDox('builds the constraint set once and reuses it across elements in a write')]

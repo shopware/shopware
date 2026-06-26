@@ -42,7 +42,7 @@ class DatabaseStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 
         /** @var list<array{name: string, schema: string, app_name: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT o.name, o.schema, a.name as app_name
+            'SELECT o.name, o.`schema`, a.name as app_name
              FROM app_content_system_style_option o
              INNER JOIN app a ON o.app_id = a.id
              WHERE a.active = 1'

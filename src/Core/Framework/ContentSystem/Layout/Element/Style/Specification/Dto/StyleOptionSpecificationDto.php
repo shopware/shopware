@@ -20,10 +20,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class StyleOptionSpecificationDto
 {
     /**
-     * $range is carried untyped (the raw YAML/DB map) so the validator can reject non-numeric
-     * bounds at runtime; it is narrowed to the clean shape by buildRange() once validated.
+     * $enum and $range are carried untyped (the raw YAML/DB value) so the validator can reject a
+     * non-list enum or non-numeric bounds at runtime; they are narrowed to their clean shapes by
+     * buildEnum()/buildRange() once validated.
      *
-     * @param list<string|int|float|bool>|null $enum
+     * @param array<array-key, mixed>|null $enum
      * @param array<string, mixed>|null $range
      * @param array<string, mixed>|null $adminUI
      */
@@ -46,7 +47,7 @@ final readonly class StyleOptionSpecificationDto
             $name,
             new StyleOptionValueType(
                 $this->type,
-                $this->enum,
+                $this->buildEnum(),
                 $this->buildRange(),
                 $this->maxLength,
                 $this->default,
@@ -54,6 +55,25 @@ final readonly class StyleOptionSpecificationDto
             $this->adminUI,
             $source,
         );
+    }
+
+    /**
+     * @return list<string|int|float|bool>|null
+     */
+    private function buildEnum(): ?array
+    {
+        if ($this->enum === null) {
+            return null;
+        }
+
+        $values = [];
+        foreach ($this->enum as $value) {
+            if (\is_scalar($value)) {
+                $values[] = $value;
+            }
+        }
+
+        return $values;
     }
 
     /**

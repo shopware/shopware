@@ -17,6 +17,10 @@ final class TypedStyleOptionValidator extends ConstraintValidator
 {
     private const NUMERIC_TYPES = [StyleOptionValueType::TYPE_INTEGER, StyleOptionValueType::TYPE_NUMBER];
 
+    // Upper bound on a declared string maxLength, so an app cannot declare an effectively unbounded cap and
+    // let a layout-writer store an oversized value in the layout JSON column.
+    private const MAX_DECLARABLE_STRING_LENGTH = 65535;
+
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof TypedStyleOption) {
@@ -47,6 +51,15 @@ final class TypedStyleOptionValidator extends ConstraintValidator
 
         if (!array_is_list($value->enum)) {
             $this->context->buildViolation($constraint->enumListMessage)
+                ->atPath('enum')
+                ->addViolation();
+
+            return;
+        }
+
+        if ($value->enum === []) {
+            // An empty enum would derive a Choice with no choices, silently rejecting every value.
+            $this->context->buildViolation($constraint->enumEmptyMessage)
                 ->atPath('enum')
                 ->addViolation();
 
@@ -109,6 +122,13 @@ final class TypedStyleOptionValidator extends ConstraintValidator
         }
 
         if ($value->type === StyleOptionValueType::TYPE_STRING) {
+            if ($value->maxLength > self::MAX_DECLARABLE_STRING_LENGTH) {
+                $this->context->buildViolation($constraint->maxLengthBoundMessage)
+                    ->setParameter('{{ max }}', (string) self::MAX_DECLARABLE_STRING_LENGTH)
+                    ->atPath('maxLength')
+                    ->addViolation();
+            }
+
             return;
         }
 
@@ -133,7 +153,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
             ->addViolation();
     }
 
-    private function matchesType(string|int|float|bool $value, string $type): bool
+    private function matchesType(mixed $value, string $type): bool
     {
         return match ($type) {
             StyleOptionValueType::TYPE_STRING => \is_string($value),

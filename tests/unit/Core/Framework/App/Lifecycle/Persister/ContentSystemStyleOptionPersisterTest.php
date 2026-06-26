@@ -101,7 +101,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         static::assertIsString($payload['hash']);
     }
 
-    #[TestDox('skips the upsert when the stored hash matches the current file hash')]
+    #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
     public function testSkipsUpsertWhenHashMatches(): void
     {
         $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/style-options', 'app:DemoApp');
@@ -117,7 +117,12 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             new AppContentSystemStyleOptionCollection(),
         ]);
 
-        $persister = $this->buildPersister($repo);
+        // No write means no cache invalidation: a stable install must not churn the registry cache.
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->never())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, registry: $registry);
         $persister->persist($this->buildContext());
 
         static::assertSame([], $repo->upserts);

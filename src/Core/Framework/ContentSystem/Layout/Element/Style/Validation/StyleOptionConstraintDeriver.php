@@ -41,6 +41,12 @@ final class StyleOptionConstraintDeriver
         }
 
         $maxLength = $valueType->maxLength();
+        if ($maxLength === null && $valueType->type() === StyleOptionValueType::TYPE_NUMBER) {
+            // A number arrives as is_numeric() input, so a numeric *string* of unbounded length would pass
+            // Type('numeric'); cap its serialized length the same way strings are capped, so a client cannot
+            // store a megabyte value in the layout JSON column. A real int/float stays well within the cap.
+            $maxLength = StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH;
+        }
         if ($maxLength !== null) {
             $builder->isLengthLessThanOrEqual($maxLength);
         }

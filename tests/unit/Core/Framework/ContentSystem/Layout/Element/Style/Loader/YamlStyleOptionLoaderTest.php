@@ -56,6 +56,16 @@ class YamlStyleOptionLoaderTest extends TestCase
         static::assertSame([], $loader->load());
     }
 
+    #[TestDox('returns an empty array for a directory that exists but holds no YAML files')]
+    public function testReturnsEmptyForDirectoryWithoutYaml(): void
+    {
+        file_put_contents($this->tempDir . '/notes.txt', 'not a yaml file');
+
+        $loader = $this->createLoader([new StyleOptionSourceDirectory('core', $this->tempDir)]);
+
+        static::assertSame([], $loader->load());
+    }
+
     #[TestDox('rejects a filename that is not a valid kebab-case wire key')]
     public function testRejectsInvalidFilename(): void
     {

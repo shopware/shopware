@@ -59,6 +59,14 @@ class StyleOptionConstraintDeriverTest extends TestCase
         static::assertTrue($this->has(NotBlank::class, $constraints));
     }
 
+    #[TestDox('a number caps its serialized length at the default so a numeric string cannot be unbounded')]
+    public function testNumberDerivesDefaultLengthCap(): void
+    {
+        $constraints = $this->deriver->derive(new StyleOptionValueType('number', null, null, null, null));
+
+        static::assertSame(StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH, $this->only(Length::class, $constraints)->max);
+    }
+
     #[TestDox('a number with a range derives numeric Type, NotBlank and a Range matching the float bounds')]
     public function testNumberRangeDerivesRange(): void
     {

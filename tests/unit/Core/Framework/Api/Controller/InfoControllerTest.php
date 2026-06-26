@@ -314,7 +314,9 @@ class InfoControllerTest extends TestCase
 
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('styleOptions', $data);
-        static::assertArrayHasKey('col-span', $data['styleOptions']);
+        // The folded section must carry the derived toSchema() shape, not raw option values
+        static::assertSame('integer', $data['styleOptions']['col-span']['type']);
+        static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
     }
 
     #[TestDox('returns empty style options object when none are registered')]

@@ -38,6 +38,7 @@ export default {
             scrollbarOffset: '',
             isUserLoading: true,
             flyoutReferenceElement: null,
+            viewportWidth: null,
         };
     },
 
@@ -47,7 +48,13 @@ export default {
         },
 
         isExpanded() {
-            return this.adminMenuStore.isExpanded;
+            // Below the mobile breakpoint the menu is shown as an off-canvas panel and is never
+            // collapsible, so it always renders in its expanded form regardless of the stored state.
+            return this.adminMenuStore.isExpanded || this.isMobileViewport;
+        },
+
+        isMobileViewport() {
+            return this.viewportWidth !== null && this.viewportWidth <= 500;
         },
 
         userTitle() {
@@ -227,6 +234,7 @@ The admin menu only supports up to three levels of nesting.`,
         createdComponent() {
             this.loginService.notifyOnLoginListener();
 
+            this.viewportWidth = this.$device.getViewportWidth();
             this.getUser();
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
@@ -240,6 +248,11 @@ The admin menu only supports up to three levels of nesting.`,
 
         onToggleCanvas(state) {
             this.isOffCanvasShown = state;
+        },
+
+        closeOffCanvas() {
+            this.isOffCanvasShown = false;
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
         initNavigation() {
@@ -263,6 +276,13 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         mountedComponent() {
+            this.$device.onResize({
+                listener: () => {
+                    this.viewportWidth = this.$device.getViewportWidth();
+                },
+                component: this,
+            });
+
             this.addScrollbarOffset();
         },
 

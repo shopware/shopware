@@ -39,7 +39,18 @@
 
         {% block sw_admin_menu_header_toggle_sidebar %}
         <button
-            v-if="isExpanded"
+            v-if="isMobileViewport"
+            type="button"
+            class="sw-admin-menu__off-canvas-close"
+            @click.stop="closeOffCanvas"
+        >
+            <mt-icon
+                name="regular-times-s"
+                size="10px"
+            />
+        </button>
+        <button
+            v-else-if="isExpanded"
             type="button"
             @click.stop="onToggleSidebar"
         >

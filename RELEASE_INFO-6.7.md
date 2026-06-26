@@ -21,6 +21,19 @@ Several frequently executed code paths no longer scale quadratically and avoid r
 Shops with many price rules, promotions, large result sets or filter-heavy category listings benefit from lower CPU usage and faster cart recalculation, entity loading and listing rendering.
 This is a backwards-compatible internal optimization: the produced results (deduplication, ordering, calculated prices, hydrated entities, aggregations and cache tags) are unchanged, so no adjustments are required.
 
+### Configurable cache serialization method (optional `igbinary`)
+
+The serialization method used to store cache values can now be configured via `shopware.cache.serialization_method` (default `serialize`).
+When the `igbinary` PHP extension is installed, setting this to `igbinary` produces smaller and faster-to-(de)serialize cache payloads (object graphs such as the cached `SalesChannelContext`, system config and HTTP responses), reducing CPU usage and the memory/storage footprint of the cache backend (e.g. Redis).
+
+```yaml
+shopware:
+    cache:
+        serialization_method: igbinary   # default: serialize
+```
+
+Reads auto-detect the stored format, so switching the method (or rolling out the change across workers) does not require a cache flush: values written with either method remain decodable. If `igbinary` is configured but the extension is unavailable, Shopware transparently falls back to native `serialize`.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
@@ -56,7 +55,10 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private ThemeLifecycleService $lifecycleService;
 
-    private ThemeLifecycleService $devLifecycleService;
+    /**
+     * @var \Closure(string): ThemeLifecycleService
+     */
+    private \Closure $lifecycleServiceFactory;
 
     /**
      * @var StaticEntityRepository<ThemeCollection>
@@ -67,32 +69,6 @@ class ThemeLifecycleServiceTest extends TestCase
      * @var StaticEntityRepository<MediaCollection>
      */
     private StaticEntityRepository $mediaRepository;
-
-    /**
-     * @var StaticEntityRepository<MediaFolderCollection>
-     */
-    private StaticEntityRepository $mediaFolderRepository;
-
-    /**
-     * @var StaticEntityRepository<EntityCollection<Entity>>
-     */
-    private StaticEntityRepository $themeMediaRepository;
-
-    /**
-     * @var StaticEntityRepository<LanguageCollection>
-     */
-    private StaticEntityRepository $languageRepository;
-
-    /**
-     * @var StaticEntityRepository<EntityCollection<Entity>>
-     */
-    private StaticEntityRepository $themeChildRepository;
-
-    private StorefrontPluginRegistry&Stub $pluginRegistry;
-
-    private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
-
-    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
@@ -138,44 +114,40 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->mediaRepository = $mediaRepository;
         /** @var StaticEntityRepository<MediaFolderCollection> $mediaFolderRepository */
         $mediaFolderRepository = new StaticEntityRepository([[]]);
-        $this->mediaFolderRepository = $mediaFolderRepository;
         /** @var StaticEntityRepository<EntityCollection<Entity>> $themeMediaRepository */
         $themeMediaRepository = new StaticEntityRepository([]);
-        $this->themeMediaRepository = $themeMediaRepository;
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
-        $this->languageRepository = $languageRepository;
         /** @var StaticEntityRepository<EntityCollection<Entity>> $themeChildRepository */
         $themeChildRepository = new StaticEntityRepository([[]]);
-        $this->themeChildRepository = $themeChildRepository;
 
         $configurationCollection = new StorefrontPluginConfigurationCollection([$this->configuration]);
 
-        $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
-        $this->pluginRegistry->method('getConfigurations')->willReturn($configurationCollection);
+        $pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
+        $pluginRegistry->method('getConfigurations')->willReturn($configurationCollection);
 
-        $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
-        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new Filesystem($this->assetRoot));
+        $themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new Filesystem($this->assetRoot));
 
-        $this->connection = static::createStub(Connection::class);
-        $this->connection->method('fetchAllAssociative')->willReturn([]);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
 
         $fileNameProvider = static::createStub(FileNameProvider::class);
         $pluginConfigurationFactory = static::createStub(AbstractStorefrontPluginConfigurationFactory::class);
 
-        $createLifecycleService = function (string $environment) use ($fileNameProvider, $pluginConfigurationFactory): ThemeLifecycleService {
+        $this->lifecycleServiceFactory = function (string $environment) use ($pluginRegistry, $mediaFolderRepository, $themeMediaRepository, $fileNameProvider, $themeFilesystemResolver, $languageRepository, $themeChildRepository, $connection, $pluginConfigurationFactory): ThemeLifecycleService {
             return new ThemeLifecycleService(
-                $this->pluginRegistry,
+                $pluginRegistry,
                 $this->themeRepository,
                 $this->mediaRepository,
-                $this->mediaFolderRepository,
-                $this->themeMediaRepository,
+                $mediaFolderRepository,
+                $themeMediaRepository,
                 $this->fileSaver,
                 $fileNameProvider,
-                $this->themeFilesystemResolver,
-                $this->languageRepository,
-                $this->themeChildRepository,
-                $this->connection,
+                $themeFilesystemResolver,
+                $languageRepository,
+                $themeChildRepository,
+                $connection,
                 $pluginConfigurationFactory,
                 $this->runtimeConfigService,
                 $this->logger,
@@ -183,8 +155,7 @@ class ThemeLifecycleServiceTest extends TestCase
             );
         };
 
-        $this->lifecycleService = $createLifecycleService('test');
-        $this->devLifecycleService = $createLifecycleService('dev');
+        $this->lifecycleService = ($this->lifecycleServiceFactory)('test');
     }
 
     protected function tearDown(): void
@@ -231,6 +202,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testRefreshThemeRethrowsMediaImportFailuresInDev(): void
     {
+        $this->lifecycleService = ($this->lifecycleServiceFactory)('dev');
+
         $exception = MediaException::invalidFile('Broken media');
 
         $this->fileSaver->expects($this->once())->method('persistFileToMedia')->willThrowException($exception);
@@ -241,6 +214,6 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->runtimeConfigService->expects($this->never())->method('resetCaches');
         $this->expectExceptionObject($exception);
 
-        $this->devLifecycleService->refreshTheme($this->configuration, $this->context);
+        $this->lifecycleService->refreshTheme($this->configuration, $this->context);
     }
 }

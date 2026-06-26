@@ -44,7 +44,8 @@ class SalesChannelFileControllerTest extends TestCase
         $response = $this->decodeResponse();
         $files = array_column($response['data'], null, 'fileName');
 
-        static::assertSame(['agents.md', 'llms.txt'], array_keys($files));
+        static::assertSame(['.well-known/ai-catalog.json', 'agents.md', 'llms.txt'], array_keys($files));
+        static::assertSame('application/json; charset=utf-8', $files['.well-known/ai-catalog.json']['contentType']);
         static::assertSame('agentic', $files['llms.txt']['fileFamily']);
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']['contentType']);
         static::assertArrayNotHasKey('templatePath', $files['llms.txt']);

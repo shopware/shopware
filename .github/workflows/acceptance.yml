@@ -1,0 +1,339 @@
+name: Acceptance tests
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+    inputs:
+      nightly:
+        default: ""
+  workflow_call:
+    inputs:
+      nightly:
+        type: string
+        default: ""
+
+permissions:
+    contents: read
+    id-token: write
+
+jobs:
+  generate-acceptance-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - id: generate-matrix
+        run: |
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.nightly }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-tests') }}")
+          jq . <<<"$MATRIX"
+          echo "matrix<<EOF" >> $GITHUB_OUTPUT
+          echo "$MATRIX" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+  acceptance:
+    runs-on: ubuntu-24.04
+    needs: generate-acceptance-matrix
+    strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: ./.github/actions/ats
+        with:
+          project: ${{ matrix.name }}
+          php-version: ${{ matrix.php-version }}
+          shard: ${{ matrix.shard }}
+          shard-count: ${{ matrix.shard-count }}
+          workers: 1
+          major: ${{ matrix.major }}
+          install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
+          extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
+          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
+          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
+          playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          playwright-traces-domain: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
+          s3-bucket: shopware-ci-playwright-traces
+          report-prefix: playwright-reports
+
+  acceptance-status-check:
+    runs-on: ubuntu-24.04
+    needs: acceptance
+    if: ${{ !cancelled() && inputs.nightly == 'true' }}
+    permissions:
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Report acceptance status to Slack
+        env:
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          SLACK_ATS_WORKFLOW_URL: ${{ secrets.SLACK_ATS_WORKFLOW_URL }}
+        run: .github/bin/acceptance-slack-status.bash
+
+  acceptance-tests-changed:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0 # Fetch full history in order to see what's changed
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          files: |
+            tests/acceptance/tests/**/*.spec.ts
+
+      - name: Execute acceptance tests
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+        uses: ./.github/actions/ats
+        #env:
+        #  ATS_SKIP_CLEANUP: true
+        with:
+          project: "Platform"
+          install: true
+          extra-options: >-
+            --repeat-each="10"
+            -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+          artifact-prefix: "ats-changed"
+
+  tested-update-versions:
+    name: tested-versions
+    runs-on: ubuntu-24.04
+    outputs:
+      first-version: ${{ steps.versions.outputs.first-version }}
+      latest-version: ${{ steps.versions.outputs.latest-version }}
+      lts-first-version: ${{ steps.versions.outputs.lts-first-version }}
+      lts-latest-version: ${{ steps.versions.outputs.lts-latest-version }}
+    steps:
+      - name: Generate versions
+        id: versions
+        uses: shopware/github-actions/versions@main
+        with:
+          github-token: ${{ github.token }}
+
+  acceptance-update:
+    needs: tested-update-versions
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        update:
+          - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
+            type: lts-latest
+          - version: ${{ needs.tested-update-versions.outputs.first-version }}
+            type: first
+          - version: ${{ needs.tested-update-versions.outputs.latest-version }}
+            type: latest
+    env:
+      SHOPWARE_HTTP_CACHE_ENABLED: 0
+      BLUE_GREEN_DEPLOYMENT: 1
+      SHOPWARE_DISABLE_UPDATE_CHECK: "0"
+      SHOPWARE_UPDATE_FROM: ${{ matrix.update.version }}
+      SW_RECOVERY_NEXT_VERSION: "6.7.9999999.9999999"
+      SW_RECOVERY_NEXT_BRANCH: "6.7.9999999.9999999"
+      SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+      S3_BUCKET: "shopware-ci-playwright-traces"
+      REPORT_PREFIX: "playwright-reports"
+      DO_NOT_TRACK: 1
+    steps:
+      - name: Create shopware dirs
+        run: mkdir -p old-shopware new-shopware
+      - name: Setup new Shopware
+        uses: shopware/setup-shopware@main
+        env:
+          COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+        with:
+          npm-version: 11.8.0
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install-admin: true
+          env: dev
+          path: new-shopware
+
+      - name: Cache Storefront npm packages
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps the install off the network.
+          path: |
+            new-shopware/src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
+
+      # This job checks the repo out into new-shopware/, so the composite action is
+      # referenced at its checked-out subpath (local ./ actions resolve from the workspace root).
+      - name: Install storefront dependencies
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware
+          command: composer run npm:storefront ci
+
+      - name: Build new shopware
+        working-directory: new-shopware
+        run: |
+          composer run npm:storefront run production
+          (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+
+          composer -d src/Core config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Administration config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
+          composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
+
+      - name: Checkout template
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: shopware/production
+          path: old-shopware
+
+      - name: Configure project root
+        run: |
+          echo "PROJECT_ROOT=${{ github.workspace }}/old-shopware" >> "$GITHUB_ENV"
+
+      - name: Require shopware
+        working-directory: old-shopware
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+
+          composer require shopware/core:${{ matrix.update.version }}
+
+      - name: Install
+        working-directory: old-shopware
+        run: |
+          sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
+          bin/console system:install --basic-setup --drop-database --create-database
+
+      - name: Download latest WebInstaller
+        run: |
+          curl -L https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php -o old-shopware/public/shopware-installer.phar.php
+
+      - name: Start web server
+        working-directory: old-shopware
+        run: symfony server:start -d
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - name: Install npm
+        run: npm install -g npm@11.8.0
+
+      # ~/.npm is cached earlier in this job, so prefer-offline reuses tarballs.
+      # Referenced at the new-shopware/ subpath where the repo is checked out.
+      - name: Install dependencies
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware/tests/acceptance
+
+      - name: Refresh Package List
+        run: sudo apt-get update --allow-releaseinfo-change
+
+      - name: Install Playwright Browsers
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright install --with-deps chromium
+      - name: Run update tests with reporting
+        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
+        working-directory: new-shopware/tests/acceptance
+        run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
+      - name: Run update tests
+        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
+        working-directory: new-shopware/tests/acceptance
+        run: npx playwright test --project=Update --trace=on
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
+          path: new-shopware/tests/acceptance/test-results/
+          retention-days: 3
+
+      - name: Check if this run should attempt AWS operations
+        id: check-aws-allowed
+        if: ${{ github.repository_owner == 'shopware' &&
+              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        shell: bash
+        run: |
+              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+              else
+                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+              fi
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        with:
+           aws-region: eu-central-1
+           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+      - name: Upload Playwright HTML report to S3
+        working-directory: new-shopware/tests/acceptance
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+            RANDOM_STR=$(openssl rand -hex 6)
+
+            # build the destination prefix and export it for subsequent steps
+            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+
+            if [ ! -f "playwright-report/index.html" ]; then
+            echo "No Playwright report found, skipping upload."
+            exit 0
+            fi
+
+            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
+
+      - name: Publish S3 Static Website URL
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+
+            if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+            fi
+
+            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+            fi
+
+            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+            echo "${URL}"
+
+            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+
+  # this allows us to specify just one required job/check
+  # this is not practical with matrix jobs directly, because you've to specify all permutations
+  acceptance-check:
+    if: always()
+    needs:
+      - acceptance
+      - acceptance-update
+
+    runs-on: Ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          # allow all jobs to be skipped in case of a PR run
+          allowed-skips: acceptance, acceptance-update
+          jobs: ${{ toJSON(needs) }}

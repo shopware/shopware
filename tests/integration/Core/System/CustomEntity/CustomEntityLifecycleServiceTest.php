@@ -20,6 +20,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -137,6 +138,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             ]),
             $this->connection,
             $this->customEntityRepository,
+            new NativeClock(),
         );
     }
 }

@@ -60,19 +60,21 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         static::assertNull($dto->maxLength);
     }
 
-    #[TestDox('denormalize coerces a non-array enum, range or adminUI to null instead of raising a TypeError')]
-    public function testDenormalizeCoercesNonArrayFacetsToNull(): void
+    #[TestDox('denormalize coerces a wrong-typed enum, range, adminUI or default to null instead of raising a TypeError')]
+    public function testDenormalizeCoercesWrongTypedFacetsToNull(): void
     {
         $dto = $this->serializer->denormalize([
             'type' => 'string',
             'enum' => 'not-an-array',
             'range' => 'not-an-array',
             'adminUI' => 'not-an-array',
+            'default' => ['not', 'a', 'scalar'],
         ]);
 
         static::assertNull($dto->enum);
         static::assertNull($dto->range);
         static::assertNull($dto->adminUI);
+        static::assertNull($dto->default);
     }
 
     #[TestDox('normalize omits absent optional facets, keeping only the declared type')]

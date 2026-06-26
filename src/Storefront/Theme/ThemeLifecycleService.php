@@ -58,6 +58,7 @@ class ThemeLifecycleService
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeRuntimeConfigService $runtimeConfigService,
         private readonly LoggerInterface $logger,
+        private readonly string $environment,
     ) {
     }
 
@@ -489,6 +490,10 @@ class ThemeLifecycleService
                 try {
                     $this->persistThemeMedia($item, $context);
                 } catch (\Throwable $e) {
+                    if ($this->environment === 'dev') {
+                        throw $e;
+                    }
+
                     $this->logger->error('Could not import theme media file.', [
                         'theme' => $pluginConfiguration->getTechnicalName(),
                         'path' => $path,

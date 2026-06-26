@@ -112,6 +112,7 @@ class ThemeLifecycleServiceTest extends TestCase
             static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
             $this->themeRuntimeConfigService,
             new NullLogger(),
+            'test',
         );
 
         $this->context = Context::createDefaultContext();
@@ -199,6 +200,7 @@ class ThemeLifecycleServiceTest extends TestCase
             static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
             $this->themeRuntimeConfigService,
             $logger,
+            'test',
         );
 
         $themeLifecycleService->refreshTheme($bundle, $this->context);
@@ -209,6 +211,52 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertIsString($failedMediaId);
         $failedMedia = $this->mediaRepository->search(new Criteria([$failedMediaId]), $this->context)->get($failedMediaId);
         static::assertNull($failedMedia);
+    }
+
+    public function testRefreshThemeThrowsMediaImportFailuresInDevEnvironment(): void
+    {
+        $bundle = new StorefrontPluginConfiguration('ThemeWithFileAssociations');
+        $bundle->setName('ThemeWithFileAssociations');
+        $bundle->setAuthor(null);
+        $bundle->setIsTheme(true);
+        $bundle->setThemeJson([]);
+        $bundle->setThemeConfig([
+            'fields' => [
+                'brokenMedia' => [
+                    'type' => 'media',
+                    'value' => 'app/storefront/src/assets/image/shopware_logo.svg',
+                ],
+            ],
+        ]);
+
+        $exception = MediaException::invalidFile('Broken media');
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->method('persistFileToMedia')->willThrowException($exception);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+
+        $themeLifecycleService = new ThemeLifecycleService(
+            static::getContainer()->get(StorefrontPluginRegistry::class),
+            $this->themeRepository,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            static::getContainer()->get('theme_media.repository'),
+            $fileSaver,
+            static::getContainer()->get(FileNameProvider::class),
+            $this->themeFilesystemResolver,
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get('theme_child.repository'),
+            $this->connection,
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            $this->themeRuntimeConfigService,
+            $logger,
+            'dev',
+        );
+
+        $this->expectExceptionObject($exception);
+
+        $themeLifecycleService->refreshTheme($bundle, $this->context);
     }
 
     public function testThemeConfigInheritanceAddsParentTheme(): void

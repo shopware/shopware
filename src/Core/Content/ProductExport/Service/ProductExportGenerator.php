@@ -108,7 +108,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+        if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
             $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
         } else {
             $filters = Feature::silent(

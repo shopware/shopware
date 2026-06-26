@@ -116,7 +116,8 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         try {
             $productStreamBuilder = $this->productStreamBuilder;
-            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
                 $productStreamBuilder->enrichCriteria(
                     $criteria,
                     $config->getStringValue(),

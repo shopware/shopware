@@ -128,13 +128,5 @@ return [
         // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
-
-        // BC-safe re-implementation of #15865 (grouped product listings / "display as group"). The
-        // feature's public API (the AbstractProductStreamBuilder class, ProductStreamBuilder::enrichCriteria()
-        // and the ProductStreamEntity display-as-group accessors) is restored, so only the grouping-state
-        // constant is intentionally relocated: it now lives as ProductListingLoader::SKIP_ADD_GROUPING
-        // instead of on the product stream builder types.
-        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
-        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
     ],
 ];

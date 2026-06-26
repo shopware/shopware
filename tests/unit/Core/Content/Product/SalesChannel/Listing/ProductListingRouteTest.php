@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -255,6 +256,7 @@ class ProductListingRouteTest extends TestCase
         static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProductStreamFallsBackToBuildFiltersForInterfaceOnlyBuilder(): void
     {
         $categoryId = 'categoryId';

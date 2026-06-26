@@ -132,7 +132,9 @@ class RuleAreaUpdater implements EventSubscriberInterface
         );
 
         foreach ($areas as $id => $associations) {
-            $areas = [];
+            // Use the area name as an array key to deduplicate in O(1) per insert instead of
+            // re-scanning with array_unique(array_merge(...)) for every matching association.
+            $ruleAreas = [];
 
             foreach ($associations as $propertyName => $match) {
                 if ((bool) $match === false) {
@@ -140,7 +142,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
                 }
 
                 if ($propertyName === 'flowCondition') {
-                    $areas = array_unique(array_merge($areas, [RuleAreas::FLOW_CONDITION_AREA]));
+                    $ruleAreas[RuleAreas::FLOW_CONDITION_AREA] = RuleAreas::FLOW_CONDITION_AREA;
 
                     continue;
                 }
@@ -151,11 +153,15 @@ class RuleAreaUpdater implements EventSubscriberInterface
                     continue;
                 }
 
-                $areas = array_unique(array_merge($areas, $flag instanceof RuleAreas ? $flag->getAreas() : []));
+                if ($flag instanceof RuleAreas) {
+                    foreach ($flag->getAreas() as $area) {
+                        $ruleAreas[$area] = $area;
+                    }
+                }
             }
 
             $update->execute([
-                'areas' => json_encode(array_values($areas), \JSON_THROW_ON_ERROR),
+                'areas' => json_encode(array_values($ruleAreas), \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($id),
                 'updatedAt' => $now,
             ]);

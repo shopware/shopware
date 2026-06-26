@@ -305,12 +305,23 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      */
     private function filterRulePrices(EntityCollection $rules, SalesChannelContext $context): ?EntityCollection
     {
-        foreach ($context->getRuleIds() as $ruleId) {
-            $filtered = $rules->filter(fn (Entity $price) => $ruleId === $price->get('ruleId'));
-
-            if (\count($filtered) > 0) {
-                return $filtered;
+        // Index the available rule ids once (O(prices)) instead of re-scanning the whole price
+        // collection for every active rule id (O(ruleIds * prices)). This runs for every product
+        // whose price is calculated, e.g. for every product on a listing page.
+        $availableRuleIds = [];
+        foreach ($rules as $price) {
+            $priceRuleId = $price->get('ruleId');
+            if (\is_string($priceRuleId)) {
+                $availableRuleIds[$priceRuleId] = true;
             }
+        }
+
+        foreach ($context->getRuleIds() as $ruleId) {
+            if (!isset($availableRuleIds[$ruleId])) {
+                continue;
+            }
+
+            return $rules->filter(fn (Entity $price) => $ruleId === $price->get('ruleId'));
         }
 
         return null;

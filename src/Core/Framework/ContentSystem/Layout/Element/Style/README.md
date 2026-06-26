@@ -11,7 +11,7 @@ This is why an option name lives in a **flat global namespace**: the name is the
 ## The Option Model
 
 - `StyleOptionSpecification` — the immutable declared contract of one option: its `name` (wire key), its `StyleOptionValueType`, an optional `adminUI` passthrough block, and a `source` label. `toSchema()` serializes it for introspection.
-- `StyleOptionValueType` — the value vocabulary: one canonical primitive (`string`, `integer`, `number`, `boolean`) plus declarative bounds (`enum`, numeric `range`, string `maxLength`) and an advisory `default`. Style values are always per-breakpoint primitives, so there is no FQCN, no nesting, and no regex; a `maxLength` (defaulting to 255 for an unbounded string) caps what a client can store in the layout JSON.
+- `StyleOptionValueType` — the value vocabulary: one canonical primitive (`string`, `integer`, `number`, `boolean`) plus declarative bounds (`enum`, numeric `range`, string `maxLength`) and an advisory `default`. Style values are always per-breakpoint primitives, so there is no FQCN, no nesting, and no regex; a `maxLength` (defaulting to 255 for an unbounded string or number) caps what a client can store in the layout JSON.
 - `Breakpoint` — the fixed canonical key set `xs, sm, md, lg, xl, xxl`. Per-breakpoint values are individually optional, so a responsive option may set only `md`.
 - `ElementStyle` — the per-element value object: a validated `option => breakpoint => scalar` map. A plain immutable DTO (not a `Struct`), emitted as a raw array via `ContentElement::jsonSerialize()`, omitted when empty.
 

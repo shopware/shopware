@@ -138,4 +138,32 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         static::assertSame($expectedScoring, $actualScoringFlat);
     }
+
+    public function testUsesConfiguredRelevantKeywordCount(): void
+    {
+        $term = 'search';
+        $keywordLoader = static::createMock(KeywordLoader::class);
+        $keywordLoader->expects($this->once())->method('fetch')
+            ->willReturn(array_map(static fn (int $index) => [\sprintf('keyword-%02d', $index), '1'], range(1, 12)));
+
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
+
+        $connection = static::createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $interpreter = new ProductSearchTermInterpreter(
+            $connection,
+            new Tokenizer(3),
+            static::createMock(LoggerInterface::class),
+            new TokenFilter($configLoader),
+            $keywordLoader,
+            $configLoader,
+            10,
+        );
+
+        $pattern = $interpreter->interpret($term, Context::createDefaultContext());
+
+        static::assertCount(10, $pattern->getTerms());
+    }
 }

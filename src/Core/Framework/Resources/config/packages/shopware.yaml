@@ -595,3 +595,6 @@ shopware:
 
     product_stream:
         indexing: true
+    product:
+        search_keyword:
+            relevant_keyword_count: 8

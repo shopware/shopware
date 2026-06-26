@@ -18,6 +18,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -332,6 +334,18 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(ContextConsumer::class, $result->getAcceptsContext()['parentData']);
     }
 
+    #[TestDox('decodes a style key into the element ElementStyle')]
+    public function testDecodeElementWithStyleReturnsElementStyle(): void
+    {
+        $result = $this->serializer->decodeElement([
+            'id' => 'elem-style',
+            'component' => 'text',
+            'style' => ['col-span' => ['md' => 6]],
+        ]);
+
+        static::assertSame(['col-span' => ['md' => 6]], $result->getStyle()->toArray());
+    }
+
     /**
      * @param array<string, string> $data
      */
@@ -552,6 +566,37 @@ class ContentElementFieldSerializerTest extends TestCase
         $this->serializer->buildConstraints($invalidField);
     }
 
+    #[TestDox('accepts a written element whose style uses a registered option within its bounds')]
+    public function testBuildConstraintsAcceptsKnownStyleOption(): void
+    {
+        $element = [
+            'id' => 'elem-1',
+            'component' => 'text',
+            'style' => ['col-span' => ['md' => 6]],
+        ];
+
+        $violations = Validation::createValidatorBuilder()->getValidator()
+            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
+
+        static::assertCount(0, $violations);
+    }
+
+    #[TestDox('rejects a written element whose style references an unregistered option at the style path')]
+    public function testBuildConstraintsRejectsUnknownStyleOption(): void
+    {
+        $element = [
+            'id' => 'elem-1',
+            'component' => 'text',
+            'style' => ['made-up-option' => ['md' => 6]],
+        ];
+
+        $violations = Validation::createValidatorBuilder()->getValidator()
+            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
+
+        static::assertGreaterThanOrEqual(1, $violations->count());
+        static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
+    }
+
     private function createContentElementField(): ContentElementField
     {
         $field = new ContentElementField('element', 'element');
@@ -658,14 +703,22 @@ class ContentElementFieldSerializerTest extends TestCase
     }
 
     /**
-     * No style options registered: an empty constraint set, and deserialize yields an empty ElementStyle.
+     * Registers one known option (col-span) so the composed style constraints reject an unregistered option.
+     * deserialize() is registry-free, so it keeps a decoded style key verbatim regardless of this set.
      */
     private function buildStyleSerializer(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry
     ): ElementStyleFieldSerializer {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturn([]);
+        $registry->method('all')->willReturn([
+            'col-span' => new StyleOptionSpecification(
+                'col-span',
+                new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null),
+                null,
+                'core',
+            ),
+        ]);
 
         return new ElementStyleFieldSerializer($validator, $definitionRegistry, $registry, new StyleOptionConstraintDeriver());
     }

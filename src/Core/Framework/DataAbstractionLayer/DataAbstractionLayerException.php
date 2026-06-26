@@ -153,6 +153,8 @@ class DataAbstractionLayerException extends HttpException
 
     public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
 
+    public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
+
     public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
     {
         return new self(
@@ -168,6 +170,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::FIELD_CANNOT_BE_EXCLUDED,
             'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded: its entity property is not nullable and has no default, so the loaded entity would have an uninitialized property.',
+            ['field' => $field, 'entity' => $entity],
+        );
+    }
+
+    public static function cannotExcludeUnknownField(string $field, string $entity): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CANNOT_EXCLUDE_UNKNOWN_FIELD,
+            'Field "{{ field }}" cannot be excluded: it is not a top-level field of entity "{{ entity }}".',
             ['field' => $field, 'entity' => $entity],
         );
     }

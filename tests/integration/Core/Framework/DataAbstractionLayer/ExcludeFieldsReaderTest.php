@@ -50,6 +50,18 @@ class ExcludeFieldsReaderTest extends TestCase
         static::getContainer()->get('product.repository')->search($criteria, $context);
     }
 
+    public function testExcludingUnknownFieldThrows(): void
+    {
+        $context = Context::createDefaultContext();
+
+        // A typo / non-existent field must fail loudly instead of being silently ignored.
+        $criteria = new Criteria([Uuid::randomHex()]);
+        $criteria->excludeFields(['descriptionn']);
+
+        $this->expectException(DataAbstractionLayerException::class);
+        static::getContainer()->get('product.repository')->search($criteria, $context);
+    }
+
     private function createProduct(): string
     {
         $id = Uuid::randomHex();

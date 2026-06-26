@@ -108,10 +108,11 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * Validates that the fields requested via {@see Criteria::excludeFields()} may be omitted from a
-     * full read: only properties that are nullable or have a default can be left unset, otherwise the
-     * loaded typed entity would have an uninitialized property. The actual omission happens in
-     * {@see joinBasic()} (root + translated columns) via the excluded field list.
+     * Validates the fields requested via {@see Criteria::excludeFields()}: each must be a top-level
+     * field of the entity (a typo is rejected rather than silently ignored), and only properties that
+     * are nullable or have a default may be omitted — otherwise the loaded typed entity would have an
+     * uninitialized property. The actual omission happens in {@see joinBasic()} (root + translated
+     * columns) via the excluded field list.
      *
      * @param list<string> $excludedFields
      */
@@ -120,6 +121,10 @@ class EntityReader implements EntityReaderInterface
         $reflection = new \ReflectionClass($definition->getEntityClass());
 
         foreach ($excludedFields as $propertyName) {
+            if (!$definition->getFields()->has($propertyName)) {
+                throw DataAbstractionLayerException::cannotExcludeUnknownField($propertyName, $definition->getEntityName());
+            }
+
             if (!$reflection->hasProperty($propertyName)) {
                 continue;
             }

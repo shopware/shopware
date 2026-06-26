@@ -17,12 +17,12 @@ This is why an option name lives in a **flat global namespace**: the name is the
 
 A style option's `default` is **advisory** — an introspection and Admin pre-fill hint only. It is never seeded into stored element JSON and never applied at serve time; serving renders the stored `style` verbatim, consistent with the content system's "no default applied at serve" rule. This keeps `style` omitted-when-empty rather than bloating every element with universal defaults.
 
-## Strict Write, Lenient Read
+## Strict Write, Registry-Free Read
 
-`Layout/Field/ElementStyleFieldSerializer` is the boundary. Validation constraints are derived from the registry once per request (memoized, not rebuilt per element):
+`Layout/Field/ElementStyleFieldSerializer` is the boundary. Only the write path reads the registry; it derives the validation constraints fresh per write (the parent serializer reuses that one built tree across every element in the write):
 
 - **Write is strict.** An unknown option key, an unknown breakpoint, or a value that violates the option's derived constraints (`type` / `enum` / `range` / `maxLength`) is rejected. Constraint derivation reads the strict `registry->all()`, so a cross-loader name collision fails the write and install paths hard.
-- **Read is lenient.** `deserialize()` reads the precedence-resolved `registry->allResolved()`: it drops an option no longer in the registry, so a layout written while a plugin or app option was registered still renders after that provider is removed, and it resolves a cross-loader name collision by source precedence (logging a warning) rather than failing. Re-saving such a layout is still rejected until the orphaned option is cleared, the same removal posture the element type system has.
+- **Read is registry-free.** `deserialize()` never consults the registry: it keeps only the structural shape (string option key, canonical breakpoint, scalar value) and lets unknown option names ride through verbatim. A layout written while a plugin or app option was registered still renders after that provider is removed, and a cross-loader name collision never reaches the read path. This mirrors the element type system's unknown-`component` handling — kept verbatim on read, tolerated at resolve, rejected only on write. Re-saving such a layout is rejected until the orphaned option is cleared, so a normal edit round-trip no longer auto-clears it.
 
 The Symfony constraints and the introspection schema are both derived from the one declaration, so the two cannot drift: `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into a `list<Constraint>` via the fluent `ConstraintBuilder`.
 

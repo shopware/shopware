@@ -46,15 +46,18 @@ class ElementStyleFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('deserialize drops an option no longer in the registry so an orphaned layout still renders')]
-    public function testDeserializeDropsUnknownOption(): void
+    #[TestDox('deserialize keeps an unknown option verbatim because the read path is registry-free')]
+    public function testDeserializeKeepsUnknownOptionVerbatim(): void
     {
         $style = $this->serializer()->deserialize([
             'col-span' => ['md' => 6],
             'removed-plugin-option' => ['md' => 2],
         ]);
 
-        static::assertSame(['col-span' => ['md' => 6]], $style->toArray());
+        static::assertSame(
+            ['col-span' => ['md' => 6], 'removed-plugin-option' => ['md' => 2]],
+            $style->toArray(),
+        );
     }
 
     #[TestDox('deserialize drops an unknown breakpoint while keeping the canonical ones')]
@@ -85,28 +88,6 @@ class ElementStyleFieldSerializerTest extends TestCase
     public function testDeserializeEmpty(): void
     {
         static::assertTrue($this->serializer()->deserialize([])->isEmpty());
-    }
-
-    #[TestDox('deserialize tolerates a cross-loader duplicate by reading the resolved registry view')]
-    public function testDeserializeToleratesCrossLoaderDuplicate(): void
-    {
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        // The strict view throws on a duplicate; the read path must use the resolved view instead.
-        $registry->method('all')->willThrowException(
-            ContentSystemException::styleOptionDuplicate('col-span', 'core', 'app:Acme')
-        );
-        $registry->method('allResolved')->willReturn($this->options());
-
-        $serializer = new ElementStyleFieldSerializer(
-            static::createStub(ValidatorInterface::class),
-            static::createStub(DefinitionInstanceRegistry::class),
-            $registry,
-            new StyleOptionConstraintDeriver(),
-        );
-
-        $style = $serializer->deserialize(['col-span' => ['md' => 6]]);
-
-        static::assertSame(['col-span' => ['md' => 6]], $style->toArray());
     }
 
     #[TestDox('decode rejects a field that is not an ElementStyleField')]
@@ -181,28 +162,11 @@ class ElementStyleFieldSerializerTest extends TestCase
         yield 'a string exceeding maxLength' => [['margin' => ['md' => 'this-value-is-way-too-long']], '[margin][md]'];
     }
 
-    #[TestDox('builds the constraint set once and reuses it across elements in a write')]
-    public function testBuildConstraintsIsMemoized(): void
+    #[TestDox('builds constraints fresh on each call so a changed registry is reflected on the next write')]
+    public function testBuildConstraintsDerivesFreshPerCall(): void
     {
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->once())->method('all')->willReturn($this->options());
-
-        $serializer = new ElementStyleFieldSerializer(
-            static::createStub(ValidatorInterface::class),
-            static::createStub(DefinitionInstanceRegistry::class),
-            $registry,
-            new StyleOptionConstraintDeriver(),
-        );
-
-        $first = $serializer->buildConstraints($this->field);
-        $second = $serializer->buildConstraints($this->field);
-
-        static::assertSame($first, $second);
-    }
-
-    #[TestDox('reset drops the memo so the next build re-derives constraints against the registry')]
-    public function testResetCausesReDerivationOnNextBuild(): void
-    {
+        // Reading the registry on every call is the S3(c) contract: an app install/update/activation that
+        // changed the option set must take effect on the next write without a process restart.
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->exactly(2))->method('all')->willReturn($this->options());
 
@@ -214,7 +178,6 @@ class ElementStyleFieldSerializerTest extends TestCase
         );
 
         $serializer->buildConstraints($this->field);
-        $serializer->reset();
         $serializer->buildConstraints($this->field);
     }
 
@@ -231,9 +194,8 @@ class ElementStyleFieldSerializerTest extends TestCase
     private function serializer(): ElementStyleFieldSerializer
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        // deserialize() reads allResolved(); buildConstraints() reads all(). Both serve the same option set here.
+        // deserialize() is registry-free; only buildConstraints() reads all().
         $registry->method('all')->willReturn($this->options());
-        $registry->method('allResolved')->willReturn($this->options());
 
         return new ElementStyleFieldSerializer(
             static::createStub(ValidatorInterface::class),

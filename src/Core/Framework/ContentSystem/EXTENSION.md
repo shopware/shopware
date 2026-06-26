@@ -188,7 +188,7 @@ App activation state is read live, not denormalized onto the option rows. `Datab
 
 ### Validation Posture
 
-Writing an element `style` is strict: an unknown option, an unknown breakpoint, or a value that violates the option's `type` / `enum` / `range` / `maxLength` is rejected (`HTTP 400`). Reading is lenient: an option whose plugin or app has since been removed is dropped from the served `style` so an old layout still renders, but re-saving that layout is rejected until the orphaned option is cleared.
+Writing an element `style` is strict: an unknown option, an unknown breakpoint, or a value that violates the option's `type` / `enum` / `range` / `maxLength` is rejected (`HTTP 400`). Reading is registry-free: an option whose plugin or app has since been removed rides through verbatim in the served `style` so an old layout still renders, mirroring the element-type system's unknown-`component` handling. Re-saving that layout is rejected until the orphaned option is cleared, so a normal edit round-trip no longer auto-clears it.
 
 ### Discoverability
 

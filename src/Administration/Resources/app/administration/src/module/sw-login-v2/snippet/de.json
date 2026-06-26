@@ -16,7 +16,9 @@
             "buttonLogin": "Anmelden",
             "forgotPassword": "Passwort vergessen?",
             "warningTooManyAttempts": "Zu viele Anmeldeversuche. Bitte versuche es später erneut.",
-            "errorInvalidCredentials": "Benutzername oder Passwort ist falsch"
+            "warningTooManyAttemptsCountdown": "Zu viele Anmeldeversuche. Erneut versuchen in {time}.",
+            "errorInvalidCredentials": "Benutzername oder Passwort ist falsch",
+            "errorUnexpected": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
         },
         "recovery": {
             "title": "Passwort vergessen?",

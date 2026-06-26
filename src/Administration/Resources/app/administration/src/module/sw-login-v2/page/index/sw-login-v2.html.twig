@@ -72,7 +72,10 @@
 
         {% block sw_login_view %}
         <router-view v-slot="{Component}">
-            <component :is="Component" />
+            <component
+                :is="Component"
+                @update:loading="setLoading"
+            />
         </router-view>
         {% endblock %}
     </div>

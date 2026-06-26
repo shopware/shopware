@@ -1,7 +1,7 @@
 {% block sw_login_login %}
 <form
     class="sw-login-v2-credentials"
-    @submit.prevent
+    @submit.prevent="onSubmit"
 >
     {% block sw_login_login_form_headline %}
     <h1 class="sw-login-v2-credentials__title">
@@ -10,11 +10,11 @@
     {% endblock %}
 
     <mt-banner
-        v-if="warning"
+        v-if="isRateLimited"
         class="sw-login-v2-credentials__warning"
         variant="attention"
     >
-        {{ $t('sw-login-v2.credentials.warningTooManyAttempts') }}
+        {{ $t('sw-login-v2.credentials.warningTooManyAttemptsCountdown', { time: countdownLabel }) }}
     </mt-banner>
 
     <div
@@ -27,6 +27,8 @@
             variant="secondary"
             size="small"
             block
+            :disabled="isDisabled"
+            @click="forwardToSso"
         >
             <template #iconFront>
                 <mt-icon
@@ -49,18 +51,26 @@
 
     {% block sw_login_login_user_field %}
     <mt-text-field
+        v-model="username"
+        v-autofocus
         class="sw-login-v2-credentials__username"
         :label="$t('sw-login-v2.credentials.labelUsername')"
+        name="username"
         autocomplete="username"
+        :disabled="isDisabled"
         required
     />
     {% endblock %}
 
     {% block sw_login_login_password_field %}
     <mt-password-field
+        ref="passwordField"
+        v-model="password"
         class="sw-login-v2-credentials__password"
         :label="$t('sw-login-v2.credentials.labelPassword')"
+        name="current-password"
         autocomplete="current-password"
+        :disabled="isDisabled"
         required
     />
     {% endblock %}
@@ -77,8 +87,10 @@
 
     {% block sw_login_login_submit %}
     <mt-checkbox
+        v-model:checked="rememberMe"
         class="sw-login-v2-credentials__remember-me"
         :label="$t('sw-login-v2.credentials.labelKeepLoggedIn')"
+        :disabled="isDisabled"
     />
 
     {% block sw_login_login_submit_button %}
@@ -88,6 +100,8 @@
         variant="primary"
         size="default"
         block
+        :is-loading="isLoggingIn"
+        :disabled="isDisabled || !canSubmit"
     >
         {{ $t('sw-login-v2.credentials.buttonLogin') }}
     </mt-button>

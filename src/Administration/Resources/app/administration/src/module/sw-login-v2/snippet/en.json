@@ -16,7 +16,9 @@
             "buttonLogin": "Log in",
             "forgotPassword": "Forgot password?",
             "warningTooManyAttempts": "Too many login attempts. Please try again later.",
-            "errorInvalidCredentials": "Incorrect username or password"
+            "warningTooManyAttemptsCountdown": "Too many login attempts. Try again in {time}.",
+            "errorInvalidCredentials": "Incorrect username or password",
+            "errorUnexpected": "Something went wrong. Please try again."
         },
         "recovery": {
             "title": "Forgot password?",

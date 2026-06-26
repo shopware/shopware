@@ -8,9 +8,15 @@ import template from './sw-login-v2.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    data() {
+    data(): { isLoading: boolean } {
         return {
             isLoading: false,
         };
+    },
+
+    methods: {
+        setLoading(value: boolean): void {
+            this.isLoading = value;
+        },
     },
 });

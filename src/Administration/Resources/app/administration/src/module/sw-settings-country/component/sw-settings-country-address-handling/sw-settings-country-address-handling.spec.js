@@ -960,6 +960,47 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(rowsDuringThirdDrag[3].classes()).toContain('is--row-placeholder');
     });
 
+    it('should use the line position when dragging a row over a nested snippet drop zone', async () => {
+        wrapper = await createWrapper([
+            'country.editor',
+        ]);
+        await flushPromises();
+
+        const addressHandlingWrapper = wrapper.findComponent(stubs['sw-settings-country-address-handling']);
+        await addressHandlingWrapper.vm.onDragStart({
+            data: {
+                index: 0,
+                snippet: wrapper.vm.country.addressFormat[0],
+            },
+        });
+        await addressHandlingWrapper.vm.onDragEnter(
+            {
+                index: 0,
+                snippet: wrapper.vm.country.addressFormat[0],
+            },
+            {
+                index: 0,
+                linePosition: 2,
+                snippet: 'address/street',
+            },
+        );
+        await flushPromises();
+
+        const rowsWhileDragging = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
+
+        expect(addressHandlingWrapper.vm.rowDragPreview.targetIndex).toBe(3);
+        expect(rowsWhileDragging[3].classes()).toContain('is--row-placeholder');
+
+        await addressHandlingWrapper.vm.onDrop();
+        await flushPromises();
+
+        expect(wrapper.vm.country.addressFormat[2]).toEqual([
+            'address/company',
+            'symbol/dash',
+            'address/department',
+        ]);
+    });
+
     it('should be able to add a new snippet to another line on dragging', async () => {
         wrapper = await createWrapper([
             'country.editor',

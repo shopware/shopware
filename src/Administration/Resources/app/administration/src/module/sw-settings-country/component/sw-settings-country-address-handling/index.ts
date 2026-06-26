@@ -292,7 +292,7 @@ export default Component.wrapComponentConfig({
             this.droppedItem = dropData;
             this.rowDragPreview = {
                 dragIndex: dragData.index,
-                targetIndex: this.getRowTargetIndex(dropData.index),
+                targetIndex: this.getRowTargetIndex(this.getRowDropPosition(dropData)),
             };
         },
 
@@ -320,6 +320,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
+            const dropPosition = this.getRowDropPosition(droppedItem);
             const draggedSnippet = this.addressFormat[draggedItem.index];
 
             if (!draggedSnippet) {
@@ -328,10 +329,7 @@ export default Component.wrapComponentConfig({
 
             const newAddressFormat = this.swapPosition(
                 draggedItem.index,
-                this.getRowDropIndex(
-                    draggedItem.index,
-                    rowDragPreview?.targetIndex ?? this.getRowTargetIndex(droppedItem.index),
-                ),
+                this.getRowDropIndex(draggedItem.index, rowDragPreview?.targetIndex ?? this.getRowTargetIndex(dropPosition)),
                 [
                     draggedSnippet,
                 ],
@@ -346,6 +344,10 @@ export default Component.wrapComponentConfig({
             const currentTargetIndex = this.rowDragPreview?.targetIndex ?? this.draggedItem?.index ?? dropIndex;
 
             return dropIndex < currentTargetIndex ? dropIndex : dropIndex + 1;
+        },
+
+        getRowDropPosition(dropData: DragItem): number {
+            return typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
         },
 
         getRowDropIndex(dragIndex: number, targetIndex: number): number {

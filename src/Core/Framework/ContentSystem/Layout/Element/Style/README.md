@@ -1,0 +1,64 @@
+# Style
+
+Universal style option system. A defined, per-breakpoint set of presentation attributes (alignment, span, spacing, display) settable on **every** content element regardless of its type, served through the Store API and extensible by plugins and apps. It mirrors the element type system (`Layout/Type/`) one directory at a time, varying only the subject: an option is a declarative specification, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
+
+## Universal, Not Per-Type
+
+Style options are strictly universal: every defined option is valid on every element, with no backend per-type gating. Where an element type declares its own `properties` and `slots`, a style option declares nothing about which elements it applies to. Visibility hints (for example, showing `col-span` only inside a grid) are an Admin concern carried in the option's opaque `adminUI` block, not a backend rule.
+
+This is why an option name lives in a **flat global namespace**: the name is the Store-API wire key (`col-span`), not a source-prefixed type name (`Sw:Grid`). Uniqueness is still enforced — by the loader and registry dedup at load time, by `StyleOptionCollisionDetector` at app install time, and by a DB `UNIQUE KEY` — only the prefix is dropped.
+
+## The Option Model
+
+- `StyleOptionSpecification` — the immutable declared contract of one option: its `name` (wire key), its `StyleOptionValueType`, an optional `adminUI` passthrough block, and a `source` label. `toSchema()` serializes it for introspection.
+- `StyleOptionValueType` — the value vocabulary: one canonical primitive (`string`, `integer`, `number`, `boolean`) plus declarative bounds (`enum`, numeric `range`, string `maxLength`) and an advisory `default`. Style values are always per-breakpoint primitives, so there is no FQCN, no nesting, and no regex; a `maxLength` (defaulting to 255 for an unbounded string) caps what a client can store in the layout JSON.
+- `Breakpoint` — the fixed canonical key set `xs, sm, md, lg, xl, xxl`. Per-breakpoint values are individually optional, so a responsive option may set only `md`.
+- `ElementStyle` — the per-element value object: a validated `option => breakpoint => scalar` map. A plain immutable DTO (not a `Struct`), emitted as a raw array via `ContentElement::jsonSerialize()`, omitted when empty.
+
+A style option's `default` is **advisory** — an introspection and Admin pre-fill hint only. It is never seeded into stored element JSON and never applied at serve time; serving renders the stored `style` verbatim, consistent with the content system's "no default applied at serve" rule. This keeps `style` omitted-when-empty rather than bloating every element with universal defaults.
+
+## Strict Write, Lenient Read
+
+`Layout/Field/ElementStyleFieldSerializer` is the boundary. Validation constraints are derived from the registry once per request (memoized, not rebuilt per element):
+
+- **Write is strict.** An unknown option key, an unknown breakpoint, or a value that violates the option's derived constraints (`type` / `enum` / `range` / `maxLength`) is rejected.
+- **Read is lenient.** `deserialize()` drops an option no longer in the registry, so a layout written while a plugin or app option was registered still renders after that provider is removed. Re-saving such a layout is still rejected until the orphaned option is cleared — the same removal posture the element type system has.
+
+The Symfony constraints and the introspection schema are both derived from the one declaration, so the two cannot drift: `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into a `list<Constraint>` via the fluent `ConstraintBuilder`.
+
+## Architecture
+
+1. **Specification Value Objects** (`Specification/`) — immutable VOs `StyleOptionSpecification` and `StyleOptionValueType`. `Specification/Dto/` carries the Symfony validation DTOs (`StyleOptionSpecificationDto`, its collection) that validate the well-formedness of a declaration at load.
+
+2. **Loading** (`Loader/`) — both loaders extend `AbstractContentSystemStyleOptionLoader`. `YamlStyleOptionLoader` handles core, bundle, and plugin options in every environment plus app options in dev; it resolves the option name from the kebab-case filename, deserializes via `StyleOptionSpecificationSerializer`, validates the DTOs, and deduplicates within and across directories. `DatabaseStyleOptionLoader` loads active app options from `app_content_system_style_option` in prod and returns empty in dev. `StyleOptionSourceDirectory` carries source and path per directory; `ResolvedStyleOptionSpecificationDto` bridges loading and specification creation.
+
+3. **Registry** (`Registry/`) — the Shopware decoration pattern. `AbstractContentSystemStyleOptionRegistry` defines the contract (`all()`, `invalidate()`); `ContentSystemStyleOptionRegistry` is the stateless aggregator (leaf) that iterates loaders tagged `content_system.style_option_loader`; `CachedContentSystemStyleOptionRegistry` decorates it with a `cache.system` pool. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
+
+4. **Serialization** (`Serialization/`) — `StyleOptionSpecificationSerializer` converts a declaration between its YAML/array form and the validation DTO.
+
+5. **Validation** (`Validation/`) — `StyleOptionConstraintDeriver` (declaration to runtime constraints), `StyleOptionCollisionDetector` (proposed names against the registry plus inactive app options), and `TypedStyleOption` (+ validator), the class-level constraint that checks a declaration's `enum` / `range` / `maxLength` / `default` are internally consistent.
+
+6. **Compiler Pass** — `Framework/DependencyInjection/CompilerPass/ContentSystemStyleOptionCompilerPass` discovers YAML directories from core `Definitions/`, each bundle's and each active plugin's fixed `Resources/content-system/style-options`, and (dev only) each active app's directory, then injects them into `YamlStyleOptionLoader`. Unlike the element-type pass, the convention directory is fixed for both bundles and plugins, so the core `Plugin` base class needs no customization hook.
+
+7. **App Integration** — `App/Aggregate/AppContentSystemStyleOption/` (DAL entity, table `app_content_system_style_option`), `App/Lifecycle/Persister/ContentSystemStyleOptionPersister` (hash-based upsert/delete with collision detection, invalidating the registry only when changes were written), `App/Lifecycle/Handler/ContentSystemStyleOptionLifecycleHandler` (install/update), and `App/Validation/ContentSystemStyleOptionAppValidator` (manifest validation). App activation state is read live: `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app excludes its options without any extra write; removal cascades through the FK.
+
+## Introspection
+
+`StyleOptionSpecification::toSchema()` feeds two surfaces, both from the one registry, so introspection and validation never drift:
+
+- a dedicated endpoint `GET /api/_info/content-system-style-options.json` (`InfoController::getContentSystemStyleOptions()`), serving the options keyed by their wire name;
+- a folded `styleOptions` key on `GET /api/_info/content-system-element-types.json`, since every option is settable on every type.
+
+## Output
+
+A per-element `ElementStyle` rides through the system without any per-operation awareness. The mutation primitives (`Mutation/AbstractLayoutMutation::rebuildNode` / `cloneWithNewIds`, and `Mutation/Op/ReplaceElement`) carry it across every structural edit. `ContentElement::jsonSerialize()` emits it for the full format, and `Output/Struct/ContentSkeletonElement` carries it so it survives the skeleton and decomposed formats; the data (properties-only) format omits it. In every format `style` is omitted when empty, so it never serializes as an empty object.
+
+## Subdirectories
+
+- **Definitions/** - Core YAML option definitions (7 files): `display` (boolean), `align-self` / `justify-self` (string enum), `col-span` / `row-span` (integer range), `margin` / `padding` (string with `maxLength`)
+- **Loader/** - Option loading: `AbstractContentSystemStyleOptionLoader` (base), `YamlStyleOptionLoader` (filesystem), `DatabaseStyleOptionLoader` (app options in prod), `StyleOptionSourceDirectory` (source directory VO), `ResolvedStyleOptionSpecificationDto` (loading-to-spec bridge)
+- **Registry/** - `AbstractContentSystemStyleOptionRegistry` (decoration pattern contract), `ContentSystemStyleOptionRegistry` (stateless aggregator), `CachedContentSystemStyleOptionRegistry` (cross-request cache decorator)
+- **Serialization/** - `StyleOptionSpecificationSerializer` (YAML/array ↔ DTO)
+- **Specification/** - Value objects (`StyleOptionSpecification`, `StyleOptionValueType`)
+- **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
+- **Validation/** - `StyleOptionConstraintDeriver` (declaration → constraints), `StyleOptionCollisionDetector` (unique-name guard), `TypedStyleOption` (+ validator, declaration consistency)

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionCollection;
 use Shopware\Core\Framework\App\AppException;
@@ -42,6 +43,7 @@ class ContentSystemStyleOptionPersister
         private readonly StyleOptionCollisionDetector $collisionDetector,
         private readonly AbstractContentSystemStyleOptionRegistry $registry,
         private readonly StyleOptionSpecificationSerializer $serializer,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -75,22 +77,28 @@ class ContentSystemStyleOptionPersister
         $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
         $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
 
-        if ($upserts !== []) {
-            try {
-                $this->styleOptionRepository->upsert($upserts, $context->context);
-            } catch (UniqueConstraintViolationException $e) {
-                throw AppException::contentSystemStyleOptionDuplicate(
-                    array_column($upserts, 'name'),
-                    'app:' . $context->app->getName(),
-                    $e,
-                );
+        // Upsert and delete are one atomic unit: a partial failure must not leave the registered set
+        // half-synced (a stale-but-valid row alongside a committed new one).
+        $this->connection->transactional(function () use ($upserts, $deleteIds, $context): void {
+            if ($upserts !== []) {
+                try {
+                    $this->styleOptionRepository->upsert($upserts, $context->context);
+                } catch (UniqueConstraintViolationException $e) {
+                    throw AppException::contentSystemStyleOptionDuplicate(
+                        array_column($upserts, 'name'),
+                        'app:' . $context->app->getName(),
+                        $e,
+                    );
+                }
             }
-        }
 
-        if ($deleteIds !== []) {
-            $this->styleOptionRepository->delete($deleteIds, $context->context);
-        }
+            if ($deleteIds !== []) {
+                $this->styleOptionRepository->delete($deleteIds, $context->context);
+            }
+        });
 
+        // Invalidate only after the transaction commits, so the cache is never refreshed from a write
+        // that rolled back.
         if ($upserts !== [] || $deleteIds !== []) {
             $this->registry->invalidate();
         }

@@ -115,9 +115,41 @@ jobs:
       # Stage the plan + scripts at the workspace root so matrix.sh and the legs find them.
       - if: steps.gate.outputs.run == 'true'
         run: cp plan/* . 2>/dev/null || true
+      # HARD GATE: refuse a structurally-broken bundle BEFORE provisioning two shops. Ports the
+      # core static rules of #17724's validate-bundle.mjs (.github/actions/repro/bin).
+      - name: Validate bundle (hard gate)
+        id: validate
+        if: steps.gate.outputs.run == 'true'
+        continue-on-error: true
+        run: |
+          node .github/actions/repro/bin/validate-bundle.mjs > validate-out.txt 2>&1 && code=0 || code=$?
+          cat validate-out.txt
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+      - name: Reject bundle that failed validation
+        if: steps.gate.outputs.run == 'true' && steps.validate.outputs.code != '0'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          ISSUE: ${{ steps.ctx.outputs.issue }}
+        with:
+          github-token: ${{ github.token }}
+          retries: 3
+          retry-exempt-status-codes: 400,403,404,422
+          script: |
+            const fs = require('fs');
+            const out = (fs.existsSync('validate-out.txt') ? fs.readFileSync('validate-out.txt', 'utf8') : '').trim();
+            const issue = Number(process.env.ISSUE || '0');
+            if (issue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue,
+                body: `🚫 **Reproduce: bundle rejected by static validation** — the generated reproduction was not run.\n\n\`\`\`\n${out}\n\`\`\`\n\nFix the listed contract violation(s) and re-run.`,
+              });
+            }
+            core.setFailed('Bundle failed static validation — see the rejection comment.');
       # Same target matrix as today (reported‖trunk dedup; needs-info / <0.4 confidence bails).
       - id: matrix
-        if: steps.gate.outputs.run == 'true'
+        if: steps.gate.outputs.run == 'true' && steps.validate.outputs.code == '0'
         env:
           ISSUE: ${{ steps.ctx.outputs.issue }}
           BRANCH: trunk
@@ -127,7 +159,7 @@ jobs:
         run: bash .github/actions/repro/bin/matrix.sh
       # Re-publish as "analysis" so the leg/verdict/report jobs download it normally (unchanged).
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: steps.gate.outputs.run == 'true'
+        if: steps.gate.outputs.run == 'true' && steps.validate.outputs.code == '0'
         with:
           name: analysis
           path: |

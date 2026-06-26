@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Dto\StyleOptionSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 
 /**
  * @internal
@@ -31,12 +32,11 @@ class StyleOptionSpecificationDtoTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $rawRange
      * @param array{min?: int|float, max?: int|float}|null $expected
      */
     #[DataProvider('narrowsRangeProvider')]
     #[TestDox('narrows raw range $_dataName onto the value type')]
-    public function testNarrowsRange(array $rawRange, ?array $expected): void
+    public function testNarrowsRange(mixed $rawRange, ?array $expected): void
     {
         $dto = new StyleOptionSpecificationDto('integer', null, $rawRange, null, null, null);
 
@@ -44,12 +44,44 @@ class StyleOptionSpecificationDtoTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, array{min?: int|float, max?: int|float}|null}>
+     * @return iterable<string, array{mixed, array{min?: int|float, max?: int|float}|null}>
      */
     public static function narrowsRangeProvider(): iterable
     {
         yield 'fully numeric range passes through unchanged' => [['min' => 1, 'max' => 12], ['min' => 1, 'max' => 12]];
         yield 'non-numeric min dropped, numeric max kept' => [['min' => 'a', 'max' => 12], ['max' => 12]];
         yield 'entirely non-numeric range reduces to null' => [['min' => 'a'], null];
+        yield 'non-array range reduces to null' => ['not-an-array', null];
+    }
+
+    #[TestDox('narrows a non-array enum to null on the value type')]
+    public function testNarrowsNonArrayEnumToNull(): void
+    {
+        $dto = new StyleOptionSpecificationDto('string', 'not-an-array', null, null, null, null);
+
+        static::assertNull($dto->toStyleOptionSpecification('align-self', 'core')->valueType()->enum());
+    }
+
+    /**
+     * The string default cap stands in for "no declared maxLength", so a non-integer raw maxLength that
+     * narrows to null is observable as the default 255 rather than the raw value.
+     */
+    #[DataProvider('narrowsMaxLengthProvider')]
+    #[TestDox('narrows raw maxLength $_dataName onto the value type')]
+    public function testNarrowsMaxLength(mixed $rawMaxLength, int $expected): void
+    {
+        $dto = new StyleOptionSpecificationDto('string', null, null, $rawMaxLength, null, null);
+
+        static::assertSame($expected, $dto->toStyleOptionSpecification('margin', 'core')->valueType()->maxLength());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, int}>
+     */
+    public static function narrowsMaxLengthProvider(): iterable
+    {
+        yield 'positive integer passes through' => [64, 64];
+        yield 'large positive integer passes through with no upper ceiling' => [1_000_000, 1_000_000];
+        yield 'non-integer narrows to null and the default cap applies' => ['64', StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH];
     }
 }

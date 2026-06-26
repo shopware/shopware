@@ -184,7 +184,7 @@ Option names must be globally unique across core, bundles, plugins, and apps. Du
 
 ### App Lifecycle
 
-App activation state is read live, not denormalized onto the option rows. `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its options from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update). Options are persisted on app install/update by `ContentSystemStyleOptionLifecycleHandler` and cascade-deleted with the app.
+App activation state is read live, not denormalized onto the option rows. `DatabaseStyleOptionLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its options from that query with no extra write. `ContentSystemStyleOptionLifecycleHandler::deactivate()` invalidates the cached registry immediately, so the `app.active = 1` filter takes effect on the next request rather than lagging until a later install/update. Options are persisted on app install/update by `ContentSystemStyleOptionLifecycleHandler` and cascade-deleted with the app.
 
 ### Validation Posture
 

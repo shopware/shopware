@@ -100,13 +100,14 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer implements Res
     /**
      * Read-time conversion: keep only registry-known options and canonical breakpoints. No PHP option
      * classes are instantiated because a style option is data. An option absent from the registry is
-     * dropped rather than erroring, so removing a provider does not break already-stored layouts.
+     * dropped rather than erroring, so removing a provider does not break already-stored layouts. Reads
+     * the precedence-resolved view, so a cross-loader name collision does not fail the read path.
      *
      * @param array<array-key, mixed> $data
      */
     public function deserialize(array $data): ElementStyle
     {
-        $options = $this->registry->all();
+        $options = $this->registry->allResolved();
         $breakpoints = Breakpoint::values();
 
         $clean = [];

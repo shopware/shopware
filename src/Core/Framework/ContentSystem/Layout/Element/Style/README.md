@@ -21,8 +21,8 @@ A style option's `default` is **advisory** — an introspection and Admin pre-fi
 
 `Layout/Field/ElementStyleFieldSerializer` is the boundary. Validation constraints are derived from the registry once per request (memoized, not rebuilt per element):
 
-- **Write is strict.** An unknown option key, an unknown breakpoint, or a value that violates the option's derived constraints (`type` / `enum` / `range` / `maxLength`) is rejected.
-- **Read is lenient.** `deserialize()` drops an option no longer in the registry, so a layout written while a plugin or app option was registered still renders after that provider is removed. Re-saving such a layout is still rejected until the orphaned option is cleared — the same removal posture the element type system has.
+- **Write is strict.** An unknown option key, an unknown breakpoint, or a value that violates the option's derived constraints (`type` / `enum` / `range` / `maxLength`) is rejected. Constraint derivation reads the strict `registry->all()`, so a cross-loader name collision fails the write and install paths hard.
+- **Read is lenient.** `deserialize()` reads the precedence-resolved `registry->allResolved()`: it drops an option no longer in the registry, so a layout written while a plugin or app option was registered still renders after that provider is removed, and it resolves a cross-loader name collision by source precedence (logging a warning) rather than failing. Re-saving such a layout is still rejected until the orphaned option is cleared, the same removal posture the element type system has.
 
 The Symfony constraints and the introspection schema are both derived from the one declaration, so the two cannot drift: `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into a `list<Constraint>` via the fluent `ConstraintBuilder`.
 
@@ -32,7 +32,7 @@ The Symfony constraints and the introspection schema are both derived from the o
 
 2. **Loading** (`Loader/`) — both loaders extend `AbstractContentSystemStyleOptionLoader`. `YamlStyleOptionLoader` handles core, bundle, and plugin options in every environment plus app options in dev; it resolves the option name from the kebab-case filename, deserializes via `StyleOptionSpecificationSerializer`, validates the DTOs, and deduplicates within and across directories. `DatabaseStyleOptionLoader` loads active app options from `app_content_system_style_option` in prod and returns empty in dev. `StyleOptionSourceDirectory` carries source and path per directory; `ResolvedStyleOptionSpecificationDto` bridges loading and specification creation.
 
-3. **Registry** (`Registry/`) — the Shopware decoration pattern. `AbstractContentSystemStyleOptionRegistry` defines the contract (`all()`, `invalidate()`); `ContentSystemStyleOptionRegistry` is the stateless aggregator (leaf) that iterates loaders tagged `content_system.style_option_loader`; `CachedContentSystemStyleOptionRegistry` decorates it with a `cache.system` pool. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
+3. **Registry** (`Registry/`) — the Shopware decoration pattern. `AbstractContentSystemStyleOptionRegistry` defines the contract: the strict `all()` (a cross-loader duplicate throws), the lenient `allResolved()` (a cross-loader duplicate resolves by source precedence and logs), and `invalidate()`. `ContentSystemStyleOptionRegistry` is the stateless aggregator (leaf) that iterates loaders tagged `content_system.style_option_loader`; `CachedContentSystemStyleOptionRegistry` decorates it with a `cache.system` pool, caching `all()` and `allResolved()` under separate keys that `invalidate()` both clears. `invalidate()` throws `DecorationPatternException` by default; only the cached decorator overrides it.
 
 4. **Serialization** (`Serialization/`) — `StyleOptionSpecificationSerializer` converts a declaration between its YAML/array form and the validation DTO.
 

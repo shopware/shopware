@@ -297,7 +297,7 @@ class InfoController extends AbstractController
     {
         return array_map(
             static fn (StyleOptionSpecification $spec) => $spec->toSchema(),
-            $this->styleOptionRegistry->all()
+            $this->styleOptionRegistry->allResolved()
         );
     }
 

@@ -87,6 +87,28 @@ class ElementStyleFieldSerializerTest extends TestCase
         static::assertTrue($this->serializer()->deserialize([])->isEmpty());
     }
 
+    #[TestDox('deserialize tolerates a cross-loader duplicate by reading the resolved registry view')]
+    public function testDeserializeToleratesCrossLoaderDuplicate(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        // The strict view throws on a duplicate; the read path must use the resolved view instead.
+        $registry->method('all')->willThrowException(
+            ContentSystemException::styleOptionDuplicate('col-span', 'core', 'app:Acme')
+        );
+        $registry->method('allResolved')->willReturn($this->options());
+
+        $serializer = new ElementStyleFieldSerializer(
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $registry,
+            new StyleOptionConstraintDeriver(),
+        );
+
+        $style = $serializer->deserialize(['col-span' => ['md' => 6]]);
+
+        static::assertSame(['col-span' => ['md' => 6]], $style->toArray());
+    }
+
     #[TestDox('decode rejects a field that is not an ElementStyleField')]
     public function testDecodeRejectsWrongField(): void
     {
@@ -209,7 +231,9 @@ class ElementStyleFieldSerializerTest extends TestCase
     private function serializer(): ElementStyleFieldSerializer
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        // deserialize() reads allResolved(); buildConstraints() reads all(). Both serve the same option set here.
         $registry->method('all')->willReturn($this->options());
+        $registry->method('allResolved')->willReturn($this->options());
 
         return new ElementStyleFieldSerializer(
             static::createStub(ValidatorInterface::class),

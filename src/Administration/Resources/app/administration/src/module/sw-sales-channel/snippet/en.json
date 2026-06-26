@@ -66,6 +66,8 @@
             "labelInputShippingMethods": "Shipping methods",
             "labelInputPaymentMethods": "Payment methods",
             "labelInputCountries": "Countries",
+            "labelBusinessTimeZone": "Business timezone",
+            "helpTextBusinessTimeZone": "Timezone used whenever a date or time is printed in documents of this Sales Channel. If empty, no business timezone override is applied.",
             "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
             "helpTextTaxCalculation": {
                 "label": "If a tax provider is activated, these settings may be overwritten. You can check this in {link}.",
@@ -281,7 +283,7 @@
             },
             "agenticFiles": {
                 "cardTitle": "Agentic files",
-                "description": "Manage AI-readable files served publicly for this Sales Channel, such as llms.txt and agents.md. They give assistants a concise overview of your shop and guidance for using public content.",
+                "description": "Manage AI-readable files served publicly for this Sales Channel, such as llms.txt, agents.md and ai-catalog.json. They give assistants a concise overview of your shop and guidance for using public content.",
                 "columnFileName": "File",
                 "columnEnabled": "Status",
                 "columnDescription": "Description",
@@ -326,6 +328,7 @@
                 },
                 "descriptions": {
                     "agentic": {
+                        ".well-known/ai-catalog.json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
                         "llms.txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
                         "agents.md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
                     }

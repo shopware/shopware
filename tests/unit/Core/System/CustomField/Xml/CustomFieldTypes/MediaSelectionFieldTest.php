@@ -1,0 +1,60 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\System\CustomField\Xml\CustomFieldTypes;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MediaSelectionField;
+
+/**
+ * @internal
+ */
+#[CoversClass(MediaSelectionField::class)]
+class MediaSelectionFieldTest extends TestCase
+{
+    public function testCreateFromXml(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/media-selection-field.xml');
+
+        static::assertNotNull($manifest->getCustomFields());
+        static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
+
+        $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
+
+        static::assertCount(1, $customFieldSet->getFields());
+
+        $mediaSelectionField = $customFieldSet->getFields()[0];
+        static::assertInstanceOf(MediaSelectionField::class, $mediaSelectionField);
+        static::assertSame('test_media_selection_field', $mediaSelectionField->getName());
+        static::assertSame([
+            'en-GB' => 'Test media-selection field',
+        ], $mediaSelectionField->getLabel());
+        static::assertSame([], $mediaSelectionField->getHelpText());
+        static::assertSame(1, $mediaSelectionField->getPosition());
+        static::assertFalse($mediaSelectionField->getRequired());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/media-selection-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $mediaSelectionField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(MediaSelectionField::class, $mediaSelectionField);
+
+        static::assertEquals([
+            'name' => 'test_media_selection_field',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test media-selection field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'componentName' => 'sw-media-field',
+                'customFieldType' => 'media',
+            ],
+        ], $mediaSelectionField->toEntityPayload());
+    }
+}

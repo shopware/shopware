@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware Release Docs"
+  short_description: "Decide and write Shopware release and upgrade notes."
+  default_prompt: "Check whether this Shopware change needs release or upgrade documentation."

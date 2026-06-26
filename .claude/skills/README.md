@@ -7,6 +7,7 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 | Skill | Trigger phrases (examples) | What it does |
 |---|---|---|
 | [`triage`](triage/SKILL.md) | "triage issue #X", "classify this bug", "is this a duplicate", "what severity is #N" | Triages a Shopware 6 GitHub bug issue — identifies the affected code area, checks for related fixes or duplicates, and emits a Markdown summary (disposition, severity, suggested labels, confidence, evidence). |
+| [`shopware-storefront-component`](shopware-storefront-component/SKILL.md) | "Create a twig ux component", "Create a storefront component", "Migrate to twig ux component" | Creates or migrates Shopware Storefront Twig UX components following all best practices. |
 
 ## How auto-loading works
 

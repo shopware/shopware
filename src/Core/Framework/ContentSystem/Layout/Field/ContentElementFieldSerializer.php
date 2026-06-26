@@ -56,13 +56,9 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Encodes a ContentElement for database storage.
-     *
-     * The serializer is format-agnostic — it serializes whatever properties are present on
-     * the element at call time. In the normal write path (Admin API saving a layout), the
-     * element has not been hydrated, so properties contain only static/config values.
-     * FQCN-typed values exist as instructions in data_requirements or accepts_context,
-     * and are materialized into properties only at hydration time.
+     * Encodes a ContentElement for database storage. Format-agnostic: it serializes whatever
+     * properties are present at call time (in the normal write path the element is unhydrated, so
+     * only static/config values).
      */
     public function encode(
         Field $field,
@@ -96,11 +92,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Decodes a ContentElement from database JSON.
-     *
-     * The returned element is in the "storage" lifecycle stage: properties contain only
-     * static/config values. FQCN-typed property values are not present — they exist as
-     * instructions in data_requirements and accepts_context, awaiting hydration.
+     * Decodes a ContentElement from database JSON. The result is in the storage stage: properties
+     * hold only static/config values, not yet-hydrated data.
      */
     public function decode(Field $field, mixed $value): ?ContentElement
     {

@@ -16,18 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Content element aggregate root with tree traversal.
- *
- * Lifecycle: ContentElement is a mutable object whose properties map changes between stages:
- *
- * - **Storage** (database JSON): properties contains only static/config values (scalars).
- *   FQCN-typed values are absent — their loading instructions live in $dataRequirements
- *   and $contextDefinitions.
- * - **Post-hydration** (runtime): properties contains static values AND loaded data merged.
- *   Data is written via setProperty($key, $data) using the data requirement's key.
- *   Context resolution writes via the same mechanism.
- * - **API output** (jsonSerialize): properties is serialized as a single merged map.
- *   Skeleton output strips properties entirely.
+ * Content element aggregate root with tree traversal. Mutable: its properties map is filled
+ * across the storage → post-hydration → output stages.
  *
  * @final
  */

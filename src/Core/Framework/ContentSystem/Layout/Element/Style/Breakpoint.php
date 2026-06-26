@@ -5,9 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Canonical responsive breakpoint set for content-system style options. Fixed at the
- * framework level: every per-breakpoint style value is keyed by one of these cases.
- * Not plugin/app extensible.
+ * Canonical responsive breakpoint set for style options. Fixed framework primitive, not
+ * plugin/app extensible.
  *
  * @internal
  */

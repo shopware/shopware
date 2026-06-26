@@ -7,8 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * Single authority over the universal style option set: validation, introspection, and the
- * storefront/admin contract all read it, so they cannot drift.
+ * Single authority over the universal style option set, read by both validation and introspection.
  */
 #[Package('framework')]
 abstract class AbstractContentSystemStyleOptionRegistry

@@ -12,10 +12,8 @@ use Symfony\Component\Validator\Constraints\Range;
 
 /**
  * Turns a declarative StyleOptionValueType into the Symfony constraints a single per-breakpoint
- * value must satisfy. Shopware has no declarative-spec-to-Constraint facility, so this is novel,
- * but it emits via the fluent ConstraintBuilder and mirrors the canonical field-serializer shapes:
- * Type + Range (IntFieldSerializer), Length (StringFieldSerializer), and Choice. NotBlank is
- * applied to every type except boolean, where false is a legitimate value.
+ * value must satisfy, via the fluent ConstraintBuilder. NotBlank applies to every type except
+ * boolean, where false is a legitimate value.
  *
  * @internal
  */

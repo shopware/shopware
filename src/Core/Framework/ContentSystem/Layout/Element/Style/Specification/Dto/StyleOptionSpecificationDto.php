@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Deserialization + load-time validation shape for one style option declaration. The option name
  * is not carried here — it comes from the source (the YAML filename or the persisted DB row) and
- * is supplied to toStyleOptionSpecification(), mirroring the element-type DTO.
+ * is supplied to toStyleOptionSpecification().
  *
  * @internal
  */

@@ -5,11 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specificati
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Declared contract of one universal style option. The name is the Store-API wire key
- * (e.g. `col-span`); the value vocabulary and bounds live on the StyleOptionValueType.
- * toSchema() feeds both the dedicated style-option introspection endpoint and the folded
- * styleOptions section of the element-types endpoint, and is the single source the validation
- * constraints are derived from, so the two never drift.
+ * Declared contract of one universal style option: its name (the Store-API wire key, e.g.
+ * `col-span`), an adminUI passthrough block, and the value vocabulary/bounds on the
+ * StyleOptionValueType. toSchema() serializes it for introspection.
  *
  * @internal
  *

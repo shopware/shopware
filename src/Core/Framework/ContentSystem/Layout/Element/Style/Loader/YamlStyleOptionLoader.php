@@ -13,11 +13,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Primary style option loader: handles core, bundle, and plugin options in all environments, plus
- * app options in dev (where the compiler pass injects app filesystem directories). In prod, app
- * options are loaded from the database by DatabaseStyleOptionLoader instead.
- *
- * The option name is the kebab-case filename (the Store-API wire key); there is no source prefix.
+ * Filesystem loader for core, bundle, and plugin style options, plus app options in dev (the prod
+ * app path is DatabaseStyleOptionLoader). The option name is the kebab-case filename.
  *
  * @internal
  *

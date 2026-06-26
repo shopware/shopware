@@ -14,8 +14,7 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Discovers style option YAML directories from core, bundles, plugins, and (in dev) active apps, and
- * injects them into the YamlStyleOptionLoader. Unlike the element-type pass, the convention directory
- * is fixed for both bundles and plugins, so the core Plugin base class needs no customization hook.
+ * injects them into the YamlStyleOptionLoader.
  *
  * @internal
  */

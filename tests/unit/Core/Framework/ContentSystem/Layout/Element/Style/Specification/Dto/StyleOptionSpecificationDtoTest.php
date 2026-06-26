@@ -62,6 +62,22 @@ class StyleOptionSpecificationDtoTest extends TestCase
         static::assertNull($dto->toStyleOptionSpecification('align-self', 'core')->valueType()->enum());
     }
 
+    #[TestDox('narrows a non-scalar default to null on the value type')]
+    public function testNarrowsNonScalarDefaultToNull(): void
+    {
+        $dto = new StyleOptionSpecificationDto('integer', null, null, null, ['not', 'a', 'scalar'], null);
+
+        static::assertNull($dto->toStyleOptionSpecification('col-span', 'core')->valueType()->default());
+    }
+
+    #[TestDox('collapses an empty adminUI map to null on the schema')]
+    public function testCollapsesEmptyAdminUiToNull(): void
+    {
+        $dto = new StyleOptionSpecificationDto('boolean', null, null, null, null, []);
+
+        static::assertNull($dto->toStyleOptionSpecification('display', 'core')->toSchema()['adminUI']);
+    }
+
     /**
      * The string default cap stands in for "no declared maxLength", so a non-integer raw maxLength that
      * narrows to null is observable as the default 255 rather than the raw value.

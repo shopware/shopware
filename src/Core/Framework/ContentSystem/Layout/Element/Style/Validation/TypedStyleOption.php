@@ -6,9 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Asserts that a style option declaration is internally consistent: its enum, range, maxLength,
- * and default all agree with the declared primitive type. Cohesive single constraint rather than
- * one per facet, because the rules share the same primitive-type premise.
+ * Asserts that a style option declaration is internally consistent: enum, range, maxLength, and default
+ * agree with the declared primitive type, the default also stays within the declared bounds, and adminUI
+ * is an array. Cohesive single constraint rather than one per facet, because the rules share the same
+ * primitive-type premise.
  *
  * @internal
  */
@@ -35,6 +36,14 @@ final class TypedStyleOption extends Constraint
     public string $maxLengthValueMessage = 'maxLength must be a positive integer';
 
     public string $defaultTypeMessage = 'default must match the declared type "{{ type }}"';
+
+    public string $defaultEnumMessage = 'default must be one of the enum values';
+
+    public string $defaultRangeMessage = 'default must be within the declared range';
+
+    public string $defaultMaxLengthMessage = 'default must not exceed maxLength';
+
+    public string $adminUiArrayMessage = 'adminUI must be an array';
 
     public function getTargets(): string
     {

@@ -56,6 +56,14 @@ class TypedStyleOptionValidatorTest extends TestCase
         yield 'string with a large maxLength (no upper ceiling)' => [
             new StyleOptionSpecificationDto('string', null, null, 1_000_000, null, null),
         ];
+
+        yield 'integer with an in-range default' => [
+            new StyleOptionSpecificationDto('integer', null, ['min' => 1, 'max' => 12], null, 6, null),
+        ];
+
+        yield 'a valid adminUI passthrough block' => [
+            new StyleOptionSpecificationDto('boolean', null, null, null, null, ['component' => 'switch']),
+        ];
     }
 
     #[DataProvider('rejectsInvalidOptionProvider')]
@@ -150,6 +158,36 @@ class TypedStyleOptionValidatorTest extends TestCase
             new StyleOptionSpecificationDto('integer', null, null, null, 'two', null),
             'default',
             'default must match the declared type',
+        ];
+
+        yield 'default outside the enum' => [
+            new StyleOptionSpecificationDto('string', ['start', 'center'], null, null, 'end', null),
+            'default',
+            'default must be one of the enum values',
+        ];
+
+        yield 'default below the range minimum' => [
+            new StyleOptionSpecificationDto('integer', null, ['min' => 1, 'max' => 12], null, 0, null),
+            'default',
+            'default must be within the declared range',
+        ];
+
+        yield 'default above the range maximum' => [
+            new StyleOptionSpecificationDto('integer', null, ['min' => 1, 'max' => 12], null, 99, null),
+            'default',
+            'default must be within the declared range',
+        ];
+
+        yield 'default longer than maxLength' => [
+            new StyleOptionSpecificationDto('string', null, null, 4, 'toolong', null),
+            'default',
+            'default must not exceed maxLength',
+        ];
+
+        yield 'adminUI is not an array' => [
+            new StyleOptionSpecificationDto('string', null, null, null, null, 'not-an-array'),
+            'adminUI',
+            'adminUI must be an array',
         ];
 
         yield 'type is not a primitive' => [

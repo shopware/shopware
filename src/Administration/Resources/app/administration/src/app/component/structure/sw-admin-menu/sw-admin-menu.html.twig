@@ -1,4 +1,15 @@
 {% block sw_admin_menu %}
+{% block sw_admin_menu_off_canvas_backdrop %}
+<transition name="sw-admin-menu__backdrop">
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
+    <div
+        v-if="isMobileViewport && isOffCanvasShown"
+        class="sw-admin-menu__backdrop"
+        @click="closeOffCanvas"
+    ></div>
+</transition>
+{% endblock %}
+
 <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <aside
     class="sw-admin-menu"

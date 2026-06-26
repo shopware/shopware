@@ -15,8 +15,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -49,7 +49,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     public function __construct(
         private readonly EntityRepository $crossSellingRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
@@ -151,10 +151,14 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
             $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
         } else {
-            $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
+            $filters = Feature::silent(
+                'v6.8.0.0',
+                fn () => $productStreamBuilder->buildFilters($productStreamId, $context->getContext())
+            );
+            $criteria->addFilter(...$filters);
         }
 
         $criteria

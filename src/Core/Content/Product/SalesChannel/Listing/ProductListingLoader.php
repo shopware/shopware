@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,6 +35,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ProductListingLoader
 {
+    /**
+     * Criteria state that suppresses the variant grouping (`displayGroup` field grouping) otherwise
+     * applied to product listings. Set by {@see AbstractProductStreamBuilder::enrichCriteria()}
+     * when a product stream is configured to not display its variants as a group.
+     */
+    final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
+
     /**
      * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
      * data required by the default storefront product boxes. Nested association fields (e.g.
@@ -419,6 +426,6 @@ class ProductListingLoader
 
     private function isDisplayAsGroupEnabled(Criteria $criteria): bool
     {
-        return !$criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        return !$criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

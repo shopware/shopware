@@ -1978,8 +1978,8 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 
 ## Dynamic product group: "display as group"
 
-`product_stream` gains a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+`product_stream` has a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
 
-`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method are deprecated and will be removed in 6.8.0. Use the new `\Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
 
-The change is backward compatible: `ProductStreamBuilderInterface` keeps working until 6.8, and core consumers detect `ProductStreamCriteriaEnricher` via `instanceof` and fall back to `buildFilters()` otherwise. If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, additionally implement `ProductStreamCriteriaEnricher` (while keeping `ProductStreamBuilderInterface`) and respect `ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED` on the `Criteria`.
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.

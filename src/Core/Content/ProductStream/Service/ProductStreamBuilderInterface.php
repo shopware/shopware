@@ -7,13 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - Will be removed, use ProductStreamCriteriaEnricher instead
+ * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder instead
  */
 #[Package('inventory')]
 interface ProductStreamBuilderInterface
 {
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use ProductStreamCriteriaEnricher::enrichCriteria instead
+     * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder::enrichCriteria instead
      *
      * @return array<int, Filter>
      */

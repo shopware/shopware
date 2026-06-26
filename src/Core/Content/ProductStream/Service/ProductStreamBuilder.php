@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
@@ -13,10 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
-class ProductStreamBuilder implements ProductStreamBuilderInterface, ProductStreamCriteriaEnricher
+class ProductStreamBuilder extends AbstractProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
      * @internal
@@ -35,20 +37,20 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface, ProductStre
         $criteria->addFilter(...$this->parseFilters($stream, $id));
 
         if (!$stream->isDisplayAsGroup()) {
-            $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         }
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-interface - Will be removed, use ProductStreamCriteriaEnricher::enrichCriteria instead.
-     *      Intentionally does not call Feature::triggerDeprecationOrThrow: this method is still invoked by core
-     *      listing consumers as a backward-compatible fallback for builders that do not implement
-     *      ProductStreamCriteriaEnricher, so a runtime deprecation here would fire from inside the core.
-     *
-     * @return array<int, Filter>
+     * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder::enrichCriteria instead.
      */
     public function buildFilters(string $id, Context $context): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'AbstractProductStreamBuilder::enrichCriteria')
+        );
+
         return $this->parseFilters($this->loadStream($id, $context), $id);
     }
 

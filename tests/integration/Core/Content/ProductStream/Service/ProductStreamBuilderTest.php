@@ -7,10 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -89,7 +89,7 @@ class ProductStreamBuilderTest extends TestCase
         $criteria = new Criteria();
         $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
 
-        static::assertTrue($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
         static::assertCount(1, $criteria->getFilters());
     }
 
@@ -111,7 +111,7 @@ class ProductStreamBuilderTest extends TestCase
         $criteria = new Criteria();
         $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
 
-        static::assertFalse($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
         static::assertCount(1, $criteria->getFilters());
     }
 
@@ -179,7 +179,7 @@ class ProductStreamBuilderTest extends TestCase
         static::assertEquals($expected, $filter);
     }
 
-    public function testBuildFiltersRemainsFunctionalWithoutRuntimeDeprecation(): void
+    public function testBuildFiltersStaysFunctionalWhenSilenced(): void
     {
         $ids = new IdsCollection();
         $value = Uuid::randomHex();
@@ -194,13 +194,13 @@ class ProductStreamBuilderTest extends TestCase
             ]],
         ]], Context::createDefaultContext());
 
-        // buildFilters() is deprecated for removal in v6.8.0 (annotation only). It must NOT emit a runtime
-        // deprecation or throw under the v6.8.0.0 flag: core listing consumers still call it as a
-        // backward-compatible fallback for builders that do not implement ProductStreamCriteriaEnricher.
-        $filters = [];
-        Feature::fake(['v6.8.0.0'], function () use ($ids, &$filters): void {
-            $filters = $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
-        });
+        // buildFilters() is deprecated for removal in v6.8.0 and triggers a runtime deprecation. Core
+        // listing consumers still call it as a backward-compatible fallback for builders that do not extend
+        // AbstractProductStreamBuilder, wrapped in Feature::silent() so it stays fully functional.
+        $filters = Feature::silent(
+            'v6.8.0.0',
+            fn (): array => $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext())
+        );
 
         static::assertCount(1, $filters);
     }

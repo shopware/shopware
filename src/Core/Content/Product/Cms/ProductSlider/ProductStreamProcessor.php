@@ -13,13 +13,15 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -37,7 +39,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
@@ -114,17 +116,21 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         try {
             $productStreamBuilder = $this->productStreamBuilder;
-            if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
                 $productStreamBuilder->enrichCriteria(
                     $criteria,
                     $config->getStringValue(),
                     $resolverContext->getSalesChannelContext()->getContext()
                 );
             } else {
-                $criteria->addFilter(...$productStreamBuilder->buildFilters(
-                    $config->getStringValue(),
-                    $resolverContext->getSalesChannelContext()->getContext()
-                ));
+                $filters = Feature::silent(
+                    'v6.8.0.0',
+                    fn () => $productStreamBuilder->buildFilters(
+                        $config->getStringValue(),
+                        $resolverContext->getSalesChannelContext()->getContext()
+                    )
+                );
+                $criteria->addFilter(...$filters);
             }
         } catch (EntityNotFoundException $exception) {
             $this->logger->warning(
@@ -233,6 +239,6 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
     private function isDisplayAsGroupDisabled(Criteria $criteria): bool
     {
-        return $criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        return $criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
     }
 }

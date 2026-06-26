@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -191,7 +190,7 @@ class ProductListingLoaderTest extends TestCase
             });
 
         $criteria = new Criteria();
-        $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 

@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -395,7 +394,7 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 
@@ -408,7 +407,7 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 

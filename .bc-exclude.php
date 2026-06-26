@@ -129,15 +129,12 @@ return [
         // was not auto-skipped, but it is part of the still-experimental MCP surface.
         preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
 
-        // Revert of #15865 (grouped product listings / "display as group"). The public API that PR
-        // introduced is intentionally removed again as part of the revert; coordinated with the
-        // SwagCommercial revert (shopware/SwagCommercial#3003).
-        preg_quote('REMOVED: Class Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder has been deleted', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder have been removed:', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder#enrichCriteria() was removed', '/'),
+        // BC-safe re-implementation of #15865 (grouped product listings / "display as group"). The
+        // feature's public API (the AbstractProductStreamBuilder class, ProductStreamBuilder::enrichCriteria()
+        // and the ProductStreamEntity display-as-group accessors) is restored, so only the grouping-state
+        // constant is intentionally relocated: it now lives as ProductListingLoader::SKIP_ADD_GROUPING
+        // instead of on the product stream builder types.
+        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
         preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
-        preg_quote('REMOVED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$displayAsGroup was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#isDisplayAsGroup() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
     ],
 ];

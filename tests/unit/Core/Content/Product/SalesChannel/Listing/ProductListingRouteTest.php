@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -233,7 +232,7 @@ class ProductListingRouteTest extends TestCase
         $productStreamBuilder->method('enrichCriteria')
             ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
                 $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
-                $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+                $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
             });
 
         $eventDispatcher = new EventDispatcher();
@@ -253,7 +252,7 @@ class ProductListingRouteTest extends TestCase
             $criteria
         );
 
-        static::assertTrue($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
     }
 
     public function testProductStreamFallsBackToBuildFiltersForInterfaceOnlyBuilder(): void
@@ -272,7 +271,7 @@ class ProductListingRouteTest extends TestCase
             )])]);
 
         // A builder that only implements the deprecated interface (e.g. a decorator that has not yet
-        // adopted ProductStreamCriteriaEnricher). The route must fall back to buildFilters() without a
+        // adopted AbstractProductStreamBuilder). The route must fall back to buildFilters() without a
         // TypeError, add the stream filters, and leave display-as-group enabled (no state set).
         $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $productStreamBuilder->expects($this->once())
@@ -296,7 +295,7 @@ class ProductListingRouteTest extends TestCase
             $criteria
         );
 
-        static::assertFalse($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
         static::assertContainsEquals(new EqualsFilter('product.product_stream', $streamId), $criteria->getFilters());
     }
 }

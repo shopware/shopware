@@ -15,8 +15,8 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -129,7 +129,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertCount(1, $criteria->getFilters());
         static::assertCount(0, $criteria->getGroupFields());
-        static::assertTrue($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
     }
 
     public function testCollectEventCanModifyCriteria(): void
@@ -309,7 +309,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $criteria = new Criteria();
-        $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $products = $this->getProducts();
         $result = new EntitySearchResult(
@@ -349,7 +349,7 @@ class ProductStreamProcessorTest extends TestCase
                 $criteria->addFilter($filter);
 
                 if (!$displayAsGroup) {
-                    $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+                    $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
                 }
             });
     }

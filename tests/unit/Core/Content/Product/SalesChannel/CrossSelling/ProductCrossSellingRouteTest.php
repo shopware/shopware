@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -163,13 +162,13 @@ class ProductCrossSellingRouteTest extends TestCase
         $this->productStreamBuilder->method('enrichCriteria')->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_) use ($streamId): void {
             static::assertSame($streamId, $id);
             $criteria->addFilter(new EqualsFilter('product.product_stream', $streamId));
-            $criteria->addState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED);
+            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         });
 
         $this->listingLoader->expects($this->once())
             ->method('load')
             ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertTrue($criteria->hasState(ProductStreamCriteriaEnricher::STATE_DISPLAY_AS_GROUP_DISABLED));
+                static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
 
                 return new EntitySearchResult(
                     'product',

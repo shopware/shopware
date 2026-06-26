@@ -9,8 +9,8 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -38,7 +39,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -111,10 +112,14 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             $productStreamBuilder = $this->productStreamBuilder;
-            if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
                 $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
             } else {
-                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+                $filters = Feature::silent(
+                    'v6.8.0.0',
+                    fn () => $productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext())
+                );
+                $criteria->addFilter(...$filters);
             }
 
             return;

@@ -15,8 +15,8 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -50,7 +51,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly ProductExportRendererInterface $productExportRender,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -107,10 +108,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof ProductStreamCriteriaEnricher) {
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
             $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
         } else {
-            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+            $filters = Feature::silent(
+                'v6.8.0.0',
+                fn () => $productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext())
+            );
+            $criteria->addFilter(...$filters);
         }
 
         $associations = $this->getAssociations($productExport, $context);

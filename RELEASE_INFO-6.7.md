@@ -158,7 +158,7 @@ Now, product streams have a new boolean field `displayAsGroup` and a correspondi
 When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
 
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
-Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `ProductStreamCriteriaEnricher::enrichCriteria()` as the primary extension point instead.
+Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
 ## API
 

@@ -1,5 +1,23 @@
 @import "~scss/mixins";
 
+.sw-admin-menu__backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--color-elevation-backdrop-default);
+    z-index: 749;
+    cursor: pointer;
+}
+
+.sw-admin-menu__backdrop-enter-active,
+.sw-admin-menu__backdrop-leave-active {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.sw-admin-menu__backdrop-enter-from,
+.sw-admin-menu__backdrop-leave-to {
+    opacity: 0;
+}
+
 .sw-admin-menu {
     background: var(--color-elevation-surface-sunken);
     width: 52px;

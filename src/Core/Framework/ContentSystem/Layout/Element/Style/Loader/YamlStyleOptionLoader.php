@@ -23,7 +23,9 @@ use Symfony\Component\Yaml\Yaml;
 #[Package('framework')]
 class YamlStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 {
-    private const NAME_PATTERN = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
+    // Must start with a letter: an all-numeric name (e.g. "123") would be coerced to an int array key on
+    // read and silently dropped by the registry-free deserialize, so it could never round-trip.
+    private const NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/';
 
     /**
      * @param list<StyleOptionSourceDirectory> $directories

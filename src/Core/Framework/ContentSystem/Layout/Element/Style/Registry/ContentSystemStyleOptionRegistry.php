@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
@@ -19,7 +18,6 @@ class ContentSystemStyleOptionRegistry extends AbstractContentSystemStyleOptionR
      */
     public function __construct(
         private readonly iterable $loaders,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -69,7 +67,7 @@ class ContentSystemStyleOptionRegistry extends AbstractContentSystemStyleOptionR
 
                 $options[$name] = $existing === null
                     ? $specification
-                    : $this->resolveCollision($name, $existing, $specification);
+                    : $this->resolveCollision($existing, $specification);
             }
         }
 
@@ -77,24 +75,16 @@ class ContentSystemStyleOptionRegistry extends AbstractContentSystemStyleOptionR
     }
 
     private function resolveCollision(
-        string $name,
         StyleOptionSpecification $existing,
         StyleOptionSpecification $candidate,
     ): StyleOptionSpecification {
         // A lower tier wins; within the same tier the first-registered option (the existing one) wins.
-        $winner = $this->sourceTier($candidate->source()) < $this->sourceTier($existing->source())
+        // A cross-loader collision is surfaced loudly by the strict all() (it throws with both source labels
+        // on every write and install), so the lenient read resolves silently rather than logging from inside
+        // the cached view, where the warning would be gated by the cache.
+        return $this->sourceTier($candidate->source()) < $this->sourceTier($existing->source())
             ? $candidate
             : $existing;
-
-        $this->logger->warning(\sprintf(
-            'Style option "%s" is declared by more than one source ("%s" and "%s"); resolving to "%s" by source precedence.',
-            $name,
-            $existing->source(),
-            $candidate->source(),
-            $winner->source(),
-        ));
-
-        return $winner;
     }
 
     /**

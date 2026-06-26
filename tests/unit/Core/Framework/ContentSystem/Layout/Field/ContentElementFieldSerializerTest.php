@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -399,6 +400,19 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('provides_context', $result);
         static::assertArrayNotHasKey('accepts_context', $result);
         static::assertArrayNotHasKey('style', $result);
+    }
+
+    #[TestDox('serializes a ContentElement object with a non-empty style into the style key')]
+    public function testSerializeContentElementWithStyleIncludesStyle(): void
+    {
+        $element = ContentElementBuilder::create('text', 'elem-style')
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($element);
+
+        static::assertArrayHasKey('style', $result);
+        static::assertSame(['col-span' => ['md' => 6]], $result['style']);
     }
 
     #[TestDox('serializes ContentElement with data requirements to array')]

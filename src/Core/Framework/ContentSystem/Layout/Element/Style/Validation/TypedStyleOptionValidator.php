@@ -248,12 +248,18 @@ final class TypedStyleOptionValidator extends ConstraintValidator
 
     private function validateDefaultAgainstMaxLength(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
     {
-        // Only an explicitly declared maxLength bounds the advisory default (a string on a valid facet).
-        if (!\is_int($value->maxLength) || !\is_string($value->default)) {
+        // The advisory default is bounded by the option's *effective* length cap: the declared maxLength, or
+        // DEFAULT_STRING_MAX_LENGTH for an unbounded string (mirrors StyleOptionValueType::maxLength()), so a
+        // default longer than the cap a client may store is rejected even when no maxLength is declared.
+        if ($value->type !== StyleOptionValueType::TYPE_STRING || !\is_string($value->default)) {
             return;
         }
 
-        if (mb_strlen($value->default) > $value->maxLength) {
+        $effectiveMax = \is_int($value->maxLength) && $value->maxLength > 0
+            ? $value->maxLength
+            : StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH;
+
+        if (mb_strlen($value->default) > $effectiveMax) {
             $this->context->buildViolation($constraint->defaultMaxLengthMessage)
                 ->atPath('default')
                 ->addViolation();

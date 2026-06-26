@@ -304,7 +304,6 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry">
             <argument type="tagged_iterator" tag="content_system.style_option_loader"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\CachedContentSystemStyleOptionRegistry"

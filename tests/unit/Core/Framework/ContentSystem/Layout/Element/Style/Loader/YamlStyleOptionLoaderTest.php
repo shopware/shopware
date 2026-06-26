@@ -79,6 +79,18 @@ class YamlStyleOptionLoaderTest extends TestCase
         $loader->load();
     }
 
+    #[TestDox('rejects an all-numeric filename that would coerce to an int array key on read')]
+    public function testRejectsAllNumericFilename(): void
+    {
+        file_put_contents($this->tempDir . '/123.yaml', self::MINIMAL_VALID_YAML);
+
+        $loader = $this->createLoader([new StyleOptionSourceDirectory('core', $this->tempDir)]);
+
+        $this->expectExceptionObject(ContentSystemException::styleOptionInvalidFilename('123', '123.yaml'));
+
+        $loader->load();
+    }
+
     #[TestDox('fails hard on a cross-directory duplicate option name, naming both sources')]
     public function testFailsOnCrossDirectoryDuplicate(): void
     {

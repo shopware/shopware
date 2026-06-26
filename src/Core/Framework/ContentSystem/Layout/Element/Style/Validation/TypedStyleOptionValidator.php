@@ -33,16 +33,20 @@ final class TypedStyleOptionValidator extends ConstraintValidator
             return;
         }
 
-        $this->validateEnum($value, $constraint);
-        $this->validateRange($value, $constraint);
-        $this->validateMaxLength($value, $constraint);
-        $this->validateDefault($value, $constraint);
+        $enumValid = $this->validateEnum($value, $constraint);
+        $rangeValid = $this->validateRange($value, $constraint);
+        $maxLengthValid = $this->validateMaxLength($value, $constraint);
+        $this->validateDefault($value, $constraint, $enumValid, $rangeValid, $maxLengthValid);
+        $this->validateAdminUI($value, $constraint);
     }
 
-    private function validateEnum(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    /**
+     * @return bool true when the enum facet is absent or well-formed; false when it raised a violation
+     */
+    private function validateEnum(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): bool
     {
         if ($value->enum === null) {
-            return;
+            return true;
         }
 
         if (!\is_array($value->enum)) {
@@ -50,7 +54,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('enum')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         if (!array_is_list($value->enum)) {
@@ -58,7 +62,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('enum')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         if ($value->enum === []) {
@@ -67,7 +71,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('enum')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         foreach ($value->enum as $entry) {
@@ -80,14 +84,19 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('enum')
                 ->addViolation();
 
-            return;
+            return false;
         }
+
+        return true;
     }
 
-    private function validateRange(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    /**
+     * @return bool true when the range facet is absent or well-formed; false when it raised a violation
+     */
+    private function validateRange(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): bool
     {
         if ($value->range === null) {
-            return;
+            return true;
         }
 
         if (!\is_array($value->range)) {
@@ -95,7 +104,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('range')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         if (!\in_array($value->type, self::NUMERIC_TYPES, true)) {
@@ -103,7 +112,7 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('range')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         $min = $value->range['min'] ?? null;
@@ -117,20 +126,27 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('range')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         if ($min !== null && $max !== null && $min > $max) {
             $this->context->buildViolation($constraint->rangeBoundsMessage)
                 ->atPath('range')
                 ->addViolation();
+
+            return false;
         }
+
+        return true;
     }
 
-    private function validateMaxLength(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    /**
+     * @return bool true when the maxLength facet is absent or well-formed; false when it raised a violation
+     */
+    private function validateMaxLength(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): bool
     {
         if ($value->maxLength === null) {
-            return;
+            return true;
         }
 
         if (!\is_int($value->maxLength) || $value->maxLength <= 0) {
@@ -138,30 +154,110 @@ final class TypedStyleOptionValidator extends ConstraintValidator
                 ->atPath('maxLength')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         if ($value->type !== StyleOptionValueType::TYPE_STRING) {
             $this->context->buildViolation($constraint->maxLengthTypeMessage)
                 ->atPath('maxLength')
                 ->addViolation();
+
+            return false;
         }
+
+        return true;
     }
 
-    private function validateDefault(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    private function validateAdminUI(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
     {
+        if ($value->adminUI === null || \is_array($value->adminUI)) {
+            return;
+        }
+
+        $this->context->buildViolation($constraint->adminUiArrayMessage)
+            ->atPath('adminUI')
+            ->addViolation();
+    }
+
+    private function validateDefault(
+        StyleOptionSpecificationDto $value,
+        TypedStyleOption $constraint,
+        bool $enumValid,
+        bool $rangeValid,
+        bool $maxLengthValid,
+    ): void {
         if ($value->default === null) {
             return;
         }
 
-        if ($this->matchesType($value->default, $value->type)) {
+        if (!$this->matchesType($value->default, $value->type)) {
+            $this->context->buildViolation($constraint->defaultTypeMessage)
+                ->setParameter('{{ type }}', $value->type)
+                ->atPath('default')
+                ->addViolation();
+
             return;
         }
 
-        $this->context->buildViolation($constraint->defaultTypeMessage)
-            ->setParameter('{{ type }}', $value->type)
+        // The default is a scalar of the declared type; reject it when it falls outside any *valid* facet.
+        // A malformed facet already raised its own violation, so skip it here to avoid a pile-on at default.
+        if ($enumValid) {
+            $this->validateDefaultAgainstEnum($value, $constraint);
+        }
+
+        if ($rangeValid) {
+            $this->validateDefaultAgainstRange($value, $constraint);
+        }
+
+        if ($maxLengthValid) {
+            $this->validateDefaultAgainstMaxLength($value, $constraint);
+        }
+    }
+
+    private function validateDefaultAgainstEnum(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    {
+        // A valid enum is a non-empty list; the is_array guard also narrows it for in_array.
+        if (!\is_array($value->enum) || \in_array($value->default, $value->enum, true)) {
+            return;
+        }
+
+        $this->context->buildViolation($constraint->defaultEnumMessage)
             ->atPath('default')
             ->addViolation();
+    }
+
+    private function validateDefaultAgainstRange(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    {
+        // A valid range on a numeric type means the default is numeric too; the guards narrow for PHPStan.
+        if (!\is_array($value->range) || (!\is_int($value->default) && !\is_float($value->default))) {
+            return;
+        }
+
+        $min = $value->range['min'] ?? null;
+        $max = $value->range['max'] ?? null;
+
+        $belowMin = (\is_int($min) || \is_float($min)) && $value->default < $min;
+        $aboveMax = (\is_int($max) || \is_float($max)) && $value->default > $max;
+
+        if ($belowMin || $aboveMax) {
+            $this->context->buildViolation($constraint->defaultRangeMessage)
+                ->atPath('default')
+                ->addViolation();
+        }
+    }
+
+    private function validateDefaultAgainstMaxLength(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    {
+        // Only an explicitly declared maxLength bounds the advisory default (a string on a valid facet).
+        if (!\is_int($value->maxLength) || !\is_string($value->default)) {
+            return;
+        }
+
+        if (mb_strlen($value->default) > $value->maxLength) {
+            $this->context->buildViolation($constraint->defaultMaxLengthMessage)
+                ->atPath('default')
+                ->addViolation();
+        }
     }
 
     private function matchesType(mixed $value, string $type): bool

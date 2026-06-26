@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\StyleOptionSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
@@ -152,6 +153,17 @@ class YamlStyleOptionLoaderTest extends TestCase
         $this->expectExceptionMessageMatches('/options\[broken-option\]\.type/');
 
         $loader->load();
+    }
+
+    #[TestDox('the shipped core style option definitions all pass declaration validation')]
+    public function testShippedCoreDefinitionsValidate(): void
+    {
+        // Guards D-default: an out-of-bounds advisory default in a shipped core definition now fails at load.
+        $coreDir = \dirname((string) (new \ReflectionClass(ElementStyle::class))->getFileName()) . '/Definitions';
+
+        $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();
+
+        static::assertCount(7, $options);
     }
 
     /**

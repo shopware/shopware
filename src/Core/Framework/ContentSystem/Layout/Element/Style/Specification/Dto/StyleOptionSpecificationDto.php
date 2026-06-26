@@ -20,11 +20,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class StyleOptionSpecificationDto
 {
     /**
-     * enum, range and maxLength are carried raw (the raw YAML/DB value, typed mixed) so the validator can
-     * reject a non-array enum or range, or a non-integer maxLength, at runtime; they are narrowed to their
-     * clean shapes by buildEnum()/buildRange()/buildMaxLength(), which run only after validation passes.
-     *
-     * @param array<string, mixed>|null $adminUI
+     * Every facet except type is carried raw (the raw YAML/DB value, typed mixed) so the validator can
+     * reject a wrong-typed declaration at runtime rather than have it silently coerced before validation
+     * sees it. The facets are narrowed to their clean shapes by buildEnum()/buildRange()/buildMaxLength()/
+     * buildDefault()/buildAdminUI(), which run only after validation has passed.
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -33,8 +32,8 @@ final readonly class StyleOptionSpecificationDto
         public mixed $enum,
         public mixed $range,
         public mixed $maxLength,
-        public string|int|float|bool|null $default,
-        public ?array $adminUI,
+        public mixed $default,
+        public mixed $adminUI,
     ) {
     }
 
@@ -47,9 +46,9 @@ final readonly class StyleOptionSpecificationDto
                 $this->buildEnum(),
                 $this->buildRange(),
                 $this->buildMaxLength(),
-                $this->default,
+                $this->buildDefault(),
             ),
-            $this->adminUI,
+            $this->buildAdminUI(),
             $source,
         );
     }
@@ -63,14 +62,8 @@ final readonly class StyleOptionSpecificationDto
             return null;
         }
 
-        $values = [];
-        foreach ($this->enum as $value) {
-            if (\is_scalar($value)) {
-                $values[] = $value;
-            }
-        }
-
-        return $values;
+        // validateEnum has already rejected any non-scalar entry, so the values are scalars of the type.
+        return array_values($this->enum);
     }
 
     /**
@@ -100,5 +93,20 @@ final readonly class StyleOptionSpecificationDto
     private function buildMaxLength(): ?int
     {
         return \is_int($this->maxLength) ? $this->maxLength : null;
+    }
+
+    private function buildDefault(): string|int|float|bool|null
+    {
+        // validateDefault has already rejected a non-scalar default; this only narrows for the value type.
+        return \is_scalar($this->default) ? $this->default : null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buildAdminUI(): ?array
+    {
+        // An empty adminUI map collapses to null so toSchema() emits null, matching the OpenAPI contract.
+        return \is_array($this->adminUI) && $this->adminUI !== [] ? $this->adminUI : null;
     }
 }

@@ -73,8 +73,8 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         static::assertSame('not-an-array', $dto->range);
     }
 
-    #[TestDox('denormalize coerces a wrong-typed adminUI or default to null to protect the typed DTO')]
-    public function testDenormalizeCoercesAdminUiAndDefaultToNull(): void
+    #[TestDox('denormalize carries a wrong-typed adminUI and default through raw for the validator to reject')]
+    public function testDenormalizeCarriesRawAdminUiAndDefault(): void
     {
         $dto = $this->serializer->denormalize([
             'type' => 'string',
@@ -82,8 +82,8 @@ class StyleOptionSpecificationSerializerTest extends TestCase
             'default' => ['not', 'a', 'scalar'],
         ]);
 
-        static::assertNull($dto->adminUI);
-        static::assertNull($dto->default);
+        static::assertSame('not-an-array', $dto->adminUI);
+        static::assertSame(['not', 'a', 'scalar'], $dto->default);
     }
 
     #[TestDox('normalize omits absent optional facets, keeping only the declared type')]

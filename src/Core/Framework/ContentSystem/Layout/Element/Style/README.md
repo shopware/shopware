@@ -36,7 +36,7 @@ The Symfony constraints and the introspection schema are both derived from the o
 
 4. **Serialization** (`Serialization/`) — `StyleOptionSpecificationSerializer` converts a declaration between its YAML/array form and the validation DTO.
 
-5. **Validation** (`Validation/`) — `StyleOptionConstraintDeriver` (declaration to runtime constraints), `StyleOptionCollisionDetector` (proposed names against the registry plus inactive app options), and `TypedStyleOption` (+ validator), the class-level constraint that checks a declaration's `enum` / `range` / `maxLength` / `default` are internally consistent.
+5. **Validation** (`Validation/`) — `StyleOptionConstraintDeriver` (declaration to runtime constraints), `StyleOptionCollisionDetector` (proposed names against the registry plus inactive app options), and `TypedStyleOption` (+ validator), the class-level constraint that checks a declaration is internally consistent: `enum` / `range` / `maxLength` / `default` agree with the declared type, the `default` also stays within the declared bounds, and `adminUI` is an array.
 
 6. **Compiler Pass** — `Framework/DependencyInjection/CompilerPass/ContentSystemStyleOptionCompilerPass` discovers YAML directories from core `Definitions/`, each bundle's and each active plugin's fixed `Resources/content-system/style-options`, and (dev only) each active app's directory, then injects them into `YamlStyleOptionLoader`. Unlike the element-type pass, the convention directory is fixed for both bundles and plugins, so the core `Plugin` base class needs no customization hook.
 

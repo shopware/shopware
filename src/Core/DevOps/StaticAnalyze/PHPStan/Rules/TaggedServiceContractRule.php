@@ -76,6 +76,7 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use Twig\Extension\ExtensionInterface;
@@ -574,7 +575,7 @@ class TaggedServiceContractRule implements Rule
         $tagsByServiceId = [];
 
         foreach ($container->services->service as $service) {
-            if ($this->getXmlAttribute($service, 'class') !== 'Symfony\Component\DependencyInjection\ServiceLocator') {
+            if ($this->getXmlAttribute($service, 'class') !== ServiceLocator::class) {
                 continue;
             }
 

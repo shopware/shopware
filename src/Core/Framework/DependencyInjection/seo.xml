@@ -45,6 +45,28 @@
             <argument type="tagged_iterator" tag="shopware.seo_url.route"/>
         </service>
 
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <tag name="shopware.entity.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\CategoryStoreApiUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <tag name="shopware.entity.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\LandingPageStoreApiUrlRoute">
+            <argument type="service" id="Shopware\Core\Content\LandingPage\LandingPageDefinition"/>
+            <tag name="shopware.entity.seo_url.route"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="router"/>
+            <argument type="tagged_iterator" tag="shopware.entity.seo_url.route"/>
+        </service>
+
         <service id="Shopware\Core\Content\Seo\EmptyPathInfoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-2000">
             <argument type="service" id="Shopware\Core\Content\Seo\EmptyPathInfoResolver.inner"/>
         </service>

@@ -222,6 +222,8 @@ The `response` service allows you to create HTTP-Responses.
         ```
 ### render()
 
+**Deprecated:** tag:v6.8.0 - Rendering Storefront templates through the core response service is deprecated. Type the response service as `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` in Storefront script hooks and use this core facade without `render()` in admin-api/store-api hooks.
+
 * The `render()` method allows you to render a twig view with the parameters you provide and create a StorefrontResponse.
 
     Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)

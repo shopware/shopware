@@ -10,8 +10,14 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\MockClock;
@@ -97,6 +103,37 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertNull($child->getParent());
     }
 
+    public function testBuildCriteriaFiltersTranslationsByLanguageChain(): void
+    {
+        /** @var StaticEntityRepository<ProductCollection> $productRepository */
+        $productRepository = new StaticEntityRepository([], new ProductDefinition());
+        $updater = $this->createUpdater($productRepository);
+
+        $chain = [Uuid::randomHex(), Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM];
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
+        $criteria = new Criteria();
+        $method = new \ReflectionMethod($updater, 'buildCriteria');
+        // no searchable association accessors: this isolates the translation language filters,
+        // which are the product fields the fix changes, without resolving association definitions
+        $method->invoke($updater, [], $criteria, $context);
+
+        $translationFilters = [];
+        foreach ($this->flattenFilters($criteria->getFilters()) as $filter) {
+            if ($filter instanceof EqualsAnyFilter
+                && \in_array($filter->getField(), ['translations.languageId', 'parent.translations.languageId'], true)) {
+                $translationFilters[$filter->getField()] = $filter->getValue();
+            }
+        }
+
+        // both the product and the parent translations must be matched against the full
+        // language inheritance chain, not just the current sales channel language
+        static::assertArrayHasKey('translations.languageId', $translationFilters);
+        static::assertArrayHasKey('parent.translations.languageId', $translationFilters);
+        static::assertSame($chain, $translationFilters['translations.languageId']);
+        static::assertSame($chain, $translationFilters['parent.translations.languageId']);
+    }
+
     /**
      * @param EntityRepository<ProductCollection> $productRepository
      */
@@ -129,5 +166,23 @@ class SearchKeywordUpdaterTest extends TestCase
     {
         $method = new \ReflectionMethod($updater, 'assignParentProducts');
         $method->invoke($updater, $existingProducts, $configFields, Context::createDefaultContext());
+    }
+
+    /**
+     * @param Filter[] $filters
+     *
+     * @return Filter[]
+     */
+    private function flattenFilters(array $filters): array
+    {
+        $result = [];
+        foreach ($filters as $filter) {
+            $result[] = $filter;
+            if ($filter instanceof MultiFilter) {
+                $result = array_merge($result, $this->flattenFilters($filter->getQueries()));
+            }
+        }
+
+        return $result;
     }
 }

@@ -63,7 +63,7 @@ class LineItemProductTypeRuleTest extends TestCase
         $config = (new LineItemProductTypeRule())->getConfig();
 
         $expected = (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productType', [
                 ProductDefinition::TYPE_PHYSICAL,
                 ProductDefinition::TYPE_DIGITAL,
@@ -75,8 +75,9 @@ class LineItemProductTypeRuleTest extends TestCase
     public function testConfig(): void
     {
         $config = $this->rule->getConfig();
+
         $expected = (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productType', [
                 ProductDefinition::TYPE_PHYSICAL,
                 ProductDefinition::TYPE_DIGITAL,

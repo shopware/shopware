@@ -175,6 +175,12 @@ export default {
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
+                } else {
+                    console.error(error);
+
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 }
             } finally {
                 this.isLoading = false;

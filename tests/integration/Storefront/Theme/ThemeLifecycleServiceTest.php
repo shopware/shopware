@@ -156,7 +156,7 @@ class ThemeLifecycleServiceTest extends TestCase
     {
         $bundle = new StorefrontPluginConfiguration('ThemeWithFileAssociations');
         $bundle->setName('ThemeWithFileAssociations');
-        $bundle->setAuthor(null);
+        $bundle->setAuthor('shopware AG');
         $bundle->setIsTheme(true);
         $bundle->setThemeJson([]);
         $bundle->setThemeConfig([
@@ -207,7 +207,10 @@ class ThemeLifecycleServiceTest extends TestCase
 
         $themeEntity = $this->getTheme($bundle);
         static::assertTrue($themeEntity->isActive());
-        static::assertNull($themeEntity->getBaseConfig()['fields']['brokenMedia']['value']);
+        $baseConfig = $themeEntity->getBaseConfig();
+        static::assertIsArray($baseConfig);
+        static::assertArrayHasKey('fields', $baseConfig);
+        static::assertNull($baseConfig['fields']['brokenMedia']['value']);
         static::assertIsString($failedMediaId);
         $failedMedia = $this->mediaRepository->search(new Criteria([$failedMediaId]), $this->context)->get($failedMediaId);
         static::assertNull($failedMedia);
@@ -217,7 +220,7 @@ class ThemeLifecycleServiceTest extends TestCase
     {
         $bundle = new StorefrontPluginConfiguration('ThemeWithFileAssociations');
         $bundle->setName('ThemeWithFileAssociations');
-        $bundle->setAuthor(null);
+        $bundle->setAuthor('shopware AG');
         $bundle->setIsTheme(true);
         $bundle->setThemeJson([]);
         $bundle->setThemeConfig([

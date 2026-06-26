@@ -170,7 +170,7 @@ class ThemeLifecycleService
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array{basename: string, media: array{id: string, mediaFolderId: string|null}, mediaFile: MediaFile}|null
      */
     private function createMediaStruct(StorefrontPluginConfiguration $pluginConfig, string $path, string $mediaId, ?string $themeFolderId): ?array
     {
@@ -550,8 +550,7 @@ class ThemeLifecycleService
                 $item['mediaFile'],
                 $item['basename'],
                 $item['media']['id'],
-                $context,
-                validateContent: false
+                $context
             );
         } catch (MediaException $e) {
             if ($e->getErrorCode() !== MediaException::MEDIA_DUPLICATED_FILE_NAME) {
@@ -568,8 +567,7 @@ class ThemeLifecycleService
                 $item['mediaFile'],
                 $newFileName,
                 $item['media']['id'],
-                $context,
-                validateContent: false
+                $context
             );
         }
     }

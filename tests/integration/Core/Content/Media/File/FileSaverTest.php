@@ -166,7 +166,7 @@ SVG;
         }
     }
 
-    public function testPersistUnsafeSvgToMediaCanSkipContentValidation(): void
+    public function testThemeFileSaverCanPersistUnsafeSvgWithoutFileContentValidation(): void
     {
         $filesystem = new Filesystem();
         $tempFile = tempnam(sys_get_temp_dir(), '');
@@ -183,7 +183,10 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context, validateContent: false);
+            $themeFileSaver = static::getContainer()->get('shopware.storefront.theme.file_saver_without_file_content_validation');
+            static::assertInstanceOf(FileSaver::class, $themeFileSaver);
+
+            $themeFileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {
             $filesystem->remove($tempFile);
         }

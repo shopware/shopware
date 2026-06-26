@@ -127,6 +127,26 @@ export default class ShopwareServicesService extends ApiService {
         );
     }
 
+    activateService(serviceName: string): Promise<void> {
+        return this.httpClient.post(
+            `service/activate/${serviceName}`,
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
+    }
+
+    deactivateService(serviceName: string): Promise<void> {
+        return this.httpClient.post(
+            `service/deactivate/${serviceName}`,
+            {},
+            {
+                headers: this.getBasicHeaders(),
+            },
+        );
+    }
+
     getCategorizedPermissions(serviceName: string): Promise<{ permissions: CategorizedPermissions }> {
         return this.httpClient
             .get(`services/categorized-permissions/${serviceName}`, {

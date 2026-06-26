@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\App\AppCollection;
@@ -122,6 +123,24 @@ class ServiceControllerTest extends TestCase
         $controller->triggerUpdate($context);
     }
 
+    public function testActivateThrownExceptionIfInvalidName(): void
+    {
+        static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
+
+        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+
+        $source = new AdminApiSource('AABB', 'CCDD');
+        $source->setPermissions(['api_service_toggle']);
+        $context = Context::createDefaultContext($source);
+
+        $this->serviceLifecycle->expects($this->once())
+            ->method('activate')
+            ->with('invalidService', $context)
+            ->willThrowException(ServiceException::notFound('name', 'invalidService'));
+
+        $controller->activate('invalidService', $context);
+    }
+
     public function testActivateThrownExceptionIfNotApiSource(): void
     {
         $source = new ShopApiSource('AABB');
@@ -134,9 +153,9 @@ class ServiceControllerTest extends TestCase
         $controller->activate('MyCoolService', $context);
     }
 
-    public function testActivateThrownExceptionIfNoIntegrationId(): void
+    public function testActivateThrownExceptionIfAdminUserCannotMaintainPlugins(): void
     {
-        static::expectExceptionObject(ServiceException::updateRequiresIntegration());
+        static::expectExceptionObject(ApiException::missingPrivileges(['system.plugin_maintain']));
 
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
@@ -146,21 +165,16 @@ class ServiceControllerTest extends TestCase
         $controller->activate('MyCoolService', $context);
     }
 
-    public function testActivateThrownExceptionIfInvalidName(): void
+    public function testActivateThrownExceptionIfIntegrationCannotToggleServices(): void
     {
-        static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
+        static::expectExceptionObject(ApiException::missingPrivileges(['api_service_toggle']));
 
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
-        $source = new AdminApiSource('AABB', 'CCDD');
+        $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())
-            ->method('activate')
-            ->with('invalidService', $context)
-            ->willThrowException(ServiceException::notFound('name', 'invalidService'));
-
-        $controller->activate('invalidService', $context);
+        $controller->activate('MyCoolService', $context);
     }
 
     public function testActivate(): void
@@ -169,10 +183,42 @@ class ServiceControllerTest extends TestCase
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
+        $source->setPermissions(['api_service_toggle']);
         $context = Context::createDefaultContext($source);
 
         $this->serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
         $controller->activate('MyCoolService', $context);
+    }
+
+    public function testAdminActivateUsesSameAction(): void
+    {
+        $this->app->setActive(false);
+        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+
+        $source = new AdminApiSource('AABB');
+        $source->setPermissions(['system.plugin_maintain']);
+        $context = Context::createDefaultContext($source);
+
+        $this->serviceLifecycle->expects($this->once())->method('activate')->with('MyCoolService', $context);
+        $controller->activate('MyCoolService', $context);
+    }
+
+    public function testDeactivateThrownExceptionIfInvalidName(): void
+    {
+        static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
+
+        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+
+        $source = new AdminApiSource('AABB', 'CCDD');
+        $source->setPermissions(['api_service_toggle']);
+        $context = Context::createDefaultContext($source);
+
+        $this->serviceLifecycle->expects($this->once())
+            ->method('deactivate')
+            ->with('invalidService', $context)
+            ->willThrowException(ServiceException::notFound('name', 'invalidService'));
+
+        $controller->deactivate('invalidService', $context);
     }
 
     public function testDeactivateThrownExceptionIfNotApiSource(): void
@@ -184,12 +230,12 @@ class ServiceControllerTest extends TestCase
 
         $context = Context::createDefaultContext($source);
 
-        $controller->activate('MyCoolService', $context);
+        $controller->deactivate('MyCoolService', $context);
     }
 
-    public function testDeactivateThrownExceptionIfNoIntegrationId(): void
+    public function testDeactivateThrownExceptionIfAdminUserCannotMaintainPlugins(): void
     {
-        static::expectExceptionObject(ServiceException::updateRequiresIntegration());
+        static::expectExceptionObject(ApiException::missingPrivileges(['system.plugin_maintain']));
 
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
@@ -199,21 +245,16 @@ class ServiceControllerTest extends TestCase
         $controller->deactivate('MyCoolService', $context);
     }
 
-    public function testDeactivateThrownExceptionIfInvalidName(): void
+    public function testDeactivateThrownExceptionIfIntegrationCannotToggleServices(): void
     {
-        static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
+        static::expectExceptionObject(ApiException::missingPrivileges(['api_service_toggle']));
 
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
-        $source = new AdminApiSource('AABB', 'CCDD');
+        $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
 
-        $this->serviceLifecycle->expects($this->once())
-            ->method('deactivate')
-            ->with('invalidService', $context)
-            ->willThrowException(ServiceException::notFound('name', 'invalidService'));
-
-        $controller->deactivate('invalidService', $context);
+        $controller->deactivate('MyCoolService', $context);
     }
 
     public function testDeactivate(): void
@@ -222,6 +263,20 @@ class ServiceControllerTest extends TestCase
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
+        $source->setPermissions(['api_service_toggle']);
+        $context = Context::createDefaultContext($source);
+
+        $this->serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);
+        $controller->deactivate('MyCoolService', $context);
+    }
+
+    public function testAdminDeactivateUsesSameAction(): void
+    {
+        $this->app->setActive(true);
+        $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
+
+        $source = new AdminApiSource('AABB');
+        $source->setPermissions(['system.plugin_maintain']);
         $context = Context::createDefaultContext($source);
 
         $this->serviceLifecycle->expects($this->once())->method('deactivate')->with('MyCoolService', $context);

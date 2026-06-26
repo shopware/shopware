@@ -183,6 +183,30 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post[0].url).toBe(`services/${action}`);
     });
 
+    it.each([
+        [
+            'activate',
+            'activateService',
+        ],
+        [
+            'deactivate',
+            'deactivateService',
+        ],
+    ])('%s a service', async (action, methodName) => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const systemConfigService = new SystemConfigApiService(client, loginService);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
+
+        clientMock.onPost(`service/${action}/MyCoolService`).reply(204);
+
+        await shopwareServicesService[methodName]('MyCoolService');
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].url).toBe(`service/${action}/MyCoolService`);
+    });
+
     it('returns categorized permissions', async () => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);

@@ -65,7 +65,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
 
     public function testDalWriteEventSystemContextGetsModified(): void
     {
-        $subscriber = $this->createSubscriber();
+        $subscriber = new MediaVisibilityRestrictionSubscriber();
         $context = Context::createCLIContext();
         $context->addState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
 
@@ -92,7 +92,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
 
     public function testExplicitSystemScopeStillAllowsPrivateMediaDuringDalWriteEvent(): void
     {
-        $subscriber = $this->createSubscriber();
+        $subscriber = new MediaVisibilityRestrictionSubscriber();
         $context = Context::createCLIContext();
 
         $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($subscriber): void {

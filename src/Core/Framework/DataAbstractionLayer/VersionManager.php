@@ -206,7 +206,7 @@ class VersionManager
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
-        $targetContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
+        $liveContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         $versionContext->removeState(self::MERGE_SCOPE);
         $liveContext->addState(self::MERGE_SCOPE);

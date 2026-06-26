@@ -134,26 +134,4 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
         return $context->getScope() === Context::SYSTEM_SCOPE
             && !$context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
     }
-
-    private function getProductDownloadMediaFolderId(): string
-    {
-        if ($this->productDownloadMediaFolderId !== null) {
-            return $this->productDownloadMediaFolderId;
-        }
-
-        $folderId = $this->connection->fetchOne(
-            <<<'SQL'
-                SELECT LOWER(HEX(`media_folder`.`id`))
-                FROM `media_folder`
-                INNER JOIN `media_default_folder`
-                    ON `media_default_folder`.`id` = `media_folder`.`default_folder_id`
-                WHERE `media_default_folder`.`entity` = :entity
-            SQL,
-            ['entity' => self::PRODUCT_DOWNLOAD_ENTITY]
-        );
-
-        \assert(\is_string($folderId));
-
-        return $this->productDownloadMediaFolderId = $folderId;
-    }
 }

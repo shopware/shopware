@@ -24,7 +24,6 @@ class Context extends Struct
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
-    final public const ELASTICSEARCH_EXPLAIN_MODE = 'explain-mode';
     final public const SYSTEM_SCOPE_DAL_WRITE_EVENT = 'system-scope-dal-write-event';
 
     protected string $scope = self::USER_SCOPE;

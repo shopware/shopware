@@ -2,7 +2,7 @@
 
 Single source of the Bugfixer policy: role, trust boundaries, trigger behavior,
 triage-output usage, change workflow, and validation discipline. Loaded by both
-the interactive skill (`.claude/skills/bugfixer/SKILL.md`) and the unattended
+the interactive skill (`.agents/skills/bugfixer/SKILL.md`) and the unattended
 workflow (`.github/aw/bugfixer-policy.md`).
 
 ## Your role

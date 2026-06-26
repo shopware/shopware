@@ -1,0 +1,111 @@
+name: sw-impact check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - ready_for_review
+      - reopened
+      - synchronize
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Ref to build the base index from
+        required: false
+        default: trunk
+        type: string
+      change_ref:
+        description: Ref to check for breaking changes
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sw-impact-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: sw-impact check
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'pull_request' &&
+        (
+          (github.event.action == 'labeled' && github.event.label.name == 'sw-impact') ||
+          (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'sw-impact'))
+        )
+      )
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    timeout-minutes: 15
+    env:
+      SW_IMPACT_ARCHIVE_URL: https://github.com/shopware/sw-impact/releases/download/v0.2.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
+
+    steps:
+      - name: Define sw-impact paths
+        run: |
+          {
+            echo "SW_IMPACT_ARCHIVE=$RUNNER_TEMP/sw-impact-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}.tar.gz"
+            echo "SW_IMPACT_BIN_DIR=$RUNNER_TEMP/sw-impact-bin-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}"
+            echo "SW_IMPACT_INDEX=$RUNNER_TEMP/sw-impact-index-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${GITHUB_JOB}.json"
+          } >> "$GITHUB_ENV"
+
+      - name: Install sw-impact
+        run: |
+          set -euo pipefail
+          mkdir -p "$SW_IMPACT_BIN_DIR"
+          curl --fail --location --show-error --silent "$SW_IMPACT_ARCHIVE_URL" --output "$SW_IMPACT_ARCHIVE"
+          tar -xzf "$SW_IMPACT_ARCHIVE" -C "$SW_IMPACT_BIN_DIR"
+
+          sw_impact_bin="$(find "$SW_IMPACT_BIN_DIR" -type f -name sw-impact -perm /111 -print -quit)"
+          if [ -z "$sw_impact_bin" ]; then
+            sw_impact_bin="$(find "$SW_IMPACT_BIN_DIR" -type f -name sw-impact -print -quit)"
+          fi
+          if [ -z "$sw_impact_bin" ]; then
+            echo "sw-impact binary not found in archive" >&2
+            find "$SW_IMPACT_BIN_DIR" -maxdepth 3 -type f >&2
+            exit 1
+          fi
+
+          chmod +x "$sw_impact_bin"
+          if [ "$sw_impact_bin" != "$SW_IMPACT_BIN_DIR/sw-impact" ]; then
+            ln -sf "$sw_impact_bin" "$SW_IMPACT_BIN_DIR/sw-impact"
+          fi
+          echo "$SW_IMPACT_BIN_DIR" >> "$GITHUB_PATH"
+
+      - name: Checkout base ref
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.base_ref }}
+          persist-credentials: false
+
+      - name: Build base index
+        run: sw-impact index . --index "$SW_IMPACT_INDEX"
+
+      - name: Checkout change ref
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.change_ref }}
+          persist-credentials: false
+
+      - name: Add workflow summary
+        run: |
+          {
+            echo "## sw-impact check"
+            echo
+            echo "This workflow is experimental and checks for breaking changes in Shopware's public API surface."
+            echo
+            echo "Each reported break should be treated as an exploratory signal for a human to investigate further and either resolve or intentionally accept."
+            echo
+            echo "For more information, see https://github.com/shopware/sw-impact ."
+            echo
+            echo "False positives should be reported as issues in that repository."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check impact
+        run: sw-impact check . --index "$SW_IMPACT_INDEX" --format github

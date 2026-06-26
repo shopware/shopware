@@ -52,7 +52,7 @@ class MediaRoute extends AbstractMediaRoute
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
         $ids = RequestParamHelper::get($request, 'ids', []);
-        if (empty($ids)) {
+        if (!\is_array($ids) || $ids === []) {
             throw MediaException::emptyMediaId();
         }
 

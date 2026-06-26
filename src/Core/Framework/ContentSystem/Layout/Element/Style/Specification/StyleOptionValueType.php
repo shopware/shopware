@@ -5,11 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specificati
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Value vocabulary of a single style option: the declared primitive plus its declarative
- * bounds (enum, numeric range, string maxLength) and an advisory default. Style values are
- * always per-breakpoint primitives, so — unlike the type system's PropertyType — there is no
- * FQCN, no nested properties, and no regex (a maxLength bounds strings instead). The primitive
- * set is self-contained here; the type system inlines its own and is not refactored.
+ * Value vocabulary of a single style option: the declared primitive plus its declarative bounds
+ * (enum, numeric range, string maxLength) and an advisory default. Style values are always
+ * per-breakpoint primitives — no FQCN, no nested properties, no regex; a maxLength bounds strings.
  *
  * @internal
  *

@@ -11,9 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Loads active app style options from the database. Only operates in prod — in dev, app options are
- * loaded from the filesystem by YamlStyleOptionLoader instead. Core, bundle, and plugin options
- * always go through YamlStyleOptionLoader regardless of environment.
+ * Loads active app style options from the database in prod; returns empty in dev, where apps are
+ * loaded from the filesystem by YamlStyleOptionLoader.
  *
  * @internal
  *

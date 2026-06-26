@@ -23,13 +23,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * Validates and (de)serializes an element's universal style against the style option registry, the
- * single source the constraints are derived from. The registry is stable within a request, so the
- * derived constraint set is built once and reused across every element in the write, not per element.
- *
- * Write is strict: an unknown option key, unknown breakpoint, or constraint-violating value is
- * rejected. Read is lenient: deserialize() drops options no longer in the registry (an orphaned
- * option whose plugin or app was removed) so a layout written earlier still renders.
+ * Validates and (de)serializes an element's universal ElementStyle against the style option
+ * registry. Write is strict, read is lenient — see deserialize() and buildConstraints().
  *
  * @internal
  */

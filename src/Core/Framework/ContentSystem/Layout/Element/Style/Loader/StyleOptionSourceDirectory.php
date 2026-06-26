@@ -5,8 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * One filesystem directory a YamlStyleOptionLoader scans, paired with its source label. Unlike the
- * element-type equivalent there is no name prefix: style option names are flat wire keys.
+ * One filesystem directory a YamlStyleOptionLoader scans, paired with its source label.
  *
  * @internal
  */

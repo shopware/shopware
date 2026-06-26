@@ -5,13 +5,11 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Per-element style state: a validated map of option name to its per-breakpoint scalar values
- * (`option => breakpoint => value`). A plain immutable DTO, not a Struct — it is emitted as a
- * raw array via ContentElement::jsonSerialize() and never needs an API alias.
+ * Per-element style state: a validated `option => breakpoint => scalar` map. An immutable DTO
+ * (not a Struct), emitted as a raw array via ContentElement::jsonSerialize().
  *
- * Immutability is load-bearing: the mutation subsystem aliases an untouched element's
- * ElementStyle by reference into rebuilt and cloned nodes, which is only safe because it cannot
- * be changed in place.
+ * Immutable by contract: the mutation subsystem aliases instances by reference, so changing one
+ * in place would be unsafe.
  *
  * @internal
  */

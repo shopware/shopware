@@ -280,8 +280,7 @@ class InfoController extends AbstractController
             array_values($this->elementTypeRegistry->all())
         );
 
-        // styleOptions are universal (settable on every type), so they are folded in here as well as served
-        // standalone, both from the one registry, so introspection and validation cannot drift.
+        // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone
         return new JsonResponse(['types' => $types, 'styleOptions' => $this->styleOptionSchemas()]);
     }
 

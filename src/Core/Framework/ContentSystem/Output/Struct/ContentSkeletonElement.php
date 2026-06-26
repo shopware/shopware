@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Read-only projection of ContentElement for skeleton and decomposed output. Properties are stripped,
- * but the universal style rides the skeleton side, so it survives both the skeleton and decomposed formats.
+ * Read-only projection of ContentElement for skeleton and decomposed output: properties stripped,
+ * universal style carried.
  *
  * @final
  */

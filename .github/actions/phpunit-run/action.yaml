@@ -1,11 +1,17 @@
-name: "PHPUnit integration run"
-description: "Set up Shopware and run a single integration shard (path or testsuite), then upload results to Codecov"
+name: "PHPUnit run"
+description: "Set up Shopware and run a PHPUnit suite (integration shard or unit/migration), optionally with coverage, then upload to Codecov"
 author: "shopware AG"
 
 inputs:
   php-version:
-    required: true
+    default: "8.2"
     description: PHP version to set up
+  mysql-version:
+    default: "skip"
+    description: "setup-shopware mysql-version. 'skip' when the caller provides a database service; set a version to let setup-shopware provision MySQL."
+  keep-composer-tools:
+    default: "false"
+    description: Pass through to setup-shopware's keep-composer-tools
   test-path:
     default: ""
     description: "tests/integration path to run (mutually exclusive with test-testsuite)"
@@ -15,13 +21,22 @@ inputs:
   needs-opensearch:
     default: "false"
     description: "Wait for OpenSearch/Elasticsearch to be healthy before running (set for the Elasticsearch shard)"
-  codecov-token:
-    required: false
+  coverage:
+    default: "false"
+    description: "Run with cobertura coverage and upload it to Codecov"
+  coverage-flags:
     default: ""
-    description: "Codecov token for uploading test results (empty on fork PRs, where secrets are unavailable)"
+    description: "Codecov coverage flags (e.g. phpunit-unit)"
+  migration-coverage:
+    default: "false"
+    description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
+  codecov-token:
+    default: ""
+    description: "Codecov token. Empty on fork PRs (secrets unavailable) or for callers that opt out of Codecov uploads."
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
-# inherit it, so this action stays flag-agnostic.
+# inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
+# local action, and provide a database (service container, or via mysql-version).
 runs:
   using: composite
   steps:
@@ -29,7 +44,8 @@ runs:
       uses: shopware/setup-shopware@main
       with:
         php-version: ${{ inputs.php-version }}
-        mysql-version: "skip"
+        mysql-version: ${{ inputs.mysql-version }}
+        keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
 
@@ -55,6 +71,12 @@ runs:
       shell: bash
       run: symfony server:start -d
 
+    - name: Scope coverage to migration directories
+      if: ${{ inputs.migration-coverage == 'true' }}
+      shell: bash
+      run: |
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
+
     - name: Install Shopware
       shell: bash
       run: php src/Core/TestBootstrap.php
@@ -62,12 +84,21 @@ runs:
     - name: Run PHPUnit testsuite
       if: ${{ inputs.test-testsuite != '' }}
       shell: bash
-      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "${{ inputs.test-testsuite }}"
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} --testsuite "${{ inputs.test-testsuite }}"
 
     - name: Run PHPUnit path
       if: ${{ inputs.test-path != '' }}
       shell: bash
-      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ inputs.test-path }}
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} -- tests/integration/${{ inputs.test-path }}
+
+    - name: Upload coverage to Codecov
+      if: ${{ inputs.coverage == 'true' && inputs.codecov-token != '' }}
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      env:
+        CODECOV_TOKEN: ${{ inputs.codecov-token }}
+      with:
+        files: coverage.xml
+        flags: ${{ inputs.coverage-flags }}
 
     - name: Upload test results to Codecov
       # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics

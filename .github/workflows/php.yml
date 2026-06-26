@@ -221,6 +221,7 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
 
     services:
       elasticsearch:
@@ -231,49 +232,30 @@ jobs:
           OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
+      database:
+        # Run the migration suite against MySQL 8.4, where restrict_fk_on_non_standard_key
+        # defaults to ON. This makes the install/migrate step reject any foreign key that
+        # references a non-unique key (the MySQL 8.4 disaster-recovery import failure),
+        # before tests even run. Other suites stay on MySQL 8.0.
+        image: ${{ matrix.suite == 'migration' && 'mysql:8.4' || 'mysql:8.0' }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
 
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: ./.github/actions/phpunit-run
         with:
-          php-version: 8.2
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          keep-composer-tools: true
-          # Run the migration suite against MySQL 8.4, where restrict_fk_on_non_standard_key
-          # defaults to ON. This makes the install/migrate step reject any foreign key that
-          # references a non-unique key (the MySQL 8.4 disaster-recovery import failure),
-          # before tests even run. Other suites keep the runner's builtin MySQL.
-          mysql-version: ${{ matrix.suite == 'migration' && 'mysql:8.4' || 'builtin' }}
-
-      - name: Start Webserver
-        run: symfony server:start -d
-
-      - name: Migration test suite setup
-        if: ${{ matrix.suite == 'migration' }}
-        run: |
-          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
-          echo "FEATURE_ALL=major" >> $GITHUB_ENV
-
-      - name: Install Shopware
-        run: php src/Core/TestBootstrap.php
-
-      - name: Run PHPUnit with coverage
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: coverage.xml
-          flags: phpunit-${{ matrix.suite }}
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          test-testsuite: ${{ matrix.suite }}
+          keep-composer-tools: "true"
+          coverage: "true"
+          coverage-flags: phpunit-${{ matrix.suite }}
+          migration-coverage: ${{ matrix.suite == 'migration' }}
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   license-check:
     runs-on: ubuntu-24.04

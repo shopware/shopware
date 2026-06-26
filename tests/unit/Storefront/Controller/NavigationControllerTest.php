@@ -16,6 +16,7 @@ use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -64,16 +65,18 @@ class NavigationControllerTest extends TestCase
         $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlReplacer->method('replace')
             ->willReturnCallback(static fn (string $url) => $url);
-        $this->seoUrlReplacer->method('generate')
-            ->willReturnCallback(static function (string $route, array $parameters) {
-                return match ($route) {
-                    'frontend.detail.page' => '/product/' . $parameters['productId'],
-                    'frontend.navigation.page' => '/navigation/' . $parameters['navigationId'],
-                    'frontend.home.page' => '/',
-                    default => '/' . $route,
+
+        $entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $entityRouteResolver->method('generateSeoUrlPlaceholder')
+            ->willReturnCallback(static function (string $entityName, string $primaryKey) {
+                return match ($entityName) {
+                    'product' => '/product/' . $primaryKey,
+                    'category' => '/navigation/' . $primaryKey,
+                    'landing_page' => '/landingPage/' . $primaryKey,
+                    default => '/' . $entityName,
                 };
             });
-        $this->categoryUrlGenerator = new CategoryUrlGenerator($this->seoUrlReplacer);
+        $this->categoryUrlGenerator = new CategoryUrlGenerator($entityRouteResolver);
 
         $this->controller = new NavigationControllerTestClass(
             $this->pageLoader,

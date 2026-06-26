@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -16,7 +18,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class LandingPageUrlProvider extends AbstractUrlProvider
@@ -31,7 +32,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     public function __construct(
         private readonly ConfigHandler $configHandler,
         private readonly Connection $connection,
-        private readonly RouterInterface $router,
+        private readonly EntityRouteResolver $entityRouteResolver,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -61,8 +62,8 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $ids = array_column($landingPages, 'id');
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls($ids, 'frontend.landing.page', $context, $this->connection);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(LandingPageDefinition::ENTITY_NAME);
+        $seoUrls = $this->getSeoUrls($ids, $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -74,8 +75,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $url->setLoc($this->router->generate('frontend.landing.page', ['landingPageId' => $landingPage['id']]));
+                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, $landingPage['id']));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];

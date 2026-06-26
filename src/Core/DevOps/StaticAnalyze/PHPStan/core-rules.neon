@@ -1,8 +1,12 @@
+includes:
+    - tagged-service-contracts.php
+
 parameters:
     shopwareTaggedServiceContractAdditionalTagContracts: []
 
 parametersSchema:
-    shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(string(), string())
+    shopwareTaggedServiceContractTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
+    shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
@@ -30,6 +34,7 @@ services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
         arguments:
+            tagContracts: %shopwareTaggedServiceContractTagContracts%
             additionalTagContracts: %shopwareTaggedServiceContractAdditionalTagContracts%
             containerXmlPath: %symfony.containerXmlPath%
         tags:

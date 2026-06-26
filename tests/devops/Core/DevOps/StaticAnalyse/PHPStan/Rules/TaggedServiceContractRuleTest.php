@@ -60,6 +60,6 @@ class TaggedServiceContractRuleTest extends RuleTestCase
         return new TaggedServiceContractRule($factory->create(), self::createReflectionProvider(), [
             'test.mapped' => Contract::class,
             'test.union' => [Contract::class, WrongContract::class],
-        ], $fixtureDir . '/container.xml');
+        ], [], $fixtureDir . '/container.xml');
     }
 }

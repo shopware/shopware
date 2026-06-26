@@ -75,8 +75,34 @@ class OpenApiDefinitionSchemaBuilder
         string $path,
         bool $forSalesChannel,
         bool $onlyFlat = false,
-        string $apiType = DefinitionService::TYPE_JSON_API,
-        bool $includeRequestSchemas = false
+        string $apiType = DefinitionService::TYPE_JSON_API
+    ): array {
+        return $this->buildSchemaByDefinition($definition, $path, $forSalesChannel, $onlyFlat, $apiType, false);
+    }
+
+    /**
+     * @return array<string, Schema>
+     */
+    public function getSchemaByDefinitionWithRequestSchemas(
+        EntityDefinition $definition,
+        string $path,
+        bool $forSalesChannel,
+        bool $onlyFlat = false,
+        string $apiType = DefinitionService::TYPE_JSON_API
+    ): array {
+        return $this->buildSchemaByDefinition($definition, $path, $forSalesChannel, $onlyFlat, $apiType, true);
+    }
+
+    /**
+     * @return array<string, Schema>
+     */
+    private function buildSchemaByDefinition(
+        EntityDefinition $definition,
+        string $path,
+        bool $forSalesChannel,
+        bool $onlyFlat,
+        string $apiType,
+        bool $includeRequestSchemas
     ): array {
         $schema = [];
         $attributes = [];

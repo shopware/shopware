@@ -72,14 +72,21 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
             };
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
-                $definition,
-                $this->getResourceUri($definition),
-                $forSalesChannel,
-                $onlyFlat,
-                $apiType,
-                $this->shouldIncludeRequestSchemas($definition, $apiType, $onlyFlat, $bundleName)
-            );
+            $schema = $this->shouldIncludeRequestSchemas($definition, $apiType, $onlyFlat, $bundleName)
+                ? $this->definitionSchemaBuilder->getSchemaByDefinitionWithRequestSchemas(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyFlat,
+                    $apiType
+                )
+                : $this->definitionSchemaBuilder->getSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyFlat,
+                    $apiType
+                );
 
             $openApi->components->merge($schema);
 

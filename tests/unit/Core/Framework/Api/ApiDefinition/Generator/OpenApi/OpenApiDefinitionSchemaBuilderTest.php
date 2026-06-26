@@ -131,13 +131,12 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
 
     public function testRequestExtensionConversionUsesDirectAssociationSchema(): void
     {
-        $schema = $this->schemaBuilder->getSchemaByDefinition(
+        $schema = $this->schemaBuilder->getSchemaByDefinitionWithRequestSchemas(
             $this->definitionRegistry->get(SimpleExtendedDefinition::class),
             '/simple-extended',
             false,
             false,
-            'jsonapi',
-            true
+            'jsonapi'
         );
         $createSchema = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
         $updateSchema = json_decode($schema['SimpleExtendedUpdate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
@@ -162,13 +161,12 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
 
     public function testRequestSchemaWithOnlyTechnicalFieldsHasNoPropertiesArray(): void
     {
-        $schema = $this->schemaBuilder->getSchemaByDefinition(
+        $schema = $this->schemaBuilder->getSchemaByDefinitionWithRequestSchemas(
             $this->definitionRegistry->get(TechnicalOnlyDefinition::class),
             '/technical-only',
             false,
             false,
-            'jsonapi',
-            true
+            'jsonapi'
         );
 
         $createSchema = json_decode($schema['TechnicalOnlyCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);

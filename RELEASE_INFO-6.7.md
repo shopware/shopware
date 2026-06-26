@@ -10,6 +10,13 @@
 
 ## Core
 
+### Reduced overhead on cart, listing and cache-key hot paths
+
+Several frequently executed code paths no longer scale quadratically with the number of active rules, product/shipping prices and listing filters.
+Rule-area resolution (`RuleCollection::getIdsByArea()`, `RuleAreaUpdater`), the sales-channel rule-id collection used during HTTP cache-key generation (`SalesChannelContext::getRuleIdsByAreas()`), product advanced-price selection (`ProductPriceCalculator`) and listing aggregation building (`AggregationListingProcessor`) now run in linear time.
+Shops with many price rules, promotions or filter-heavy category listings benefit from lower CPU usage and faster cart recalculation and listing rendering.
+This is a backwards-compatible internal optimization: the produced results (deduplication, ordering, calculated prices and aggregations) are unchanged, so no adjustments are required.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

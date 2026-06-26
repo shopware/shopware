@@ -16,8 +16,9 @@ inputs:
     default: "false"
     description: "Wait for OpenSearch/Elasticsearch to be healthy before running (set for the Elasticsearch shard)"
   codecov-token:
-    required: true
-    description: Codecov token for uploading test results
+    required: false
+    default: ""
+    description: "Codecov token for uploading test results (empty on fork PRs, where secrets are unavailable)"
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -70,7 +71,8 @@ runs:
       run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ inputs.test-path }}
 
     - name: Upload test results to Codecov
-      if: ${{ !cancelled() }}
+      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics
+      if: ${{ !cancelled() && inputs.codecov-token != '' }}
       uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
       with:
         token: ${{ inputs.codecov-token }}

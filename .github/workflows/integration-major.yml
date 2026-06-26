@@ -81,7 +81,8 @@ jobs:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
-          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+          # no codecov-token: the major run's signal is the gate, not Test Analytics (avoids
+          # mixing major-flag results into the same test IDs as the default integration run)
 
   # single required/monitorable status for the whole major matrix
   integration-major-check:

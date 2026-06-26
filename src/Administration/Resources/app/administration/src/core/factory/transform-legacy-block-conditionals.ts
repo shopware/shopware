@@ -164,6 +164,7 @@ type BlockConditionInfo = {
     blockName: string;
     renderOrderSegment: LegacyConditionRenderOrderSegment;
     conditionalChains: BlockConditionChainInfo[];
+    searchStart?: number;
 };
 
 /**
@@ -176,6 +177,7 @@ type BlockConditionInfo = {
 type RewriteInfo = {
     codeBefore: string[];
     codeAfter: string;
+    searchStart?: number;
 };
 
 const GLOBAL_LEGACY_HELPERS = {
@@ -332,6 +334,63 @@ function normalizeSelfClosingTags(template: string): string {
     });
 }
 
+function findSourceTagEnd(template: string, tagStart: number): number {
+    let quote: string | null = null;
+
+    for (let index = tagStart + 1; index < template.length; index += 1) {
+        const char = template[index];
+
+        if (quote) {
+            if (char === quote) {
+                quote = null;
+            }
+            continue;
+        }
+
+        if (char === '"' || char === "'") {
+            quote = char;
+            continue;
+        }
+
+        if (char === '>') {
+            return index;
+        }
+    }
+
+    return -1;
+}
+
+function collectSwBlockSearchStarts(template: string): number[] {
+    const searchStarts: number[] = [];
+    let cursor = 0;
+
+    while (cursor < template.length) {
+        const start = template.indexOf('<sw-block', cursor);
+        if (start === -1) {
+            break;
+        }
+
+        const nextChar = template[start + '<sw-block'.length];
+        if (nextChar && !/[\s>/]/.test(nextChar)) {
+            cursor = start + '<sw-block'.length;
+            continue;
+        }
+
+        const tagEnd = findSourceTagEnd(template, start);
+        if (tagEnd === -1) {
+            break;
+        }
+
+        const sourceTag = template.slice(start, tagEnd + 1);
+        if (/\s(?:name|extends)(?:\s*=|\s|\/?>)/.test(sourceTag)) {
+            searchStarts.push(tagEnd + 1);
+        }
+        cursor = tagEnd + 1;
+    }
+
+    return searchStarts;
+}
+
 /**
  * Creates the stable local key for one condition chain in a block.
  * Use it whenever transformed code and runtime helpers need to refer to the same chain.
@@ -361,8 +420,9 @@ export default function transformNativeLegacyBlockConditionals(template: string,
     parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
 
     const blocks = parsedTemplate.content.querySelectorAll('sw-block[name], sw-block[extends]');
+    const sourceSearchStarts = collectSwBlockSearchStarts(template);
 
-    const entries = Array.from(blocks).map((block) => {
+    const entries = Array.from(blocks).map((block, blockIndex) => {
         const renderOrderSegment: LegacyConditionRenderOrderSegment = block.hasAttribute('extends')
             ? 'nativeExtension'
             : 'defaultSlot';
@@ -371,6 +431,7 @@ export default function transformNativeLegacyBlockConditionals(template: string,
             blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
             innerTemplate: block.innerHTML,
             renderOrderSegment,
+            searchStart: sourceSearchStarts[blockIndex],
         };
     });
 
@@ -385,6 +446,7 @@ export default function transformNativeLegacyBlockConditionals(template: string,
             blockName: entry.blockName,
             renderOrderSegment: entry.renderOrderSegment,
             conditionalChains: conditionalChains,
+            searchStart: entry.searchStart,
         });
     });
 
@@ -396,7 +458,12 @@ export default function transformNativeLegacyBlockConditionals(template: string,
             .filter((chain) => shouldPerformChainRewrite(chain))
             .forEach((chain) => {
                 const rewrites = constructChainAttributeRewrites(chain, blockInfo.renderOrderSegment, componentName);
-                allRewrites.push(...rewrites);
+                allRewrites.push(
+                    ...rewrites.map((rewrite) => ({
+                        ...rewrite,
+                        searchStart: blockInfo.searchStart,
+                    })),
+                );
             });
     });
     template = applyOrderedRewrites(template, allRewrites);
@@ -790,7 +857,7 @@ function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string
     let rewrittenTemplate = template;
 
     rewrites.forEach((rewrite) => {
-        const match = findRewriteMatch(rewrittenTemplate, rewrite.codeBefore, cursor);
+        const match = findRewriteMatch(rewrittenTemplate, rewrite.codeBefore, Math.max(cursor, rewrite.searchStart ?? 0));
 
         if (match === null) {
             console.warn('Failed to apply rewrite because codeBefore was not found from cursor position.', {

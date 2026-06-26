@@ -260,4 +260,36 @@ describe('core/factory/transform-legacy-block-conditionals.ts - native template 
 
         expect(transformLegacyBlockConditionals(template)).toBe(template);
     });
+
+    it('keeps an earlier unrelated directive with the same expression untouched', () => {
+        const template = `
+            <div>
+                <section>
+                    <div v-if="item.active === true" class="unrelated-active-case">active</div>
+                    <div v-else-if="item.active === false" class="unrelated-case">inactive</div>
+                </section>
+
+                <sw-block name="variant-block">
+                    <div v-if="item.active === true" class="active-case">active</div>
+                </sw-block>
+
+                <sw-block extends="variant-block">
+                    <sw-block-parent />
+                    <div v-else-if="item.active === false" class="inactive-case">inactive</div>
+                    <div v-else class="fallback-case">fallback</div>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain('<div v-if="item.active === true" class="unrelated-active-case">active</div>');
+        expect(transformedTemplate).toContain(
+            '<div v-else-if="item.active === false" class="unrelated-case">inactive</div>',
+        );
+        expect(transformedTemplate).toContain(
+            `v-if="$swLegacyBlockElseIf('variant-block:0', item.active === false, ${options(0, false, 'nativeExtension')})" class="inactive-case"`,
+        );
+        expectTemplateCompiles(transformedTemplate);
+    });
 });

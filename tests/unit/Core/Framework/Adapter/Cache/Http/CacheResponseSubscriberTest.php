@@ -196,7 +196,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
         $request->server->set('REMOTE_ADDR', self::IP);
 
         static::assertSame(self::IP, $request->getClientIp());
@@ -346,7 +346,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $maintenanceRequest = clone $salesChannelRequest;
         $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
+        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
         $maintenanceRequest->server->set('REMOTE_ADDR', self::IP);
 
         yield 'no sales channel context' => [new Request()];

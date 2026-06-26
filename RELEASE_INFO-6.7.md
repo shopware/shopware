@@ -1,6 +1,26 @@
 # 6.7.13.0 (upcoming)
 
+## Storefront
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
 ## Core
+
+### Deprecated `maintenanceIpWhitelist` wording of the sales channel
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.
+The deprecated members keep working and will be replaced in Shopware 6.8. Migrate your code now:
+
+- DAL: use the new field `maintenanceIpAllowlist` instead of `maintenanceIpWhitelist`. Both fields are available and kept in sync during the transition.
+- `Shopware\Core\System\SalesChannel\SalesChannelEntity`: use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead of `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()`.
+- `Shopware\Core\SalesChannelRequest`: use the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead of `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST`.
+- `Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: use the constant `MAINTENANCE_ALLOWLIST_HEADER` instead of `MAINTENANCE_WHITELIST_HEADER`.
+
+The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
 
 ### Deprecated core script response rendering
 
@@ -113,6 +133,10 @@ Extension authors can still inspect who triggered the write via `$event->getCont
 If a listener intentionally wants to make a side effect depend on the triggering user or integration, it should check the source explicitly instead of relying on `$event->getContext()->getScope()` being `Context::USER_SCOPE`.
 No adoption is required for normal write-event listeners; remove any extra API permission requirements that only existed to satisfy listener-internal entity writes.
 
+Private media visibility is not implicitly widened by this change.
+During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
+If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
@@ -120,6 +144,14 @@ No adoption is required for normal write-event listeners; remove any extra API p
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
 
 When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+## Administration
+
+### Snippet inheritance from JSON language files
+
+The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.
+
+Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
 
 # 6.7.12.0 (upcoming)
 
@@ -435,6 +467,9 @@ Affected commands:
 - `bin/console plugin:list --json` → `bin/console plugin:list --format json`
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
+### Not-null translation columns accept falsy defaults
+
+`DefinitionValidator` no longer reports a not-null translation column as missing a default when the column has a falsy but set default such as `0`, `'0'`, or `''`. Only a `null` default is now treated as missing. This removes false positives for plugin entity definitions that use such defaults.
 
 ### `cache:watch:delayed` shuts down gracefully
 

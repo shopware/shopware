@@ -1,4 +1,4 @@
-name: sw-impact
+name: sw-impact check
 
 on:
   pull_request:
@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   check:
-    name: sw-impact
+    name: sw-impact check
     if: |
       github.event_name == 'workflow_dispatch' ||
       (
@@ -92,6 +92,20 @@ jobs:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.change_ref }}
           persist-credentials: false
+
+      - name: Add workflow summary
+        run: |
+          {
+            echo "## sw-impact check"
+            echo
+            echo "This workflow is experimental and checks for breaking changes in Shopware's public API surface."
+            echo
+            echo "Each reported break should be treated as an exploratory signal for a human to investigate further and either resolve or intentionally accept."
+            echo
+            echo "For more information, see https://github.com/shopware/sw-impact ."
+            echo
+            echo "False positives should be reported as issues in that repository."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Check impact
         run: sw-impact check . --index "$SW_IMPACT_INDEX" --format github

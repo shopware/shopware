@@ -12,6 +12,12 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
+### Theme media imports accept packaged SVG assets
+
+SVG files referenced from a theme's `theme.json` media fields or preview media are now imported through a theme-scoped media saver that skips SVG active-content validation. This keeps trusted theme packages installable even when their packaged SVG assets contain markup that would be rejected for normal media uploads.
+
+If a theme media import still fails outside the `dev` environment, Shopware logs the failed path, clears the affected theme config value, and continues refreshing the theme. In `dev`, the original exception is still thrown. Regular media uploads and plugin code using the generic media APIs continue to use the normal SVG validation.
+
 ## Core
 
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)

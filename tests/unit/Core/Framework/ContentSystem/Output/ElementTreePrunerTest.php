@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
@@ -241,6 +242,48 @@ class ElementTreePrunerTest extends TestCase
         $targetSlots = $prunedTarget->getSlots();
         static::assertArrayHasKey('main', $targetSlots);
         static::assertSame($childId, $targetSlots['main']->getElements()[0]->getId());
+    }
+
+    #[TestDox('preserves the style of every reconstructed ancestor and the target when pruning to a deep target')]
+    public function testPrunePreservesStyleAlongReconstructedPath(): void
+    {
+        $targetId = 'target-id';
+        $parentId = 'parent-id';
+        $grandparentId = 'grandparent-id';
+
+        $grandparentStyle = new ElementStyle(['col-span' => ['md' => 6]]);
+        $targetStyle = new ElementStyle(['display' => ['xs' => 'none']]);
+
+        $target = ContentElementBuilder::create('target-component', $targetId)
+            ->withConsumer('listing', ContextType::Single)
+            ->withStyle($targetStyle)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent-component', $parentId)
+            ->withConsumer('product', ContextType::Single)
+            ->withSlot('default', [$target])
+            ->build();
+
+        $grandparent = ContentElementBuilder::create('grandparent-component', $grandparentId)
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$parent])
+            ->withStyle($grandparentStyle)
+            ->build();
+
+        $root = ContentElementBuilder::create('root-component', 'root-id')
+            ->withSlot('default', [$grandparent])
+            ->build();
+
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
+
+        // The grandparent is the data root and is rebuilt through the ContentElement constructor, not cloned
+        static::assertSame($grandparentId, $pruned->getId());
+        static::assertSame(['col-span' => ['md' => 6]], $pruned->getStyle()->toArray());
+
+        $prunedParent = $pruned->getSlots()['default']->getElements()[0];
+        $prunedTarget = $prunedParent->getSlots()['default']->getElements()[0];
+        static::assertSame($targetId, $prunedTarget->getId());
+        static::assertSame(['display' => ['xs' => 'none']], $prunedTarget->getStyle()->toArray());
     }
 
     #[TestDox('throws element-not-found exception when target element is not in tree')]

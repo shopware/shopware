@@ -94,7 +94,7 @@ function getLegacyBlockConditionKey(source: DataScope, chainKey: string): string
 
 /**
  * Lists the unique runtime chain keys that a shim slot reserved.
- * Use it during unmount to clear all persistent condition chains owned by that shim component.
+ * Use it during unmount to clear condition chains owned by that shim component.
  *
  * @example
  * const chainKeys = getReservedLegacyConditionChainKeys(dataScopeRef.value, entry);

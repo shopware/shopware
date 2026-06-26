@@ -8,6 +8,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
     let legacyElse;
     let reserveLegacyConditionCases;
     let clearLegacyConditionChain;
+    let clearLegacyConditionChainsForBlock;
     let legacyConditionContext;
     const caseResult = (result) => ({ result });
     const defaultCase = (segmentCaseIndex, isStartingCondition = false) => ({
@@ -35,6 +36,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         legacyElse = legacyConditionBlockContext.legacyElse;
         reserveLegacyConditionCases = legacyConditionBlockContext.reserveLegacyConditionCases;
         clearLegacyConditionChain = legacyConditionBlockContext.clearLegacyConditionChain;
+        clearLegacyConditionChainsForBlock = legacyConditionBlockContext.clearLegacyConditionChainsForBlock;
         legacyConditionContext = legacyConditionBlockContext.legacyConditionContext;
     });
 
@@ -59,7 +61,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', defaultCase(1))).toBe(false);
     });
 
-    it('cleans up legacy if chains without an else case', async () => {
+    it('keeps legacy chains until lifecycle cleanup', async () => {
         expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
         expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
@@ -70,20 +72,39 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                 ],
                 shimExtensionCases: [],
                 nativeExtensionCases: [],
-                persistent: false,
                 keepShimResultsForNextReservation: false,
             },
         });
 
         await Promise.resolve();
 
-        expect(legacyConditionContext).toStrictEqual({});
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                    caseResult(true),
+                ],
+                shimExtensionCases: [],
+                nativeExtensionCases: [],
+                keepShimResultsForNextReservation: false,
+            },
+        });
     });
 
     it('keeps legacy else cases available during the current render tick', () => {
         expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
         expect(legacyElse('test', defaultCase(1))).toBe(true);
-        expect(legacyConditionContext).toStrictEqual({});
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                    caseResult(true),
+                ],
+                shimExtensionCases: [],
+                nativeExtensionCases: [],
+                keepShimResultsForNextReservation: false,
+            },
+        });
     });
 
     it('keeps reserved extension cases pending until the shim renders', async () => {
@@ -103,7 +124,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                 nativeExtensionCases: [
                     caseResult(false),
                 ],
-                persistent: true,
                 keepShimResultsForNextReservation: false,
             },
         });
@@ -121,7 +141,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                 nativeExtensionCases: [
                     caseResult(false),
                 ],
-                persistent: true,
                 keepShimResultsForNextReservation: false,
             },
         });
@@ -148,7 +167,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                     caseResult(true),
                 ],
                 nativeExtensionCases: [],
-                persistent: true,
                 keepShimResultsForNextReservation: true,
             },
         });
@@ -240,7 +258,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                     caseResult(true),
                 ],
                 nativeExtensionCases: [],
-                persistent: true,
                 keepShimResultsForNextReservation: true,
             },
         });
@@ -268,7 +285,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                 nativeExtensionCases: [
                     caseResult(false),
                 ],
-                persistent: true,
                 keepShimResultsForNextReservation: true,
             },
         });
@@ -293,13 +309,12 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                 nativeExtensionCases: [
                     caseResult(false),
                 ],
-                persistent: true,
                 keepShimResultsForNextReservation: true,
             },
         });
     });
 
-    it('clears persisted legacy extension chains when the extension is removed', () => {
+    it('clears legacy extension chains when the extension is removed', () => {
         expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
@@ -308,7 +323,17 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyConditionContext).toStrictEqual({});
     });
 
-    it('keeps persisted extension state when the parent legacy chain renders again', () => {
+    it('clears legacy chains by owning block', () => {
+        expect(legacyIf('42:test:0', false, defaultCase(0, true))).toBe(false);
+        expect(legacyIf('42:other:0', false, defaultCase(0, true))).toBe(false);
+
+        clearLegacyConditionChainsForBlock('test', 42);
+
+        expect(legacyConditionContext['42:test:0']).toBeUndefined();
+        expect(legacyConditionContext['42:other:0']).toBeDefined();
+    });
+
+    it('keeps extension state when the parent legacy chain renders again', () => {
         expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
@@ -325,7 +350,6 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
                     caseResult(true),
                 ],
                 nativeExtensionCases: [],
-                persistent: true,
                 keepShimResultsForNextReservation: true,
             },
         });

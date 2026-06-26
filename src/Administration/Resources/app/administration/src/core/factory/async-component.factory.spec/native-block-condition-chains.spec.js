@@ -235,4 +235,50 @@ describe('core/factory/async-component.factory.ts - native block condition chain
 
         expectOnlyBranch(wrapper, branches, '.restart-fallback');
     });
+
+    it('cleans native condition chains when the owning sw-block unmounts', async () => {
+        ComponentFactory.register('native-block-lifecycle-cleanup', {
+            data() {
+                return {
+                    showBaseCondition: false,
+                };
+            },
+            template: `
+                <div>
+                    <sw-block name="lifecycle_cleanup_block" :data="{}">
+                        <div v-if="showBaseCondition" class="base-condition">base</div>
+                    </sw-block>
+
+                    <sw-block extends="lifecycle_cleanup_block">
+                        <sw-block-parent />
+                        <div v-else class="extension-fallback">fallback</div>
+                    </sw-block>
+                </div>
+            `,
+        });
+
+        const wrapper = await mountNativeBlockComponent('native-block-lifecycle-cleanup');
+        const useLegacyConditionContext = (
+            await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')
+        ).default;
+        const { legacyConditionContext } = useLegacyConditionContext();
+        const chainKey = `${wrapper.vm.$.uid}:lifecycle_cleanup_block:0`;
+        const branches = [
+            '.base-condition',
+            '.extension-fallback',
+        ];
+
+        expectOnlyBranch(wrapper, branches, '.extension-fallback');
+        expect(legacyConditionContext[chainKey]).toBeDefined();
+
+        await wrapper.setData({ showBaseCondition: true });
+        await wrapper.vm.$nextTick();
+
+        expectOnlyBranch(wrapper, branches, '.base-condition');
+        expect(legacyConditionContext[chainKey]).toBeDefined();
+
+        wrapper.unmount();
+
+        expect(legacyConditionContext[chainKey]).toBeUndefined();
+    });
 });

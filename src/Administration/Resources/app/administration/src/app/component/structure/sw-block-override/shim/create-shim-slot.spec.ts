@@ -144,7 +144,6 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
                     undefined,
                 ],
                 nativeExtensionCases: [],
-                persistent: true,
                 keepShimResultsForNextReservation: false,
             });
 

@@ -49,8 +49,6 @@ type LegacyConditionChain = {
     defaultSlotCases: LegacyConditionCaseList;
     shimExtensionCases: LegacyConditionCaseList;
     nativeExtensionCases: LegacyConditionCaseList;
-    // Keeps shim chains alive across ticks until their owning shim component unmounts.
-    persistent: boolean;
     // Keeps freshly evaluated shim results available for the next reservation.
     keepShimResultsForNextReservation: boolean;
 };
@@ -100,21 +98,6 @@ const LEGACY_CONDITION_RENDER_ORDER = [
 ] as const satisfies LegacyConditionRenderOrderSegment[];
 
 /**
- * Drops stale, non-persistent chains if no `v-else` consumes them in the same tick.
- * Use it after a starting `v-if` so temporary default-slot state does not leak between renders.
- *
- * @example
- * scheduleLegacyConditionCleanup('sw_card:0', chain);
- */
-function scheduleLegacyConditionCleanup(chainKey: string, chain: LegacyConditionChain): void {
-    queueMicrotask(() => {
-        if (legacyConditionContext[chainKey] === chain && !chain.persistent) {
-            delete legacyConditionContext[chainKey];
-        }
-    });
-}
-
-/**
  * Registers a reactive dependency on the render version for a chain.
  * Use it inside `else-if` and `else` helpers so pending shim results can trigger a re-render.
  *
@@ -137,7 +120,6 @@ function createLegacyConditionChain(): LegacyConditionChain {
         defaultSlotCases: [],
         shimExtensionCases: [],
         nativeExtensionCases: [],
-        persistent: false,
         keepShimResultsForNextReservation: false,
     };
 }
@@ -236,7 +218,7 @@ function scheduleChainUpdate(chainKey: string): void {
 }
 
 /**
- * Stores the latest case result and schedules updates for persistent shim-backed chains.
+ * Stores the latest case result and schedules updates when branch outcomes change.
  * Use it from each legacy helper after computing its boolean result.
  *
  * @example
@@ -253,10 +235,7 @@ function setLegacyCaseResult(
 
     caseList[options.segmentCaseIndex] = nextResult;
 
-    if (
-        chain.persistent &&
-        (previous?.result !== nextResult.result || previous?.isStartingCondition !== nextResult.isStartingCondition)
-    ) {
+    if (previous?.result !== nextResult.result || previous?.isStartingCondition !== nextResult.isStartingCondition) {
         if (options.renderOrderSegment === 'shimExtension') {
             chain.keepShimResultsForNextReservation = true;
         }
@@ -285,12 +264,7 @@ function legacyIf(chainKey: string, expression: unknown, options: LegacyConditio
         chain.nativeExtensionCases = [];
     }
 
-    if (options.renderOrderSegment === 'shimExtension') {
-        chain.persistent = true;
-    }
-
     setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(result, options));
-    scheduleLegacyConditionCleanup(chainKey, chain);
 
     return result;
 }
@@ -308,10 +282,6 @@ function legacyElseIf(chainKey: string, expression: unknown, options: LegacyCond
 
     if (!chain) {
         return false;
-    }
-
-    if (options.renderOrderSegment === 'shimExtension') {
-        chain.persistent = true;
     }
 
     const result = Boolean(expression);
@@ -340,20 +310,12 @@ function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): bool
         return false;
     }
 
-    if (options.renderOrderSegment === 'shimExtension') {
-        chain.persistent = true;
-    }
-
     const previousCaseResults = getPreviousCaseResults(chain, options);
     const previousCaseMatched = previousCaseResults.some((previousCaseResult) => previousCaseResult?.result === true);
     const hasPendingPreviousCase = previousCaseResults.some((previousCaseResult) => previousCaseResult === undefined);
 
     const result = !hasPendingPreviousCase && !previousCaseMatched;
     setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(result, options));
-
-    if (!chain.persistent) {
-        delete legacyConditionContext[chainKey];
-    }
 
     return result;
 }
@@ -379,7 +341,6 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
     }
 
     const chain = legacyConditionContext[chainKey];
-    chain.persistent = true;
 
     const caseList = chain.shimExtensionCases;
     let hasNewReservation = false;
@@ -415,8 +376,8 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
 }
 
 /**
- * Clears persistent shim chain state when the owning shim tree is removed.
- * Use it from the shim component `beforeUnmount` hook to prevent stale condition results.
+ * Clears chain state when the owning shim tree is removed.
+ * Use it from component `beforeUnmount` hooks to prevent stale condition results.
  *
  * @example
  * clearLegacyConditionChain('sw_card:0');
@@ -428,6 +389,25 @@ function clearLegacyConditionChain(chainKey: string): void {
 
     delete legacyConditionContext[chainKey];
     scheduleChainUpdate(chainKey);
+}
+
+/**
+ * Clears all chain state for one owning component and block.
+ * Use it from `<sw-block name="...">` unmount to remove native and shim chains owned by that block.
+ *
+ * @example
+ * clearLegacyConditionChainsForBlock('sw_card', 42);
+ */
+function clearLegacyConditionChainsForBlock(blockName: string, ownerUid?: number): void {
+    const prefix = typeof ownerUid === 'number' ? `${ownerUid}:${blockName}:` : `${blockName}:`;
+
+    Object.keys(legacyConditionContext).forEach((chainKey) => {
+        if (!chainKey.startsWith(prefix)) {
+            return;
+        }
+
+        clearLegacyConditionChain(chainKey);
+    });
 }
 
 /**
@@ -447,5 +427,6 @@ export default function useLegacyConditionContext() {
         legacyElse,
         reserveLegacyConditionCases,
         clearLegacyConditionChain,
+        clearLegacyConditionChainsForBlock,
     };
 }

@@ -2,11 +2,21 @@
  * @sw-package framework
  *
  */
-import { computed, onBeforeUnmount, provide, ref, watch, type ComponentInternalInstance, type Slot } from 'vue';
+import {
+    computed,
+    getCurrentInstance,
+    onBeforeUnmount,
+    provide,
+    ref,
+    watch,
+    type ComponentInternalInstance,
+    type Slot,
+} from 'vue';
 import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
+import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
  * @private
@@ -73,6 +83,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks } = useBlockContext();
+        const { clearLegacyConditionChainsForBlock } = useLegacyConditionContext();
+        const instance = getCurrentInstance();
 
         if (props.extends) {
             // addBlock is a no-op for undefined, so an explicit guard is not needed.
@@ -86,6 +98,15 @@ export default Shopware.Component.wrapComponentConfig({
 
             return { template: null };
         }
+
+        onBeforeUnmount(() => {
+            if (!props.name) {
+                return;
+            }
+
+            const ownerUid = instance?.parent?.uid;
+            clearLegacyConditionChainsForBlock(props.name, ownerUid);
+        });
 
         // Shim slots are created once in setup() to guarantee a stable VNode type
         // reference across renders. A new object on every render call would cause

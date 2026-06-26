@@ -6,6 +6,17 @@ import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
 import getBlockDataScope from './get-block-data-scope';
 
+function createDataScopePlugin() {
+    return {
+        install(app) {
+            Object.defineProperty(app.config.globalProperties, '$dataScope', {
+                get: getBlockDataScope,
+                enumerable: true,
+            });
+        },
+    };
+}
+
 async function createWrapper({
     extensions = '',
     defaultContent = '<div class="default-content"></div>',
@@ -18,7 +29,7 @@ async function createWrapper({
         {
             template: `
             <div class="component-root">
-                <sw-block name="test-extension-point" :data="$dataScope()">
+                <sw-block name="test-extension-point" :data="$dataScope">
                     ${defaultContent}
                 </sw-block>
             </div>
@@ -41,9 +52,7 @@ async function createWrapper({
         },
         {
             global: {
-                mocks: {
-                    $dataScope: getBlockDataScope,
-                },
+                plugins: [createDataScopePlugin()],
             },
         },
     );
@@ -409,7 +418,7 @@ describe('sw-block', () => {
             const wrapper = await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -421,7 +430,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopePlugin()],
+                    },
                 },
             );
 
@@ -437,7 +448,7 @@ describe('sw-block', () => {
             await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -449,7 +460,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopePlugin()],
+                    },
                 },
             );
 

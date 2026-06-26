@@ -524,7 +524,7 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
-    $dataScope: () => ComponentInternalInstance['proxy'];
+    $dataScope: ComponentInternalInstance['proxy'];
     /**
      * Starts a generated legacy block condition chain on the current Vue component instance.
      * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.

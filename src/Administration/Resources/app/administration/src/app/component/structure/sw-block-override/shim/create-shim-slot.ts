@@ -182,7 +182,7 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
                     throw new Error(
                         `[sw-block] Legacy Twig conditional override for block "${blockName}" ` +
                             `in component "${entry.componentName}" requires host data scope. ` +
-                            `Pass :data="$dataScope()" to <sw-block name="${blockName}">.`,
+                            `Pass :data="$dataScope" to <sw-block name="${blockName}">.`,
                     );
                 }
 

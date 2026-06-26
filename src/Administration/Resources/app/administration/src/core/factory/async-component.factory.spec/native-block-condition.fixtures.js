@@ -11,6 +11,17 @@ import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-
 
 export { ComponentFactory, mount };
 
+function createDataScopePlugin() {
+    return {
+        install(app) {
+            Object.defineProperty(app.config.globalProperties, '$dataScope', {
+                get: getBlockDataScope,
+                enumerable: true,
+            });
+        },
+    };
+}
+
 /**
  * Registers the shared Jest reset hooks for native-block condition-chain specs.
  * Use it at the top of spec files that build components through `ComponentFactory`.
@@ -67,6 +78,38 @@ export async function mountNativeBlockComponent(componentName) {
 
         return `${componentUid}:${blockName}`;
     };
+    const globalProperties = {
+        /**
+         * Starts a transformed condition chain in mounted test components.
+         * Use it when generated templates in these specs call `$swLegacyBlockIf`.
+         *
+         * @example
+         * this.$swLegacyBlockIf('sw_card:0', true, options);
+         */
+        $swLegacyBlockIf(blockName, expression, options) {
+            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
+        },
+        /**
+         * Continues a transformed condition chain in mounted test components.
+         * Use it when generated templates in these specs call `$swLegacyBlockElseIf`.
+         *
+         * @example
+         * this.$swLegacyBlockElseIf('sw_card:0', false, options);
+         */
+        $swLegacyBlockElseIf(blockName, expression, options) {
+            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
+        },
+        /**
+         * Finishes a transformed condition chain in mounted test components.
+         * Use it when generated templates in these specs call `$swLegacyBlockElse`.
+         *
+         * @example
+         * this.$swLegacyBlockElse('sw_card:0', options);
+         */
+        $swLegacyBlockElse(blockName, options) {
+            return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
+        },
+    };
 
     return mount(await ComponentFactory.build(componentName), {
         global: {
@@ -74,42 +117,9 @@ export async function mountNativeBlockComponent(componentName) {
                 'sw-block': swBlock,
                 'sw-block-parent': swBlockParent,
             },
-            mocks: {
-                $dataScope: getBlockDataScope,
-            },
+            plugins: [createDataScopePlugin()],
             config: {
-                globalProperties: {
-                    /**
-                     * Starts a transformed condition chain in mounted test components.
-                     * Use it when generated templates in these specs call `$swLegacyBlockIf`.
-                     *
-                     * @example
-                     * this.$swLegacyBlockIf('sw_card:0', true, options);
-                     */
-                    $swLegacyBlockIf(blockName, expression, options) {
-                        return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
-                    },
-                    /**
-                     * Continues a transformed condition chain in mounted test components.
-                     * Use it when generated templates in these specs call `$swLegacyBlockElseIf`.
-                     *
-                     * @example
-                     * this.$swLegacyBlockElseIf('sw_card:0', false, options);
-                     */
-                    $swLegacyBlockElseIf(blockName, expression, options) {
-                        return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
-                    },
-                    /**
-                     * Finishes a transformed condition chain in mounted test components.
-                     * Use it when generated templates in these specs call `$swLegacyBlockElse`.
-                     *
-                     * @example
-                     * this.$swLegacyBlockElse('sw_card:0', options);
-                     */
-                    $swLegacyBlockElse(blockName, options) {
-                        return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
-                    },
-                },
+                globalProperties,
             },
         },
     });

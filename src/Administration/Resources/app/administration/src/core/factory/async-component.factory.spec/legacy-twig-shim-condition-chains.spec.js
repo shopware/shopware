@@ -40,7 +40,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="twig_shim_test_block" :data="$dataScope()">
+                    <sw-block name="twig_shim_test_block" :data="$dataScope">
                         <div v-if="isConditionTrue" class="true-case">true</div>
                     </sw-block>
                 </div>
@@ -98,7 +98,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             await expect(mountNativeBlockComponent('native-block-legacy-twig-shim-missing-data-scope')).rejects.toThrow(
                 '[sw-block] Legacy Twig conditional override for block "twig_shim_block" ' +
                     'in component "native-block-legacy-twig-shim-missing-data-scope" requires host data scope. ' +
-                    'Pass :data="$dataScope()" to <sw-block name="twig_shim_block">.',
+                    'Pass :data="$dataScope" to <sw-block name="twig_shim_block">.',
             );
         });
     });
@@ -114,7 +114,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="chained_condition_block" :data="$dataScope()">
+                    <sw-block name="chained_condition_block" :data="$dataScope">
                         <div v-if="condition1" class="condition-one">Condition 1</div>
                     </sw-block>
                 </div>
@@ -179,7 +179,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="mixed_chained_condition_block" :data="$dataScope()">
+                    <sw-block name="mixed_chained_condition_block" :data="$dataScope">
                         <div v-if="condition1" class="condition-one">Condition 1</div>
                     </sw-block>
 
@@ -235,11 +235,11 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="adjacent_condition_block_one" :data="$dataScope()">
+                    <sw-block name="adjacent_condition_block_one" :data="$dataScope">
                         <div v-if="condition1" class="native-one">one</div>
                     </sw-block>
 
-                    <sw-block name="adjacent_condition_block_two" :data="$dataScope()">
+                    <sw-block name="adjacent_condition_block_two" :data="$dataScope">
                         <div v-else-if="condition2" class="native-two">two</div>
                     </sw-block>
                 </div>
@@ -298,7 +298,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="twig_started_condition_block" :data="$dataScope()">
+                    <sw-block name="twig_started_condition_block" :data="$dataScope">
                         <div class="default-content">Default</div>
                     </sw-block>
                 </div>

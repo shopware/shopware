@@ -52,27 +52,36 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         static::assertNull($dto->adminUI);
     }
 
-    #[TestDox('denormalize ignores a non-integer maxLength rather than failing the type contract')]
-    public function testDenormalizeIgnoresNonIntegerMaxLength(): void
+    #[TestDox('denormalize carries a non-integer maxLength through raw for the validator to reject')]
+    public function testDenormalizeCarriesRawMaxLength(): void
     {
         $dto = $this->serializer->denormalize(['type' => 'string', 'maxLength' => '64']);
 
-        static::assertNull($dto->maxLength);
+        static::assertSame('64', $dto->maxLength);
     }
 
-    #[TestDox('denormalize coerces a wrong-typed enum, range, adminUI or default to null instead of raising a TypeError')]
-    public function testDenormalizeCoercesWrongTypedFacetsToNull(): void
+    #[TestDox('denormalize carries a wrong-typed enum and range through raw for the validator to reject')]
+    public function testDenormalizeCarriesRawEnumAndRange(): void
     {
         $dto = $this->serializer->denormalize([
             'type' => 'string',
             'enum' => 'not-an-array',
             'range' => 'not-an-array',
+        ]);
+
+        static::assertSame('not-an-array', $dto->enum);
+        static::assertSame('not-an-array', $dto->range);
+    }
+
+    #[TestDox('denormalize coerces a wrong-typed adminUI or default to null to protect the typed DTO')]
+    public function testDenormalizeCoercesAdminUiAndDefaultToNull(): void
+    {
+        $dto = $this->serializer->denormalize([
+            'type' => 'string',
             'adminUI' => 'not-an-array',
             'default' => ['not', 'a', 'scalar'],
         ]);
 
-        static::assertNull($dto->enum);
-        static::assertNull($dto->range);
         static::assertNull($dto->adminUI);
         static::assertNull($dto->default);
     }

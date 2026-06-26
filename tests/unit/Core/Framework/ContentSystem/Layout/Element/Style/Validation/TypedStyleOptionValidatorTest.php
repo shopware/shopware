@@ -52,6 +52,10 @@ class TypedStyleOptionValidatorTest extends TestCase
         yield 'number with open-ended range' => [
             new StyleOptionSpecificationDto('number', null, ['min' => 0], null, null, null),
         ];
+
+        yield 'string with a large maxLength (no upper ceiling)' => [
+            new StyleOptionSpecificationDto('string', null, null, 1_000_000, null, null),
+        ];
     }
 
     #[DataProvider('rejectsInvalidOptionProvider')]
@@ -70,6 +74,12 @@ class TypedStyleOptionValidatorTest extends TestCase
      */
     public static function rejectsInvalidOptionProvider(): iterable
     {
+        yield 'enum is not an array' => [
+            new StyleOptionSpecificationDto('string', 'not-an-array', null, null, null, null),
+            'enum',
+            'enum must be an array',
+        ];
+
         yield 'enum is not a list' => [
             new StyleOptionSpecificationDto('string', ['a' => 'b'], null, null, null, null),
             'enum',
@@ -92,6 +102,12 @@ class TypedStyleOptionValidatorTest extends TestCase
             new StyleOptionSpecificationDto('integer', ['sm', 'md'], null, null, null, null),
             'enum',
             'enum values must all match',
+        ];
+
+        yield 'range is not an array' => [
+            new StyleOptionSpecificationDto('integer', null, 'not-an-array', null, null, null),
+            'range',
+            'range must be an array',
         ];
 
         yield 'range on a string type' => [
@@ -118,10 +134,16 @@ class TypedStyleOptionValidatorTest extends TestCase
             'maxLength is only valid for the "string"',
         ];
 
-        yield 'maxLength exceeds the declarable bound' => [
-            new StyleOptionSpecificationDto('string', null, null, 70000, null, null),
+        yield 'maxLength is not an integer' => [
+            new StyleOptionSpecificationDto('string', null, null, '64', null, null),
             'maxLength',
-            'maxLength must not exceed',
+            'maxLength must be a positive integer',
+        ];
+
+        yield 'maxLength is not positive' => [
+            new StyleOptionSpecificationDto('string', null, null, 0, null, null),
+            'maxLength',
+            'maxLength must be a positive integer',
         ];
 
         yield 'default mismatches declared type' => [

@@ -20,22 +20,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class StyleOptionSpecificationDto
 {
     /**
-     * $enum and $range are carried untyped (the raw YAML/DB value) so the validator can reject a
-     * non-list enum or non-numeric bounds at runtime; they are narrowed to their clean shapes by
-     * buildEnum()/buildRange() once validated.
+     * enum, range and maxLength are carried raw (the raw YAML/DB value, typed mixed) so the validator can
+     * reject a non-array enum or range, or a non-integer maxLength, at runtime; they are narrowed to their
+     * clean shapes by buildEnum()/buildRange()/buildMaxLength(), which run only after validation passes.
      *
-     * @param array<array-key, mixed>|null $enum
-     * @param array<string, mixed>|null $range
      * @param array<string, mixed>|null $adminUI
      */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Choice(choices: StyleOptionValueType::PRIMITIVE_TYPES)]
         public string $type,
-        public ?array $enum,
-        public ?array $range,
-        #[Assert\Positive]
-        public ?int $maxLength,
+        public mixed $enum,
+        public mixed $range,
+        public mixed $maxLength,
         public string|int|float|bool|null $default,
         public ?array $adminUI,
     ) {
@@ -49,7 +46,7 @@ final readonly class StyleOptionSpecificationDto
                 $this->type,
                 $this->buildEnum(),
                 $this->buildRange(),
-                $this->maxLength,
+                $this->buildMaxLength(),
                 $this->default,
             ),
             $this->adminUI,
@@ -62,7 +59,7 @@ final readonly class StyleOptionSpecificationDto
      */
     private function buildEnum(): ?array
     {
-        if ($this->enum === null) {
+        if (!\is_array($this->enum)) {
             return null;
         }
 
@@ -81,7 +78,7 @@ final readonly class StyleOptionSpecificationDto
      */
     private function buildRange(): ?array
     {
-        if ($this->range === null) {
+        if (!\is_array($this->range)) {
             return null;
         }
 
@@ -98,5 +95,10 @@ final readonly class StyleOptionSpecificationDto
         }
 
         return $range === [] ? null : $range;
+    }
+
+    private function buildMaxLength(): ?int
+    {
+        return \is_int($this->maxLength) ? $this->maxLength : null;
     }
 }

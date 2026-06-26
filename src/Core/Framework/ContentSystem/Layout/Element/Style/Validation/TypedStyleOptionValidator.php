@@ -17,10 +17,6 @@ final class TypedStyleOptionValidator extends ConstraintValidator
 {
     private const NUMERIC_TYPES = [StyleOptionValueType::TYPE_INTEGER, StyleOptionValueType::TYPE_NUMBER];
 
-    // Upper bound on a declared string maxLength, so an app cannot declare an effectively unbounded cap and
-    // let a layout-writer store an oversized value in the layout JSON column.
-    private const MAX_DECLARABLE_STRING_LENGTH = 65535;
-
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof TypedStyleOption) {
@@ -46,6 +42,14 @@ final class TypedStyleOptionValidator extends ConstraintValidator
     private function validateEnum(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
     {
         if ($value->enum === null) {
+            return;
+        }
+
+        if (!\is_array($value->enum)) {
+            $this->context->buildViolation($constraint->enumArrayMessage)
+                ->atPath('enum')
+                ->addViolation();
+
             return;
         }
 
@@ -86,6 +90,14 @@ final class TypedStyleOptionValidator extends ConstraintValidator
             return;
         }
 
+        if (!\is_array($value->range)) {
+            $this->context->buildViolation($constraint->rangeArrayMessage)
+                ->atPath('range')
+                ->addViolation();
+
+            return;
+        }
+
         if (!\in_array($value->type, self::NUMERIC_TYPES, true)) {
             $this->context->buildViolation($constraint->rangeTypeMessage)
                 ->atPath('range')
@@ -121,20 +133,19 @@ final class TypedStyleOptionValidator extends ConstraintValidator
             return;
         }
 
-        if ($value->type === StyleOptionValueType::TYPE_STRING) {
-            if ($value->maxLength > self::MAX_DECLARABLE_STRING_LENGTH) {
-                $this->context->buildViolation($constraint->maxLengthBoundMessage)
-                    ->setParameter('{{ max }}', (string) self::MAX_DECLARABLE_STRING_LENGTH)
-                    ->atPath('maxLength')
-                    ->addViolation();
-            }
+        if (!\is_int($value->maxLength) || $value->maxLength <= 0) {
+            $this->context->buildViolation($constraint->maxLengthValueMessage)
+                ->atPath('maxLength')
+                ->addViolation();
 
             return;
         }
 
-        $this->context->buildViolation($constraint->maxLengthTypeMessage)
-            ->atPath('maxLength')
-            ->addViolation();
+        if ($value->type !== StyleOptionValueType::TYPE_STRING) {
+            $this->context->buildViolation($constraint->maxLengthTypeMessage)
+                ->atPath('maxLength')
+                ->addViolation();
+        }
     }
 
     private function validateDefault(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void

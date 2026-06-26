@@ -506,6 +506,12 @@ The following classes related to Agentic Commerce product exports, providers, an
 
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
+### Product search route extension point
+
+The `/store-api/search` product search (`ProductSearchRoute::load`) is now wrapped with the `Extension` mechanism, so you can resolve or enrich the search result through a plain event subscriber instead of decorating the route. This makes it simple to back the search with an external search service, or to add your own data to the result.
+
+Subscribe to `ProductSearchRouteExtension::onPre()` to take over the search (assign `$extension->result` and call `stopPropagation()`), or to `ProductSearchRouteExtension::onPost()` to adjust the loaded result. Without a subscriber the unchanged core search runs.
+
 ## Administration
 
 ### Block additions and renamings

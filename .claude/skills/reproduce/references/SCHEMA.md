@@ -70,10 +70,15 @@ Rules:
   endpoint, which is then the `store-api` layer). **Client-side** symptoms that only appear
   after JS runs (offcanvas/ajax cart, image zoom, scroll/lazy-load) → `playwright`. The admin
   is a client-rendered SPA, so `admin-ui` always needs the browser.
-- `build_profile` enables only the surface `layer` needs. `storefront_build` / `theme_build`
-  are `true` only for a `storefront-ui` plan that runs in the BROWSER (`playwright`); a
-  server-rendered `storefront-ui` check (`direct`/`http`) asserts the server HTML and needs no
-  asset build, so it leaves them `false`. A `service`/`*-api` plan builds neither.
+- `build_profile` enables only the surface `layer` needs. **An `admin-ui` plan MUST set
+  `admin_build: true`** — the admin is a client-rendered SPA that does not exist until its JS
+  bundle is compiled; with `admin_build: false` the `/admin` route serves a dead shell, the
+  login form never renders, and the leg dies "harness admin login failed" (false block — hit
+  live on #29). `storefront_build` / `theme_build` are `true` only for a `storefront-ui` plan
+  that runs in the BROWSER (`playwright`); a server-rendered `storefront-ui` check
+  (`direct`/`http`) asserts the server HTML and needs no asset build, so it leaves them
+  `false`. A `service`/`*-api` plan builds neither. (The profile is also derivable from the
+  layer, so `leg-plan.sh` re-derives it as a safety net — but set it correctly here.)
 - The agent does NOT choose which versions to run — the **workflow** computes that from
   `version`: two legs (reported = `version`, trunk) normally; **one leg (trunk only) when
   `version == trunk` or on a manual `workflow_dispatch` rerun** ("not on manual rerun").

@@ -178,6 +178,24 @@ class ElementStyleFieldSerializerTest extends TestCase
         static::assertSame($first, $second);
     }
 
+    #[TestDox('reset drops the memo so the next build re-derives constraints against the registry')]
+    public function testResetCausesReDerivationOnNextBuild(): void
+    {
+        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->exactly(2))->method('all')->willReturn($this->options());
+
+        $serializer = new ElementStyleFieldSerializer(
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $registry,
+            new StyleOptionConstraintDeriver(),
+        );
+
+        $serializer->buildConstraints($this->field);
+        $serializer->reset();
+        $serializer->buildConstraints($this->field);
+    }
+
     /**
      * @param array<string, mixed> $style
      */

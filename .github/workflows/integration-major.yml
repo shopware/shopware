@@ -1,10 +1,6 @@
 name: Integration tests (major)
 
 # Nightly-only: re-runs the integration suite with all next-major feature flags on.
-# GitLab ran integration in a ["false","major"] matrix; the GitHub Actions port kept only the
-# "false" arm (in integration.yml), so this restores the major arm as its own workflow.
-# FEATURE_ALL=major is set at job level so it applies to both the install/migrate step
-# (major-migrated schema) and the PHPUnit run (runtime Feature::isActive() true) — they must match.
 on:
   workflow_dispatch:
   workflow_call:
@@ -50,9 +46,7 @@ jobs:
 
     services:
       elasticsearch:
-        # Only the Elasticsearch path shard needs OpenSearch (matches the "Wait for
-        # OpenSearch" gate below); every other shard uses the cheap alpine placeholder
-        # instead of pulling the full OpenSearch image it never uses.
+        # Only the Elasticsearch path shard needs OpenSearch, every other shard uses the cheap alpine placeholder instead.
         image: ${{ contains(matrix.test.path, 'Elasticsearch') && matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
@@ -81,8 +75,7 @@ jobs:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
-          # no codecov-token: the major run's signal is the gate, not Test Analytics (avoids
-          # mixing major-flag results into the same test IDs as the default integration run)
+          # no codecov-token: the major run's signal is the gate, not Test Analytics
 
   # single required/monitorable status for the whole major matrix
   integration-major-check:

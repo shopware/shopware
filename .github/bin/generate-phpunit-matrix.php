@@ -16,10 +16,7 @@ $integrationTests = [
 ];
 
 if ($major) {
-    // Nightly major-flagged integration run: every integration shard once on a single PHP/DB/OpenSearch.
-    // FEATURE_ALL=major coverage is about the flag (and the matching major-migrated schema), not the
-    // PHP/DB cross-product, which the regular nightly matrix already exercises. The migration suite is
-    // excluded here because php.yml already runs it under FEATURE_ALL=major.
+    // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
     echo \json_encode([
         'fail-fast' => false,
         'matrix' => [

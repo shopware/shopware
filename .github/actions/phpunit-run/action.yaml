@@ -21,8 +21,7 @@ inputs:
     description: "Codecov token for uploading test results (empty on fork PRs, where secrets are unavailable)"
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
-# inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
-# local action.
+# inherit it, so this action stays flag-agnostic.
 runs:
   using: composite
   steps:

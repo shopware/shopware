@@ -59,6 +59,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory" on-invalid="null"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">

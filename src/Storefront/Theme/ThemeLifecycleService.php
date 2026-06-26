@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -56,6 +57,7 @@ class ThemeLifecycleService
         private readonly Connection $connection,
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeRuntimeConfigService $runtimeConfigService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -403,6 +405,7 @@ class ThemeLifecycleService
         $currentThemeMedia = null;
         $currentMediaIds = [];
         $toDeleteIds = [];
+        $mediaConfigFields = [];
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
@@ -458,8 +461,10 @@ class ThemeLifecycleService
                     $media[$path] = $mediaItem;
 
                     // replace media path with media ids
+                    $mediaConfigFields[$path][] = $key;
                     $baseConfig['fields'][$key]['value'] = $mediaId;
                 } else {
+                    $mediaConfigFields[$path][] = $key;
                     $baseConfig['fields'][$key]['value'] = $media[$path]['media']['id'];
                 }
                 if ($theme && isset($currentMediaIds[$key])) {
@@ -476,30 +481,44 @@ class ThemeLifecycleService
 
             $this->mediaRepository->create($mediaIds, $context);
 
-            foreach ($media as $item) {
+            foreach ($media as $path => $item) {
                 if (!$item['mediaFile'] instanceof MediaFile) {
                     throw MediaException::missingFile($item['media']['id']);
                 }
 
                 try {
-                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
-                } catch (MediaException $e) {
-                    if ($e->getErrorCode() !== MediaException::MEDIA_DUPLICATED_FILE_NAME) {
-                        throw $e;
+                    $this->persistThemeMedia($item, $context);
+                } catch (\Throwable $e) {
+                    $this->logger->error('Could not import theme media file.', [
+                        'theme' => $pluginConfiguration->getTechnicalName(),
+                        'path' => $path,
+                        'mediaId' => $item['media']['id'],
+                        'exception' => $e,
+                    ]);
+
+                    if (($themeData['previewMediaId'] ?? null) === $item['media']['id']) {
+                        unset($themeData['previewMediaId']);
                     }
 
-                    $newFileName = $this->fileNameProvider->provide(
-                        $item['basename'],
-                        $item['mediaFile']->getFileExtension(),
-                        null,
-                        $context
-                    );
-                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $newFileName, $item['media']['id'], $context);
+                    foreach ($mediaConfigFields[$path] ?? [] as $fieldKey) {
+                        $baseConfig['fields'][$fieldKey]['value'] = null;
+                    }
+
+                    unset($media[$path]);
+
+                    try {
+                        $this->mediaRepository->delete([['id' => $item['media']['id']]], $context);
+                    } catch (\Throwable) {
+                        // The import already failed; a cleanup failure must not abort the theme refresh.
+                    }
                 }
             }
         }
 
-        $themeData['media'] = $mediaIds;
+        $themeData['media'] = array_column($media, 'media');
+        if (\array_key_exists('fields', $baseConfig)) {
+            $themeData['baseConfig'] = $baseConfig;
+        }
 
         if ($theme !== null) {
             $toDeleteIds = array_unique($toDeleteIds);
@@ -514,6 +533,40 @@ class ThemeLifecycleService
         }
 
         return $themeData;
+    }
+
+    /**
+     * @param array{mediaFile: MediaFile, basename: string, media: array{id: string}} $item
+     */
+    private function persistThemeMedia(array $item, Context $context): void
+    {
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $item['mediaFile'],
+                $item['basename'],
+                $item['media']['id'],
+                $context,
+                validateContent: false
+            );
+        } catch (MediaException $e) {
+            if ($e->getErrorCode() !== MediaException::MEDIA_DUPLICATED_FILE_NAME) {
+                throw $e;
+            }
+
+            $newFileName = $this->fileNameProvider->provide(
+                $item['basename'],
+                $item['mediaFile']->getFileExtension(),
+                null,
+                $context
+            );
+            $this->fileSaver->persistFileToMedia(
+                $item['mediaFile'],
+                $newFileName,
+                $item['media']['id'],
+                $context,
+                validateContent: false
+            );
+        }
     }
 
     private function getSystemLanguageLocale(Context $context): string

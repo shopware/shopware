@@ -5,11 +5,14 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
@@ -108,6 +111,7 @@ class ThemeLifecycleServiceTest extends TestCase
             $this->connection,
             static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
             $this->themeRuntimeConfigService,
+            new NullLogger(),
         );
 
         $this->context = Context::createDefaultContext();
@@ -145,6 +149,66 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeEntity->getMedia() as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+    }
+
+    public function testRefreshThemeLogsAndSkipsMediaImportFailures(): void
+    {
+        $bundle = new StorefrontPluginConfiguration('ThemeWithFileAssociations');
+        $bundle->setName('ThemeWithFileAssociations');
+        $bundle->setAuthor(null);
+        $bundle->setIsTheme(true);
+        $bundle->setThemeJson([]);
+        $bundle->setThemeConfig([
+            'fields' => [
+                'brokenMedia' => [
+                    'type' => 'media',
+                    'value' => 'app/storefront/src/assets/image/shopware_logo.svg',
+                ],
+            ],
+        ]);
+
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->method('persistFileToMedia')->willThrowException(MediaException::invalidFile('Broken media'));
+
+        $failedMediaId = null;
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(
+            'Could not import theme media file.',
+            static::callback(static function (array $context) use (&$failedMediaId, $bundle): bool {
+                $failedMediaId = $context['mediaId'] ?? null;
+
+                return $context['theme'] === $bundle->getTechnicalName()
+                    && $context['path'] === 'app/storefront/src/assets/image/shopware_logo.svg'
+                    && $failedMediaId !== null
+                    && ($context['exception'] ?? null) instanceof MediaException;
+            })
+        );
+
+        $themeLifecycleService = new ThemeLifecycleService(
+            static::getContainer()->get(StorefrontPluginRegistry::class),
+            $this->themeRepository,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            static::getContainer()->get('theme_media.repository'),
+            $fileSaver,
+            static::getContainer()->get(FileNameProvider::class),
+            $this->themeFilesystemResolver,
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get('theme_child.repository'),
+            $this->connection,
+            static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
+            $this->themeRuntimeConfigService,
+            $logger,
+        );
+
+        $themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+        static::assertTrue($themeEntity->isActive());
+        static::assertNull($themeEntity->getBaseConfig()['fields']['brokenMedia']['value']);
+        static::assertIsString($failedMediaId);
+        $failedMedia = $this->mediaRepository->search(new Criteria([$failedMediaId]), $this->context)->get($failedMediaId);
+        static::assertNull($failedMedia);
     }
 
     public function testThemeConfigInheritanceAddsParentTheme(): void

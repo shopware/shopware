@@ -258,6 +258,51 @@ class FileSaverTest extends TestCase
         static::assertEmpty($this->messageBus->getMessages());
     }
 
+    public function testPersistFileToMediaCanSkipContentValidation(): void
+    {
+        $validationStrategy = $this->createMock(FileContentValidationStrategy::class);
+        $validationStrategy->expects($this->never())->method('validate');
+
+        $fileSaver = new FileSaver(
+            $this->mediaRepository,
+            $this->filesystemPublic,
+            $this->createMock(FilesystemOperator::class),
+            $validationStrategy,
+            $this->createMock(MetadataLoader::class),
+            $this->createMock(TypeDetector::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->locationBuilder,
+            $this->mediaPathStrategy,
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            new NativeClock()
+        );
+
+        $mediaId = Uuid::randomHex();
+        $currentMedia = new MediaEntity();
+        $currentMedia->setId($mediaId);
+        $currentMedia->setPrivate(false);
+        $currentMedia->setPath('');
+        $mediaCollection = new MediaCollection([$currentMedia]);
+        $mediaCollection->set($mediaId, $currentMedia);
+        $this->mediaRepository->addSearch($mediaCollection, new MediaCollection(), $mediaCollection);
+
+        $file = tmpfile();
+        static::assertIsResource($file);
+        $tempMeta = stream_get_meta_data($file);
+        $mediaFile = new MediaFile($tempMeta['uri'] ?? '', 'image/png', 'png', 0);
+
+        $fileSaver->persistFileToMedia(
+            $mediaFile,
+            'foo',
+            $mediaId,
+            Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())),
+            validateContent: false
+        );
+
+        static::assertCount(1, $this->mediaRepository->updates);
+    }
+
     public function testRenameMediaWithMissingFile(): void
     {
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));

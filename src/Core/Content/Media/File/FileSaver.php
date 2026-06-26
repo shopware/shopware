@@ -62,7 +62,8 @@ class FileSaver
         MediaFile $mediaFile,
         string $destination,
         string $mediaId,
-        Context $context
+        Context $context,
+        bool $validateContent = true
     ): void {
         $currentMedia = $this->findMediaById($mediaId, $context);
         $destination = $this->validateFileName($destination);
@@ -74,7 +75,9 @@ class FileSaver
         );
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
-        $this->fileContentValidationStrategy->validate($mediaFile);
+        if ($validateContent) {
+            $this->fileContentValidationStrategy->validate($mediaFile);
+        }
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);
 

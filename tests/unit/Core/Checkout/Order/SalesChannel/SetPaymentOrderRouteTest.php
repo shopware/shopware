@@ -153,6 +153,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
         $response = new CheckoutGatewayRouteResponse(
             new PaymentMethodCollection([$paymentMethod]),
             new ShippingMethodCollection(),
@@ -190,10 +191,67 @@ class SetPaymentOrderRouteTest extends TestCase
         $paymentOrderRoute->setPayment($request, $salesChannelContext);
     }
 
+    public function testPaymentMethodNotAfterOrderEnabled(): void
+    {
+        $this->expectExceptionObject(OrderException::paymentMethodNotChangeable());
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
+        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(false);
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection([$paymentMethod]),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
+        );
+
+        $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($response);
+
+        $orderService = $this->createMock(OrderService::class);
+        // afterOrderEnabled is enforced before the transaction-state check, so it must not be consulted.
+        $orderService
+            ->expects($this->never())
+            ->method('isPaymentChangeableByTransactionState');
+
+        $paymentOrderRoute = new SetPaymentOrderRoute(
+            $orderService,
+            $staticRepository,
+            $this->createMock(OrderConverter::class),
+            $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(InitialStateIdLoader::class),
+            $gatewayRoute
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext
+            ->expects($this->once())
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
+
+        $paymentOrderRoute->setPayment($request, $salesChannelContext);
+    }
+
     public function testReopenAndCancelTransactions(): void
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
 
         $transactionState = new OrderTransactionEntity();
         $transactionState->setId(Uuid::randomHex());
@@ -268,6 +326,7 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
+        $paymentMethod->setAfterOrderEnabled(true);
 
         $price = new CartPrice(
             100,

@@ -71,27 +71,18 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->getId(), $clonedChild->getId()], $duplicate->affected());
     }
 
-    #[TestDox('carries key-based wiring over to the clone unchanged')]
-    public function testDuplicatePreservesKeyBasedWiring(): void
+    #[TestDox('carries key-based wiring, context definitions, and style over to the clone unchanged')]
+    public function testDuplicatePreservesWiringAndStyle(): void
     {
         $requirement = new DataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $contextDefinitions = new ContextDefinitions(['list' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())], []);
-        $tree = [new ContentElement('original', 'Sw:Card', ['product' => $requirement], [], [], $contextDefinitions)];
+        $style = new ElementStyle(['col-span' => ['md' => 6]]);
+        $tree = [new ContentElement('original', 'Sw:Card', ['product' => $requirement], [], [], $contextDefinitions, $style)];
 
         $result = (new DuplicateElement('original'))->apply($tree);
 
         static::assertSame(['product' => $requirement], $result[1]->getDataRequirements());
         static::assertSame($contextDefinitions, $result[1]->getContextDefinitions());
-    }
-
-    #[TestDox('carries the source style over to the clone')]
-    public function testDuplicateCarriesStyleToClone(): void
-    {
-        $style = new ElementStyle(['col-span' => ['md' => 6]]);
-        $tree = [new ContentElement('original', 'Sw:Card', [], [], [], new ContextDefinitions([], []), $style)];
-
-        $result = (new DuplicateElement('original'))->apply($tree);
-
         static::assertSame($style->toArray(), $result[1]->getStyle()->toArray());
     }
 

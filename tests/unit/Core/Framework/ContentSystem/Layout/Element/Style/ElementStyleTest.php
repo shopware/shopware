@@ -13,26 +13,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 #[CoversClass(ElementStyle::class)]
 class ElementStyleTest extends TestCase
 {
-    #[TestDox('an element style without values is empty')]
+    #[TestDox('is empty when constructed without values')]
     public function testIsEmptyByDefault(): void
     {
         static::assertTrue((new ElementStyle())->isEmpty());
     }
 
-    #[TestDox('an element style carrying values is not empty')]
+    #[TestDox('is not empty when constructed with values')]
     public function testIsNotEmptyWithValues(): void
     {
         static::assertFalse((new ElementStyle(['col-span' => ['md' => 6]]))->isEmpty());
-    }
-
-    #[TestDox('toArray returns the option-to-breakpoint value map verbatim')]
-    public function testToArrayReturnsValues(): void
-    {
-        $values = [
-            'col-span' => ['md' => 6, 'lg' => 4],
-            'display' => ['xs' => false],
-        ];
-
-        static::assertSame($values, (new ElementStyle($values))->toArray());
     }
 }

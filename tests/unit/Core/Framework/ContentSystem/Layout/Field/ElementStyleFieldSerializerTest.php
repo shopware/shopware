@@ -37,76 +37,51 @@ class ElementStyleFieldSerializerTest extends TestCase
         $this->field = new ElementStyleField('style', 'style');
     }
 
-    #[TestDox('deserialize keeps known options and their canonical breakpoints')]
-    public function testDeserializeKeepsKnownOptions(): void
+    /**
+     * @param array<string, mixed> $input
+     * @param array<string, array<string, scalar>> $expected
+     */
+    #[DataProvider('deserializeProvider')]
+    #[TestDox('$_dataName')]
+    public function testDeserialize(array $input, array $expected): void
     {
-        $style = $this->serializer()->deserialize([
-            'col-span' => ['md' => 6, 'lg' => 4],
-            'align-self' => ['lg' => 'center'],
-        ]);
+        static::assertSame($expected, $this->serializer()->deserialize($input)->toArray());
+    }
 
-        static::assertSame(
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, array<string, scalar>>}>
+     */
+    public static function deserializeProvider(): iterable
+    {
+        yield 'keeps known options and their canonical breakpoints' => [
             ['col-span' => ['md' => 6, 'lg' => 4], 'align-self' => ['lg' => 'center']],
-            $style->toArray(),
-        );
-    }
+            ['col-span' => ['md' => 6, 'lg' => 4], 'align-self' => ['lg' => 'center']],
+        ];
 
-    #[TestDox('deserialize keeps an unknown option verbatim because the read path is registry-free')]
-    public function testDeserializeKeepsUnknownOptionVerbatim(): void
-    {
-        $style = $this->serializer()->deserialize([
-            'col-span' => ['md' => 6],
-            'removed-plugin-option' => ['md' => 2],
-        ]);
-
-        static::assertSame(
+        yield 'keeps an unknown option verbatim because the read path is registry-free' => [
             ['col-span' => ['md' => 6], 'removed-plugin-option' => ['md' => 2]],
-            $style->toArray(),
-        );
-    }
+            ['col-span' => ['md' => 6], 'removed-plugin-option' => ['md' => 2]],
+        ];
 
-    #[TestDox('deserialize drops an unknown breakpoint while keeping the canonical ones')]
-    public function testDeserializeDropsUnknownBreakpoint(): void
-    {
-        $style = $this->serializer()->deserialize(['col-span' => ['md' => 6, 'zz' => 9]]);
+        yield 'drops an unknown breakpoint while keeping the canonical ones' => [
+            ['col-span' => ['md' => 6, 'zz' => 9]],
+            ['col-span' => ['md' => 6]],
+        ];
 
-        static::assertSame(['col-span' => ['md' => 6]], $style->toArray());
-    }
+        yield 'drops an option whose values are all non-scalar' => [
+            ['col-span' => ['md' => ['nested' => 1]]],
+            [],
+        ];
 
-    #[TestDox('deserialize drops an option whose values are all non-scalar')]
-    public function testDeserializeDropsNonScalarValues(): void
-    {
-        $style = $this->serializer()->deserialize(['col-span' => ['md' => ['nested' => 1]]]);
+        yield 'drops an option whose value is a scalar rather than a breakpoint map' => [
+            ['col-span' => 6],
+            [],
+        ];
 
-        static::assertTrue($style->isEmpty());
-    }
-
-    #[TestDox('deserialize drops an option whose value is a scalar rather than a breakpoint map')]
-    public function testDeserializeDropsScalarBreakpointMap(): void
-    {
-        $style = $this->serializer()->deserialize(['col-span' => 6]);
-
-        static::assertTrue($style->isEmpty());
-    }
-
-    #[TestDox('deserialize yields an empty style for an empty map')]
-    public function testDeserializeEmpty(): void
-    {
-        static::assertTrue($this->serializer()->deserialize([])->isEmpty());
-    }
-
-    #[TestDox('decode rejects a field that is not an ElementStyleField')]
-    public function testDecodeRejectsWrongField(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::invalidFieldType(ElementStyleField::class, StringField::class));
-
-        $this->serializer()->decode(new StringField('x', 'x'), []);
-    }
-
-    #[TestDox('decode returns null for a null stored value')]
-    public function testDecodeReturnsNullForNull(): void
-    {
-        static::assertNull($this->serializer()->decode($this->field, null));
+        yield 'yields an empty style for an empty map' => [
+            [],
+            [],
+        ];
     }
 
     #[TestDox('decode parses a stored JSON string into a populated ElementStyle')]
@@ -116,6 +91,20 @@ class ElementStyleFieldSerializerTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame(['col-span' => ['md' => 6]], $result->toArray());
+    }
+
+    #[TestDox('decode returns null for a null stored value')]
+    public function testDecodeReturnsNullForNull(): void
+    {
+        static::assertNull($this->serializer()->decode($this->field, null));
+    }
+
+    #[TestDox('decode rejects a field that is not an ElementStyleField')]
+    public function testDecodeRejectsWrongField(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldType(ElementStyleField::class, StringField::class));
+
+        $this->serializer()->decode(new StringField('x', 'x'), []);
     }
 
     #[TestDox('encode yields the JSON-encoded array for an ElementStyle value')]
@@ -174,7 +163,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $style
      */
-    #[DataProvider('validStyleProvider')]
+    #[DataProvider('acceptsValidStyleProvider')]
     #[TestDox('accepts $_dataName')]
     public function testAcceptsValidStyle(array $style): void
     {
@@ -184,7 +173,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function validStyleProvider(): iterable
+    public static function acceptsValidStyleProvider(): iterable
     {
         yield 'an integer span within range' => [['col-span' => ['md' => 6]]];
         yield 'a boolean display set to false' => [['display' => ['xs' => false]]];
@@ -196,7 +185,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $style
      */
-    #[DataProvider('invalidStyleProvider')]
+    #[DataProvider('rejectsInvalidStyleProvider')]
     #[TestDox('rejects $_dataName with a violation at $expectedPath')]
     public function testRejectsInvalidStyle(array $style, string $expectedPath): void
     {
@@ -210,7 +199,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function invalidStyleProvider(): iterable
+    public static function rejectsInvalidStyleProvider(): iterable
     {
         yield 'an unknown option key' => [['unknown-option' => ['md' => 1]], '[unknown-option]'];
         yield 'an empty breakpoint map' => [['col-span' => []], '[col-span]'];
@@ -226,8 +215,10 @@ class ElementStyleFieldSerializerTest extends TestCase
     {
         // An app install/update/activation that changed the option set must take effect
         // on the next write without a process restart, so each call re-reads the registry (never memoizes).
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->exactly(2))->method('all')->willReturnOnConsecutiveCalls(
+        // assertCount(0, $afterChange) below already fails if constraints are memoized, so the call
+        // count needs no separate expectation; a stub returning a changed set on the second call suffices.
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturnOnConsecutiveCalls(
             ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), null, 'core')],
             ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), null, 'core')],
         );

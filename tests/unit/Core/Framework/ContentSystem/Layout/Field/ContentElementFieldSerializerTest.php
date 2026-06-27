@@ -567,19 +567,6 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $constraints[2]);
     }
 
-    #[TestDox('throws exception when buildConstraints receives wrong field type')]
-    public function testBuildConstraintsThrowsOnNonContentElementField(): void
-    {
-        $invalidField = new JsonField('element', 'element');
-        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
-
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldType(ContentElementField::class, JsonField::class)
-        );
-
-        $this->serializer->buildConstraints($invalidField);
-    }
-
     #[TestDox('accepts a written element whose style uses a registered option within its bounds')]
     public function testBuildConstraintsAcceptsKnownStyleOption(): void
     {
@@ -593,6 +580,19 @@ class ContentElementFieldSerializerTest extends TestCase
             ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
 
         static::assertCount(0, $violations);
+    }
+
+    #[TestDox('throws exception when buildConstraints receives wrong field type')]
+    public function testBuildConstraintsThrowsOnNonContentElementField(): void
+    {
+        $invalidField = new JsonField('element', 'element');
+        $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldType(ContentElementField::class, JsonField::class)
+        );
+
+        $this->serializer->buildConstraints($invalidField);
     }
 
     #[TestDox('rejects a written element whose style references an unregistered option at the style path')]

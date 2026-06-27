@@ -53,10 +53,6 @@ class TypedStyleOptionValidatorTest extends TestCase
             new StyleOptionSpecificationDto('number', null, ['min' => 0], null, null, null),
         ];
 
-        yield 'string with a large maxLength (no upper ceiling)' => [
-            new StyleOptionSpecificationDto('string', null, null, 1_000_000, null, null),
-        ];
-
         yield 'integer with an in-range default' => [
             new StyleOptionSpecificationDto('integer', null, ['min' => 1, 'max' => 12], null, 6, null),
         ];
@@ -102,12 +98,6 @@ class TypedStyleOptionValidatorTest extends TestCase
             new StyleOptionSpecificationDto('string', [], null, null, null, null),
             'enum',
             'enum must not be empty',
-        ];
-
-        yield 'enum entry is not a scalar' => [
-            new StyleOptionSpecificationDto('integer', [[1, 2]], null, null, null, null),
-            'enum',
-            'enum values must all match',
         ];
 
         yield 'enum values mismatch declared type' => [

@@ -26,6 +26,15 @@ class StyleOptionCollisionDetectorTest extends TestCase
         $detector->validate(['brand-accent' => 'app:Acme'], null, []);
     }
 
+    #[TestDox('skips a collision the proposing source already owns when updating')]
+    public function testSkipsSelfOwnedCollision(): void
+    {
+        $detector = $this->detector(['col-span' => 'app:Acme']);
+
+        $this->expectNotToPerformAssertions();
+        $detector->validate(['col-span' => 'app:Acme'], 'app:Acme', []);
+    }
+
     #[TestDox('fails hard when a proposed name collides with a registered option')]
     public function testFailsForRegistryCollision(): void
     {
@@ -34,15 +43,6 @@ class StyleOptionCollisionDetectorTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::styleOptionDuplicate('col-span', 'core', 'app:Acme'));
 
         $detector->validate(['col-span' => 'app:Acme'], null, []);
-    }
-
-    #[TestDox('skips a collision the proposing source already owns when updating')]
-    public function testSkipsSelfOwnedCollision(): void
-    {
-        $detector = $this->detector(['col-span' => 'app:Acme']);
-
-        $this->expectNotToPerformAssertions();
-        $detector->validate(['col-span' => 'app:Acme'], 'app:Acme', []);
     }
 
     #[TestDox('fails hard when a proposed name collides with an inactive app option')]

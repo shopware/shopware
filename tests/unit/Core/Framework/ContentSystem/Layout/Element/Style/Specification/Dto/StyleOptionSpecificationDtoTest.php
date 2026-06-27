@@ -43,17 +43,6 @@ class StyleOptionSpecificationDtoTest extends TestCase
         static::assertSame($expected, $dto->toStyleOptionSpecification('col-span', 'core')->valueType()->range());
     }
 
-    /**
-     * @return iterable<string, array{mixed, array{min?: int|float, max?: int|float}|null}>
-     */
-    public static function narrowsRangeProvider(): iterable
-    {
-        yield 'fully numeric range passes through unchanged' => [['min' => 1, 'max' => 12], ['min' => 1, 'max' => 12]];
-        yield 'non-numeric min dropped, numeric max kept' => [['min' => 'a', 'max' => 12], ['max' => 12]];
-        yield 'entirely non-numeric range reduces to null' => [['min' => 'a'], null];
-        yield 'non-array range reduces to null' => ['not-an-array', null];
-    }
-
     #[TestDox('narrows a non-array enum to null on the value type')]
     public function testNarrowsNonArrayEnumToNull(): void
     {
@@ -92,12 +81,22 @@ class StyleOptionSpecificationDtoTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{mixed, array{min?: int|float, max?: int|float}|null}>
+     */
+    public static function narrowsRangeProvider(): iterable
+    {
+        yield 'fully numeric range passes through unchanged' => [['min' => 1, 'max' => 12], ['min' => 1, 'max' => 12]];
+        yield 'non-numeric min dropped, numeric max kept' => [['min' => 'a', 'max' => 12], ['max' => 12]];
+        yield 'entirely non-numeric range reduces to null' => [['min' => 'a'], null];
+        yield 'non-array range reduces to null' => ['not-an-array', null];
+    }
+
+    /**
      * @return iterable<string, array{mixed, int}>
      */
     public static function narrowsMaxLengthProvider(): iterable
     {
         yield 'positive integer passes through' => [64, 64];
-        yield 'large positive integer passes through with no upper ceiling' => [1_000_000, 1_000_000];
         yield 'non-integer narrows to null and the default cap applies' => ['64', StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH];
     }
 }

@@ -27,13 +27,7 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
     {
         $context = $this->buildPersistContext();
 
-        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->once())->method('persist')->with($context);
-
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->never())->method('invalidate');
-
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->install($context);
+        $this->handlerExpectingPersist($context)->install($context);
     }
 
     #[TestDox('update persists the app options')]
@@ -41,71 +35,77 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
     {
         $context = $this->buildPersistContext();
 
+        $this->handlerExpectingPersist($context)->update($context);
+    }
+
+    #[TestDox('activate invalidates the registry so the now-live app options appear immediately')]
+    public function testActivateInvalidates(): void
+    {
+        $this->handlerExpectingInvalidation()->activate($this->buildActivationContext());
+    }
+
+    #[TestDox('deactivate invalidates the registry')]
+    public function testDeactivateInvalidates(): void
+    {
+        $this->handlerExpectingInvalidation()->deactivate($this->buildActivationContext());
+    }
+
+    #[TestDox('uninstall invalidates the registry')]
+    public function testUninstallInvalidates(): void
+    {
+        $this->handlerExpectingInvalidation()->uninstall($this->buildRemovalContext());
+    }
+
+    #[TestDox('delete invalidates the registry on local removal without re-deactivating')]
+    public function testDeleteInvalidates(): void
+    {
+        $this->handlerExpectingInvalidation()->delete($this->buildRemovalContext());
+    }
+
+    #[TestDox('propagates a persister failure on install rather than swallowing it')]
+    public function testInstallPropagatesPersisterException(): void
+    {
+        $persister = static::createStub(ContentSystemStyleOptionPersister::class);
+        $persister->method('persist')->willThrowException(new \RuntimeException('persist failed'));
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+
+        $this->expectExceptionObject(new \RuntimeException('persist failed'));
+
+        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->install($this->buildPersistContext());
+    }
+
+    #[TestDox('propagates a registry failure on activate rather than swallowing it')]
+    public function testActivatePropagatesRegistryException(): void
+    {
+        $persister = static::createStub(ContentSystemStyleOptionPersister::class);
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('invalidate')->willThrowException(new \RuntimeException('invalidate failed'));
+
+        $this->expectExceptionObject(new \RuntimeException('invalidate failed'));
+
+        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->activate($this->buildActivationContext());
+    }
+
+    private function handlerExpectingPersist(AppPersistContext $context): ContentSystemStyleOptionLifecycleHandler
+    {
         $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
         $persister->expects($this->once())->method('persist')->with($context);
 
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->never())->method('invalidate');
 
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->update($context);
+        return new ContentSystemStyleOptionLifecycleHandler($persister, $registry);
     }
 
-    #[TestDox('activate invalidates the registry so the now-live app options appear immediately')]
-    public function testActivateInvalidates(): void
+    private function handlerExpectingInvalidation(): ContentSystemStyleOptionLifecycleHandler
     {
-        $context = $this->buildActivationContext();
-
         $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
         $persister->expects($this->never())->method('persist');
 
         $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
         $registry->expects($this->once())->method('invalidate');
 
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->activate($context);
-    }
-
-    #[TestDox('deactivate invalidates the registry')]
-    public function testDeactivateInvalidates(): void
-    {
-        $context = $this->buildActivationContext();
-
-        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->never())->method('persist');
-
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->once())->method('invalidate');
-
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->deactivate($context);
-    }
-
-    #[TestDox('uninstall invalidates the registry')]
-    public function testUninstallInvalidates(): void
-    {
-        $app = $this->buildApp();
-        $context = new AppRemovalContext($app, Context::createDefaultContext());
-
-        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->never())->method('persist');
-
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->once())->method('invalidate');
-
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->uninstall($context);
-    }
-
-    #[TestDox('delete invalidates the registry on local removal without re-deactivating')]
-    public function testDeleteInvalidates(): void
-    {
-        $app = $this->buildApp();
-        $context = new AppRemovalContext($app, Context::createDefaultContext());
-
-        $persister = $this->createMock(ContentSystemStyleOptionPersister::class);
-        $persister->expects($this->never())->method('persist');
-
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->expects($this->once())->method('invalidate');
-
-        (new ContentSystemStyleOptionLifecycleHandler($persister, $registry))->delete($context);
+        return new ContentSystemStyleOptionLifecycleHandler($persister, $registry);
     }
 
     private function buildApp(): AppEntity
@@ -122,13 +122,18 @@ class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
         return new AppActivationContext($this->buildApp(), Context::createDefaultContext());
     }
 
+    private function buildRemovalContext(): AppRemovalContext
+    {
+        return new AppRemovalContext($this->buildApp(), Context::createDefaultContext());
+    }
+
     private function buildPersistContext(): AppPersistContext
     {
         return new AppPersistContext(
-            manifest: $this->createMock(Manifest::class),
+            manifest: static::createStub(Manifest::class),
             app: $this->buildApp(),
             context: Context::createDefaultContext(),
-            appFilesystem: $this->createMock(Filesystem::class),
+            appFilesystem: static::createStub(Filesystem::class),
             defaultLocale: 'en-GB',
         );
     }

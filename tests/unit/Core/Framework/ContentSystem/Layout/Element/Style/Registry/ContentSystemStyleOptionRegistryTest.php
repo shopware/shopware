@@ -32,6 +32,43 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
         static::assertSame('plugin:Acme', $all['brand-accent']->source());
     }
 
+    #[TestDox('aggregates non-colliding options from every loader')]
+    public function testAllResolvedAggregatesNonCollidingOptions(): void
+    {
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('col-span', 'core')),
+            $this->loader($this->option('brand-accent', 'plugin:Acme')),
+        ]);
+
+        $resolved = $registry->allResolved();
+
+        static::assertSame(['col-span', 'brand-accent'], array_keys($resolved));
+        static::assertSame('plugin:Acme', $resolved['brand-accent']->source());
+    }
+
+    #[TestDox('resolves a cross-loader duplicate to the higher-precedence source, not the first registered')]
+    public function testAllResolvedPrefersHigherPrecedenceSource(): void
+    {
+        // The app source is registered first, yet core wins: precedence beats registration order.
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('col-span', 'app:Acme')),
+            $this->loader($this->option('col-span', 'core')),
+        ]);
+
+        static::assertSame('core', $registry->allResolved()['col-span']->source());
+    }
+
+    #[TestDox('keeps the first-registered option when two sources share the same precedence tier')]
+    public function testAllResolvedKeepsFirstRegisteredWithinSameTier(): void
+    {
+        $registry = new ContentSystemStyleOptionRegistry([
+            $this->loader($this->option('brand-accent', 'plugin:First')),
+            $this->loader($this->option('brand-accent', 'plugin:Second')),
+        ]);
+
+        static::assertSame('plugin:First', $registry->allResolved()['brand-accent']->source());
+    }
+
     #[TestDox('fails hard when two loaders register the same option name, naming both sources')]
     public function testFailsOnCrossLoaderDuplicate(): void
     {
@@ -51,43 +88,6 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemStyleOptionRegistry::class));
 
         (new ContentSystemStyleOptionRegistry([]))->getDecorated();
-    }
-
-    #[TestDox('allResolved aggregates non-colliding options from every loader')]
-    public function testAllResolvedAggregatesNonCollidingOptions(): void
-    {
-        $registry = new ContentSystemStyleOptionRegistry([
-            $this->loader($this->option('col-span', 'core')),
-            $this->loader($this->option('brand-accent', 'plugin:Acme')),
-        ]);
-
-        $resolved = $registry->allResolved();
-
-        static::assertSame(['col-span', 'brand-accent'], array_keys($resolved));
-        static::assertSame('plugin:Acme', $resolved['brand-accent']->source());
-    }
-
-    #[TestDox('allResolved resolves a cross-loader duplicate to the higher-precedence source, not the first registered')]
-    public function testAllResolvedPrefersHigherPrecedenceSource(): void
-    {
-        // The app source is registered first, yet core wins: precedence beats registration order.
-        $registry = new ContentSystemStyleOptionRegistry([
-            $this->loader($this->option('col-span', 'app:Acme')),
-            $this->loader($this->option('col-span', 'core')),
-        ]);
-
-        static::assertSame('core', $registry->allResolved()['col-span']->source());
-    }
-
-    #[TestDox('allResolved keeps the first-registered option when two sources share the same precedence tier')]
-    public function testAllResolvedKeepsFirstRegisteredWithinSameTier(): void
-    {
-        $registry = new ContentSystemStyleOptionRegistry([
-            $this->loader($this->option('brand-accent', 'plugin:First')),
-            $this->loader($this->option('brand-accent', 'plugin:Second')),
-        ]);
-
-        static::assertSame('plugin:First', $registry->allResolved()['brand-accent']->source());
     }
 
     private function option(string $name, string $source): StyleOptionSpecification

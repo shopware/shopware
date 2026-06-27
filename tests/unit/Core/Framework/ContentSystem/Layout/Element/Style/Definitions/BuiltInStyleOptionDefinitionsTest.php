@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style\Definitions;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -20,25 +20,33 @@ use Symfony\Component\Validator\Validation;
  *
  * @internal
  */
-#[CoversNothing]
+#[CoversClass(YamlStyleOptionLoader::class)]
 class BuiltInStyleOptionDefinitionsTest extends TestCase
 {
-    #[TestDox('every shipped definition loads and validates into a named specification')]
+    /**
+     * @var array<string, StyleOptionSpecification>
+     */
+    private array $builtIns;
+
+    protected function setUp(): void
+    {
+        $this->builtIns = $this->loadBuiltIns();
+    }
+
+    #[TestDox('loads and validates every shipped definition into a named specification')]
     public function testBuiltInDefinitionsLoad(): void
     {
-        $options = $this->loadBuiltIns();
-
         static::assertSame(
             ['align-self', 'col-span', 'display', 'justify-self', 'margin', 'padding', 'row-span'],
-            $this->sortedNames($options),
+            $this->sortedNames($this->builtIns),
         );
     }
 
-    #[DataProvider('spanOptionProvider')]
-    #[TestDox('$name ships as an integer bounded to the 1-12 grid range')]
+    #[DataProvider('definesSpanOptionAsIntegerProvider')]
+    #[TestDox('defines $name as an integer bounded to the 1-12 grid range')]
     public function testSpanOptionIsBoundedInteger(string $name): void
     {
-        $option = $this->loadBuiltIns()[$name];
+        $option = $this->builtIns[$name];
 
         static::assertSame(StyleOptionValueType::TYPE_INTEGER, $option->valueType()->type());
         static::assertSame(['min' => 1, 'max' => 12], $option->valueType()->range());
@@ -47,17 +55,17 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function spanOptionProvider(): iterable
+    public static function definesSpanOptionAsIntegerProvider(): iterable
     {
         yield 'col-span' => ['col-span'];
         yield 'row-span' => ['row-span'];
     }
 
-    #[DataProvider('spacingOptionProvider')]
-    #[TestDox('$name ships as a string bounded to 64 characters')]
+    #[DataProvider('definesSpacingOptionAsStringProvider')]
+    #[TestDox('defines $name as a string bounded to 64 characters')]
     public function testSpacingOptionIsBoundedString(string $name): void
     {
-        $option = $this->loadBuiltIns()[$name];
+        $option = $this->builtIns[$name];
 
         static::assertSame(StyleOptionValueType::TYPE_STRING, $option->valueType()->type());
         static::assertSame(64, $option->valueType()->maxLength());
@@ -66,42 +74,45 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function spacingOptionProvider(): iterable
+    public static function definesSpacingOptionAsStringProvider(): iterable
     {
         yield 'margin' => ['margin'];
         yield 'padding' => ['padding'];
     }
 
-    #[TestDox('display ships as a boolean defaulting to visible')]
+    #[TestDox('defines display as a boolean defaulting to visible')]
     public function testDisplayIsBoolean(): void
     {
-        $display = $this->loadBuiltIns()['display'];
+        $display = $this->builtIns['display'];
 
         static::assertSame(StyleOptionValueType::TYPE_BOOLEAN, $display->valueType()->type());
         static::assertTrue($display->valueType()->default());
     }
 
-    #[DataProvider('alignmentOptionProvider')]
-    #[TestDox('$name ships as a string enum defaulting to auto')]
-    public function testAlignmentOptionIsStringEnum(string $name): void
+    /**
+     * @param list<string> $expectedEnum
+     */
+    #[DataProvider('definesAlignmentOptionAsStringEnumProvider')]
+    #[TestDox('defines $name as a string enum defaulting to auto with its full declared vocabulary')]
+    public function testAlignmentOptionIsStringEnum(string $name, array $expectedEnum): void
     {
-        $option = $this->loadBuiltIns()[$name];
+        $option = $this->builtIns[$name];
 
         static::assertSame(StyleOptionValueType::TYPE_STRING, $option->valueType()->type());
         static::assertSame('auto', $option->valueType()->default());
-        static::assertContains('auto', $option->valueType()->enum() ?? []);
+        static::assertSame($expectedEnum, $option->valueType()->enum());
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string, list<string>}>
      */
-    public static function alignmentOptionProvider(): iterable
+    public static function definesAlignmentOptionAsStringEnumProvider(): iterable
     {
-        yield 'align-self' => ['align-self'];
-        yield 'justify-self' => ['justify-self'];
+        yield 'align-self' => ['align-self', ['auto', 'start', 'center', 'end', 'stretch', 'baseline']];
+        yield 'justify-self' => ['justify-self', ['auto', 'start', 'center', 'end', 'stretch']];
     }
 
-    #[TestDox('the breakpoint primitive keeps its canonical six-key set')]
+    #[TestDox('keeps its canonical six-key breakpoint set')]
     public function testBreakpointSetIsCanonical(): void
     {
         static::assertSame(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'], Breakpoint::values());

@@ -52,36 +52,21 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         static::assertNull($dto->adminUI);
     }
 
-    #[TestDox('denormalize carries a non-integer maxLength through raw for the validator to reject')]
-    public function testDenormalizeCarriesRawMaxLength(): void
-    {
-        $dto = $this->serializer->denormalize(['type' => 'string', 'maxLength' => '64']);
-
-        static::assertSame('64', $dto->maxLength);
-    }
-
-    #[TestDox('denormalize carries a wrong-typed enum and range through raw for the validator to reject')]
-    public function testDenormalizeCarriesRawEnumAndRange(): void
+    #[TestDox('carries every wrong-typed optional facet through raw for the validator to reject')]
+    public function testDenormalizeCarriesRawWrongTypedFacets(): void
     {
         $dto = $this->serializer->denormalize([
             'type' => 'string',
+            'maxLength' => '64',
             'enum' => 'not-an-array',
             'range' => 'not-an-array',
-        ]);
-
-        static::assertSame('not-an-array', $dto->enum);
-        static::assertSame('not-an-array', $dto->range);
-    }
-
-    #[TestDox('denormalize carries a wrong-typed adminUI and default through raw for the validator to reject')]
-    public function testDenormalizeCarriesRawAdminUiAndDefault(): void
-    {
-        $dto = $this->serializer->denormalize([
-            'type' => 'string',
             'adminUI' => 'not-an-array',
             'default' => ['not', 'a', 'scalar'],
         ]);
 
+        static::assertSame('64', $dto->maxLength);
+        static::assertSame('not-an-array', $dto->enum);
+        static::assertSame('not-an-array', $dto->range);
         static::assertSame('not-an-array', $dto->adminUI);
         static::assertSame(['not', 'a', 'scalar'], $dto->default);
     }
@@ -94,7 +79,7 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         static::assertSame(['type' => 'boolean', 'default' => true], $this->serializer->normalize($dto));
     }
 
-    #[TestDox('a denormalize then normalize round-trip preserves the declaration')]
+    #[TestDox('preserves the declaration through a denormalize-then-normalize round-trip')]
     public function testRoundTripPreservesDeclaration(): void
     {
         $raw = [

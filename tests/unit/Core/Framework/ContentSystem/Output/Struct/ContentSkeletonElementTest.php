@@ -55,14 +55,6 @@ class ContentSkeletonElementTest extends TestCase
         static::assertSame('gc-1', $childSkeleton->slots['media'][0]->id);
     }
 
-    #[TestDox('returns empty array when given an empty iterable')]
-    public function testFromElementsWithEmptyInput(): void
-    {
-        $skeletons = ContentSkeletonElement::fromElements([]);
-
-        static::assertSame([], $skeletons);
-    }
-
     #[TestDox('carries the element style into the skeleton including nested children')]
     public function testFromElementsCarriesStyle(): void
     {
@@ -81,14 +73,12 @@ class ContentSkeletonElementTest extends TestCase
         static::assertSame($childStyle->toArray(), $skeletons[0]->slots['content'][0]->style->toArray());
     }
 
-    #[TestDox('omits the style key from serialization when the element has no style')]
-    public function testSerializesWithoutStyleWhenEmpty(): void
+    #[TestDox('returns empty array when given an empty iterable')]
+    public function testFromElementsWithEmptyInput(): void
     {
-        $root = ContentElementBuilder::create('section', 'root-1')->build();
+        $skeletons = ContentSkeletonElement::fromElements([]);
 
-        $data = ContentSkeletonElement::fromElements([$root])[0]->jsonSerialize();
-
-        static::assertArrayNotHasKey('style', $data);
+        static::assertSame([], $skeletons);
     }
 
     #[TestDox('serializes style as the wire array when present')]
@@ -101,5 +91,15 @@ class ContentSkeletonElementTest extends TestCase
         $data = ContentSkeletonElement::fromElements([$root])[0]->jsonSerialize();
 
         static::assertSame(['col-span' => ['md' => 6]], $data['style']);
+    }
+
+    #[TestDox('omits the style key from serialization when the element has no style')]
+    public function testSerializesWithoutStyleWhenEmpty(): void
+    {
+        $root = ContentElementBuilder::create('section', 'root-1')->build();
+
+        $data = ContentSkeletonElement::fromElements([$root])[0]->jsonSerialize();
+
+        static::assertArrayNotHasKey('style', $data);
     }
 }

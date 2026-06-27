@@ -26,7 +26,7 @@ class InsertElementTest extends TestCase
 {
     use AssertsImmutableInput;
 
-    #[TestDox('appends a fresh element of the type to the root with a server-minted id')]
+    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style')]
     public function testInsertAppendsRootElement(): void
     {
         $tree = [new ContentElement('existing', 'Sw:Block')];
@@ -38,6 +38,7 @@ class InsertElementTest extends TestCase
         static::assertSame('existing', $result[0]->getId());
         static::assertSame('Sw:Card', $result[1]->getComponent());
         static::assertTrue(Uuid::isValid($result[1]->getId()));
+        static::assertTrue($result[1]->getStyle()->isEmpty());
     }
 
     #[TestDox('reports the minted id as the only affected element')]
@@ -90,28 +91,6 @@ class InsertElementTest extends TestCase
         static::assertSame('existing', $result[1]->getId());
     }
 
-    #[TestDox('seeds no style on a freshly scaffolded element')]
-    public function testInsertScaffoldsWithoutStyle(): void
-    {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card');
-        $result = $insert->apply([]);
-
-        static::assertTrue($result[0]->getStyle()->isEmpty());
-    }
-
-    #[TestDox('keeps the parent style when rebuilding it to insert into its slot')]
-    public function testInsertKeepsParentStyle(): void
-    {
-        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-        ], new ContextDefinitions([], []), $style);
-
-        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply([$parent]);
-
-        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
-    }
-
     #[TestDox('rejects an unregistered type with a 400')]
     public function testInsertUnknownTypeRejected(): void
     {
@@ -141,16 +120,18 @@ class InsertElementTest extends TestCase
         $insert->apply([new ContentElement('other', 'Sw:Block')]);
     }
 
-    #[TestDox('does not mutate the input parent in place when inserting into its slot')]
-    public function testInsertDoesNotMutateInput(): void
+    #[TestDox('preserves the parent style and does not mutate the input parent in place when inserting into its slot')]
+    public function testInsertIntoSlotPreservesParentStyleAndDoesNotMutateInput(): void
     {
+        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
         $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
             'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-        ])];
+        ], new ContextDefinitions([], []), $style)];
         $before = $this->snapshotTree($tree);
 
-        (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply($tree);
+        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', 'parent', 'content'))->apply($tree);
 
+        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
         $this->assertInputTreeUnmutated($before, $tree);
     }
 

@@ -24,8 +24,6 @@ class Migration1782423127AddAppContentSystemStyleOptionTableTest extends TestCas
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_style_option`;');
     }
 
     public function testGetCreationTimestamp(): void
@@ -35,6 +33,8 @@ class Migration1782423127AddAppContentSystemStyleOptionTableTest extends TestCas
 
     public function testMigration(): void
     {
+        $this->dropStyleOptionTable();
+
         static::assertFalse(TableHelper::tableExists($this->connection, self::TABLE));
 
         $migration = new Migration1782423127AddAppContentSystemStyleOptionTable();
@@ -55,6 +55,8 @@ class Migration1782423127AddAppContentSystemStyleOptionTableTest extends TestCas
 
     public function testNameColumnIsUniquelyIndexed(): void
     {
+        $this->dropStyleOptionTable();
+
         $migration = new Migration1782423127AddAppContentSystemStyleOptionTable();
         $migration->update($this->connection);
 
@@ -66,6 +68,8 @@ class Migration1782423127AddAppContentSystemStyleOptionTableTest extends TestCas
 
     public function testAppForeignKeyCascadesOnDelete(): void
     {
+        $this->dropStyleOptionTable();
+
         // Removing the app is the sole cleanup path for its style options, so the cascade is load-bearing
         $migration = new Migration1782423127AddAppContentSystemStyleOptionTable();
         $migration->update($this->connection);
@@ -77,5 +81,10 @@ class Migration1782423127AddAppContentSystemStyleOptionTableTest extends TestCas
         );
 
         static::assertSame('CASCADE', $rule);
+    }
+
+    private function dropStyleOptionTable(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_style_option`;');
     }
 }

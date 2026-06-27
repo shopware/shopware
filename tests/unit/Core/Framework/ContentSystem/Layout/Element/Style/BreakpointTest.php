@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 #[CoversClass(Breakpoint::class)]
 class BreakpointTest extends TestCase
 {
-    #[TestDox('values() returns the canonical breakpoint keys in declaration order')]
+    #[TestDox('returns the canonical breakpoint keys in declaration order')]
     public function testValuesReturnsCanonicalKeys(): void
     {
         static::assertSame(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'], Breakpoint::values());

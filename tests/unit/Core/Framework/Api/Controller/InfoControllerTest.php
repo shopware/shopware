@@ -319,6 +319,32 @@ class InfoControllerTest extends TestCase
         static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
     }
 
+    #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
+    public function testContentSystemStyleOptionsReturnsRegisteredOptionsKeyedByWireName(): void
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
+
+        $controller = $this->createController(styleOptionRegistry: $registry);
+        $response = $controller->getContentSystemStyleOptions();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'col-span' => [
+                'type' => 'integer',
+                'enum' => null,
+                'range' => ['min' => 1, 'max' => 12],
+                'maxLength' => null,
+                'default' => null,
+                'adminUI' => null,
+            ],
+        ], $data['styleOptions']);
+    }
+
     #[TestDox('encodes an empty style option set as a JSON object, not an array')]
     public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
     {
@@ -347,32 +373,6 @@ class InfoControllerTest extends TestCase
         static::assertIsString($content);
         // Assert the raw encoding: json_decode would erase the {} vs [] distinction
         static::assertStringContainsString('"styleOptions":{}', $content);
-    }
-
-    #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
-    public function testContentSystemStyleOptions(): void
-    {
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
-
-        $controller = $this->createController(styleOptionRegistry: $registry);
-        $response = $controller->getContentSystemStyleOptions();
-
-        static::assertSame(200, $response->getStatusCode());
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame([
-            'col-span' => [
-                'type' => 'integer',
-                'enum' => null,
-                'range' => ['min' => 1, 'max' => 12],
-                'maxLength' => null,
-                'default' => null,
-                'adminUI' => null,
-            ],
-        ], $data['styleOptions']);
     }
 
     #[TestDox('returns empty data loader types when no loaders are registered')]

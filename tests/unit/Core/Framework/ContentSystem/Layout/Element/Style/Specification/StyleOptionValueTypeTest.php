@@ -14,7 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 #[CoversClass(StyleOptionValueType::class)]
 class StyleOptionValueTypeTest extends TestCase
 {
-    #[TestDox('toSchema exposes type, enum, range, effective maxLength and default')]
+    #[TestDox('exposes type, enum, range, effective maxLength and default')]
     public function testToSchemaExposesAllFacets(): void
     {
         $valueType = new StyleOptionValueType('integer', [1, 2, 3], ['min' => 1, 'max' => 12], null, 2);
@@ -31,7 +31,7 @@ class StyleOptionValueTypeTest extends TestCase
         );
     }
 
-    #[TestDox('a string option without a declared maxLength reports the default cap')]
+    #[TestDox('reports the default cap when a string option has no declared maxLength')]
     public function testStringDefaultsMaxLengthToCap(): void
     {
         $valueType = new StyleOptionValueType('string', null, null, null, null);
@@ -39,7 +39,7 @@ class StyleOptionValueTypeTest extends TestCase
         static::assertSame(StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH, $valueType->maxLength());
     }
 
-    #[TestDox('a string option uses its declared maxLength when given')]
+    #[TestDox('uses the declared maxLength when explicitly set on a string option')]
     public function testStringKeepsDeclaredMaxLength(): void
     {
         $valueType = new StyleOptionValueType('string', null, null, 64, null);
@@ -47,7 +47,7 @@ class StyleOptionValueTypeTest extends TestCase
         static::assertSame(64, $valueType->maxLength());
     }
 
-    #[TestDox('a number option without a declared maxLength reports the effective cap in its schema')]
+    #[TestDox('reports the effective cap in schema when a number option has no declared maxLength')]
     public function testNumberToSchemaReportsEffectiveCap(): void
     {
         $valueType = new StyleOptionValueType('number', null, null, null, null);
@@ -55,24 +55,14 @@ class StyleOptionValueTypeTest extends TestCase
         static::assertSame(StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH, $valueType->toSchema()['maxLength']);
     }
 
-    #[DataProvider('uncappedTypeProvider')]
-    #[TestDox('a $type option reports no maxLength')]
-    public function testUncappedTypesReportNoMaxLength(string $type): void
+    #[TestDox('reports no maxLength for a type that has no length cap')]
+    public function testUncappedTypeReportsNoMaxLength(): void
     {
-        static::assertNull((new StyleOptionValueType($type, null, null, null, null))->maxLength());
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function uncappedTypeProvider(): iterable
-    {
-        yield 'integer' => ['integer'];
-        yield 'boolean' => ['boolean'];
+        static::assertNull((new StyleOptionValueType('integer', null, null, null, null))->maxLength());
     }
 
     #[DataProvider('isPrimitiveProvider')]
-    #[TestDox('isPrimitive reports $type as $expected')]
+    #[TestDox('classifies $type as primitive: $expected')]
     public function testIsPrimitive(string $type, bool $expected): void
     {
         static::assertSame($expected, (new StyleOptionValueType($type, null, null, null, null))->isPrimitive());

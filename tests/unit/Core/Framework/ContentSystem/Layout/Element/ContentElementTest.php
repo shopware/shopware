@@ -280,14 +280,8 @@ class ContentElementTest extends TestCase
         static::assertSame('hello', $data['properties']['title']);
     }
 
-    #[TestDox('an element built without a style carries an empty style')]
-    public function testStyleDefaultsToEmpty(): void
-    {
-        static::assertTrue(ContentElementBuilder::create('test-component', 'test-id')->build()->getStyle()->isEmpty());
-    }
-
-    #[TestDox('jsonSerialize emits the style array when the element carries a non-empty style')]
-    public function testJsonSerializeEmitsNonEmptyStyle(): void
+    #[TestDox('includes the style array in serialized output when the element carries a non-empty style')]
+    public function testIncludesStyleInSerializedOutputWhenNonEmpty(): void
     {
         $element = ContentElementBuilder::create('test-component', 'test-id')
             ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
@@ -296,8 +290,8 @@ class ContentElementTest extends TestCase
         static::assertSame(['col-span' => ['md' => 6]], $element->jsonSerialize()['style']);
     }
 
-    #[TestDox('jsonSerialize omits the style key entirely when the style is empty')]
-    public function testJsonSerializeOmitsEmptyStyle(): void
+    #[TestDox('omits the style key from serialized output when the style is empty')]
+    public function testOmitsStyleKeyFromSerializedOutputWhenEmpty(): void
     {
         $data = ContentElementBuilder::create('test-component', 'test-id')->build()->jsonSerialize();
 

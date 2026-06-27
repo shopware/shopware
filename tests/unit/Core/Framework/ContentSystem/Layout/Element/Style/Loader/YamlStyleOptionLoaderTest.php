@@ -49,6 +49,17 @@ class YamlStyleOptionLoaderTest extends TestCase
         static::assertSame('integer', $options[0]->valueType()->type());
     }
 
+    #[TestDox('validates all shipped core style option definitions against declaration constraints')]
+    public function testShippedCoreDefinitionsValidate(): void
+    {
+        // An out-of-bounds advisory default in a shipped core definition now fails at load.
+        $coreDir = \dirname((string) (new \ReflectionClass(ElementStyle::class))->getFileName()) . '/Definitions';
+
+        $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();
+
+        static::assertCount(7, $options);
+    }
+
     #[TestDox('returns an empty array for a non-existent directory')]
     public function testReturnsEmptyForMissingDirectory(): void
     {
@@ -165,17 +176,6 @@ class YamlStyleOptionLoaderTest extends TestCase
         $this->expectExceptionMessageMatches('/options\[broken-option\]\.type/');
 
         $loader->load();
-    }
-
-    #[TestDox('the shipped core style option definitions all pass declaration validation')]
-    public function testShippedCoreDefinitionsValidate(): void
-    {
-        // An out-of-bounds advisory default in a shipped core definition now fails at load.
-        $coreDir = \dirname((string) (new \ReflectionClass(ElementStyle::class))->getFileName()) . '/Definitions';
-
-        $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();
-
-        static::assertCount(7, $options);
     }
 
     /**

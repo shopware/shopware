@@ -28,7 +28,7 @@ class ContentSystemStyleOptionCompilerPassTest extends TestCase
         $this->pass = new ContentSystemStyleOptionCompilerPass();
     }
 
-    #[TestDox('always injects the core definitions directory')]
+    #[TestDox('injects the core definitions directory')]
     public function testInjectsCoreDirectory(): void
     {
         $container = $this->buildContainer('prod');

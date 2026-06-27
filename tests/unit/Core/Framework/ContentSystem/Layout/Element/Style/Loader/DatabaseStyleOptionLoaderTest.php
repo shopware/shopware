@@ -18,15 +18,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(DatabaseStyleOptionLoader::class)]
 class DatabaseStyleOptionLoaderTest extends TestCase
 {
-    #[TestDox('returns nothing in dev, where app options load from the filesystem instead')]
-    public function testReturnsEmptyInDev(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
-
-        static::assertSame([], $this->loader($connection, 'dev')->load());
-    }
-
     #[TestDox('builds app-labelled specifications from the persisted rows in prod')]
     public function testLoadsActiveAppOptionsInProd(): void
     {
@@ -43,6 +34,15 @@ class DatabaseStyleOptionLoaderTest extends TestCase
         static::assertSame('integer', $options[0]->valueType()->type());
     }
 
+    #[TestDox('returns nothing in dev, where app options load from the filesystem instead')]
+    public function testReturnsEmptyInDev(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllAssociative');
+
+        static::assertSame([], $this->loader($connection, 'dev')->load());
+    }
+
     #[TestDox('fails hard when a persisted schema is not valid JSON')]
     public function testFailsOnInvalidSchemaJson(): void
     {
@@ -51,8 +51,9 @@ class DatabaseStyleOptionLoaderTest extends TestCase
             ['name' => 'col-span', 'schema' => '{not json', 'app_name' => 'Acme'],
         ]);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/col-span/');
+        $this->expectExceptionObject(
+            ContentSystemException::styleOptionLoadFailed('col-span', 'Syntax error')
+        );
 
         $this->loader($connection, 'prod')->load();
     }

@@ -59,19 +59,60 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         );
     }
 
-    #[TestDox('inserts a new option and queries existing then inactive options')]
-    public function testInsertsNewOption(): void
+    #[TestDox('inserts a new option, writing the serialized schema and content hash as the payload')]
+    public function testInsertsNewOptionWritesExpectedPayload(): void
     {
         /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
         $repo = new StaticEntityRepository([
-            static function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
+            new AppContentSystemStyleOptionCollection(),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $persister = $this->buildPersister($repo);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        $payload = $repo->upserts[0][0];
+
+        $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/style-options', 'app:DemoApp');
+        $normalized = $this->serializer->normalize($resolved[0]->dto);
+
+        static::assertSame('brand-gap', $payload['name']);
+        static::assertSame($this->ids->get('app'), $payload['appId']);
+        static::assertIsString($payload['id']);
+        static::assertSame($normalized, $payload['schema']);
+        static::assertSame(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)), $payload['hash']);
+    }
+
+    #[TestDox('queries the stored options for the installing app by app id')]
+    public function testQueriesExistingOptionsByAppId(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
                 static::assertInstanceOf(EqualsFilter::class, $filter);
                 static::assertSame('appId', $filter->getField());
+                static::assertSame($this->ids->get('app'), $filter->getValue());
 
                 return new AppContentSystemStyleOptionCollection();
             },
+            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $this->buildPersister($repo)->persist($this->buildContext());
+
+        // Proves the flow ran through to the upsert, so the search callback above actually fired.
+        static::assertCount(1, $repo->upserts);
+    }
+
+    #[TestDox('queries inactive app options excluding the installing app during collision detection')]
+    public function testQueriesInactiveOptionsExcludingSelf(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
             static function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
                 $filters = $criteria->getFilters();
                 static::assertCount(2, $filters);
@@ -85,21 +126,10 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             },
         ]);
 
-        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
+        $this->buildPersister($repo)->persist($this->buildContext());
 
-        $persister = $this->buildPersister($repo, registry: $registry);
-        $persister->persist($this->buildContext());
-
+        // Proves the flow ran through to the upsert, so the collision-check callback above actually fired.
         static::assertCount(1, $repo->upserts);
-        $payload = $repo->upserts[0][0];
-
-        static::assertSame('brand-gap', $payload['name']);
-        static::assertSame($this->ids->get('app'), $payload['appId']);
-        static::assertIsString($payload['id']);
-        static::assertIsArray($payload['schema']);
-        static::assertIsString($payload['hash']);
     }
 
     #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
@@ -175,22 +205,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         static::assertSame([['id' => $this->ids->get('opt-old')]], $repo->deletes[0]);
     }
 
-    #[TestDox('returns early without writing when the app ships none and none are stored')]
-    public function testEarlyReturnWhenBothEmpty(): void
-    {
-        $loader = static::createStub(YamlStyleOptionLoader::class);
-        $loader->method('loadDtosFromDirectory')->willReturn([]);
-
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentSystemStyleOptionCollection()]);
-
-        $persister = $this->buildPersister($repo, loader: $loader);
-        $persister->persist($this->buildContext());
-
-        static::assertSame([], $repo->upserts);
-        static::assertSame([], $repo->deletes);
-    }
-
     #[TestDox('deletes all stored options and invalidates the cache when the app ships no YAML')]
     public function testDeletesAllAndInvalidatesWhenNoYaml(): void
     {
@@ -214,27 +228,49 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         static::assertSame([['id' => $this->ids->get('opt-orphan')]], $repo->deletes[0]);
     }
 
-    #[TestDox('wraps a loader ContentSystemException as an AppException')]
-    public function testThrowsAppExceptionWhenLoaderFails(): void
+    #[TestDox('routes the upsert and delete through a single transaction')]
+    public function testWritesGoThroughOneTransaction(): void
     {
-        $loaderException = ContentSystemException::styleOptionLoadFailed('brand-gap.yaml', 'Invalid YAML syntax');
-
-        $loader = static::createStub(YamlStyleOptionLoader::class);
-        $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
+        // The app ships brand-gap (an upsert) while a stored legacy-option is no longer shipped (a delete),
+        // so both write kinds run; the single transactional() call must wrap them together.
+        $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
 
         /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection([$obsolete]),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('transactional')
+            ->willReturnCallback(static function (\Closure $work) {
+                $work();
+
+                return null;
+            });
+
+        $persister = $this->buildPersister($repo, connection: $connection);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        static::assertCount(1, $repo->deletes);
+    }
+
+    #[TestDox('returns early without writing when the app ships none and none are stored')]
+    public function testEarlyReturnWhenBothEmpty(): void
+    {
+        $loader = static::createStub(YamlStyleOptionLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([]);
+
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemStyleOptionCollection()]);
 
         $persister = $this->buildPersister($repo, loader: $loader);
+        $persister->persist($this->buildContext());
 
-        try {
-            $persister->persist($this->buildContext());
-            static::fail('Expected AppException was not thrown');
-        } catch (AppException $e) {
-            static::assertSame(AppException::CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED, $e->getErrorCode());
-            static::assertStringContainsString(ContentSystemStyleOptionPersister::STYLE_OPTIONS_DIRECTORY, $e->getMessage());
-            static::assertSame($loaderException, $e->getPrevious());
-        }
+        static::assertSame([], $repo->upserts);
+        static::assertSame([], $repo->deletes);
     }
 
     #[TestDox('completes the upsert when an inactive app option has no loaded app association')]
@@ -259,6 +295,29 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
 
         static::assertCount(1, $repo->upserts);
         static::assertSame('brand-gap', $repo->upserts[0][0]['name']);
+    }
+
+    #[TestDox('wraps a loader ContentSystemException as an AppException')]
+    public function testThrowsAppExceptionWhenLoaderFails(): void
+    {
+        $loaderException = ContentSystemException::styleOptionLoadFailed('brand-gap.yaml', 'Invalid YAML syntax');
+
+        $loader = static::createStub(YamlStyleOptionLoader::class);
+        $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
+
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($repo, loader: $loader);
+
+        try {
+            $persister->persist($this->buildContext());
+            static::fail('Expected AppException was not thrown');
+        } catch (AppException $e) {
+            static::assertSame(AppException::CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED, $e->getErrorCode());
+            static::assertStringContainsString(ContentSystemStyleOptionPersister::STYLE_OPTIONS_DIRECTORY, $e->getMessage());
+            static::assertSame($loaderException, $e->getPrevious());
+        }
     }
 
     #[TestDox('fails hard when an option name collides with an already-registered option')]
@@ -312,16 +371,9 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     }
 
     #[TestDox('wraps a unique-constraint violation from a concurrent install as an AppException')]
-    public function testWrapsUniqueConstraintViolationAsAppException(): void
+    public function testWrapsConcurrentDuplicateInstallAsAppException(): void
     {
-        $resolved = new ResolvedStyleOptionSpecificationDto(
-            'brand-gap',
-            'app:DemoApp',
-            new StyleOptionSpecificationDto('integer', null, null, null, null, null),
-        );
-
-        $loader = static::createStub(YamlStyleOptionLoader::class);
-        $loader->method('loadDtosFromDirectory')->willReturn([$resolved]);
+        [$loader] = $this->buildResolvedLoader();
 
         $dbalException = static::createStub(UniqueConstraintViolationException::class);
 
@@ -341,14 +393,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('all')->willReturn([]);
 
-        $persister = new ContentSystemStyleOptionPersister(
-            $repo,
-            $loader,
-            new StyleOptionCollisionDetector($registry),
-            $registry,
-            $this->serializer,
-            $this->runTransactionStub(),
-        );
+        $persister = $this->buildPersisterWithRepository($repo, $loader, $registry);
 
         try {
             $persister->persist($this->buildContext());
@@ -361,48 +406,12 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         }
     }
 
-    #[TestDox('routes the upsert and delete through a single transaction')]
-    public function testWritesGoThroughOneTransaction(): void
-    {
-        // The app ships brand-gap (an upsert) while a stored legacy-option is no longer shipped (a delete),
-        // so both write kinds run; the single transactional() call must wrap them together.
-        $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
-
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new AppContentSystemStyleOptionCollection([$obsolete]),
-            new AppContentSystemStyleOptionCollection(),
-        ]);
-
-        $connection = static::createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('transactional')
-            ->willReturnCallback(static function (\Closure $work) {
-                $work();
-
-                return null;
-            });
-
-        $persister = $this->buildPersister($repo, connection: $connection);
-        $persister->persist($this->buildContext());
-
-        static::assertCount(1, $repo->upserts);
-        static::assertCount(1, $repo->deletes);
-    }
-
     #[TestDox('skips cache invalidation when the delete fails inside the transaction')]
     public function testSkipsInvalidationWhenDeleteFailsInsideTransaction(): void
     {
         // A delete failure must propagate and leave the registry cache untouched, so the cache is never
         // refreshed from a write that did not commit. (Real rollback is a DB concern, covered by integration.)
-        $resolved = new ResolvedStyleOptionSpecificationDto(
-            'brand-gap',
-            'app:DemoApp',
-            new StyleOptionSpecificationDto('integer', null, null, null, null, null),
-        );
-
-        $loader = static::createStub(YamlStyleOptionLoader::class);
-        $loader->method('loadDtosFromDirectory')->willReturn([$resolved]);
+        [$loader] = $this->buildResolvedLoader();
 
         $obsolete = $this->buildExistingEntity('opt-old', 'legacy-option');
         $existingResult = new EntitySearchResult(
@@ -432,14 +441,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $registry->method('all')->willReturn([]);
         $registry->expects($this->never())->method('invalidate');
 
-        $persister = new ContentSystemStyleOptionPersister(
-            $repo,
-            $loader,
-            new StyleOptionCollisionDetector($registry),
-            $registry,
-            $this->serializer,
-            $this->runTransactionStub(),
-        );
+        $persister = $this->buildPersisterWithRepository($repo, $loader, $registry);
 
         $this->expectExceptionObject($deleteException);
         $persister->persist($this->buildContext());
@@ -479,6 +481,44 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
         );
+    }
+
+    /**
+     * The two concurrency/rollback tests need a generic EntityRepository stub (willThrowException /
+     * willReturnOnConsecutiveCalls) rather than the StaticEntityRepository buildPersister() is typed for.
+     *
+     * @param EntityRepository<AppContentSystemStyleOptionCollection> $repo
+     */
+    private function buildPersisterWithRepository(
+        EntityRepository $repo,
+        YamlStyleOptionLoader $loader,
+        AbstractContentSystemStyleOptionRegistry $registry,
+    ): ContentSystemStyleOptionPersister {
+        return new ContentSystemStyleOptionPersister(
+            $repo,
+            $loader,
+            new StyleOptionCollisionDetector($registry),
+            $registry,
+            $this->serializer,
+            $this->runTransactionStub(),
+        );
+    }
+
+    /**
+     * @return array{YamlStyleOptionLoader, ResolvedStyleOptionSpecificationDto}
+     */
+    private function buildResolvedLoader(): array
+    {
+        $resolved = new ResolvedStyleOptionSpecificationDto(
+            'brand-gap',
+            'app:DemoApp',
+            new StyleOptionSpecificationDto('integer', null, null, null, null, null),
+        );
+
+        $loader = static::createStub(YamlStyleOptionLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$resolved]);
+
+        return [$loader, $resolved];
     }
 
     /**

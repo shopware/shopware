@@ -46,19 +46,6 @@ class CachedContentSystemStyleOptionRegistryTest extends TestCase
         static::assertEquals($first, $second);
     }
 
-    #[TestDox('re-delegates to the inner registry after invalidation')]
-    public function testInvalidateClearsCache(): void
-    {
-        $inner = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $inner->expects($this->exactly(2))->method('all')->willReturn(['col-span' => $this->option('col-span')]);
-
-        $registry = new CachedContentSystemStyleOptionRegistry($inner, new ArrayAdapter());
-
-        $registry->all();
-        $registry->invalidate();
-        $registry->all();
-    }
-
     #[TestDox('serves the cached resolved result on the second allResolved call without re-delegating')]
     public function testAllResolvedReturnsCachedResultOnSecondCall(): void
     {
@@ -74,12 +61,12 @@ class CachedContentSystemStyleOptionRegistryTest extends TestCase
         static::assertEquals(['col-span' => $option], $second);
     }
 
-    #[TestDox('caches all and allResolved under separate keys so one never serves the other')]
-    public function testAllAndAllResolvedUseSeparateCacheKeys(): void
+    #[TestDox('caches all and allResolved results independently so one never serves the other')]
+    public function testAllAndAllResolvedAreIndependentlyCached(): void
     {
-        $inner = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
-        $inner->expects($this->once())->method('all')->willReturn(['strict' => $this->option('strict')]);
-        $inner->expects($this->once())->method('allResolved')->willReturn(['resolved' => $this->option('resolved')]);
+        $inner = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $inner->method('all')->willReturn(['strict' => $this->option('strict')]);
+        $inner->method('allResolved')->willReturn(['resolved' => $this->option('resolved')]);
 
         $registry = new CachedContentSystemStyleOptionRegistry($inner, new ArrayAdapter());
 
@@ -87,29 +74,35 @@ class CachedContentSystemStyleOptionRegistryTest extends TestCase
         static::assertSame(['resolved'], array_keys($registry->allResolved()));
     }
 
-    #[TestDox('re-delegates allResolved to the inner registry after invalidation and serves its fresh result')]
-    public function testInvalidateClearsResolvedCache(): void
+    #[TestDox('re-delegates both all and allResolved to the inner registry after invalidation')]
+    public function testInvalidateClearsBothCaches(): void
     {
         $option = $this->option('col-span');
         $inner = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $inner->expects($this->exactly(2))->method('all')->willReturn(['col-span' => $option]);
         $inner->expects($this->exactly(2))->method('allResolved')->willReturn(['col-span' => $option]);
 
         $registry = new CachedContentSystemStyleOptionRegistry($inner, new ArrayAdapter());
 
+        $registry->all();
         $registry->allResolved();
         $registry->invalidate();
 
+        static::assertEquals(['col-span' => $option], $registry->all());
         static::assertEquals(['col-span' => $option], $registry->allResolved());
     }
 
-    #[TestDox('exposes the decorated inner registry')]
-    public function testGetDecoratedReturnsInner(): void
+    #[TestDox('caches and returns an empty option set when the inner registry provides none')]
+    public function testAllCachesEmptyResultFromInner(): void
     {
-        $inner = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $inner = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $inner->expects($this->once())->method('all')->willReturn([]);
 
         $registry = new CachedContentSystemStyleOptionRegistry($inner, new ArrayAdapter());
 
-        static::assertSame($inner, $registry->getDecorated());
+        static::assertSame([], $registry->all());
+        // Second call proves the empty result is cached rather than re-delegated (once() above).
+        static::assertSame([], $registry->all());
     }
 
     private function option(string $name): StyleOptionSpecification

@@ -33,7 +33,7 @@
                     },
                     "properties": {
                         "type": "object",
-                        "description": "Element properties keyed by property name",
+                        "description": "Element properties keyed by property name. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
                         "additionalProperties": true
                     },
                     "slots": {

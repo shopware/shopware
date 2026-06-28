@@ -16,17 +16,17 @@ final readonly class DataRequirement implements \JsonSerializable
     }
 
     /**
-     * @return array{key: string, source: string, config: array<string, mixed>|\stdClass}
+     * An empty `config` map is emitted as `[]`, consistent with every content-element read path and the DAL
+     * write/validation/storage form.
+     *
+     * @return array{key: string, source: string, config: array<string, mixed>}
      */
     public function jsonSerialize(): array
     {
-        $config = $this->config->jsonSerialize();
-
         return [
             'key' => $this->key,
             'source' => $this->source,
-            // The wire type is an object; an empty config must encode as {}, not []
-            'config' => $config === [] ? new \stdClass() : $config,
+            'config' => $this->config->jsonSerialize(),
         ];
     }
 }

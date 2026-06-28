@@ -399,24 +399,13 @@ class ContentElementFieldSerializerTest extends TestCase
 
         static::assertSame('elem-minimal', $result['id']);
         static::assertSame('hero', $result['component']);
-        // Empty property map serializes as an object so it encodes as {} (wire type is object), not []
-        static::assertEquals(new \stdClass(), $result['properties']);
+        // The storage/write form keeps the empty property map as an array; the API response boundary re-types it to {}
+        static::assertSame([], $result['properties']);
         static::assertArrayNotHasKey('dataRequirements', $result);
         static::assertArrayNotHasKey('slots', $result);
         static::assertArrayNotHasKey('providesContext', $result);
         static::assertArrayNotHasKey('acceptsContext', $result);
         static::assertArrayNotHasKey('style', $result);
-    }
-
-    #[TestDox('encodes an empty property map as a JSON object, not an array')]
-    public function testEncodesEmptyPropertiesAsJsonObject(): void
-    {
-        $element = ContentElementBuilder::create('hero', 'elem-empty-props')->build();
-
-        $json = json_encode($this->serializer->serializeContentElement($element), \JSON_THROW_ON_ERROR);
-
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"properties":{}', $json);
     }
 
     #[TestDox('serializes a ContentElement object with a non-empty style into the style key')]

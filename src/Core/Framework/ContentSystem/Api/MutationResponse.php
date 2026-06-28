@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
- * The transforming jsonSerialize() (empty maps cast to {}, no extensions/apiAlias) is safe only on that path; a future
- * requirement that caches or reconstructs this object must revisit it (make jsonSerialize() lossless, or type the map
- * fields so reconstruction is faithful).
+ * jsonSerialize() casts the response-level resolutions/droppedProperties maps to {} when empty; the element tree
+ * carries empty element maps as [] (the same shape every other read path emits). It is safe only on that path; a
+ * future requirement that caches or reconstructs this object must revisit it.
  *
  * @final
  */

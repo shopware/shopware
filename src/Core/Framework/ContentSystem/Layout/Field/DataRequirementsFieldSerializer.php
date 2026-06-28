@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @phpstan-type DataRequirementData array{
  *   key: string,
  *   source: string,
- *   config: array<string, mixed>|\stdClass
+ *   config: array<string, mixed>
  * }
  *
  * @internal

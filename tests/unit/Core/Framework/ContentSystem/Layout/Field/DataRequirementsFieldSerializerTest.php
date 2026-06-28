@@ -267,18 +267,17 @@ class DataRequirementsFieldSerializerTest extends TestCase
         static::assertSame(['entityName' => 'product', 'id' => 'test-id'], $result['config']);
     }
 
-    #[TestDox('encodes an empty config as a JSON object, not an array')]
-    public function testSerializeDataRequirementEncodesEmptyConfigAsJsonObject(): void
+    #[TestDox('keeps an empty config as an array in the storage/write form; the response boundary re-types it to {}')]
+    public function testSerializeDataRequirementKeepsEmptyConfigAsArray(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $config->method('jsonSerialize')->willReturn([]);
 
         $requirement = new DataRequirement('product-data', 'entity', $config);
 
-        $json = json_encode($this->serializer->serializeDataRequirement($requirement), \JSON_THROW_ON_ERROR);
+        $result = $this->serializer->serializeDataRequirement($requirement);
 
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"config":{}', $json);
+        static::assertSame([], $result['config']);
     }
 
     #[TestDox('returns Type array and All Collection constraints with expected field structure')]

@@ -24,7 +24,7 @@
                     },
                     "properties": {
                         "type": "object",
-                        "description": "Static and configured property values keyed by property name, as declared by the element type. FQCN-typed (hydrated) properties are not present here; they are described by `dataRequirements` and `acceptsContext` and materialized only at render time. Defaults to `{}` when omitted on input; always present on output.",
+                        "description": "Static and configured property values keyed by property name, as declared by the element type. FQCN-typed (hydrated) properties are not present here; they are described by `dataRequirements` and `acceptsContext` and materialized only at render time. Defaults to an empty map when omitted on input; always present on output, where an empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
                         "additionalProperties": true,
                         "example": { "tag": "h1" }
                     },
@@ -104,7 +104,7 @@
                     },
                     "config": {
                         "type": "object",
-                        "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configTemplate` and `requiredConfigKeys`.",
+                        "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configTemplate` and `requiredConfigKeys`. An empty config is serialized as `[]` (consistent with Shopware's JSON-map fields).",
                         "additionalProperties": true,
                         "example": { "entity": "product", "property": "product_id" }
                     }

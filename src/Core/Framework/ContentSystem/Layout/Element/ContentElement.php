@@ -277,22 +277,23 @@ class ContentElement extends Struct
     }
 
     /**
-     * Canonical camelCase wire shape (read == write == storage). id/component/properties are always
-     * present; dataRequirements/slots/providesContext/acceptsContext/style are omitted when empty.
-     * Context is reconstructed from contextDefinitions via each provider/consumer value object.
-     * extensions, apiAlias and the internal struct/non-struct property stores are never emitted.
+     * Canonical camelCase wire/storage shape. id/component/properties are always present;
+     * dataRequirements/slots/providesContext/acceptsContext/style are omitted when empty. Context is
+     * reconstructed from contextDefinitions via each provider/consumer value object. extensions, apiAlias
+     * and the internal struct/non-struct property stores are never emitted.
+     *
+     * An empty `properties` map is emitted as `[]`, consistent with every content-element read path and the
+     * form the DAL write, validation, and storage require. PHP cannot carry an empty map as `{}` through a
+     * shared serializer without breaking the array-typed write path, so `[]` is the single canonical shape.
      *
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        $properties = $this->getProperties();
-
         $data = [
             'id' => $this->id,
             'component' => $this->component,
-            // The wire type is an object; an empty map must encode as {}, not []
-            'properties' => $properties === [] ? new \stdClass() : $properties,
+            'properties' => $this->getProperties(),
         ];
 
         if ($this->dataRequirements !== []) {

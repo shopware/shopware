@@ -777,7 +777,7 @@ Fields:
   - `"keyed"` - Children receive data by matching their property to data keys (see `keyProperty`)
   - `"sliced"` - Data split into chunks for each child (see `sliceSize`)
   - `"iterator"` - One item per child, distributed sequentially
-- `consumerAlias` (optional) - Renames context key for child elements. Allows reusable components to work with different data sources without modification.
+- `consumerAlias` (optional) - Renames context key for child elements. Allows reusable components to work with different data sources without modification. Optional on input; on output a `providesContext` entry always carries `consumerAlias` (`null` when not aliased).
 
 **Strategy-specific fields:**
 

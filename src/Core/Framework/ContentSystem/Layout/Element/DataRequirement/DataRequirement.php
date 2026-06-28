@@ -16,14 +16,17 @@ final readonly class DataRequirement implements \JsonSerializable
     }
 
     /**
-     * @return array{key: string, source: string, config: array<string, mixed>}
+     * @return array{key: string, source: string, config: array<string, mixed>|\stdClass}
      */
     public function jsonSerialize(): array
     {
+        $config = $this->config->jsonSerialize();
+
         return [
             'key' => $this->key,
             'source' => $this->source,
-            'config' => $this->config->jsonSerialize(),
+            // The wire type is an object; an empty config must encode as {}, not []
+            'config' => $config === [] ? new \stdClass() : $config,
         ];
     }
 }

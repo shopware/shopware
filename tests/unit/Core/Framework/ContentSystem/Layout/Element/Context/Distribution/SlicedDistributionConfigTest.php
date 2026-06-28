@@ -111,6 +111,17 @@ class SlicedDistributionConfigTest extends TestCase
         static::assertSame($original, $config->toArray());
     }
 
+    #[TestDox('falls back to the default sliceSize when the camelCase key is absent (legacy snake_case slice_size is ignored)')]
+    public function testFromArrayFallsBackToDefaultSliceSizeWhenCamelCaseKeyAbsent(): void
+    {
+        $config = SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'slice_size' => 99]);
+
+        static::assertSame(
+            ['distribution' => 'sliced', 'sliceSize' => 10, 'consumerAlias' => null],
+            $config->toArray()
+        );
+    }
+
     #[TestDox('returns constraint mapping with sliceSize NotBlank+Type(int) and consumerAlias Type(string) constraints')]
     public function testBuildConstraintsReturnsExpectedConstraints(): void
     {

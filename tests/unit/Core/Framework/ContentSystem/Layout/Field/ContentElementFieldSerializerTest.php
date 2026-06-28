@@ -399,12 +399,24 @@ class ContentElementFieldSerializerTest extends TestCase
 
         static::assertSame('elem-minimal', $result['id']);
         static::assertSame('hero', $result['component']);
-        static::assertSame([], $result['properties']);
+        // Empty property map serializes as an object so it encodes as {} (wire type is object), not []
+        static::assertEquals(new \stdClass(), $result['properties']);
         static::assertArrayNotHasKey('dataRequirements', $result);
         static::assertArrayNotHasKey('slots', $result);
         static::assertArrayNotHasKey('providesContext', $result);
         static::assertArrayNotHasKey('acceptsContext', $result);
         static::assertArrayNotHasKey('style', $result);
+    }
+
+    #[TestDox('encodes an empty property map as a JSON object, not an array')]
+    public function testEncodesEmptyPropertiesAsJsonObject(): void
+    {
+        $element = ContentElementBuilder::create('hero', 'elem-empty-props')->build();
+
+        $json = json_encode($this->serializer->serializeContentElement($element), \JSON_THROW_ON_ERROR);
+
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"properties":{}', $json);
     }
 
     #[TestDox('serializes a ContentElement object with a non-empty style into the style key')]
@@ -516,7 +528,7 @@ class ContentElementFieldSerializerTest extends TestCase
             ->build();
 
         $serialized = $this->serializer->serializeContentElement($original);
-        $restored = $this->serializer->decodeElement($serialized);
+        $restored = $this->serializer->decodeElement($this->wireRoundTrip($serialized));
 
         static::assertSame($original->getId(), $restored->getId());
         static::assertSame($original->getComponent(), $restored->getComponent());
@@ -683,7 +695,7 @@ class ContentElementFieldSerializerTest extends TestCase
         // style survives serialization identically (read == write)
         static::assertSame(['col-span' => ['md' => 6]], $serialized['style']);
 
-        $decoded = $serializer->decodeElement($serialized);
+        $decoded = $serializer->decodeElement($this->wireRoundTrip($serialized));
 
         // id / component / properties
         static::assertSame('rt-elem-1', $decoded->getId());
@@ -727,6 +739,20 @@ class ContentElementFieldSerializerTest extends TestCase
 
         // style survives identically (decoded == original)
         static::assertSame(['col-span' => ['md' => 6]], $decoded->getStyle()->toArray());
+    }
+
+    /**
+     * Mirrors the storage hop: the serialized tree is persisted as JSON and read back with
+     * associative arrays, so an empty object {} comes back as []. The in-memory serialize output
+     * is never fed straight to decode in production.
+     *
+     * @param array<string, mixed> $serialized
+     *
+     * @return array<string, mixed>
+     */
+    private function wireRoundTrip(array $serialized): array
+    {
+        return json_decode((string) json_encode($serialized, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function createContentElementField(): ContentElementField

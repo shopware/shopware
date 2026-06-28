@@ -286,10 +286,13 @@ class ContentElement extends Struct
      */
     public function jsonSerialize(): array
     {
+        $properties = $this->getProperties();
+
         $data = [
             'id' => $this->id,
             'component' => $this->component,
-            'properties' => $this->getProperties(),
+            // The wire type is an object; an empty map must encode as {}, not []
+            'properties' => $properties === [] ? new \stdClass() : $properties,
         ];
 
         if ($this->dataRequirements !== []) {

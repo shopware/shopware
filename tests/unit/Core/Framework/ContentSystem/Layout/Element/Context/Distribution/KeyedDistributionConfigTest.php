@@ -49,6 +49,17 @@ class KeyedDistributionConfigTest extends TestCase
         static::assertSame($original, $config->toArray());
     }
 
+    #[TestDox('falls back to the default keyProperty when the camelCase key is absent (legacy snake_case key_property is ignored)')]
+    public function testFromArrayFallsBackToDefaultKeyPropertyWhenCamelCaseKeyAbsent(): void
+    {
+        $config = KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'key_property' => 'legacy-ignored']);
+
+        static::assertSame(
+            ['distribution' => 'keyed', 'keyProperty' => 'data_key', 'consumerAlias' => null],
+            $config->toArray()
+        );
+    }
+
     #[TestDox('returns constraint mapping with keyProperty NotBlank+Type and consumerAlias Type constraints')]
     public function testBuildConstraintsReturnsExpectedConstraints(): void
     {

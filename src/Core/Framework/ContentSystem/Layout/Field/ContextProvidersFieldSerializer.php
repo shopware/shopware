@@ -140,21 +140,10 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeContextProvider(ContextProvider $provider): array
     {
-        // The simpler code: return ['type' => $provider->type->value, ...$provider->distributionConfig] was omitted
-        // because PHPStan was not able to infer to discriminate the return types
-        // (naturally because DistributionConfig::toArray uses a union type)
+        /** @var ContextProviderData $data */
+        $data = $provider->jsonSerialize();
 
-        $config = $provider->distributionConfig;
-        $type = $provider->type->value;
-
-        return match (true) {
-            $config instanceof BroadcastDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof IndexedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof IteratorDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof KeyedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            $config instanceof SlicedDistributionConfig => ['type' => $type, ...$config->toArray()],
-            default => throw ContentSystemException::invalidFieldType(DistributionConfig::class, $config::class),
-        };
+        return $data;
     }
 
     /**

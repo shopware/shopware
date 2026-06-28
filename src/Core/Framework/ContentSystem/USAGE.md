@@ -310,10 +310,7 @@ Each content element follows this structure:
         "component": "Sw:Product:Title"
       }
     ]
-  },
-  "dataRequirements": {},
-  "providesContext": {},
-  "acceptsContext": {}
+  }
 }
 ```
 

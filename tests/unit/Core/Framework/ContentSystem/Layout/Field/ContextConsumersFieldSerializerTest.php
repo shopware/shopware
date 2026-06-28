@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -227,7 +228,7 @@ class ContextConsumersFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, ['some' => 'data']);
     }
 
-    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
+    #[TestDox('throws exception when decode receives invalid value type')]
     public function testDecodeThrowsOnInvalidValueType(): void
     {
         $field = $this->createContextConsumersField();
@@ -278,99 +279,63 @@ class ContextConsumersFieldSerializerTest extends TestCase
         $this->serializer->decode($field, $json);
     }
 
-    #[TestDox('serializes ContextConsumer with type and required only when defaults apply')]
-    public function testSerializeContextConsumerWithMinimalFieldsReturnsExpectedArray(): void
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('serializeContextConsumerProvider')]
+    #[TestDox('serializes ContextConsumer: $_dataName')]
+    public function testSerializeContextConsumer(ContextConsumer $consumer, array $expected): void
     {
-        $consumer = new ContextConsumer(
-            type: ContextType::Single,
-            required: true
-        );
-
-        $result = $this->serializer->serializeContextConsumer($consumer);
-
-        static::assertSame('single', $result['type']);
-        static::assertTrue($result['required']);
-        static::assertArrayNotHasKey('redistribute', $result);
-        static::assertArrayNotHasKey('consumerAlias', $result);
-        static::assertArrayNotHasKey('propertyAlias', $result);
+        static::assertSame($expected, $this->serializer->serializeContextConsumer($consumer));
     }
 
-    #[TestDox('serializes ContextConsumer with redistribute true includes redistribute field')]
-    public function testSerializeContextConsumerWithRedistributeIncludesField(): void
+    /**
+     * @return iterable<string, array{ContextConsumer, array<string, mixed>}>
+     */
+    public static function serializeContextConsumerProvider(): iterable
     {
-        $consumer = new ContextConsumer(
-            type: ContextType::Collection,
-            required: false,
-            redistribute: true
-        );
+        yield 'minimal fields omit the optional keys' => [
+            new ContextConsumer(type: ContextType::Single, required: true),
+            ['type' => 'single', 'required' => true],
+        ];
 
-        $result = $this->serializer->serializeContextConsumer($consumer);
+        yield 'redistribute true includes the redistribute field' => [
+            new ContextConsumer(type: ContextType::Collection, required: false, redistribute: true),
+            ['type' => 'collection', 'required' => false, 'redistribute' => true],
+        ];
 
-        static::assertSame('collection', $result['type']);
-        static::assertFalse($result['required']);
-        static::assertArrayHasKey('redistribute', $result);
-        static::assertTrue($result['redistribute']);
-        static::assertArrayNotHasKey('consumerAlias', $result);
-        static::assertArrayNotHasKey('propertyAlias', $result);
-    }
+        yield 'all fields set' => [
+            new ContextConsumer(
+                type: ContextType::Single,
+                required: true,
+                redistribute: true,
+                consumerAlias: 'my-alias',
+                propertyAlias: 'myProp'
+            ),
+            ['type' => 'single', 'required' => true, 'redistribute' => true, 'consumerAlias' => 'my-alias', 'propertyAlias' => 'myProp'],
+        ];
 
-    #[TestDox('serializes ContextConsumer with all fields set')]
-    public function testSerializeContextConsumerWithAllFieldsReturnsFullArray(): void
-    {
-        $consumer = new ContextConsumer(
-            type: ContextType::Single,
-            required: true,
-            redistribute: true,
-            consumerAlias: 'my-alias',
-            propertyAlias: 'myProp'
-        );
+        yield 'null consumerAlias omits the consumerAlias field' => [
+            new ContextConsumer(
+                type: ContextType::Single,
+                required: false,
+                redistribute: true,
+                consumerAlias: null,
+                propertyAlias: 'myProp'
+            ),
+            ['type' => 'single', 'required' => false, 'redistribute' => true, 'propertyAlias' => 'myProp'],
+        ];
 
-        $result = $this->serializer->serializeContextConsumer($consumer);
-
-        static::assertSame('single', $result['type']);
-        static::assertTrue($result['required']);
-        static::assertArrayHasKey('redistribute', $result);
-        static::assertTrue($result['redistribute']);
-        static::assertArrayHasKey('consumerAlias', $result);
-        static::assertSame('my-alias', $result['consumerAlias']);
-        static::assertArrayHasKey('propertyAlias', $result);
-        static::assertSame('myProp', $result['propertyAlias']);
-    }
-
-    #[TestDox('serializes ContextConsumer with consumerAlias null omits consumerAlias field')]
-    public function testSerializeContextConsumerWithNullConsumerAliasOmitsField(): void
-    {
-        $consumer = new ContextConsumer(
-            type: ContextType::Single,
-            required: false,
-            redistribute: true,
-            consumerAlias: null,
-            propertyAlias: 'myProp'
-        );
-
-        $result = $this->serializer->serializeContextConsumer($consumer);
-
-        static::assertArrayNotHasKey('consumerAlias', $result);
-        static::assertArrayHasKey('propertyAlias', $result);
-        static::assertSame('myProp', $result['propertyAlias']);
-    }
-
-    #[TestDox('serializes ContextConsumer with propertyAlias null omits propertyAlias field')]
-    public function testSerializeContextConsumerWithNullPropertyAliasOmitsField(): void
-    {
-        $consumer = new ContextConsumer(
-            type: ContextType::Single,
-            required: false,
-            redistribute: true,
-            consumerAlias: 'my-alias',
-            propertyAlias: null
-        );
-
-        $result = $this->serializer->serializeContextConsumer($consumer);
-
-        static::assertArrayNotHasKey('propertyAlias', $result);
-        static::assertArrayHasKey('consumerAlias', $result);
-        static::assertSame('my-alias', $result['consumerAlias']);
+        yield 'null propertyAlias omits the propertyAlias field' => [
+            new ContextConsumer(
+                type: ContextType::Single,
+                required: false,
+                redistribute: true,
+                consumerAlias: 'my-alias',
+                propertyAlias: null
+            ),
+            ['type' => 'single', 'required' => false, 'redistribute' => true, 'consumerAlias' => 'my-alias'],
+        ];
     }
 
     #[TestDox('returns Type array and All Collection constraints with expected field structure')]

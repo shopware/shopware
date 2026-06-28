@@ -211,7 +211,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
         $this->serializer->decode($invalidField, ['some' => 'data']);
     }
 
-    #[TestDox('throws exception when decode receives non-string non-array non-null value')]
+    #[TestDox('throws exception when decode receives invalid value type')]
     public function testDecodeThrowsOnInvalidValueType(): void
     {
         $field = $this->createContextProvidersField();

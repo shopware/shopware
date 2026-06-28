@@ -408,83 +408,6 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('style', $result);
     }
 
-    #[TestDox('serializes a ContentElement object with a non-empty style into the style key')]
-    public function testSerializeContentElementWithStyleIncludesStyle(): void
-    {
-        $element = ContentElementBuilder::create('text', 'elem-style')
-            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('style', $result);
-        static::assertSame(['col-span' => ['md' => 6]], $result['style']);
-    }
-
-    #[TestDox('serializes ContentElement with data requirements to array')]
-    public function testSerializeContentElementWithDataRequirementsIncludesRequirements(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product']);
-
-        $element = ContentElementBuilder::create('product-card', 'elem-req')
-            ->withDataRequirement('product', 'entity', $config)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('dataRequirements', $result);
-        static::assertArrayHasKey('product', $result['dataRequirements']);
-        static::assertSame('product', $result['dataRequirements']['product']['key']);
-        static::assertSame('entity', $result['dataRequirements']['product']['source']);
-    }
-
-    #[TestDox('serializes ContentElement with slots to array')]
-    public function testSerializeContentElementWithSlotsIncludesSlots(): void
-    {
-        $child = ContentElementBuilder::create('text', 'child-1')->build();
-        $element = ContentElementBuilder::create('grid', 'elem-slots')
-            ->withSlot('main', [$child])
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('slots', $result);
-        static::assertArrayHasKey('main', $result['slots']);
-        static::assertCount(1, $result['slots']['main']);
-        static::assertSame('child-1', $result['slots']['main'][0]['id']);
-    }
-
-    #[TestDox('serializes ContentElement with context providers to array')]
-    public function testSerializeContentElementWithContextProvidersIncludesProviders(): void
-    {
-        $element = ContentElementBuilder::create('provider', 'elem-provider')
-            ->withProvider('myData', BroadcastDistributionConfig::simple(), ContextType::Single)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('providesContext', $result);
-        static::assertArrayHasKey('myData', $result['providesContext']);
-        static::assertSame('single', $result['providesContext']['myData']['type']);
-        static::assertSame('broadcast', $result['providesContext']['myData']['distribution']);
-    }
-
-    #[TestDox('serializes ContentElement with context consumers to array')]
-    public function testSerializeContentElementWithContextConsumersIncludesConsumers(): void
-    {
-        $element = ContentElementBuilder::create('consumer', 'elem-consumer')
-            ->withConsumer('parentData', ContextType::Single, false)
-            ->build();
-
-        $result = $this->serializer->serializeContentElement($element);
-
-        static::assertArrayHasKey('acceptsContext', $result);
-        static::assertArrayHasKey('parentData', $result['acceptsContext']);
-        static::assertSame('single', $result['acceptsContext']['parentData']['type']);
-        static::assertFalse($result['acceptsContext']['parentData']['required']);
-    }
-
     #[TestDox('serializes ContentElement property preserving raw value when value is non-Struct object')]
     public function testSerializeContentElementPreservesRawObjectProperties(): void
     {
@@ -615,20 +538,6 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
     }
 
-    /**
-     * Validates $element against the constraints produced by a freshly-built ContentElementField,
-     * using a real Symfony validator. Both style-option tests share this act phase verbatim.
-     *
-     * @param array<string, mixed> $element
-     *
-     * @return ConstraintViolationListInterface<ConstraintViolationInterface>
-     */
-    private function validateElementAgainstContentElementFieldConstraints(array $element): ConstraintViolationListInterface
-    {
-        return Validation::createValidatorBuilder()->getValidator()
-            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
-    }
-
     #[TestDox('preserves all camelCase wire keys and their values faithfully through a serialize-decode round-trip')]
     public function testRoundTripPreservesCamelCaseWireFormatAndValues(): void
     {
@@ -728,6 +637,20 @@ class ContentElementFieldSerializerTest extends TestCase
 
         // style survives identically (decoded == original)
         static::assertSame(['col-span' => ['md' => 6]], $decoded->getStyle()->toArray());
+    }
+
+    /**
+     * Validates $element against the constraints produced by a freshly-built ContentElementField,
+     * using a real Symfony validator. Both style-option tests share this act phase verbatim.
+     *
+     * @param array<string, mixed> $element
+     *
+     * @return ConstraintViolationListInterface<ConstraintViolationInterface>
+     */
+    private function validateElementAgainstContentElementFieldConstraints(array $element): ConstraintViolationListInterface
+    {
+        return Validation::createValidatorBuilder()->getValidator()
+            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
     }
 
     /**

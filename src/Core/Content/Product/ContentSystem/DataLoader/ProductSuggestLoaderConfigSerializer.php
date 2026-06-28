@@ -58,16 +58,6 @@ class ProductSuggestLoaderConfigSerializer extends AbstractContentDataLoaderConf
             throw ProductException::invalidFieldValueType('config', ProductSuggestLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->searchTermProperty !== null) {
-            $data['searchTermProperty'] = $config->searchTermProperty;
-        }
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

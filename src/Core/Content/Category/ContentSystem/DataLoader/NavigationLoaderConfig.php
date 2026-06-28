@@ -32,4 +32,26 @@ final readonly class NavigationLoaderConfig extends AbstractContentDataLoaderCon
         public string $activeProperty = 'activeId',
     ) {
     }
+
+    /**
+     * @return NavigationLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->rootId !== null) {
+            $data['rootId'] = $this->rootId;
+        }
+
+        if ($this->depth !== self::DEFAULT_DEPTH) {
+            $data['depth'] = $this->depth;
+        }
+
+        if ($this->activeProperty !== 'activeId') {
+            $data['activeProperty'] = $this->activeProperty;
+        }
+
+        return $data;
+    }
 }

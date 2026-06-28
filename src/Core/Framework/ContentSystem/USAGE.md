@@ -153,7 +153,7 @@ Example: Product with global layout and B2B-specific layout. B2B channel uses sp
 
 ### Automatic Data Loading
 
-Entity-based rendering automatically loads the main entity before rendering your layout -- no `data_requirements` declaration needed. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available via context to your layout's root elements.
+Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available via context to your layout's root elements.
 
 **Auto-loaded entities and associations:**
 
@@ -169,7 +169,7 @@ Entity-based rendering automatically loads the main entity before rendering your
 {
   "id": "product-page",
   "component": "Sw:Grid",
-  "accepts_context": {
+  "acceptsContext": {
     "product": {
       "type": "single",
       "required": true,
@@ -181,7 +181,7 @@ Entity-based rendering automatically loads the main entity before rendering your
       {
         "id": "product-title",
         "component": "Sw:Product:Title",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {"type": "single", "required": true}
         }
       }
@@ -190,7 +190,7 @@ Entity-based rendering automatically loads the main entity before rendering your
 }
 ```
 
-Root elements accept the auto-loaded entity via context and redistribute to children using `redistribute: true`. Deeper descendants require redistribution at each container level (see [Context Redistribution](#context-redistribution)). Declare `data_requirements` only for additional data beyond what's automatically loaded (e.g., cross-sell products, reviews).
+Root elements accept the auto-loaded entity via context and redistribute to children using `redistribute: true`. Deeper descendants require redistribution at each container level (see [Context Redistribution](#context-redistribution)). Declare `dataRequirements` only for additional data beyond what's automatically loaded (e.g., cross-sell products, reviews).
 
 ### Placeholders
 
@@ -311,9 +311,9 @@ Each content element follows this structure:
       }
     ]
   },
-  "data_requirements": {},
-  "provides_context": {},
-  "accepts_context": {}
+  "dataRequirements": {},
+  "providesContext": {},
+  "acceptsContext": {}
 }
 ```
 
@@ -323,7 +323,7 @@ Placeholders (like `{{productId}}`) must be assigned to properties before data l
 "properties": {
   "product": "{{productId}}"
 },
-"data_requirements": {
+"dataRequirements": {
   "product": {
     "source": "entity",
     "config": {
@@ -341,9 +341,9 @@ Placeholders (like `{{productId}}`) must be assigned to properties before data l
 **Optional fields:**
 - `properties` - Configuration values (static or placeholders)
 - `slots` - Named containers with arrays of child elements
-- `data_requirements` - Data loading declarations
-- `provides_context` - Data shared with descendant elements
-- `accepts_context` - Data received from ancestor elements
+- `dataRequirements` - Data loading declarations
+- `providesContext` - Data shared with descendant elements
+- `acceptsContext` - Data received from ancestor elements
 
 ### Slots
 
@@ -452,7 +452,7 @@ Don't use data requirements when:
 
 Each data requirement is an object with these fields:
 
-- `key` (optional) - Identifies this data requirement. After loading, the data is stored on the element under this key. If omitted, the object's key name in the `data_requirements` map is used.
+- `key` (optional) - Identifies this data requirement. After loading, the data is stored on the element under this key. If omitted, the object's key name in the `dataRequirements` map is used.
 - `source` (required) - Loader identifier (e.g., `"entity"`, `"entity_collection"`, `"product_listing"`, `"navigation"`)
 - `config` (optional) - Loader-specific configuration object
 
@@ -466,7 +466,7 @@ Loads a single entity by ID or property reference.
 {
   "id": "product-detail",
   "component": "Sw:Product:Detail",
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -495,7 +495,7 @@ A product card that loads its own data:
   "properties": {
     "product": "{{productId}}"
   },
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -522,7 +522,7 @@ Loads multiple entities by their IDs.
   "properties": {
     "productIds": ["019456789abc", "019456789def", "019456789ghi"]
   },
-  "data_requirements": {
+  "dataRequirements": {
     "products": {
       "source": "entity_collection",
       "config": {
@@ -553,7 +553,7 @@ Loads product listings for a navigation/category. Filters, sorting, and paginati
   "properties": {
     "navigationId": "{{categoryId}}"
   },
-  "data_requirements": {
+  "dataRequirements": {
     "listing": {
       "source": "product_listing",
       "config": {
@@ -584,7 +584,7 @@ Loads navigation tree data for menus.
   "properties": {
     "activeId": "{{categoryId}}"
   },
-  "data_requirements": {
+  "dataRequirements": {
     "navigation": {
       "source": "navigation",
       "config": {
@@ -612,7 +612,7 @@ Loads available languages for the current sales channel.
 {
   "id": "language-switcher",
   "component": "Sw:LanguageSwitcher",
-  "data_requirements": {
+  "dataRequirements": {
     "languages": {
       "source": "language",
       "config": {
@@ -634,7 +634,7 @@ Loads available currencies for the current sales channel.
 {
   "id": "currency-switcher",
   "component": "Sw:CurrencySwitcher",
-  "data_requirements": {
+  "dataRequirements": {
     "currencies": {
       "source": "currency",
       "config": {
@@ -656,7 +656,7 @@ Loads available payment methods.
 {
   "id": "payment-methods",
   "component": "Sw:PaymentMethods",
-  "data_requirements": {
+  "dataRequirements": {
     "paymentMethods": {
       "source": "payment_method",
       "config": {
@@ -680,7 +680,7 @@ Loads available shipping methods.
 {
   "id": "shipping-methods",
   "component": "Sw:ShippingMethods",
-  "data_requirements": {
+  "dataRequirements": {
     "shippingMethods": {
       "source": "shipping_method",
       "config": {
@@ -708,7 +708,7 @@ Elements can declare multiple data requirements:
     "product": "{{productId}}",
     "relatedProductIds": ["{{relatedId1}}", "{{relatedId2}}", "{{relatedId3}}"]
   },
-  "data_requirements": {
+  "dataRequirements": {
     "mainProduct": {
       "source": "entity",
       "config": {
@@ -742,13 +742,13 @@ Example: A product page with title, price, and images all showing the same produ
 
 ### Provider Configuration
 
-Provider exposes data as context for direct children using `provides_context`.
+Provider exposes data as context for direct children using `providesContext`.
 
 ```json
 {
   "id": "product-detail-provider",
   "component": "Sw:Product:Detail",
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -757,7 +757,7 @@ Provider exposes data as context for direct children using `provides_context`.
       }
     }
   },
-  "provides_context": {
+  "providesContext": {
     "product": {
       "type": "single",
       "distribution": "broadcast"
@@ -774,28 +774,28 @@ Fields:
 - `distribution` - How data is distributed to direct children:
   - `"broadcast"` - All children receive same data
   - `"indexed"` - Children receive data by position
-  - `"keyed"` - Children receive data by matching their property to data keys (see `key_property`)
-  - `"sliced"` - Data split into chunks for each child (see `slice_size`)
+  - `"keyed"` - Children receive data by matching their property to data keys (see `keyProperty`)
+  - `"sliced"` - Data split into chunks for each child (see `sliceSize`)
   - `"iterator"` - One item per child, distributed sequentially
-- `consumer_alias` (optional) - Renames context key for child elements. Allows reusable components to work with different data sources without modification.
+- `consumerAlias` (optional) - Renames context key for child elements. Allows reusable components to work with different data sources without modification.
 
 **Strategy-specific fields:**
 
-- `key_property` (keyed only, optional) - Element property name used for key matching. Defaults to `"data_key"`. Each child's property at this name is matched against the data keys.
-- `slice_size` (sliced only, optional) - Number of items per chunk. Defaults to `10`.
+- `keyProperty` (keyed only, optional) - Element property name used for key matching. Defaults to `"data_key"`. Each child's property at this name is matched against the data keys.
+- `sliceSize` (sliced only, optional) - Number of items per chunk. Defaults to `10`.
 
-Note: The context key in `provides_context` typically matches a property name loaded by `data_requirements`.
+Note: The context key in `providesContext` typically matches a property name loaded by `dataRequirements`.
 
 **Consumer Alias Example:**
 
 **Use case:** You have reusable product card components that expect data as `"product"`. Your homepage loads featured products as `"featuredProducts"`, but you want to use the same product cards without modifying them.
 
 ```json
-"provides_context": {
+"providesContext": {
   "featuredProducts": {
     "type": "collection",
     "distribution": "indexed",
-    "consumer_alias": "product"
+    "consumerAlias": "product"
   }
 }
 ```
@@ -804,13 +804,13 @@ The provider loads data as `featuredProducts`, but child components receive it a
 
 ### Consumer Configuration
 
-Consumer receives context from ancestor provider using `accepts_context`.
+Consumer receives context from ancestor provider using `acceptsContext`.
 
 ```json
 {
   "id": "product-title-consumer",
   "component": "Sw:Product:Title",
-  "accepts_context": {
+  "acceptsContext": {
     "product": {
       "type": "single",
       "required": true
@@ -820,30 +820,30 @@ Consumer receives context from ancestor provider using `accepts_context`.
 ```
 
 Fields:
-- Context key (`"product"`) - Must match provider's context key exactly (or its `consumer_alias`)
+- Context key (`"product"`) - Must match provider's context key exactly (or its `consumerAlias`)
 - `type` - Expected context data type:
   - `"single"` - Expects single entity/value
   - `"collection"` - Expects array of entities/values
 - `required` - Whether context is mandatory:
   - `true` - Element fails if context unavailable
   - `false` - Element works without context
-- `property_alias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Useful for component reusability when elements expect specific property names. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
+- `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Useful for component reusability when elements expect specific property names. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
 
 Consumer receives context data directly as a property.
 
 **Property Alias Example:**
 
-**Use case:** Reusable image element expects `"image"` property, but product layout provides `"product.cover"`. Use `property_alias` to adapt without modifying the element.
+**Use case:** Reusable image element expects `"image"` property, but product layout provides `"product.cover"`. Use `propertyAlias` to adapt without modifying the element.
 
 ```json
 {
   "id": "product-cover",
   "component": "Sw:Content:Image",
-  "accepts_context": {
+  "acceptsContext": {
     "product.cover": {
       "type": "single",
       "required": true,
-      "property_alias": "image"
+      "propertyAlias": "image"
     }
   }
 }
@@ -861,7 +861,7 @@ Consumers can request nested properties from context using dot notation. When a 
 {
   "id": "product-provider",
   "component": "Sw:Product:Container",
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -871,7 +871,7 @@ Consumers can request nested properties from context using dot notation. When a 
       }
     }
   },
-  "provides_context": {
+  "providesContext": {
     "product": {
       "type": "single",
       "distribution": "broadcast"
@@ -882,7 +882,7 @@ Consumers can request nested properties from context using dot notation. When a 
       {
         "id": "cover-image",
         "component": "Sw:Content:Image",
-        "accepts_context": {
+        "acceptsContext": {
           "product.cover": {
             "type": "single",
             "required": true
@@ -892,7 +892,7 @@ Consumers can request nested properties from context using dot notation. When a 
       {
         "id": "manufacturer-name",
         "component": "Sw:Content:Text",
-        "accepts_context": {
+        "acceptsContext": {
           "product.manufacturer.name": {
             "type": "single",
             "required": false
@@ -929,9 +929,9 @@ Strategy determines how provider data is distributed to direct children.
 
 **Indexed** - Children receive data by position: child[N] gets data[N] (e.g., top 3 products in specific slots)
 
-**Keyed** - Children receive data by matching their property value to data keys. The `key_property` field (default: `"data_key"`) specifies which element property is used for matching. Consumers need a property matching this name, e.g., `"properties": {"data_key": "featured"}` when using the default.
+**Keyed** - Children receive data by matching their property value to data keys. The `keyProperty` field (default: `"data_key"`) specifies which element property is used for matching. Consumers need a property matching this name, e.g., `"properties": {"data_key": "featured"}` when using the default.
 
-**Sliced** - Data split into chunks per child, with `slice_size` items per chunk (default: `10`). E.g., 12 products with `slice_size: 4` across 3 columns = 4 per column.
+**Sliced** - Data split into chunks per child, with `sliceSize` items per chunk (default: `10`). E.g., 12 products with `sliceSize: 4` across 3 columns = 4 per column.
 
 **Iterator** - Sequential distribution: each child receives one item in order. E.g., 10 products distributed to 10 card elements, one each.
 
@@ -961,7 +961,7 @@ Practical implication: Place consumers as direct children of provider for strate
 
 **The Problem:** You build reusable layout components (product cards, content blocks, sliders) that need to work in different places - homepage grids, category listings, search results. When you nest these components inside container elements (grids, sections, columns), the container needs to pass data through to the nested components.
 
-**Example scenario:** A product grid contains product cards. The grid receives product data and needs to pass it to each card. Without redistribution, you must configure both `accepts_context` (to receive data) AND `provides_context` (to pass it along) on the grid - verbose and repetitive.
+**Example scenario:** A product grid contains product cards. The grid receives product data and needs to pass it to each card. Without redistribution, you must configure both `acceptsContext` (to receive data) AND `providesContext` (to pass it along) on the grid - verbose and repetitive.
 
 **The Solution:** Use `redistribute: true` to automatically pass context through container elements.
 
@@ -969,11 +969,11 @@ Practical implication: Place consumers as direct children of provider for strate
 
 ```json
 // Without redistribution - manual configuration (verbose)
-"accepts_context": {"product": {"type": "single", "required": true}},
-"provides_context": {"product": {"type": "single", "distribution": "broadcast"}}
+"acceptsContext": {"product": {"type": "single", "required": true}},
+"providesContext": {"product": {"type": "single", "distribution": "broadcast"}}
 
 // With redistribution - automatic pass-through (concise)
-"accepts_context": {"product": {"type": "single", "required": true, "redistribute": true}}
+"acceptsContext": {"product": {"type": "single", "required": true, "redistribute": true}}
 ```
 
 Both produce identical results. The container automatically passes data to all children.
@@ -985,12 +985,12 @@ You can rename the context key when redistributing. Useful when your reusable co
 **Example:** Container receives `featuredProduct`, but child product cards expect `product`:
 
 ```json
-"accepts_context": {
+"acceptsContext": {
   "featuredProduct": {
     "type": "single",
     "required": true,
     "redistribute": true,
-    "consumer_alias": "product"
+    "consumerAlias": "product"
   }
 }
 ```
@@ -999,17 +999,17 @@ Container accepts `featuredProduct`, children receive `product`. Reuse the same 
 
 **Constraints:**
 
-- `consumer_alias` on `accepts_context` requires `redistribute: true`. Without redistribution, a consumer alias has no effect and will cause a validation error.
-- `redistribute: true` cannot be used with dotted context keys (e.g., `"product.cover": {"redistribute": true}` is invalid). Use full `provides_context` configuration for nested path redistribution.
-- `redistribute: true` cannot coexist with an explicit `provides_context` entry for the same key on the same element.
+- `consumerAlias` on `acceptsContext` requires `redistribute: true`. Without redistribution, a consumer alias has no effect and will cause a validation error.
+- `redistribute: true` cannot be used with dotted context keys (e.g., `"product.cover": {"redistribute": true}` is invalid). Use full `providesContext` configuration for nested path redistribution.
+- `redistribute: true` cannot coexist with an explicit `providesContext` entry for the same key on the same element.
 
 **Property Alias vs Consumer Alias:**
 
-- `consumer_alias` (in `provides_context`): Provider renames context for all children receiving it
-- `consumer_alias` (in `accepts_context`): Redistributed context is exposed to children under this name (requires `redistribute: true`)
-- `property_alias` (in `accepts_context`): Individual consumer renames context for its own use only (does NOT require `redistribute`)
+- `consumerAlias` (in `providesContext`): Provider renames context for all children receiving it
+- `consumerAlias` (in `acceptsContext`): Redistributed context is exposed to children under this name (requires `redistribute: true`)
+- `propertyAlias` (in `acceptsContext`): Individual consumer renames context for its own use only (does NOT require `redistribute`)
 
-Use `consumer_alias` when all children need the same rename. Use `property_alias` when individual consumers need different internal names.
+Use `consumerAlias` when all children need the same rename. Use `propertyAlias` when individual consumers need different internal names.
 
 #### Choosing Your Approach
 
@@ -1018,7 +1018,7 @@ Use `consumer_alias` when all children need the same rename. Use `property_alias
 - All children need the same data (automatic broadcast)
 - Quick setup with minimal configuration
 
-**Use full `provides_context` configuration for advanced scenarios:**
+**Use full `providesContext` configuration for advanced scenarios:**
 - Different distribution strategies (indexed, keyed, sliced, iterator) - see [Distribution Strategies](#distribution-strategies)
 - Need specific nested properties like `product.cover`
 - Transforming or splitting data before passing to children
@@ -1034,15 +1034,15 @@ Use `consumer_alias` when all children need the same rename. Use `property_alias
 ```json
 {
   "id": "product-page",
-  "provides_context": {"product": {"type": "single", "distribution": "broadcast"}},
+  "providesContext": {"product": {"type": "single", "distribution": "broadcast"}},
   "slots": {
     "main": [{
       "id": "content-section",
-      "accepts_context": {"product": {"type": "single", "required": true, "redistribute": true}},
+      "acceptsContext": {"product": {"type": "single", "required": true, "redistribute": true}},
       "slots": {
         "content": [{
           "id": "product-title",
-          "accepts_context": {"product.name": {"type": "single", "required": true}}
+          "acceptsContext": {"product.name": {"type": "single", "required": true}}
         }]
       }
     }]
@@ -1060,7 +1060,7 @@ Provider distributing context to multiple consumer children:
 {
   "id": "product-detail-context",
   "component": "Sw:Product:Detail",
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -1069,7 +1069,7 @@ Provider distributing context to multiple consumer children:
       }
     }
   },
-  "provides_context": {
+  "providesContext": {
     "product": {
       "type": "single",
       "distribution": "broadcast"
@@ -1080,7 +1080,7 @@ Provider distributing context to multiple consumer children:
       {
         "id": "product-title",
         "component": "Sw:Product:Title",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {
             "type": "single",
             "required": true
@@ -1090,7 +1090,7 @@ Provider distributing context to multiple consumer children:
       {
         "id": "product-price",
         "component": "Sw:Product:Price",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {
             "type": "single",
             "required": true
@@ -1100,7 +1100,7 @@ Provider distributing context to multiple consumer children:
       {
         "id": "product-images",
         "component": "Sw:Product:Images",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {
             "type": "single",
             "required": true
@@ -1113,7 +1113,7 @@ Provider distributing context to multiple consumer children:
 ```
 
 Process:
-1. Provider loads product via `data_requirements`
+1. Provider loads product via `dataRequirements`
 2. Provider exposes product as `"single"` context with `"broadcast"` distribution
 3. All three children (`title`, `price`, `images`) receive the same product data
 4. Each consumer declares context as `required: true`
@@ -1132,7 +1132,7 @@ Combined example showing entity-based rendering, data loading, and context distr
     "columns": "1",
     "gap": 32
   },
-  "data_requirements": {
+  "dataRequirements": {
     "product": {
       "source": "entity",
       "config": {
@@ -1142,7 +1142,7 @@ Combined example showing entity-based rendering, data loading, and context distr
       }
     }
   },
-  "provides_context": {
+  "providesContext": {
     "product": {
       "type": "single",
       "distribution": "broadcast"
@@ -1158,7 +1158,7 @@ Combined example showing entity-based rendering, data loading, and context distr
       {
         "id": "product-images",
         "component": "Sw:Product:Images",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {"type": "single", "required": true}
         }
       },
@@ -1166,7 +1166,7 @@ Combined example showing entity-based rendering, data loading, and context distr
         "id": "product-info",
         "component": "Sw:Grid",
         "properties": {"columns": "1", "gap": 16},
-        "accepts_context": {
+        "acceptsContext": {
           "product": {"type": "single", "required": true, "redistribute": true}
         },
         "slots": {
@@ -1174,21 +1174,21 @@ Combined example showing entity-based rendering, data loading, and context distr
             {
               "id": "product-title",
               "component": "Sw:Product:Title",
-              "accepts_context": {
+              "acceptsContext": {
                 "product": {"type": "single", "required": true}
               }
             },
             {
               "id": "product-price",
               "component": "Sw:Product:Price",
-              "accepts_context": {
+              "acceptsContext": {
                 "product": {"type": "single", "required": true}
               }
             },
             {
               "id": "product-description",
               "component": "Sw:Product:Description",
-              "accepts_context": {
+              "acceptsContext": {
                 "product": {"type": "single", "required": true}
               }
             }
@@ -1198,7 +1198,7 @@ Combined example showing entity-based rendering, data loading, and context distr
       {
         "id": "add-to-cart",
         "component": "Sw:Product:AddToCart",
-        "accepts_context": {
+        "acceptsContext": {
           "product": {"type": "single", "required": true}
         }
       }

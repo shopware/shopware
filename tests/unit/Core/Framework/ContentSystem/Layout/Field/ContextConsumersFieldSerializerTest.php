@@ -88,8 +88,8 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertSame('single', $decoded['product']['type']);
         static::assertTrue($decoded['product']['required']);
         static::assertTrue($decoded['product']['redistribute']);
-        static::assertSame('my-alias', $decoded['product']['consumer_alias']);
-        static::assertSame('myProp', $decoded['product']['property_alias']);
+        static::assertSame('my-alias', $decoded['product']['consumerAlias']);
+        static::assertSame('myProp', $decoded['product']['propertyAlias']);
     }
 
     #[TestDox('encodes array of plain arrays as JSON passthrough')]
@@ -173,8 +173,8 @@ class ContextConsumersFieldSerializerTest extends TestCase
                 'type' => 'single',
                 'required' => true,
                 'redistribute' => true,
-                'consumer_alias' => 'my-alias',
-                'property_alias' => 'myProp',
+                'consumerAlias' => 'my-alias',
+                'propertyAlias' => 'myProp',
             ],
         ], \JSON_THROW_ON_ERROR);
 
@@ -233,13 +233,13 @@ class ContextConsumersFieldSerializerTest extends TestCase
         $field = $this->createContextConsumersField();
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('accepts_context', 'array', 'integer')
+            ContentSystemException::invalidFieldValueType('acceptsContext', 'array', 'integer')
         );
 
         $this->serializer->decode($field, 42);
     }
 
-    #[TestDox('throws exception when consumer_alias is set without redistribute')]
+    #[TestDox('throws exception when consumerAlias is set without redistribute')]
     public function testDecodeThrowsOnConsumerAliasWithoutRedistribute(): void
     {
         $field = $this->createContextConsumersField();
@@ -248,7 +248,7 @@ class ContextConsumersFieldSerializerTest extends TestCase
                 'type' => 'single',
                 'required' => false,
                 'redistribute' => false,
-                'consumer_alias' => 'my-alias',
+                'consumerAlias' => 'my-alias',
             ],
         ], \JSON_THROW_ON_ERROR);
 
@@ -259,7 +259,7 @@ class ContextConsumersFieldSerializerTest extends TestCase
         $this->serializer->decode($field, $json);
     }
 
-    #[TestDox('throws exception when property_alias contains dot notation')]
+    #[TestDox('throws exception when propertyAlias contains dot notation')]
     public function testDecodeThrowsOnPropertyAliasWithDotNotation(): void
     {
         $field = $this->createContextConsumersField();
@@ -267,7 +267,7 @@ class ContextConsumersFieldSerializerTest extends TestCase
             'product' => [
                 'type' => 'single',
                 'required' => false,
-                'property_alias' => 'my.prop',
+                'propertyAlias' => 'my.prop',
             ],
         ], \JSON_THROW_ON_ERROR);
 
@@ -291,8 +291,8 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertSame('single', $result['type']);
         static::assertTrue($result['required']);
         static::assertArrayNotHasKey('redistribute', $result);
-        static::assertArrayNotHasKey('consumer_alias', $result);
-        static::assertArrayNotHasKey('property_alias', $result);
+        static::assertArrayNotHasKey('consumerAlias', $result);
+        static::assertArrayNotHasKey('propertyAlias', $result);
     }
 
     #[TestDox('serializes ContextConsumer with redistribute true includes redistribute field')]
@@ -310,8 +310,8 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertFalse($result['required']);
         static::assertArrayHasKey('redistribute', $result);
         static::assertTrue($result['redistribute']);
-        static::assertArrayNotHasKey('consumer_alias', $result);
-        static::assertArrayNotHasKey('property_alias', $result);
+        static::assertArrayNotHasKey('consumerAlias', $result);
+        static::assertArrayNotHasKey('propertyAlias', $result);
     }
 
     #[TestDox('serializes ContextConsumer with all fields set')]
@@ -331,13 +331,13 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertTrue($result['required']);
         static::assertArrayHasKey('redistribute', $result);
         static::assertTrue($result['redistribute']);
-        static::assertArrayHasKey('consumer_alias', $result);
-        static::assertSame('my-alias', $result['consumer_alias']);
-        static::assertArrayHasKey('property_alias', $result);
-        static::assertSame('myProp', $result['property_alias']);
+        static::assertArrayHasKey('consumerAlias', $result);
+        static::assertSame('my-alias', $result['consumerAlias']);
+        static::assertArrayHasKey('propertyAlias', $result);
+        static::assertSame('myProp', $result['propertyAlias']);
     }
 
-    #[TestDox('serializes ContextConsumer with consumer_alias null omits consumer_alias field')]
+    #[TestDox('serializes ContextConsumer with consumerAlias null omits consumerAlias field')]
     public function testSerializeContextConsumerWithNullConsumerAliasOmitsField(): void
     {
         $consumer = new ContextConsumer(
@@ -350,12 +350,12 @@ class ContextConsumersFieldSerializerTest extends TestCase
 
         $result = $this->serializer->serializeContextConsumer($consumer);
 
-        static::assertArrayNotHasKey('consumer_alias', $result);
-        static::assertArrayHasKey('property_alias', $result);
-        static::assertSame('myProp', $result['property_alias']);
+        static::assertArrayNotHasKey('consumerAlias', $result);
+        static::assertArrayHasKey('propertyAlias', $result);
+        static::assertSame('myProp', $result['propertyAlias']);
     }
 
-    #[TestDox('serializes ContextConsumer with property_alias null omits property_alias field')]
+    #[TestDox('serializes ContextConsumer with propertyAlias null omits propertyAlias field')]
     public function testSerializeContextConsumerWithNullPropertyAliasOmitsField(): void
     {
         $consumer = new ContextConsumer(
@@ -368,9 +368,9 @@ class ContextConsumersFieldSerializerTest extends TestCase
 
         $result = $this->serializer->serializeContextConsumer($consumer);
 
-        static::assertArrayNotHasKey('property_alias', $result);
-        static::assertArrayHasKey('consumer_alias', $result);
-        static::assertSame('my-alias', $result['consumer_alias']);
+        static::assertArrayNotHasKey('propertyAlias', $result);
+        static::assertArrayHasKey('consumerAlias', $result);
+        static::assertSame('my-alias', $result['consumerAlias']);
     }
 
     #[TestDox('returns Type array and All Collection constraints with expected field structure')]
@@ -396,8 +396,8 @@ class ContextConsumersFieldSerializerTest extends TestCase
         static::assertArrayHasKey('type', $fields);
         static::assertArrayHasKey('required', $fields);
         static::assertArrayHasKey('redistribute', $fields);
-        static::assertArrayHasKey('consumer_alias', $fields);
-        static::assertArrayHasKey('property_alias', $fields);
+        static::assertArrayHasKey('consumerAlias', $fields);
+        static::assertArrayHasKey('propertyAlias', $fields);
         static::assertFalse($collection->allowExtraFields);
         static::assertFalse($collection->allowMissingFields);
 
@@ -412,10 +412,10 @@ class ContextConsumersFieldSerializerTest extends TestCase
         // 'required' is Required (wraps Type constraint)
         static::assertInstanceOf(\Symfony\Component\Validator\Constraints\Required::class, $fields['required']);
 
-        // 'redistribute', 'consumer_alias', 'property_alias' are Optional
+        // 'redistribute', 'consumerAlias', 'propertyAlias' are Optional
         static::assertInstanceOf(Optional::class, $fields['redistribute']);
-        static::assertInstanceOf(Optional::class, $fields['consumer_alias']);
-        static::assertInstanceOf(Optional::class, $fields['property_alias']);
+        static::assertInstanceOf(Optional::class, $fields['consumerAlias']);
+        static::assertInstanceOf(Optional::class, $fields['propertyAlias']);
     }
 
     #[TestDox('appends NotBlank constraint when field has Required flag')]

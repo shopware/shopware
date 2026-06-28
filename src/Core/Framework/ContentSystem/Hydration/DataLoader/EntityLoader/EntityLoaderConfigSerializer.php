@@ -60,15 +60,6 @@ class EntityLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerial
             throw ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, $config::class);
         }
 
-        $data = [
-            'entity' => $config->entity,
-            'property' => $config->property,
-        ];
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

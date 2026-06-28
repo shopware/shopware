@@ -90,7 +90,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertArrayHasKey('product', $decoded);
         static::assertSame('single', $decoded['product']['type']);
         static::assertSame('broadcast', $decoded['product']['distribution']);
-        static::assertNull($decoded['product']['consumer_alias']);
+        static::assertNull($decoded['product']['consumerAlias']);
     }
 
     #[TestDox('encodes array of plain arrays as JSON passthrough')]
@@ -98,7 +98,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
     {
         $field = $this->createContextProvidersField();
         $arrayValue = [
-            'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
+            'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => null],
         ];
         $kvPair = new KeyValuePair('provides_context', $arrayValue, false);
 
@@ -147,11 +147,11 @@ class ContextProvidersFieldSerializerTest extends TestCase
     {
         $field = $this->createContextProvidersField();
         $json = json_encode([
-            'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
-            'items' => ['type' => 'collection', 'distribution' => 'indexed', 'consumer_alias' => null],
-            'iter' => ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => null],
-            'keyed' => ['type' => 'collection', 'distribution' => 'keyed', 'key_property' => 'data_key', 'consumer_alias' => null],
-            'sliced' => ['type' => 'collection', 'distribution' => 'sliced', 'slice_size' => 3, 'consumer_alias' => null],
+            'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => null],
+            'items' => ['type' => 'collection', 'distribution' => 'indexed', 'consumerAlias' => null],
+            'iter' => ['type' => 'collection', 'distribution' => 'iterator', 'consumerAlias' => null],
+            'keyed' => ['type' => 'collection', 'distribution' => 'keyed', 'keyProperty' => 'data_key', 'consumerAlias' => null],
+            'sliced' => ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 3, 'consumerAlias' => null],
         ], \JSON_THROW_ON_ERROR);
 
         $result = $this->serializer->decode($field, $json);
@@ -186,7 +186,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
     {
         $field = $this->createContextProvidersField();
         $json = json_encode([
-            'valid' => ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
+            'valid' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => null],
             'invalid' => 'not-an-array',
         ], \JSON_THROW_ON_ERROR);
 
@@ -217,7 +217,7 @@ class ContextProvidersFieldSerializerTest extends TestCase
         $field = $this->createContextProvidersField();
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('provides_context', 'array', 'integer')
+            ContentSystemException::invalidFieldValueType('providesContext', 'array', 'integer')
         );
 
         $this->serializer->decode($field, 42);
@@ -326,30 +326,30 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertCount(1, $violations);
     }
 
-    #[TestDox('reports violations for indexed distribution with non-string consumer_alias')]
+    #[TestDox('reports violations for indexed distribution with non-string consumerAlias')]
     public function testValidationReportsViolationForIndexedDistributionWithInvalidConsumerAlias(): void
     {
         $violations = $this->validateProviderData(
-            ['product' => ['type' => 'single', 'distribution' => 'indexed', 'consumer_alias' => 42]]
+            ['product' => ['type' => 'single', 'distribution' => 'indexed', 'consumerAlias' => 42]]
         );
 
         static::assertGreaterThan(0, $violations->count());
     }
 
-    #[TestDox('reports violations for iterator distribution with non-string consumer_alias')]
+    #[TestDox('reports violations for iterator distribution with non-string consumerAlias')]
     public function testValidationReportsViolationForIteratorDistributionWithInvalidConsumerAlias(): void
     {
         $violations = $this->validateProviderData(
-            ['product' => ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => 42]]
+            ['product' => ['type' => 'collection', 'distribution' => 'iterator', 'consumerAlias' => 42]]
         );
 
         static::assertGreaterThan(0, $violations->count());
     }
 
-    #[TestDox('reports violations for keyed distribution missing key_property')]
+    #[TestDox('reports violations for keyed distribution missing keyProperty')]
     public function testValidationReportsViolationForKeyedDistributionMissingKeyProperty(): void
     {
-        // Keyed distribution requires key_property — omitting it triggers validateDistributionFields violations
+        // Keyed distribution requires keyProperty — omitting it triggers validateDistributionFields violations
         $violations = $this->validateProviderData(
             ['product' => ['type' => 'collection', 'distribution' => 'keyed']]
         );
@@ -357,10 +357,10 @@ class ContextProvidersFieldSerializerTest extends TestCase
         static::assertGreaterThan(0, $violations->count());
     }
 
-    #[TestDox('reports violations for sliced distribution missing slice_size')]
+    #[TestDox('reports violations for sliced distribution missing sliceSize')]
     public function testValidationReportsViolationForSlicedDistributionMissingSliceSize(): void
     {
-        // Sliced distribution requires slice_size — omitting it triggers validateDistributionFields violations
+        // Sliced distribution requires sliceSize — omitting it triggers validateDistributionFields violations
         $violations = $this->validateProviderData(
             ['items' => ['type' => 'collection', 'distribution' => 'sliced']]
         );
@@ -375,23 +375,23 @@ class ContextProvidersFieldSerializerTest extends TestCase
     {
         yield 'broadcast distribution config' => [
             new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple()),
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumer_alias' => null],
+            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => null],
         ];
         yield 'indexed distribution config' => [
             new ContextProvider(ContextType::Collection, IndexedDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'indexed', 'consumer_alias' => null],
+            ['type' => 'collection', 'distribution' => 'indexed', 'consumerAlias' => null],
         ];
         yield 'iterator distribution config' => [
             new ContextProvider(ContextType::Collection, IteratorDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'iterator', 'consumer_alias' => null],
+            ['type' => 'collection', 'distribution' => 'iterator', 'consumerAlias' => null],
         ];
         yield 'keyed distribution config' => [
             new ContextProvider(ContextType::Collection, KeyedDistributionConfig::simple()),
-            ['type' => 'collection', 'distribution' => 'keyed', 'key_property' => 'data_key', 'consumer_alias' => null],
+            ['type' => 'collection', 'distribution' => 'keyed', 'keyProperty' => 'data_key', 'consumerAlias' => null],
         ];
         yield 'sliced distribution config' => [
             new ContextProvider(ContextType::Collection, SlicedDistributionConfig::withSliceSize(5)),
-            ['type' => 'collection', 'distribution' => 'sliced', 'slice_size' => 5, 'consumer_alias' => null],
+            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 5, 'consumerAlias' => null],
         ];
     }
 

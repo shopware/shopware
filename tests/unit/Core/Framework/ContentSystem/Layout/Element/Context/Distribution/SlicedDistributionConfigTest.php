@@ -102,8 +102,8 @@ class SlicedDistributionConfigTest extends TestCase
     {
         $original = [
             'distribution' => 'sliced',
-            'slice_size' => 5,
-            'consumer_alias' => 'my-alias',
+            'sliceSize' => 5,
+            'consumerAlias' => 'my-alias',
         ];
 
         $config = SlicedDistributionConfig::fromArray($original);
@@ -111,20 +111,20 @@ class SlicedDistributionConfigTest extends TestCase
         static::assertSame($original, $config->toArray());
     }
 
-    #[TestDox('returns constraint mapping with slice_size NotBlank+Type(int) and consumer_alias Type(string) constraints')]
+    #[TestDox('returns constraint mapping with sliceSize NotBlank+Type(int) and consumerAlias Type(string) constraints')]
     public function testBuildConstraintsReturnsExpectedConstraints(): void
     {
         $constraints = SlicedDistributionConfig::buildConstraints();
 
-        static::assertArrayHasKey('slice_size', $constraints);
-        static::assertCount(2, $constraints['slice_size']);
-        static::assertInstanceOf(NotBlank::class, $constraints['slice_size'][0]);
-        static::assertInstanceOf(Type::class, $constraints['slice_size'][1]);
-        static::assertSame('int', $constraints['slice_size'][1]->type);
+        static::assertArrayHasKey('sliceSize', $constraints);
+        static::assertCount(2, $constraints['sliceSize']);
+        static::assertInstanceOf(NotBlank::class, $constraints['sliceSize'][0]);
+        static::assertInstanceOf(Type::class, $constraints['sliceSize'][1]);
+        static::assertSame('int', $constraints['sliceSize'][1]->type);
 
-        static::assertArrayHasKey('consumer_alias', $constraints);
-        static::assertCount(1, $constraints['consumer_alias']);
-        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
-        static::assertSame('string', $constraints['consumer_alias'][0]->type);
+        static::assertArrayHasKey('consumerAlias', $constraints);
+        static::assertCount(1, $constraints['consumerAlias']);
+        static::assertInstanceOf(Type::class, $constraints['consumerAlias'][0]);
+        static::assertSame('string', $constraints['consumerAlias'][0]->type);
     }
 }

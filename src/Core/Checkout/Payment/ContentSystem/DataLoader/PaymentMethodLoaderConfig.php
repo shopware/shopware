@@ -27,4 +27,22 @@ final readonly class PaymentMethodLoaderConfig extends AbstractContentDataLoader
         public bool $onlyAvailable = true,
     ) {
     }
+
+    /**
+     * @return PaymentMethodLoaderConfigData
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [];
+
+        if ($this->associations !== []) {
+            $data['associations'] = $this->associations;
+        }
+
+        if ($this->onlyAvailable !== true) {
+            $data['onlyAvailable'] = $this->onlyAvailable;
+        }
+
+        return $data;
+    }
 }

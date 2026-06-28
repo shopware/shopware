@@ -75,9 +75,8 @@ class DataRequirementsFieldSerializerTest extends TestCase
     {
         $field = $this->createDataRequirementsField();
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $config->method('jsonSerialize')->willReturn(['entityName' => 'product', 'id' => 'abc']);
         $requirement = new DataRequirement('my-key', 'entity', $config);
-
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product', 'id' => 'abc']);
 
         $kvPair = new KeyValuePair('data_requirements', ['my-key' => $requirement], false);
 
@@ -247,19 +246,19 @@ class DataRequirementsFieldSerializerTest extends TestCase
         $field = $this->createDataRequirementsField();
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('data_requirements', 'array', 'integer')
+            ContentSystemException::invalidFieldValueType('dataRequirements', 'array', 'integer')
         );
 
         $this->serializer->decode($field, 42);
     }
 
-    #[TestDox('serializes DataRequirement to array with key, source, and encoded config')]
+    #[TestDox('serializes DataRequirement to array with key, source, and config from value object jsonSerialize')]
     public function testSerializeDataRequirementReturnsExpectedArray(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('product-data', 'entity', $config);
+        $config->method('jsonSerialize')->willReturn(['entityName' => 'product', 'id' => 'test-id']);
 
-        $this->configProvider->method('encode')->willReturn(['entityName' => 'product', 'id' => 'test-id']);
+        $requirement = new DataRequirement('product-data', 'entity', $config);
 
         $result = $this->serializer->serializeDataRequirement($requirement);
 

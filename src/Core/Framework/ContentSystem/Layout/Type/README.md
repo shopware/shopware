@@ -17,16 +17,16 @@ Both end up in the same `properties` map after hydration. The type spec does not
 The property key is the connecting identifier across all systems:
 
 - Type spec: `properties.product` — "this element has a property called `product`"
-- Element storage: `data_requirements.product` — "load `product` via this data loader"
-- Element storage: `accepts_context.product` — "receive `product` from a parent"
+- Element storage: `dataRequirements.product` — "load `product` via this data loader"
+- Element storage: `acceptsContext.product` — "receive `product` from a parent"
 - Hydrator: `$element->setProperty('product', $data)` — "store loaded data under key `product`"
 - API output: `properties.product` — serialized SalesChannelProductEntity
 
-The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `data_requirements` or `accepts_context`). These are different concerns with different structures, connected by the shared property key.
+The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`). These are different concerns with different structures, connected by the shared property key.
 
 **Alias and path variations:** The direct key match is the common case. Two exceptions:
-- Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `accepts_context.product` with `propertyAlias: "item"` stores data under `properties.item`).
-- Path-based consumers (e.g., `accepts_context: product.cover`) receive a resolved sub-property from the parent's `product` context, stored under the consumer key or its property alias.
+- Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `acceptsContext.product` with `propertyAlias: "item"` stores data under `properties.item`).
+- Path-based consumers (e.g., `acceptsContext: product.cover`) receive a resolved sub-property from the parent's `product` context, stored under the consumer key or its property alias.
 
 ### Type-to-Loader Bridge
 

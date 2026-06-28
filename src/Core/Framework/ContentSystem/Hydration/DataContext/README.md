@@ -10,7 +10,7 @@ Context resolution and distribution. Providers expose data as context, consumers
 
 ## Distribution
 
-Context distributes ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`accepts_context` + `provides_context`).
+Context distributes ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`).
 
 Five strategies (in `Layout/Element/Context/Distribution/`):
 - **Broadcast** — Same data to all consumers

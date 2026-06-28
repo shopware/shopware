@@ -8,7 +8,7 @@
 - Don't use `assign()` from `AssignArrayTrait` — corrupts the struct/non-struct property split
 - Slots: `array<string, SlotContent>`, multiple elements per slot
 - `properties` changes between stages: storage has static values only; post-hydration has static + loaded data merged
-- Hydrator writes into properties via `setProperty($key, $data)` — same key as `data_requirements[$key]` and `accepts_context[$key]`
+- Hydrator writes into properties via `setProperty($key, $data)` — same key as `dataRequirements[$key]` and `acceptsContext[$key]`
 - After hydration, no distinction between static, loaded, and context-provided properties
 - `jsonSerialize()` merges `structProperties` + `nonStructProperties` into one `properties` key
 - Skeleton output (`ContentSkeletonElement`) strips properties entirely — only `id`, `component`, `slots`, and `style` (the universal style rides the skeleton, omitted when empty)

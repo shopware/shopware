@@ -76,7 +76,7 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function classifiesClientDefectProvider(): iterable
     {
-        // A code in the catalogue is reachable from the layout decode path (data_requirements / accepts_context),
+        // A code in the catalogue is reachable from the layout decode path (dataRequirements / acceptsContext),
         // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
         // catalogue membership is pinned separately by testClientDefectCodes.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
@@ -184,14 +184,14 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::redistributeConflict('myKey'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT',
-            'myKey',
+            'redistribute:true and explicit providesContext',
         ];
 
         yield 'consumer alias without redistribute' => [
             ContentSystemException::consumerAliasWithoutRedistribute('myKey'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE',
-            'myKey',
+            'has consumerAlias but redistribute is not true',
         ];
 
         yield 'contextPathNotResolvable without reason' => [
@@ -212,14 +212,14 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::propertyAliasWithDotNotation('myKey', 'parent.child'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION',
-            'parent.child',
+            'has propertyAlias "parent.child" with dot notation',
         ];
 
         yield 'property alias collision' => [
             ContentSystemException::propertyAliasCollision('name', 'ctx1', 'ctx2'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
-            'name',
+            'Each propertyAlias must be unique within an element',
         ];
 
         yield 'missing extends annotation' => [

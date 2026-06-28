@@ -11,4 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 readonly class StubLoaderConfig extends AbstractContentDataLoaderConfig
 {
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [];
+    }
 }

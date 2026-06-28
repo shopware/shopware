@@ -49,12 +49,6 @@ class LanguageLoaderConfigSerializer extends AbstractContentDataLoaderConfigSeri
             throw LanguageException::invalidFieldValueType('config', LanguageLoaderConfig::class, $config::class);
         }
 
-        $data = [];
-
-        if ($config->associations !== []) {
-            $data['associations'] = $config->associations;
-        }
-
-        return $data;
+        return $config->jsonSerialize();
     }
 }

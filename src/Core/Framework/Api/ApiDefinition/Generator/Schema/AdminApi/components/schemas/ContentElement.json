@@ -24,11 +24,11 @@
                     },
                     "properties": {
                         "type": "object",
-                        "description": "Static and configured property values keyed by property name, as declared by the element type. FQCN-typed (hydrated) properties are not present here; they are described by `data_requirements` and `accepts_context` and materialized only at render time. Defaults to `{}` when omitted on input; always present on output.",
+                        "description": "Static and configured property values keyed by property name, as declared by the element type. FQCN-typed (hydrated) properties are not present here; they are described by `dataRequirements` and `acceptsContext` and materialized only at render time. Defaults to `{}` when omitted on input; always present on output.",
                         "additionalProperties": true,
                         "example": { "tag": "h1" }
                     },
-                    "data_requirements": {
+                    "dataRequirements": {
                         "type": "object",
                         "description": "External data this element loads, keyed by the requirement key (which is also the property key the loaded value is written into). Omitted when the element has no data requirements.",
                         "additionalProperties": {
@@ -45,18 +45,28 @@
                             }
                         }
                     },
-                    "provides_context": {
+                    "providesContext": {
                         "type": "object",
                         "description": "Context this element exposes to its descendants, keyed by context key. Omitted when the element provides no context.",
                         "additionalProperties": {
                             "$ref": "#/components/schemas/ContentElementContextProvider"
                         }
                     },
-                    "accepts_context": {
+                    "acceptsContext": {
                         "type": "object",
                         "description": "Context this element receives from its ancestors, keyed by context key. Omitted when the element consumes no context.",
                         "additionalProperties": {
                             "$ref": "#/components/schemas/ContentElementContextConsumer"
+                        }
+                    },
+                    "style": {
+                        "type": "object",
+                        "description": "Universal presentation options keyed by option wire name (for example `col-span`, `align-self`). Each value is either a single scalar (a flat option) or an object keyed by breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) for a breakpoint-aware option, per the option's `breakpointAware` flag in the style-option introspection schema. Omitted when the element has no style.",
+                        "additionalProperties": {
+                            "oneOf": [
+                                { "type": ["string", "integer", "number", "boolean"] },
+                                { "type": "object", "additionalProperties": { "type": ["string", "integer", "number", "boolean"] } }
+                            ]
                         }
                     }
                 },
@@ -116,16 +126,16 @@
                         "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator"],
                         "description": "How the provider's value is split across its consumers. `broadcast` gives every consumer the same value; `indexed` is position-based; `keyed` matches a consumer property against the provider data keys; `sliced` chunks a collection; `iterator` distributes round-robin."
                     },
-                    "consumer_alias": {
+                    "consumerAlias": {
                         "type": ["string", "null"],
                         "description": "Optional key under which the context is re-exposed to consumers. `null` keeps the provider's own context key."
                     },
-                    "key_property": {
+                    "keyProperty": {
                         "type": "string",
                         "description": "Present only when `distribution` is `keyed`: the consumer property whose value selects the matching entry from the provider data.",
                         "example": "data_key"
                     },
-                    "slice_size": {
+                    "sliceSize": {
                         "type": "integer",
                         "minimum": 1,
                         "description": "Present only when `distribution` is `sliced`: the number of items handed to each consumer."
@@ -135,7 +145,7 @@
             "ContentElementContextConsumer": {
                 "title": "Content element context consumer",
                 "type": "object",
-                "description": "Declares a context value an element receives from its ancestors. The received value is written into the element property named by the context key (or `property_alias` when set).",
+                "description": "Declares a context value an element receives from its ancestors. The received value is written into the element property named by the context key (or `propertyAlias` when set).",
                 "required": ["type", "required"],
                 "properties": {
                     "type": {
@@ -149,14 +159,14 @@
                     },
                     "redistribute": {
                         "type": "boolean",
-                        "description": "Present only when `true`: re-broadcasts the received context to this element's own descendants. Required for `consumer_alias` to take effect.",
+                        "description": "Present only when `true`: re-broadcasts the received context to this element's own descendants. Required for `consumerAlias` to take effect.",
                         "example": true
                     },
-                    "consumer_alias": {
+                    "consumerAlias": {
                         "type": ["string", "null"],
                         "description": "Optional key under which the received context is re-exposed when `redistribute` is `true`."
                     },
-                    "property_alias": {
+                    "propertyAlias": {
                         "type": ["string", "null"],
                         "description": "Optional element property name the received value is stored under, instead of the context key. Must not contain a dot."
                     }

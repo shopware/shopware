@@ -27,8 +27,8 @@ use Symfony\Component\Validator\Constraints\Type;
  *   type: 'single'|'collection',
  *   required: bool,
  *   redistribute?: bool,
- *   consumer_alias?: string|null,
- *   property_alias?: string|null
+ *   consumerAlias?: string|null,
+ *   propertyAlias?: string|null
  * }
  *
  * @internal
@@ -87,7 +87,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
         }
 
         if (!\is_array($value)) {
-            throw ContentSystemException::invalidFieldValueType('accepts_context', 'array', \gettype($value));
+            throw ContentSystemException::invalidFieldValueType('acceptsContext', 'array', \gettype($value));
         }
 
         $consumers = [];
@@ -106,22 +106,8 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeContextConsumer(ContextConsumer $consumer): array
     {
-        $data = [
-            'type' => $consumer->type->value,
-            'required' => $consumer->required,
-        ];
-
-        if ($consumer->redistribute) {
-            $data['redistribute'] = true;
-        }
-
-        if ($consumer->consumerAlias !== null) {
-            $data['consumer_alias'] = $consumer->consumerAlias;
-        }
-
-        if ($consumer->propertyAlias !== null) {
-            $data['property_alias'] = $consumer->propertyAlias;
-        }
+        /** @var ContextConsumerData $data */
+        $data = $consumer->jsonSerialize();
 
         return $data;
     }
@@ -139,8 +125,8 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
                         'type' => [new NotBlank(), new Choice(choices: ContextType::values())],
                         'required' => [new Type('bool')],
                         'redistribute' => new Optional([new Type('bool')]),
-                        'consumer_alias' => new Optional([new Type('string')]),
-                        'property_alias' => new Optional([new Type('string')]),
+                        'consumerAlias' => new Optional([new Type('string')]),
+                        'propertyAlias' => new Optional([new Type('string')]),
                     ],
                     allowExtraFields: false,
                     allowMissingFields: false
@@ -161,7 +147,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Creates ContextConsumer from config array, validates consumer_alias requires redistribute
+     * Creates ContextConsumer from config array, validates consumerAlias requires redistribute
      *
      * Accepts loose array from JSON decode - performs runtime validation.
      *
@@ -172,8 +158,8 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
         $type = ContextType::from($config['type'] ?? 'single');
         $required = $config['required'] ?? false;
         $redistribute = $config['redistribute'] ?? false;
-        $consumerAlias = $config['consumer_alias'] ?? null;
-        $propertyAlias = $config['property_alias'] ?? null;
+        $consumerAlias = $config['consumerAlias'] ?? null;
+        $propertyAlias = $config['propertyAlias'] ?? null;
 
         if ($consumerAlias !== null && !$redistribute) {
             throw ContentSystemException::consumerAliasWithoutRedistribute($key);

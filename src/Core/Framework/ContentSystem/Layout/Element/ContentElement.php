@@ -277,25 +277,56 @@ class ContentElement extends Struct
     }
 
     /**
+     * Canonical camelCase wire shape (read == write == storage). id/component/properties are always
+     * present; dataRequirements/slots/providesContext/acceptsContext/style are omitted when empty.
+     * Context is reconstructed from contextDefinitions via each provider/consumer value object.
+     * extensions, apiAlias and the internal struct/non-struct property stores are never emitted.
+     *
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize();
+        $data = [
+            'id' => $this->id,
+            'component' => $this->component,
+            'properties' => $this->getProperties(),
+        ];
 
-        // Remove internal property stores and the style object; both are re-emitted below in wire shape
-        unset(
-            $data['structProperties'],
-            $data['nonStructProperties'],
-            $data['style'],
-        );
+        if ($this->dataRequirements !== []) {
+            $data['dataRequirements'] = array_map(
+                static fn (DataRequirement $requirement): array => $requirement->jsonSerialize(),
+                $this->dataRequirements
+            );
+        }
 
-        $data['properties'] = array_merge(
-            $this->structProperties,
-            $this->nonStructProperties
-        );
+        if ($this->slots !== []) {
+            $slots = [];
+            foreach ($this->slots as $slotName => $slotContent) {
+                $children = [];
+                foreach ($slotContent as $child) {
+                    $children[] = $child->jsonSerialize();
+                }
+                $slots[$slotName] = $children;
+            }
+            $data['slots'] = $slots;
+        }
 
-        // style is structural and omitted when empty, so it never serializes as an empty {} / []
+        $providers = $this->contextDefinitions->getAllProviders();
+        if ($providers !== []) {
+            $data['providesContext'] = array_map(
+                static fn (ContextProvider $provider): array => $provider->jsonSerialize(),
+                $providers
+            );
+        }
+
+        $consumers = $this->contextDefinitions->getAllConsumers();
+        if ($consumers !== []) {
+            $data['acceptsContext'] = array_map(
+                static fn (ContextConsumer $consumer): array => $consumer->jsonSerialize(),
+                $consumers
+            );
+        }
+
         if (!$this->style->isEmpty()) {
             $data['style'] = $this->style->toArray();
         }

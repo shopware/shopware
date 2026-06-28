@@ -67,7 +67,7 @@ class BroadcastDistributionConfigTest extends TestCase
         static::assertSame($original->toArray(), $restored->toArray());
     }
 
-    #[TestDox('creates config with null alias when consumer_alias is absent from array data')]
+    #[TestDox('creates config with null alias when consumerAlias is absent from array data')]
     public function testFromArrayWithoutConsumerAlias(): void
     {
         $config = BroadcastDistributionConfig::fromArray([
@@ -77,25 +77,25 @@ class BroadcastDistributionConfigTest extends TestCase
         static::assertNull($config->getConsumerAlias());
     }
 
-    #[TestDox('creates config with null alias when consumer_alias is non-string in array data')]
+    #[TestDox('creates config with null alias when consumerAlias is non-string in array data')]
     public function testFromArrayWithNonStringConsumerAlias(): void
     {
         $config = BroadcastDistributionConfig::fromArray([
             'distribution' => 'broadcast',
-            'consumer_alias' => 42,
+            'consumerAlias' => 42,
         ]);
 
         static::assertNull($config->getConsumerAlias());
     }
 
-    #[TestDox('returns constraint mapping with consumer_alias string type constraint')]
+    #[TestDox('returns constraint mapping with consumerAlias string type constraint')]
     public function testBuildConstraintsReturnsExpectedConstraints(): void
     {
         $constraints = BroadcastDistributionConfig::buildConstraints();
 
-        static::assertArrayHasKey('consumer_alias', $constraints);
-        static::assertCount(1, $constraints['consumer_alias']);
-        static::assertInstanceOf(Type::class, $constraints['consumer_alias'][0]);
-        static::assertSame('string', $constraints['consumer_alias'][0]->type);
+        static::assertArrayHasKey('consumerAlias', $constraints);
+        static::assertCount(1, $constraints['consumerAlias']);
+        static::assertInstanceOf(Type::class, $constraints['consumerAlias'][0]);
+        static::assertSame('string', $constraints['consumerAlias'][0]->type);
     }
 }

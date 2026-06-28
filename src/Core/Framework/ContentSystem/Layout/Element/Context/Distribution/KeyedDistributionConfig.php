@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @phpstan-type KeyedDistributionConfigData array{
  *   distribution: 'keyed',
- *   key_property: string,
- *   consumer_alias: string|null
+ *   keyProperty: string,
+ *   consumerAlias: string|null
  * }
  *
  * @internal
@@ -35,8 +35,8 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
     public static function fromArray(array $data): DistributionConfig
     {
         return new self(
-            keyProperty: isset($data['key_property']) && \is_string($data['key_property']) ? $data['key_property'] : 'data_key',
-            consumerAlias: isset($data['consumer_alias']) && \is_string($data['consumer_alias']) ? $data['consumer_alias'] : null
+            keyProperty: isset($data['keyProperty']) && \is_string($data['keyProperty']) ? $data['keyProperty'] : 'data_key',
+            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
         );
     }
 
@@ -98,16 +98,16 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
     {
         return [
             'distribution' => 'keyed',
-            'key_property' => $this->keyProperty,
-            'consumer_alias' => $this->consumerAlias,
+            'keyProperty' => $this->keyProperty,
+            'consumerAlias' => $this->consumerAlias,
         ];
     }
 
     public static function buildConstraints(): array
     {
         return [
-            'key_property' => [new NotBlank(), new Type('string')],
-            'consumer_alias' => [new Type('string')],
+            'keyProperty' => [new NotBlank(), new Type('string')],
+            'consumerAlias' => [new Type('string')],
         ];
     }
 }

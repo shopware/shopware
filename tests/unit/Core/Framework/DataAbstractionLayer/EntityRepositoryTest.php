@@ -426,6 +426,7 @@ class EntityRepositoryTest extends TestCase
             $containerListenerWasCalled = true;
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertSame($source, $event->getContext()->getSource());
         });
 
@@ -434,6 +435,7 @@ class EntityRepositoryTest extends TestCase
             $nestedListenerWasCalled = true;
 
             static::assertSame(Context::SYSTEM_SCOPE, $event->getContext()->getScope());
+            static::assertTrue($event->getContext()->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
             static::assertSame($source, $event->getContext()->getSource());
         });
 
@@ -458,6 +460,7 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($containerListenerWasCalled);
         static::assertTrue($nestedListenerWasCalled);
         static::assertSame(Context::USER_SCOPE, $context->getScope());
+        static::assertFalse($context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT));
     }
 
     public function testUpsert(): void

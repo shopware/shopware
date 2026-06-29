@@ -460,7 +460,10 @@ export default {
         },
 
         formatSnippetPathSegment(segment) {
-            return `[${JSON.stringify(segment)}]`;
+            // Slugify so dots and slashes in file names cannot break snippet path resolution.
+            const slug = Shopware.Utils.string.kebabCase(segment);
+
+            return `[${JSON.stringify(slug)}]`;
         },
 
         getEnabledVariant(file) {

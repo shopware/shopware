@@ -1,7 +1,3 @@
-/**
- * @sw-package framework
- */
-
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
@@ -9,6 +5,7 @@ import './sw-notification-center.scss';
 const { Mixin } = Shopware;
 
 /**
+ * @sw-package framework
  * @private
  */
 export default {
@@ -22,9 +19,7 @@ export default {
 
     data() {
         return {
-            additionalContextMenuClasses: {
-                'sw-notification-center__context-container': true,
-            },
+            isOpened: false,
             showDeleteModal: false,
             unsubscribeFromStore: null,
         };
@@ -42,6 +37,12 @@ export default {
         },
     },
 
+    watch: {
+        isOpened(value) {
+            this.onVisibilityChange(value);
+        },
+    },
+
     created() {
         this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
         Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
@@ -54,37 +55,39 @@ export default {
     },
 
     methods: {
-        onContextMenuOpen() {
-            Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+        onVisibilityChange(isOpened) {
+            const store = Shopware.Store.get('notification');
+
+            if (isOpened) {
+                store.workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
+                return;
+            }
+
+            store.setAllNotificationsVisited();
+            store.workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
         },
-        onContextMenuClose() {
-            Shopware.Store.get('notification').setAllNotificationsVisited();
-            Shopware.Store.get('notification').workerProcessPollInterval = POLL_BACKGROUND_INTERVAL;
-        },
+
         openDeleteModal() {
             this.showDeleteModal = true;
         },
+
         onConfirmDelete() {
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
+
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },
-        changeVisibility(visible) {
-            if (this.$refs.notificationCenterContextButton === undefined) {
-                return;
-            }
 
-            if (visible) {
-                this.$refs.notificationCenterContextButton.openMenu();
-                return;
-            }
-
-            this.$refs.notificationCenterContextButton.showMenu = false;
-            this.$refs.notificationCenterContextButton.removeMenuFromBody();
-            this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
+        togglePanel() {
+            this.isOpened = !this.isOpened;
         },
+
+        changeVisibility(visible) {
+            this.isOpened = visible;
+        },
+
         createNotificationFromSystemError({ name, args }) {
             if (name !== 'addSystemError') {
                 return;

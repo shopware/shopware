@@ -14,6 +14,10 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 ## Core
 
+### SVG validator accepts more passive extension assets
+
+SVG media validation now accepts additional passive SVG elements, attributes, metadata, inline fonts, safe animation attributes, known editor namespaces, public SVG doctypes without internal subsets, and embedded raster image data URIs. This allows more SVG assets shipped by extensions and themes to pass validation while still rejecting active content such as external references, processing instructions outside scoped metadata, `foreignObject`, and entity definitions.
+
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
 
 `dal:validate` detects foreign keys that reference something other than a complete PRIMARY or UNIQUE key of the target table.

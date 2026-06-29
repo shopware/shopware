@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -21,10 +23,12 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\Clock\NativeClock;
@@ -48,11 +52,14 @@ class AppRegistrationServiceTest extends TestCase
 
     private AppRegistrationService $appRegistrationService;
 
+    private Meter&MockObject $meterMock;
+
     private AppEntity $testApp;
 
     protected function setUp(): void
     {
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
+        $this->meterMock = $this->createMock(Meter::class);
 
         $this->mockHandler = new MockHandler([]);
         $this->appRepositoryMock = $this->createMock(EntityRepository::class);
@@ -79,6 +86,8 @@ class AppRegistrationServiceTest extends TestCase
             $shopIdProviderMock,
             '6.5.2.0',
             new NativeClock(),
+            new NullLogger(),
+            $this->meterMock,
         );
     }
 
@@ -275,15 +284,63 @@ class AppRegistrationServiceTest extends TestCase
         );
         $this->mockHandler->append(new Response());
 
-        $this->appRepositoryMock->expects($this->once())
+        $matcher = $this->exactly(2);
+        $this->appRepositoryMock->expects($matcher)
             ->method('update')
-            ->with(
-                [
-                    ['id' => $this->testApp->getId(), 'appSecret' => '4pp-s3cr3t'],
-                ],
-                static::isInstanceOf(Context::class)
-            );
+            ->willReturnCallback(function (array $payload) use ($matcher): EntityWrittenContainerEvent {
+                if ($matcher->numberOfInvocations() === 1) {
+                    // the pending secret is saved before the confirm HTTP call, along with the time it was saved
+                    static::assertSame($this->testApp->getId(), $payload[0]['id']);
+                    static::assertSame(['4pp-s3cr3t'], $payload[0]['unconfirmedAppSecrets']);
+                    static::assertInstanceOf(\DateTimeInterface::class, $payload[0]['unconfirmedAppSecretsUpdatedAt']);
+                } elseif ($matcher->numberOfInvocations() === 2) {
+                    // on 2xx, the same update sets the new secret and clears the pending fields together
+                    static::assertSame(
+                        [['id' => $this->testApp->getId(), 'appSecret' => '4pp-s3cr3t', 'unconfirmedAppSecrets' => null, 'unconfirmedAppSecretsUpdatedAt' => null]],
+                        $payload
+                    );
+                } else {
+                    static::fail('Unexpected update call');
+                }
 
+                return $this->createMock(EntityWrittenContainerEvent::class);
+            });
+
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testRegisterAppKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+            new NativeClock()
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        // A 4xx on the registration handshake is not the same as the app rejecting a confirm, so it must not
+        // clear a pending secret left behind by an earlier rotation that ended without a clear answer.
+        $this->mockHandler->append(
+            new ClientException('app rejected the handshake', $registrationRequest, new Response(SymfonyResponse::HTTP_FORBIDDEN)),
+        );
+
+        $this->appRepositoryMock->expects($this->never())->method('update');
+
+        $this->expectException(AppException::class);
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 

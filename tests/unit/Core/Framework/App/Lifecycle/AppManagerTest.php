@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock;
 use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -39,6 +40,8 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
@@ -167,6 +170,9 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository();
         $installedApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $appRepository->addSearch(new AppCollection([$installedApp]));
+        // The failure path re-reads the app to decide whether to roll back: with no pending secret (a clean
+        // registration failure) it removes the app data.
+        $appRepository->addSearch(new AppCollection([$installedApp]));
 
         $this->registrationService = $this->createMock(AppRegistrationService::class);
         $this->registrationService->expects($this->once())
@@ -186,6 +192,35 @@ class AppManagerTest extends TestCase
             static::assertSame([['id' => $installedApp->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
             static::assertSame([['id' => 'integration-id']], $this->integrationRepository->getPayloads(StaticEntityRepository::DELETE));
         }
+    }
+
+    public function testInstallKeepsTheAppWhenRegistrationLeavesAPendingSecret(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $appRepository = AppFixture::createAppRepository();
+        $installedApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $appRepository->addSearch(new AppCollection([$installedApp]));
+        // The failure path re-reads the app: an ambiguous registration (5xx/timeout) left a pending secret the
+        // app may already hold, so the app must be KEPT for app:secret:recover, not deleted.
+        $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $pendingApp->setUnconfirmedAppSecrets(['left-over-pending']);
+        $appRepository->addSearch(new AppCollection([$pendingApp]));
+
+        $this->registrationService = $this->createMock(AppRegistrationService::class);
+        $this->registrationService->expects($this->once())
+            ->method('registerApp')
+            ->willThrowException(AppException::registrationFailed('test', 'ambiguous confirm'));
+
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        // removeAppData removes the ACL role; it must NOT run, because the app is kept for recovery.
+        $this->permissionLifecycle->expects($this->never())->method('removeRole');
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'ambiguous confirm'));
+
+        $this->createAppManager($appRepository)
+            ->install($manifest, new AppInstallParameters(), $context);
     }
 
     public function testActivateDoesNothingIfAppIsAlreadyActive(): void
@@ -440,7 +475,8 @@ XML,
             $this->configReader,
             $this->createMock(DeletedAppsGateway::class),
             $this->requirementsValidator,
-            new NativeClock()
+            new NativeClock(),
+            new AppRegistrationLock(new LockFactory(new InMemoryStore()))
         );
     }
 

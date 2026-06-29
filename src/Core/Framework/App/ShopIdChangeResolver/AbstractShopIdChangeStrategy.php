@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -49,16 +50,27 @@ abstract class AbstractShopIdChangeStrategy
     {
         $apps = $this->appRepository->search(new Criteria(), $context);
 
+        $failures = [];
         foreach ($apps as $app) {
-            $fs = $this->sourceResolver->filesystemForApp($app);
-            $path = $fs->hasFile('manifest.local.xml') ? 'manifest.local.xml' : 'manifest.xml';
-            $manifest = Manifest::createFromXmlFile($fs->path($path));
+            // A shop-id change re-registers every installed app; one app failing must not abort the batch and
+            // leave the rest un-migrated. Collect failures and surface them together.
+            try {
+                $fs = $this->sourceResolver->filesystemForApp($app);
+                $path = $fs->hasFile('manifest.local.xml') ? 'manifest.local.xml' : 'manifest.xml';
+                $manifest = Manifest::createFromXmlFile($fs->path($path));
 
-            if (!$manifest->getSetup()) {
-                continue;
+                if (!$manifest->getSetup()) {
+                    continue;
+                }
+
+                $callback($manifest, $app, $context);
+            } catch (\Exception $e) {
+                $failures[$app->getName()] = $e;
             }
+        }
 
-            $callback($manifest, $app, $context);
+        if ($failures !== []) {
+            throw AppException::shopIdChangeAppReRegistrationFailed(array_keys($failures), $failures[array_key_first($failures)]);
         }
     }
 

@@ -88,6 +88,7 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
+        private readonly AppRegistrationLock $registrationLock,
     ) {
     }
 
@@ -271,31 +272,50 @@ class AppManager
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
         $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
-        $this->updateMetadata($metadata, $context);
+        $hasSetup = $manifest->getSetup() !== null;
+        $installWillRegister = $install && $hasSetup;
+        $lock = $installWillRegister ? $this->registrationLock->acquire($id) : null;
 
-        $app = $this->loadApp($id, $context);
+        try {
+            $this->updateMetadata($metadata, $context);
 
-        $this->updateCustomEntities($app, $manifest);
+            $app = $this->loadApp($id, $context);
 
-        $this->permissionLifecycle->updatePrivileges(
-            $manifest->getPermissions(),
-            $id,
-            $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
-            $context
-        );
+            $this->updateCustomEntities($app, $manifest);
 
-        // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
-        // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
-        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
-        // in that case we still need to run the registration to rotate that secret
-        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
-            try {
-                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
-            } catch (AppRegistrationException $e) {
-                $this->removeAppData($app, $context);
+            $this->permissionLifecycle->updatePrivileges(
+                $manifest->getPermissions(),
+                $id,
+                $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
+                $context
+            );
 
-                throw $e;
+            // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
+            // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
+            // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
+            // in that case we still need to run the registration to rotate that secret
+            $willRegister = $hasSetup && (!$app->getAppSecret() || $install);
+
+            if ($willRegister) {
+                // The install already holds the lock; an update that turns out to need registration takes it
+                // here. Either way the registration is serialised against a concurrent rotation or recovery.
+                $lock ??= $this->registrationLock->acquire($id);
+
+                try {
+                    $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
+                } catch (AppRegistrationException $e) {
+                    // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting the
+                    // app would lose it — keep the half-installed app for app:secret:recover. Roll back only a
+                    // clean failure that left no unconfirmed secret.
+                    if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
+                        $this->removeAppData($app, $context);
+                    }
+
+                    throw $e;
+                }
             }
+        } finally {
+            $lock?->release();
         }
 
         // Refetch app to get secret after registration

@@ -271,6 +271,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService">
@@ -282,6 +284,8 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
@@ -319,6 +323,11 @@
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppRegistrationLock">
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
@@ -347,6 +356,11 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater" on-invalid="null"/>
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Telemetry\StuckUnconfirmedAppSecretsMetricCollector">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <tag name="shopware.telemetry.periodic_metric_collector"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask">
@@ -554,6 +568,13 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\RecoverAppSecretCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
 
             <tag name="console.command"/>
         </service>

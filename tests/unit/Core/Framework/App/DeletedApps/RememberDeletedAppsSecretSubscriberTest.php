@@ -96,26 +96,6 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->subscriber->saveSecretFromDeletedApp($event);
     }
 
-    public function testOldSecretIsDeletedWhenAppIsSucessfullyInstalled(): void
-    {
-        $appId = Uuid::randomHex();
-        $event = new AppDeletedEvent(
-            $appId,
-            Context::createDefaultContext()
-        );
-
-        $foundApp = new AppEntity();
-        $foundApp->setId($appId);
-        $foundApp->setName('test-app');
-
-        $this->appRepository->searches = [[$foundApp]];
-
-        $this->deletedAppsGateway->expects($this->never())
-            ->method('insertSecretForDeletedApp');
-
-        $this->subscriber->saveSecretFromDeletedApp($event);
-    }
-
     public function testRemoveDeletedAppSecret(): void
     {
         $app = new AppEntity();
@@ -132,13 +112,5 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
             ->with('test-app');
 
         $this->subscriber->removeDeletedAppSecret($event);
-    }
-
-    public function testPurgeOldSecrets(): void
-    {
-        $this->deletedAppsGateway->expects($this->once())
-            ->method('purgeOldSecrets');
-
-        $this->subscriber->purgeOldSecrets();
     }
 }

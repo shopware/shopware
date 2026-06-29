@@ -2,13 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -24,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -115,6 +120,11 @@ class AppRegistrationServiceTest extends TestCase
             \hash_hmac('sha256', $json, $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
+
+        // A fresh install has no earlier secret, so it must NOT send the previous-signature header that a
+        // re-registration uses. This checks the other side of the two-signature rule: no earlier secret
+        // means no second signature.
+        static::assertFalse($confirmationReq->hasHeader('shopware-shop-signature-previous'));
 
         static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
         static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
@@ -234,7 +244,9 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdMock,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            new NullLogger(),
+            static::getContainer()->get(Meter::class)
         );
 
         static::expectException(AppRegistrationException::class);
@@ -297,6 +309,147 @@ class AppRegistrationServiceTest extends TestCase
 
         static::expectException(AppRegistrationException::class);
         $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+    }
+
+    public function testConfirmationSuccessCommitsSecretAndClearsPending(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], $this->buildAppResponse($manifest, 'new-secret')));
+        $this->appendNewResponse(new Response(200, []));
+
+        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+
+        $app = $this->fetchApp($id);
+        static::assertSame('new-secret', $app->getAppSecret());
+        static::assertNull($this->fetchApp($id)->getUnconfirmedAppSecrets());
+    }
+
+    public function testConfirmationRejectedWithClientErrorKeepsCurrentSecretAndClearsPending(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], $this->buildAppResponse($manifest, 'new-secret')));
+        // 4xx → ClientException: the app definitively rejected the rotation.
+        $this->appendNewResponse(new Response(403, []));
+
+        try {
+            $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+            static::fail('Expected a definitive registration rejection');
+        } catch (AppException $e) {
+            // a 4xx is a definitive rejection
+            static::assertSame(AppException::APP_REGISTRATION_REJECTED, $e->getErrorCode());
+        }
+
+        $app = $this->fetchApp($id);
+        static::assertSame('old-secret', $app->getAppSecret());
+        static::assertNull($this->fetchApp($id)->getUnconfirmedAppSecrets());
+    }
+
+    public function testConfirmationServerErrorRetainsPendingSecret(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], $this->buildAppResponse($manifest, 'new-secret')));
+        // 5xx → ServerException: no clear answer, the app may already have switched to the new secret.
+        // Keep the pending secret.
+        $this->appendNewResponse(new Response(500, []));
+
+        try {
+            $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+            static::fail('Expected AppRegistrationException');
+        } catch (AppRegistrationException) {
+            // expected
+        }
+
+        $app = $this->fetchApp($id);
+        static::assertSame('old-secret', $app->getAppSecret());
+        static::assertSame(['new-secret'], $this->fetchApp($id)->getUnconfirmedAppSecrets());
+    }
+
+    public function testConfirmationTransportFailureRetainsPendingSecret(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(200, [], $this->buildAppResponse($manifest, 'new-secret')));
+        // Connection failure/timeout → no clear answer, the app may already have switched to the new secret.
+        // Keep the pending secret.
+        $this->appendNewResponse(new ConnectException('Connection timed out', new Request('POST', 'https://my-app.com/confirm')));
+
+        try {
+            $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+            static::fail('Expected AppRegistrationException');
+        } catch (AppRegistrationException) {
+            // expected
+        }
+
+        $app = $this->fetchApp($id);
+        static::assertSame('old-secret', $app->getAppSecret());
+        static::assertSame(['new-secret'], $this->fetchApp($id)->getUnconfirmedAppSecrets());
+    }
+
+    public function testHandshakeClientErrorKeepsPriorPendingSecret(): void
+    {
+        $id = Uuid::randomHex();
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $this->createApp($id);
+        $this->seedAppSecret($id, 'old-secret');
+        // an earlier rotation that ended without a clear answer left this pending secret behind
+        $this->seedUnconfirmedAppSecrets($id, 'prior-pending');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        // 4xx on the registration handshake (the first call) — not a confirmation rejection.
+        $this->appendNewResponse(new Response(403, []));
+
+        try {
+            $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+            static::fail('Expected a definitive registration rejection');
+        } catch (AppException $e) {
+            // a 4xx is a definitive rejection
+            static::assertSame(AppException::APP_REGISTRATION_REJECTED, $e->getErrorCode());
+        }
+
+        $app = $this->fetchApp($id);
+        static::assertSame('old-secret', $app->getAppSecret());
+        // the handshake failure must leave the prior rotation's recovery record intact
+        static::assertSame(['prior-pending'], $this->fetchApp($id)->getUnconfirmedAppSecrets());
+    }
+
+    private function seedAppSecret(string $id, string $secret): void
+    {
+        $context = Context::createDefaultContext();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secret): void {
+            $this->appRepository->update([['id' => $id, 'appSecret' => $secret]], $context);
+        });
+    }
+
+    private function seedUnconfirmedAppSecrets(string $id, string $secret): void
+    {
+        $context = Context::createDefaultContext();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id, $secret): void {
+            $this->appRepository->update([['id' => $id, 'unconfirmedAppSecrets' => [$secret]]], $context);
+        });
     }
 
     private function createApp(string $id): void

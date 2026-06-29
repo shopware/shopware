@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -107,6 +108,8 @@ class AppDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime())->setDescription('Icon for the app.'),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new ListField('unconfirmed_app_secrets', 'unconfirmedAppSecrets', StringField::class))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateTimeField('unconfirmed_app_secrets_updated_at', 'unconfirmedAppSecretsUpdatedAt'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new ListField('modules', 'modules', JsonField::class))->setDescription('Configuration properties or settings related to modules of an app.'),
             (new JsonField('main_module', 'mainModule'))->setDescription('Configuration properties or settings related to main modules of an app.'),
             (new ListField('cookies', 'cookies', JsonField::class))->setDescription('Configuration properties or settings related to cookies of an app.'),

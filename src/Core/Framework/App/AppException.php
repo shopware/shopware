@@ -32,6 +32,11 @@ class AppException extends HttpException
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
+    public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
+    public const SECRET_ROTATION_ALREADY_PENDING = 'FRAMEWORK__APP_SECRET_ROTATION_ALREADY_PENDING';
+    public const APP_SECRET_ROTATION_NOTHING_TO_RECOVER = 'FRAMEWORK__APP_SECRET_ROTATION_NOTHING_TO_RECOVER';
+    public const APP_SECRET_ROTATION_CLAIMED = 'FRAMEWORK__APP_SECRET_ROTATION_CLAIMED';
+    public const APP_SECRET_ROTATION_IN_PROGRESS = 'FRAMEWORK__APP_SECRET_ROTATION_IN_PROGRESS';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
@@ -72,6 +77,8 @@ class AppException extends HttpException
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
+    final public const APP_SECRET_LOCK_UNAVAILABLE = 'FRAMEWORK__APP_SECRET_LOCK_UNAVAILABLE';
+    final public const SHOP_ID_CHANGE_REREGISTRATION_FAILED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_REREGISTRATION_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -137,6 +144,74 @@ class AppException extends HttpException
             self::REGISTRATION_FAILED,
             'App registration for "{{ appName }}" failed: {{ reason }}',
             ['appName' => $appName, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function appRegistrationRejected(string $appName, string $reason, ?\Throwable $previous = null): self
+    {
+        // A definitive 4xx is still a registration failure, so it is an AppRegistrationException like the
+        // ambiguous case (registrationFailed) — same `log_level: notice` and `catch (AppRegistrationException)`.
+        // Only the error code differs, so recovery can tell "wrong secret" from "no clear answer".
+        return new AppRegistrationException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_REGISTRATION_REJECTED,
+            'App registration for "{{ appName }}" failed: {{ reason }}',
+            ['appName' => $appName, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function appSecretRotationAlreadyPending(string $appName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::SECRET_ROTATION_ALREADY_PENDING,
+            'App "{{ appName }}" has an unconfirmed secret from a previous rotation. Recover or discard it with bin/console app:secret:recover before rotating again.',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function appSecretRotationInProgress(string $appId): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_SECRET_ROTATION_IN_PROGRESS,
+            'A secret rotation or recovery is already running for app "{{ appId }}"; try again shortly.',
+            ['appId' => $appId]
+        );
+    }
+
+    public static function appSecretLockUnavailable(string $appId, ?\Throwable $previous = null): self
+    {
+        // The per-app lock's store is unreachable (Redis/DB down or a bad LOCK_DSN). Fail closed with a typed,
+        // retryable 503 so the raw infrastructure exception doesn't escape the lock.
+        return new self(
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            self::APP_SECRET_LOCK_UNAVAILABLE,
+            'Could not acquire the lock to safely rotate or recover the secret for app "{{ appId }}"; the locking backend is unavailable, try again shortly.',
+            ['appId' => $appId],
+            $previous
+        );
+    }
+
+    public static function appSecretRotationNothingToRecover(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SECRET_ROTATION_NOTHING_TO_RECOVER,
+            'App "{{ appName }}" has no unconfirmed secret to recover.',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function appSecretRotationClaimed(string $appName, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_SECRET_ROTATION_CLAIMED,
+            'App "{{ appName }}" could not be re-registered with either the current or the unconfirmed secret; the registration appears to be claimed by another party. Generate a new shop id with bin/console app:shop-id:change.',
+            ['appName' => $appName],
             $previous
         );
     }
@@ -571,6 +646,20 @@ class AppException extends HttpException
     public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
     {
         return new ShopIdChangeStrategyNotFoundException($strategy);
+    }
+
+    /**
+     * @param non-empty-list<string> $failedAppNames
+     */
+    public static function shopIdChangeAppReRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SHOP_ID_CHANGE_REREGISTRATION_FAILED,
+            'Re-registering apps after the shop id change failed for: {{ apps }}. The remaining apps were processed; resolve these and retry the shop id change.',
+            ['apps' => implode(', ', $failedAppNames)],
+            $previous
+        );
     }
 
     public static function invalidAppUrl(string $reason): self

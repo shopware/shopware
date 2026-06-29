@@ -751,6 +751,17 @@ Enabling the flag requires configuration changes — the worker consume command 
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
 
+### Atomic app secret rotation and a recovery command
+
+Rotating an app's shared secret is now atomic. The new secret is stored as a *pending* secret and only becomes the app's active secret once the app confirms it; until then the app keeps authenticating with its current secret. If a rotation is interrupted — a worker crash, a timeout, or the app being briefly unreachable — the app is never left with a secret Shopware and the app disagree on.
+
+A new CLI command finishes or inspects an interrupted rotation:
+
+- `bin/console app:secret:recover` lists every app that still has an unconfirmed secret.
+- `bin/console app:secret:recover <app-name>` re-runs the confirmation for that app, either committing the unconfirmed secret or, when the app reports the old secret is no longer valid, reverting cleanly.
+
+Operators who run a fleet of shops get a `app.unconfirmed_app_secrets.count` telemetry gauge so a stuck rotation is visible without inspecting the database.
+
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials

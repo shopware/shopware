@@ -12,6 +12,24 @@ shopware:
                     description: 'Number of app installations'
                     type: 'counter'
 
+                app.unconfirmed_app_secrets.count:
+                    description: 'Number of apps with an unconfirmed (stuck) pending app-secret rotation'
+                    type: 'gauge'
+
+                app.registration.outcome.count:
+                    description: 'App registration / re-registration confirm outcomes'
+                    type: 'counter'
+                    labels:
+                        outcome:
+                            allowed_values: ['committed', 'rejected', 'ambiguous', 'handshake_failed']
+
+                app.secret_recovery.outcome.count:
+                    description: 'Operator app-secret recovery outcomes'
+                    type: 'counter'
+                    labels:
+                        outcome:
+                            allowed_values: ['recovered', 'claimed', 'unknown']
+
                 cache.invalidate.count:
                     description: 'Number of cache invalidations'
                     type: 'counter'

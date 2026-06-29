@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string}>
+ * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string, hasUnconfirmedSecrets: bool}>
  */
 #[Package('framework')]
 class AppLifecycleIterator
@@ -89,7 +89,7 @@ class AppLifecycleIterator
     private function getRegisteredApps(Context $context): array
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('selfManaged', false));
-        $criteria->addFields(['id', 'name', 'aclRoleId', 'version']);
+        $criteria->addFields(['id', 'name', 'aclRoleId', 'version', 'unconfirmedAppSecrets']);
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         $appData = [];
@@ -108,6 +108,7 @@ class AppLifecycleIterator
                 'id' => $id,
                 'version' => $version,
                 'roleId' => $roleId,
+                'hasUnconfirmedSecrets' => $app->get('unconfirmedAppSecrets') !== null,
             ];
         }
 
@@ -129,6 +130,12 @@ class AppLifecycleIterator
             unset($appsFromDb[$app]);
         }
         foreach ($appsFromDb as $appName => $app) {
+            // Mid-recovery: this app still holds an unconfirmed secret that app:secret:recover needs. This
+            // cleanup also runs on a routine refresh, so uninstalling here would silently destroy it — skip.
+            if ($app['hasUnconfirmedSecrets']) {
+                continue;
+            }
+
             $appLifecycle->uninstall($appName, $app, $context);
         }
     }

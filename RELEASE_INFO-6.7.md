@@ -17,6 +17,7 @@ MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which brea
 
 **Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
 If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

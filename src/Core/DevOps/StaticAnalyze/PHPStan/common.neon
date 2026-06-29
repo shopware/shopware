@@ -66,6 +66,10 @@ parameters:
         allowedUnitTestClassNamespaces:
             - Shopware\Tests\Unit\
             - Shopware\Tests\Migration\
+            - Shopware\Commercial\Tests\Unit\
+            - Shopware\Commercial\Tests\Migration\
+            - Swag\SaasRufus\Test\Unit\
+            - Swag\SaasRufus\Test\Migration\
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)

@@ -207,18 +207,25 @@
             <mt-dropdown-menu-portal>
                 <mt-action-menu :match-trigger-width="true">
                     {% block sw_admin_menu_user_actions_items %}
-                    {% block sw_admin_menu_user_actions_items_logout_user %}
-                    <mt-action-menu-item
-                        icon="regular-sign-out"
-                        variant="critical"
-                        @click="onLogoutUser"
-                    >
-                        {{ $tc('global.sw-admin-menu.linkLogout') }}
-                    </mt-action-menu-item>
-                    {% endblock %}
+                    <mt-action-menu-group>
+                        {% block sw_admin_menu_user_actions_items_logout_user %}
+                        <mt-action-menu-item
+                            icon="regular-sign-out"
+                            variant="critical"
+                            @click="onLogoutUser"
+                        >
+                            {{ $tc('global.sw-admin-menu.linkLogout') }}
+                        </mt-action-menu-item>
+                        {% endblock %}
+                    </mt-action-menu-group>
                     {% endblock %}
                     {% block sw_admin_menu_user_actions_version %}
-                    <sw-version class="sw-admin-menu__version-footer" />
+                    <mt-action-menu-group>
+                        <div class="sw-admin-menu__version-footer">
+                            Version:
+                            <sw-version />
+                        </div>
+                    </mt-action-menu-group>
                     {% endblock %}
                 </mt-action-menu>
             </mt-dropdown-menu-portal>

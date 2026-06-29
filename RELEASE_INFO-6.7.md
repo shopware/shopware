@@ -53,6 +53,66 @@ Four admin action endpoints that previously only required authentication now enf
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
 ## Core
+## Features
+
+### System configuration tabs
+
+With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
+
+To enable this feature, set the `SYSTEM_CONFIG_TABS` feature flag to `true`.
+
+**Example usage:**
+```xml
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <tab>
+        <name>product</name>
+        <title>Product</title>
+        <title lang="de-DE">Produkt</title>
+
+        <card>
+            <title>Listing</title>
+            <title lang="de-DE">Listing</title>
+
+            <input-field type="bool">
+                <name>allowBuyInListing</name>
+                <label>Display buy buttons in listings</label>
+                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
+            </input-field>
+        </card>
+
+        <card>
+            <title>Detail page</title>
+            <title lang="de-DE">Detailseite</title>
+
+            <input-field type="bool">
+                <name>allowBuyInDetail</name>
+                <label>Display buy buttons in product detail page</label>
+                <label lang="de-DE">Kaufen-Buttons in Produktdetailseite anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+
+    <tab>
+        <name>cart</name>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <card>
+            <title>Cart settings</title>
+            <title lang="de-DE">Warenkorbeinstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInCart</name>
+                <label>Display buy buttons in cart</label>
+                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+</config>
+```
+
+## Storefront
 
 ### Deprecated XML configuration
 
@@ -909,62 +969,6 @@ The files are rendered from Twig templates, so Shopware, plugins, apps, and them
 Extensions can add additional templates under `Resources/views/files/agentic/**.twig`, including nested paths such as `.well-known/*`.
 
 The Admin API exposes documented action routes for listing, reading details, and previewing sales-channel files under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
-### System configuration tabs
-
-With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
-
-To enable this feature, set the `SYSTEM_CONFIG_TABS` feature flag to `true`.
-
-**Example usage:**
-```xml
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
-    <tab>
-        <name>product</name>
-        <title>Product</title>
-        <title lang="de-DE">Produkt</title>
-
-        <card>
-            <title>Listing</title>
-            <title lang="de-DE">Listing</title>
-
-            <input-field type="bool">
-                <name>allowBuyInListing</name>
-                <label>Display buy buttons in listings</label>
-                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
-            </input-field>
-        </card>
-
-        <card>
-            <title>Detail page</title>
-            <title lang="de-DE">Detailseite</title>
-
-            <input-field type="bool">
-                <name>allowBuyInDetail</name>
-                <label>Display buy buttons in product detail page</label>
-                <label lang="de-DE">Kaufen-Buttons in Produktdetailseite anzeigen</label>
-            </input-field>
-        </card>
-    </tab>
-
-    <tab>
-        <name>cart</name>
-        <title>Cart</title>
-        <title lang="de-DE">Warenkorb</title>
-
-        <card>
-            <title>Cart settings</title>
-            <title lang="de-DE">Warenkorbeinstellungen</title>
-
-            <input-field type="bool">
-                <name>allowBuyInCart</name>
-                <label>Display buy buttons in cart</label>
-                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
-            </input-field>
-        </card>
-    </tab>
-</config>
-```
 
 ## Storefront
 

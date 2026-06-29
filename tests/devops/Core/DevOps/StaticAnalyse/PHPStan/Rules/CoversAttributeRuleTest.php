@@ -16,12 +16,12 @@ class CoversAttributeRuleTest extends RuleTestCase
 {
     public function testAllowsConfiguredUnitTestNamespace(): void
     {
-        $this->analyse([__DIR__ . '/data/CoversAttributeRule/Unit/ConfiguredUnitTest.php'], []);
+        $this->analyse([__DIR__ . '/data/CoversAttributeRule/Unit/ConfiguredUnitFixture.php'], []);
     }
 
     public function testRejectsCoversAttributeOutsideConfiguredUnitTestNamespace(): void
     {
-        $this->analyse([__DIR__ . '/data/CoversAttributeRule/Integration/IntegrationTest.php'], [
+        $this->analyse([__DIR__ . '/data/CoversAttributeRule/Integration/IntegrationFixture.php'], [
             [
                 'Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute',
                 8,

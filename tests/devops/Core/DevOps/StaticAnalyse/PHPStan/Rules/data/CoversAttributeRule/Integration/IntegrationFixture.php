@@ -6,6 +6,6 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 
 #[CoversNothing]
-class IntegrationTest extends TestCase
+class IntegrationFixture extends TestCase
 {
 }

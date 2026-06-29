@@ -121,14 +121,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         mergedDragConfig(): DragConfig {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragStart = this.onDragStart;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragEnter = this.onDragEnter;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDrop = this.onDrop;
-
-            return { ...this.defaultConfig, ...this.dragConf } as DragConfig;
+            return {
+                ...this.defaultConfig,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragStart: this.onDragStart,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragEnter: this.onDragEnter,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDrop: this.onDrop,
+                ...this.dragConf,
+            } as DragConfig;
         },
 
         mergedScrollOnDragConfig(): ScrollOnDragConf {

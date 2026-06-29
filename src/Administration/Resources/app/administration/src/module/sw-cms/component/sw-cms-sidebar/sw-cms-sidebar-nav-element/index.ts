@@ -38,7 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
         added: {
             type: String,
             required: true,
-        }
+        },
     },
 
     methods: {

@@ -1,20 +1,33 @@
-import type { ComputedRef, Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
+import type { ComputedRef, Ref } from 'vue';
 import {
     computed,
     getCurrentInstance as vueGetCurrentInstance,
     isReactive,
     isReadonly,
     isRef,
-    proxyRefs,
     reactive,
-    toRef,
-    toRefs,
     watch,
 } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
 import type { OverrideFn } from './options-composition-shim';
+import {
+    createDataScope,
+    createOverrideLocalState,
+    exposeOverrideLocalState,
+    getOverrideLocalState,
+    isOverrideLocalStateKey,
+    mergeOverrideState,
+    setDataScopeForInstance,
+} from './composition-extension-data-scope';
+import type {
+    ExtendableSetupState,
+    OverrideLocalState,
+} from './composition-extension-data-scope';
+
+/** @private */
+export { getScriptSetupDataScope } from './composition-extension-data-scope';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -72,17 +85,6 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
     setupContext: SetupContext;
 };
 
-/** @private */
-const SCRIPT_SETUP_OVERRIDE_STATE_KEY = '__swOverride' as const;
-
-type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
-
-type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
-    readonly [SCRIPT_SETUP_OVERRIDE_STATE_KEY]: Ref<Reactive<ScriptSetupOverrideState>>;
-};
-
-const scriptSetupDataScopes = new WeakMap<ComponentInternalInstance, ShallowUnwrapRef<ToRefs<Reactive<object>>>>();
-
 /**
  * Typed wrapper around Vue's getCurrentInstance that includes the setupContext property.
  * Use this instead of Vue's getCurrentInstance when you need access to setupContext.
@@ -90,15 +92,6 @@ const scriptSetupDataScopes = new WeakMap<ComponentInternalInstance, ShallowUnwr
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
     return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
-}
-
-/**
- * @private
- */
-export function getScriptSetupDataScope(
-    instance: ComponentInternalInstance,
-): ShallowUnwrapRef<ToRefs<Reactive<object>>> | null {
-    return scriptSetupDataScopes.get(instance) ?? null;
 }
 
 /**
@@ -192,6 +185,62 @@ const getComponentContext = (): SetupContext => {
 type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 
 /**
+ * Describes the state shape passed to an override callback.
+ *
+ * Public setup values stay at the top level, while private setup values are grouped under `_private`.
+ *
+ * @example
+ * override(({ headline, _private }) => ({ headline: ref(`${headline.value}!`) }));
+ */
+type PreviousStateForOverride<TPublicState extends object, TPrivateState extends object> = TPublicState & {
+    _private: TPrivateState;
+};
+
+/**
+ * Lists setup-state keys that should be visible to override callbacks.
+ *
+ * Use this before building the previous-state snapshot so hidden override-local fields stay internal.
+ *
+ * @example
+ * const keys = getOverrideVisibleStateKeys(setupState);
+ */
+const getOverrideVisibleStateKeys = (state: object): string[] => {
+    return Object.keys(state).filter((key) => !isOverrideLocalStateKey(key));
+};
+
+/**
+ * Builds the previous-state snapshot passed to one override callback.
+ *
+ * This filters setup state to only include the public setup result at the top level, adds private setup values under
+ * `_private`, and leaves hidden override-local fields out of the callback payload.
+ *
+ * @example
+ * const previousState = createPreviousStateForOverride(setupState, publicSetupState);
+ */
+const createPreviousStateForOverride = <TPublicState extends object, TPrivateState extends object>(
+    setupState: TPublicState & TPrivateState,
+    publicState: TPublicState,
+): PreviousStateForOverride<TPublicState, TPrivateState> => {
+    const setupStateAsRecord = setupState as Record<string, unknown>;
+    const publicStateKeys = Object.keys(publicState);
+
+    return getOverrideVisibleStateKeys(setupState).reduce<
+        PreviousStateForOverride<TPublicState, TPrivateState>
+    >(
+        (previousState, key) => {
+            if (publicStateKeys.includes(key)) {
+                (previousState as Record<string, unknown>)[key] = setupStateAsRecord[key];
+                return previousState;
+            }
+
+            (previousState._private as Record<string, unknown>)[key] = setupStateAsRecord[key];
+            return previousState;
+        },
+        { _private: {} as TPrivateState } as PreviousStateForOverride<TPublicState, TPrivateState>,
+    );
+};
+
+/**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  * Main function to extend the setup of a component
  */
@@ -236,31 +285,27 @@ export function createExtendableSetup<
         }
     });
 
-    const originalSetupResultPublic =
+    const publicSetupState =
         originalSetupResultRaw.public ?? ({} as Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>);
-    const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as TPrivateSetupResult);
+    const privateSetupState = originalSetupResultRaw.private ?? ({} as TPrivateSetupResult);
 
     // Merge public and private properties
-    const originalSetupResult: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
-        ...originalSetupResultPublic,
-        ...originalSetupResultPrivate,
+    const setupState: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
+        ...publicSetupState,
+        ...privateSetupState,
     };
-    const scriptSetupOverrideState = reactive({}) as ScriptSetupOverrideState;
-
-    Object.defineProperty(originalSetupResult, SCRIPT_SETUP_OVERRIDE_STATE_KEY, {
-        value: scriptSetupOverrideState,
-        enumerable: false,
-    });
+    const overrideLocalState = createOverrideLocalState();
+    exposeOverrideLocalState(setupState, overrideLocalState);
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
-        if (Object.keys(originalSetupResult).includes(key)) {
+        if (Object.keys(setupState).includes(key)) {
             console.error(
                 `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
             );
 
             // Delete the prop values from the original setup result
-            delete originalSetupResult[key];
+            delete setupState[key];
         }
     });
 
@@ -300,55 +345,31 @@ export function createExtendableSetup<
         }
     })();
 
-    const overrides = _overridesMap[options.name];
+    const registeredOverrides = _overridesMap[options.name];
 
     // Create a reactive wrapper for the original setup result
-    const wrappedState = originalSetupResult;
-    const reactiveWrappedState = reactive(wrappedState);
+    const reactiveSetupState = reactive(setupState);
 
     // Keep track of applied overrides to avoid duplicates
     const appliedOverrides = reactive<OverrideFn[]>([]);
 
     // Function to apply overrides
     const applyOverrides = () => {
-        overrides.forEach((override) => {
+        registeredOverrides.forEach((override) => {
             // Skip if this override has already been applied
             if (appliedOverrides.includes(override)) {
                 return;
             }
 
-            /**
-             *  Filter the wrappedState to only include public setup result
-             *  and add the private ones in the "_private" property
-             */
-            type PreviousStateResultForExtensions = Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & {
-                _private: TPrivateSetupResult;
-            };
-
-            const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
-            const publicStateKeys = Object.keys(originalSetupResultPublic);
-            const privateStateKeys = Object.keys(wrappedState).filter((key) => key !== SCRIPT_SETUP_OVERRIDE_STATE_KEY);
-
-            const previousStateResultForExtensions = privateStateKeys.reduce<PreviousStateResultForExtensions>(
-                (acc, key) => {
-                    if (publicStateKeys.includes(key)) {
-                        (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                    }
-                    return acc;
-                },
-                { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
-            );
-            previousStateResultForExtensions._private = privateStateKeys.reduce<TPrivateSetupResult>((acc, key) => {
-                if (!publicStateKeys.includes(key)) {
-                    (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                }
-                return acc;
-            }, {} as TPrivateSetupResult);
+            const previousStateForOverride = createPreviousStateForOverride<
+                Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>,
+                TPrivateSetupResult
+            >(setupState, publicSetupState);
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;
             try {
-                overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
+                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext);
             } catch (e) {
                 // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
                 // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
@@ -358,10 +379,10 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
-                if (key === SCRIPT_SETUP_OVERRIDE_STATE_KEY) {
-                    Object.assign(
-                        reactiveWrappedState[SCRIPT_SETUP_OVERRIDE_STATE_KEY],
-                        overrideResult[SCRIPT_SETUP_OVERRIDE_STATE_KEY] as ScriptSetupOverrideState,
+                if (isOverrideLocalStateKey(key)) {
+                    mergeOverrideState(
+                        getOverrideLocalState(reactiveSetupState),
+                        overrideResult[key] as OverrideLocalState,
                     );
                     return;
                 }
@@ -381,20 +402,20 @@ export function createExtendableSetup<
                     // @ts-expect-error - "effect" is not part of the Ref type
                     !resultValue?.effect
                 ) {
-                    if (wrappedState[key] !== undefined && isRef(wrappedState[key])) {
+                    if (setupState[key] !== undefined && isRef(setupState[key])) {
                         // Handle normal ref values with 2-Way sync
-                        syncRef(resultValue, wrappedState[key]);
+                        syncRef(resultValue, setupState[key]);
                     } else {
                         // New property from override (e.g. Options API shim data), add directly
-                        reactiveWrappedState[key] = resultValue;
+                        reactiveSetupState[key] = resultValue;
                     }
                 } else if (isReadonly(resultValue) && isRef(resultValue)) {
                     // Handle readonly computed values
-                    reactiveWrappedState[key] = resultValue;
+                    reactiveSetupState[key] = resultValue;
                     // @ts-expect-error - "effect" is part of a writable computed value
                 } else if (!isReadonly(resultValue) && isRef(resultValue) && resultValue?.effect) {
                     // Handle writable computed values, create a new computed property with getter and setter
-                    reactiveWrappedState[key] = computed({
+                    reactiveSetupState[key] = computed({
                         get: () => resultValue.value,
                         set: (value) => {
                             resultValue.value = value;
@@ -403,7 +424,7 @@ export function createExtendableSetup<
                 } else if (isReactive(resultValue)) {
                     // Check if new structure contains at least all keys of the old structure (nested)
                     const validationResult = checkNestedStructure({
-                        oldObj: reactiveWrappedState[key] as Record<string, unknown>,
+                        oldObj: reactiveSetupState[key] as Record<string, unknown>,
                         newObj: resultValue as Record<string, unknown>,
                         componentName: options.name as string,
                         path: key,
@@ -415,10 +436,10 @@ export function createExtendableSetup<
                     }
 
                     // Assign reactive objects directly
-                    Object.assign(reactiveWrappedState[key], resultValue);
+                    Object.assign(reactiveSetupState[key], resultValue);
                 } else if (typeof resultValue === 'function') {
                     // Handle functions, assign directly
-                    reactiveWrappedState[key] = resultValue;
+                    reactiveSetupState[key] = resultValue;
                 } else {
                     // Log an error for unhandled types
                     console.error(
@@ -435,23 +456,13 @@ export function createExtendableSetup<
     };
 
     // Watch for changes in the overrides array and reapply overrides when changed
-    watch(overrides, applyOverrides, { deep: true, immediate: true });
+    watch(registeredOverrides, applyOverrides, { deep: true, immediate: true });
 
-    const state = toRefs(reactiveWrappedState) as ExtendableSetupState<
+    const state = createDataScope<
         Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
-    >;
+    >(reactiveSetupState);
 
-    Object.defineProperty(state, SCRIPT_SETUP_OVERRIDE_STATE_KEY, {
-        value: toRef(reactiveWrappedState, SCRIPT_SETUP_OVERRIDE_STATE_KEY),
-        enumerable: false,
-        configurable: true,
-    });
-
-    const instance = getCurrentInstance();
-
-    if (instance) {
-        scriptSetupDataScopes.set(instance, proxyRefs(state));
-    }
+    setDataScopeForInstance(getCurrentInstance(), state);
 
     return state;
 }

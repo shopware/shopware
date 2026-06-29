@@ -73,12 +73,12 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
 };
 
 /** @private */
-const scriptSetupOverrideStateKey = '__swOverride' as const;
+const SCRIPT_SETUP_OVERRIDE_STATE_KEY = '__swOverride' as const;
 
 type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
 
 type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
-    readonly [scriptSetupOverrideStateKey]: Ref<Reactive<ScriptSetupOverrideState>>;
+    readonly [SCRIPT_SETUP_OVERRIDE_STATE_KEY]: Ref<Reactive<ScriptSetupOverrideState>>;
 };
 
 const scriptSetupDataScopes = new WeakMap<ComponentInternalInstance, ShallowUnwrapRef<ToRefs<Reactive<object>>>>();
@@ -247,7 +247,7 @@ export function createExtendableSetup<
     };
     const scriptSetupOverrideState = reactive({}) as ScriptSetupOverrideState;
 
-    Object.defineProperty(originalSetupResult, scriptSetupOverrideStateKey, {
+    Object.defineProperty(originalSetupResult, SCRIPT_SETUP_OVERRIDE_STATE_KEY, {
         value: scriptSetupOverrideState,
         enumerable: false,
     });
@@ -327,7 +327,7 @@ export function createExtendableSetup<
 
             const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
             const publicStateKeys = Object.keys(originalSetupResultPublic);
-            const privateStateKeys = Object.keys(wrappedState).filter((key) => key !== scriptSetupOverrideStateKey);
+            const privateStateKeys = Object.keys(wrappedState).filter((key) => key !== SCRIPT_SETUP_OVERRIDE_STATE_KEY);
 
             const previousStateResultForExtensions = privateStateKeys.reduce<PreviousStateResultForExtensions>(
                 (acc, key) => {
@@ -358,10 +358,10 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
-                if (key === scriptSetupOverrideStateKey) {
+                if (key === SCRIPT_SETUP_OVERRIDE_STATE_KEY) {
                     Object.assign(
-                        reactiveWrappedState[scriptSetupOverrideStateKey],
-                        overrideResult[scriptSetupOverrideStateKey] as ScriptSetupOverrideState,
+                        reactiveWrappedState[SCRIPT_SETUP_OVERRIDE_STATE_KEY],
+                        overrideResult[SCRIPT_SETUP_OVERRIDE_STATE_KEY] as ScriptSetupOverrideState,
                     );
                     return;
                 }
@@ -441,8 +441,8 @@ export function createExtendableSetup<
         Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
     >;
 
-    Object.defineProperty(state, scriptSetupOverrideStateKey, {
-        value: toRef(reactiveWrappedState, scriptSetupOverrideStateKey),
+    Object.defineProperty(state, SCRIPT_SETUP_OVERRIDE_STATE_KEY, {
+        value: toRef(reactiveWrappedState, SCRIPT_SETUP_OVERRIDE_STATE_KEY),
         enumerable: false,
         configurable: true,
     });

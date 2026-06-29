@@ -199,6 +199,7 @@ frame-ancestors 'none';
         <!-- Routing -->
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

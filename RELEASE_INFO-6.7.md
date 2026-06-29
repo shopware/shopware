@@ -513,6 +513,12 @@ The following classes related to Agentic Commerce product exports, providers, an
 
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
+### Sales-channel context: controller event for redirects + persisted session on the context
+
+A new `Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedControllerEvent` is dispatched in the kernel `controller` event, right after the sales-channel context has been resolved and stored on the request and before the matched controller runs. It wraps the Symfony `ControllerEvent`, so a listener can react to the resolved context however it needs to — for example redirect a not-logged-in customer via `getControllerEvent()->setController(...)`.
+
+In addition, `SalesChannelContext::getContextData()` now exposes the context session the context was built from — the persisted `sales_channel_api_context` payload merged with the request-derived overrides — as an array. You can read these parameters directly from the context, e.g. inside the new listener.
+
 ## Administration
 
 ### Block additions and renamings

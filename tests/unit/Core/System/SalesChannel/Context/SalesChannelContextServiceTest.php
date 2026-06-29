@@ -182,6 +182,37 @@ class SalesChannelContextServiceTest extends TestCase
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
+    public function testSetsSessionAsContextData(): void
+    {
+        $token = 'test-token';
+        $persisted = ['expired' => false, SalesChannelContextService::CUSTOMER_ID => 'customer-1'];
+
+        $this->persister->method('load')->willReturn($persisted);
+
+        $context = Generator::generateSalesChannelContext();
+
+        // the session the context is built from has the request-derived languageId override merged in
+        $session = $persisted + [SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM];
+
+        $this->factory->expects($this->once())
+            ->method('create')
+            ->with($token, TestDefaults::SALES_CHANNEL, $session)
+            ->willReturn($context);
+
+        $this->cartRuleLoader
+            ->method('loadByToken')
+            ->willReturn(new RuleLoaderResult(new Cart($token), new RuleCollection()));
+
+        $this->setupSessionAndRequest();
+
+        $result = $this->service->get(
+            new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM)
+        );
+
+        // the full session the context was built from is exposed, including the request-derived languageId override
+        static::assertSame($session, $result->getContextData());
+    }
+
     #[DataProvider('skipCartCalculationIfAlreadyDoneAndESISubrequestProvider')]
     public function testSkipCartCalculationIfAlreadyDoneAndESISubrequest(Request $request, bool $hasCart, bool $expectCalculation): void
     {

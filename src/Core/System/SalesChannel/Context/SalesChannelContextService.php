@@ -115,6 +115,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
             }
 
+            $context->setContextData($session);
+
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
             $currentRequest = $this->requestStack->getCurrentRequest();

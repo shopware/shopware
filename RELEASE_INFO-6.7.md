@@ -475,6 +475,10 @@ Webhook deliveries now resolve the app's HMAC signing secret at delivery time in
 
 SVG media validation now accepts additional passive SVG elements, attributes, metadata, inline fonts, safe animation attributes, known editor namespaces, public SVG doctypes without internal subsets, and embedded raster image data URIs. This allows more SVG assets shipped by extensions and themes to pass validation while still rejecting active content such as external references, processing instructions outside scoped metadata, `foreignObject`, and entity definitions.
 
+### Deprecation of `ConfigurationService` methods
+
+Due to structural data changes coming along with the new system configuration tabs feature, the methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class are deprecated and will be removed in Shopware 6.8. Please use the new methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
+
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
 
 `dal:validate` detects foreign keys that reference something other than a complete PRIMARY or UNIQUE key of the target table.

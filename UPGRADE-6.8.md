@@ -358,6 +358,9 @@ Changes affecting all three classes:
 
 - Convert from a base search result with `ProductReviewResult::fromSearchResult(...)`.
 - The class is fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` are `readonly`; the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) were removed. Pass the values to `fromSearchResult()` instead.
+## Removal of deprecated `ConfigurationService` methods
+
+The deprecated methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class were removed. Please use the methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 

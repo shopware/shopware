@@ -20,6 +20,14 @@ test('Visual: Rule Builder Detail page', { tag: '@Visual' }, async ({
     });
     await test.step('Creates a screenshot of the Rule Builder assignments tab.', async () => {
         await ShopAdmin.goesTo(AdminRuleDetail.url(rule.id, 'assignments'));
+        await ShopAdmin.expects(async () => {
+            const assignmentCards = AdminRuleDetail.page.locator('mt-card, mt-empty-state');
+            const assignmentCardCount = await assignmentCards.count();
+
+            await ShopAdmin.expects(assignmentCardCount).toBeGreaterThanOrEqual(11);
+        }).toPass({
+            intervals: [1_000, 2_500],
+        });
         await setViewport(AdminRuleDetail.page, {
             requestURL: 'api/search/shipping-method',
         });

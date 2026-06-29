@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -108,5 +110,27 @@ class RuleConstraintsTest extends TestCase
             new Choice(choices: [...$this->defaultOperators, Rule::OPERATOR_EMPTY]),
             $operators[1],
         );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testFloatConstraintsDeprecated(): void
+    {
+        $constraints = RuleConstraints::float();
+        static::assertCount(2, $constraints);
+        static::assertInstanceOf(NotBlank::class, $constraints[0]);
+        static::assertEquals(new Type('numeric'), $constraints[1]);
+    }
+
+    public function testFloatConstraints(): void
+    {
+        $constraints = RuleConstraints::float();
+        static::assertCount(2, $constraints);
+        static::assertInstanceOf(NotBlank::class, $constraints[0]);
+        static::assertInstanceOf(AtLeastOneOf::class, $constraints[1]);
+
+        $nestedConstraints = $constraints[1]->getNestedConstraints();
+        static::assertCount(2, $nestedConstraints);
+        static::assertEquals(new Type('float', groups: ['Default']), $nestedConstraints[0]);
+        static::assertEquals(new Type('int', groups: ['Default']), $nestedConstraints[1]);
     }
 }

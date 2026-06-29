@@ -756,5 +756,8 @@
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.telemetry.subscriber"/>
         </service>
+
+        <!-- shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain) -->
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver"/>
     </services>
 </container>

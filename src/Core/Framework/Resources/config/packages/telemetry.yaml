@@ -32,3 +32,38 @@ shopware:
                     description: 'Number of database locks'
                     enabled: true
                     type: 'counter'
+
+                http.server.request.duration:
+                    description: 'Master HTTP request wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # typical web requests (25ms–1s) through long-running admin/sync/import-export (up to 60s)
+                        buckets: [25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000]
+                    labels:
+                        # AreaResolver (known: storefront, store-api, admin-api, sync-api, payment, other)
+                        area:
+                            policy: open
+                        # DomainResolver (polymorphic per area; functional / action / entity groups + other)
+                        domain:
+                            policy: open
+                        # OperationResolver (admin-api CRUD only; none otherwise)
+                        operation:
+                            allowed_values: [read, write, delete, none]
+                        status_class:
+                            allowed_values: ['2xx', '3xx', '4xx', '5xx']
+
+                http.server.request.memory.peak:
+                    description: 'Peak memory per master request'
+                    type: 'histogram'
+                    unit: 'byte'
+                    parameters:
+                        # 16MB–512MB covers typical requests; 1GB/2GB catch import-export, indexing and other heavy jobs
+                        buckets: [16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824, 2147483648]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]

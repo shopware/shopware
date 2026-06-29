@@ -239,6 +239,25 @@ frame-ancestors 'none';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <!-- Telemetry: per-master-request HTTP metrics and their label resolvers -->
+        <service id="Shopware\Core\Framework\Routing\Telemetry\AreaResolver"/>
+
+        <service id="Shopware\Core\Framework\Routing\Telemetry\DomainResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Telemetry\OperationResolver"/>
+
+        <service id="Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Telemetry"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\AreaResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\DomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\OperationResolver"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService">
             <argument type="service" id="router"/>
         </service>

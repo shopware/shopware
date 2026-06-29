@@ -134,8 +134,6 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNotNull($lineItem3);
         static::assertNotNull($lineItem4);
 
-        //        dd($lineItem1, $lineItem2, $lineItem3, $lineItem4);
-
         $event = new EntityWrittenEvent('order_line_item', [
             new EntityWriteResult($lineItem1->getId(), $lineItem1->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
             new EntityWriteResult($lineItem2->getId(), $lineItem2->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),

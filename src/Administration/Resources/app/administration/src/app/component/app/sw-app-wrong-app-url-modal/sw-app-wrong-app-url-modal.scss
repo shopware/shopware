@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-app-wrong-app-url-modal {
     .sw-app-wrong-app-url-modal__content-description {
         text-align: center;
@@ -14,6 +12,6 @@
     }
 
     .sw-app-wrong-app-url_modal__content-description-technical-details {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 }

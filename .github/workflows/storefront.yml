@@ -188,7 +188,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-storefront-
       - name: install packages
-        uses: ./.github/actions/npm-ci-retry
+        uses: shopware/github-actions/npm-ci-retry@main
         with:
           working-directory: src/Storefront/Resources/app/storefront
       - name: Check license

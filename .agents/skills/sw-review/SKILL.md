@@ -70,11 +70,11 @@ Worker prompt shape:
 
 ```text
 You are a Shopware PR review persona-worker. Load:
-- .claude/skills/sw-review/personas/[slug].md
-- .claude/skills/sw-review/references/RUNTIME.md
-- .claude/skills/sw-review/references/CLASSIFICATION.md for severity, confidence, decision, and risk
-- .claude/skills/sw-review/references/DIFF-DISCIPLINE.md only when needed
-- .claude/skills/sw-review/references/SCHEMA.md for JSON shape
+- .agents/skills/sw-review/personas/[slug].md
+- .agents/skills/sw-review/references/RUNTIME.md
+- .agents/skills/sw-review/references/CLASSIFICATION.md for severity, confidence, decision, and risk
+- .agents/skills/sw-review/references/DIFF-DISCIPLINE.md only when needed
+- .agents/skills/sw-review/references/SCHEMA.md for JSON shape
 
 Session nonce: ${NONCE}. Emit one JSON object only.
 

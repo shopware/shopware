@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -24,6 +25,17 @@ class ConfigReaderTest extends TestCase
     }
 
     public function testConfigReaderWithValidConfig(): void
+    {
+        $actualConfig = $this->configReader->read(__DIR__ . '/_fixtures/valid_config.xml');
+
+        static::assertSame($this->getExpectedConfig(), $actualConfig);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testConfigReaderWithValidConfig will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testConfigReaderWithValidConfigDeprecated(): void
     {
         $actualConfig = $this->configReader->read(__DIR__ . '/_fixtures/valid_config.xml');
 

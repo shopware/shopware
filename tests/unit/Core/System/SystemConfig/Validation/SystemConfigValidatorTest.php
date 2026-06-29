@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -18,6 +17,7 @@ use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -114,38 +114,58 @@ class SystemConfigValidatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock
+            ->expects($this->once())
+            ->method('getSystemConfiguration')
+            ->with('core.basicInformation', $context)
+            ->willReturn([
+                new SystemConfigTab([
+                    new SystemConfigCard(
+                        [
+                            new SystemConfigElement('core.basicInformation.foo', []),
+                        ],
+                        []
+                    ),
+                ]),
+            ]);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $configurationServiceMock
-                ->expects($this->once())
-                ->method('getSystemConfiguration')
-                ->with('core.basicInformation', $context)
-                ->willReturn([
-                    new SystemConfigTab([
-                        new SystemConfigCard(
-                            [
-                                new SystemConfigElement('core.basicInformation.foo', []),
-                            ],
-                            []
-                        ),
-                    ]),
-                ]);
-        } else {
-            $configurationServiceMock
-                ->expects($this->once())
-                ->method('getConfiguration')
-                ->with('core.basicInformation', $context)
-                ->willReturn([
-                    [
-                        'elements' => [
-                            [
-                                'name' => 'core.basicInformation.foo',
-                                'config' => [],
-                            ],
+        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock
+            ->expects($this->once())
+            ->method('validate');
+
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+
+        $systemConfigValidation->validate([
+            'null' => [
+                'core.basicInformation.foo.bar.baz' => 'test-value',
+            ],
+        ], $context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testValidateUsesConfigurationDomainForNestedKeys will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testValidateUsesConfigurationDomainForNestedKeysDeprecated(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock
+            ->expects($this->once())
+            ->method('getConfiguration')
+            ->with('core.basicInformation', $context)
+            ->willReturn([
+                [
+                    'elements' => [
+                        [
+                            'name' => 'core.basicInformation.foo',
+                            'config' => [],
                         ],
                     ],
-                ]);
-        }
+                ],
+            ]);
 
         $dataValidatorMock = $this->createMock(DataValidator::class);
         $dataValidatorMock

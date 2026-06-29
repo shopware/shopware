@@ -7,9 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -54,12 +54,33 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
     public function testOnlyDBExceptionIsSilenced(): void
     {
         $exception = new \InvalidArgumentException();
+        $this->configService->method('getResolvedSystemConfiguration')->willThrowException($exception);
+        $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('test'),
+            ])
+        );
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $this->configService->method('getResolvedSystemConfiguration')->willThrowException($exception);
-        } else {
-            $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
-        }
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
+        $this->expectExceptionObject($exception);
+
+        $subscriber->enrichExtensionVars(
+            new ThemeCompilerEnrichScssVariablesEvent(
+                [],
+                TestDefaults::SALES_CHANNEL,
+                Context::createDefaultContext()
+            )
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testOnlyDBExceptionIsSilenced will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testOnlyDBExceptionIsSilencedDeprecated(): void
+    {
+        $exception = new \InvalidArgumentException();
+        $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),

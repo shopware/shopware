@@ -84,7 +84,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testInvalidDomain will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testInvalidDomainDeprecated(): void
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
@@ -124,7 +124,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testMissingConfig will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testMissingConfigDeprecated(): void
     {
         /** @var StaticEntityRepository<AppCollection> $appRepository */
@@ -162,7 +162,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testConfigurationFeatureFlag will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigurationFeatureFlagDeprecated(): void
     {
         Feature::registerFeature('FEATURE_NEXT_101');
@@ -194,35 +194,19 @@ class ConfigurationServiceTest extends TestCase
 
         $config = $this->getAppConfig();
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
-            $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+        unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
+        $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
 
-            // create new card at position 0 and make it rely on feature flag (will be removed)
-            array_unshift($config[0]['cards'], [
-                'title' => [
-                    'en-GB' => 'Advanced configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
-                'name' => null,
-                'elements' => [],
-                'flag' => 'FEATURE_NEXT_101',
-            ]);
-        } else {
-            unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
-            $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
-
-            // create new card at position 0 and make it rely on feature flag (will be removed)
-            array_unshift($config, [
-                'title' => [
-                    'en-GB' => 'Advanced configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
-                'name' => null,
-                'elements' => [],
-                'flag' => 'FEATURE_NEXT_101',
-            ]);
-        }
+        // create new card at position 0 and make it rely on feature flag (will be removed)
+        array_unshift($config[0]['cards'], [
+            'title' => [
+                'en-GB' => 'Advanced configuration',
+                'de-DE' => 'Grundeinstellungen',
+            ],
+            'name' => null,
+            'elements' => [],
+            'flag' => 'FEATURE_NEXT_101',
+        ]);
 
         $actualConfig = $this->getConfiguration($config);
 
@@ -237,7 +221,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabledDeprecated(): void
     {
         Feature::registerFeature('FEATURE_NEXT_101');
@@ -250,35 +234,19 @@ class ConfigurationServiceTest extends TestCase
 
         $config = $this->getAppConfig();
 
-        if (Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
-            $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+        unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
+        $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
 
-            // create new card at position 0 and make it rely on feature flag (will be removed)
-            array_unshift($config[0]['cards'], [
-                'title' => [
-                    'en-GB' => 'Advanced configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
-                'name' => null,
-                'elements' => [],
-                'flag' => 'FEATURE_NEXT_101',
-            ]);
-        } else {
-            unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
-            $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
-
-            // create new card at position 0 and make it rely on feature flag (will be removed)
-            array_unshift($config, [
-                'title' => [
-                    'en-GB' => 'Advanced configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
-                'name' => null,
-                'elements' => [],
-                'flag' => 'FEATURE_NEXT_101',
-            ]);
-        }
+        // create new card at position 0 and make it rely on feature flag (will be removed)
+        array_unshift($config, [
+            'title' => [
+                'en-GB' => 'Advanced configuration',
+                'de-DE' => 'Grundeinstellungen',
+            ],
+            'name' => null,
+            'elements' => [],
+            'flag' => 'FEATURE_NEXT_101',
+        ]);
 
         $actualConfig = Feature::silent('v6.8.0.0', fn () => $this->getConfigurationDeprecated($config));
 
@@ -298,7 +266,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testConfigurationNoFeatureFlag will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigurationNoFeatureFlagDeprecated(): void
     {
         $actualConfig = $this->getConfigurationDeprecated($this->getAppConfig());
@@ -316,7 +284,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testEmptyConfigThrowsError will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testEmptyConfigThrowsErrorDeprecated(): void
     {
         $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
@@ -331,7 +299,7 @@ class ConfigurationServiceTest extends TestCase
                 'title' => null,
                 'name' => null,
                 'cards' => [
-                    0 => [
+                    [
                         'title' => [
                             'en-GB' => 'Basic configuration',
                             'de-DE' => 'Grundeinstellungen',
@@ -368,7 +336,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testElementWithFlag will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testElementWithFlagDeprecated(): void
     {
         $config = [
@@ -399,16 +367,6 @@ class ConfigurationServiceTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $config = [
-                [
-                    'title' => null,
-                    'name' => null,
-                    'cards' => $config,
-                ],
-            ];
-        }
-
         $actualConfig = $this->getConfigurationDeprecated($config);
 
         static::assertSame([], $actualConfig[0]['elements']);
@@ -421,7 +379,7 @@ class ConfigurationServiceTest extends TestCase
                 'title' => null,
                 'name' => null,
                 'cards' => [
-                    0 => [
+                    [
                         'title' => [
                             'en-GB' => 'Basic configuration',
                         ],
@@ -446,7 +404,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testCacheRelevantMetadataIsExposedInElementConfig will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testCacheRelevantMetadataIsExposedInElementConfigDeprecated(): void
     {
         $config = [
@@ -464,16 +422,6 @@ class ConfigurationServiceTest extends TestCase
                 ],
             ],
         ];
-
-        if (Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $config = [
-                [
-                    'title' => null,
-                    'name' => null,
-                    'cards' => $config,
-                ],
-            ];
-        }
 
         $actualConfig = $this->getConfigurationDeprecated($config);
 
@@ -542,7 +490,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testConfigFromPlugin will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testConfigFromPluginDeprecated(): void
     {
         $config = [
@@ -667,7 +615,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testEnrichConfig will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testEnrichConfigDeprecated(): void
     {
         $config = [
@@ -755,7 +703,7 @@ class ConfigurationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testCheckConfigurationReturnsFalseOnXmlParsingException will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testCheckConfigurationReturnsFalseOnXmlParsingExceptionDeprecated(): void
     {
         $configReader = $this->createMock(ConfigReader::class);
@@ -851,11 +799,11 @@ class ConfigurationServiceTest extends TestCase
     private function getConfigWithoutValues(): array
     {
         return [
-            0 => new SystemConfigTab(
+            new SystemConfigTab(
                 [
-                    0 => new SystemConfigCard(
+                    new SystemConfigCard(
                         [
-                            0 => new SystemConfigElement(
+                            new SystemConfigElement(
                                 'SwagExampleTest.email',
                                 [
                                     'copyable' => true,
@@ -870,22 +818,22 @@ class ConfigurationServiceTest extends TestCase
                                 ],
                                 'text'
                             ),
-                            1 => new SystemConfigElement(
+                            new SystemConfigElement(
                                 'SwagExampleTest.withoutAnyConfig',
                                 [],
                                 'int'
                             ),
-                            2 => new SystemConfigElement(
+                            new SystemConfigElement(
                                 'SwagExampleTest.mailMethod',
                                 [
                                     'options' => [
-                                        0 => [
+                                        [
                                             'id' => 'smtp',
                                             'name' => [
                                                 'en-GB' => 'SMTP',
                                             ],
                                         ],
-                                        1 => [
+                                        [
                                             'id' => 'pop3',
                                             'name' => [
                                                 'en-GB' => 'POP3',
@@ -922,7 +870,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private function getConfigWithoutValuesDeprecated(): array
     {
-        $config = [
+        return [
             0 => [
                 'title' => [
                     'en-GB' => 'Basic configuration',
@@ -983,8 +931,6 @@ class ConfigurationServiceTest extends TestCase
                 'flag' => 'FEATURE_NEXT_101',
             ],
         ];
-
-        return $config;
     }
 
     /**

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
@@ -45,16 +44,36 @@ class SystemConfigControllerTest extends TestCase
     public function testCheckConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('checkSystemConfiguration')
+            ->willReturn(true);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $configurationService
-                ->method('checkSystemConfiguration')
-                ->willReturn(true);
-        } else {
-            $configurationService
-                ->method('checkConfiguration')
-                ->willReturn(true);
-        }
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->checkConfiguration($request, $context);
+
+        static::assertSame('true', $result->getContent());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testCheckConfiguration will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testCheckConfigurationDeprecated(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('checkConfiguration')
+            ->willReturn(true);
 
         $controller = new SystemConfigController(
             $configurationService,
@@ -75,16 +94,36 @@ class SystemConfigControllerTest extends TestCase
     public function testGetConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('getSystemConfiguration')
+            ->willReturn(['foo' => 'bar']);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $configurationService
-                ->method('getSystemConfiguration')
-                ->willReturn(['foo' => 'bar']);
-        } else {
-            $configurationService
-                ->method('getConfiguration')
-                ->willReturn(['foo' => 'bar']);
-        }
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->getConfiguration($request, $context);
+
+        static::assertSame('{"foo":"bar"}', $result->getContent());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testGetConfiguration will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testGetConfigurationDeprecated(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('getConfiguration')
+            ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
             $configurationService,
@@ -105,6 +144,32 @@ class SystemConfigControllerTest extends TestCase
     public function testGetConfigurationWithName(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('getSystemConfiguration')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', '');
+
+        $context = Context::createDefaultContext();
+
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
+        $controller->getConfiguration($request, $context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testGetConfigurationWithName will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testGetConfigurationWithNameDeprecated(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
         $configurationService
             ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);

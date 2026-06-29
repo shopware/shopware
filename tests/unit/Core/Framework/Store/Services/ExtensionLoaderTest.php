@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -37,30 +37,65 @@ class ExtensionLoaderTest extends TestCase
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('checkSystemConfiguration')
+            ->willReturnCallback(static function (string $domain): bool {
+                // Throw exception for the broken plugin
+                if ($domain === 'BrokenPlugin.config') {
+                    throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
+                }
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $configurationService
-                ->method('checkSystemConfiguration')
-                ->willReturnCallback(static function (string $domain): bool {
-                    // Throw exception for the broken plugin
-                    if ($domain === 'BrokenPlugin.config') {
-                        throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
-                    }
+                return true;
+            });
 
-                    return true;
-                });
-        } else {
-            $configurationService
-                ->method('checkConfiguration')
-                ->willReturnCallback(static function (string $domain): bool {
-                    // Throw exception for the broken plugin
-                    if ($domain === 'BrokenPlugin.config') {
-                        throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
-                    }
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error')
+            ->with(
+                'Failed to load plugin extension data',
+                static::callback(static function (array $context): bool {
+                    return $context['plugin'] === 'BrokenPlugin'
+                        && str_contains($context['exception'], 'Invalid XML');
+                })
+            );
 
-                    return true;
-                });
-        }
+        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+
+        $plugins = new PluginCollection([
+            $this->createPlugin('WorkingPlugin'),
+            $this->createPlugin('BrokenPlugin'),
+            $this->createPlugin('AnotherWorkingPlugin'),
+        ]);
+
+        $context = Context::createDefaultContext();
+        $extensions = $loader->loadFromPluginCollection($context, $plugins);
+
+        // Should have 2 extensions (WorkingPlugin and AnotherWorkingPlugin)
+        // BrokenPlugin should be skipped due to error
+        static::assertCount(2, $extensions);
+        static::assertTrue($extensions->has('WorkingPlugin'));
+        static::assertTrue($extensions->has('AnotherWorkingPlugin'));
+        static::assertFalse($extensions->has('BrokenPlugin'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testLoadFromPluginCollectionContinuesOnError will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testLoadFromPluginCollectionContinuesOnErrorDeprecated(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('checkConfiguration')
+            ->willReturnCallback(static function (string $domain): bool {
+                // Throw exception for the broken plugin
+                if ($domain === 'BrokenPlugin.config') {
+                    throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
+                }
+
+                return true;
+            });
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
@@ -96,12 +131,41 @@ class ExtensionLoaderTest extends TestCase
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService->method('checkSystemConfiguration')->willReturn(true);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            $configurationService->method('checkSystemConfiguration')->willReturn(true);
-        } else {
-            $configurationService->method('checkConfiguration')->willReturn(true);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+
+        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+
+        $plugins = new PluginCollection([
+            $this->createPlugin('Plugin1'),
+            $this->createPlugin('Plugin2'),
+            $this->createPlugin('Plugin3'),
+        ]);
+
+        $context = Context::createDefaultContext();
+        $extensions = $loader->loadFromPluginCollection($context, $plugins);
+
+        static::assertCount(3, $extensions);
+        static::assertTrue($extensions->has('Plugin1'));
+        static::assertTrue($extensions->has('Plugin2'));
+        static::assertTrue($extensions->has('Plugin3'));
+
+        foreach ($extensions as $extension) {
+            static::assertSame(ExtensionStruct::EXTENSION_TYPE_PLUGIN, $extension->getType());
+            static::assertTrue($extension->isConfigurable());
         }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
+    public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrorsDeprecated(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');

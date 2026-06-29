@@ -90,6 +90,24 @@ class TemplateDataSubscriberTest extends TestCase
         $this->subscriber->addHreflang($event);
     }
 
+    public function testAddHreflangSkippedForEsiRequest(): void
+    {
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.header');
+        $request->attributes->set('_esi', true);
+
+        $event = new StorefrontRenderEvent(
+            'test',
+            [],
+            $request,
+            Generator::generateSalesChannelContext()
+        );
+
+        $this->hreflangLoader->expects($this->never())->method('load');
+
+        $this->subscriber->addHreflang($event);
+    }
+
     public function testAddHreflangWithValidRoute(): void
     {
         $request = new Request();

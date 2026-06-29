@@ -3,7 +3,7 @@ import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
@@ -125,7 +125,10 @@ export default {
 
             criteria.getAssociation('properties').addSorting(Criteria.sort('name', 'ASC', true));
 
-            criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
+            criteria
+                .getAssociation('prices')
+                .addSorting(Criteria.sort('quantityStart', 'ASC', true))
+                .addAssociation('rule');
 
             criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));
 
@@ -812,6 +815,36 @@ export default {
             }, {});
         },
 
+        selectedPriceRules() {
+            const collection = new EntityCollection(this.ruleRepository.route, this.ruleRepository.entityName, Context.api);
+
+            if (!this.product?.prices?.length) {
+                return collection;
+            }
+
+            const seen = new Set();
+            this.product.prices.forEach((price) => {
+                if (!price.ruleId || seen.has(price.ruleId)) {
+                    return;
+                }
+                seen.add(price.ruleId);
+
+                const rule = this.rules?.find?.((r) => r.id === price.ruleId) ?? price.rule;
+                if (rule) {
+                    collection.push(rule);
+                    return;
+                }
+
+                collection.push({
+                    id: price.ruleId,
+                    name: price.ruleName,
+                    ruleName: price.ruleName,
+                });
+            });
+
+            return collection;
+        },
+
         hasPreferenceUnitsChanged() {
             return this.preferenceUnits.length !== this.lengthUnit || this.preferenceUnits.weight !== this.weightUnit;
         },
@@ -1392,63 +1425,72 @@ export default {
         },
 
         onRuleChange(rules) {
-            if (rules.length > this.product?.prices.length) {
-                const newPriceRule = this.priceRepository.create();
-
-                newPriceRule.productId = this.product?.id;
-                newPriceRule.quantityStart = 1;
-                newPriceRule.quantityEnd = null;
-                newPriceRule.currencyId = this.defaultCurrency.id;
-                newPriceRule.price = [
-                    {
-                        currencyId: this.defaultCurrency.id,
-                        gross: 0,
-                        linked: this.defaultPrice.linked,
-                        net: 0,
-                        listPrice: null,
-                        regulationPrice: null,
-                    },
-                ];
-
-                if (this.defaultPrice.listPrice) {
-                    newPriceRule.price[0].listPrice = {
-                        currencyId: this.defaultCurrency.id,
-                        gross: this.defaultPrice.listPrice.gross,
-                        linked: this.defaultPrice.listPrice.linked,
-                        net: this.defaultPrice.listPrice.net,
-                    };
-                }
-
-                if (this.defaultPrice.regulationPrice) {
-                    newPriceRule.price[0].regulationPrice = {
-                        currencyId: this.defaultCurrency.id,
-                        gross: this.defaultPrice.regulationPrice.gross,
-                        linked: this.defaultPrice.regulationPrice.linked,
-                        net: this.defaultPrice.regulationPrice.net,
-                    };
-                }
-
-                rules.forEach((rule) => {
-                    if (this.product?.prices.some((item) => item.ruleId === rule.ruleId)) {
-                        return;
-                    }
-
-                    newPriceRule.ruleId = rule.id;
-                    newPriceRule.ruleName = rule.name;
-
-                    this.product?.prices.add(newPriceRule);
-                });
-
+            if (!this.product?.prices) {
                 return;
             }
 
-            this.product?.prices.forEach((price) => {
-                if (rules.some((rule) => price.ruleId === rule.ruleId)) {
+            const selectedRuleIds = new Set(rules.map((rule) => rule.id));
+            const existingRuleIds = new Set(this.product.prices.map((price) => price.ruleId));
+
+            // Add price entries for newly selected rules
+            rules.forEach((rule) => {
+                if (existingRuleIds.has(rule.id)) {
                     return;
                 }
 
-                this.product?.prices.remove(price.id);
+                this.product.prices.add(this.createPriceRuleEntry(rule));
             });
+
+            // Remove price entries for rules that are no longer selected
+            this.product.prices.getIds().forEach((priceId) => {
+                const price = this.product.prices.get(priceId);
+                if (!price || selectedRuleIds.has(price.ruleId)) {
+                    return;
+                }
+
+                this.product.prices.remove(priceId);
+            });
+        },
+
+        createPriceRuleEntry(rule) {
+            const newPriceRule = this.priceRepository.create();
+
+            newPriceRule.productId = this.product?.id;
+            newPriceRule.quantityStart = 1;
+            newPriceRule.quantityEnd = null;
+            newPriceRule.currencyId = this.defaultCurrency.id;
+            newPriceRule.ruleId = rule.id;
+            newPriceRule.ruleName = rule.name;
+            newPriceRule.price = [
+                {
+                    currencyId: this.defaultCurrency.id,
+                    gross: 0,
+                    linked: this.defaultPrice.linked,
+                    net: 0,
+                    listPrice: null,
+                    regulationPrice: null,
+                },
+            ];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice.gross,
+                    linked: this.defaultPrice.listPrice.linked,
+                    net: this.defaultPrice.listPrice.net,
+                };
+            }
+
+            if (this.defaultPrice.regulationPrice) {
+                newPriceRule.price[0].regulationPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.regulationPrice.gross,
+                    linked: this.defaultPrice.regulationPrice.linked,
+                    net: this.defaultPrice.regulationPrice.net,
+                };
+            }
+
+            return newPriceRule;
         },
 
         onInheritanceRestore(item) {

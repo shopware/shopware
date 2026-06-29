@@ -1,0 +1,77 @@
+name: "PHPUnit integration run"
+description: "Set up Shopware and run a single integration shard (path or testsuite), then upload results to Codecov"
+author: "shopware AG"
+
+inputs:
+  php-version:
+    required: true
+    description: PHP version to set up
+  test-path:
+    default: ""
+    description: "tests/integration path to run (mutually exclusive with test-testsuite)"
+  test-testsuite:
+    default: ""
+    description: "PHPUnit testsuite to run (mutually exclusive with test-path)"
+  needs-opensearch:
+    default: "false"
+    description: "Wait for OpenSearch/Elasticsearch to be healthy before running (set for the Elasticsearch shard)"
+  codecov-token:
+    required: false
+    default: ""
+    description: "Codecov token for uploading test results (empty on fork PRs, where secrets are unavailable)"
+
+# Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
+# inherit it, so this action stays flag-agnostic.
+runs:
+  using: composite
+  steps:
+    - name: Setup Shopware
+      uses: shopware/setup-shopware@main
+      with:
+        php-version: ${{ inputs.php-version }}
+        mysql-version: "skip"
+        shopware-version: ${{ github.ref }}
+        shopware-repository: ${{ github.repository }}
+
+    - name: Wait for OpenSearch/Elasticsearch
+      if: ${{ inputs.needs-opensearch == 'true' }}
+      shell: bash
+      run: |
+          # Wait for OpenSearch/Elasticsearch to be alive
+          max_tries=30
+          tries=0
+          until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
+              if [ $tries -ge $max_tries ]; then
+                  echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
+                  exit 1
+              fi
+
+              echo "Waiting for OpenSearch/Elasticsearch to be ready..."
+              sleep 2
+              tries=$((tries + 1))
+          done
+
+    - name: Start Webserver
+      shell: bash
+      run: symfony server:start -d
+
+    - name: Install Shopware
+      shell: bash
+      run: php src/Core/TestBootstrap.php
+
+    - name: Run PHPUnit testsuite
+      if: ${{ inputs.test-testsuite != '' }}
+      shell: bash
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "${{ inputs.test-testsuite }}"
+
+    - name: Run PHPUnit path
+      if: ${{ inputs.test-path != '' }}
+      shell: bash
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ inputs.test-path }}
+
+    - name: Upload test results to Codecov
+      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics
+      if: ${{ !cancelled() && inputs.codecov-token != '' }}
+      uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
+      with:
+        token: ${{ inputs.codecov-token }}

@@ -153,6 +153,38 @@ Administration now reuses shared Pinia stores for current-user configuration and
 
 Custom Administration extensions that update these values outside the standard Shopware services should reload the affected view, invalidate the related store, or request a forced reload before expecting already mounted components to show the changed data.
 
+If your plugin updates current-user configuration, prefer writing through the store so the cache stays in sync:
+
+```js
+const userConfigStore = Shopware.Store.get('adminUserConfig');
+
+await userConfigStore.upsert({
+    'my-plugin.config-key': value,
+});
+```
+
+If your plugin updates `user_config` through another API path, invalidate the cached values before reading them again:
+
+```js
+const userConfigStore = Shopware.Store.get('adminUserConfig');
+
+userConfigStore.invalidate();
+
+const value = await userConfigStore.get('my-plugin.config-key');
+```
+
+For cached reference data, force a reload of the affected data or invalidate it so the next read fetches fresh data:
+
+```js
+const referenceDataStore = Shopware.Store.get('adminReferenceData');
+
+const currencies = await referenceDataStore.loadCurrencies(true);
+
+referenceDataStore.invalidateActiveLanguages();
+referenceDataStore.invalidateSalesChannelTypes();
+referenceDataStore.invalidateSystemCurrency();
+```
+
 ### Snippet inheritance from JSON language files
 
 The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.

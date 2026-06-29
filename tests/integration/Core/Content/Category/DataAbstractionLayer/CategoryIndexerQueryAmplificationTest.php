@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Content\Category\DataAbstractionLayer;
 
@@ -27,8 +25,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Reproduces https://github.com/shopware/shopware/issues/11442
- *
  * The amount of re-indexing a single category write triggers must scale with
  * that category's own subtree, not with the size of its parent's subtree. A
  * parent is only ever relevant for child-count recomputation and must never be

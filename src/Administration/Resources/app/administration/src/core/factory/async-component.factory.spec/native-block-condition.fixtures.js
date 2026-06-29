@@ -7,7 +7,7 @@ import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
-import createDataScopeFixture from 'src/app/component/structure/sw-block-override/test-utils/create-data-scope-fixture';
+import createDataScopeFixture from 'src/app/component/structure/sw-block-override/sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 export { ComponentFactory, mount };
 

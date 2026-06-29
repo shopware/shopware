@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import getBlockDataScope from '../sw-block/get-block-data-scope';
+import getBlockDataScope from '../../sw-block/get-block-data-scope';
 
 /**
  * @private

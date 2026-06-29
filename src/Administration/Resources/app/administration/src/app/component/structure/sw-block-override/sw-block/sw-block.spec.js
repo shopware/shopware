@@ -4,7 +4,7 @@
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
-import createDataScopeFixture from '../test-utils/create-data-scope-fixture';
+import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper({
     extensions = '',

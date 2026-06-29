@@ -122,7 +122,7 @@
 import { mount } from '@vue/test-utils';
 import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import '../../../../store/block-override.store';
-import createDataScopeFixture from '../test-utils/create-data-scope-fixture';
+import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 import { resetShimSlotState } from './create-shim-slot';
 
 /**

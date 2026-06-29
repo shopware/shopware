@@ -11,7 +11,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: [
         'update:value',
-        'input-change',
         'link-change',
     ],
 
@@ -77,10 +76,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        classes(): Record<string, boolean> {
+        classes(): Record<string, string> {
             return {
-                'sw-vector-field': true,
-                [`sw-vector-field--${this.variant}`]: true,
+                'sw-vector-field': 'true',
+                [`sw-vector-field--${this.variant}`]: 'true',
             };
         },
     },
@@ -119,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        onChange(event: Event, axis: 'x' | 'y' | 'z') {
+        onChange(event: Event, axis: 'x' | 'y') {
             this.updateCurrentValue(event, axis);
             this.$emit('update:value', this.currentValue);
         },
@@ -144,7 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
             const newValue = { ...this.currentValue };
             newValue[axis] = Number(event);
-            this.$emit('input-change', newValue);
+            //this.$emit('input-change', newValue);
         },
 
         updateCurrentValue(event: Event, axis: 'x' | 'y' | 'z') {

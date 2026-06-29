@@ -20,7 +20,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         removable: {
-            type: Boolean,
+            type: String,
             required: false,
             default() {
                 return false;
@@ -29,20 +29,27 @@ export default Shopware.Component.wrapComponentConfig({
 
         duplicable: {
             type: Boolean,
-            required: false,
+            required: true,
             default() {
                 return true;
             },
         },
+
+        added: {
+            type: String,
+            required: true,
+        }
     },
 
     methods: {
-        onBlockDuplicate() {
+        onBlockDuplicate(addedRequiredParam: string) {
+            if (addedRequiredParam) return;
             this.$emit('block-duplicate', this.block);
         },
 
-        onBlockDelete() {
+        onBlockDelete(): boolean {
             this.$emit('block-delete', this.block);
+            return true;
         },
     },
 });

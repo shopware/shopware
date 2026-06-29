@@ -141,6 +141,14 @@ When a paginated OneToMany association was loaded with both `setLimit()` and a s
 
 No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
 
+### Added `--no-scaffold` flag to `plugin:create` command
+
+The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that skips all optional scaffold generators, producing only the minimal required plugin skeleton.
+
+```bash
+bin/console plugin:create MyPlugin MyNamespace --no-scaffold
+```
+
 ## API
 
 ### Purchase prices removed from Store API order line item payloads

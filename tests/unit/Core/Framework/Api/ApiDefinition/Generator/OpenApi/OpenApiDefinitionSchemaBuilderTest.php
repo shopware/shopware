@@ -159,6 +159,24 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayNotHasKey('data', $createProperties['extensions']['properties']['simpleIdField']);
     }
 
+    public function testRequestExtensionConversionSkipsMissingAssociationSchema(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinitionWithRequestSchemas(
+            $this->definitionRegistry->get(SimpleExtendedDefinition::class),
+            '/simple-extended',
+            false,
+            false,
+            'jsonapi',
+            [SimpleExtendedDefinition::ENTITY_NAME => true]
+        );
+        $createSchema = json_decode($schema['SimpleExtendedCreate']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $createProperties = $createSchema['properties'];
+
+        static::assertArrayHasKey('extensions', $createProperties);
+        static::assertArrayHasKey('extendedJsonField', $createProperties['extensions']['properties']);
+        static::assertArrayNotHasKey('simpleIdField', $createProperties['extensions']['properties']);
+    }
+
     public function testRequestSchemaWithOnlyTechnicalFieldsHasNoPropertiesArray(): void
     {
         $schema = $this->schemaBuilder->getSchemaByDefinitionWithRequestSchemas(

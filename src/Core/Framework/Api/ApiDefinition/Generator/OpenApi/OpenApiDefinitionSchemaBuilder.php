@@ -81,6 +81,8 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
+     * @param array<string, true>|null $availableRequestSchemaEntityNames
+     *
      * @return array<string, Schema>
      */
     public function getSchemaByDefinitionWithRequestSchemas(
@@ -88,12 +90,15 @@ class OpenApiDefinitionSchemaBuilder
         string $path,
         bool $forSalesChannel,
         bool $onlyFlat = false,
-        string $apiType = DefinitionService::TYPE_JSON_API
+        string $apiType = DefinitionService::TYPE_JSON_API,
+        ?array $availableRequestSchemaEntityNames = null
     ): array {
-        return $this->buildSchemaByDefinition($definition, $path, $forSalesChannel, $onlyFlat, $apiType, true);
+        return $this->buildSchemaByDefinition($definition, $path, $forSalesChannel, $onlyFlat, $apiType, true, $availableRequestSchemaEntityNames);
     }
 
     /**
+     * @param array<string, true>|null $availableRequestSchemaEntityNames
+     *
      * @return array<string, Schema>
      */
     private function buildSchemaByDefinition(
@@ -102,7 +107,8 @@ class OpenApiDefinitionSchemaBuilder
         bool $forSalesChannel,
         bool $onlyFlat,
         string $apiType,
-        bool $includeRequestSchemas
+        bool $includeRequestSchemas,
+        ?array $availableRequestSchemaEntityNames = null
     ): array {
         $schema = [];
         $attributes = [];
@@ -214,7 +220,16 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $extensionRequestAttributes[$extension->getPropertyName()] = $this->getRelationShipProperty($extensionAttributes[$extension->getPropertyName()]);
+                $extensionAttribute = $extensionAttributes[$extension->getPropertyName()];
+                $extensionEntityName = $this->getRelationShipEntity($extensionAttribute);
+
+                if ($availableRequestSchemaEntityNames !== null && !isset($availableRequestSchemaEntityNames[$extensionEntityName])) {
+                    unset($extensionRequestAttributes[$extension->getPropertyName()]);
+
+                    continue;
+                }
+
+                $extensionRequestAttributes[$extension->getPropertyName()] = $this->getRelationShipProperty($extensionAttribute);
             }
         }
 
@@ -237,7 +252,7 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
-        if ($extensionAttributes !== []) {
+        if ($extensionRequestAttributes !== []) {
             $requestAttributes[] = new Property([
                 'property' => 'extensions',
                 'type' => 'object',

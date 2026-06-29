@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\HiddenDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\HiddenExtendedDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -137,5 +140,57 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('Presentation', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
         static::assertSame('Experimental', $schema['tags'][0]['name'] ?? null);
+    }
+
+    public function testRequestExtensionAssociationIsSkippedWhenReferenceSchemaIsUnavailable(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                SimpleDefinition::class,
+                SimpleExtendedDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = $this->generator->generate(
+            [
+                SimpleExtendedDefinition::ENTITY_NAME => $definitionRegistry->get(SimpleExtendedDefinition::class),
+            ],
+            DefinitionService::API
+        );
+
+        $entities = $schema['components']['schemas'];
+        $extensionProperties = $entities['SimpleExtendedCreate']['properties']['extensions']['properties'];
+
+        static::assertArrayHasKey('SimpleExtended', $entities);
+        static::assertArrayNotHasKey('Simple', $entities);
+        static::assertArrayHasKey('extendedJsonField', $extensionProperties);
+        static::assertArrayNotHasKey('simpleIdField', $extensionProperties);
+    }
+
+    public function testRequestExtensionAssociationIsSkippedWhenReferenceSchemaIsNotGenerated(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                HiddenDefinition::class,
+                HiddenExtendedDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = $this->generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::API
+        );
+
+        $entities = $schema['components']['schemas'];
+        $extensionProperties = $entities['HiddenExtendedCreate']['properties']['extensions']['properties'];
+
+        static::assertArrayHasKey('HiddenExtended', $entities);
+        static::assertArrayNotHasKey('VersionHidden', $entities);
+        static::assertArrayHasKey('extendedJsonField', $extensionProperties);
+        static::assertArrayNotHasKey('hidden', $extensionProperties);
     }
 }

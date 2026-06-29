@@ -118,6 +118,27 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
         static::assertSame(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'], Breakpoint::values());
     }
 
+    #[DataProvider('allSevenOptionsProvider')]
+    #[TestDox('marks $name as breakpoint-aware')]
+    public function testAllShippedOptionsAreBreakpointAware(string $name): void
+    {
+        static::assertTrue($this->builtIns[$name]->breakpointAware());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function allSevenOptionsProvider(): iterable
+    {
+        yield 'col-span' => ['col-span'];
+        yield 'row-span' => ['row-span'];
+        yield 'margin' => ['margin'];
+        yield 'padding' => ['padding'];
+        yield 'display' => ['display'];
+        yield 'align-self' => ['align-self'];
+        yield 'justify-self' => ['justify-self'];
+    }
+
     /**
      * @return array<string, StyleOptionSpecification>
      */

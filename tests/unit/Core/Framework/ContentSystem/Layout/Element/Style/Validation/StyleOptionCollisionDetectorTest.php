@@ -62,7 +62,7 @@ class StyleOptionCollisionDetectorTest extends TestCase
     {
         $options = [];
         foreach ($registered as $name => $source) {
-            $options[$name] = new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), null, $source);
+            $options[$name] = new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), true, null, $source);
         }
 
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);

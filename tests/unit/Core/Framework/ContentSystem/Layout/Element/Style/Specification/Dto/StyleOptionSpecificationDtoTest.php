@@ -18,7 +18,7 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('maps every declared facet plus the supplied name and source onto the specification')]
     public function testMapsFieldsOntoSpecification(): void
     {
-        $dto = new StyleOptionSpecificationDto('string', ['start', 'end'], null, 64, 'start', ['component' => 'select']);
+        $dto = new StyleOptionSpecificationDto('string', ['start', 'end'], null, 64, 'start', null, ['component' => 'select']);
 
         $spec = $dto->toStyleOptionSpecification('align-self', 'core');
 
@@ -38,7 +38,7 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('narrows raw range $_dataName onto the value type')]
     public function testNarrowsRange(mixed $rawRange, ?array $expected): void
     {
-        $dto = new StyleOptionSpecificationDto('integer', null, $rawRange, null, null, null);
+        $dto = new StyleOptionSpecificationDto('integer', null, $rawRange, null, null, null, null);
 
         static::assertSame($expected, $dto->toStyleOptionSpecification('col-span', 'core')->valueType()->range());
     }
@@ -46,7 +46,7 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-array enum to null on the value type')]
     public function testNarrowsNonArrayEnumToNull(): void
     {
-        $dto = new StyleOptionSpecificationDto('string', 'not-an-array', null, null, null, null);
+        $dto = new StyleOptionSpecificationDto('string', 'not-an-array', null, null, null, null, null);
 
         static::assertNull($dto->toStyleOptionSpecification('align-self', 'core')->valueType()->enum());
     }
@@ -54,7 +54,7 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('narrows a non-scalar default to null on the value type')]
     public function testNarrowsNonScalarDefaultToNull(): void
     {
-        $dto = new StyleOptionSpecificationDto('integer', null, null, null, ['not', 'a', 'scalar'], null);
+        $dto = new StyleOptionSpecificationDto('integer', null, null, null, ['not', 'a', 'scalar'], null, null);
 
         static::assertNull($dto->toStyleOptionSpecification('col-span', 'core')->valueType()->default());
     }
@@ -62,7 +62,7 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('collapses an empty adminUI map to null on the schema')]
     public function testCollapsesEmptyAdminUiToNull(): void
     {
-        $dto = new StyleOptionSpecificationDto('boolean', null, null, null, null, []);
+        $dto = new StyleOptionSpecificationDto('boolean', null, null, null, null, null, []);
 
         static::assertNull($dto->toStyleOptionSpecification('display', 'core')->toSchema()['adminUI']);
     }
@@ -75,9 +75,28 @@ class StyleOptionSpecificationDtoTest extends TestCase
     #[TestDox('narrows raw maxLength $_dataName onto the value type')]
     public function testNarrowsMaxLength(mixed $rawMaxLength, int $expected): void
     {
-        $dto = new StyleOptionSpecificationDto('string', null, null, $rawMaxLength, null, null);
+        $dto = new StyleOptionSpecificationDto('string', null, null, $rawMaxLength, null, null, null);
 
         static::assertSame($expected, $dto->toStyleOptionSpecification('margin', 'core')->valueType()->maxLength());
+    }
+
+    #[DataProvider('narrowsBreakpointAwareProvider')]
+    #[TestDox('narrows raw breakpointAware $_dataName onto the specification')]
+    public function testNarrowsBreakpointAware(mixed $rawBreakpointAware, bool $expected): void
+    {
+        $dto = new StyleOptionSpecificationDto('string', null, null, null, null, $rawBreakpointAware, null);
+
+        static::assertSame($expected, $dto->toStyleOptionSpecification('x', 'core')->breakpointAware());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, bool}>
+     */
+    public static function narrowsBreakpointAwareProvider(): iterable
+    {
+        yield 'null (absent) defaults to true' => [null, true];
+        yield 'false is preserved' => [false, false];
+        yield 'true is preserved' => [true, true];
     }
 
     /**

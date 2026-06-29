@@ -107,6 +107,6 @@ class CachedContentSystemStyleOptionRegistryTest extends TestCase
 
     private function option(string $name): StyleOptionSpecification
     {
-        return new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), null, 'core');
+        return new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), true, null, 'core');
     }
 }

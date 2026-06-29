@@ -39,7 +39,7 @@ class ElementStyleFieldSerializerTest extends TestCase
 
     /**
      * @param array<string, mixed> $input
-     * @param array<string, array<string, scalar>> $expected
+     * @param array<string, scalar|array<string, scalar>> $expected
      */
     #[DataProvider('deserializeProvider')]
     #[TestDox('$_dataName')]
@@ -49,7 +49,7 @@ class ElementStyleFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, array<string, array<string, scalar>>}>
+     * @return iterable<string, array{array<string, mixed>, array<string, scalar|array<string, scalar>>}>
      */
     public static function deserializeProvider(): iterable
     {
@@ -73,9 +73,14 @@ class ElementStyleFieldSerializerTest extends TestCase
             [],
         ];
 
-        yield 'drops an option whose value is a scalar rather than a breakpoint map' => [
+        yield 'keeps a flat scalar value verbatim' => [
             ['col-span' => 6],
-            [],
+            ['col-span' => 6],
+        ];
+
+        yield 'keeps a flat boolean false verbatim' => [
+            ['flat-flag' => false],
+            ['flat-flag' => false],
         ];
 
         yield 'yields an empty style for an empty map' => [
@@ -97,14 +102,6 @@ class ElementStyleFieldSerializerTest extends TestCase
     public function testDecodeReturnsNullForNull(): void
     {
         static::assertNull($this->serializer()->decode($this->field, null));
-    }
-
-    #[TestDox('decode rejects a field that is not an ElementStyleField')]
-    public function testDecodeRejectsWrongField(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::invalidFieldType(ElementStyleField::class, StringField::class));
-
-        $this->serializer()->decode(new StringField('x', 'x'), []);
     }
 
     #[TestDox('encode yields the JSON-encoded array for an ElementStyle value')]
@@ -132,6 +129,70 @@ class ElementStyleFieldSerializerTest extends TestCase
 
         static::assertArrayHasKey('style', $result);
         static::assertNull($result['style']);
+    }
+
+    /**
+     * @param array<string, mixed> $style
+     */
+    #[DataProvider('acceptsValidStyleProvider')]
+    #[TestDox('accepts $_dataName')]
+    public function testAcceptsValidStyle(array $style): void
+    {
+        static::assertCount(0, $this->validate($style));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function acceptsValidStyleProvider(): iterable
+    {
+        yield 'an integer span within range' => [['col-span' => ['md' => 6]]];
+        yield 'a boolean display set to false' => [['display' => ['xs' => false]]];
+        yield 'an enum value from the option vocabulary' => [['align-self' => ['lg' => 'center']]];
+        yield 'a string within maxLength' => [['margin' => ['md' => '0 8px']]];
+        yield 'an empty style' => [[]];
+        yield 'a flat integer option sent as a scalar' => [['z-index' => 10]];
+        yield 'a flat string option within its maxLength' => [['flat-label' => 'short']];
+        yield 'coexisting flat and breakpoint-aware options' => [['z-index' => 10, 'col-span' => ['md' => 6]]];
+    }
+
+    #[TestDox('builds constraints fresh on each call so a changed registry is reflected on the next write')]
+    public function testBuildConstraintsDerivesFreshPerCall(): void
+    {
+        // An app install/update/activation that changed the option set must take effect
+        // on the next write without a process restart, so each call re-reads the registry (never memoizes).
+        // assertCount(0, $afterChange) below already fails if constraints are memoized, so the call
+        // count needs no separate expectation; a stub returning a changed set on the second call suffices.
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturnOnConsecutiveCalls(
+            ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), true, null, 'core')],
+            ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), true, null, 'core')],
+        );
+
+        $serializer = new ElementStyleFieldSerializer(
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $registry,
+            new StyleOptionConstraintDeriver(),
+        );
+
+        $validator = Validation::createValidatorBuilder()->getValidator();
+        $style = ['display' => ['xs' => false]];
+        // The first registry has no `display` option (the write is rejected); after the registry changes to
+        // include it, the very next buildConstraints() accepts the same write.
+        $beforeChange = $validator->validate($style, $serializer->buildConstraints($this->field));
+        $afterChange = $validator->validate($style, $serializer->buildConstraints($this->field));
+
+        static::assertGreaterThanOrEqual(1, $beforeChange->count());
+        static::assertCount(0, $afterChange);
+    }
+
+    #[TestDox('decode rejects a field that is not an ElementStyleField')]
+    public function testDecodeRejectsWrongField(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldType(ElementStyleField::class, StringField::class));
+
+        $this->serializer()->decode(new StringField('x', 'x'), []);
     }
 
     #[TestDox('encode throws an invalid value type for a non-array non-ElementStyle value')]
@@ -163,28 +224,6 @@ class ElementStyleFieldSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $style
      */
-    #[DataProvider('acceptsValidStyleProvider')]
-    #[TestDox('accepts $_dataName')]
-    public function testAcceptsValidStyle(array $style): void
-    {
-        static::assertCount(0, $this->validate($style));
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function acceptsValidStyleProvider(): iterable
-    {
-        yield 'an integer span within range' => [['col-span' => ['md' => 6]]];
-        yield 'a boolean display set to false' => [['display' => ['xs' => false]]];
-        yield 'an enum value from the option vocabulary' => [['align-self' => ['lg' => 'center']]];
-        yield 'a string within maxLength' => [['margin' => ['md' => '0 8px']]];
-        yield 'an empty style' => [[]];
-    }
-
-    /**
-     * @param array<string, mixed> $style
-     */
     #[DataProvider('rejectsInvalidStyleProvider')]
     #[TestDox('rejects $_dataName with a violation at $expectedPath')]
     public function testRejectsInvalidStyle(array $style, string $expectedPath): void
@@ -208,37 +247,9 @@ class ElementStyleFieldSerializerTest extends TestCase
         yield 'a non-integer value for an integer option' => [['col-span' => ['md' => 'six']], '[col-span][md]'];
         yield 'an enum value outside the vocabulary' => [['align-self' => ['md' => 'sideways']], '[align-self][md]'];
         yield 'a string exceeding maxLength' => [['margin' => ['md' => 'this-value-is-way-too-long']], '[margin][md]'];
-    }
-
-    #[TestDox('builds constraints fresh on each call so a changed registry is reflected on the next write')]
-    public function testBuildConstraintsDerivesFreshPerCall(): void
-    {
-        // An app install/update/activation that changed the option set must take effect
-        // on the next write without a process restart, so each call re-reads the registry (never memoizes).
-        // assertCount(0, $afterChange) below already fails if constraints are memoized, so the call
-        // count needs no separate expectation; a stub returning a changed set on the second call suffices.
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturnOnConsecutiveCalls(
-            ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), null, 'core')],
-            ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), null, 'core')],
-        );
-
-        $serializer = new ElementStyleFieldSerializer(
-            static::createStub(ValidatorInterface::class),
-            static::createStub(DefinitionInstanceRegistry::class),
-            $registry,
-            new StyleOptionConstraintDeriver(),
-        );
-
-        $validator = Validation::createValidatorBuilder()->getValidator();
-        $style = ['display' => ['xs' => false]];
-        // The first registry has no `display` option (the write is rejected); after the registry changes to
-        // include it, the very next buildConstraints() accepts the same write.
-        $beforeChange = $validator->validate($style, $serializer->buildConstraints($this->field));
-        $afterChange = $validator->validate($style, $serializer->buildConstraints($this->field));
-
-        static::assertGreaterThanOrEqual(1, $beforeChange->count());
-        static::assertCount(0, $afterChange);
+        yield 'a flat integer option sent as a breakpoint map' => [['z-index' => ['md' => 10]], '[z-index]'];
+        yield 'a breakpoint-aware option sent as a bare scalar' => [['col-span' => 6], '[col-span]'];
+        yield 'a flat string option exceeding its maxLength' => [['flat-label' => '123456789'], '[flat-label]'];
     }
 
     /**
@@ -301,10 +312,12 @@ class ElementStyleFieldSerializerTest extends TestCase
     private function options(): array
     {
         return [
-            'col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), null, 'core'),
-            'align-self' => new StyleOptionSpecification('align-self', new StyleOptionValueType('string', ['auto', 'start', 'center'], null, null, 'auto'), null, 'core'),
-            'margin' => new StyleOptionSpecification('margin', new StyleOptionValueType('string', null, null, 8, null), null, 'core'),
-            'display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), null, 'core'),
+            'col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), true, null, 'core'),
+            'align-self' => new StyleOptionSpecification('align-self', new StyleOptionValueType('string', ['auto', 'start', 'center'], null, null, 'auto'), true, null, 'core'),
+            'margin' => new StyleOptionSpecification('margin', new StyleOptionValueType('string', null, null, 8, null), true, null, 'core'),
+            'display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), true, null, 'core'),
+            'z-index' => new StyleOptionSpecification('z-index', new StyleOptionValueType('integer', null, null, null, null), false, null, 'core'),
+            'flat-label' => new StyleOptionSpecification('flat-label', new StyleOptionValueType('string', null, null, 8, null), false, null, 'core'),
         ];
     }
 }

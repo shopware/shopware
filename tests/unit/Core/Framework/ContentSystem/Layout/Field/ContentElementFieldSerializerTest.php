@@ -42,7 +42,9 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -576,8 +578,7 @@ class ContentElementFieldSerializerTest extends TestCase
             'style' => ['col-span' => ['md' => 6]],
         ];
 
-        $violations = Validation::createValidatorBuilder()->getValidator()
-            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
 
         static::assertCount(0, $violations);
     }
@@ -604,11 +605,24 @@ class ContentElementFieldSerializerTest extends TestCase
             'style' => ['made-up-option' => ['md' => 6]],
         ];
 
-        $violations = Validation::createValidatorBuilder()->getValidator()
-            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
 
         static::assertGreaterThanOrEqual(1, $violations->count());
         static::assertSame('[style][made-up-option]', $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * Validates $element against the constraints produced by a freshly-built ContentElementField,
+     * using a real Symfony validator. Both style-option tests share this act phase verbatim.
+     *
+     * @param array<string, mixed> $element
+     *
+     * @return ConstraintViolationListInterface<ConstraintViolationInterface>
+     */
+    private function validateElementAgainstContentElementFieldConstraints(array $element): ConstraintViolationListInterface
+    {
+        return Validation::createValidatorBuilder()->getValidator()
+            ->validate($element, $this->serializer->buildConstraints($this->createContentElementField()));
     }
 
     private function createContentElementField(): ContentElementField
@@ -729,6 +743,7 @@ class ContentElementFieldSerializerTest extends TestCase
             'col-span' => new StyleOptionSpecification(
                 'col-span',
                 new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null),
+                true,
                 null,
                 'core',
             ),

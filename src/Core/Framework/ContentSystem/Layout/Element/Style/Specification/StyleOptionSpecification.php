@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  *     range: array{min?: int|float, max?: int|float}|null,
  *     maxLength: int|null,
  *     default: string|int|float|bool|null,
+ *     breakpointAware: bool,
  *     adminUI: array<string, mixed>|null
  * }
  */
@@ -29,6 +30,7 @@ final readonly class StyleOptionSpecification
     public function __construct(
         private string $name,
         private StyleOptionValueType $valueType,
+        private bool $breakpointAware,
         private ?array $adminUI,
         private string $source = '',
     ) {
@@ -44,6 +46,11 @@ final readonly class StyleOptionSpecification
         return $this->valueType;
     }
 
+    public function breakpointAware(): bool
+    {
+        return $this->breakpointAware;
+    }
+
     public function source(): string
     {
         return $this->source;
@@ -56,6 +63,7 @@ final readonly class StyleOptionSpecification
     {
         return [
             ...$this->valueType->toSchema(),
+            'breakpointAware' => $this->breakpointAware,
             'adminUI' => $this->adminUI,
         ];
     }

@@ -14,12 +14,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 #[CoversClass(StyleOptionSpecification::class)]
 class StyleOptionSpecificationTest extends TestCase
 {
-    #[TestDox('merges the value-type schema with the adminUI hints, omits name and source, and keeps the adminUI key present even when null')]
-    public function testToSchemaMergesValueTypeAndAdminUi(): void
+    #[TestDox('merges value-type schema with adminUI hints and omits name and source when adminUI is present')]
+    public function testToSchemaIncludesAdminUiWhenPresent(): void
     {
         $specWithAdminUi = new StyleOptionSpecification(
             'align-self',
             new StyleOptionValueType('string', ['start', 'center', 'end'], null, null, 'start'),
+            true,
             ['component' => 'select'],
             'core',
         );
@@ -31,21 +32,35 @@ class StyleOptionSpecificationTest extends TestCase
                 'range' => null,
                 'maxLength' => StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH,
                 'default' => 'start',
+                'breakpointAware' => true,
                 'adminUI' => ['component' => 'select'],
             ],
             $specWithAdminUi->toSchema(),
         );
+    }
 
+    #[TestDox('keeps the adminUI key in the schema as null when no adminUI block is provided')]
+    public function testToSchemaOmitsAdminUiWhenAbsent(): void
+    {
         $specWithoutAdminUi = new StyleOptionSpecification(
             'display',
             new StyleOptionValueType('boolean', null, null, null, null),
+            false,
             null,
             'core',
         );
 
-        $schema = $specWithoutAdminUi->toSchema();
-
-        static::assertArrayHasKey('adminUI', $schema);
-        static::assertNull($schema['adminUI']);
+        static::assertSame(
+            [
+                'type' => 'boolean',
+                'enum' => null,
+                'range' => null,
+                'maxLength' => null,
+                'default' => null,
+                'breakpointAware' => false,
+                'adminUI' => null,
+            ],
+            $specWithoutAdminUi->toSchema(),
+        );
     }
 }

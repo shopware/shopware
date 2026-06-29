@@ -27,7 +27,7 @@
                                             "description": "Map of style option wire name to its specification. Every option is settable on every element.",
                                             "additionalProperties": {
                                                 "type": "object",
-                                                "required": ["type", "enum", "range", "maxLength", "default", "adminUI"],
+                                                "required": ["type", "enum", "range", "maxLength", "default", "adminUI", "breakpointAware"],
                                                 "properties": {
                                                     "type": {
                                                         "type": "string",
@@ -63,6 +63,10 @@
                                                     "adminUI": {
                                                         "type": ["object", "null"],
                                                         "description": "Opaque admin UI hints passed through verbatim."
+                                                    },
+                                                    "breakpointAware": {
+                                                        "type": "boolean",
+                                                        "description": "Whether the option's value is set per breakpoint (an object keyed by xs, sm, md, lg, xl, xxl) or a single flat value."
                                                     }
                                                 }
                                             }

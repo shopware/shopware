@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ElementStyle
 {
     /**
-     * @param array<string, array<string, string|int|float|bool>> $values
+     * @param array<string, string|int|float|bool|array<string, string|int|float|bool>> $values
      */
     public function __construct(
         private array $values = [],
@@ -25,7 +25,7 @@ final readonly class ElementStyle
     }
 
     /**
-     * @return array<string, array<string, string|int|float|bool>>
+     * @return array<string, string|int|float|bool|array<string, string|int|float|bool>>
      */
     public function toArray(): array
     {

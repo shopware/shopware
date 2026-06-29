@@ -34,6 +34,35 @@ class DatabaseStyleOptionLoaderTest extends TestCase
         static::assertSame('integer', $options[0]->valueType()->type());
     }
 
+    #[TestDox('loads a flat option with breakpointAware=false when the schema column declares it')]
+    public function testLoadsFlatOptionBreakpointAwareFalse(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => 'brand-flat', 'schema' => json_encode(['type' => 'integer', 'breakpointAware' => false]), 'app_name' => 'Acme'],
+        ]);
+
+        $options = $this->loader($connection, 'prod')->load();
+
+        static::assertCount(1, $options);
+        static::assertSame('brand-flat', $options[0]->name());
+        static::assertFalse($options[0]->breakpointAware());
+    }
+
+    #[TestDox('loads an option as breakpointAware=true when the schema column omits the key')]
+    public function testLoadsBreakpointAwareTrueWhenKeyAbsent(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => 'col-span', 'schema' => json_encode(['type' => 'integer', 'range' => ['min' => 1, 'max' => 12]]), 'app_name' => 'Acme'],
+        ]);
+
+        $options = $this->loader($connection, 'prod')->load();
+
+        static::assertCount(1, $options);
+        static::assertTrue($options[0]->breakpointAware());
+    }
+
     #[TestDox('returns nothing in dev, where app options load from the filesystem instead')]
     public function testReturnsEmptyInDev(): void
     {

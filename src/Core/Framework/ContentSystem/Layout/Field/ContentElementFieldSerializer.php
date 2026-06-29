@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   slots?: array<string, list<array<string, mixed>>>,
  *   provides_context?: array<string, array<string, mixed>>,
  *   accepts_context?: array<string, ContextConsumerData>,
- *   style?: array<string, array<string, string|int|float|bool>>
+ *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>
  * }
  *
  * @internal

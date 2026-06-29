@@ -62,11 +62,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     #[TestDox('inserts a new option, writing the serialized schema and content hash as the payload')]
     public function testInsertsNewOptionWritesExpectedPayload(): void
     {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new AppContentSystemStyleOptionCollection(),
-            new AppContentSystemStyleOptionCollection(),
-        ]);
+        $repo = $this->createEmptyRepository();
 
         $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext());
@@ -82,54 +78,6 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         static::assertIsString($payload['id']);
         static::assertSame($normalized, $payload['schema']);
         static::assertSame(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)), $payload['hash']);
-    }
-
-    #[TestDox('queries the stored options for the installing app by app id')]
-    public function testQueriesExistingOptionsByAppId(): void
-    {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
-                static::assertCount(1, $criteria->getFilters());
-                $filter = $criteria->getFilters()[0];
-                static::assertInstanceOf(EqualsFilter::class, $filter);
-                static::assertSame('appId', $filter->getField());
-                static::assertSame($this->ids->get('app'), $filter->getValue());
-
-                return new AppContentSystemStyleOptionCollection();
-            },
-            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
-        ]);
-
-        $this->buildPersister($repo)->persist($this->buildContext());
-
-        // Proves the flow ran through to the upsert, so the search callback above actually fired.
-        static::assertCount(1, $repo->upserts);
-    }
-
-    #[TestDox('queries inactive app options excluding the installing app during collision detection')]
-    public function testQueriesInactiveOptionsExcludingSelf(): void
-    {
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
-            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
-            static function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
-                $filters = $criteria->getFilters();
-                static::assertCount(2, $filters);
-                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('app.active', $filters[0]->getField());
-                static::assertFalse($filters[0]->getValue());
-                static::assertInstanceOf(NotFilter::class, $filters[1]);
-                static::assertArrayHasKey('app', $criteria->getAssociations());
-
-                return new AppContentSystemStyleOptionCollection();
-            },
-        ]);
-
-        $this->buildPersister($repo)->persist($this->buildContext());
-
-        // Proves the flow ran through to the upsert, so the collision-check callback above actually fired.
-        static::assertCount(1, $repo->upserts);
     }
 
     #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
@@ -203,6 +151,78 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
 
         static::assertCount(1, $repo->deletes);
         static::assertSame([['id' => $this->ids->get('opt-old')]], $repo->deletes[0]);
+    }
+
+    #[TestDox('persists breakpointAware=false in the schema column for a flat option')]
+    public function testPersistsFlatOptionBreakpointAwareFalseInSchema(): void
+    {
+        $flat = new ResolvedStyleOptionSpecificationDto(
+            'brand-flat',
+            'app:DemoApp',
+            new StyleOptionSpecificationDto('integer', null, null, null, null, false, null),
+        );
+
+        $loader = static::createStub(YamlStyleOptionLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$flat]);
+
+        $repo = $this->createEmptyRepository();
+
+        $persister = $this->buildPersister($repo, loader: $loader);
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+        $payload = $repo->upserts[0][0];
+        static::assertSame('brand-flat', $payload['name']);
+        static::assertSame(['type' => 'integer', 'breakpointAware' => false], $payload['schema']);
+        static::assertSame(Hasher::hash(json_encode($payload['schema'], \JSON_THROW_ON_ERROR)), $payload['hash']);
+    }
+
+    #[TestDox('queries the stored options for the installing app by app id')]
+    public function testQueriesExistingOptionsByAppId(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
+                static::assertCount(1, $criteria->getFilters());
+                $filter = $criteria->getFilters()[0];
+                static::assertInstanceOf(EqualsFilter::class, $filter);
+                static::assertSame('appId', $filter->getField());
+                static::assertSame($this->ids->get('app'), $filter->getValue());
+
+                return new AppContentSystemStyleOptionCollection();
+            },
+            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $this->buildPersister($repo)->persist($this->buildContext());
+
+        // Proves the flow ran through to the upsert, so the search callback above actually fired.
+        static::assertCount(1, $repo->upserts);
+    }
+
+    #[TestDox('queries inactive app options excluding the installing app during collision detection')]
+    public function testQueriesInactiveOptionsExcludingSelf(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            static fn (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection => new AppContentSystemStyleOptionCollection(),
+            static function (Criteria $criteria, Context $context): AppContentSystemStyleOptionCollection {
+                $filters = $criteria->getFilters();
+                static::assertCount(2, $filters);
+                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                static::assertSame('app.active', $filters[0]->getField());
+                static::assertFalse($filters[0]->getValue());
+                static::assertInstanceOf(NotFilter::class, $filters[1]);
+                static::assertArrayHasKey('app', $criteria->getAssociations());
+
+                return new AppContentSystemStyleOptionCollection();
+            },
+        ]);
+
+        $this->buildPersister($repo)->persist($this->buildContext());
+
+        // Proves the flow ran through to the upsert, so the collision-check callback above actually fired.
+        static::assertCount(1, $repo->upserts);
     }
 
     #[TestDox('deletes all stored options and invalidates the cache when the app ships no YAML')]
@@ -325,14 +345,10 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
     {
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('all')->willReturn([
-            'brand-gap' => new StyleOptionSpecification('brand-gap', new StyleOptionValueType('integer', null, null, null, null), null, 'core'),
+            'brand-gap' => new StyleOptionSpecification('brand-gap', new StyleOptionValueType('integer', null, null, null, null), true, null, 'core'),
         ]);
 
-        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
-        $repo = new StaticEntityRepository([
-            new AppContentSystemStyleOptionCollection(),
-            new AppContentSystemStyleOptionCollection(),
-        ]);
+        $repo = $this->createEmptyRepository();
 
         $persister = $this->buildPersister($repo, registry: $registry);
 
@@ -512,7 +528,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $resolved = new ResolvedStyleOptionSpecificationDto(
             'brand-gap',
             'app:DemoApp',
-            new StyleOptionSpecificationDto('integer', null, null, null, null, null),
+            new StyleOptionSpecificationDto('integer', null, null, null, null, null, null),
         );
 
         $loader = static::createStub(YamlStyleOptionLoader::class);
@@ -550,5 +566,19 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             appFilesystem: new Filesystem(self::FIXTURES_DIR),
             defaultLocale: 'en-GB',
         );
+    }
+
+    /**
+     * @return StaticEntityRepository<AppContentSystemStyleOptionCollection>
+     */
+    private function createEmptyRepository(): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<AppContentSystemStyleOptionCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection(),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        return $repo;
     }
 }

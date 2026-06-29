@@ -53,12 +53,12 @@
                     },
                     "style": {
                         "type": "object",
-                        "description": "Universal presentation options keyed by option wire name, then by breakpoint (xs, sm, md, lg, xl, xxl). Omitted when empty.",
+                        "description": "Universal presentation options keyed by option wire name. Each value is either a single scalar (a flat option) or an object keyed by breakpoint (xs, sm, md, lg, xl, xxl) for a breakpoint-aware option, per the option's breakpointAware flag in the style-option introspection schema. Omitted when empty.",
                         "additionalProperties": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": ["string", "integer", "number", "boolean"]
-                            }
+                            "oneOf": [
+                                { "type": ["string", "integer", "number", "boolean"] },
+                                { "type": "object", "additionalProperties": { "type": ["string", "integer", "number", "boolean"] } }
+                            ]
                         }
                     },
                     "apiAlias": {

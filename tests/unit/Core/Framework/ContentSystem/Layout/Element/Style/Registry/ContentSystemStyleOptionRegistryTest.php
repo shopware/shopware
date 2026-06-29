@@ -92,7 +92,7 @@ class ContentSystemStyleOptionRegistryTest extends TestCase
 
     private function option(string $name, string $source): StyleOptionSpecification
     {
-        return new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), null, $source);
+        return new StyleOptionSpecification($name, new StyleOptionValueType('integer', null, null, null, null), true, null, $source);
     }
 
     private function loader(StyleOptionSpecification ...$options): AbstractContentSystemStyleOptionLoader

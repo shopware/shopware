@@ -43,6 +43,8 @@ final class TypedStyleOption extends Constraint
 
     public string $adminUiArrayMessage = 'adminUI must be an array';
 
+    public string $breakpointAwareTypeMessage = 'breakpointAware must be a boolean';
+
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

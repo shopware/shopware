@@ -317,6 +317,7 @@ class InfoControllerTest extends TestCase
         // The folded section must carry the derived toSchema() shape, not raw option values
         static::assertSame('integer', $data['styleOptions']['col-span']['type']);
         static::assertSame(['min' => 1, 'max' => 12], $data['styleOptions']['col-span']['range']);
+        static::assertTrue($data['styleOptions']['col-span']['breakpointAware']);
     }
 
     #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
@@ -340,6 +341,7 @@ class InfoControllerTest extends TestCase
                 'range' => ['min' => 1, 'max' => 12],
                 'maxLength' => null,
                 'default' => null,
+                'breakpointAware' => true,
                 'adminUI' => null,
             ],
         ], $data['styleOptions']);
@@ -434,6 +436,7 @@ class InfoControllerTest extends TestCase
         return new StyleOptionSpecification(
             'col-span',
             new StyleOptionValueType(StyleOptionValueType::TYPE_INTEGER, null, ['min' => 1, 'max' => 12], null, null),
+            true,
             null,
             'core',
         );

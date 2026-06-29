@@ -27,6 +27,8 @@ final class TypedStyleOptionValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, StyleOptionSpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
+        $this->validateBreakpointAware($value, $constraint);
+
         // Type validity is asserted separately by Assert\Choice; the cross-field rules below only
         // make sense for a known primitive, so bail otherwise to avoid duplicate violations.
         if (!\in_array($value->type, StyleOptionValueType::PRIMITIVE_TYPES, true)) {
@@ -176,6 +178,17 @@ final class TypedStyleOptionValidator extends ConstraintValidator
 
         $this->context->buildViolation($constraint->adminUiArrayMessage)
             ->atPath('adminUI')
+            ->addViolation();
+    }
+
+    private function validateBreakpointAware(StyleOptionSpecificationDto $value, TypedStyleOption $constraint): void
+    {
+        if ($value->breakpointAware === null || \is_bool($value->breakpointAware)) {
+            return;
+        }
+
+        $this->context->buildViolation($constraint->breakpointAwareTypeMessage)
+            ->atPath('breakpointAware')
             ->addViolation();
     }
 

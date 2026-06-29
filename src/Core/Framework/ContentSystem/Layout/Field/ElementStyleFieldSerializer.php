@@ -94,10 +94,11 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Read-time conversion: registry-free structural cleaning only. An option key must be a string, its
-     * value a breakpoint map, each breakpoint a canonical Breakpoint::values() key, each value a scalar;
-     * an empty map is dropped. Unknown option names ride through verbatim — the registry is consulted only
-     * on the write path, so removing a provider does not break an already-stored layout's read.
+     * Read-time conversion: registry-free structural cleaning only. An option key must be a string. A scalar
+     * value is kept verbatim (a flat option). An array value is cleaned into a canonical breakpoint map: each
+     * breakpoint a Breakpoint::values() key, each value a scalar; an empty map is dropped. Unknown option names
+     * ride through verbatim — the registry is consulted only on the write path, so removing a provider does not
+     * break an already-stored layout's read.
      *
      * @param array<array-key, mixed> $data
      */
@@ -107,18 +108,29 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer
 
         $clean = [];
 
-        foreach ($data as $optionName => $breakpointMap) {
-            if (!\is_string($optionName) || !\is_array($breakpointMap)) {
+        foreach ($data as $optionName => $value) {
+            if (!\is_string($optionName)) {
+                continue;
+            }
+
+            // Flat option: scalar kept verbatim.
+            if (\is_scalar($value)) {
+                $clean[$optionName] = $value;
+
+                continue;
+            }
+
+            if (!\is_array($value)) {
                 continue;
             }
 
             $cleanMap = [];
-            foreach ($breakpointMap as $breakpoint => $value) {
-                if (!\in_array($breakpoint, $breakpoints, true) || !\is_scalar($value)) {
+            foreach ($value as $breakpoint => $breakpointValue) {
+                if (!\in_array($breakpoint, $breakpoints, true) || !\is_scalar($breakpointValue)) {
                     continue;
                 }
 
-                $cleanMap[$breakpoint] = $value;
+                $cleanMap[$breakpoint] = $breakpointValue;
             }
 
             if ($cleanMap !== []) {
@@ -161,22 +173,31 @@ class ElementStyleFieldSerializer extends AbstractFieldSerializer
         foreach ($this->registry->all() as $name => $specification) {
             $valueConstraints = $this->deriver->derive($specification->valueType());
 
-            // One Optional per canonical breakpoint; allowExtraFields rejects any unknown breakpoint key
-            $breakpointFields = [];
-            foreach (Breakpoint::values() as $breakpoint) {
-                $breakpointFields[$breakpoint] = new Optional($valueConstraints);
+            if ($specification->breakpointAware()) {
+                // One Optional per canonical breakpoint; allowExtraFields rejects any unknown breakpoint key
+                $breakpointFields = [];
+                foreach (Breakpoint::values() as $breakpoint) {
+                    $breakpointFields[$breakpoint] = new Optional($valueConstraints);
+                }
+
+                $optionFields[$name] = new Optional([
+                    new Type('array'),
+                    // Reject an empty breakpoint map on write; the read path drops it structurally instead
+                    new Count(min: 1),
+                    new Collection(
+                        fields: $breakpointFields,
+                        allowExtraFields: false,
+                        allowMissingFields: false,
+                    ),
+                ]);
+
+                continue;
             }
 
-            $optionFields[$name] = new Optional([
-                new Type('array'),
-                // Reject an empty breakpoint map on write; the read path drops it structurally instead
-                new Count(min: 1),
-                new Collection(
-                    fields: $breakpointFields,
-                    allowExtraFields: false,
-                    allowMissingFields: false,
-                ),
-            ]);
+            // Flat option: a single scalar validated directly. The scalar Type constraint
+            // (isString/isInt/isNumeric/isBool) rejects an array, so a flat option sent as a
+            // breakpoint map is rejected here.
+            $optionFields[$name] = new Optional($valueConstraints);
         }
 
         return [

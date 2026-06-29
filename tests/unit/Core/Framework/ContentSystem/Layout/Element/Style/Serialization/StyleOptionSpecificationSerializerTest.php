@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style\Serialization;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
@@ -91,5 +92,56 @@ class StyleOptionSpecificationSerializerTest extends TestCase
         ];
 
         static::assertSame($raw, $this->serializer->normalize($this->serializer->denormalize($raw)));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool|null}>
+     */
+    public static function breakpointAwareDenormalizeProvider(): iterable
+    {
+        yield 'absent breakpointAware yields null' => [['type' => 'boolean'], null];
+        yield 'false breakpointAware yields false' => [['type' => 'boolean', 'breakpointAware' => false], false];
+        yield 'true breakpointAware yields true' => [['type' => 'boolean', 'breakpointAware' => true], true];
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     */
+    #[DataProvider('breakpointAwareDenormalizeProvider')]
+    #[TestDox('denormalize maps breakpointAware from the source array')]
+    public function testDenormalizeBreakpointAware(array $input, ?bool $expected): void
+    {
+        $dto = $this->serializer->denormalize($input);
+
+        static::assertSame($expected, $dto->breakpointAware);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool}>
+     */
+    public static function breakpointAwareNormalizeProvider(): iterable
+    {
+        yield 'emits false' => [['type' => 'boolean', 'breakpointAware' => false], false];
+        yield 'emits true' => [['type' => 'boolean', 'breakpointAware' => true], true];
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     */
+    #[DataProvider('breakpointAwareNormalizeProvider')]
+    #[TestDox('normalize emits the breakpointAware flag when it is set')]
+    public function testNormalizeBreakpointAware(array $input, bool $expected): void
+    {
+        $normalized = $this->serializer->normalize($this->serializer->denormalize($input));
+
+        static::assertSame($expected, $normalized['breakpointAware']);
+    }
+
+    #[TestDox('normalize omits the breakpointAware key when it is null')]
+    public function testNormalizeOmitsBreakpointAwareWhenNull(): void
+    {
+        $normalized = $this->serializer->normalize($this->serializer->denormalize(['type' => 'boolean']));
+
+        static::assertArrayNotHasKey('breakpointAware', $normalized);
     }
 }

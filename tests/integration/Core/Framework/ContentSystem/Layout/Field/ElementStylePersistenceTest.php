@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestStyleOptionLoader;
 
 /**
  * End-to-end through the real DAL and the real style option registry: a valid style round-trips, an
@@ -33,6 +34,20 @@ class ElementStylePersistenceTest extends TestCase
         $context = Context::createDefaultContext();
         $id = Uuid::randomHex();
         $style = ['col-span' => ['md' => 6, 'lg' => 4], 'display' => ['xs' => false]];
+
+        $this->repository()->create([$this->layout($id, $style)], $context);
+
+        static::assertSame($style, $this->readElement($id, $context)->getStyle()->toArray());
+    }
+
+    #[TestDox('persists a flat option as a bare scalar beside a breakpoint-aware option and reads both back unchanged')]
+    public function testPersistsAndReadsBackFlatStyleOption(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = Uuid::randomHex();
+        // The flat option stores a scalar; the breakpoint-aware option a per-breakpoint map. Both shapes
+        // coexist in one element and must survive write -> JSON column -> registry-free decode unchanged.
+        $style = [TestStyleOptionLoader::FLAT_INTEGER => 10, 'col-span' => ['md' => 6]];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
@@ -90,7 +105,7 @@ class ElementStylePersistenceTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, scalar>>|null $style
+     * @param array<string, string|int|float|bool|array<string, string|int|float|bool>>|null $style
      *
      * @return array<string, mixed>
      */

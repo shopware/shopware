@@ -32,6 +32,7 @@ class StyleOptionSpecificationSerializer
             range: $data['range'] ?? null,
             maxLength: $data['maxLength'] ?? null,
             default: $data['default'] ?? null,
+            breakpointAware: $data['breakpointAware'] ?? null,
             adminUI: $data['adminUI'] ?? null,
         );
     }
@@ -57,6 +58,11 @@ class StyleOptionSpecificationSerializer
 
         if ($dto->default !== null) {
             $result['default'] = $dto->default;
+        }
+
+        if ($dto->breakpointAware !== null) {
+            // false is emitted (false !== null), so an opt-out option is not restored to the default on round-trip.
+            $result['breakpointAware'] = $dto->breakpointAware;
         }
 
         if ($dto->adminUI !== null) {

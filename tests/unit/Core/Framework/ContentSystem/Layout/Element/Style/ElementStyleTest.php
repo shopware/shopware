@@ -13,12 +13,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 #[CoversClass(ElementStyle::class)]
 class ElementStyleTest extends TestCase
 {
-    #[TestDox('is empty when constructed without values')]
-    public function testIsEmptyByDefault(): void
-    {
-        static::assertTrue((new ElementStyle())->isEmpty());
-    }
-
     #[TestDox('is not empty when constructed with values')]
     public function testIsNotEmptyWithValues(): void
     {

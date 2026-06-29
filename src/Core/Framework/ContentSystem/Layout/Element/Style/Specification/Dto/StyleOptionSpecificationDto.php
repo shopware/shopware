@@ -33,6 +33,7 @@ final readonly class StyleOptionSpecificationDto
         public mixed $range,
         public mixed $maxLength,
         public mixed $default,
+        public mixed $breakpointAware,
         public mixed $adminUI,
     ) {
     }
@@ -48,6 +49,7 @@ final readonly class StyleOptionSpecificationDto
                 $this->buildMaxLength(),
                 $this->buildDefault(),
             ),
+            $this->buildBreakpointAware(),
             $this->buildAdminUI(),
             $source,
         );
@@ -108,5 +110,12 @@ final readonly class StyleOptionSpecificationDto
     {
         // An empty adminUI map collapses to null so toSchema() emits null, matching the OpenAPI contract.
         return \is_array($this->adminUI) && $this->adminUI !== [] ? $this->adminUI : null;
+    }
+
+    private function buildBreakpointAware(): bool
+    {
+        // Absent (null) defaults to true: breakpoint-aware is the default; an option opts out with false.
+        // A present non-bool is already rejected by TypedStyleOption, so it never reaches here valid.
+        return \is_bool($this->breakpointAware) ? $this->breakpointAware : true;
     }
 }

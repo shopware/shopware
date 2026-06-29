@@ -20,7 +20,7 @@
         </service>
 
         <service id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface" alias="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder">
-            <deprecated package="shopware/core" version="6.8.0">The %alias_id% service is deprecated and will be removed in 6.8.0. Use %Shopware\Core\Content\ProductStream\Service\ProductStreamCriteriaEnricher% instead</deprecated>
+            <deprecated package="shopware/core" version="6.8.0">The %alias_id% service is deprecated and will be removed in 6.8.0. Use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder instead</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer">

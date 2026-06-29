@@ -201,7 +201,8 @@ class MailDataSimulator
                 case ScalarValueType::TYPE_BOOL:
                     return Random::getBoolean();
                 case ScalarValueType::TYPE_FLOAT:
-                    return Random::getInteger(100, 1000000) / 100;
+                    // Cast first: int / int is an int in PHP when evenly divisible (e.g. 982400 / 100 === 9824).
+                    return (float) Random::getInteger(100, 1000000) / 100;
                 case ScalarValueType::TYPE_INT:
                     return Random::getInteger(0, 100000);
                 case ScalarValueType::TYPE_STRING:

@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -111,7 +112,7 @@ async function createWrapper() {
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve({}),
                 },
-                productStreamConditionService: {},
+                productStreamConditionService: ProductStreamConditionService(),
                 productTypeService: {
                     fetchProductTypes: () =>
                         Promise.resolve([
@@ -154,45 +155,35 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         expect(banner.exists()).toBe(false);
     });
 
-    it('should show warning when filters contain product states field', async () => {
+    it('should show warning when filters contain a deprecated product states field', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.productStream = {
-            id: 'stream-1',
-            filters: {
-                entity: 'product_stream',
-            },
-        };
         wrapper.vm.productStreamFiltersTree = [
             {
                 field: 'states',
             },
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.showProductStatesFilterWarning).toBe(true);
+        const banner = wrapper.find('.sw-product-stream-detail__product-type-warning mt-banner-stub');
+        expect(banner.exists()).toBe(true);
     });
 
-    it('should not show warning when filters do not contain product states', async () => {
+    it('should not show warning when filters do not contain a deprecated field', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.productStream = {
-            id: 'stream-1',
-            filters: {
-                entity: 'product_stream',
-            },
-        };
-        wrapper.vm.productStreamFilters = [
+        wrapper.vm.productStreamFiltersTree = [
             {
                 field: 'stock',
             },
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.showProductStatesFilterWarning).toBe(false);
+        const banner = wrapper.find('.sw-product-stream-detail__product-type-warning mt-banner-stub');
+        expect(banner.exists()).toBe(false);
     });
 });

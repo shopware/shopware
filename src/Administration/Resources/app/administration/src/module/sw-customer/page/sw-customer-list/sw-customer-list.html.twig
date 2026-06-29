@@ -1,6 +1,5 @@
 {% block sw_customer_list %}
 <sw-page class="sw-customer-list">
-
     {% block sw_customer_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -16,7 +15,7 @@
         {% block sw_customer_list_smart_bar_header_title %}
         <h2>
             {% block sw_customer_list_smart_bar_header_title_text %}
-            {{ $t('sw-customer.list.textCustomers') }}
+            <span>{{ $t('sw-customer.list.textCustomers') }}</span>
             {% endblock %}
 
             {% block sw_customer_list_smart_bar_header_amount %}
@@ -60,7 +59,6 @@
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">
-
             {% block sw_customer_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
@@ -96,14 +94,12 @@
                 @column-sort="onSortColumn"
                 @bulk-edit-modal-open="onBulkEditModalOpen"
             >
-
                 {% block sw_customer_list_grid_columns %}
-
                 {% block sw_product_list_grid_columns_name_preview %}
                 <template #preview-firstName="{ item, compact }">
-                    <sw-avatar
-                        :size="compact ? '32px' : '48px'"
-                        :source-context="item"
+                    <mt-avatar
+                        class="sw-customer-list__avatar"
+                        :size="compact ? 's' : 'm'"
                         :first-name="item.firstName"
                         :last-name="item.lastName"
                     />
@@ -112,11 +108,9 @@
 
                 {% block sw_customer_list_grid_columns_name %}
                 <template #column-firstName="{ item, compact, isInlineEdit }">
-
                     {% block sw_customer_list_grid_inline_edit_name %}
                     <template v-if="isInlineEdit">
                         {% block sw_customer_list_grid_inline_edit_first_name %}
-
                         <mt-text-field
                             v-model="item.firstName"
                             name="sw-field--item-firstName"
@@ -126,7 +120,6 @@
                         {% endblock %}
 
                         {% block sw_customer_list_grid_inline_edit_last_name %}
-
                         <mt-text-field
                             v-model="item.lastName"
                             name="sw-field--item-lastName"
@@ -138,54 +131,46 @@
                     {% endblock %}
 
                     {% block sw_customer_list_grid_columns_name_link %}
-                    <router-link
+                    <mt-link
                         v-else
                         :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
                         {{ item.lastName }}, {{ item.firstName }}
-                    </router-link>
+                    </mt-link>
                     {% endblock %}
 
                     {% block sw_customer_list_grid_columns_name_guest_label %}
-                    <sw-label
+                    <mt-badge
                         v-if="!isInlineEdit && item.guest"
-                        appearance="pill"
-                        size="small"
                         class="sw-customer-list__metadata-customer-guest-label"
                     >
                         {{ $t('sw-customer.list.columnNameGuestLabel') }}
-                    </sw-label>
+                    </mt-badge>
                     {% endblock %}
 
-                    <sw-label
+                    <mt-badge
                         v-if="item.createdById"
-                        appearance="pill"
-                        size="small"
                         class="sw-customer-list__created-by-admin-label"
                     >
                         {{ $t('sw-customer.list.labelCreatedByAdmin') }}
-                    </sw-label>
+                    </mt-badge>
                 </template>
                 {% endblock %}
                 {% endblock %}
 
                 {% block sw_customer_list_grid_columns_group %}
                 <template #column-group="{ item, compact, isInlineEdit }">
-                    <sw-label
+                    <mt-badge
                         v-if="item.requestedGroup"
                         class="sw-customer-list__requested-group-label"
-                        variant="warning"
-                        appearance="pill"
+                        variant="attention"
                     >
                         {{ $t('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
-                    </sw-label>
-                    <sw-label
-                        v-else
-                        size="default"
-                        appearance="pill"
-                    >
+                    </mt-badge>
+
+                    <mt-badge v-else>
                         {{ item.group.translated.name }}
-                    </sw-label>
+                    </mt-badge>
                 </template>
                 {% endblock %}
 
@@ -217,13 +202,14 @@
                         <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            size="16px"
+                            size="14px"
                             class="is--active"
                         />
+
                         <mt-icon
                             v-else
                             name="regular-times-s"
-                            size="16px"
+                            size="14px"
                             class="is--inactive"
                         />
                     </template>
@@ -273,7 +259,6 @@
 
                 {% block sw_customer_list_grid_action_modals %}
                 <template #action-modals="{ item }">
-
                     {% block sw_customer_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -281,7 +266,6 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
-
                         {% block sw_customer_list_delete_modal_confirm_delete_text %}
                         <p class="sw-customer-list__confirm-delete-text">
                             {{ $t('sw-customer.list.textDeleteConfirm', { name: `${item.firstName} ${item.lastName}` }, 0) }}
@@ -290,7 +274,6 @@
 
                         {% block sw_customer_list_delete_modal_footer %}
                         <template #modal-footer>
-
                             {% block sw_customer_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
@@ -356,21 +339,20 @@
 
                         {% block sw_customer_list_bulk_edit_grid_columns_group %}
                         <template #column-group="{ item }">
-                            <sw-label
+                            <mt-badge
                                 v-if="item.requestedGroup"
                                 class="sw-customer-list__requested-group-label"
-                                variant="warning"
-                                appearance="pill"
+                                variant="info"
                             >
                                 {{ $t('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
-                            </sw-label>
-                            <sw-label
+                            </mt-badge>
+
+                            <mt-badge
                                 v-else
                                 size="default"
-                                appearance="pill"
                             >
                                 {{ item.group.translated.name }}
-                            </sw-label>
+                            </mt-badge>
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>

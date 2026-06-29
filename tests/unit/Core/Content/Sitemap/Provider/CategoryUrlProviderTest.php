@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -26,7 +27,6 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -43,7 +43,7 @@ class CategoryUrlProviderTest extends TestCase
 
     private readonly IteratorFactory&MockObject $iteratorFactory;
 
-    private readonly RouterInterface&MockObject $router;
+    private readonly EntityRouteResolver&MockObject $entityRouteResolver;
 
     private readonly EventDispatcher&MockObject $dispatcher;
 
@@ -59,7 +59,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->definition = $this->createMock(CategoryDefinition::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->router = $this->createMock(RouterInterface::class);
+        $this->entityRouteResolver = $this->createMock(EntityRouteResolver::class);
         $this->ids = new IdsCollection();
         $this->dispatcher = $this->createMock(EventDispatcher::class);
         $this->categoryResultIncrement = 0;
@@ -261,7 +261,8 @@ class CategoryUrlProviderTest extends TestCase
             ],
         ]);
 
-        $this->router->method('generate')->willReturn('category/2/detail');
+        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.navigation.page');
+        $this->entityRouteResolver->method('generateUrl')->willReturn('category/2/detail');
 
         $this->queryBuilder = $this->createMock(QueryBuilder::class);
         $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
@@ -281,7 +282,7 @@ class CategoryUrlProviderTest extends TestCase
             $this->connection,
             $this->definition,
             $this->iteratorFactory,
-            $this->router,
+            $this->entityRouteResolver,
             $this->dispatcher
         );
     }

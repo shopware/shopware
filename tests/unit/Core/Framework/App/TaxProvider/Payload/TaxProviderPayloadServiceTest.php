@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
@@ -22,9 +23,11 @@ use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -107,6 +110,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            $this->createMock(ExceptionLogger::class),
         );
 
         $cart = new Cart($this->ids->get('cart'));
@@ -178,6 +182,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $this->createMock(AppPayloadServiceHelper::class),
             $client,
+            $this->createMock(ExceptionLogger::class),
         );
 
         $response = $taxProviderPayloadService->request(
@@ -185,6 +190,106 @@ class TaxProviderPayloadServiceTest extends TestCase
             $payload,
             $app,
             new Context(new SystemSource())
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testMalformedJsonReturnsNull(): void
+    {
+        $client = new Client(['handler' => new MockHandler([new Response(200, [], '{')])]);
+        $context = new Context(new SystemSource());
+
+        $payload = $this->createMock(TaxProviderPayload::class);
+
+        $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
+        $app->setVersion('6.5-dev');
+        $app->setAppSecret('very-secret');
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn(new AppPayloadStruct([
+                'app_request_context' => $context,
+                'request_type' => [
+                    'app_secret' => 'very-secret',
+                    'validated_response' => true,
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => '[]',
+            ]));
+
+        $logger = $this->createMock(ExceptionLogger::class);
+        $logger
+            ->expects($this->once())
+            ->method('logOrThrowException')
+            ->with(static::isInstanceOf(JsonDecodingException::class));
+
+        $taxProviderPayloadService = new TaxProviderPayloadService(
+            $helper,
+            $client,
+            $logger,
+        );
+
+        $response = $taxProviderPayloadService->request(
+            'https://example.com/provide-tax',
+            $payload,
+            $app,
+            $context
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testMalformedTaxProviderResponseReturnsNull(): void
+    {
+        $client = new Client(['handler' => new MockHandler([new Response(200, [], '{"cartPriceTaxes":[{"tax":"invalid","taxRate":13,"price":200}]}')])]);
+        $context = new Context(new SystemSource());
+
+        $payload = $this->createMock(TaxProviderPayload::class);
+
+        $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
+        $app->setVersion('6.5-dev');
+        $app->setAppSecret('very-secret');
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn(new AppPayloadStruct([
+                'app_request_context' => $context,
+                'request_type' => [
+                    'app_secret' => 'very-secret',
+                    'validated_response' => true,
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => '[]',
+            ]));
+
+        $logger = $this->createMock(ExceptionLogger::class);
+        $logger
+            ->expects($this->once())
+            ->method('logOrThrowException')
+            ->with(static::isInstanceOf(AppException::class));
+
+        $taxProviderPayloadService = new TaxProviderPayloadService(
+            $helper,
+            $client,
+            $logger,
+        );
+
+        $response = $taxProviderPayloadService->request(
+            'https://example.com/provide-tax',
+            $payload,
+            $app,
+            $context
         );
 
         static::assertNull($response);
@@ -227,6 +332,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(),
+            $this->createMock(ExceptionLogger::class),
         );
 
         $payload = $this->createMock(TaxProviderPayload::class);

@@ -56,9 +56,13 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
 
 ## Folder structure
-- `Authentication/` -- MCP authentication listener
-- `Context/` -- Context bridging (McpContextProvider)
-- `Controller/` -- HTTP endpoint for MCP protocol
+- `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
+- `Attribute/` -- MCP-specific PHP attributes (`#[McpToolDependsOn]`, `#[McpToolRequires]`)
+- `Authentication/` -- MCP authentication and exception listeners
+- `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
+- `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
+- `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache on session DELETE)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
 - `Resource/` -- Static MCP resources
@@ -168,6 +172,14 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 - **Filter `shopware://entities` resource by ACL** — `EntityListResource` currently returns all registered entities regardless of the caller's permissions. It should inject `McpContextProvider` and filter by `$context->isAllowed($entity . ':read')`, with a null-safe fallback for CLI/system contexts (return full list when there is no HTTP request).
 - **`debug:mcp` entity visibility** — when `--integration SWIA...` is passed, add an "Entities" count column to the tools table (how many entities that integration can read for entity-tools). In the detail view (`debug:mcp shopware-entity-read --integration ...`), show the full sorted list of accessible entity names.
 
+### Rate limiting
+The two MCP endpoints are rate-limited via the core `RateLimiter` through `McpRateLimiter` (`RateLimit/McpRateLimiter.php`), which owns the throttle/`McpException::throttled()` translation and the per-scope key derivation. Each scope has its own config route: `mcp_admin_api` (keyed per OAuth token, generous) and `mcp_store_api` (keyed per sales-channel context token, tighter because it is public and the key is rotatable). Both are defined in `shopware.yaml` under `shopware.api.rate_limiter`.
+
+Open improvements:
+- **Per-tool rate limiting** — the current limit is per-endpoint: a cheap `tools/list` and an expensive `entity-upsert`/`entity-delete`/`media-upload`/`system-config-write` draw from the same bucket. The industry consensus for MCP servers is to bucket cheap reads (`entity-search`, `entity-schema`) high (~100-200/min) and expensive/mutating tools low (~5-30/min). This needs a per-tool key (e.g. derive the tool name from the JSON-RPC body, which `McpServerController` already parses into `ATTRIBUTE_JSONRPC_BODY`) and a route per cost class.
+- **`Retry-After` header** — `McpException::throttled()` returns HTTP 429 with the wait time in the message/parameters, but no `Retry-After` response header. Adding it (and a structured `retry_after` in the JSON-RPC error) lets well-behaved agent clients back off correctly instead of blindly retrying.
+- **`time_backoff` vs token bucket** — Shopware uses the `time_backoff` policy (escalating penalty on repeated hits), not a token bucket, so it does not give the "burst then sustained" shape the MCP guides recommend for bursty agent traffic. Acceptable as a coarse circuit breaker; revisit if agents hit the limit on legitimate fan-out.
+
 ### Store API / shopper-side MCP
 The current MCP server is admin-API only (`/api/_mcp`, integration key auth). There is no MCP endpoint for the Store API.
 
@@ -190,13 +202,14 @@ The symfony-mcp-bundle (v0.8.0) and mcp/sdk (v0.4.0) already implement the follo
 
 ## Security
 
-Every MCP request passes through three layers in order — see `docs/security.md` for the full reference including error messages and troubleshooting.
+Every MCP request passes through three layers in order:
 
 1. **Authentication** — `sw-access-key` + `sw-secret-access-key` headers required on every request
 2. **Per-integration capability allowlist** — each integration stores a `mcp_allowlist` JSON object with `tools`, `resources`, and `prompts` keys (null per key = unrestricted; empty array = deny all). Configured via Settings → Integrations → Edit MCP Allowlist. `tools/list`, `resources/list`, and `prompts/list` responses are filtered; `tools/call`, `resources/read`, and `prompts/get` are rejected early with a clear error. Tool allowlist auto-expands transitive `#[McpToolDependsOn]` dependencies. **The `admin` flag does NOT bypass this layer** — it only bypasses layer 3 (ACL). **Scope**: enforced only for integration-authenticated requests (`sw-access-key` + `sw-secret-access-key`, or OAuth `client_credentials` for an integration key). Admin user bearer tokens issued via password/refresh grant (`client_id = administration`) resolve to no integration row in `McpAllowlistProvider::forAccessKey()` and fall back to unrestricted — the allowlist is effectively skipped for them.
 3. **ACL / Privileges** — tools call `requirePrivilege()` before touching data. Missing privileges return `{"success": false, "error": "Missing privilege: ..."}`. Tools may also annotate their static requirements with `#[McpToolRequires]` so operators can configure roles correctly upfront — but this is informational only and does not replace the `requirePrivilege()` check.
 
 Additional safeguards:
+- **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
 - **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks

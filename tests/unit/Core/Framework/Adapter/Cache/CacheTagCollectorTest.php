@@ -25,7 +25,7 @@ class CacheTagCollectorTest extends TestCase
     private CacheTagCollector $collector;
 
     /**
-     * @var list<AddCacheTagEvent>
+     * @var list<array<int, string>>
      */
     private array $dispatched = [];
 
@@ -40,9 +40,9 @@ class CacheTagCollectorTest extends TestCase
 
         // the collector itself collects via this event; register it like the kernel does
         $this->dispatcher->addListener(AddCacheTagEvent::class, $this->collector);
-        // spy to count how often a *new* tag event is dispatched
+        // spy to record the tags of every dispatched (new-tag) event
         $this->dispatcher->addListener(AddCacheTagEvent::class, function (AddCacheTagEvent $event): void {
-            $this->dispatched[] = $event;
+            $this->dispatched[] = array_values($event->tags);
         });
     }
 
@@ -73,7 +73,7 @@ class CacheTagCollectorTest extends TestCase
         // only the new tag must be dispatched, not the already known ones
         $this->collector->addTag('a', 'c');
         static::assertCount(2, $this->dispatched);
-        static::assertSame(['c'], $this->dispatched[1]->tags);
+        static::assertSame(['c'], $this->dispatched[1]);
     }
 
     public function testTagsAreScopedPerRequestUri(): void

@@ -166,7 +166,7 @@ class CategoryIndexerTest extends TestCase
 
         // The parent is required only for child-count recomputation; handing it to
         // the recursive tree updater would walk its entire subtree of siblings.
-        static::assertNotContains($parentId, $treeUpdateIds, 'Parent id leaked into the tree updater (issue #11442).');
+        static::assertNotContains($parentId, $treeUpdateIds, 'Parent id leaked into the tree updater.');
     }
 
     /**

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -29,7 +28,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * that category's own subtree, not with the size of its parent's subtree. A
  * parent is only ever relevant for child-count recomputation and must never be
  * used as an expansion base, otherwise unrelated siblings get dragged in and
- * cause the query storm reported in the issue.
+ * re-indexed, producing a large amount of redundant SQL.
  *
  * @internal
  */
@@ -79,7 +78,7 @@ class CategoryIndexerQueryAmplificationTest extends TestCase
             static::assertNotContains(
                 $siblingId,
                 $reindexedIds,
-                'Sibling category was pulled into re-indexing by an unrelated name change (issue #11442).'
+                'Sibling category was pulled into re-indexing by an unrelated name change.'
             );
         }
     }
@@ -106,7 +105,7 @@ class CategoryIndexerQueryAmplificationTest extends TestCase
             static::assertNotContains(
                 $siblingId,
                 $reindexedIds,
-                'Existing sibling category was pulled into re-indexing by inserting a new child (issue #11442).'
+                'Existing sibling category was pulled into re-indexing by inserting a new child.'
             );
         }
     }

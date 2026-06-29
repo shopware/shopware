@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -162,6 +163,59 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
+    }
+
+    /**
+     * Regression test for #13330: a sales channel language (de-CH) that inherits from a parent
+     * language (de-DE) which is itself not assigned to any sales channel. Products that only have a
+     * translation in the parent language were missing from product_search_keyword for the inheriting
+     * language, so they could not be found in the storefront search.
+     */
+    public function testItGeneratesKeywordsForLanguageInheritingFromUnindexedParent(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $deDeId = $this->getDeDeLanguageId();
+
+        // Create de-CH inheriting from de-DE
+        $languageRepo = static::getContainer()->get('language.repository');
+        $languageRepo->create([
+            [
+                'id' => $ids->get('de-CH'),
+                'name' => 'German (Switzerland)',
+                'localeId' => $this->getLocaleIdByIsoCode('de-CH'),
+                'parentId' => $deDeId,
+            ],
+        ], $context);
+
+        // Make de-CH a sales channel language and remove de-DE from sales channels, so the parent
+        // language (de-DE) is never indexed on its own and cannot provide carried-over keywords.
+        $this->salesChannelLanguageRepository->create([
+            ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'languageId' => $ids->get('de-CH')],
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('languageId', $deDeId));
+        /** @var list<array<string, string>> $deDeSalesChannelLanguageIds */
+        $deDeSalesChannelLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
+        $this->salesChannelLanguageRepository->delete($deDeSalesChannelLanguageIds, $context);
+
+        // Product only has a de-DE translation besides the required system default name.
+        $this->productRepository->create([
+            (new ProductBuilder($ids, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->translation($deDeId, 'name', 'Test produkt')
+                ->build(),
+        ], $context);
+
+        // de-CH inherits the de-DE translation, so its keywords must be derived from "Test produkt".
+        $this->assertKeywords($ids->get('1000'), $ids->get('de-CH'), [
+            '1000', // productNumber
+            'produkt', // part of inherited de-DE name
+            'test', // part of inherited de-DE name
+            'test produkt', // inherited de-DE name
+        ]);
     }
 
     /**

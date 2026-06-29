@@ -13,7 +13,7 @@
     }
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: var(--scale-size-2);
     }
 }
@@ -39,7 +39,7 @@
         .sw-notification-center__header {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid var(--color-border-primary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
             padding: var(--scale-size-18) var(--scale-size-24);
         }
 

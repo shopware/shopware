@@ -65,6 +65,9 @@ async function createWrapper(options = {}) {
                 appModulesService: {
                     fetchAppModules: () => Promise.resolve([]),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({}),
+                },
                 acl: {
                     can: (privilege) => {
                         return privilege !== 'shouldReturnFalse';

@@ -19,6 +19,7 @@ export default {
         'appModulesService',
         'feature',
         'customEntityDefinitionService',
+        'systemConfigApiService',
     ],
 
     mixins: [
@@ -39,6 +40,7 @@ export default {
             isUserLoading: true,
             flyoutReferenceElement: null,
             viewportWidth: null,
+            shopName: '',
         };
     },
 
@@ -236,10 +238,17 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.viewportWidth = this.$device.getViewportWidth();
             this.getUser();
+            this.loadShopName();
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
             this.initNavigation();
+        },
+
+        loadShopName() {
+            this.systemConfigApiService.getValues('core.basicInformation').then((values) => {
+                this.shopName = values['core.basicInformation.shopName'] ?? '';
+            });
         },
 
         beforeUnmountedComponent() {

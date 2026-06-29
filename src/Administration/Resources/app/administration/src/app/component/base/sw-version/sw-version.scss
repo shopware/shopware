@@ -4,39 +4,18 @@
 $sw-version-font-size-info: 12px;
 
 .sw-version {
-    white-space: nowrap;
+    // white-space: nowrap;
     width: 100%;
-
-    .sw-version__title {
-        @include truncate;
-
-        max-width: 200px;
-        color: var(--color-text-primary-default);
-        font-size: $font-size-s;
-        font-weight: $font-weight-bold;
-        margin: 0;
-        vertical-align: top;
-    }
-
-    .sw-version__status {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        padding: 4px;
-        line-height: 0;
-        margin-left: 5px;
-
-        .sw-color-badge {
-            display: inline-block;
-            margin: 0;
-        }
-    }
 
     .sw-version__info {
         @include truncate;
 
         max-width: 200px;
         color: var(--color-text-secondary-default);
-        font-size: $sw-version-font-size-info;
+        font-family: var(--font-family-body, Inter);
+        font-size: var(--font-size-2xs);
+        font-style: normal;
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-2xs);
     }
 }

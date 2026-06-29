@@ -44,7 +44,7 @@ trait AssignArrayTrait
 
                         continue;
                     }
-                } catch (\Error $error) {
+                } catch (\TypeError $error) {
                     if (Feature::isActive('v6.8.0.0')) {
                         /** @phpstan-ignore shopware.domainException (If trait is used directly, PHPStan complains about the wrong domain) */
                         throw StructException::assignTypeError($error);

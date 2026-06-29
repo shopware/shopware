@@ -17,7 +17,7 @@ class StructException extends HttpException
     private const ASSIGN_TYPE_ERROR = 'FRAMEWORK__STRUCT__ASSIGN_TYPE_ERROR';
     private const NORMALIZE_ERROR = 'FRAMEWORK__STRUCT__NORMALIZE_ERROR';
 
-    public static function assignTypeError(\Error $error): self
+    public static function assignTypeError(\TypeError $error): self
     {
         return new AssignException(
             Response::HTTP_INTERNAL_SERVER_ERROR,

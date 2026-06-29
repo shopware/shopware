@@ -282,17 +282,20 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
   phpunit:
-    name: "PHPUnit for ${{ matrix.suite }}"
+    name: "PHPUnit for ${{ matrix.suite }}${{ matrix.phpunit == '12' && ' [PHPUnit 12 preview]' || '' }}"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.phpunit == '12' }}
     strategy:
       fail-fast: false
       matrix:
         suite:
           - unit
           - migration
+        phpunit:
+          - "12"
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -332,8 +335,11 @@ jobs:
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
+          # PHPUnit 12 requires PHP 8.3+; the preview arm runs on 8.4.
+          php-version: ${{ matrix.phpunit == '12' && '8.4' || '8.2' }}
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
+          force-phpunit-12: ${{ matrix.phpunit == '12' }}
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction

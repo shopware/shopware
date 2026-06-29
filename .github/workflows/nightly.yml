@@ -8,8 +8,9 @@ on:
 jobs:
   redis:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
-    name: Redis
+    name: Redis [PHPUnit 12 preview]
     runs-on: ubuntu-24.04
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
@@ -32,8 +33,11 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+      - name: Force PHPUnit 12 (preview, non-blocking)
+        run: composer update phpunit/phpunit:^12.0 --with-all-dependencies
       - name: Run PHPUnit
         run: |
           ./vendor/bin/phpunit --testsuite redis

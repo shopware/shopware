@@ -18,6 +18,9 @@ inputs:
   migration-coverage:
     default: "false"
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
+  force-phpunit-12:
+    default: "false"
+    description: "Preview: force PHPUnit 12 via `composer update phpunit/phpunit:^12.0` after the test install. Used by the non-blocking PHPUnit 12 preview matrix arm."
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -65,3 +68,8 @@ runs:
     - name: Install Shopware
       shell: bash
       run: php src/Core/TestBootstrap.php
+
+    - name: Force PHPUnit 12 (preview, non-blocking)
+      if: ${{ inputs.force-phpunit-12 == 'true' }}
+      shell: bash
+      run: composer update phpunit/phpunit:^12.0 --with-all-dependencies

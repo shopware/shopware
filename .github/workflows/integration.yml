@@ -50,10 +50,11 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}${{ matrix.phpunit == '12' && ' [PHPUnit 12 preview]' || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.phpunit == '12' }}
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
@@ -97,6 +98,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+          force-phpunit-12: ${{ matrix.phpunit == '12' }}
       - name: Run PHPUnit
         id: phpunit
         uses: ./.github/actions/phpunit-run

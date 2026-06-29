@@ -82,11 +82,18 @@ class ValidSeoPathInfo extends Constraint
      * rejection would abort the whole indexing batch. Each run of disallowed
      * sequences is collapsed into a single separator.
      *
+     * Raw spaces are percent-encoded to `%20` first: a stored literal space
+     * could never be matched by the resolver because the frontend always
+     * sends the space percent-encoded, so a query-bearing SEO path such as
+     * `product?colo=red blue` is normalised to `product?colo=red%20blue`.
+     *
      * Valid percent-escapes survive untouched, so `rawurlencode(slugify(...))`
      * output for non-ASCII slug configs (e.g. `caf%C3%A9`) is preserved.
      */
     public static function sanitize(string $path): string
     {
+        $path = \str_replace(' ', '%20', $path);
+
         return (string) \preg_replace(
             '/(?:' . self::DISALLOWED_SEQUENCES . ')+/',
             self::SANITIZE_SEPARATOR,

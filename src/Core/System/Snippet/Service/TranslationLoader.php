@@ -76,6 +76,19 @@ class TranslationLoader extends AbstractTranslationLoader
         $this->createSnippetSet($language, $context);
     }
 
+    public function deleteTranslation(string $locale): void
+    {
+        $localePath = $this->getLocalePath($locale);
+
+        if ($localePath === '') {
+            throw SnippetException::localeDoesNotExist($locale);
+        }
+
+        if ($this->translationWriter->directoryExists($localePath)) {
+            $this->translationWriter->deleteDirectory($localePath);
+        }
+    }
+
     public function pluginTranslationExists(Plugin $plugin): bool
     {
         $name = $this->config->getMappedPluginName($plugin);

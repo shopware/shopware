@@ -399,6 +399,37 @@ class TranslationLoaderTest extends TestCase
         $this->getTranslationLoader()->getDecorated();
     }
 
+    public function testDeleteTranslationRemovesLocaleDirectory(): void
+    {
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context);
+
+        static::assertTrue($this->flysystem->directoryExists($loader->getLocalePath('es-ES')));
+
+        $loader->deleteTranslation('es-ES');
+
+        static::assertFalse($this->flysystem->directoryExists($loader->getLocalePath('es-ES')));
+    }
+
+    public function testDeleteTranslationIsNoOpWhenNotInstalled(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        static::assertFalse($this->flysystem->directoryExists($loader->getLocalePath('es-ES')));
+
+        $loader->deleteTranslation('es-ES');
+
+        static::assertFalse($this->flysystem->directoryExists($loader->getLocalePath('es-ES')));
+    }
+
+    public function testDeleteTranslationThrowsForInvalidLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('_not-a-locale_'));
+        $loader->deleteTranslation('_not-a-locale_');
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(

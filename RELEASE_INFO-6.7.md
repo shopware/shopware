@@ -185,6 +185,17 @@ Private media visibility is not implicitly widened by this change.
 During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
 If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
 
+### Manage translation downloads via the Admin API
+
+The translation download/update functionality previously only available through the `translation:list`, `translation:install`, and `translation:update` CLI commands is now also exposed through the Admin API, so it can be driven from the Administration without shell access. The new routes behave identically to the commands and reuse the same services:
+
+- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped }`.
+- `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped }`.
+- `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
+
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+
 ## App System
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\SnippetException;
 
 #[Package('discovery')]
 class TranslationConfig extends Struct
@@ -35,5 +36,25 @@ class TranslationConfig extends Struct
         $pluginName = $plugin->getName();
 
         return $this->pluginMapping->get($pluginName)->snippetName ?? $pluginName;
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    public function validateLocales(array $locales): void
+    {
+        if ($locales === []) {
+            throw SnippetException::noLocalesArgumentProvided();
+        }
+
+        $invalid = array_values(array_diff($locales, $this->locales));
+        if ($invalid === []) {
+            return;
+        }
+
+        throw SnippetException::invalidLocalesProvided(
+            implode(', ', $invalid),
+            implode(', ', $this->locales)
+        );
     }
 }

@@ -16,6 +16,11 @@ abstract class AbstractTranslationLoader
 
     abstract public function load(string $locale, Context $context, bool $activate = true): void;
 
+    public function deleteTranslation(string $locale): void
+    {
+        $this->getDecorated()->deleteTranslation($locale);
+    }
+
     /**
      * @deprecated tag:v6.8.0 - reason:becomes-unused - Override `pluginTranslationExistsForLocale()` instead for
      * locale-aware behaviour. This method will be removed.

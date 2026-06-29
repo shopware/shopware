@@ -209,6 +209,32 @@ class TranslationMetadataLoaderTest extends TestCase
         $this->assertDatetime('2025-08-12T11:26:28.974+00:00', $es->updatedAt);
     }
 
+    public function testRemoveDeletesEntryFromLocalMetadata(): void
+    {
+        $this->initClient([]);
+        $loader = $this->getTranslationMetadataLoader();
+        $loader->save($this->getMetadataCollection());
+
+        $loader->remove('it-IT');
+
+        $metadata = $this->readMetadataFromLocalFilesystem();
+        static::assertArrayNotHasKey('it-IT', $metadata);
+        static::assertArrayHasKey('es-ES', $metadata);
+    }
+
+    public function testRemoveIsNoOpForUnknownLocale(): void
+    {
+        $this->initClient([]);
+        $loader = $this->getTranslationMetadataLoader();
+        $loader->save($this->getMetadataCollection());
+
+        $loader->remove('fr-FR');
+
+        $metadata = $this->readMetadataFromLocalFilesystem();
+        static::assertArrayHasKey('it-IT', $metadata);
+        static::assertArrayHasKey('es-ES', $metadata);
+    }
+
     private function getTranslationMetadataLoader(): TranslationMetadataLoader
     {
         return new TranslationMetadataLoader($this->config, $this->client, $this->filesystem);

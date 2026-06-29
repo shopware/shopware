@@ -103,7 +103,7 @@ class InstallTranslationCommand extends Command
 
         $locales = explode(',', $locales);
 
-        $this->validateLocales($locales);
+        $this->config->validateLocales($locales);
 
         return $locales;
     }
@@ -152,34 +152,8 @@ class InstallTranslationCommand extends Command
         /** @var list<string> $selected */
         $selected = (new SymfonyStyle($input, $output))->askQuestion($question);
 
-        $this->validateLocales($selected);
+        $this->config->validateLocales($selected);
 
         return $selected;
-    }
-
-    /**
-     * @param list<string> $locales
-     */
-    private function validateLocales(array $locales): void
-    {
-        if ($locales === []) {
-            throw SnippetException::noLocalesArgumentProvided();
-        }
-
-        $errors = [];
-        foreach ($locales as $locale) {
-            if (!\in_array($locale, $this->config->locales, true)) {
-                $errors[] = $locale;
-            }
-        }
-
-        if (!$errors) {
-            return;
-        }
-
-        throw SnippetException::invalidLocalesProvided(
-            implode(', ', $errors),
-            implode(', ', $this->config->locales)
-        );
     }
 }

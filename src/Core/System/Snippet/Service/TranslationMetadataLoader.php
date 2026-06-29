@@ -69,6 +69,18 @@ class TranslationMetadataLoader
         );
     }
 
+    public function remove(string $locale): void
+    {
+        $metadata = $this->getLocalMetadata();
+
+        if (!$metadata->has($locale)) {
+            return;
+        }
+
+        $metadata->remove($locale);
+        $this->save($metadata);
+    }
+
     public function getLocalMetadata(): MetadataCollection
     {
         $path = $this->getPath();

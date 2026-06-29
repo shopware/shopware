@@ -52,25 +52,6 @@ describe('src/app/component/utils/sw-help-center', () => {
         expect(menuItems().length).toBeGreaterThan(0);
     });
 
-    it('should open an external link when a support item is selected', async () => {
-        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.find('.sw-help-center__button').trigger('click');
-        await flushPromises();
-
-        await menuItems().at(0).trigger('click');
-        await flushPromises();
-
-        expect(openSpy).toHaveBeenCalledWith(
-            'help-center.sidebar.support.documentation.href',
-            '_blank',
-            'noopener,noreferrer',
-        );
-    });
-
     it('should open the shortcut overview when the shortcut item is selected', async () => {
         wrapper = await createWrapper();
         await flushPromises();

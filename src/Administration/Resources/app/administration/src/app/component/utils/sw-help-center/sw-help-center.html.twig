@@ -38,7 +38,7 @@
                     {% block sw_help_sidebar_support_documentation %}
                     <mt-action-menu-item
                         icon="file-text"
-                        @select="openLink($t('help-center.sidebar.support.documentation.href'))"
+                        :link="$t('help-center.sidebar.support.documentation.href')"
                     >
                         {{ $t('help-center.sidebar.support.documentation.text') }}
                     </mt-action-menu-item>
@@ -47,7 +47,7 @@
                     {% block sw_help_sidebar_support_create_support_request %}
                     <mt-action-menu-item
                         icon="headset"
-                        @select="openLink($t('help-center.sidebar.support.createSupportRequest.href'))"
+                        :link="$t('help-center.sidebar.support.createSupportRequest.href')"
                     >
                         {{ $t('help-center.sidebar.support.createSupportRequest.text') }}
                     </mt-action-menu-item>

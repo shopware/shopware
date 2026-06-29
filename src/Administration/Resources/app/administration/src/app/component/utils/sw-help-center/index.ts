@@ -42,10 +42,6 @@ export default Shopware.Component.wrapComponentConfig({
             Shopware.Store.get('adminHelpCenter').showHelpSidebar = isOpened;
         },
 
-        openLink(href: string): void {
-            window.open(href, '_blank', 'noopener,noreferrer');
-        },
-
         openShortcutModal(): void {
             Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         },

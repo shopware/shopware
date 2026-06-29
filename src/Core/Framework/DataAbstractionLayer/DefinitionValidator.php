@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -180,9 +181,12 @@ class DefinitionValidator
     }
 
     /**
+     * @param list<string> $toleratedNonStandardForeignKeys Foreign key constraint names that are knowingly
+     *                                                      tolerated to reference a non-standard key
+     *
      * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
      */
-    public function validate(): array
+    public function validate(array $toleratedNonStandardForeignKeys = []): array
     {
         $violations = [];
 
@@ -250,6 +254,8 @@ class DefinitionValidator
         }
 
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($schema->getTables()));
+
+        $violations = array_merge_recursive($violations, $this->validateForeignKeysReferenceUniqueKey($schema, $toleratedNonStandardForeignKeys));
 
         return array_filter($violations);
     }
@@ -1028,6 +1034,140 @@ class DefinitionValidator
         }
 
         return [$definition->getClass() => []];
+    }
+
+    /**
+     * Validates that every foreign key references columns that form a complete PRIMARY or UNIQUE key
+     * on the parent table.
+     *
+     * Since MySQL 8.4 the server variable restrict_fk_on_non_standard_key defaults to ON and rejects
+     * foreign keys that reference a non-unique key or only a prefix of a composite key. Such foreign
+     * keys can still be created on older/lenient servers but break schema imports on 8.4 (e.g.
+     * disaster-recovery mysqldump restores). This check guards against introducing new ones.
+     *
+     * @param list<string> $toleratedForeignKeys Foreign key constraint names excluded from this check
+     *
+     * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
+     */
+    private function validateForeignKeysReferenceUniqueKey(Schema $schema, array $toleratedForeignKeys): array
+    {
+        $violations = [];
+
+        foreach ($schema->getTables() as $table) {
+            $tableName = $table->getObjectName()->toString();
+
+            try {
+                $violationKey = $this->registry->getByEntityName($tableName)->getClass();
+            } catch (DefinitionNotFoundException) {
+                $violationKey = DefinitionInstanceRegistry::class;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue() ?? '';
+                if (\in_array($foreignKeyName, $toleratedForeignKeys, true)) {
+                    continue;
+                }
+
+                $referencedTableName = $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue();
+                if (!$schema->hasTable($referencedTableName)) {
+                    // Referenced table is not part of the introspected schema, cannot validate.
+                    continue;
+                }
+
+                $referencedColumns = $this->normalizeColumnNames(array_map(
+                    static fn ($columnName): string => $columnName->toString(),
+                    $foreignKey->getReferencedColumnNames()
+                ));
+
+                $isStandard = false;
+                foreach ($this->collectUniqueKeyColumnSets($schema->getTable($referencedTableName)) as $keyColumns) {
+                    if ($keyColumns === $referencedColumns) {
+                        $isStandard = true;
+
+                        break;
+                    }
+                }
+
+                if (!$isStandard) {
+                    $violations[$violationKey][] = \sprintf(
+                        'Foreign key "%s" on table "%s" references %s(%s), which is not a complete PRIMARY or UNIQUE key of the referenced table. MySQL 8.4 (restrict_fk_on_non_standard_key=ON) rejects such foreign keys, which breaks schema imports. Reference the full primary/unique key (e.g. include the missing version_id column) or drop the constraint.',
+                        $foreignKeyName !== '' ? $foreignKeyName : '(unnamed)',
+                        $table->getObjectName()->toString(),
+                        $referencedTableName,
+                        implode(', ', $referencedColumns)
+                    );
+                }
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Returns the normalized column sets of every key on the table that MySQL accepts as a foreign-key
+     * target: the PRIMARY KEY and each UNIQUE index. Prefix indexes (e.g. `col(191)`) are excluded as
+     * they cannot back a foreign key.
+     *
+     * @return list<list<string>>
+     */
+    private function collectUniqueKeyColumnSets(Table $table): array
+    {
+        $keys = [];
+
+        $primaryKey = $table->getPrimaryKeyConstraint();
+        if ($primaryKey !== null) {
+            $keys[] = $this->normalizeColumnNames(array_map(
+                static fn ($columnName): string => $columnName->toString(),
+                $primaryKey->getColumnNames()
+            ));
+        }
+
+        foreach ($table->getIndexes() as $index) {
+            if ($index->getType() !== IndexType::UNIQUE) {
+                continue;
+            }
+
+            // Partial (predicate) indexes cannot be used as a foreign-key target.
+            if ($index->getPredicate() !== null) {
+                continue;
+            }
+
+            $indexedColumns = $index->getIndexedColumns();
+
+            // Prefix indexes (e.g. `col(191)`) cannot be used as a foreign-key target.
+            $isPrefixIndex = false;
+            foreach ($indexedColumns as $indexedColumn) {
+                if ($indexedColumn->getLength() !== null) {
+                    $isPrefixIndex = true;
+
+                    break;
+                }
+            }
+
+            if ($isPrefixIndex) {
+                continue;
+            }
+
+            $keys[] = $this->normalizeColumnNames(array_map(
+                static fn ($indexedColumn): string => $indexedColumn->getColumnName()->toString(),
+                $indexedColumns
+            ));
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param list<string> $columnNames
+     *
+     * @return list<string>
+     */
+    private function normalizeColumnNames(array $columnNames): array
+    {
+        return array_map(
+            static fn (string $columnName): string => mb_strtolower(trim($columnName, '`"')),
+            $columnNames
+        );
     }
 
     /**

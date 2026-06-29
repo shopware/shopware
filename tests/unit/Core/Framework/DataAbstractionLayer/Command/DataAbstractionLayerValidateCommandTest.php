@@ -73,6 +73,21 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
         static::assertJson($commandTester->getDisplay());
     }
 
+    public function testTolerateForeignKeyOptionIsPassedToValidator(): void
+    {
+        $validator = $this->createMock(DefinitionValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(['fk.first', 'fk.second'])
+            ->willReturn([]);
+        $command = new DataAbstractionLayerValidateCommand($validator);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--tolerate-foreign-key' => ['fk.first', 'fk.second']]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString('No errors found', $commandTester->getDisplay());
+    }
+
     public function testNamespaceFilter(): void
     {
         $validator = $this->createMock(DefinitionValidator::class);

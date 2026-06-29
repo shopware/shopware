@@ -484,16 +484,15 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
 
     private function isKnownPassiveNamespaceNode(\XMLReader $reader): bool
     {
-        return \in_array($reader->prefix, ['cc', 'dc', 'inkscape', 'rdf', 'sodipodi'], true)
-            || \in_array($reader->namespaceURI, [
-                self::BOXY_SVG_NAMESPACE,
-                self::CC_NAMESPACE,
-                self::DC_NAMESPACE,
-                self::INKSCAPE_NAMESPACE,
-                self::RDF_NAMESPACE,
-                self::SKETCH_NAMESPACE,
-                self::SODIPODI_NAMESPACE,
-            ], true);
+        return \in_array($reader->namespaceURI, [
+            self::BOXY_SVG_NAMESPACE,
+            self::CC_NAMESPACE,
+            self::DC_NAMESPACE,
+            self::INKSCAPE_NAMESPACE,
+            self::RDF_NAMESPACE,
+            self::SKETCH_NAMESPACE,
+            self::SODIPODI_NAMESPACE,
+        ], true);
     }
 
     private function hasAllowedSvgDoctype(MediaFile $mediaFile): bool

@@ -172,6 +172,22 @@ SVG,
             'Elements not allowed: script',
         ];
 
+        yield 'script element with passive metadata prefix bound to svg namespace' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><rdf:script xmlns:rdf="http://www.w3.org/2000/svg">alert(1)</rdf:script></svg>
+SVG,
+            'Elements not allowed: script',
+        ];
+
+        yield 'event handler with passive metadata prefix bound to svg namespace' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><cc:rect xmlns:cc="http://www.w3.org/2000/svg" cc:onload="alert(1)" width="1" height="1" /></svg>
+SVG,
+            'Attributes not allowed: cc:onload',
+        ];
+
         yield 'script element after metadata' => [
             <<< 'SVG'
 <?xml version="1.0" encoding="UTF-8"?>

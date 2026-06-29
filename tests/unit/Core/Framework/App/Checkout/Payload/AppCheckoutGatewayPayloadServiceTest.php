@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -103,6 +104,45 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
         $service = new AppCheckoutGatewayPayloadService(
             $this->createMock(AppPayloadServiceHelper::class),
             $client,
+            $logger,
+        );
+
+        $gatewayResponse = $service->request('https://example.com', $payload, $app);
+
+        static::assertNull($gatewayResponse);
+    }
+
+    public function testRequestWithMalformedJsonReturnsNull(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $cart = Generator::createCart();
+        $paymentMethods = ['paymentMethod-1'];
+        $shippingMethods = ['shippingMethod-1'];
+
+        $app = new AppEntity();
+        $app->setVersion('1.0.0');
+        $app->setAppSecret('devsecret');
+
+        $payload = new AppCheckoutGatewayPayload($context, $cart, $paymentMethods, $shippingMethods);
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn($this->buildTestPayload($context->getContext(), '[]'));
+
+        $handler = new MockHandler();
+        $handler->append(new Response(200, [], '{'));
+
+        $logger = $this->createMock(ExceptionLogger::class);
+        $logger
+            ->expects($this->once())
+            ->method('logOrThrowException')
+            ->with(static::isInstanceOf(JsonDecodingException::class));
+
+        $service = new AppCheckoutGatewayPayloadService(
+            $helper,
+            new Client(['handler' => $handler]),
             $logger,
         );
 

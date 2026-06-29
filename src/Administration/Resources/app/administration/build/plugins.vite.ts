@@ -190,10 +190,10 @@ const main = async () => {
             }
         });
 
-        fs.writeFileSync(
-            path.resolve(__dirname, '../../../public/administration/sw-plugin-dev.json'),
-            JSON.stringify(swPluginDevJsonData),
-        );
+        // Write outside of public/administration on purpose: a parallel production
+        // build empties that directory (emptyOutDir), which would delete this file
+        // out from under the running watcher.
+        fs.writeFileSync(path.resolve(__dirname, '../../../sw-plugin-dev.json'), JSON.stringify(swPluginDevJsonData));
 
         // Start dev servers
         for (let i = 0; i < extensionEntries.length; i++) {

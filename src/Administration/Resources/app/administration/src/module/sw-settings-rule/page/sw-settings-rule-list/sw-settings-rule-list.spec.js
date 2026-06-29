@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import FilterService from 'src/app/service/filter.service';
+import 'src/app/store/admin-user-config.store';
 
 const { Criteria } = Shopware.Data;
 
@@ -47,12 +48,7 @@ async function createWrapper(privileges = []) {
                 filterFactory: {
                     create: (name, filters) => filters,
                 },
-                filterService: new FilterService({
-                    userConfigRepository: {
-                        search: () => Promise.resolve({ length: 0 }),
-                        create: () => ({}),
-                    },
-                }),
+                filterService: new FilterService(),
                 ruleConditionDataProviderService: {
                     getConditions: () => {
                         return [{ type: 'foo', label: 'bar' }];
@@ -102,6 +98,11 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue({});
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+
         Shopware.Application.view.router = {
             currentRoute: {
                 value: {

@@ -101,10 +101,6 @@ async function createWrapper() {
                         create: () => ({ id: 'id' }),
                     }),
                 },
-                userConfigService: {
-                    search: () => Promise.resolve({ data: {} }),
-                    upsert: () => Promise.resolve(),
-                },
             },
         },
     });

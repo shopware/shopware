@@ -67,6 +67,20 @@ describe('admin-reference-data.store', () => {
         expect(searchMock).toHaveBeenCalledTimes(1);
     });
 
+    it('reuses the cached default tax rate id while it is fresh', async () => {
+        const getValuesMock = jest.fn().mockResolvedValue({
+            'core.tax.defaultTaxRate': 'tax-id',
+        });
+
+        jest.spyOn(Date, 'now').mockReturnValue(1000);
+        // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+        Shopware.Service().register('systemConfigApiService', () => ({ getValues: getValuesMock }) as never);
+
+        expect(await store.loadDefaultTaxRateId()).toBe('tax-id');
+        expect(await store.loadDefaultTaxRateId()).toBe('tax-id');
+        expect(getValuesMock).toHaveBeenCalledTimes(1);
+    });
+
     it('reuses pending product number range id loads', async () => {
         const searchIdsMock = jest.fn().mockResolvedValue({ data: ['number-range-id'] });
 

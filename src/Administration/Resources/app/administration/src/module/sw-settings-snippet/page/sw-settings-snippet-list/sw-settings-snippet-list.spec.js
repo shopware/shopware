@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
+import 'src/app/store/admin-user-config.store';
 
 function getSnippets() {
     const data = {
@@ -52,8 +53,24 @@ function getSnippetSets() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
+    let wrapper = null;
+
+    beforeEach(() => {
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+            wrapper = null;
+        }
+        jest.restoreAllMocks();
+    });
+
     async function createWrapper(privileges = []) {
-        return mount(
+        wrapper = mount(
             await wrapTestComponent('sw-settings-snippet-list', {
                 sync: true,
             }),
@@ -95,10 +112,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             getFilter: () => Promise.resolve({ data: [] }),
                         },
                         searchRankingService: {},
-                        userConfigService: {
-                            search: () => ({ data: [] }),
-                            upsert: () => null,
-                        },
                     },
                     mocks: {
                         $route: {
@@ -144,6 +157,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 },
             },
         );
+
+        return wrapper;
     }
 
     it.each([

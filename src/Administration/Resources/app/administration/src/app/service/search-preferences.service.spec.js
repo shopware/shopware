@@ -11,9 +11,7 @@ describe('searchPreferencesService', () => {
     });
 
     it('is registered correctly', () => {
-        let searchPreferencesService = new SearchPreferencesService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        let searchPreferencesService = new SearchPreferencesService();
         searchPreferencesService = {
             createUserSearchPreferences: jest.fn(),
             getDefaultSearchPreferences: jest.fn(),
@@ -35,9 +33,7 @@ describe('searchPreferencesService', () => {
 
     describe('processSearchPreferences', () => {
         it('returns data correctly', async () => {
-            const searchPreferencesService = new SearchPreferencesService({
-                userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-            });
+            const searchPreferencesService = new SearchPreferencesService();
             const searchPreferences = await searchPreferencesService.processSearchPreferences([
                 orderDefaultSearchConfiguration,
             ]);
@@ -62,6 +58,20 @@ describe('searchPreferencesService', () => {
                     }),
                 ]),
             );
+        });
+    });
+
+    describe('createUserSearchPreferences', () => {
+        it('returns the current user preference shell', () => {
+            Shopware.Store.get('session').setCurrentUser({
+                id: 'user-id',
+            });
+            const searchPreferencesService = new SearchPreferencesService();
+
+            expect(searchPreferencesService.createUserSearchPreferences()).toEqual({
+                key: 'search.preferences',
+                userId: 'user-id',
+            });
         });
     });
 });

@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import 'src/app/store/admin-user-config.store';
 
 async function createWrapper(
     privileges = [
@@ -151,10 +152,6 @@ async function createWrapper(
                             return privileges.includes(key);
                         },
                     },
-                    userConfigService: {
-                        search: jest.fn().mockResolvedValue({ data: {} }),
-                        upsert: jest.fn().mockResolvedValue(),
-                    },
                 },
             },
         },
@@ -164,6 +161,13 @@ async function createWrapper(
 describe('module/sw-settings/page/sw-settings-index', () => {
     beforeEach(async () => {
         Shopware.Store.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should contain any settings items', async () => {
@@ -357,9 +361,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * @deprecated tag:v6.8.0 - Will be removed
      */
     it('should load user config for banner on created', async () => {
-        const wrapper = await createWrapper();
-        const userConfigService = wrapper.vm.userConfigService;
-        expect(userConfigService.search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
+        await createWrapper();
+
+        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('settings.hideRenameBanner');
     });
 
     /**
@@ -367,10 +371,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      */
     it('should show banner by default when no config is set', async () => {
         const wrapper = await createWrapper();
-        const userConfigService = wrapper.vm.userConfigService;
-        userConfigService.search.mockResolvedValueOnce({ data: {} });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
     });
@@ -379,18 +381,12 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * @deprecated tag:v6.8.0 - Will be removed
      */
     it('should hide banner when config is set to true', async () => {
-        const wrapper = await createWrapper();
-        const userConfigService = wrapper.vm.userConfigService;
-        userConfigService.search.mockResolvedValueOnce({
-            data: {
-                'settings.hideRenameBanner': {
-                    value: true,
-                },
-            },
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValueOnce({
+            value: true,
         });
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.getUserConfig();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
     });
@@ -399,17 +395,12 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * @deprecated tag:v6.8.0 - Will be removed
      */
     it('should show banner when config is set to false', async () => {
-        const wrapper = await createWrapper();
-        const userConfigService = wrapper.vm.userConfigService;
-        userConfigService.search.mockResolvedValueOnce({
-            data: {
-                'settings.hideRenameBanner': {
-                    data: false,
-                },
-            },
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValueOnce({
+            value: false,
         });
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
     });
@@ -418,25 +409,19 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * @deprecated tag:v6.8.0 - Will be removed
      */
     it('should toggle banner visibility and save config', async () => {
-        const wrapper = await createWrapper();
-        const userConfigService = wrapper.vm.userConfigService;
-        userConfigService.search.mockResolvedValueOnce({
-            data: {
-                'settings.hideRenameBanner': {
-                    value: true,
-                },
-            },
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValueOnce({
+            value: true,
         });
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.getUserConfig();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
 
         await wrapper.vm.onCloseSettingRenameBanner();
 
         expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
-        expect(userConfigService.upsert).toHaveBeenCalledWith({
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
             'settings.hideRenameBanner': {
                 value: true,
             },

@@ -1,25 +1,19 @@
 import { mount } from '@vue/test-utils';
-import MockAdapter from 'axios-mock-adapter';
-import createHTTPClient from '../../../../core/factory/http.factory';
-import createLoginService from '../../../../core/service/login.service';
-import UserConfigService from '../../../../core/service/api/user-config.api.service';
 import SwSettingsServicesDashboardBanner from './index';
+import 'src/app/store/admin-user-config.store';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-dashboard-banner', () => {
-    let axiosMock;
+    beforeEach(() => {
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    });
 
-    beforeAll(() => {
-        const httpClient = createHTTPClient();
-        const loginService = createLoginService(httpClient, Shopware.Context.api);
-
-        axiosMock = new MockAdapter(httpClient);
-
-        Shopware.Service().register('userConfigService', () => new UserConfigService(httpClient, loginService));
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('shows banner if user config is not set', async () => {
-        axiosMock.onGet('_info/config-me').replyOnce(204);
-
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
@@ -27,9 +21,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
     });
 
     it('shows banner if core.show-services-dashboard-banner is set to false', async () => {
-        axiosMock.onGet('_info/config-me').replyOnce(200, {
-            data: { 'core.hide-services-dashboard-banner': [false] },
-        });
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValue([false]);
 
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
@@ -38,9 +30,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
     });
 
     it('hides banner if core.show-services-dashboard-banner is set to false', async () => {
-        axiosMock.onGet('_info/config-me').replyOnce(200, {
-            data: { 'core.hide-services-dashboard-banner': [true] },
-        });
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValue([true]);
 
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
@@ -49,16 +39,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
     });
 
     it('can be hidden', async () => {
-        axiosMock.onGet('_info/config-me').replyOnce(200, {
-            data: {},
-        });
-
-        axiosMock
-            .onPatch('_info/config-me', {
-                'core.hide-services-dashboard-banner': [true],
-            })
-            .replyOnce(204);
-
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner);
         await flushPromises();
 
@@ -67,13 +47,12 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
         await flushPromises();
 
         expect(dashboardBanner.find('.mt-banner').exists()).toBe(false);
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+            'core.hide-services-dashboard-banner': [true],
+        });
     });
 
     it('opens the services overview', async () => {
-        axiosMock.onGet('_info/config-me').replyOnce(200, {
-            data: {},
-        });
-
         const routerMock = { push: jest.fn() };
 
         const dashboardBanner = await mount(SwSettingsServicesDashboardBanner, {

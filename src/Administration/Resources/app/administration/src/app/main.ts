@@ -197,9 +197,7 @@ Application.addServiceProvider('feature', () => {
         });
     })
     .addServiceProvider('filterService', () => {
-        return new FilterService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new FilterService();
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
@@ -225,9 +223,7 @@ Application.addServiceProvider('feature', () => {
         return new RecentlySearchService();
     })
     .addServiceProvider('searchPreferencesService', () => {
-        return new SearchPreferencesService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new SearchPreferencesService();
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();

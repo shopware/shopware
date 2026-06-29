@@ -14,6 +14,8 @@ const { cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
+const ADVANCED_MODE_SETTINGS_KEY = 'mode.setting.advancedModeSettings';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -25,6 +27,7 @@ export default {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
+        'customFieldDataProviderService',
         'entityValidationService',
     ],
 
@@ -183,10 +186,6 @@ export default {
             });
         },
 
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -208,24 +207,6 @@ export default {
 
         currentUser() {
             return Shopware.Store.get('session').currentUser;
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed without replacement
-         */
-        userModeSettingsRepository() {
-            return this.repositoryFactory.create('user_config');
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - will be removed without replacement
-         */
-        userModeSettingsCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
-            criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
-
-            return criteria;
         },
 
         productCriteria() {
@@ -269,15 +250,6 @@ export default {
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
-
-            return criteria;
-        },
-
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, null);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },
@@ -561,10 +533,10 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         createUserModeSetting() {
-            const newModeSettings = this.userModeSettingsRepository.create();
-            newModeSettings.key = 'mode.setting.advancedModeSettings';
-            newModeSettings.userId = this.currentUser && this.currentUser.id;
-            return newModeSettings;
+            return {
+                key: ADVANCED_MODE_SETTINGS_KEY,
+                userId: this.currentUser && this.currentUser.id,
+            };
         },
 
         /**
@@ -588,27 +560,30 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        getAdvancedModeSetting() {
-            return this.userModeSettingsRepository.search(this.userModeSettingsCriteria).then(async (items) => {
-                if (!items.total) {
-                    return;
-                }
+        async getAdvancedModeSetting() {
+            const modeSettingsValue = await Shopware.Store.get('adminUserConfig').get(ADVANCED_MODE_SETTINGS_KEY);
 
-                const modeSettings = items.first();
-                const defaultSettings = this.getAdvancedModeDefaultSetting().value.settings;
+            if (!modeSettingsValue) {
+                return;
+            }
 
-                modeSettings.value.settings = defaultSettings.reduce((accumulator, defaultEntry) => {
-                    const foundEntry = modeSettings.value.settings.find((dbEntry) => dbEntry.key === defaultEntry.key);
-                    accumulator.push(foundEntry || defaultEntry);
+            const modeSettings = {
+                ...this.createUserModeSetting(),
+                value: cloneDeep(modeSettingsValue),
+            };
+            const defaultSettings = this.getAdvancedModeDefaultSetting().value.settings;
 
-                    return accumulator;
-                }, []);
+            modeSettings.value.settings = defaultSettings.reduce((accumulator, defaultEntry) => {
+                const foundEntry = modeSettings.value.settings.find((dbEntry) => dbEntry.key === defaultEntry.key);
+                accumulator.push(foundEntry || defaultEntry);
 
-                Shopware.Store.get('swProductDetail').advancedModeSetting = modeSettings;
-                Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
+                return accumulator;
+            }, []);
 
-                await this.$nextTick();
-            });
+            Shopware.Store.get('swProductDetail').advancedModeSetting = modeSettings;
+            Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
+
+            await this.$nextTick();
         },
 
         /**
@@ -619,15 +594,17 @@ export default {
                 'advancedMode',
                 true,
             ]);
-            this.userModeSettingsRepository
-                .save(this.advancedModeSetting)
-                .then(() => {
-                    this.getAdvancedModeSetting().then(() => {
-                        Shopware.Store.get('swProductDetail').setLoading([
-                            'advancedMode',
-                            false,
-                        ]);
-                    });
+
+            return Shopware.Store.get('adminUserConfig')
+                .upsert({
+                    [ADVANCED_MODE_SETTINGS_KEY]: this.advancedModeSetting.value,
+                })
+                .then(async () => {
+                    await this.getAdvancedModeSetting();
+                    Shopware.Store.get('swProductDetail').setLoading([
+                        'advancedMode',
+                        false,
+                    ]);
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -963,9 +940,7 @@ export default {
         },
 
         getDefaultTaxRate() {
-            return this.systemConfigApiService.getValues('core.tax').then((response) => {
-                return response['core.tax.defaultTaxRate'] ?? null;
-            });
+            return Shopware.Store.get('adminReferenceData').loadDefaultTaxRateId();
         },
 
         loadAttributeSet() {
@@ -974,8 +949,8 @@ export default {
                 true,
             ]);
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('product')
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').customFieldSets = res;
                 })

@@ -43,6 +43,10 @@ describe('src/app/component/structure/sw-language-switch', () => {
         expect(Shopware.Store.get('context').api.languageId).toBe('456');
     });
 
+    it('uses the language name as select label', () => {
+        expect(wrapper.get('sw-single-select-stub').attributes('label-property')).toBe('name');
+    });
+
     it('should open a modal with a warning if abortChangesFunction is set', async () => {
         Shopware.Store.get('context').api.languageId = '123';
 

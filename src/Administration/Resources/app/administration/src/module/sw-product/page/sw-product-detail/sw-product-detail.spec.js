@@ -115,6 +115,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             }),
                         getValues: () => Promise.resolve(defaultSalesChannelData),
                     },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
+                    },
                     entityValidationService: {
                         validate: (entity, customValidator) => {
                             let errors = [];
@@ -124,10 +127,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                             return errors.length < 1;
                         },
-                    },
-                    userConfigService: {
-                        search: () => Promise.resolve({ data: {} }),
-                        upsert: () => Promise.resolve(),
                     },
                 },
                 stubs: {
@@ -197,6 +196,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         Shopware.Store.get('adminUserConfig').$reset();
         jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadCurrencies').mockResolvedValue([]);
         jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadTaxes').mockResolvedValue([]);
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadDefaultTaxRateId').mockResolvedValue(null);
         jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
         jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
 
@@ -271,7 +271,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show item tabs when advanced mode deactivate', async () => {
-        wrapper.vm.userModeSettingsRepository.save = jest.fn(() => Promise.resolve());
         Shopware.Store.get('swProductDetail').product = { parentId: '' };
         await wrapper.setProps({
             productId: '1234',
@@ -1092,38 +1091,32 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
     });
 
-    it('should load mode settings from user config when editing existing product', async () => {
-        // Mock user config with 'prices' disabled (enabled: false)
+    it('should load mode settings from cached user config when editing existing product', async () => {
         const mockSettings = {
-            first: () => ({
-                value: {
-                    advancedMode: {
-                        label: 'sw-product.general.textAdvancedMode',
-                        enabled: true,
-                    },
-                    settings: [
-                        {
-                            key: 'prices',
-                            label: 'sw-product.detailBase.cardTitlePrices',
-                            enabled: false,
-                            name: 'general',
-                        },
-                    ],
+            advancedMode: {
+                label: 'sw-product.general.textAdvancedMode',
+                enabled: true,
+            },
+            settings: [
+                {
+                    key: 'prices',
+                    label: 'sw-product.detailBase.cardTitlePrices',
+                    enabled: false,
+                    name: 'general',
                 },
-            }),
-            total: 1,
+            ],
         };
 
+        Shopware.Store.get('adminUserConfig').get.mockImplementation((key) => {
+            if (key === 'mode.setting.advancedModeSettings') {
+                return Promise.resolve(mockSettings);
+            }
+
+            return Promise.resolve(undefined);
+        });
+
         wrapper = await createWrapper(
-            (criteria) => {
-                const isUserConfigSearch = criteria.filters.some(
-                    (f) => f.field === 'key' && f.value === 'mode.setting.advancedModeSettings',
-                );
-                if (isUserConfigSearch) {
-                    return Promise.resolve(mockSettings);
-                }
-                return Promise.resolve([]);
-            },
+            () => Promise.resolve([]),
             () => Promise.resolve({}),
             null,
         );
@@ -1146,6 +1139,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             'essential_characteristics',
             'custom_fields',
         ]);
+        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('mode.setting.advancedModeSettings');
     });
 
     it('should clear stale variant data when opening create page after viewing a variant product', async () => {

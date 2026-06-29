@@ -14,6 +14,8 @@ const { Criteria } = Shopware.Data;
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createCustomFieldService() {
+    const customFieldSetCache = {};
+    const pendingCustomFieldSetLoads = {};
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
@@ -163,11 +165,28 @@ export default function createCustomFieldService() {
     }
 
     function getCustomFieldSets(entityName) {
+        if (customFieldSetCache[entityName]) {
+            return Promise.resolve(customFieldSetCache[entityName]);
+        }
+
+        if (pendingCustomFieldSetLoads[entityName]) {
+            return pendingCustomFieldSetLoads[entityName];
+        }
+
         const customFieldSetRepository = Service('repositoryFactory').create('custom_field_set');
 
-        return customFieldSetRepository.search(customFieldSetCriteria(entityName), Shopware.Context.api).then((sets) => {
-            return sets.filter((set) => set.customFields.length > 0);
-        });
+        pendingCustomFieldSetLoads[entityName] = customFieldSetRepository
+            .search(customFieldSetCriteria(entityName), Shopware.Context.api)
+            .then((sets) => {
+                customFieldSetCache[entityName] = sets.filter((set) => set.customFields.length > 0);
+
+                return customFieldSetCache[entityName];
+            })
+            .finally(() => {
+                pendingCustomFieldSetLoads[entityName] = null;
+            });
+
+        return pendingCustomFieldSetLoads[entityName];
     }
 
     function customFieldSetCriteria(entityName) {

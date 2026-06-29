@@ -3,6 +3,7 @@
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
+import 'src/app/store/admin-user-config.store';
 
 const routes = [
     {
@@ -29,6 +30,8 @@ const routes = [
         ],
     },
 ];
+
+const countrySaveMock = jest.fn(() => Promise.resolve());
 
 async function createWrapper(privileges = []) {
     delete config.global.mocks.$router;
@@ -110,6 +113,8 @@ async function createWrapper(privileges = []) {
                             create: () => {
                                 return {};
                             },
+                            save: countrySaveMock,
+                            hasChanges: () => false,
                         }),
                     },
                     acl: {
@@ -174,6 +179,17 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         Shopware.Store.get('session').setCurrentUser({});
     });
 
+    beforeEach(() => {
+        countrySaveMock.mockClear();
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should be render tab', async () => {
         const wrapper = await createWrapper([
             'country.editor',
@@ -205,5 +221,49 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('loads country display settings from the admin user config store', async () => {
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValue({
+            'the-id': {
+                showPreview: true,
+            },
+        });
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+
+        wrapper.vm.countryId = 'the-id';
+        await wrapper.vm.loadUserConfig();
+
+        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('setting-country');
+        expect(wrapper.vm.userConfigValues).toEqual({
+            showPreview: true,
+        });
+    });
+
+    it('saves country display settings through the admin user config store', async () => {
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+        wrapper.vm.countryId = 'the-id';
+        wrapper.vm.userConfig = {
+            value: {
+                'the-id': {
+                    showPreview: true,
+                },
+            },
+        };
+
+        await wrapper.vm.onSave();
+
+        expect(countrySaveMock).toHaveBeenCalled();
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+            'setting-country': {
+                'the-id': {
+                    showPreview: true,
+                },
+            },
+        });
     });
 });

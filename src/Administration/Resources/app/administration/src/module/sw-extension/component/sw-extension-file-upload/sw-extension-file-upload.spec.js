@@ -1,12 +1,13 @@
 import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
+import 'src/app/store/admin-user-config.store';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
-const userConfigSaveSpy = jest.fn(() => Promise.resolve({}));
+let wrapper = null;
 
-async function createWrapper(userConfig = {}) {
-    const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
+async function createWrapper() {
+    wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
@@ -30,23 +31,7 @@ async function createWrapper(userConfig = {}) {
                 extensionStoreActionService: {
                     upload: uploadSpy,
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {};
-                    },
-                },
             },
-        },
-        computed: {
-            userConfigRepository: () => ({
-                search() {
-                    return Promise.resolve(userConfig);
-                },
-                create() {
-                    return Promise.resolve({});
-                },
-                save: userConfigSaveSpy,
-            }),
         },
         attachTo: document.body,
     });
@@ -75,8 +60,20 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
+        jest.clearAllMocks();
         Shopware.Store.get('notification').notifications = {};
         Shopware.Store.get('notification').growlNotifications = {};
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+            wrapper = null;
+        }
+        jest.restoreAllMocks();
     });
 
     it('should show warning modal and then call the file input form', async () => {
@@ -162,11 +159,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         await wrapper.vm.handleUpload([createFile()]);
 
-        expect(userConfigSaveSpy).toHaveBeenCalled();
-        expect(userConfigSaveSpy.mock.calls[0][0]).toEqual({
-            key: 'extension.plugin_upload',
-            userId: 'abc',
-            value: {
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+            'extension.plugin_upload': {
                 hide_upload_warning: true,
             },
         });

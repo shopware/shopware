@@ -11,7 +11,6 @@ const READ_NOTIFICATION = 'notification.lastReadAt';
 export default class AdminNotificationWorker {
     constructor() {
         this._notificationService = Service('notificationsService');
-        this._userConfigService = Service('userConfigService');
         this._userService = Service('userService');
         this._notiticationInterval = 5000;
         this._notiticationTimeoutId = null;
@@ -40,7 +39,7 @@ export default class AdminNotificationWorker {
 
                 if (timestamp) {
                     this._timestamp = timestamp;
-                    this._userConfigService.upsert({
+                    Shopware.Store.get('adminUserConfig').upsert({
                         [READ_NOTIFICATION]: { timestamp },
                     });
                 }
@@ -69,8 +68,7 @@ export default class AdminNotificationWorker {
     }
 
     async fetchUserConfig() {
-        const response = await this._userConfigService.search([READ_NOTIFICATION]);
-        const value = response.data[READ_NOTIFICATION];
+        const value = await Shopware.Store.get('adminUserConfig').get(READ_NOTIFICATION);
 
         if (value) {
             this._timestamp = value.timestamp;

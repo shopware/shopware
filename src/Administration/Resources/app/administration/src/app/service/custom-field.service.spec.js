@@ -19,6 +19,7 @@ describe('src/app/service/custom-field.service.js', () => {
     };
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         customFieldService = createCustomFieldService();
     });
 
@@ -65,5 +66,18 @@ describe('src/app/service/custom-field.service.js', () => {
         customFieldService.upsertType('number', newConfig);
 
         expect(customFieldService.getTypeByName('number')).toEqual(newConfig);
+    });
+
+    it('reuses cached custom field sets per entity name', async () => {
+        const productSets = [{ id: 'product-set', customFields: [{ id: 'field' }] }];
+        const customerSets = [{ id: 'customer-set', customFields: [{ id: 'field' }] }];
+        const searchMock = jest.fn().mockResolvedValueOnce(productSets).mockResolvedValueOnce(customerSets);
+
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+
+        expect(await customFieldService.getCustomFieldSets('product')).toEqual(productSets);
+        expect(await customFieldService.getCustomFieldSets('product')).toEqual(productSets);
+        expect(await customFieldService.getCustomFieldSets('customer')).toEqual(customerSets);
+        expect(searchMock).toHaveBeenCalledTimes(2);
     });
 });

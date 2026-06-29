@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 
 const DEFAULT_TTL = 5 * 60 * 1000;
 const DEFAULT_LIMIT = 100;
+const DEFAULT_LANGUAGE_LIMIT = 500;
 const DEFAULT_CURRENCY_LIMIT = 500;
 
 interface ReferenceDataRepository<EntityName extends keyof EntitySchema.Entities> {
@@ -16,6 +17,10 @@ interface ReferenceDataRepository<EntityName extends keyof EntitySchema.Entities
 
 interface RepositoryFactory {
     create<EntityName extends keyof EntitySchema.Entities>(entityName: EntityName): ReferenceDataRepository<EntityName>;
+}
+
+interface SystemConfigApiService {
+    getValues(domain: string): Promise<Record<string, unknown>>;
 }
 
 interface AdminReferenceDataState {
@@ -31,6 +36,8 @@ interface AdminReferenceDataState {
     taxes: EntityCollection<'tax'> | null;
     taxesLoadedAt: number;
     taxesLanguageId: string | null;
+    defaultTaxRateId: string | null;
+    defaultTaxRateIdLoadedAt: number;
     salesChannelTypes: EntityCollection<'sales_channel_type'> | null;
     salesChannelTypesLoadedAt: number;
     salesChannelTypesLanguageId: string | null;
@@ -42,6 +49,7 @@ let pendingSystemCurrency: Promise<Entity<'currency'> | null> | null = null;
 let pendingCurrencies: Promise<EntityCollection<'currency'>> | null = null;
 let pendingActiveLanguages: Promise<EntityCollection<'language'>> | null = null;
 let pendingTaxes: Promise<EntityCollection<'tax'>> | null = null;
+let pendingDefaultTaxRateId: Promise<string | null> | null = null;
 let pendingSalesChannelTypes: Promise<EntityCollection<'sales_channel_type'>> | null = null;
 let pendingProductNumberRangeIds: Promise<string[]> | null = null;
 
@@ -62,6 +70,8 @@ const adminReferenceDataStore = Shopware.Store.register({
             taxes: null,
             taxesLoadedAt: 0,
             taxesLanguageId: null,
+            defaultTaxRateId: null,
+            defaultTaxRateIdLoadedAt: 0,
             salesChannelTypes: null,
             salesChannelTypesLoadedAt: 0,
             salesChannelTypesLanguageId: null,
@@ -166,7 +176,7 @@ const adminReferenceDataStore = Shopware.Store.register({
                 return pendingActiveLanguages;
             }
 
-            const criteria = new Criteria(1, DEFAULT_LIMIT);
+            const criteria = new Criteria(1, DEFAULT_LANGUAGE_LIMIT);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equals('active', true));
@@ -214,6 +224,34 @@ const adminReferenceDataStore = Shopware.Store.register({
                 });
 
             return pendingTaxes;
+        },
+
+        async loadDefaultTaxRateId(forceReload = false): Promise<string | null> {
+            if (!forceReload && this.defaultTaxRateIdLoadedAt > 0 && this.isFresh(this.defaultTaxRateIdLoadedAt)) {
+                return this.defaultTaxRateId;
+            }
+
+            if (!forceReload && pendingDefaultTaxRateId) {
+                return pendingDefaultTaxRateId;
+            }
+
+            const systemConfigApiService = Shopware.Service('systemConfigApiService') as unknown as SystemConfigApiService;
+
+            pendingDefaultTaxRateId = systemConfigApiService
+                .getValues('core.tax')
+                .then((response) => {
+                    const defaultTaxRateId = response['core.tax.defaultTaxRate'];
+
+                    this.defaultTaxRateId = typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
+                    this.defaultTaxRateIdLoadedAt = Date.now();
+
+                    return this.defaultTaxRateId;
+                })
+                .finally(() => {
+                    pendingDefaultTaxRateId = null;
+                });
+
+            return pendingDefaultTaxRateId;
         },
 
         async loadSalesChannelTypes(forceReload = false): Promise<EntityCollection<'sales_channel_type'>> {
@@ -281,6 +319,7 @@ const adminReferenceDataStore = Shopware.Store.register({
             this.invalidateCurrencies();
             this.invalidateActiveLanguages();
             this.invalidateTaxes();
+            this.invalidateDefaultTaxRateId();
             this.invalidateSalesChannelTypes();
             this.invalidateProductNumberRangeIds();
         },
@@ -306,6 +345,11 @@ const adminReferenceDataStore = Shopware.Store.register({
             this.taxes = null;
             this.taxesLoadedAt = 0;
             this.taxesLanguageId = null;
+        },
+
+        invalidateDefaultTaxRateId(): void {
+            this.defaultTaxRateId = null;
+            this.defaultTaxRateIdLoadedAt = 0;
         },
 
         invalidateSalesChannelTypes(): void {

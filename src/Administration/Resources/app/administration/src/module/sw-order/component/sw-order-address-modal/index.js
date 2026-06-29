@@ -50,7 +50,7 @@ export default {
         },
 
         versionContext: {
-            type: Object,
+            type: String,
             required: true,
             default: () => {},
         },
@@ -92,10 +92,6 @@ export default {
 
         orderCustomer() {
             return this.order.orderCustomer;
-        },
-
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
         },
 
         salutationFilter() {
@@ -192,7 +188,8 @@ export default {
             });
         },
 
-        getCustomFieldSetData() {
+        getCustomFieldSetData(requiredParamAdded) {
+            if (requiredParamAdded) return;
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((response) => {
                 this.addressCustomFieldSets = response;
             });

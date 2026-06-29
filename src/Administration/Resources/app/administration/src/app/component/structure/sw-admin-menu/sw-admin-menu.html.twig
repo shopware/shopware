@@ -42,10 +42,26 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <sw-version
+        <div
             v-if="isExpanded"
             class="collapsible-text sw-admin-menu__version"
-        />
+        >
+            {% block sw_admin_menu_header_title %}
+            <div class="sw-admin-menu__title">
+                {{ $tc('global.sw-admin-menu.textProjectName') }}
+                {% block sw_admin_menu_header_title_status %}{% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_admin_menu_header_shop_name %}
+            <div
+                class="sw-admin-menu__shop-name"
+                :title="shopName"
+            >
+                {{ shopName }}
+            </div>
+            {% endblock %}
+        </div>
         {% endblock %}
 
         {% block sw_admin_menu_header_toggle_sidebar %}
@@ -200,6 +216,9 @@
                         {{ $tc('global.sw-admin-menu.linkLogout') }}
                     </mt-action-menu-item>
                     {% endblock %}
+                    {% endblock %}
+                    {% block sw_admin_menu_user_actions_version %}
+                    <sw-version class="sw-admin-menu__version-footer" />
                     {% endblock %}
                 </mt-action-menu>
             </mt-dropdown-menu-portal>

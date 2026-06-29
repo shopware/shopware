@@ -76,6 +76,7 @@ services:
     -   class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
 
 parametersSchema:
+    ?shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(string(), string())
     shopware: structure([
         allowedNonDomainExceptions: list(string),
         allowedStorefrontRouteNamespaces: list(string),

@@ -513,6 +513,12 @@ The following classes related to Agentic Commerce product exports, providers, an
 
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
+### Navigation route extension point
+
+The `/store-api/navigation` loading (`NavigationRoute::load`) is now wrapped with the `Extension` mechanism, so you can resolve or enrich the navigation categories through a plain event subscriber instead of decorating the route. This makes it simple to serve a customer-group filtered tree, custom child counts, or categories from an external source.
+
+Subscribe to `NavigationRouteExtension::onPre()` to take over the loading (assign `$extension->result` and call `stopPropagation()`), or to `NavigationRouteExtension::onPost()` to adjust the loaded categories. Without a subscriber the unchanged core loading runs.
+
 ## Administration
 
 ### Block additions and renamings

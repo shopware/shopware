@@ -10,12 +10,8 @@ trait CreateFromTrait
 {
     public static function createFrom(Struct $object): static
     {
-        try {
-            $self = (new \ReflectionClass(static::class))
-                ->newInstanceWithoutConstructor();
-        } catch (\ReflectionException $exception) {
-            throw StructException::createFromError($exception->getMessage());
-        }
+        // No need to catch ReflectionException, as `static::class` already ensures, that the class exists
+        $self = (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
 
         $objectVariables = get_object_vars($object);
         if (method_exists($self, 'assign')) {
@@ -39,7 +35,13 @@ trait CreateFromTrait
                     'Assign will fail with next major: ' . $error->getMessage(),
                     '6.7.13.0'
                 );
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                /** @deprecated tag:v6.8.0 remove this catch branch */
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Assign will fail with next major: ' . $e->getMessage(),
+                    '6.7.13.0'
+                );
             }
         }
 

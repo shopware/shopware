@@ -44,11 +44,38 @@ trait AssignArrayTrait
 
                         continue;
                     }
-                } catch (\Throwable $e) {
-                    // Ignore every error that occurs while trying to create objects, except property not exists
-                    if (!preg_match('/Property .* does not exist/', $e->getMessage())) {
+                } catch (\Error $error) {
+                    if (Feature::isActive('v6.8.0.0')) {
+                        /** @phpstan-ignore shopware.domainException (If trait is used directly, PHPStan complains about the wrong domain) */
+                        throw StructException::assignTypeError($error);
+                    }
+
+                    Feature::triggerDeprecationOrThrow(
+                        'v6.8.0.0',
+                        'AssignRecursive will fail with next major: ' . $error->getMessage(),
+                        '6.7.13.0'
+                    );
+                } catch (\ReflectionException $exception) {
+                    // Allow dynamic property creation
+                    if (!preg_match('/Property .* does not exist/', $exception->getMessage())) {
+                        if (Feature::isActive('v6.8.0.0')) {
+                            throw $exception;
+                        }
+
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'AssignRecursive will fail with next major: ' . $exception->getMessage(),
+                            '6.7.13.0'
+                        );
                         continue;
                     }
+                } catch (\Throwable $e) {
+                    /** @deprecated tag:v6.8.0 remove this catch branch */
+                    Feature::triggerDeprecationOrThrow(
+                        'v6.8.0.0',
+                        'AssignRecursive will fail with next major: ' . $e->getMessage(),
+                        '6.7.13.0'
+                    );
                 }
             }
 
@@ -69,10 +96,7 @@ trait AssignArrayTrait
             return $value;
         }
 
-        $struct = (new \ReflectionClass($className))
-            ->newInstanceWithoutConstructor();
-
-        return $struct->assignRecursive($value);
+        return (new \ReflectionClass($className))->newInstanceWithoutConstructor()->assignRecursive($value);
     }
 
     private function assignValue(string $propertyName, mixed $value): void
@@ -106,7 +130,13 @@ trait AssignArrayTrait
                 'Assign will fail with next major: ' . $error->getMessage(),
                 '6.7.13.0'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            /** @deprecated tag:v6.8.0 remove this catch branch */
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Assign will fail with next major: ' . $e->getMessage(),
+                '6.7.13.0'
+            );
         }
     }
 

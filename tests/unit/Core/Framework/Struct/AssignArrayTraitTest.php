@@ -84,11 +84,9 @@ class AssignArrayTraitTest extends TestCase
             'string' => 'some-string',
             'bool' => true,
             'array' => ['key' => 'value'],
-            'stdClass' => ['property' => 'value'],
-            'struct' => ['property' => 'value'],
+            'stdClass' => new \stdClass(),
             'assignTestStruct' => ['string' => 'value'],
             'mixedType' => ['string' => 'other-value'],
-            'collection' => [['firstElementProperty' => 'value'], ['secondElementProperty' => 'value']],
             'assignCollection' => [['string' => 'Hello World'], ['float' => 123.456]],
             'doubleTypeCollection' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
             'randomArrayProperty' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
@@ -103,7 +101,7 @@ class AssignArrayTraitTest extends TestCase
         static::assertSame($data['string'], $struct->getString());
         static::assertSame($data['bool'], $struct->getBool());
         static::assertSame($data['array'], $struct->getArray());
-        static::assertNull($struct->getStdClass());
+        static::assertInstanceOf(\stdClass::class, $struct->getStdClass());
         static::assertNull($struct->getStruct());
         static::assertInstanceOf(AssignTestStruct::class, $struct->getAssignTestStruct());
         static::assertSame('value', $struct->getAssignTestStruct()->getString());
@@ -245,10 +243,8 @@ class AssignArrayTraitTest extends TestCase
         });
 
         $structWithInstance = (new AssignTestStruct([]))->assignRecursive(['intersectionType' => new $class()]);
-        $structWithArray = (new AssignTestStruct([]))->assignRecursive(['intersectionType' => ['property' => ['some string']]]);
 
         static::assertInstanceOf($class::class, $structWithInstance->getIntersectionType());
-        static::assertNull($structWithArray->getIntersectionType());
     }
 
     public function testSetEmptyValue(): void

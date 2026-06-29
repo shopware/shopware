@@ -114,12 +114,6 @@ parameters:
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
-        - # Invalid trait usage
-            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
-            paths:
-                - src/Core/Checkout/Cart/Error/Error.php
-                - src/Core/Content/ProductExport/Error/Error.php
-
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*(class|interface) Shopware\\#'
 

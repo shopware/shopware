@@ -15,10 +15,9 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 class StructException extends HttpException
 {
     private const ASSIGN_TYPE_ERROR = 'FRAMEWORK__STRUCT__ASSIGN_TYPE_ERROR';
-    private const CREATE_FROM_ERROR = 'FRAMEWORK__STRUCT__CREATE_FROM_ERROR';
     private const NORMALIZE_ERROR = 'FRAMEWORK__STRUCT__NORMALIZE_ERROR';
 
-    public static function assignTypeError(\TypeError $error): self
+    public static function assignTypeError(\Error $error): self
     {
         return new AssignException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -26,22 +25,6 @@ class StructException extends HttpException
             $error->getMessage(),
             ['typeError' => $error],
             $error,
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function createFromError(string $message): self|InvalidArgumentException
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new InvalidArgumentException($message);
-        }
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CREATE_FROM_ERROR,
-            $message,
         );
     }
 

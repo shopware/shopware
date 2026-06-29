@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -153,7 +154,11 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
+            $this->expectExceptionObject(MediaException::invalidFile(
+                'SVG files with active content are not allowed.'
+                . \PHP_EOL . 'Event handler attributes not allowed: onload'
+                . \PHP_EOL . 'Attributes not allowed: onload'
+            ));
 
             $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {
@@ -761,6 +766,7 @@ SVG;
             static::getContainer()->get(AbstractMediaPathStrategy::class),
             static::getContainer()->get(MediaFileCleanupService::class),
             static::getContainer()->get(MediaFileExtensionValidator::class),
+            new NativeClock()
         );
 
         $mediaPath = $png->getPath();

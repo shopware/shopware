@@ -32,9 +32,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" class="Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver" />
+
         <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
             <argument type="service" id="kernel" />
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
@@ -72,6 +75,8 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldSetPersister"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">
@@ -262,6 +267,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator">
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.scaffold.generator"/>
         </service>
 
@@ -289,6 +295,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
     </services>
 </container>

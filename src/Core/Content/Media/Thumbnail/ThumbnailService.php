@@ -17,8 +17,8 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -51,6 +51,7 @@ class ThumbnailService
         private readonly EntityIndexer $indexer,
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection,
+        private readonly ThumbnailProcessorInterface $thumbnailProcessor,
         private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
@@ -267,7 +268,7 @@ class ThumbnailService
             foreach ($records as $record) {
                 $thumbnailSize = ['width' => $record['width'], 'height' => $record['height']];
 
-                $thumbnail = $this->createNewImage($image, $type, $imageSize, $thumbnailSize);
+                $thumbnail = $this->thumbnailProcessor->createNewImage($image, $type, $imageSize, $thumbnailSize);
 
                 $id = $record['id'];
                 $path = $paths[$id];
@@ -316,13 +317,15 @@ class ThumbnailService
         $media->setMediaFolder($folder);
     }
 
-    private function getImageResource(MediaEntity $media): \GdImage
+    private function getImageResource(MediaEntity $media): object
     {
         $filePath = $media->getPath();
 
         $file = $this->getFileSystem($media)->read($filePath);
-        $image = @imagecreatefromstring($file);
-        if ($image === false) {
+
+        try {
+            $image = $this->thumbnailProcessor->createImageFromString($file);
+        } catch (\Throwable) {
             throw MediaException::thumbnailNotSupported($media->getId());
         }
 
@@ -340,11 +343,11 @@ class ThumbnailService
 
                 if ($exif !== false) {
                     if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
-                        $image = imagerotate($image, 90, 0);
+                        $image = $this->thumbnailProcessor->rotate($image, 90);
                     } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
-                        $image = imagerotate($image, 180, 0);
+                        $image = $this->thumbnailProcessor->rotate($image, 180);
                     } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
-                        $image = imagerotate($image, -90, 0);
+                        $image = $this->thumbnailProcessor->rotate($image, -90);
                     }
                 }
             } catch (\Exception) {
@@ -354,21 +357,17 @@ class ThumbnailService
             }
         }
 
-        if ($image === false) {
-            throw MediaException::thumbnailNotSupported($media->getId());
-        }
-
         return $image;
     }
 
     /**
      * @return ImageSize
      */
-    private function getOriginalImageSize(\GdImage $image): array
+    private function getOriginalImageSize(object $image): array
     {
         return [
-            'width' => imagesx($image),
-            'height' => imagesy($image),
+            'width' => $this->thumbnailProcessor->getWidth($image),
+            'height' => $this->thumbnailProcessor->getHeight($image),
         ];
     }
 
@@ -393,81 +392,16 @@ class ThumbnailService
         return $this->thumbnailSizeCalculator->calculate($imageSize, $preferredThumbnailSize);
     }
 
-    /**
-     * @param ImageSize $originalImageSize
-     * @param ImageSize $thumbnailSize
-     */
-    private function createNewImage(\GdImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \GdImage
+    private function writeThumbnail(object $thumbnail, MediaEntity $media, string $url, int $quality): void
     {
-        $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
-
-        if ($thumbnail === false) {
-            throw MediaException::cannotCreateImage();
+        try {
+            $imageFile = $this->thumbnailProcessor->convertImage($thumbnail, (string) $media->getMimeType(), $quality);
+        } catch (MediaException) {
+            throw MediaException::thumbnailCouldNotBeSaved($url);
         }
-
-        if (!$type->is(ImageType::TRANSPARENT)) {
-            $colorWhite = (int) imagecolorallocate($thumbnail, 255, 255, 255);
-            imagefill($thumbnail, 0, 0, $colorWhite);
-        } else {
-            imagealphablending($thumbnail, false);
-        }
-
-        imagesavealpha($thumbnail, true);
-        imagecopyresampled(
-            $thumbnail,
-            $mediaImage,
-            0,
-            0,
-            0,
-            0,
-            $thumbnailSize['width'],
-            $thumbnailSize['height'],
-            $originalImageSize['width'],
-            $originalImageSize['height']
-        );
-
-        return $thumbnail;
-    }
-
-    private function writeThumbnail(\GdImage $thumbnail, MediaEntity $media, string $url, int $quality): void
-    {
-        ob_start();
-        switch ($media->getMimeType()) {
-            case 'image/png':
-                imagepng($thumbnail);
-
-                break;
-            case 'image/gif':
-                imagegif($thumbnail);
-
-                break;
-            case 'image/jpg':
-            case 'image/jpeg':
-                imagejpeg($thumbnail, null, $quality);
-
-                break;
-            case 'image/webp':
-                if (!\function_exists('imagewebp')) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
-                }
-
-                imagewebp($thumbnail, null, $quality);
-
-                break;
-            case 'image/avif':
-                if (!\function_exists('imageavif')) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
-                }
-
-                imageavif($thumbnail, null, $quality);
-
-                break;
-        }
-        $imageFile = ob_get_contents();
-        ob_end_clean();
 
         try {
-            $this->getFileSystem($media)->write($url, (string) $imageFile);
+            $this->getFileSystem($media)->write($url, $imageFile);
         } catch (\Exception) {
             throw MediaException::thumbnailCouldNotBeSaved($url);
         }

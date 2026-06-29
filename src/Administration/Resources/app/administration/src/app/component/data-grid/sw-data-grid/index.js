@@ -1,6 +1,7 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -33,6 +34,10 @@ export default {
         'acl',
         'repositoryFactory',
         'feature',
+    ],
+
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
     ],
 
     emits: [
@@ -262,25 +267,14 @@ export default {
                 return false;
             }
 
-            if (!this.records) {
-                return false;
-            }
-
-            const currentVisibleIds = this.records.map((record) => record.id);
-
-            return (
-                this.reachMaximumSelectionExceed &&
-                Object.keys(this.selection).every((id) => !currentVisibleIds.includes(id))
-            );
+            // When the selection maximum is reached, selecting every record is no longer possible,
+            // so the select-all header checkbox is disabled (a tooltip explains why on hover).
+            return this.reachMaximumSelectionExceed;
         },
 
         allSelectedChecked() {
             if (this.isSelectAllDisabled) {
                 return false;
-            }
-
-            if (this.reachMaximumSelectionExceed) {
-                return true;
             }
 
             if (!this.records || this.records.length === 0) {
@@ -529,6 +523,10 @@ export default {
                 `sw-data-grid__cell--${index}`,
                 `sw-data-grid__cell--align-${column.align}`,
             ];
+        },
+
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
         },
 
         getRowClasses(item, itemIndex) {

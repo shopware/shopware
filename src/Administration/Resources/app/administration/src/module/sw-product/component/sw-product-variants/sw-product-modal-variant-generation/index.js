@@ -337,6 +337,9 @@ export default {
             this.variantsGenerator
                 .saveVariants(this.variantGenerationQueue)
                 .then(() => {
+                    return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
                     this.addOriginalConfiguratorSettings();
                     return this.variantsGenerator.saveConfiguratorSettings(
                         this.product.configuratorSettings,

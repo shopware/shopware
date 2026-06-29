@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,6 +47,7 @@ class AccountService
         private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
         private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
         private readonly CartRestorer $restorer,
+        private readonly DoubleOptInService $doubleOptInService,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -141,7 +143,8 @@ class AccountService
         }
 
         if (!$this->isCustomerConfirmed($customer)) {
-            // Make sure to only throw this exception after it has been verified it was a valid login
+            // Make sure to only resend after it has been verified it was a valid login
+            $this->doubleOptInService->resendDoubleOptInMail($customer, $context);
             throw CustomerException::customerOptinNotCompleted($customer->getId());
         }
 

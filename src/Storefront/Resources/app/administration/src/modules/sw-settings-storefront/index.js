@@ -8,7 +8,7 @@
 Shopware.Component.register('sw-settings-storefront-index', () => import('./page/sw-settings-storefront-index'));
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @deprecated tag:v6.8.0 - Will be removed without replacement.
  */
 Shopware.Component.register('sw-settings-storefront-configuration', () => import('./component/sw-settings-storefront-configuration'));
 

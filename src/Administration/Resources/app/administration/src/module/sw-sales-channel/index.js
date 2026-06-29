@@ -6,6 +6,7 @@ import './service/export-template.service';
 import './product-export-templates';
 import './agentic-product-export-templates';
 import './service/domain-link.service';
+import './service/sales-channel-file.api.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
 import './acl';
@@ -36,6 +37,14 @@ Shopware.Component.extend(
 Shopware.Component.register('sw-sales-channel-list', () => import('./page/sw-sales-channel-list'));
 Shopware.Component.register('sw-sales-channel-detail-base', () => import('./view/sw-sales-channel-detail-base'));
 Shopware.Component.register('sw-sales-channel-detail-products', () => import('./view/sw-sales-channel-detail-products'));
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-files',
+    () => import('./view/sw-sales-channel-detail-agentic-files'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-file',
+    () => import('./view/sw-sales-channel-detail-agentic-file'),
+);
 Shopware.Component.register('sw-sales-channel-detail-analytics', () => import('./view/sw-sales-channel-detail-analytics'));
 Shopware.Component.extend(
     'sw-sales-channel-create-base',
@@ -138,6 +147,22 @@ Module.register('sw-sales-channel', {
                 products: {
                     component: 'sw-sales-channel-detail-products',
                     path: 'products',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticFiles: {
+                    component: 'sw-sales-channel-detail-agentic-files',
+                    path: 'agentic-files',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticFile: {
+                    component: 'sw-sales-channel-detail-agentic-file',
+                    path: 'agentic-files/:fileName(.*)',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

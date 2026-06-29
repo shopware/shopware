@@ -84,7 +84,7 @@ class ServiceClientTest extends TestCase
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 
@@ -101,8 +101,7 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenTransportErrorOccurs(): void
     {
-        static::expectException(ServiceException::class);
-        static::expectExceptionMessage('Error performing request. Error: host unreachable');
+        $this->expectExceptionObject(ServiceException::requestTransportError(new \Exception('host unreachable')));
 
         $httpClient = new MockHttpClient([
             new MockResponse('', ['error' => 'host unreachable']),

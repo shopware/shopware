@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../../../../../../src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>test_set</name>
+        <label>Test Set</label>
+        <label lang="de-DE">Test-Set</label>
+        <related-entities>
+            <product/>
+            <customer/>
+        </related-entities>
+        <fields>
+            <int name="test_set_int_field">
+                <label>Int Field</label>
+                <position>1</position>
+                <min>0</min>
+                <max>100</max>
+            </int>
+            <text name="test_set_text_field">
+                <label>Text Field</label>
+                <position>2</position>
+            </text>
+        </fields>
+    </custom-field-set>
+    <custom-field-set global="true">
+        <name>test_global_set</name>
+        <label>Global Set</label>
+        <related-entities>
+            <order/>
+        </related-entities>
+        <fields>
+            <bool name="test_global_bool">
+                <label>Bool Field</label>
+            </bool>
+        </fields>
+    </custom-field-set>
+</custom-fields>

@@ -7,20 +7,9 @@ import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
-import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
+import createDataScopeFixture from 'src/app/component/structure/sw-block-override/test-utils/create-data-scope-fixture';
 
 export { ComponentFactory, mount };
-
-function createDataScopePlugin() {
-    return {
-        install(app) {
-            Object.defineProperty(app.config.globalProperties, '$dataScope', {
-                get: getBlockDataScope,
-                enumerable: true,
-            });
-        },
-    };
-}
 
 /**
  * Registers the shared Jest reset hooks for native-block condition-chain specs.
@@ -117,7 +106,7 @@ export async function mountNativeBlockComponent(componentName) {
                 'sw-block': swBlock,
                 'sw-block-parent': swBlockParent,
             },
-            plugins: [createDataScopePlugin()],
+            plugins: [createDataScopeFixture()],
             config: {
                 globalProperties,
             },

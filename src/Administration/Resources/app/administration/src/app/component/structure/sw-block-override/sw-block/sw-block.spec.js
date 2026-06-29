@@ -4,18 +4,7 @@
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
-import getBlockDataScope from './get-block-data-scope';
-
-function createDataScopePlugin() {
-    return {
-        install(app) {
-            Object.defineProperty(app.config.globalProperties, '$dataScope', {
-                get: getBlockDataScope,
-                enumerable: true,
-            });
-        },
-    };
-}
+import createDataScopeFixture from '../test-utils/create-data-scope-fixture';
 
 async function createWrapper({
     extensions = '',
@@ -52,7 +41,7 @@ async function createWrapper({
         },
         {
             global: {
-                plugins: [createDataScopePlugin()],
+                plugins: [createDataScopeFixture()],
             },
         },
     );
@@ -431,7 +420,7 @@ describe('sw-block', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                     },
                 },
             );
@@ -461,7 +450,7 @@ describe('sw-block', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                     },
                 },
             );

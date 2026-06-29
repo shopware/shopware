@@ -66,10 +66,9 @@
  *
  *     Resolve components via `wrapTestComponent('sw-block', { sync: true })` and
  *     `wrapTestComponent('sw-block-parent', { sync: true })`.
- *     Provide `$dataScope` via a test plugin that installs the `getBlockDataScope` getter
- *     (imported from `../sw-block/get-block-data-scope`), exactly as
- *     `sw-block.spec.js` does. This ensures the host component's reactive proxy is
- *     exposed to the shim slot under the same conditions as production.
+ *     Provide `$dataScope` through the shared `createDataScopeFixture`. This ensures the
+ *     host component's reactive proxy is exposed to the shim slot under the same conditions
+ *     as production.
  *
  * 3.  Assert on the rendered DOM with `wrapper.find(...)`.
  *
@@ -123,19 +122,8 @@
 import { mount } from '@vue/test-utils';
 import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import '../../../../store/block-override.store';
-import getBlockDataScope from '../sw-block/get-block-data-scope';
+import createDataScopeFixture from '../test-utils/create-data-scope-fixture';
 import { resetShimSlotState } from './create-shim-slot';
-
-function createDataScopePlugin() {
-    return {
-        install(app: { config: { globalProperties: Record<string, unknown> } }) {
-            Object.defineProperty(app.config.globalProperties, '$dataScope', {
-                get: getBlockDataScope,
-                enumerable: true,
-            });
-        },
-    };
-}
 
 /**
  * Mounts a host component containing a single `<sw-block name="...">` wrapped in
@@ -181,7 +169,7 @@ async function createWrapper({
         },
         {
             global: {
-                plugins: [createDataScopePlugin()],
+                plugins: [createDataScopeFixture()],
                 components: {
                     'sw-block': swBlock,
                     'sw-block-parent': swBlockParent,
@@ -221,7 +209,7 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
         },
         {
             global: {
-                plugins: [createDataScopePlugin()],
+                plugins: [createDataScopeFixture()],
                 components: {
                     'sw-block': swBlock,
                     'sw-block-parent': swBlockParent,
@@ -441,7 +429,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -989,7 +977,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1382,7 +1370,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1506,7 +1494,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1561,7 +1549,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1609,7 +1597,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        plugins: [createDataScopePlugin()],
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,

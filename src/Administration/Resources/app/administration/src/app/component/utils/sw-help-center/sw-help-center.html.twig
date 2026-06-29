@@ -29,10 +29,6 @@
         <mt-dropdown-menu-portal>
             {% block sw_help_sidebar %}
             <mt-action-menu class="sw-help-center__menu">
-                <sw-extension-component-section
-                    position-identifier="sw-help-sidebar__navigation"
-                />
-
                 {% block sw_help_sidebar_support_content %}
                 <mt-action-menu-group>
                     {% block sw_help_sidebar_support_documentation %}
@@ -58,7 +54,6 @@
                 </mt-action-menu-group>
                 {% endblock %}
 
-                {% block sw_help_sidebar_shortcut %}
                 <mt-action-menu-group>
                     <mt-action-menu-item
                         icon="keyboard"
@@ -68,7 +63,6 @@
                         {{ $t('sw-shortcut-overview.title') }}
                     </mt-action-menu-item>
                 </mt-action-menu-group>
-                {% endblock %}
             </mt-action-menu>
             {% endblock %}
         </mt-dropdown-menu-portal>

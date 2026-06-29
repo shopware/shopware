@@ -20,6 +20,7 @@ export default {
     data() {
         return {
             isOpened: false,
+            optionsMenuOpen: false,
             showDeleteModal: false,
             unsubscribeFromStore: null,
         };
@@ -28,6 +29,10 @@ export default {
     computed: {
         notifications() {
             return Object.values(Shopware.Store.get('notification').notifications).reverse();
+        },
+
+        hasNotifications() {
+            return this.notifications.length > 0;
         },
 
         additionalContextButtonClass() {
@@ -68,6 +73,8 @@ export default {
         },
 
         openDeleteModal() {
+            this.optionsMenuOpen = false;
+            this.isOpened = false;
             this.showDeleteModal = true;
         },
 
@@ -81,11 +88,24 @@ export default {
         },
 
         togglePanel() {
-            this.isOpened = !this.isOpened;
+            this.changeVisibility(!this.isOpened);
+        },
+
+        onPanelClose() {
+            if (this.optionsMenuOpen) {
+                return;
+            }
+
+            this.changeVisibility(false);
         },
 
         changeVisibility(visible) {
             this.isOpened = visible;
+
+            if (!visible) {
+                this.showDeleteModal = false;
+                this.optionsMenuOpen = false;
+            }
         },
 
         createNotificationFromSystemError({ name, args }) {

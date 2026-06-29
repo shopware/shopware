@@ -20,12 +20,9 @@ async function createWrapper() {
         attachTo: document.body,
         global: {
             stubs: {
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
             },
         },
     });
@@ -56,6 +53,22 @@ describe('src/app/component/utils/sw-notification-center', () => {
 
         expect(panel().find('.sw-notification-center__empty-text').isVisible()).toBe(true);
         expect(panel().findAll('.sw-notification-center-item')).toHaveLength(0);
+
+        expect(panel().find('.sw-notification-center__options-button').attributes('disabled')).toBeDefined();
+    });
+
+    it('should enable the options menu when notifications are present', async () => {
+        Shopware.Store.get('notification').setNotifications({
+            [notification.uuid]: notification,
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        expect(panel().find('.sw-notification-center__options-button').attributes('disabled')).toBeUndefined();
     });
 
     it('should show notifications', async () => {
@@ -84,10 +97,10 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.sw-notification-center__context-button').trigger('click');
         await flushPromises();
 
-        await panel().find('.sw-context-button').trigger('click');
+        await panel().find('.sw-notification-center__options-button').trigger('click');
         await flushPromises();
 
-        await panel().find('.sw-context-menu-item--danger').trigger('click');
+        await panel().find('.mt-action-menu-item--variant-critical').trigger('click');
         await flushPromises();
 
         const deleteButton = panel()
@@ -101,5 +114,59 @@ describe('src/app/component/utils/sw-notification-center', () => {
 
         expect(panel().find('.sw-notification-center__empty-text').isVisible()).toBe(true);
         expect(panel().findAll('.sw-notification-center-item')).toHaveLength(0);
+    });
+
+    it('should close the delete modal when the panel is closed', async () => {
+        Shopware.Store.get('notification').setNotifications({
+            [notification.uuid]: notification,
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        await panel().find('.sw-notification-center__options-button').trigger('click');
+        await flushPromises();
+
+        await panel().find('.mt-action-menu-item--variant-critical').trigger('click');
+        await flushPromises();
+
+        expect(panel().find('.sw-modal').exists()).toBe(true);
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        expect(panel().find('.sw-modal').exists()).toBe(false);
+    });
+
+    it('should not reopen the options menu after the delete modal flow', async () => {
+        Shopware.Store.get('notification').setNotifications({
+            [notification.uuid]: notification,
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        await panel().find('.sw-notification-center__options-button').trigger('click');
+        await flushPromises();
+        expect(panel().find('.mt-action-menu-item--variant-critical').exists()).toBe(true);
+
+        await panel().find('.mt-action-menu-item--variant-critical').trigger('click');
+        await flushPromises();
+
+        await wrapper.vm.onCloseDeleteModal();
+        await flushPromises();
+
+        await wrapper.find('.sw-notification-center__context-button').trigger('click');
+        await flushPromises();
+
+        expect(panel().find('.mt-action-menu-item--variant-critical').exists()).toBe(false);
     });
 });

@@ -3,7 +3,7 @@
     class="sw-notification-center__popover"
     :is-opened="isOpened"
     :offset="8"
-    @close="changeVisibility(false)"
+    @close="onPanelClose"
 >
     <template #trigger>
         {% block sw_notification_center_context_button_button_slot %}
@@ -32,14 +32,37 @@
                 </h3>
 
                 {% block sw_notification_center_content_context_menu %}
-                <sw-context-button>
-                    <sw-context-menu-item
-                        variant="danger"
-                        @click="openDeleteModal"
-                    >
-                        {{ $t('global.notification-center.deleteModal.title') }}
-                    </sw-context-menu-item>
-                </sw-context-button>
+                <mt-dropdown-menu-root
+                    :open="optionsMenuOpen"
+                    @update:open="optionsMenuOpen = $event"
+                >
+                    <mt-dropdown-menu-trigger as-child>
+                        <mt-button
+                            class="sw-notification-center__options-button"
+                            variant="tertiary"
+                            square
+                            :disabled="!hasNotifications"
+                            :aria-label="$t('global.notification-center.optionsAriaLabel')"
+                        >
+                            <mt-icon
+                                name="ellipsis-h"
+                                size="var(--scale-size-16)"
+                            />
+                        </mt-button>
+                    </mt-dropdown-menu-trigger>
+
+                    <mt-dropdown-menu-portal>
+                        <mt-action-menu class="sw-notification-center__options-menu">
+                            <mt-action-menu-item
+                                variant="critical"
+                                icon="trash"
+                                @select="openDeleteModal"
+                            >
+                                {{ $t('global.notification-center.deleteModal.title') }}
+                            </mt-action-menu-item>
+                        </mt-action-menu>
+                    </mt-dropdown-menu-portal>
+                </mt-dropdown-menu-root>
                 {% endblock %}
             </div>
             {% endblock %}

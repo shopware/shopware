@@ -109,10 +109,6 @@ class CategoryIndexer extends EntityIndexer
                 || $operation === EntityWriteResult::OPERATION_DELETE
                 || \array_key_exists('parentId', $payload);
 
-            // The previous parent only needs its child count recomputed when the
-            // category is inserted, deleted, or moved. A pure field update (e.g.
-            // name) must not pull the parent in, otherwise its whole subtree of
-            // siblings gets re-indexed. See issue #11442.
             if (isset($state['parent_id']) && $parentChildCountAffected) {
                 $parentIds[] = Uuid::fromBytesToHex($state['parent_id']);
             }
@@ -152,8 +148,8 @@ class CategoryIndexer extends EntityIndexer
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
 
-        // Parents are only added for child-count recomputation; they must not be
-        // expanded via fetchChildren, otherwise unrelated siblings are re-indexed.
+        // Parents are added only for child-count recomputation; expanding them via
+        // fetchChildren would re-index every unrelated sibling (issue #11442).
         $ids = array_unique(array_merge($ids, $children, $parentIds));
 
         $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);

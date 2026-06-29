@@ -67,8 +67,7 @@ class CategoryIndexerVersioningTest extends TestCase
         $ids = $message->getData();
         static::assertIsArray($ids);
 
-        // The ancestor is not re-indexed on a pure name change: only the written
-        // category and its own version-scoped descendants are. See issue #11442.
+        // Ancestors are not re-indexed on a pure name change, only the written category and its descendants.
         static::assertNotContains($rootCategoryId, $ids);
 
         static::assertContains($childCategoryId, $ids);

@@ -148,7 +148,7 @@ class DeliveryCalculator
 
     private function hasDeliveryWithOnlyShippingFreeItems(Delivery $delivery): bool
     {
-        foreach ($delivery->getPositions()->getLineItems()->getIterator() as $lineItem) {
+        foreach ($delivery->getPositions()->getLineItems() as $lineItem) {
             if ($lineItem->getDeliveryInformation() && !$lineItem->getDeliveryInformation()->getFreeDelivery()) {
                 return false;
             }

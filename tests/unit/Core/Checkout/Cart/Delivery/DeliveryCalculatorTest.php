@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -365,5 +366,87 @@ class DeliveryCalculatorTest extends TestCase
         }
 
         static::assertEqualsWithDelta(100.0, $totalPercentage, 0.001);
+    }
+
+    public function testCartDataHasNoShippingMethod(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($shippingMethodId);
+
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setDeliveryInformation(new DeliveryInformation(1, null, false));
+
+        $price = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, $deliveryDate),
+            ]),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity()),
+            $price,
+        );
+
+        $deliveryCalculator = new DeliveryCalculator(
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
+        );
+
+        $this->expectExceptionObject(CartException::shippingMethodNotFound($shippingMethodId));
+        $deliveryCalculator->calculate(
+            new CartDataCollection(),
+            new Cart('test'),
+            new DeliveryCollection([$delivery]),
+            static::createStub(SalesChannelContext::class)
+        );
+    }
+
+    public function testCartDataShippingMethodHasNoPrices(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($shippingMethodId);
+        $shippingMethod->setTranslated(['name' => 'test']);
+
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setDeliveryInformation(new DeliveryInformation(1, null, false));
+
+        $price = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, $deliveryDate),
+            ]),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity()),
+            $price,
+        );
+
+        $cartData = new CartDataCollection();
+        $cartData->set('shipping-method-' . $shippingMethodId, $shippingMethod);
+        $cart = new Cart('test');
+
+        $deliveryCalculator = new DeliveryCalculator(
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
+        );
+
+        $deliveryCalculator->calculate(
+            $cartData,
+            $cart,
+            new DeliveryCollection([$delivery]),
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+        static::assertSame('Shipping method test not available. Reason: no shipping costs found', $error->getMessage());
     }
 }

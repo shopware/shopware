@@ -502,4 +502,9 @@ class SalesChannelContext extends Struct
     {
         $this->cartLock = $cartLock;
     }
+
+    public function isHeadless(): bool
+    {
+        return $this->salesChannel->isHeadless();
+    }
 }

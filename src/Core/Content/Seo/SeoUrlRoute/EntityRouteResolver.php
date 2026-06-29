@@ -26,18 +26,18 @@ class EntityRouteResolver
     ) {
     }
 
-    public function getRouteNameForEntityName(string $entityName): string
+    public function getRouteNameForEntityName(string $entityName, bool $isHeadless = false): string
     {
-        return $this->getRouteConfig($entityName)->getRouteName();
+        return $this->getRouteConfig($entityName, $isHeadless)->getRouteName();
     }
 
     /**
      * Generates a SEO URL placeholder for the given entity.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
      */
-    public function generateSeoUrlPlaceholder(string $entityName, string $primaryKey): string
+    public function generateSeoUrlPlaceholder(string $entityName, string $primaryKey, bool $isHeadless = false): string
     {
-        $config = $this->getRouteConfig($entityName);
+        $config = $this->getRouteConfig($entityName, $isHeadless);
 
         return $this->seoUrlPlaceholderHandler->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
@@ -46,16 +46,16 @@ class EntityRouteResolver
      * Generates a concrete URL for the given entity via the Symfony router.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
      */
-    public function generateUrl(string $entityName, string $primaryKey): string
+    public function generateUrl(string $entityName, string $primaryKey, bool $isHeadless = false): string
     {
-        $config = $this->getRouteConfig($entityName);
+        $config = $this->getRouteConfig($entityName, $isHeadless);
 
         return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
-    private function getRouteConfig(string $entityName): SeoUrlRouteConfig
+    private function getRouteConfig(string $entityName, bool $isHeadless = false): SeoUrlRouteConfig
     {
-        $route = array_first($this->registry->findByDefinition($entityName));
+        $route = !$isHeadless ? array_first($this->registry->findByDefinition($entityName)) : null;
 
         if ($route instanceof EntitySeoUrlRouteInterface) {
             return $route->getConfig();

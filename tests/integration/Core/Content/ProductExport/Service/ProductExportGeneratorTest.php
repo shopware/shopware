@@ -24,6 +24,7 @@ use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -52,6 +54,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var EntityRepository<ProductExportCollection>
@@ -380,6 +383,70 @@ class ProductExportGeneratorTest extends TestCase
         yield 'excluded variants' => [false, ['parent-1', 'stand-alone-1']];
     }
 
+    public function testExportWithHeadlessSalesChannel(): void
+    {
+        $headlessSalesChannelId = Uuid::randomHex();
+        $composableFrontendsDomainId = Uuid::randomHex();
+        $composableFrontendsUrl = 'https://composable-frontends.test';
+
+        $this->createSalesChannel([
+            'id' => $headlessSalesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'Headless sales channel',
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'https://headless-server.test',
+                ],
+                [
+                    'id' => $composableFrontendsDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => $composableFrontendsUrl,
+                ],
+            ],
+        ]);
+
+        $productIds = $this->createHeadlessProducts($headlessSalesChannelId);
+
+        $expectedUrls = $this->createStoreApiProductSeoUrls($headlessSalesChannelId, $productIds, $composableFrontendsUrl);
+        static::assertCount(3, $expectedUrls);
+
+        $productExportId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $productExportId,
+                'fileName' => 'Testexport.csv',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'headerTemplate' => '',
+                'bodyTemplate' => '{{ seoUrl("product", [product.id]) }}',
+                'productStreamId' => $this->getProductStreamId($productIds),
+                'storefrontSalesChannelId' => $headlessSalesChannelId,
+                'salesChannelId' => $headlessSalesChannelId,
+                'salesChannelDomainId' => $composableFrontendsDomainId,
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+            ],
+        ], $this->context);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+
+        static::assertSame(implode(\PHP_EOL, $expectedUrls) . \PHP_EOL, $exportResult->getContent());
+    }
+
     private function createProductExportCriteria(string $id): Criteria
     {
         $criteria = new Criteria([$id]);
@@ -589,6 +656,63 @@ class ProductExportGeneratorTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function createHeadlessProducts(string $salesChannelId): array
+    {
+        $ids = new IdsCollection();
+        $keys = ['headless-product-1', 'headless-product-2', 'headless-product-3'];
+
+        $products = [];
+        foreach ($keys as $key) {
+            $products[] = (new ProductBuilder($ids, $key))
+                ->price(10)
+                ->visibility($salesChannelId)
+                ->build();
+        }
+
+        static::getContainer()->get('product.repository')->create($products, $this->context);
+
+        return array_values($ids->getList($keys));
+    }
+
+    /**
+     * @param list<string> $productIds
+     *
+     * @return list<string> the resolved URLs the export is expected to contain
+     */
+    private function createStoreApiProductSeoUrls(string $salesChannelId, array $productIds, string $domainUrl): array
+    {
+        $seoUrlRepository = static::getContainer()->get('seo_url.repository');
+
+        $seoUrls = [];
+        $expectedUrls = [];
+
+        foreach ($productIds as $index => $productId) {
+            $seoPathInfo = 'composable-frontends/product/' . $index;
+
+            $seoUrls[] = [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'foreignKey' => $productId,
+                'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+                'pathInfo' => '/store-api/product/' . $productId,
+                'seoPathInfo' => $seoPathInfo,
+                'isCanonical' => true,
+                'isModified' => true,
+                'isDeleted' => false,
+            ];
+
+            $expectedUrls[] = rtrim($domainUrl, '/') . '/' . $seoPathInfo;
+        }
+
+        $seoUrlRepository->create($seoUrls, $this->context);
+
+        return $expectedUrls;
     }
 
     /**

@@ -277,7 +277,7 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME, $salesChannel->isHeadless());
         $query->setParameter('routeName', $routeName);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));

@@ -36,7 +36,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class CategoryIndexerQueryAmplificationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use KernelTestBehaviour;
 
     private CategoryIndexer $indexer;
 

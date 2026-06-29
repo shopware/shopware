@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
+use Shopware\Core\Content\Cms\Extension\SalesChannelCmsPageLoaderExtension;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -38,10 +40,30 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         private readonly CmsSlotsDataResolver $slotDataResolver,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
     public function load(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context,
+        ?array $config = null,
+        ?ResolverContext $resolverContext = null
+    ): EntitySearchResult {
+        return $this->extensions->publish(
+            name: SalesChannelCmsPageLoaderExtension::NAME,
+            extension: new SalesChannelCmsPageLoaderExtension($request, $criteria, $context, $config, $resolverContext),
+            function: $this->_load(...),
+        );
+    }
+
+    /**
+     * @param array<string, mixed>|null $config
+     *
+     * @return EntitySearchResult<CmsPageCollection>
+     */
+    private function _load(
         Request $request,
         Criteria $criteria,
         SalesChannelContext $context,

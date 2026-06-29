@@ -513,6 +513,12 @@ The following classes related to Agentic Commerce product exports, providers, an
 
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
+### CMS page loading extension point
+
+The CMS page loading (`SalesChannelCmsPageLoader::load`) is now wrapped with the `Extension` mechanism, so you can resolve the CMS page(s) for a request through a plain event subscriber instead of decorating the loader. This makes it simple to serve a customer-group specific layout, an A/B-test variant, or pages from an external source.
+
+Subscribe to `SalesChannelCmsPageLoaderExtension::onPre()` to take over the loading (assign `$extension->result` and call `stopPropagation()`), or to `SalesChannelCmsPageLoaderExtension::onPost()` to adjust the loaded result. Without a subscriber the unchanged core loading runs.
+
 ## Administration
 
 ### Block additions and renamings

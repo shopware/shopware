@@ -334,7 +334,7 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $displayAsGroup = $this->isDisplayAsGroupEnabled($criteria);
+        $displayAsGroup = !$this->shouldSkipGrouping($criteria);
 
         if ($displayAsGroup) {
             $this->addGrouping($criteria);
@@ -375,7 +375,7 @@ class ProductListingLoader
         $mapping = array_combine($keys, $keys);
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->isDisplayAsGroupEnabled($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -424,8 +424,8 @@ class ProductListingLoader
         return $this->productRepository->search($read, $context);
     }
 
-    private function isDisplayAsGroupEnabled(Criteria $criteria): bool
+    private function shouldSkipGrouping(Criteria $criteria): bool
     {
-        return !$criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
+        return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

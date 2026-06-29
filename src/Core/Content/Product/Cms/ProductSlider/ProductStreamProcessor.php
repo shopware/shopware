@@ -147,7 +147,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         $criteria->setLimit($limit);
 
-        if (!$this->isDisplayAsGroupDisabled($criteria)) {
+        if (!$this->shouldSkipGrouping($criteria)) {
             $this->addGrouping($criteria);
         }
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
@@ -170,7 +170,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
-        if ($this->isDisplayAsGroupDisabled($originCriteria)) {
+        if ($this->shouldSkipGrouping($originCriteria)) {
             return $streamResult;
         }
 
@@ -238,7 +238,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         }
     }
 
-    private function isDisplayAsGroupDisabled(Criteria $criteria): bool
+    private function shouldSkipGrouping(Criteria $criteria): bool
     {
         return $criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
     }

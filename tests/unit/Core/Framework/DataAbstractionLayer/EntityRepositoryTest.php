@@ -215,8 +215,8 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntitySearchedEvent::class, $event);
 
-        static::assertCount(4, $result);
-        $productEntity = $result->first();
+        static::assertCount(4, $result->getEntities());
+        $productEntity = $result->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $productEntity);
 
         static::assertSame('test-1', $productEntity->getId());

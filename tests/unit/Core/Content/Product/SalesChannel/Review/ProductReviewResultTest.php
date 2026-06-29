@@ -30,7 +30,6 @@ class ProductReviewResultTest extends TestCase
             totalReviewsInCurrentLanguage: 5,
         );
 
-        static::assertSame($source->getEntity(), $result->getEntity());
         static::assertSame($source->getTotal(), $result->getTotal());
         static::assertSame($source->getEntities(), $result->getEntities());
         static::assertSame($source->getCriteria(), $result->getCriteria());

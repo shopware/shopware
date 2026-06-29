@@ -98,7 +98,7 @@ final readonly class DocumentPersister
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
             $context,
-        )->first();
+        )->getEntities()->first();
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotPersisted($input->documentNumber);

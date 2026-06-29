@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolve
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -80,14 +81,11 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $result = $this->createMock(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->with($productId)
-            ->willReturn($product);
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);
@@ -128,14 +126,11 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $result = $this->createMock(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->with($productId)
-            ->willReturn($product);
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);
@@ -171,14 +166,11 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $result = $this->createMock(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->with($productId)
-            ->willReturn($product);
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);
@@ -218,14 +210,11 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $result = $this->createMock(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->with($productId)
-            ->willReturn($product);
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);

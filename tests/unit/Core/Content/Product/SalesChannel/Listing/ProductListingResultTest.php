@@ -24,7 +24,6 @@ class ProductListingResultTest extends TestCase
 
         $listing = ProductListingResult::fromSearchResult($source);
 
-        static::assertSame($source->getEntity(), $listing->getEntity());
         static::assertSame($source->getTotal(), $listing->getTotal());
         static::assertSame($source->getEntities(), $listing->getEntities());
         static::assertSame($source->getCriteria(), $listing->getCriteria());

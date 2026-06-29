@@ -79,8 +79,8 @@ class ContactFormRoute extends AbstractContactFormRoute
         $salutationCriteria = new Criteria([$data->get('salutationId')]);
         $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context->getContext());
 
-        if ($salutationSearchResult->count() !== 0) {
-            $data->set('salutation', $salutationSearchResult->first());
+        if ($salutationSearchResult->getTotal() !== 0) {
+            $data->set('salutation', $salutationSearchResult->getEntities()->first());
         }
 
         if (empty($mailConfigs['receivers'])) {

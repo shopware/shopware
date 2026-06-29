@@ -235,8 +235,7 @@ class PagingListingProcessorTest extends TestCase
 
     public function testProcess(): void
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(10);
+        $criteria = (new Criteria())->setLimit(10)->setOffset(10);
         $request = new Request(['p' => 2]);
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -334,7 +333,7 @@ class PagingListingProcessorTest extends TestCase
     #[DataProvider('provideOutOfRangeBoundaryCases')]
     public function testProcessOverflowBoundaries(int $page, int $total, int $limit, bool $shouldThrow): void
     {
-        $criteria = (new Criteria())->setLimit($limit);
+        $criteria = (new Criteria())->setLimit($limit)->setOffset(($page - 1) * $limit);
         $request = new Request(['p' => $page]);
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -424,7 +423,8 @@ class PagingListingProcessorTest extends TestCase
 
         $processor->process($request, $result, $context);
 
-        static::assertSame(3, $result->getPage());
+        // With limit=0 the page concept does not apply; the result reports the criteria-derived page (1).
+        static::assertSame(1, $result->getPage());
         static::assertSame(0, $result->getLimit());
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelReplaceUrlCommand;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -35,8 +36,8 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $domainEntity->setUrl($previousUrl);
 
         $searchResultMock = $this->createMock(EntitySearchResult::class);
-        $searchResultMock->method('first')
-            ->willReturn($domainEntity);
+        $searchResultMock->method('getEntities')
+            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->once())
@@ -136,8 +137,8 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         $domainEntity->setUrl($previousUrl);
 
         $searchResultMock = $this->createMock(EntitySearchResult::class);
-        $searchResultMock->method('first')
-            ->willReturn($domainEntity);
+        $searchResultMock->method('getEntities')
+            ->willReturn(new SalesChannelDomainCollection([$domainEntity]));
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->once())

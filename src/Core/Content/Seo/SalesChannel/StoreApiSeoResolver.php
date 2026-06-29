@@ -103,7 +103,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         if ($struct instanceof Collection) {
-            foreach ($struct as $item) {
+            $iterable = $struct instanceof EntitySearchResult ? $struct->getEntities() : $struct;
+            foreach ($iterable as $item) {
                 $this->findStruct($data, $item);
             }
         }
@@ -154,7 +155,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
+            foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $url) {
                 $entities = $data->getAll($definition, $url->getForeignKey());
 
                 foreach ($entities as $entity) {

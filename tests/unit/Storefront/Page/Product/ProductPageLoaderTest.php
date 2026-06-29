@@ -113,7 +113,7 @@ class ProductPageLoaderTest extends TestCase
             static::assertSame(1, $reviewData->getTotal());
             static::assertSame($productId, $reviewData->getProductId());
 
-            $loadedReview = $reviewData->first();
+            $loadedReview = $reviewData->getEntities()->first();
             static::assertNotNull($loadedReview);
             static::assertSame('Great product', $loadedReview->getTitle());
         } else {

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
 use Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -132,7 +133,7 @@ class YoutubeVideoCmsElementResolverTest extends TestCase
         $media->setId('media-1');
 
         $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with('media-1')->willReturn($media);
+        $searchResult->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $searchResult);

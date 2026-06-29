@@ -8,6 +8,20 @@
     cursor: pointer;
 }
 
+.sw-admin-menu__version-footer {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-4);
+    margin: var(--scale-size-8);
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-2xs);
+}
+
+.sw-admin-menu__version-footer .sw-version {
+    width: auto;
+}
+
 .sw-admin-menu__backdrop-enter-active,
 .sw-admin-menu__backdrop-leave-active {
     transition: opacity 0.3s ease-in-out;
@@ -133,10 +147,6 @@
         text-overflow: ellipsis;
         color: var(--color-text-secondary-default);
         font-size: var(--font-size-xs);
-    }
-
-    .sw-admin-menu__version-footer {
-        padding: var(--scale-size-8) var(--scale-size-16);
     }
 
     .sw-admin-menu__off-canvas-close {

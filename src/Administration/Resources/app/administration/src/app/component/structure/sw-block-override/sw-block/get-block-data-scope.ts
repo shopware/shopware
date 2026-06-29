@@ -1,17 +1,16 @@
 import { getCurrentInstance } from 'vue';
-import type { ComponentInternalInstance } from 'vue';
-import { scriptSetupDataScopeKey } from 'src/app/adapter/composition-extension-system';
-
-type ComponentInstanceWithScriptSetupDataScope = ComponentInternalInstance & {
-    [scriptSetupDataScopeKey]?: Record<string, unknown>;
-};
+import { getScriptSetupDataScope } from 'src/app/adapter/composition-extension-system';
 
 /**
  * @sw-package framework
  * @private
  */
 export default function getBlockDataScope() {
-    const instance = getCurrentInstance() as ComponentInstanceWithScriptSetupDataScope | null;
+    const instance = getCurrentInstance();
 
-    return instance?.[scriptSetupDataScopeKey] ?? instance?.proxy ?? null;
+    if (!instance) {
+        return null;
+    }
+
+    return getScriptSetupDataScope(instance) ?? instance.proxy ?? null;
 }

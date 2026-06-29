@@ -73,15 +73,15 @@ type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
 };
 
 /** @private */
-export const scriptSetupDataScopeKey = Symbol('shopwareSetupDataScope');
 const scriptSetupOverrideStateKey = '__swOverride' as const;
 
 type ScriptSetupOverrideState = Record<string, Record<string, unknown>>;
 
 type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
     readonly [scriptSetupOverrideStateKey]: Ref<Reactive<ScriptSetupOverrideState>>;
-    readonly [scriptSetupDataScopeKey]: ShallowUnwrapRef<ToRefs<Reactive<TState>>>;
 };
+
+const scriptSetupDataScopes = new WeakMap<ComponentInternalInstance, ShallowUnwrapRef<ToRefs<Reactive<object>>>>();
 
 /**
  * Typed wrapper around Vue's getCurrentInstance that includes the setupContext property.
@@ -90,6 +90,15 @@ type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
     return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
+}
+
+/**
+ * @private
+ */
+export function getScriptSetupDataScope(
+    instance: ComponentInternalInstance,
+): ShallowUnwrapRef<ToRefs<Reactive<object>>> | null {
+    return scriptSetupDataScopes.get(instance) ?? null;
 }
 
 /**
@@ -438,18 +447,10 @@ export function createExtendableSetup<
         configurable: true,
     });
 
-    Object.defineProperty(state, scriptSetupDataScopeKey, {
-        value: proxyRefs(state),
-        enumerable: false,
-    });
-
     const instance = getCurrentInstance();
 
     if (instance) {
-        Object.defineProperty(instance, scriptSetupDataScopeKey, {
-            value: state[scriptSetupDataScopeKey],
-            configurable: true,
-        });
+        scriptSetupDataScopes.set(instance, proxyRefs(state));
     }
 
     return state;

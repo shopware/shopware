@@ -113,7 +113,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
     });
 });
 
-test.skip('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
+test('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
     tag: ['@Product', '@Reviews', '@Storefront'],
     annotation: {
         type: 'issue',
@@ -151,9 +151,11 @@ test.skip('As a shop customer, I want to filter reviews, so that I can find the 
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('67%');
 
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).not.toBeChecked();
 
         reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
@@ -162,9 +164,11 @@ test.skip('As a shop customer, I want to filter reviews, so that I can find the 
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionPercentage).toHaveText('33%');
 
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await StorefrontProductDetail.page.waitForURL(`**/${productWithRating1.productNumber}`, { waitUntil: 'commit' });
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).not.toBeChecked();
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);

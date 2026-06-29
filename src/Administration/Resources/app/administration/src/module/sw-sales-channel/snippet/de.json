@@ -328,9 +328,9 @@
                 },
                 "descriptions": {
                     "agentic": {
-                        ".well-known/ai-catalog.json": "Ein maschinenlesbarer Katalog für Agentic Resource Discovery. Er hilft kompatiblen Clients, verfügbare KI-Ressourcen für diesen Verkaufskanal zu finden, zum Beispiel einen aktivierten Shopware-MCP-Server.",
-                        "llms.txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
-                        "agents.md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
+                        "well-known-ai-catalog-json": "Ein maschinenlesbarer Katalog für Agentic Resource Discovery. Er hilft kompatiblen Clients, verfügbare KI-Ressourcen für diesen Verkaufskanal zu finden, zum Beispiel einen aktivierten Shopware-MCP-Server.",
+                        "llms-txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
+                        "agents-md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
                     }
                 }
             },

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -12,7 +14,13 @@ async function createWrapper(customPropsData = {}) {
             global: {
                 directives: {
                     tooltip: {},
-                    droppable: {},
+                    droppable: {
+                        mounted(el, binding) {
+                            if (typeof binding.value?.data?.targetIndex === 'number') {
+                                el.dataset.dropTargetIndex = String(binding.value.data.targetIndex);
+                            }
+                        },
+                    },
                     draggable: {},
                 },
                 stubs: {
@@ -160,8 +168,61 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         ]);
     });
 
-    it('should emit `change` when swap on the same line on dragging', async () => {
+    it('should render the selection input inside the expected wrapper', async () => {
+        const wrapper = await createWrapper({ isSnippetDragging: true });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-label').classes()).toContain('sw-multi-snippet-drag-and-drop__snippet');
+
+        const inputWrapper = wrapper.find('.sw-select-selection-list__input-wrapper');
+        const input = inputWrapper.find('.sw-select-selection-list__input');
+
+        expect(input.exists()).toBe(true);
+        expect(input.attributes('readonly')).toBeDefined();
+        expect(input.attributes('placeholder')).toBe('sw-settings-country.general.actions.newSnippet');
+        expect(inputWrapper.find('.sw-multi-snippet-drag-and-drop__add-icon').exists()).toBe(true);
+        expect(inputWrapper.attributes('data-drop-target-index')).toBe('3');
+        expect(wrapper.classes()).toContain('is--dragging-snippet');
+    });
+
+    it('should emit `open-snippet-modal` when clicking the selection input row', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-select-selection-list__input-wrapper').trigger('click');
+
+        expect(wrapper.emitted('open-snippet-modal')).toEqual([[0]]);
+    });
+
+    it('should render a snippet placeholder for an empty row', async () => {
+        const wrapper = await createWrapper({
+            value: [],
+            externalDragPreview: {
+                dragIndex: 0,
+                sourceLinePosition: 0,
+                linePosition: 1,
+                targetIndex: 0,
+                snippet: 'address/company',
+            },
+            linePosition: 1,
+        });
+        await flushPromises();
+
+        const rowItems = wrapper.findAll('.sw-select-selection-list > li');
+
+        expect(rowItems[0].classes()).toContain('sw-multi-snippet-drag-and-drop__placeholder');
+        expect(rowItems[1].classes()).toContain('sw-select-selection-list__input-wrapper');
+    });
+
+    it('should move snippets on the same line when dragging', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
         await flushPromises();
 
         expect(wrapper.vm.value[1]).toBe('symbol/dash');
@@ -174,9 +235,9 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 snippet: 'address/company',
             },
             {
-                index: 1,
+                index: 2,
                 linePosition: 0,
-                snippet: 'symbol/dash',
+                snippet: 'address/department',
             },
         );
         await flushPromises();
@@ -186,8 +247,218 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             0,
             [
                 'symbol/dash',
-                'address/company',
                 'address/department',
+                'address/company',
+                'address/city',
+            ],
+        ]);
+    });
+
+    it('should preview the dragged snippet position while dragging', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 3,
+            },
+        );
+
+        expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
+        expect(wrapper.vm.isDragPreviewSource(0)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(2)).toBe(false);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+                targetIndex: 1,
+            },
+        );
+
+        expect(wrapper.vm.dragPreviewSnippet).toBe('address/company');
+        expect(wrapper.vm.shouldShowPlaceholderBefore(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(1)).toBe(false);
+
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+                targetIndex: 1,
+            },
+        );
+
+        expect(wrapper.vm.hasDragPreview).toBe(false);
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        ]);
+    });
+
+    it('should preview the original position after reversing across the hidden dragged snippet', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 3,
+            },
+        );
+
+        expect(wrapper.vm.isDragPreviewSource(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+                targetIndex: 1,
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(1)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderAfter(0)).toBe(false);
+
+        await wrapper.vm.onDrop(
+            {
+                index: 1,
+                linePosition: 0,
+                snippet: 'symbol/dash',
+            },
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+                targetIndex: 1,
+            },
+        );
+
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        ]);
+    });
+
+    it('should update the drop position when entering the same snippet twice', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                'address/company',
+                'symbol/dash',
+                'address/department',
+                'address/city',
+            ],
+        });
+        await flushPromises();
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 2,
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(true);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(false);
+
+        await wrapper.vm.onDragEnter(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            {
+                index: 2,
+                linePosition: 0,
+                snippet: 'address/department',
+                targetIndex: 3,
+            },
+        );
+
+        expect(wrapper.vm.shouldShowPlaceholderBefore(2)).toBe(false);
+        expect(wrapper.vm.shouldShowPlaceholderBefore(3)).toBe(true);
+
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: 'address/company',
+            },
+            null,
+        );
+
+        expect(wrapper.emitted('update:value')[0]).toEqual([
+            0,
+            [
+                'symbol/dash',
+                'address/department',
+                'address/company',
+                'address/city',
             ],
         ]);
     });
@@ -234,7 +505,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDragEnter(null, null);
         expect(wrapper.emitted()['drag-enter']).toBeFalsy();
 
-        await wrapper.vm.onDrop(
+        await wrapper.vm.onDragEnter(
             {
                 index: 0,
                 linePosition: 1,
@@ -244,9 +515,20 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 index: 1,
                 linePosition: 0,
                 snippet: 'symbol/dash',
+                targetIndex: 1,
             },
         );
 
+        await wrapper.vm.onDrop(
+            {
+                index: 0,
+                linePosition: 1,
+                snippet: 'address/company',
+            },
+            null,
+        );
+
         expect(wrapper.emitted()['drop-end']).toBeTruthy();
+        expect(wrapper.emitted()['drop-end'][0][1].dropData.targetIndex).toBe(1);
     });
 });

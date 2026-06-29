@@ -50,7 +50,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
         $value['displayParent'] = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
 
-        yield $field->getStorageName() => !empty($value) ? Json::encode($value) : null;
+        yield $field->getStorageName() => $value !== [] ? Json::encode($value) : null;
     }
 
     public function decode(Field $field, mixed $value): ?VariantListingConfig

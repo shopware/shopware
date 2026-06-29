@@ -75,29 +75,65 @@
         :title="$t('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
     >
+        <template #headerRight>
+            <mt-button
+                class="sw-settings-country-address-handling__button-reset"
+                variant="critical"
+                ghost
+                size="small"
+                @click="resetMarkup"
+            >
+                {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
+            </mt-button>
+        </template>
+
         <sw-container class="sw-settings-country-address-handling__options-container">
             <div class="sw-settings-country-address-handling__address-markup">
-                <sw-multi-snippet-drag-and-drop
-                    v-for="(snippet, index) in addressFormat"
-                    :key="index"
-                    v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
-                    v-draggable="{ ...dragConf, data: { snippet, index }}"
-                    :value="snippet"
-                    :line-position="index"
-                    :get-label-property="getLabelProperty"
-                    :total-lines="addressFormat.length"
-                    @update:value="change"
-                    @drop-end="onDropEnd"
-                    @position-move="moveToNewPosition"
-                    @add-new-line="addNewLineAt"
-                    @open-snippet-modal="openSnippetModal"
-                />
+                <template
+                    v-for="row in addressFormatRows"
+                    :key="row.key"
+                >
+                    <sw-multi-snippet-drag-and-drop
+                        v-if="row.isPlaceholder"
+                        class="is--row-placeholder"
+                        :value="row.snippet"
+                        :line-position="row.index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        disabled
+                    />
+
+                    <sw-multi-snippet-drag-and-drop
+                        v-else
+                        v-droppable="{ data: { snippet: row.snippet, index: row.index }, dragGroup: 'sw-multi-snippet' }"
+                        v-draggable="{ ...dragConf, data: { snippet: row.snippet, index: row.index }}"
+                        :class="{
+                            'is--row-dragging': !!rowDragPreview,
+                            'is--row-drag-preview-source': row.isSource,
+                        }"
+                        :value="row.snippet"
+                        :line-position="row.index"
+                        :get-label-property="getLabelProperty"
+                        :total-lines="addressFormat.length"
+                        :external-drag-preview="snippetDragPreview"
+                        :is-snippet-dragging="!!snippetDragItem"
+                        @update:value="change"
+                        @drag-start="onSnippetDragStart"
+                        @drag-enter="onSnippetDragEnter"
+                        @drop-end="onDropEnd"
+                        @position-move="moveToNewPosition"
+                        @add-new-line="addNewLineAt"
+                        @open-snippet-modal="openSnippetModal"
+                    />
+                </template>
             </div>
 
             <div class="sw-settings-country-address-handling__address-preview">
-                <div class="sw-card__title">
+                <hr class="sw-settings-country-address-handling__preview-separator">
+
+                <h3 class="sw-settings-country-address-handling__preview-title">
                     {{ $t('sw-settings-country.detail.previewTitle') }}
-                </div>
+                </h3>
 
                 <sw-entity-single-select
                     v-model:value="customerId"
@@ -111,16 +147,11 @@
                     @update:value="onChangeCustomer"
                 />
 
-                <sw-settings-country-preview-template :formatting-address="formattingAddress" />
-
-                <mt-button
-                    class="sw-settings-country-address-handling__button-reset"
-                    variant="critical"
-                    ghost
-                    @click="resetMarkup"
-                >
-                    {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
-                </mt-button>
+                <sw-settings-country-preview-template
+                    v-if="customer"
+                    :formatting-address="formattingAddress"
+                    :is-loading="isPreviewLoading"
+                />
             </div>
         </sw-container>
     </mt-card>

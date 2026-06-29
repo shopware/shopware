@@ -4,16 +4,11 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Discovery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplatePathIteratorInterface;
-use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Twig\Environment;
-use Twig\Loader\ArrayLoader;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -30,32 +25,19 @@ class SalesChannelFileDiscoveryTest extends TestCase
                 'files/seo/robots.txt.twig',
                 'files/agentic/llms.txt.twig',
                 'files/agentic/.well-known/ucp.json.twig',
-                'files/agentic/not-loaded.txt.twig',
+                'files/agentic/standalone.txt.twig',
             ]),
-            $this->createTemplateFinder([
-                '@Framework/files/agentic/llms.txt.twig' => '',
-                '@Framework/files/agentic/custom.agent.twig' => '',
-                '@Framework/files/seo/robots.txt.twig' => '',
-                '@Ucp/files/agentic/llms.txt.twig' => '',
-                '@Ucp/files/agentic/.well-known/ucp.json.twig' => '',
-            ]),
-            new ArrayAdapter(),
+            $this->createCache(),
         );
 
         $files = $discovery->discover('agentic');
 
-        static::assertSame(['.well-known/ucp.json', 'custom.agent', 'llms.txt'], array_keys($files));
+        static::assertSame(['.well-known/ucp.json', 'custom.agent', 'llms.txt', 'standalone.txt'], array_keys($files));
         static::assertSame('agentic', $files['llms.txt']->fileFamily);
         static::assertSame('files/agentic/llms.txt.twig', $files['llms.txt']->templatePath);
         static::assertSame('files/agentic/llms.txt.twig', $files['llms.txt']->baseTemplateName);
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']->contentType);
-        static::assertSame(
-            [
-                'Framework' => '@Framework/files/agentic/llms.txt.twig',
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
-            ],
-            $files['llms.txt']->templates
-        );
+        static::assertSame([], $files['llms.txt']->templates);
         static::assertSame('application/json; charset=utf-8', $files['.well-known/ucp.json']->contentType);
         static::assertSame('text/plain; charset=utf-8', $files['custom.agent']->contentType);
     }
@@ -67,11 +49,7 @@ class SalesChannelFileDiscoveryTest extends TestCase
                 'files/agentic/llms.txt.twig',
                 'files/seo/robots.txt.twig',
             ]),
-            $this->createTemplateFinder([
-                '@Framework/files/agentic/llms.txt.twig' => '',
-                '@Framework/files/seo/robots.txt.twig' => '',
-            ]),
-            new ArrayAdapter(),
+            $this->createCache(),
         );
 
         $files = $discovery->discover('seo');
@@ -81,12 +59,9 @@ class SalesChannelFileDiscoveryTest extends TestCase
         static::assertSame('files/seo/robots.txt.twig', $files['robots.txt']->templatePath);
     }
 
-    public function testItCachesDiscoveredFileCatalogueAcrossInstances(): void
+    public function testItCachesDiscoveredFilesAcrossInstances(): void
     {
-        $cache = new ArrayAdapter();
-        $templateFinder = $this->createTemplateFinder([
-            '@Framework/files/agentic/llms.txt.twig' => '',
-        ]);
+        $cache = $this->createCache();
 
         $firstTemplateIterator = $this->createMock(TemplatePathIteratorInterface::class);
         $firstTemplateIterator
@@ -100,30 +75,16 @@ class SalesChannelFileDiscoveryTest extends TestCase
             ->expects($this->never())
             ->method('getTemplatePathsForSubPath');
 
-        $firstDiscovery = new SalesChannelFileDiscovery($firstTemplateIterator, $templateFinder, $cache);
-        $secondDiscovery = new SalesChannelFileDiscovery($secondTemplateIterator, $templateFinder, $cache);
+        $firstDiscovery = new SalesChannelFileDiscovery($firstTemplateIterator, $cache);
+        $secondDiscovery = new SalesChannelFileDiscovery($secondTemplateIterator, $cache);
 
         static::assertArrayHasKey('llms.txt', $firstDiscovery->discover('agentic'));
-        static::assertArrayHasKey('llms.txt', $secondDiscovery->discover('agentic'));
+        static::assertSame([], $secondDiscovery->discover('agentic')['llms.txt']->templates);
     }
 
-    /**
-     * @param array<string, string> $templates
-     */
-    private function createTemplateFinder(array $templates): TemplateFinder
+    private function createCache(): CacheInterface
     {
-        $loader = new ArrayLoader($templates);
-        $twig = new Environment($loader);
-
-        return new TemplateFinder(
-            $twig,
-            $loader,
-            '',
-            new NamespaceHierarchyBuilder([
-                new SalesChannelFileStaticHierarchyBuilder(['Framework' => -1, 'Ucp' => 0]),
-            ]),
-            new TemplateScopeDetector(new RequestStack()),
-        );
+        return new TagAwareAdapter(new ArrayAdapter());
     }
 }
 
@@ -159,23 +120,5 @@ final readonly class SalesChannelFileStaticTemplateIterator implements TemplateP
 
             yield $templatePath;
         }
-    }
-}
-
-/**
- * @internal
- */
-final readonly class SalesChannelFileStaticHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
-{
-    /**
-     * @param array<string, int> $hierarchy
-     */
-    public function __construct(private array $hierarchy)
-    {
-    }
-
-    public function buildNamespaceHierarchy(array $namespaceHierarchy): array
-    {
-        return $this->hierarchy + $namespaceHierarchy;
     }
 }

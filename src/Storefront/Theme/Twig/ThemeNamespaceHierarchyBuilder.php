@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -43,6 +44,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
             KernelEvents::REQUEST => 'requestEvent',
             KernelEvents::EXCEPTION => 'requestEvent',
             DocumentTemplateRendererParameterEvent::class => 'onDocumentRendering',
+            SalesChannelFileTemplateResolveEvent::class => 'onSalesChannelFileTemplateResolve',
         ];
     }
 
@@ -64,17 +66,12 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         /** @var SalesChannelContext $context */
         $context = $parameters['context'];
 
-        $themes = [];
+        $this->resolveThemesForSalesChannel($context->getSalesChannelId());
+    }
 
-        $theme = $this->salesChannelThemeLoader?->load($context->getSalesChannelId());
-
-        if ($theme !== null && $theme !== [] && isset($theme[0])) {
-            $themes[$theme[0]] = true;
-        }
-
-        $themes['Storefront'] = true;
-
-        $this->themes = $themes;
+    public function onSalesChannelFileTemplateResolve(SalesChannelFileTemplateResolveEvent $event): void
+    {
+        $this->resolveThemesForSalesChannel($event->salesChannelId);
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
@@ -113,5 +110,20 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         $themes['Storefront'] = true;
 
         return $themes;
+    }
+
+    private function resolveThemesForSalesChannel(string $salesChannelId): void
+    {
+        $themes = [];
+
+        $theme = $this->salesChannelThemeLoader?->load($salesChannelId);
+
+        if ($theme !== null && $theme !== [] && isset($theme[0])) {
+            $themes[$theme[0]] = true;
+        }
+
+        $themes['Storefront'] = true;
+
+        $this->themes = $themes;
     }
 }

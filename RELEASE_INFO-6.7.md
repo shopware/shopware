@@ -147,6 +147,12 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 ## Administration
 
+### Administration caches shared user configuration and reference data
+
+Administration now reuses shared Pinia stores for current-user configuration and frequently loaded reference data such as currencies, active languages, sales channel types, and the system currency. This reduces repeated Admin API requests when multiple Administration components need the same data.
+
+Custom Administration extensions that update these values outside the standard Shopware services should reload the affected view, invalidate the related store, or request a forced reload before expecting already mounted components to show the changed data.
+
 ### Snippet inheritance from JSON language files
 
 The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.

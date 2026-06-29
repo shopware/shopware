@@ -178,8 +178,11 @@ For cached reference data, force a reload of the affected data or invalidate it 
 ```js
 const referenceDataStore = Shopware.Store.get('adminReferenceData');
 
+// Pass true to force a reload, even when the cached currencies are still fresh.
 const currencies = await referenceDataStore.loadCurrencies(true);
 
+// Invalidate only the cached reference data your plugin changed.
+referenceDataStore.invalidateCurrencies();
 referenceDataStore.invalidateActiveLanguages();
 referenceDataStore.invalidateSalesChannelTypes();
 referenceDataStore.invalidateSystemCurrency();

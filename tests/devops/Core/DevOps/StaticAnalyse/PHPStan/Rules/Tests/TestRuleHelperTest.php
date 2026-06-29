@@ -35,6 +35,14 @@ class TestRuleHelperTest extends TestCase
         static::assertSame($isUnitTestClass, TestRuleHelper::isUnitTestClass($classReflection));
     }
 
+    public function testIsUnitTestClassUsesConfiguredNamespaces(): void
+    {
+        $classReflection = $this->createTestClassReflection('Shopware\Commercial\Tests\Unit\SomeTestClass');
+
+        static::assertFalse(TestRuleHelper::isUnitTestClass($classReflection));
+        static::assertTrue(TestRuleHelper::isUnitTestClass($classReflection, ['Shopware\\Commercial\\Tests\\Unit\\']));
+    }
+
     public static function classProvider(): \Generator
     {
         yield [
@@ -78,5 +86,24 @@ class TestRuleHelperTest extends TestCase
             'isTestClass' => false,
             'isUnitTestClass' => false,
         ];
+    }
+
+    private function createTestClassReflection(string $className): TestReflectionClassInterface
+    {
+        $classReflection = $this->createMock(TestReflectionClassInterface::class);
+        $classReflection
+            ->method('getName')
+            ->willReturn($className);
+
+        $parentClass = $this->createMock(TestReflectionClassInterface::class);
+        $parentClass
+            ->method('getName')
+            ->willReturn(TestCase::class);
+
+        $classReflection
+            ->method('getParents')
+            ->willReturn([$parentClass]);
+
+        return $classReflection;
     }
 }

@@ -63,6 +63,9 @@ parameters:
 
         allowedStorefrontRouteNamespaces:
             - Shopware\Storefront
+        allowedUnitTestClassNamespaces:
+            - Shopware\Tests\Unit\
+            - Shopware\Tests\Migration\
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -72,4 +75,5 @@ parametersSchema:
     shopware: structure([
         allowedNonDomainExceptions: list(string),
         allowedStorefrontRouteNamespaces: list(string),
+        allowedUnitTestClassNamespaces: list(string),
 ])

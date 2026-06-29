@@ -12,10 +12,10 @@ interface DragConfig {
     preventEvent: boolean;
     validateDrop: boolean;
     validateDrag: boolean;
-    onDragStart: (...args: never[]) => void;
-    onDragEnter: (...args: never[]) => void;
-    onDragLeave: (...args: never[]) => void;
-    onDrop: (...args: never[]) => void;
+    onDragStart?: (...args: never[]) => void;
+    onDragEnter?: (...args: never[]) => void;
+    onDragLeave?: (...args: never[]) => void;
+    onDrop?: (...args: never[]) => void;
     data: Record<string, unknown>;
     disabled: boolean;
 }

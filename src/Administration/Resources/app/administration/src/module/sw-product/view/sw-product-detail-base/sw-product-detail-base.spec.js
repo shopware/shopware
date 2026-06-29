@@ -7,6 +7,8 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { nextTick } from 'vue';
+import 'src/app/store/admin-reference-data.store';
+import 'src/app/store/admin-user-config.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-product-detail-base', { sync: true }), {
@@ -110,6 +112,13 @@ async function createWrapper() {
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        Shopware.Store.get('adminReferenceData').$reset();
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadProductNumberRangeIds').mockResolvedValue([]);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
         store.parentProduct = {

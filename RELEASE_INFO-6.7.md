@@ -149,7 +149,7 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 ### Administration caches shared user configuration and reference data
 
-Administration now reuses shared Pinia stores for current-user configuration and frequently loaded reference data such as currencies, active languages, sales channel types, and the system currency. This reduces repeated Admin API requests when multiple Administration components need the same data.
+Administration now reuses shared Pinia stores for current-user configuration and frequently loaded reference data such as currencies, taxes, active languages, sales channel types, product number ranges, and the system currency. This reduces repeated Admin API requests when multiple Administration components need the same data.
 
 Custom Administration extensions that update these values outside the standard Shopware services should reload the affected view, invalidate the related store, or request a forced reload before expecting already mounted components to show the changed data.
 
@@ -183,8 +183,10 @@ const currencies = await referenceDataStore.loadCurrencies(true);
 
 // Invalidate only the cached reference data your plugin changed.
 referenceDataStore.invalidateCurrencies();
+referenceDataStore.invalidateTaxes();
 referenceDataStore.invalidateActiveLanguages();
 referenceDataStore.invalidateSalesChannelTypes();
+referenceDataStore.invalidateProductNumberRangeIds();
 referenceDataStore.invalidateSystemCurrency();
 ```
 

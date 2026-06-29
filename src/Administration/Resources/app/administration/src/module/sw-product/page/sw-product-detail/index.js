@@ -26,7 +26,6 @@ export default {
         'acl',
         'systemConfigApiService',
         'entityValidationService',
-        'userConfigService',
     ],
 
     provide() {
@@ -184,14 +183,6 @@ export default {
             });
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
-        taxRepository() {
-            return this.repositoryFactory.create('tax');
-        },
-
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -300,13 +291,6 @@ export default {
                     'Standard',
                 ]),
             );
-
-            return criteria;
-        },
-
-        taxCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addSorting(Criteria.sort('position'));
 
             return criteria;
         },
@@ -946,8 +930,8 @@ export default {
                 true,
             ]);
 
-            return this.currencyRepository
-                .search(new Criteria(1, 500))
+            return Shopware.Store.get('adminReferenceData')
+                .loadCurrencies()
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').currencies = res;
                 })
@@ -965,8 +949,8 @@ export default {
                 true,
             ]);
 
-            return this.taxRepository
-                .search(this.taxCriteria)
+            return Shopware.Store.get('adminReferenceData')
+                .loadTaxes()
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').setTaxes(res);
                 })
@@ -1515,8 +1499,7 @@ export default {
         },
 
         async getPreferredMeasurementUnits() {
-            const response = await this.userConfigService.search(['measurement.preferenceUnits']);
-            return response.data['measurement.preferenceUnits'];
+            return Shopware.Store.get('adminUserConfig').get('measurement.preferenceUnits');
         },
 
         savePreferenceUnits() {
@@ -1524,7 +1507,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.userConfigService.upsert({
+            return Shopware.Store.get('adminUserConfig').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,

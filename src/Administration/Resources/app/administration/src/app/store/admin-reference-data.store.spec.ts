@@ -19,7 +19,7 @@ describe('admin-reference-data.store', () => {
         const getMock = jest.fn().mockResolvedValue(currency);
 
         jest.spyOn(Date, 'now').mockReturnValue(1000);
-        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ get: getMock });
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ get: getMock } as never);
 
         expect(await store.loadSystemCurrency()).toStrictEqual(currency);
         expect(await store.loadSystemCurrency()).toStrictEqual(currency);
@@ -32,7 +32,7 @@ describe('admin-reference-data.store', () => {
         const searchMock = jest.fn().mockResolvedValueOnce(firstLanguages).mockResolvedValueOnce(secondLanguages);
 
         jest.spyOn(Date, 'now').mockReturnValueOnce(1000).mockReturnValueOnce(1200).mockReturnValueOnce(1200);
-        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock } as never);
 
         expect(await store.loadActiveLanguages()).toStrictEqual(firstLanguages);
         expect(await store.loadActiveLanguages()).toStrictEqual(secondLanguages);
@@ -45,7 +45,7 @@ describe('admin-reference-data.store', () => {
         const searchMock = jest.fn().mockResolvedValueOnce(firstTypes).mockResolvedValueOnce(secondTypes);
 
         jest.spyOn(Date, 'now').mockReturnValue(1000);
-        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock } as never);
 
         expect(await store.loadSalesChannelTypes()).toStrictEqual(firstTypes);
 
@@ -53,5 +53,31 @@ describe('admin-reference-data.store', () => {
 
         expect(await store.loadSalesChannelTypes()).toStrictEqual(secondTypes);
         expect(searchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('reuses cached taxes while they are fresh', async () => {
+        const taxes = [{ id: 'tax-id', taxRate: 19 }];
+        const searchMock = jest.fn().mockResolvedValue(taxes);
+
+        jest.spyOn(Date, 'now').mockReturnValue(1000);
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock } as never);
+
+        expect(await store.loadTaxes()).toStrictEqual(taxes);
+        expect(await store.loadTaxes()).toStrictEqual(taxes);
+        expect(searchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('reuses pending product number range id loads', async () => {
+        const searchIdsMock = jest.fn().mockResolvedValue({ data: ['number-range-id'] });
+
+        jest.spyOn(Date, 'now').mockReturnValue(1000);
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ searchIds: searchIdsMock } as never);
+
+        const firstLoad = store.loadProductNumberRangeIds();
+        const secondLoad = store.loadProductNumberRangeIds();
+
+        expect(await firstLoad).toStrictEqual(['number-range-id']);
+        expect(await secondLoad).toStrictEqual(['number-range-id']);
+        expect(searchIdsMock).toHaveBeenCalledTimes(1);
     });
 });

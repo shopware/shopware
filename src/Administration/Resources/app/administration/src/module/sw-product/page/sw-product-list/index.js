@@ -95,10 +95,6 @@ export default {
             return this.getProductColumns();
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         currenciesColumns() {
             return this.currencies
                 .toSorted((a, b) => {
@@ -139,10 +135,6 @@ export default {
             });
 
             return productCriteria;
-        },
-
-        currencyCriteria() {
-            return new Criteria(1, 500);
         },
 
         salesChannelCriteria() {
@@ -387,7 +379,7 @@ export default {
 
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    this.currencyRepository.search(this.currencyCriteria),
+                    Shopware.Store.get('adminReferenceData').loadCurrencies(),
                 ]);
 
                 const products = result[0];

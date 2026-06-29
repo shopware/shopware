@@ -9,7 +9,7 @@ const userConfigServiceMock = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+Shopware.Service().register('userConfigService', () => userConfigServiceMock as never);
 
 interface SessionStoreMock {
     setCurrentUser(user: { id: string }): void;
@@ -40,8 +40,24 @@ describe('admin-user-config.store', () => {
         expect(userConfigServiceMock.search).toHaveBeenCalledWith(null);
     });
 
+    it('reuses the pending config load for concurrent first reads', async () => {
+        userConfigServiceMock.search.mockResolvedValue({
+            data: {
+                foo: 'bar',
+                baz: 'qux',
+            },
+        });
+
+        const firstRead = store.get('foo');
+        const secondRead = store.get('baz');
+
+        expect(await firstRead).toBe('bar');
+        expect(await secondRead).toBe('qux');
+        expect(userConfigServiceMock.search).toHaveBeenCalledTimes(1);
+    });
+
     it('updates local values after an upsert without marking a partial cache as fully loaded', async () => {
-        userConfigServiceMock.upsert.mockResolvedValue();
+        userConfigServiceMock.upsert.mockResolvedValue(undefined);
 
         await store.upsert({ foo: 'bar' });
 

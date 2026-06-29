@@ -19,6 +19,8 @@ interface AdminUserConfigSessionUser {
     id?: string | null;
 }
 
+let pendingLoad: Promise<AdminUserConfigValues> | null = null;
+
 const adminUserConfigStore = Shopware.Store.register({
     id: 'adminUserConfig',
 
@@ -56,14 +58,26 @@ const adminUserConfigStore = Shopware.Store.register({
                 return this.configs;
             }
 
+            if (pendingLoad) {
+                return pendingLoad;
+            }
+
             const userConfigService = Shopware.Service('userConfigService') as unknown as UserConfigService;
-            const response = await userConfigService.search(null);
 
-            this.configs = response?.data ?? {};
-            this.loaded = true;
-            this.userId = this.getCurrentUserId();
+            pendingLoad = userConfigService
+                .search(null)
+                .then((response) => {
+                    this.configs = response?.data ?? {};
+                    this.loaded = true;
+                    this.userId = this.getCurrentUserId();
 
-            return this.configs;
+                    return this.configs;
+                })
+                .finally(() => {
+                    pendingLoad = null;
+                });
+
+            return pendingLoad;
         },
 
         async get<T = unknown>(key: string): Promise<T | undefined> {

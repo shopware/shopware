@@ -8,6 +8,8 @@ import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import 'src/app/store/admin-reference-data.store';
+import 'src/app/store/admin-user-config.store';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -377,9 +379,21 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         lastProductSearchCriteria = null;
+        Shopware.Store.get('adminReferenceData').$reset();
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadCurrencies').mockResolvedValue(getCurrencyData());
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+
         const data = await createWrapper();
         wrapper = data.wrapper;
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        jest.restoreAllMocks();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -412,6 +426,12 @@ describe('module/sw-product/page/sw-product-list', () => {
         // verify that grid did not crash when sorting for prices
         const skeletonElement = wrapper.find('.sw-data-grid-skeleton');
         expect(skeletonElement.exists()).toBe(false);
+    });
+
+    it('loads currencies from the shared reference data store', async () => {
+        await wrapper.vm.getList();
+
+        expect(Shopware.Store.get('adminReferenceData').loadCurrencies).toHaveBeenCalledTimes(1);
     });
 
     it('should sort products by different currencies', async () => {

@@ -6,6 +6,8 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/app/store/admin-reference-data.store';
+import 'src/app/store/admin-user-config.store';
 
 const advancedModeSettings = {
     value: {
@@ -190,6 +192,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        Shopware.Store.get('adminReferenceData').$reset();
+        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadCurrencies').mockResolvedValue([]);
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadTaxes').mockResolvedValue([]);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
+        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+
         wrapper = await createWrapper();
 
         Shopware.Store.get('swProductDetail').setLengthUnit = jest.fn();
@@ -349,14 +359,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
         await wrapper.vm.$nextTick();
-        wrapper.vm.currencyRepository.search = jest.fn(() => {
-            return Promise.resolve([
-                {
-                    id: '123',
-                    name: 'EUR',
-                },
-            ]);
-        });
+        Shopware.Store.get('adminReferenceData').loadCurrencies.mockResolvedValue([
+            {
+                id: '123',
+                name: 'EUR',
+            },
+        ]);
 
         await wrapper.vm.loadCurrencies();
         await nextTick();
@@ -479,12 +487,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should initialize with default units when no preferences exist', async () => {
-        wrapper.vm.userConfigService.search = jest.fn(() =>
-            Promise.resolve({
-                data: {},
-            }),
-        );
-
         await wrapper.vm.initProductMeasurementUnits();
 
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
@@ -499,13 +501,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             weight: 'g',
         };
 
-        wrapper.vm.userConfigService.search = jest.fn(() =>
-            Promise.resolve({
-                data: {
-                    'measurement.preferenceUnits': preferredUnits,
-                },
-            }),
-        );
+        Shopware.Store.get('adminUserConfig').get.mockResolvedValue(preferredUnits);
 
         await wrapper.vm.initProductMeasurementUnits();
 
@@ -521,11 +517,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
-
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -536,11 +530,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
-
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('adminUserConfig').upsert).not.toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -551,11 +543,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.reject(new Error('Save failed')));
+        Shopware.Store.get('adminUserConfig').upsert.mockRejectedValue(new Error('Save failed'));
 
         await wrapper.vm.saveProduct();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalled();
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalled();
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');

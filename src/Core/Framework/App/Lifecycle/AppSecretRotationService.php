@@ -103,7 +103,15 @@ class AppSecretRotationService
             $newSecret = AccessKeyHelper::generateSecretAccessKey();
             $newIntegrationId = Uuid::randomHex();
 
-            $this->switchToNewIntegration($appId, $currentIntegration, $currentIntegrationId, $newIntegrationId, $newAccessKey, $newSecret, $context);
+            $this->switchToNewIntegration(
+                appId: $appId,
+                currentIntegration: $currentIntegration,
+                currentIntegrationId: $currentIntegrationId,
+                newIntegrationId: $newIntegrationId,
+                newAccessKey: $newAccessKey,
+                newSecret: $newSecret,
+                context: $context,
+            );
 
             try {
                 $this->registrationService->registerApp($manifest, $appId, $newSecret, $context);
@@ -118,7 +126,12 @@ class AppSecretRotationService
                 // was uncertain and left an unconfirmed secret, in which case the new integration must stay so
                 // app:secret:recover can re-register against it.
                 if ($this->loadApp($appId, $context)->getUnconfirmedAppSecrets() === null) {
-                    $this->restorePreviousIntegration($appId, $currentIntegrationId, $newIntegrationId, false, $context);
+                    $this->restorePreviousIntegration(
+                        appId: $appId,
+                        currentIntegrationId: $currentIntegrationId,
+                        newIntegrationId: $newIntegrationId,
+                        context: $context,
+                    );
                 }
 
                 $this->logger->error('App secret rotation failed', [
@@ -213,7 +226,15 @@ class AppSecretRotationService
         $newSecret = AccessKeyHelper::generateSecretAccessKey();
         $newIntegrationId = Uuid::randomHex();
 
-        $this->switchToNewIntegration($appId, $currentIntegration, $currentIntegrationId, $newIntegrationId, $newAccessKey, $newSecret, $context);
+        $this->switchToNewIntegration(
+            appId: $appId,
+            currentIntegration: $currentIntegration,
+            currentIntegrationId: $currentIntegrationId,
+            newIntegrationId: $newIntegrationId,
+            newAccessKey: $newAccessKey,
+            newSecret: $newSecret,
+            context: $context,
+        );
 
         try {
             foreach ($candidateSecrets as $appHeldSecret) {
@@ -242,7 +263,13 @@ class AppSecretRotationService
             // An attempt failed without a clear answer (a 5xx/timeout, or a non-registration failure after the
             // integration switch). The outcome is unknown, so rethrow for the operator to retry — mirroring
             // rotateNow's \Throwable handling — and let settle decide whether to undo the integration switch.
-            $this->settleAmbiguousRecovery($appId, $unconfirmed, $currentIntegrationId, $newIntegrationId, $context);
+            $this->settleAmbiguousRecovery(
+                appId: $appId,
+                originalUnconfirmed: $unconfirmed,
+                currentIntegrationId: $currentIntegrationId,
+                newIntegrationId: $newIntegrationId,
+                context: $context,
+            );
             $this->recordRecoveryOutcome('unknown');
 
             throw $e;
@@ -251,7 +278,12 @@ class AppSecretRotationService
         // The app refused every candidate secret, so core no longer holds a secret it trusts and the
         // registration cannot be recovered. Put the app back on the integration it had before recovery and
         // clear the now-useless unconfirmed list.
-        $this->restorePreviousIntegration($appId, $currentIntegrationId, $newIntegrationId, true, $context);
+        $this->restorePreviousIntegrationAndDiscardSecrets(
+            appId: $appId,
+            currentIntegrationId: $currentIntegrationId,
+            newIntegrationId: $newIntegrationId,
+            context: $context,
+        );
         $this->recordRecoveryOutcome('claimed');
 
         throw AppException::appSecretRotationClaimed($app->getName());
@@ -283,29 +315,52 @@ class AppSecretRotationService
             return;
         }
 
-        $this->restorePreviousIntegration($appId, $currentIntegrationId, $newIntegrationId, false, $context);
+        $this->restorePreviousIntegration(
+            appId: $appId,
+            currentIntegrationId: $currentIntegrationId,
+            newIntegrationId: $newIntegrationId,
+            context: $context,
+        );
     }
 
     /**
-     * Undo an integration switch: point the app back at the integration it had before, un-delete it, and
-     * soft-delete the fresh one. When $clearUnconfirmed is true (recovery exhausted every candidate secret),
-     * also drop the now-useless unconfirmed list; otherwise it is left untouched for a later retry.
+     * Roll back an integration switch: point the app back at the integration it had before, un-delete it, and
+     * soft-delete the fresh one. The unconfirmed list is left untouched — a later recovery retry still needs it.
      */
     private function restorePreviousIntegration(
         string $appId,
         string $currentIntegrationId,
         string $newIntegrationId,
-        bool $clearUnconfirmed,
         Context $context
     ): void {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $currentIntegrationId, $newIntegrationId, $clearUnconfirmed): void {
-            $appUpdate = ['id' => $appId, 'integrationId' => $currentIntegrationId];
-            if ($clearUnconfirmed) {
-                $appUpdate['unconfirmedAppSecrets'] = null;
-                $appUpdate['unconfirmedAppSecretsUpdatedAt'] = null;
-            }
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $currentIntegrationId, $newIntegrationId): void {
+            $this->appRepository->update([['id' => $appId, 'integrationId' => $currentIntegrationId]], $context);
 
-            $this->appRepository->update([$appUpdate], $context);
+            $this->integrationRepository->update([
+                ['id' => $currentIntegrationId, 'deletedAt' => null],
+                ['id' => $newIntegrationId, 'deletedAt' => $this->clock->now()],
+            ], $context);
+        });
+    }
+
+    /**
+     * Like restorePreviousIntegration, but also drops the unconfirmed list. Used when recovery has exhausted
+     * every candidate secret: the app trusts none of them, so the list is useless and must stop flagging the
+     * app as stuck.
+     */
+    private function restorePreviousIntegrationAndDiscardSecrets(
+        string $appId,
+        string $currentIntegrationId,
+        string $newIntegrationId,
+        Context $context
+    ): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $currentIntegrationId, $newIntegrationId): void {
+            $this->appRepository->update([[
+                'id' => $appId,
+                'integrationId' => $currentIntegrationId,
+                'unconfirmedAppSecrets' => null,
+                'unconfirmedAppSecretsUpdatedAt' => null,
+            ]], $context);
 
             $this->integrationRepository->update([
                 ['id' => $currentIntegrationId, 'deletedAt' => null],
@@ -360,10 +415,7 @@ class AppSecretRotationService
     private function resolveManifest(AppEntity $app): Manifest
     {
         $filesystem = $this->sourceResolver->filesystemForApp($app);
-        // Mirror AppLoader / AbstractShopIdChangeStrategy: a local override wins, so a locally-installed app
-        // re-registers against the manifest it was actually installed from.
-        $path = $filesystem->hasFile('manifest.local.xml') ? 'manifest.local.xml' : 'manifest.xml';
 
-        return $this->manifestFactory->createFromXmlFile($filesystem->path($path));
+        return $this->manifestFactory->createFromXmlFile($filesystem->path('manifest.xml'));
     }
 }

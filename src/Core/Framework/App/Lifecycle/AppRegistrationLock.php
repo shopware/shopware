@@ -32,8 +32,7 @@ class AppRegistrationLock
     }
 
     /**
-     * Acquire the per-app lock, or throw — this never returns without the lock (unlike Symfony's
-     * LockInterface::acquire(), which returns false on contention), so callers MUST release it in a finally.
+     * Callers MUST release the acquired lock in a finally block.
      *
      * @throws AppException appSecretRotationInProgress when another rotation/recovery/registration holds the
      *                      lock; appSecretLockUnavailable when the lock store itself is unreachable

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -33,12 +34,58 @@ class HttpRequestMetricSubscriberTest extends TestCase
      */
     private array $emitted = [];
 
-    public function testSubscribesToTerminate(): void
+    public function testSubscribesToResponseAndTerminate(): void
     {
         static::assertSame(
-            [KernelEvents::TERMINATE => 'onKernelTerminate'],
+            [
+                KernelEvents::RESPONSE => 'onKernelResponse',
+                KernelEvents::TERMINATE => 'onKernelTerminate',
+            ],
             HttpRequestMetricSubscriber::getSubscribedEvents()
         );
+    }
+
+    public function testResolvesLabelsFromRoutedRequestCapturedOnResponse(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // routed (transformed) request carries the route attributes
+        $routed = Request::create('/');
+        $routed->attributes->set('_route', 'frontend.detail.page');
+        $routed->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($routed, HttpKernelInterface::MAIN_REQUEST));
+
+        // terminate gets the pre-transform request without route attributes
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+    }
+
+    public function testIgnoresEsiFragmentsAndSubRequests(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // page request is captured
+        $page = Request::create('/');
+        $page->attributes->set('_route', 'frontend.detail.page');
+        $page->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($page, HttpKernelInterface::MAIN_REQUEST));
+
+        // an ESI fragment must not overwrite the page request
+        $fragment = Request::create('/');
+        $fragment->attributes->set('_sw_esi', true);
+        $fragment->attributes->set('_route', 'frontend.cms.page');
+        $fragment->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
+        $subscriber->onKernelResponse($this->createResponseEvent($fragment, HttpKernelInterface::MAIN_REQUEST));
+
+        // a real sub-request must not overwrite it either
+        $sub = Request::create('/');
+        $sub->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
+        $subscriber->onKernelResponse($this->createResponseEvent($sub, HttpKernelInterface::SUB_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
     }
 
     public function testEmitsMetricsWithSharedLabels(): void
@@ -153,6 +200,16 @@ class HttpRequestMetricSubscriberTest extends TestCase
             $this->createMock(HttpKernelInterface::class),
             $request,
             new Response('', $statusCode)
+        );
+    }
+
+    private function createResponseEvent(Request $request, int $requestType): ResponseEvent
+    {
+        return new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            $requestType,
+            new Response()
         );
     }
 }

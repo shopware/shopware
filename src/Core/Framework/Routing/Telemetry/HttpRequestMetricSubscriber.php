@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -17,6 +19,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Emits per-master-request HTTP metrics on kernel.terminate, which fires once per master request
  * (sub-requests excluded). Resolves the `area`, `domain` and `operation` labels once and reuses them
  * across all metrics.
+ *
+ * The labels come from the routed request. On a sales-channel request the kernel routes a duplicated
+ * request (see RequestTransformer), and kernel.terminate gets the pre-transform request without route
+ * attributes. So we keep the routed request from kernel.response and resolve labels from it on terminate.
  *
  * @internal
  *
@@ -26,6 +32,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 final class HttpRequestMetricSubscriber implements EventSubscriberInterface
 {
     private readonly ?QueryCounter $queryCounter;
+
+    private ?Request $routedRequest = null;
 
     public function __construct(
         private readonly Telemetry $telemetry,
@@ -46,13 +54,27 @@ final class HttpRequestMetricSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            KernelEvents::RESPONSE => 'onKernelResponse',
             KernelEvents::TERMINATE => 'onKernelTerminate',
         ];
     }
 
+    public function onKernelResponse(ResponseEvent $event): void
+    {
+        // Skip ESI fragments: they are resolved as main requests too. The outer
+        // page request is the one without the `_sw_esi` marker.
+        if (!$event->isMainRequest() || $event->getRequest()->attributes->has('_sw_esi')) {
+            return;
+        }
+
+        $this->routedRequest = $event->getRequest();
+    }
+
     public function onKernelTerminate(TerminateEvent $event): void
     {
-        $request = $event->getRequest();
+        // Use the routed request from kernel.response; fall back to the terminate request if missing.
+        $request = $this->routedRequest ?? $event->getRequest();
+        $this->routedRequest = null;
 
         $labels = [
             'area' => $this->areaResolver->resolve($request),

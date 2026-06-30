@@ -187,6 +187,9 @@ export default {
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
+            // Media entities created via `sync` for which the file upload has not finished yet. Used to
+            // clean up empty media entities that would otherwise be orphaned if the upload is abandoned.
+            pendingUploadMediaIds: new Set(),
         };
     },
 
@@ -311,6 +314,8 @@ export default {
         },
 
         beforeDestroyComponent() {
+            this.cleanupPendingUploads();
+
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
@@ -506,6 +511,12 @@ export default {
 
             await this.mediaRepository.sync(syncEntities, Context.api);
 
+            syncEntities.forEach((entity) => {
+                if (entity.id) {
+                    this.pendingUploadMediaIds.add(entity.id);
+                }
+            });
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 
@@ -529,11 +540,37 @@ export default {
             return mediaItem;
         },
 
+        cleanupPendingUploads() {
+            if (this.pendingUploadMediaIds.size === 0) {
+                return;
+            }
+
+            const pendingIds = Array.from(this.pendingUploadMediaIds);
+            this.pendingUploadMediaIds.clear();
+
+            pendingIds.forEach((mediaId) => {
+                Promise.resolve()
+                    .then(() => this.mediaRepository.get(mediaId, Context.api))
+                    .then((media) => {
+                        if (media && !media.hasFile) {
+                            return this.mediaRepository.delete(mediaId, Context.api);
+                        }
+
+                        return null;
+                    })
+                    .catch(() => null);
+            });
+        },
+
         async getDefaultFolderId() {
             return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
+            if (action === 'media-upload-finish' || action === 'media-upload-fail') {
+                this.pendingUploadMediaIds.delete(payload.targetId);
+            }
+
             if (action === 'media-upload-fail') {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),

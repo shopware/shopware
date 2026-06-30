@@ -12,7 +12,6 @@ nav:
 
 The CheapestPriceFacade is a wrapper around the cheapest price of the product.
 
-
 ### change()
 
 * `change()` allows to overwrite the cheapest price of the current price scope. The provided price will be recalculated
@@ -33,11 +32,13 @@ over the quantity price calculator to consider quantity, tax rule and cash round
 		
 		{% do variant.calculatedCheapestPrice.change(price) %}
         ```
+
     * Overwrite the cheapest price with the original price
 
         ```twig
         {% do variant.calculatedCheapestPrice.plus(price) %}
         ```
+
     * Discount the cheapest price by 10%
 
         ```twig
@@ -185,18 +186,19 @@ over the quantity price calculator to consider quantity, tax rule and cash round
         ```twig
         {% do product.calculatedPrice.surcharge(10) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/Hook/Pricing/PriceCollectionFacade.php) {#pricecollectionfacade}
 
 The PriceCollectionFacade is a wrapper around the calculated price collection of a product. It allows to manipulate the quantity
 prices by resetting or changing the price collection.
 
-
 ### change()
 
 * The `change()` function allows a complete overwrite of the product quantity prices
 * **Arguments:**
-    * *`array`* **changes**: 
+    * *`array`* **changes**:
 * **Examples:**
 
     * Overwrite the product prices with a new quantity price graduation
@@ -220,12 +222,13 @@ prices by resetting or changing the price collection.
 ### reset()
 
 * The `reset()` functions allows to reset the complete price collection.
+
 _________
+
 ## [`Shopware\Core\Content\Product\Hook\Pricing\ProductProxy`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/Hook/Pricing/ProductProxy.php) {#productproxy}
 
 The `ProductProxy` is a wrapper for the `SalesChannelProductEntity`. It provides access to all properties of the product,
 but also wraps some data into helper facade classes like `PriceFacade` or `PriceCollectionFacade`.
-
 
 ### __get()
 
@@ -272,4 +275,3 @@ be wrapped into a `PriceCollectionFacade` object which allows to manipulate the 
 * **Returns** [`Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade`](./product-script-services-reference#pricecollectionfacade) | `null`
 
     Returns a `PriceCollectionFacade` if the product has graduated prices, otherwise `null`
-_________

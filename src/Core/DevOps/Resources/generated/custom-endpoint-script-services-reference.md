@@ -12,7 +12,6 @@ nav:
 
 The `cache` service allows you to invalidate the cache if some entity is updated.
 
-
 ### invalidate()
 
 * `invalidate()` allows you to invalidate all cache entries with the given tag.
@@ -25,6 +24,7 @@ The `cache` service allows you to invalidate the cache if some entity is updated
         ```twig
         {% do services.cache.invalidate(['my-tag']) %}
         ```
+
     * Build tags based on written entities and invalidate those tags.
 
         ```twig
@@ -41,6 +41,7 @@ The `cache` service allows you to invalidate the cache if some entity is updated
 		
 		{% do services.cache.invalidate(tags) %}
         ```
+
     * Build tags if products with a specific property is created and invalidate those tags.
 
         ```twig
@@ -58,7 +59,9 @@ The `cache` service allows you to invalidate the cache if some entity is updated
 		
 		{% do services.cache.invalidate(tags) %}
         ```
+
 _________
+
 ## [services.writer (`Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Facade/RepositoryWriterFacade.php) {#repositorywriterfacade}
 
 The `writer` service allows you to write data, that is stored inside shopware.
@@ -139,6 +142,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		    { 'name': 'new Tax', 'taxRate': 99.9 }
 		]) %}
         ```
+
     * Update an existing entity.
 
         ```twig
@@ -146,11 +150,12 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		    { 'id':  hook.productId, 'active': true }
 		]) %}
         ```
+
 _________
+
 ## [services.response (`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/ScriptResponseFactoryFacade.php) {#scriptresponsefactoryfacade}
 
 The `response` service allows you to create HTTP-Responses.
-
 
 ### json()
 
@@ -172,6 +177,7 @@ The `response` service allows you to create HTTP-Responses.
         {% set response = services.response.json({ 'foo': 'bar' }) %}
 		{% do hook.setResponse(response) %}
         ```
+
     * Search for products and return them in a JsonResponse.
 
         ```twig
@@ -181,6 +187,7 @@ The `response` service allows you to create HTTP-Responses.
 		{% set response = services.response.json({ 'products': products }) %}
 		{% do hook.setResponse(response) %}
         ```
+
     * Provide a response to a ActionButtons request from the administration.
 
         ```twig
@@ -218,6 +225,7 @@ The `response` service allows you to create HTTP-Responses.
         {% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
 		{% do hook.setResponse(response) %}
         ```
+
     * Redirect to a storefront page.
 
         ```twig
@@ -257,4 +265,3 @@ The `response` service allows you to create HTTP-Responses.
 		
 		{% do hook.setResponse(response) %}
         ```
-_________

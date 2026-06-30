@@ -12,6 +12,7 @@ nav:
 
 The `request` service allows you to access the current request in the script
 Examples:
+
 ```twig
 {% block response %}
  {% if services.request.method != "POST" %}
@@ -102,11 +103,12 @@ Examples:
 * **Returns** `string`
 
     request uri
+
 _________
+
 ## [services.acl (`Shopware\Core\Framework\Script\Api\AclFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
 
 The `acl` service allows you to check if your app has been granted the specified privilege.
-
 
 ### can()
 
@@ -132,12 +134,15 @@ The `acl` service allows you to check if your app has been granted the specified
 		    {% do page.addExtension('myProduct', product) %}
 		{% endif %}
         ```
+
 _________
+
 ## [`Shopware\Core\Framework\Script\Facade\ArrayFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Facade/ArrayFacade.php) {#arrayfacade}
 
 The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
 An array facade can also be accessed like a "normal" array inside twig.
 Examples:
+
 ```twig
 {% do array.push('test') %}
 
@@ -233,11 +238,12 @@ Examples:
 		
 		{% do product.payload.set('test', 1) %}
         ```
+
 _________
+
 ## [services.config (`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#systemconfigfacade}
 
 The `config` service allows you to access the shop's and your app's configuration values.
-
 
 ### app()
 
@@ -246,8 +252,6 @@ The `config` service allows you to access the shop's and your app's configuratio
     Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
 
 * **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
-
-    
 * **Arguments:**
     * *`string`* **key**: The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
     * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
@@ -268,8 +272,6 @@ The `config` service allows you to access the shop's and your app's configuratio
     Notice that your app needs the `system_config:read` privilege to use this method.
 
 * **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
-
-    
 * **Arguments:**
     * *`string`* **key**: The key of the configuration value e.g. `core.listing.defaultSorting`.
     * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
@@ -282,4 +284,3 @@ The `config` service allows you to access the shop's and your app's configuratio
         ```twig
         {% set systemConfig = services.config.get('core.listing.productsPerPage') %}
         ```
-_________

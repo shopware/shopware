@@ -101,6 +101,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
+
     * Filter the search result.
 
         ```twig
@@ -117,6 +118,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
+
     * Add associations that should be included in the result.
 
         ```twig
@@ -135,7 +137,9 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		{% do page.addExtension('myProduct', product) %}
 		{% do page.addExtension('myManufacturer', product.manufacturer) %}
         ```
+
 _________
+
 ## [services.store (`Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php) {#saleschannelrepositoryfacade}
 
 The `store` service can be used to access publicly available `store-api` data.
@@ -233,6 +237,7 @@ this means that e.g. product prices are already calculated based on the current 
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
+
     * Filter the search result.
 
         ```twig
@@ -249,6 +254,7 @@ this means that e.g. product prices are already calculated based on the current 
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
+
     * Add associations that should be included in the result.
 
         ```twig
@@ -267,4 +273,3 @@ this means that e.g. product prices are already calculated based on the current 
 		{% do page.addExtension('myProduct', product) %}
 		{% do page.addExtension('myManufacturer', product.manufacturer) %}
         ```
-_________

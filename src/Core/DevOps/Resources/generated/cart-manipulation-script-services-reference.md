@@ -20,7 +20,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
     Use this to get the correct prices after you made changes to the cart.
 	Note that after calling the `calculate()` all collections (e.g. items(), products()) get new references,
 	so if you still hold references to things inside the cart, these are outdated after calling `calculate()`.
-	
+
 	The `calculate()` method will be called automatically after your cart script executed.
 
 ### count()
@@ -67,6 +67,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		
 		{% do services.cart.discount('my-discount', 'absolute', price, 'Fancy discount') %}
         ```
+
     * Add a relative discount to the cart.
 
         ```twig
@@ -189,6 +190,7 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		
 		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fancy surcharge') %}
         ```
+
     * Add a relative surcharge to the cart.
 
         ```twig
@@ -202,11 +204,12 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		
 		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fancy discount') %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\CartPriceFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/CartPriceFacade.php) {#cartpricefacade}
 
 The CartPriceFacade is a wrapper around the calculated price of a cart.
-
 
 ### create()
 
@@ -272,11 +275,12 @@ The CartPriceFacade is a wrapper around the calculated price of a cart.
 * **Returns** `float`
 
     The rounded total price of the cart as float.
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\ContainerFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/ContainerFacade.php) {#containerfacade}
 
 The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
-
 
 ### add()
 
@@ -339,6 +343,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		
 		{% do services.cart.discount('my-discount', 'absolute', price, 'Fancy discount') %}
         ```
+
     * Add a relative discount to the cart.
 
         ```twig
@@ -492,6 +497,7 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		
 		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fancy surcharge') %}
         ```
+
     * Add a relative surcharge to the cart.
 
         ```twig
@@ -535,7 +541,9 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		
 		{% do services.cart.products.add(split) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\DiscountFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/DiscountFacade.php) {#discountfacade}
 
 The DiscountFacade is a wrapper around a newly created discount.
@@ -556,7 +564,9 @@ Note that this wrapper is independent from the line-item that was added for this
 * **Returns** `string` | `null`
 
     The translated label of the discount line-item.
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\ErrorsFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/ErrorsFacade.php) {#errorsfacade}
 
 The ErrorsFacade is a wrapper around the errors of a cart.
@@ -625,11 +635,13 @@ You can use it to add new errors to the cart or remove existing ones.
         ```twig
         {% do services.cart.errors.warning('ADD_PRODUCTS_OR_GO_AWAY') %}
         ```
+
     * Add a notice to the cart with a custom id.
 
         ```twig
         {% do services.cart.errors.notice('YOU_SHOULD_REALLY_ADD_PRODUCTS', 'add-same-message') %}
         ```
+
     * Add a notice to the cart with parameters.
 
         ```twig
@@ -678,11 +690,12 @@ You can use it to add new errors to the cart or remove existing ones.
         ```twig
         {% do services.cart.errors.notice('YOU_SHOULD_REALLY_ADD_PRODUCTS') %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/ItemFacade.php) {#itemfacade}
 
 The ItemFacade is a wrapper around one line-item.
-
 
 ### getChildren()
 
@@ -781,11 +794,12 @@ The ItemFacade is a wrapper around one line-item.
 		
 		{% do services.cart.products.add(split) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\ItemsFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/ItemsFacade.php) {#itemsfacade}
 
 The ItemsFacade is a wrapper around a collection of line-items.
-
 
 ### add()
 
@@ -863,11 +877,12 @@ The ItemsFacade is a wrapper around a collection of line-items.
 		
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\PriceFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFacade.php) {#pricefacade}
 
 The PriceFacade is a wrapper around a price.
-
 
 ### change()
 
@@ -1017,11 +1032,12 @@ over the quantity price calculator to consider quantity, tax rule and cash round
         ```twig
         {% do product.calculatedPrice.surcharge(10) %}
         ```
+
 _________
+
 ## [services.price (`Shopware\Core\Checkout\Cart\Facade\PriceFactory`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFactory.php) {#pricefactory}
 
 The PriceFacade is a wrapper around a price.
-
 
 ### create()
 
@@ -1041,11 +1057,12 @@ The PriceFacade is a wrapper around a price.
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\ProductsFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/ProductsFacade.php) {#productsfacade}
 
 The ProductsFacade is a wrapper around a collection of product line-items.
-
 
 ### add()
 
@@ -1135,11 +1152,12 @@ The ProductsFacade is a wrapper around a collection of product line-items.
 		
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
+
 _________
+
 ## [`Shopware\Core\Checkout\Cart\Facade\StatesFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Facade/StatesFacade.php) {#statesfacade}
 
 The StatesFacade allows access to the current cart states and functions.
-
 
 ### add()
 
@@ -1172,4 +1190,3 @@ The StatesFacade allows access to the current cart states and functions.
 * `remove()` removes the given state from the cart, if it existed.
 * **Arguments:**
     * *`string`* **state**: The state that should be removed.
-_________

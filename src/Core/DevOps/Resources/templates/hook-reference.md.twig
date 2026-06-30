@@ -57,7 +57,7 @@ nav:
 {% endfor %}
 {% endfor %}
 
-{% macro service_list(services) %}
+{%- macro service_list(services) -%}
     {%- for service in services -%}
         {%- if service.deprecated -%}
             [~~{{ service.name }}~~]({{ service.link }}) (**Deprecated:** {{ service.deprecated }})<br>

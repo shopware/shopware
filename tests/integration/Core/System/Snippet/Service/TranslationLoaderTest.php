@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
-use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Shopware\Tests\Integration\Core\System\Snippet\TranslationClientBehaviour;
 
 /**
  * @internal
@@ -23,8 +23,8 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 class TranslationLoaderTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
-    use GuzzleTestClientBehaviour;
     use KernelTestBehaviour;
+    use TranslationClientBehaviour;
 
     /**
      * @var EntityRepository<LocaleCollection>
@@ -62,9 +62,10 @@ class TranslationLoaderTest extends TestCase
             ->getTotal();
         static::assertSame(0, $countBeforeFirstLoad);
 
-        $this->appendNewResponse(new Response(200, [], '{}'));
-        $this->appendNewResponse(new Response(200, [], '{}'));
-        $this->appendNewResponse(new Response(200, [], '{}'));
+        // One response per downloaded snippet file (platform bundles + configured plugin bundles).
+        for ($i = 0; $i < 50; ++$i) {
+            $this->appendTranslationResponse(new Response(200, [], '{}'));
+        }
 
         $loader = static::getContainer()->get(TranslationLoader::class);
         static::assertInstanceOf(TranslationLoader::class, $loader);
@@ -78,9 +79,10 @@ class TranslationLoaderTest extends TestCase
 
         static::assertSame(1, $countAfterFirstLoad);
 
-        $this->appendNewResponse(new Response(200, [], '{}'));
-        $this->appendNewResponse(new Response(200, [], '{}'));
-        $this->appendNewResponse(new Response(200, [], '{}'));
+        // One response per downloaded snippet file (platform bundles + configured plugin bundles).
+        for ($i = 0; $i < 50; ++$i) {
+            $this->appendTranslationResponse(new Response(200, [], '{}'));
+        }
 
         $loader->load($locale, $context);
 

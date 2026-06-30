@@ -151,15 +151,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
             $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
         } else {
-            $filters = Feature::silent(
-                'v6.8.0.0',
-                fn () => $productStreamBuilder->buildFilters($productStreamId, $context->getContext())
-            );
-            $criteria->addFilter(...$filters);
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
         }
 
         $criteria

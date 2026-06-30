@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -161,8 +162,8 @@ class ProductStreamBuilderTest extends TestCase
         static::getContainer()->get('product_stream.repository')
             ->create([$stream], Context::createDefaultContext());
 
-        $filters = $this->service
-            ->buildFilters($ids->get('stream'), Context::createDefaultContext());
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
 
         $expected = new MultiFilter(MultiFilter::CONNECTION_OR, [
             new MultiFilter(MultiFilter::CONNECTION_AND, [
@@ -173,14 +174,23 @@ class ProductStreamBuilderTest extends TestCase
             ]),
         ]);
 
+        $filters = $criteria->getFilters();
         $filter = array_shift($filters);
         static::assertInstanceOf(MultiFilter::class, $filter);
 
         static::assertEquals($expected, $filter);
     }
 
-    public function testBuildFiltersStaysFunctionalWhenSilenced(): void
+    #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFilters(): void
     {
+        // Before v6.8.0.0 the deprecated fallback (used for builders that do not extend
+        // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice; TESTS_RUNNING is
+        // disabled so the notice is triggered instead of suppressed. Once the flag is active it throws
+        // instead, which the unit test covers.
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
         $ids = new IdsCollection();
         $value = Uuid::randomHex();
 
@@ -194,13 +204,11 @@ class ProductStreamBuilderTest extends TestCase
             ]],
         ]], Context::createDefaultContext());
 
-        // buildFilters() is deprecated for removal in v6.8.0 and triggers a runtime deprecation. Core
-        // listing consumers still call it as a backward-compatible fallback for builders that do not extend
-        // AbstractProductStreamBuilder, wrapped in Feature::silent() so it stays fully functional.
-        $filters = Feature::silent(
-            'v6.8.0.0',
-            fn (): array => $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext())
+        $this->expectUserDeprecationMessage(
+            'Method "' . ProductStreamBuilder::class . '::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "AbstractProductStreamBuilder::enrichCriteria" instead.'
         );
+
+        $filters = $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
 
         static::assertCount(1, $filters);
     }
@@ -268,10 +276,8 @@ class ProductStreamBuilderTest extends TestCase
 
     private function getProducts(string $productStreamId): ProductCollection
     {
-        $filters = $this->service->buildFilters($productStreamId, $this->context);
-
         $criteria = new Criteria();
-        $criteria->addFilter(...$filters);
+        $this->service->enrichCriteria($criteria, $productStreamId, $this->context);
 
         return $this->productRepository->search($criteria, $this->salesChannelContext)->getEntities();
     }

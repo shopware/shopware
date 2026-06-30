@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -116,22 +115,17 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         try {
             $productStreamBuilder = $this->productStreamBuilder;
-            if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
-                \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
                 $productStreamBuilder->enrichCriteria(
                     $criteria,
                     $config->getStringValue(),
                     $resolverContext->getSalesChannelContext()->getContext()
                 );
             } else {
-                $filters = Feature::silent(
-                    'v6.8.0.0',
-                    fn () => $productStreamBuilder->buildFilters(
-                        $config->getStringValue(),
-                        $resolverContext->getSalesChannelContext()->getContext()
-                    )
-                );
-                $criteria->addFilter(...$filters);
+                $criteria->addFilter(...$productStreamBuilder->buildFilters(
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                ));
             }
         } catch (EntityNotFoundException $exception) {
             $this->logger->warning(

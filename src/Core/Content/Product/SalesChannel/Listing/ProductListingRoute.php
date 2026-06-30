@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -112,15 +111,10 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             $productStreamBuilder = $this->productStreamBuilder;
-            if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
-                \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
                 $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
             } else {
-                $filters = Feature::silent(
-                    'v6.8.0.0',
-                    fn () => $productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext())
-                );
-                $criteria->addFilter(...$filters);
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
             }
 
             return;

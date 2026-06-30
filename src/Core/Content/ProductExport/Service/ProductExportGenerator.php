@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -108,15 +107,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if (Feature::isActive('v6.8.0.0') || $productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            \assert($productStreamBuilder instanceof AbstractProductStreamBuilder);
+        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
             $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
         } else {
-            $filters = Feature::silent(
-                'v6.8.0.0',
-                fn () => $productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext())
-            );
-            $criteria->addFilter(...$filters);
+            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
         }
 
         $associations = $this->getAssociations($productExport, $context);

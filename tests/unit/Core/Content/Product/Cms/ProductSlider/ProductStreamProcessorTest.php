@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -166,7 +165,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
     }
 
-    public function testCollectAddsRandomSortingIfRequired(): void
+    public function testCollectAddsNoSortingForRandom(): void
     {
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
@@ -186,9 +185,35 @@ class ProductStreamProcessorTest extends TestCase
         $criteria = $list[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
         static::assertInstanceOf(Criteria::class, $criteria);
 
-        $sorting = $criteria->getSorting();
-        static::assertCount(2, $sorting);
-        static::assertContainsOnlyInstancesOf(FieldSorting::class, $sorting);
+        static::assertSame([], $criteria->getSorting());
+    }
+
+    public function testEnrichHandlesRandomSorting(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $sortingConfig = new FieldConfig('productStreamSorting', FieldConfig::SOURCE_PRODUCT_STREAM, 'random');
+        $this->config->add($config);
+        $this->config->add($sortingConfig);
+
+        $products = $this->getProducts();
+        $searchResult = $this->getEntitySearchResult($products);
+
+        $data = new ElementDataCollection();
+        $data->add('product-slider-entity-fallback_id', $searchResult);
+
+        $this->productRepository->expects($this->once())
+            ->method('search')->willReturn($searchResult);
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        static::assertSame('product-stream-1', $slider->getStreamId());
+        static::assertInstanceOf(ProductCollection::class, $slider->getProducts());
+        static::assertCount(2, $slider->getProducts());
     }
 
     public function testEnrich(): void

@@ -157,7 +157,7 @@ class PluginManagementServiceTest extends TestCase
             $this->createMock(PluginService::class),
             $fs,
             $this->createMock(CacheClearer::class),
-            new Client(['handler' => new MockHandler()])
+            new Client(['base_uri' => 'https://example.local', 'handler' => new MockHandler()])
         );
 
         $plugin = new PluginEntity();
@@ -181,7 +181,7 @@ class PluginManagementServiceTest extends TestCase
             $this->createMock(PluginService::class),
             $fs,
             $this->createMock(CacheClearer::class),
-            new Client(['handler' => new MockHandler()])
+            new Client(['base_uri' => 'https://example.local', 'handler' => new MockHandler()])
         );
 
         $plugin = new PluginEntity();
@@ -205,7 +205,7 @@ class PluginManagementServiceTest extends TestCase
             $this->createMock(PluginService::class),
             $fs,
             $this->createMock(CacheClearer::class),
-            new Client(['handler' => new MockHandler()])
+            new Client(['base_uri' => 'https://example.local', 'handler' => new MockHandler()])
         );
 
         $plugin = new PluginEntity();
@@ -223,7 +223,7 @@ class PluginManagementServiceTest extends TestCase
     {
         $mockHandler = new MockHandler($responses);
 
-        return new Client(['handler' => $mockHandler]);
+        return new Client(['base_uri' => 'https://example.local', 'handler' => $mockHandler]);
     }
 
     private function createPluginDownloadDataStruct(string $type): PluginDownloadDataStruct

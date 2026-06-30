@@ -133,6 +133,7 @@
 
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client">
             <argument type="collection">
+                <argument key="base_uri">https://example.local</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
@@ -150,6 +151,7 @@
 
         <service id="shopware.webhook.guzzle" class="GuzzleHttp\Client">
             <argument type="collection">
+                <argument key="base_uri">https://example.local</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />

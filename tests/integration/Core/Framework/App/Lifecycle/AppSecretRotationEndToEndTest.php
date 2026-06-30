@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -64,26 +65,35 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->shopUrl = (string) EnvironmentHelper::getVariable('APP_URL');
     }
 
+    // §1 — Happy path: the confirm succeeds and the new, app-minted secret is committed.
+
     public function testRotationReRegistersAndCommitsTheAppMintedSecret(): void
     {
         $app = $this->installApp();
+        $secretBeforeRotation = $app->getAppSecret();
         // The auto-responding app server commits its own secret during the initial registration.
-        static::assertSame(TestAppServer::APP_SECRET, $app->getAppSecret());
+        static::assertSame(TestAppServer::APP_SECRET, $secretBeforeRotation);
 
-        $firstRequest = $this->getRequestCount();
-        $this->appendHandshake('rotated-secret');
-        $this->appendNewResponse(new Response(200));
+        $rotatedSecret = 'rotated-secret';
+        $this->enqueueReRegistrationAttempt(minting: $rotatedSecret, confirmResponse: new Response(200));
 
         $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
 
         $rotated = $this->getInstalledApp();
-        static::assertSame('rotated-secret', $rotated->getAppSecret());
+        static::assertSame($rotatedSecret, $rotated->getAppSecret());
         static::assertNull($rotated->getUnconfirmedAppSecrets());
 
         // The confirm proves the app holds the new secret (the new signature) and proves we are the same shop
         // by also signing with the secret the app held before (the previous signature).
-        $this->assertConfirmSignedWith($this->getPastRequest($firstRequest + 1), 'rotated-secret', TestAppServer::APP_SECRET);
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $rotatedSecret,
+            previousSecret: $secretBeforeRotation,
+        );
     }
+
+    // §2 — Ambiguous failures: a 5xx/timeout gives no clear answer, so the pending secret is kept and the
+    // app stays recoverable.
 
     public function testAmbiguousConfirmTimeoutLeavesAPendingSecretLikeAServerError(): void
     {
@@ -91,108 +101,26 @@ class AppSecretRotationEndToEndTest extends TestCase
         $committedSecret = $app->getAppSecret();
         static::assertNotNull($committedSecret);
 
+        $pendingSecret = 'pending-secret';
+
         // The confirm fails as a transport timeout — a ConnectException with NO response — rather than a 5xx
         // with a body. That hits a different arm of registrationFailedFromResponse (getResponse() === null),
         // but it must still be treated as an ambiguous outcome (the app may have switched), so the pending
         // secret is retained, not dropped the way a definitive 4xx rejection would be.
-        $this->appendHandshake('pending-secret');
-        $this->appendNewResponse(new ConnectException('Connection timed out', new Request('POST', TestAppServer::CONFIRMATION_URL)));
+        $confirmTimeout = new ConnectException('Connection timed out', new Request('POST', TestAppServer::CONFIRMATION_URL));
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: $confirmTimeout);
 
         try {
             $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
             static::fail('An ambiguous confirm timeout must surface as a registration failure.');
-        } catch (AppRegistrationException) {
+        } catch (AppRegistrationException $e) {
             // expected — the outcome is unknown, the operator must recover
+            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
         }
 
         $afterRotation = $this->getInstalledApp();
         static::assertSame($committedSecret, $afterRotation->getAppSecret(), 'a timeout must not commit the new secret');
-        static::assertSame(['pending-secret'], $afterRotation->getUnconfirmedAppSecrets(), 'a timeout retains the pending secret, like a 5xx');
-    }
-
-    public function testAmbiguousRotationLeavesPendingThenRecoveryFallsBackToTheCurrentSecret(): void
-    {
-        $app = $this->installApp();
-        $committedSecret = $app->getAppSecret();
-        static::assertNotNull($committedSecret);
-
-        // Rotation: the app gives us a new secret but the confirm fails without a clear answer (5xx), so we
-        // cannot tell whether the app switched. The new secret is left pending; the active secret stays put.
-        $rotationStart = $this->getRequestCount();
-        $this->appendHandshake('pending-secret');
-        $this->appendNewResponse(new Response(500));
-
-        try {
-            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous rotation must surface as a registration failure.');
-        } catch (AppRegistrationException) {
-            // expected — the outcome is unknown, the operator must recover
-        }
-
-        $afterRotation = $this->getInstalledApp();
-        static::assertSame($committedSecret, $afterRotation->getAppSecret());
-        static::assertSame(['pending-secret'], $afterRotation->getUnconfirmedAppSecrets());
-        $this->assertConfirmSignedWith($this->getPastRequest($rotationStart + 1), 'pending-secret', $committedSecret);
-
-        // Recovery re-registers, signing with the pending secret first. Here the app never switched (it still
-        // holds the old secret), so it rejects the pending one (4xx); recovery then falls back to the current
-        // secret, which the app accepts.
-        $recoveryStart = $this->getRequestCount();
-        $this->appendHandshake('recovered-after-fallback');
-        $this->appendNewResponse(new Response(403));
-        $this->appendHandshake('recovered-after-fallback');
-        $this->appendNewResponse(new Response(200));
-
-        $this->rotationService->recoverNow($app->getId(), $this->context);
-
-        $recovered = $this->getInstalledApp();
-        static::assertSame('recovered-after-fallback', $recovered->getAppSecret());
-        static::assertNull($recovered->getUnconfirmedAppSecrets());
-
-        // First attempt authenticates as the pending secret; the fall-back authenticates as the committed one.
-        static::assertSame(
-            'pending-secret',
-            $this->previousSignatureSecret($this->getPastRequest($recoveryStart + 1)),
-            'recovery must try the pending secret first'
-        );
-        static::assertSame(
-            $committedSecret,
-            $this->previousSignatureSecret($this->getPastRequest($recoveryStart + 3)),
-            'recovery must fall back to the committed secret'
-        );
-    }
-
-    public function testRecoveryCommitsWithThePendingSecretWhenTheAppPromotedIt(): void
-    {
-        $app = $this->installApp();
-        $committedSecret = $app->getAppSecret();
-        static::assertNotNull($committedSecret);
-
-        $this->appendHandshake('pending-secret');
-        $this->appendNewResponse(new Response(500));
-        try {
-            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous rotation must surface as a registration failure.');
-        } catch (AppRegistrationException) {
-        }
-
-        static::assertSame(['pending-secret'], $this->getInstalledApp()->getUnconfirmedAppSecrets());
-
-        // This time the app did switch to the pending secret, so it accepts the first recovery attempt.
-        $recoveryStart = $this->getRequestCount();
-        $this->appendHandshake('recovered-with-pending');
-        $this->appendNewResponse(new Response(200));
-
-        $this->rotationService->recoverNow($app->getId(), $this->context);
-
-        $recovered = $this->getInstalledApp();
-        static::assertSame('recovered-with-pending', $recovered->getAppSecret());
-        static::assertNull($recovered->getUnconfirmedAppSecrets());
-
-        // Only one recovery attempt happened (handshake + confirm), signed with the pending secret — it did
-        // not need to fall back to the current secret.
-        static::assertSame($recoveryStart + 2, $this->getRequestCount());
-        $this->assertConfirmSignedWith($this->getPastRequest($recoveryStart + 1), 'recovered-with-pending', 'pending-secret');
+        static::assertSame([$pendingSecret], $afterRotation->getUnconfirmedAppSecrets(), 'a timeout retains the pending secret, like a 5xx');
     }
 
     public function testAmbiguousFirstInstallKeepsTheAppSoTheSecretCanBeRecovered(): void
@@ -203,33 +131,37 @@ class AppSecretRotationEndToEndTest extends TestCase
         // behaviour) stranded the install permanently. The row and its pending secret must survive instead.
         $manifest = Manifest::createFromXmlFile(self::FIXTURE_APP_DIR . '/manifest.xml');
 
-        $this->appendHandshake('first-install-secret');
-        $this->appendNewResponse(new Response(500));
+        $firstInstallSecret = 'first-install-secret';
+        $this->enqueueReRegistrationAttempt(minting: $firstInstallSecret, confirmResponse: new Response(500));
 
         try {
             static::getContainer()->get(AppLifecycle::class)->install($manifest, new AppInstallParameters(), $this->context);
             static::fail('An ambiguous first install must surface as a registration failure.');
-        } catch (AppRegistrationException) {
+        } catch (AppRegistrationException $e) {
             // expected — the confirm outcome is unknown
+            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
         }
 
         try {
             $halfInstalled = $this->getInstalledApp();
             // The row and the pending secret the app may hold survive — they are not deleted.
             static::assertNull($halfInstalled->getAppSecret(), 'a first install never commits a secret');
-            static::assertSame(['first-install-secret'], $halfInstalled->getUnconfirmedAppSecrets());
+            static::assertSame([$firstInstallSecret], $halfInstalled->getUnconfirmedAppSecrets());
 
             // Recovery re-registers against that pending secret (its only candidate) and commits a fresh one.
-            $recoveryStart = $this->getRequestCount();
-            $this->appendHandshake('recovered-secret');
-            $this->appendNewResponse(new Response(200));
+            $recoveredSecret = 'recovered-secret';
+            $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
             $this->rotationService->recoverNow($halfInstalled->getId(), $this->context);
 
             $recovered = $this->getInstalledApp();
-            static::assertSame('recovered-secret', $recovered->getAppSecret());
+            static::assertSame($recoveredSecret, $recovered->getAppSecret());
             static::assertNull($recovered->getUnconfirmedAppSecrets());
             // The confirm proves the new secret and authenticates as the pending secret the app held.
-            $this->assertConfirmSignedWith($this->getPastRequest($recoveryStart + 1), 'recovered-secret', 'first-install-secret');
+            $this->assertConfirmCarriesDualSignature(
+                $this->lastConfirm(),
+                newSecret: $recoveredSecret,
+                previousSecret: $firstInstallSecret,
+            );
         } finally {
             // Installed via AppLifecycle directly, so the trait's #[After] cleanup does not track this app.
             static::getContainer()->get(Connection::class)->executeStatement(
@@ -237,6 +169,89 @@ class AppSecretRotationEndToEndTest extends TestCase
                 ['name' => self::FIXTURE_APP_NAME]
             );
         }
+    }
+
+    public function testAmbiguousRotationLeavesPendingThenRecoveryFallsBackToTheCurrentSecret(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        $pendingSecret = 'pending-secret';
+
+        // Rotation: the app gives us a new secret but the confirm fails without a clear answer (5xx), so we
+        // cannot tell whether the app switched. The new secret is left pending; the active secret stays put.
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: new Response(500));
+
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+
+        $afterRotation = $this->getInstalledApp();
+        static::assertSame($committedSecret, $afterRotation->getAppSecret());
+        static::assertSame([$pendingSecret], $afterRotation->getUnconfirmedAppSecrets());
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $pendingSecret,
+            previousSecret: $committedSecret,
+        );
+
+        // Recovery re-registers, signing with the pending secret first. Here the app never switched (it still
+        // holds the old secret), so it rejects the pending one (4xx); recovery then falls back to the current
+        // secret, which the app accepts.
+        $recoveredSecret = 'recovered-after-fallback';
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(403));
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+
+        $this->rotationService->recoverNow($app->getId(), $this->context);
+
+        $recovered = $this->getInstalledApp();
+        static::assertSame($recoveredSecret, $recovered->getAppSecret());
+        static::assertNull($recovered->getUnconfirmedAppSecrets());
+
+        // Both attempts mint the same recovered secret, so only the previous-signature differs: the first
+        // attempt authenticates as the pending secret, the fall-back as the committed one.
+        [$firstAttemptConfirm, $fallbackConfirm] = $this->lastConfirms(2);
+        $this->assertConfirmCarriesDualSignature(
+            $firstAttemptConfirm,
+            newSecret: $recoveredSecret,
+            previousSecret: $pendingSecret,
+        );
+        $this->assertConfirmCarriesDualSignature(
+            $fallbackConfirm,
+            newSecret: $recoveredSecret,
+            previousSecret: $committedSecret,
+        );
+    }
+
+    public function testRecoveryCommitsWithThePendingSecretWhenTheAppPromotedIt(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        $pendingSecret = 'pending-secret';
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+
+        static::assertSame([$pendingSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
+
+        // This time the app did switch to the pending secret, so it accepts the first recovery attempt.
+        $recoveredSecret = 'recovered-with-pending';
+        $confirmsBeforeRecovery = $this->confirmCount();
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+
+        $this->rotationService->recoverNow($app->getId(), $this->context);
+
+        $recovered = $this->getInstalledApp();
+        static::assertSame($recoveredSecret, $recovered->getAppSecret());
+        static::assertNull($recovered->getUnconfirmedAppSecrets());
+
+        // The pending secret was accepted on the first try, so recovery never fell back to the current secret.
+        static::assertSame($confirmsBeforeRecovery + 1, $this->confirmCount(), 'recovery accepted the first candidate, so it made a single attempt (no fallback)');
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $recoveredSecret,
+            previousSecret: $pendingSecret,
+        );
     }
 
     public function testRecoveryReRegistersAFirstRegistrationThatNeverCommitted(): void
@@ -248,49 +263,77 @@ class AppSecretRotationEndToEndTest extends TestCase
         // before committing leaves appSecret=null with a pending secret. This state cannot be produced by a
         // real rotation — which needs a committed secret — so seed it directly to mirror the crashed-install
         // row, then recover against it.
-        $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {
-            $this->appRepository->update([[
-                'id' => $app->getId(),
-                'appSecret' => null,
-                'unconfirmedAppSecrets' => ['app-held-secret'],
-            ]], $context);
-        });
+        $appHeldSecret = 'app-held-secret';
+        $this->seedCrashedFirstRegistration($app->getId(), $appHeldSecret);
 
         // With no committed secret there is no fallback candidate, so recovery makes a single attempt
         // (handshake + confirm) and must authenticate as the pending secret the app is presumed to hold.
-        $recoveryStart = $this->getRequestCount();
-        $this->appendHandshake('recovered-first-registration');
-        $this->appendNewResponse(new Response(200));
+        $recoveredSecret = 'recovered-first-registration';
+        $confirmsBeforeRecovery = $this->confirmCount();
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
         $this->rotationService->recoverNow($app->getId(), $this->context);
 
         $recovered = $this->getInstalledApp();
-        static::assertSame('recovered-first-registration', $recovered->getAppSecret());
+        static::assertSame($recoveredSecret, $recovered->getAppSecret());
         static::assertNull($recovered->getUnconfirmedAppSecrets());
 
         // Exactly one re-registration attempt: the pending secret is the only candidate (no committed fallback).
-        static::assertSame($recoveryStart + 2, $this->getRequestCount());
-        $this->assertConfirmSignedWith($this->getPastRequest($recoveryStart + 1), 'recovered-first-registration', 'app-held-secret');
+        static::assertSame($confirmsBeforeRecovery + 1, $this->confirmCount(), 'recovery accepted the first candidate, so it made a single attempt (no fallback)');
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $recoveredSecret,
+            previousSecret: $appHeldSecret,
+        );
     }
+
+    public function testRecoveryRollsBackTheIntegrationAndPreservesThePendingWhenAnAttemptFailsAmbiguously(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        $pendingSecret = 'pending-secret';
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+
+        $afterRotation = $this->getInstalledApp();
+        static::assertSame([$pendingSecret], $afterRotation->getUnconfirmedAppSecrets());
+        $integrationBeforeRecovery = $afterRotation->getIntegrationId();
+
+        // Recovery's first attempt cannot even complete the handshake (a transport failure, not a rejection):
+        // the outcome is unknown. No fresh credentials were delivered, so the integration switch is undone and
+        // the recovery record is preserved for a retry rather than left broken. Only a single 5xx is enqueued —
+        // it answers the handshake, so the confirm is never reached.
+        $this->enqueueFailedHandshake(new Response(500));
+        try {
+            $this->rotationService->recoverNow($app->getId(), $this->context);
+            static::fail('An ambiguous recovery attempt must surface as a registration failure.');
+        } catch (AppRegistrationException $e) {
+            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+        }
+
+        $afterRecovery = $this->getInstalledApp();
+        static::assertSame($committedSecret, $afterRecovery->getAppSecret());
+        static::assertSame([$pendingSecret], $afterRecovery->getUnconfirmedAppSecrets());
+        static::assertSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
+    }
+
+    // §3 — Hard failures: a 4xx rejection means the registration is claimed, so the operator must change the
+    // shop id.
 
     public function testRecoveryNotifiesWhenAFirstRegistrationsPendingSecretIsRejected(): void
     {
         $app = $this->installApp();
 
         // First-registration crash state again, but this time the app does not hold the pending secret.
-        $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {
-            $this->appRepository->update([[
-                'id' => $app->getId(),
-                'appSecret' => null,
-                'unconfirmedAppSecrets' => ['app-held-secret'],
-            ]], $context);
-        });
+        $rejectedPendingSecret = 'rejected-pending-secret';
+        $this->seedCrashedFirstRegistration($app->getId(), $rejectedPendingSecret);
 
         // The app rejects the pending secret (4xx) and there is no committed secret to fall back to, so the
         // registration cannot be recovered programmatically — recovery notifies (claimed) for operator action
         // rather than silently failing or losing state.
-        $this->appendHandshake('rejected');
-        $this->appendNewResponse(new Response(403));
+        $this->enqueueReRegistrationAttempt(minting: 'rejected', confirmResponse: new Response(403));
 
         try {
             $this->rotationService->recoverNow($app->getId(), $this->context);
@@ -311,19 +354,12 @@ class AppSecretRotationEndToEndTest extends TestCase
         $committedSecret = $app->getAppSecret();
         static::assertNotNull($committedSecret);
 
-        $this->appendHandshake('pending-secret');
-        $this->appendNewResponse(new Response(500));
-        try {
-            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous rotation must surface as a registration failure.');
-        } catch (AppRegistrationException) {
-        }
+        $this->enqueueReRegistrationAttempt(minting: 'pending-secret', confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
 
         // Neither the pending nor the committed secret is accepted: core no longer holds a secret the app trusts.
-        $this->appendHandshake('recovery-rejected');
-        $this->appendNewResponse(new Response(403));
-        $this->appendHandshake('recovery-rejected');
-        $this->appendNewResponse(new Response(403));
+        $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
+        $this->enqueueReRegistrationAttempt(minting: 'recovery-rejected', confirmResponse: new Response(403));
 
         try {
             $this->rotationService->recoverNow($app->getId(), $this->context);
@@ -337,40 +373,6 @@ class AppSecretRotationEndToEndTest extends TestCase
         $reverted = $this->getInstalledApp();
         static::assertSame($committedSecret, $reverted->getAppSecret());
         static::assertNull($reverted->getUnconfirmedAppSecrets());
-    }
-
-    public function testRecoveryRollsBackTheIntegrationAndPreservesThePendingWhenAnAttemptFailsAmbiguously(): void
-    {
-        $app = $this->installApp();
-        $committedSecret = $app->getAppSecret();
-        static::assertNotNull($committedSecret);
-
-        $this->appendHandshake('pending-secret');
-        $this->appendNewResponse(new Response(500));
-        try {
-            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous rotation must surface as a registration failure.');
-        } catch (AppRegistrationException) {
-        }
-
-        $afterRotation = $this->getInstalledApp();
-        static::assertSame(['pending-secret'], $afterRotation->getUnconfirmedAppSecrets());
-        $integrationBeforeRecovery = $afterRotation->getIntegrationId();
-
-        // Recovery's first attempt cannot even complete the handshake (a transport failure, not a rejection):
-        // the outcome is unknown. No fresh credentials were delivered, so the integration switch is undone and
-        // the recovery record is preserved for a retry rather than left broken.
-        $this->appendNewResponse(new Response(500));
-        try {
-            $this->rotationService->recoverNow($app->getId(), $this->context);
-            static::fail('An ambiguous recovery attempt must surface as a registration failure.');
-        } catch (AppRegistrationException) {
-        }
-
-        $afterRecovery = $this->getInstalledApp();
-        static::assertSame($committedSecret, $afterRecovery->getAppSecret());
-        static::assertSame(['pending-secret'], $afterRecovery->getUnconfirmedAppSecrets());
-        static::assertSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
     }
 
     private function installApp(): AppEntity
@@ -390,7 +392,60 @@ class AppSecretRotationEndToEndTest extends TestCase
         return $app;
     }
 
-    private function appendHandshake(string $mintedSecret): void
+    /**
+     * Seed the row a first registration leaves when it minted a secret (the app persisted it at the handshake)
+     * but the process was killed before committing: no active secret, one pending secret the app may hold. A
+     * real rotation cannot produce this — it always starts from a committed secret — so the tests write it
+     * directly to drive recovery against a crashed install.
+     */
+    private function seedCrashedFirstRegistration(string $appId, string $seededPendingSecret): void
+    {
+        $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId, $seededPendingSecret): void {
+            $this->appRepository->update([[
+                'id' => $appId,
+                'appSecret' => null,
+                'unconfirmedAppSecrets' => [$seededPendingSecret],
+            ]], $context);
+        });
+    }
+
+    /**
+     * Run a rotation whose confirm was already set up to fail without a clear answer, asserting it surfaces as
+     * a registration failure. The operator is then expected to recover; what survives in the database is
+     * asserted by the caller.
+     */
+    private function rotateExpectingAmbiguousFailure(string $appId): void
+    {
+        try {
+            $this->rotationService->rotateNow($appId, $this->context, AppSecretRotationService::TRIGGER_API);
+            static::fail('An ambiguous rotation must surface as a registration failure.');
+        } catch (AppRegistrationException $e) {
+            // expected — the outcome is unknown, the operator must recover
+            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+        }
+    }
+
+    /**
+     * Queue the two HTTP responses one re-registration attempt consumes, in order: the app server's handshake
+     * response that mints $minting, then the confirm outcome (a 2xx accept, a 4xx/5xx, or a transport
+     * exception). The confirm is read back by role with {@see confirmRequests()}.
+     */
+    private function enqueueReRegistrationAttempt(string $minting, ResponseInterface|\Exception $confirmResponse): void
+    {
+        $this->enqueueHandshakeMinting($minting);
+        $this->appendNewResponse($confirmResponse);
+    }
+
+    /**
+     * Queue a handshake response that itself fails, so the attempt never reaches the confirm. Used to drive the
+     * "the handshake could not even complete" branch, distinct from a confirm that fails.
+     */
+    private function enqueueFailedHandshake(ResponseInterface $handshakeResponse): void
+    {
+        $this->appendNewResponse($handshakeResponse);
+    }
+
+    private function enqueueHandshakeMinting(string $mintedSecret): void
     {
         $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId()->id;
         $proof = hash_hmac('sha256', $shopId . $this->shopUrl . self::FIXTURE_APP_NAME, TestAppServer::TEST_SETUP_SECRET);
@@ -402,7 +457,64 @@ class AppSecretRotationEndToEndTest extends TestCase
         ], \JSON_THROW_ON_ERROR)));
     }
 
-    private function assertConfirmSignedWith(RequestInterface $confirm, string $newSecret, string $previousSecret): void
+    /**
+     * Every confirm sent so far, oldest first. The handshake that opens each re-registration is a GET, so the
+     * POSTs in the request log are the confirms.
+     *
+     * @return list<RequestInterface>
+     */
+    private function confirmRequests(): array
+    {
+        $confirms = [];
+        for ($i = 0, $count = $this->getRequestCount(); $i < $count; ++$i) {
+            $request = $this->getPastRequest($i);
+            if ($request->getMethod() === 'POST') {
+                $confirms[] = $request;
+            }
+        }
+
+        return $confirms;
+    }
+
+    /**
+     * The most recent confirm sent.
+     */
+    private function lastConfirm(): RequestInterface
+    {
+        $confirms = $this->confirmRequests();
+        static::assertNotEmpty($confirms, 'expected at least one confirm to have been sent');
+
+        return $confirms[array_key_last($confirms)];
+    }
+
+    /**
+     * The last $count confirms sent, oldest first.
+     *
+     * @return list<RequestInterface>
+     */
+    private function lastConfirms(int $count): array
+    {
+        $confirms = $this->confirmRequests();
+        static::assertGreaterThanOrEqual($count, \count($confirms), \sprintf('expected at least %d confirms to have been sent', $count));
+
+        return \array_slice($confirms, -$count);
+    }
+
+    /**
+     * How many confirms have been sent so far.
+     */
+    private function confirmCount(): int
+    {
+        return \count($this->confirmRequests());
+    }
+
+    /**
+     * A re-registration confirm carries two signatures over the same payload: `shopware-shop-signature` signed
+     * with the newly minted secret (proves the app handed us that secret) and `shopware-shop-signature-previous`
+     * signed with the secret the app held before (proves we are the shop the app already knows). Both must be
+     * present and correct, or only the original initiator could not confirm a re-registration.
+     */
+    private function assertConfirmCarriesDualSignature(RequestInterface $confirm, string $newSecret, string $previousSecret): void
     {
         static::assertSame('POST', $confirm->getMethod());
 
@@ -412,23 +524,10 @@ class AppSecretRotationEndToEndTest extends TestCase
     }
 
     /**
-     * Work out which secret produced the previous-signature header, by recomputing the signature for each
-     * secret this test used and seeing which one matches. Returns the matching secret, or '' if neither does.
+     * The exact JSON the confirm signatures were computed over. The body is already JSON, but production signs
+     * `json_encode($payload)` of the decoded array, so we round-trip through decode→encode to reproduce that
+     * canonical form before recomputing the HMAC.
      */
-    private function previousSignatureSecret(RequestInterface $confirm): string
-    {
-        $json = $this->confirmPayloadJson($confirm);
-        $previousSignature = $confirm->getHeaderLine('shopware-shop-signature-previous');
-
-        foreach (['pending-secret', TestAppServer::APP_SECRET] as $candidate) {
-            if (hash_equals(hash_hmac('sha256', $json, $candidate), $previousSignature)) {
-                return $candidate;
-            }
-        }
-
-        return '';
-    }
-
     private function confirmPayloadJson(RequestInterface $confirm): string
     {
         $payload = json_decode($confirm->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);

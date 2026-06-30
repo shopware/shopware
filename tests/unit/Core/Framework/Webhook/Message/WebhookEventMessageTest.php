@@ -65,15 +65,15 @@ class WebhookEventMessageTest extends TestCase
      */
     private function stripAppName(string $serialized): string
     {
-        $key = sprintf("\0%s\0appName", WebhookEventMessage::class);
-        $entry = sprintf('s:%d:"%s";N;', \strlen($key), $key);
+        $key = \sprintf("\0%s\0appName", WebhookEventMessage::class);
+        $entry = \sprintf('s:%d:"%s";N;', \strlen($key), $key);
 
         $stripped = str_replace($entry, '', $serialized);
         static::assertNotSame($serialized, $stripped, 'Expected the serialized payload to carry the appName property');
 
         return str_replace(
-            sprintf('%s":11:{', WebhookEventMessage::class),
-            sprintf('%s":10:{', WebhookEventMessage::class),
+            \sprintf('%s":11:{', WebhookEventMessage::class),
+            \sprintf('%s":10:{', WebhookEventMessage::class),
             $stripped
         );
     }

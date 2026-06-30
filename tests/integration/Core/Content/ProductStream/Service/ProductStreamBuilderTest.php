@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -49,14 +48,12 @@ class ProductStreamBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ProductStreamBuilder&ProductStreamBuilderInterface $service;
+    private ProductStreamBuilder $service;
 
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $service = static::getContainer()->get(ProductStreamBuilder::class);
-        static::assertInstanceOf(ProductStreamBuilderInterface::class, $service);
-        $this->service = $service;
+        $this->service = static::getContainer()->get(ProductStreamBuilder::class);
         $this->productRepository = static::getContainer()->get('sales_channel.product.repository');
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);

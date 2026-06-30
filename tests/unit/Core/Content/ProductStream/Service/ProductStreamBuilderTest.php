@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -35,7 +34,7 @@ class ProductStreamBuilderTest extends TestCase
 
         $this->expectException(FeatureException::class);
 
-        Feature::fake(['v6.8.0.0'], fn () => $builder->buildFilters('stream-id', Context::createDefaultContext()));
+        $builder->buildFilters('stream-id', Context::createDefaultContext());
     }
 
     /**

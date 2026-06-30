@@ -27,7 +27,6 @@ class AddCartErrorCommandTest extends TestCase
     public function testCommandDefaults(): void
     {
         $command = new AddCartErrorCommand('foo');
-        $command->assign(['message' => 'foo']);
 
         static::assertSame('foo', $command->message);
         static::assertSame(Error::LEVEL_WARNING, $command->level);

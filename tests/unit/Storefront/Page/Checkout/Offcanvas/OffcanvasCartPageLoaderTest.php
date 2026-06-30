@@ -33,7 +33,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
 {
     public function testOffcanvasCartPageReturned(): void
     {
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn(new Page());
@@ -51,7 +51,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
         $page = new OffcanvasCartPage();
         $page->setMetaInformation(new MetaInformation());
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -69,7 +69,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
     {
         $page = new OffcanvasCartPage();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -100,7 +100,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
             )
         );
 
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(ShippingMethodRoute::class);
         $shippingMethodRoute
             ->method('load')
             ->willReturn($shippingMethodResponse);

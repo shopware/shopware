@@ -132,7 +132,7 @@ class ProductPageLoaderTest extends TestCase
         $reviewRepositoryMock = $this->createMock(EntityRepository::class);
         $reviewRepositoryMock->expects($this->never())->method('search');
 
-        $systemConfigMock = $this->createMock(SystemConfigService::class);
+        $systemConfigMock = static::createStub(SystemConfigService::class);
         $systemConfigMock->method('getBool')->willReturn(false);
 
         $productPageLoader = $this->getProductPageLoaderWithProduct(

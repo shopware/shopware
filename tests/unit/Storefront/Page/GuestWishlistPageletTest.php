@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -33,7 +33,7 @@ class GuestWishlistPageletTest extends TestCase
 {
     use EventDispatcherBehaviour;
 
-    private ProductListRoute&MockObject $productListRouteMock;
+    private ProductListRoute&Stub $productListRouteMock;
 
     private SystemConfigService $systemConfigServiceStub;
 
@@ -45,7 +45,7 @@ class GuestWishlistPageletTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productListRouteMock = $this->createMock(ProductListRoute::class);
+        $this->productListRouteMock = static::createStub(ProductListRoute::class);
         $this->systemConfigServiceStub = new StaticSystemConfigService([
             'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
         ]);
@@ -94,7 +94,8 @@ class GuestWishlistPageletTest extends TestCase
             return new ProductListResponse($searchResult);
         };
 
-        $this->productListRouteMock->expects($this->once())->method('load')->willReturnCallback($productRouteLoadClosure);
+        $productListRoute = $this->createMock(ProductListRoute::class);
+        $productListRoute->expects($this->once())->method('load')->willReturnCallback($productRouteLoadClosure);
 
         $context = $this->salesChannelContextMock;
 
@@ -112,7 +113,7 @@ class GuestWishlistPageletTest extends TestCase
 
         $this->addEventListener($this->eventDispatcher, GuestWishlistPageletLoadedEvent::class, $listenerClosure);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $page = $this->getPageLoader($productListRoute)->load($request, $context);
 
         static::assertCount(3, $page->getSearchResult()->getProducts());
         static::assertTrue($eventDidRun);
@@ -164,10 +165,10 @@ class GuestWishlistPageletTest extends TestCase
         static::assertCount(0, $page->getSearchResult()->getProducts());
     }
 
-    private function getPageLoader(): GuestWishlistPageletLoader
+    private function getPageLoader(?ProductListRoute $productListRoute = null): GuestWishlistPageletLoader
     {
         return new GuestWishlistPageletLoader(
-            $this->productListRouteMock,
+            $productListRoute ?? $this->productListRouteMock,
             $this->systemConfigServiceStub,
             $this->eventDispatcher,
             $this->productCloseoutFilterFactory

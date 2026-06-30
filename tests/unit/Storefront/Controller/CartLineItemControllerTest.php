@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -53,7 +52,7 @@ class CartLineItemControllerTest extends TestCase
 
     private CartService&Stub $cartService;
 
-    private ContainerInterface&MockObject $container;
+    private ContainerInterface&Stub $container;
 
     private PromotionItemBuilder&Stub $promotionItemBuilderMock;
 
@@ -71,7 +70,7 @@ class CartLineItemControllerTest extends TestCase
 
         $this->controller = $this->getController();
 
-        $this->container = $this->createMock(ContainerInterface::class);
+        $this->container = static::createStub(ContainerInterface::class);
 
         $this->controller->setContainer($this->container);
     }

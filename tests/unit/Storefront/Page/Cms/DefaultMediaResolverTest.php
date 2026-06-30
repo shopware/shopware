@@ -21,7 +21,7 @@ class DefaultMediaResolverTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $decorated = $this->createMock(AbstractDefaultMediaResolver::class);
+        $decorated = static::createStub(AbstractDefaultMediaResolver::class);
         $translator = static::createStub(AbstractTranslator::class);
         $packages = new Packages();
 

@@ -22,7 +22,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
 {
     public function testGetConfig(): void
     {
-        $productDefinition = $this->createMock(ProductDefinition::class);
+        $productDefinition = static::createStub(ProductDefinition::class);
         $route = new ProductPageSeoUrlRoute($productDefinition);
 
         $config = $route->getConfig();

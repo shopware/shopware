@@ -42,7 +42,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
 
         $page = new CheckoutFinishPage();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn($page);
 
@@ -67,7 +67,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $page = new CheckoutFinishPage();
         $page->setMetaInformation(new MetaInformation());
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn($page);
 
@@ -89,7 +89,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
     {
         $orderId = Uuid::randomHex();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
@@ -110,7 +110,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
     {
         $orderId = Uuid::randomHex();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
@@ -137,7 +137,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         $itemRounding = new CashRoundingConfig(2, 2.0, false);
         $totalRounding = new CashRoundingConfig(4, 4.0, false);
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
@@ -159,13 +159,13 @@ class CheckoutFinishPageLoaderTest extends TestCase
 
     public function testNoCustomerLoggedInException(): void
     {
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
         $this->expectException(CartException::class);
 
-        $this->createLoader($pageLoader, $this->createMock(OrderRoute::class))->load(
+        $this->createLoader($pageLoader, static::createStub(OrderRoute::class))->load(
             new Request(),
             static::createStub(SalesChannelContext::class),
         );
@@ -173,13 +173,13 @@ class CheckoutFinishPageLoaderTest extends TestCase
 
     public function testMissingOrderIdException(): void
     {
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 
         $this->expectException(RoutingException::class);
 
-        $this->createLoader($pageLoader, $this->createMock(OrderRoute::class))->load(
+        $this->createLoader($pageLoader, static::createStub(OrderRoute::class))->load(
             new Request(),
             Generator::generateSalesChannelContext(),
         );
@@ -189,7 +189,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
     {
         $orderId = Uuid::randomHex();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader->method('load')
             ->willReturn(new Page());
 

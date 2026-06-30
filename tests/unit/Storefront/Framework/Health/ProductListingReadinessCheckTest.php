@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
@@ -25,18 +25,18 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ProductListingReadinessCheck::class)]
 class ProductListingReadinessCheckTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private SalesChannelDomainUtil&MockObject $util;
+    private SalesChannelDomainUtil&Stub $util;
 
-    private AbstractSalesChannelDomainProvider&MockObject $domainProvider;
+    private AbstractSalesChannelDomainProvider&Stub $domainProvider;
 
     private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->domainProvider = $this->createMock(AbstractSalesChannelDomainProvider::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->domainProvider = static::createStub(AbstractSalesChannelDomainProvider::class);
         $this->ids = new IdsCollection();
 
         $this->initUtilMock();
@@ -132,7 +132,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private function initUtilMock(): void
     {
-        $this->util = $this->createMock(SalesChannelDomainUtil::class);
+        $this->util = static::createStub(SalesChannelDomainUtil::class);
         $this->util->method('runAsSalesChannelRequest')
             ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();

@@ -66,7 +66,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $themeLifecycleHandler->expects($this->never())->method('handleThemeInstallOrUpdate');
 
         $subscriber = $this->createSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             $themeLifecycleHandler
         );
 
@@ -84,7 +84,7 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $configurations = new StorefrontPluginConfigurationCollection([new StorefrontPluginConfiguration('TestPlugin')]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -109,7 +109,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($updateContext);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -128,7 +128,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(true);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -153,7 +153,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin = new PluginEntity();
         $plugin->setName('MissingPlugin');
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -181,7 +181,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(false);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -208,7 +208,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin->setName('FakePlugin');
 
         $configurations = new StorefrontPluginConfigurationCollection();
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -242,7 +242,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $themeLifecycleHandler->expects($this->never())->method('recompileAllActiveThemes');
 
         $subscriber = $this->createSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             $themeLifecycleHandler
         );
 
@@ -263,7 +263,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $event->method('getContext')->willReturn($deactivateContext);
 
         $configurations = new StorefrontPluginConfigurationCollection();
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -285,7 +285,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(false);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $context = Context::createDefaultContext();
@@ -315,7 +315,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(true);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $context = Context::createDefaultContext();
@@ -355,7 +355,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $themeLifecycleHandler->expects($this->never())->method('handleThemeUninstall');
 
         $subscriber = $this->createSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             $themeLifecycleHandler
         );
 
@@ -371,7 +371,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(true);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -409,7 +409,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $config->setAdditionalBundles(false);
 
         $configurations = new StorefrontPluginConfigurationCollection([$config]);
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -512,7 +512,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $existingConfig = new StorefrontPluginConfiguration('ExistingPlugin');
         $configurations = new StorefrontPluginConfigurationCollection([$existingConfig]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $newConfig = new StorefrontPluginConfiguration('AsyncPlugin');
@@ -569,7 +569,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $themeLifecycleHandler->expects($this->never())->method('refreshAllActiveThemeImportMaps');
 
         $subscriber = $this->createSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             $themeLifecycleHandler,
             $factory
         );
@@ -593,8 +593,8 @@ class PluginLifecycleSubscriberTest extends TestCase
         $event->method('getPlugin')->willReturn($plugin);
 
         $subscriber = $this->createSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
-            $this->createMock(ThemeLifecycleHandler::class)
+            static::createStub(StorefrontPluginRegistry::class),
+            static::createStub(ThemeLifecycleHandler::class)
         );
 
         $this->expectException(\RuntimeException::class);

@@ -85,9 +85,11 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             'parentThemeName' => $usingParentTheme,
             'themeId' => Uuid::randomHex(),
         ];
-        $connectionMock = $this->createMock(Connection::class);
         if (\array_key_exists('context', $parameters)) {
+            $connectionMock = $this->createMock(Connection::class);
             $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+        } else {
+            $connectionMock = static::createStub(Connection::class);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 

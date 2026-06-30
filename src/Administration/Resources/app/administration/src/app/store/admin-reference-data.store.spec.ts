@@ -81,17 +81,33 @@ describe('admin-reference-data.store', () => {
         expect(getValuesMock).toHaveBeenCalledTimes(1);
     });
 
-    it('reuses pending product number range id loads', async () => {
-        const searchIdsMock = jest.fn().mockResolvedValue({ data: ['number-range-id'] });
+    it('reuses pending number range id loads per technical name', async () => {
+        const searchIdsMock = jest
+            .fn()
+            .mockResolvedValueOnce({ data: ['customer-number-range-id'] })
+            .mockResolvedValueOnce({ data: ['order-number-range-id'] });
 
         jest.spyOn(Date, 'now').mockReturnValue(1000);
         jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ searchIds: searchIdsMock } as never);
 
-        const firstLoad = store.loadProductNumberRangeIds();
-        const secondLoad = store.loadProductNumberRangeIds();
+        const firstLoad = store.loadNumberRangeIds('customer');
+        const secondLoad = store.loadNumberRangeIds('customer');
 
-        expect(await firstLoad).toStrictEqual(['number-range-id']);
-        expect(await secondLoad).toStrictEqual(['number-range-id']);
+        expect(await firstLoad).toStrictEqual(['customer-number-range-id']);
+        expect(await secondLoad).toStrictEqual(['customer-number-range-id']);
+        expect(await store.loadNumberRangeIds('customer')).toStrictEqual(['customer-number-range-id']);
+        expect(await store.loadNumberRangeIds('order')).toStrictEqual(['order-number-range-id']);
+        expect(searchIdsMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('keeps the product number range helper as product wrapper', async () => {
+        const searchIdsMock = jest.fn().mockResolvedValue({ data: ['product-number-range-id'] });
+
+        jest.spyOn(Date, 'now').mockReturnValue(1000);
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ searchIds: searchIdsMock } as never);
+
+        expect(await store.loadProductNumberRangeIds()).toStrictEqual(['product-number-range-id']);
+        expect(await store.loadNumberRangeIds('product')).toStrictEqual(['product-number-range-id']);
         expect(searchIdsMock).toHaveBeenCalledTimes(1);
     });
 });

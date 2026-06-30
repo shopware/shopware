@@ -41,8 +41,8 @@ interface AdminReferenceDataState {
     salesChannelTypes: EntityCollection<'sales_channel_type'> | null;
     salesChannelTypesLoadedAt: number;
     salesChannelTypesLanguageId: string | null;
-    productNumberRangeIds: string[] | null;
-    productNumberRangeIdsLoadedAt: number;
+    numberRangeIds: Record<string, string[]>;
+    numberRangeIdsLoadedAt: Record<string, number>;
 }
 
 let pendingSystemCurrency: Promise<Entity<'currency'> | null> | null = null;
@@ -51,7 +51,7 @@ let pendingActiveLanguages: Promise<EntityCollection<'language'>> | null = null;
 let pendingTaxes: Promise<EntityCollection<'tax'>> | null = null;
 let pendingDefaultTaxRateId: Promise<string | null> | null = null;
 let pendingSalesChannelTypes: Promise<EntityCollection<'sales_channel_type'>> | null = null;
-let pendingProductNumberRangeIds: Promise<string[]> | null = null;
+const pendingNumberRangeIds: Record<string, Promise<string[]> | undefined> = {};
 
 const adminReferenceDataStore = Shopware.Store.register({
     id: 'adminReferenceData',
@@ -75,8 +75,8 @@ const adminReferenceDataStore = Shopware.Store.register({
             salesChannelTypes: null,
             salesChannelTypesLoadedAt: 0,
             salesChannelTypesLanguageId: null,
-            productNumberRangeIds: null,
-            productNumberRangeIdsLoadedAt: 0,
+            numberRangeIds: {},
+            numberRangeIdsLoadedAt: {},
         };
     },
 
@@ -285,33 +285,42 @@ const adminReferenceDataStore = Shopware.Store.register({
             return pendingSalesChannelTypes;
         },
 
-        async loadProductNumberRangeIds(forceReload = false): Promise<string[]> {
-            if (!forceReload && this.productNumberRangeIds && this.isFresh(this.productNumberRangeIdsLoadedAt)) {
-                return this.productNumberRangeIds;
+        async loadNumberRangeIds(technicalName: string, forceReload = false): Promise<string[]> {
+            if (
+                !forceReload &&
+                this.numberRangeIds[technicalName] &&
+                this.isFresh(this.numberRangeIdsLoadedAt[technicalName] ?? 0)
+            ) {
+                return this.numberRangeIds[technicalName];
             }
 
-            if (!forceReload && pendingProductNumberRangeIds) {
-                return pendingProductNumberRangeIds;
+            if (!forceReload && pendingNumberRangeIds[technicalName]) {
+                return pendingNumberRangeIds[technicalName];
             }
 
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Criteria.equals('type.technicalName', technicalName));
             criteria.addFilter(Criteria.equals('global', true));
 
-            pendingProductNumberRangeIds = this.getRepository('number_range')
+            const pendingLoad = this.getRepository('number_range')
                 .searchIds(criteria, Shopware.Context.api)
                 .then((numberRangeIds) => {
-                    this.productNumberRangeIds = numberRangeIds.data;
-                    this.productNumberRangeIdsLoadedAt = Date.now();
+                    this.numberRangeIds[technicalName] = numberRangeIds.data;
+                    this.numberRangeIdsLoadedAt[technicalName] = Date.now();
 
-                    return this.productNumberRangeIds;
+                    return this.numberRangeIds[technicalName];
                 })
                 .finally(() => {
-                    pendingProductNumberRangeIds = null;
+                    delete pendingNumberRangeIds[technicalName];
                 });
+            pendingNumberRangeIds[technicalName] = pendingLoad;
 
-            return pendingProductNumberRangeIds;
+            return pendingLoad;
+        },
+
+        async loadProductNumberRangeIds(forceReload = false): Promise<string[]> {
+            return this.loadNumberRangeIds('product', forceReload);
         },
 
         invalidateAll(): void {
@@ -321,7 +330,7 @@ const adminReferenceDataStore = Shopware.Store.register({
             this.invalidateTaxes();
             this.invalidateDefaultTaxRateId();
             this.invalidateSalesChannelTypes();
-            this.invalidateProductNumberRangeIds();
+            this.invalidateNumberRangeIds();
         },
 
         invalidateSystemCurrency(): void {
@@ -359,8 +368,20 @@ const adminReferenceDataStore = Shopware.Store.register({
         },
 
         invalidateProductNumberRangeIds(): void {
-            this.productNumberRangeIds = null;
-            this.productNumberRangeIdsLoadedAt = 0;
+            this.invalidateNumberRangeIds('product');
+        },
+
+        invalidateNumberRangeIds(technicalName?: string): void {
+            if (!technicalName) {
+                this.numberRangeIds = {};
+                this.numberRangeIdsLoadedAt = {};
+
+                return;
+            }
+
+            delete this.numberRangeIds[technicalName];
+            delete this.numberRangeIdsLoadedAt[technicalName];
+            delete pendingNumberRangeIds[technicalName];
         },
     },
 });

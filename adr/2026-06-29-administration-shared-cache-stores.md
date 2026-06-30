@@ -27,13 +27,13 @@ Direct `user_config` repository access remains only for flows that intentionally
 
 `adminReferenceData` caches the shared reference data that is commonly reused across modules:
 
-* system currency
-* currencies
-* active languages
-* taxes
-* default tax rate id from `core.tax.defaultTaxRate`
-* sales channel types
-* global product number range ids
+- system currency
+- currencies
+- active languages
+- taxes
+- default tax rate id from `core.tax.defaultTaxRate`
+- sales channel types
+- global number range ids by technical name, for example `product`, `customer`, or `order`
 
 Reference data is cached with a short time-to-live of five minutes. Pending requests are reused so concurrent callers share one request. Language-dependent collections store the API language id they were loaded with and reload when the API language changes.
 
@@ -43,7 +43,7 @@ Reference data is cached with a short time-to-live of five minutes. Pending requ
 
 The shared caches do not replace normal entity loading. Product details, order details, customer data, module-specific listings, arbitrary repository searches, and save/reload flows must still use repositories and criteria that match the current screen.
 
-The product number itself is not cached. Calls to `numberRangeService.reserve('product')` still reserve a fresh number and must not be replaced by the cached product number range id lookup.
+Generated numbers and number previews are not cached. Calls such as `numberRangeService.reserve('product')`, `numberRangeService.reserve('customer')`, or document/order number reservations still reserve or preview a fresh number and must not be replaced by cached number range id lookups.
 
 Cross-user configuration is not routed through `adminUserConfig`. Code that intentionally reads or writes another user's `user_config` entry keeps using the `user_config` repository.
 
@@ -54,20 +54,28 @@ System configuration outside the values explicitly exposed by `adminReferenceDat
 Current-user configuration is read by key:
 
 ```javascript
-const value = await Shopware.Store.get('adminUserConfig').get('some.user.config.key');
+const value = await Shopware.Store.get("adminUserConfig").get(
+    "some.user.config.key",
+);
 ```
 
 Reference data is read through the specific load method:
 
 ```javascript
-const currencies = await Shopware.Store.get('adminReferenceData').loadCurrencies();
-const taxes = await Shopware.Store.get('adminReferenceData').loadTaxes();
+const currencies =
+    await Shopware.Store.get("adminReferenceData").loadCurrencies();
+const taxes = await Shopware.Store.get("adminReferenceData").loadTaxes();
+const customerNumberRangeIds =
+    await Shopware.Store.get("adminReferenceData").loadNumberRangeIds(
+        "customer",
+    );
 ```
 
 Custom field sets are read through the custom field service:
 
 ```javascript
-const sets = await this.customFieldDataProviderService.getCustomFieldSets('product');
+const sets =
+    await this.customFieldDataProviderService.getCustomFieldSets("product");
 ```
 
 Components should not call `userConfigService.search`, `userConfigService.upsert`, or a `user_config` repository directly for current-user settings.
@@ -77,16 +85,16 @@ Components should not call `userConfigService.search`, `userConfigService.upsert
 Current-user configuration is saved through `adminUserConfig.upsert`. The store writes through `userConfigService.upsert` and merges the written values into the local cache:
 
 ```javascript
-await Shopware.Store.get('adminUserConfig').upsert({
-    'some.user.config.key': value,
+await Shopware.Store.get("adminUserConfig").upsert({
+    "some.user.config.key": value,
 });
 ```
 
 Reference data is not updated by mutating `adminReferenceData` directly. Callers must persist changes through the owning repository or API service first. After a successful write, callers must either invalidate the affected cache or force the next load to bypass the cache.
 
 ```javascript
-Shopware.Store.get('adminReferenceData').invalidateTaxes();
-await Shopware.Store.get('adminReferenceData').loadTaxes(true);
+Shopware.Store.get("adminReferenceData").invalidateTaxes();
+await Shopware.Store.get("adminReferenceData").loadTaxes(true);
 ```
 
 ### Invalidation
@@ -95,13 +103,15 @@ await Shopware.Store.get('adminReferenceData').loadTaxes(true);
 
 `adminReferenceData` exposes `invalidateAll()` and targeted invalidation methods:
 
-* `invalidateSystemCurrency()`
-* `invalidateCurrencies()`
-* `invalidateActiveLanguages()`
-* `invalidateTaxes()`
-* `invalidateDefaultTaxRateId()`
-* `invalidateSalesChannelTypes()`
-* `invalidateProductNumberRangeIds()`
+- `invalidateSystemCurrency()`
+- `invalidateCurrencies()`
+- `invalidateActiveLanguages()`
+- `invalidateTaxes()`
+- `invalidateDefaultTaxRateId()`
+- `invalidateSalesChannelTypes()`
+- `invalidateNumberRangeIds()`
+- `invalidateNumberRangeIds(technicalName)`
+- `invalidateProductNumberRangeIds()`
 
 Each reference-data load method accepts `true` as a force reload argument. Use forced reloads for one-off refreshes and invalidation methods when later callers should also reload.
 

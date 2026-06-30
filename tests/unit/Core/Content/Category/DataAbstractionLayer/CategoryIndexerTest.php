@@ -131,6 +131,44 @@ class CategoryIndexerTest extends TestCase
         ];
     }
 
+    public function testParentIsNotHandedToTheRecursiveTreeUpdater(): void
+    {
+        $treeUpdateIds = [];
+        $treeUpdater = $this->createMock(TreeUpdater::class);
+        $treeUpdater->method('batchUpdate')->willReturnCallback(
+            function (array $ids) use (&$treeUpdateIds): void {
+                $treeUpdateIds = array_merge($treeUpdateIds, $ids);
+            }
+        );
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([]);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
+
+        $indexer = new CategoryIndexer(
+            $connection,
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ChildCountUpdater::class),
+            $treeUpdater,
+            $this->createMock(CategoryBreadcrumbUpdater::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(MessageBusInterface::class),
+        );
+
+        $parentId = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4';
+        $event = $this->createCategoryWrittenEvent(['parentId' => $parentId], EntityWriteResult::OPERATION_INSERT);
+
+        $message = $indexer->update($event);
+        static::assertNotNull($message);
+        $indexer->handle($message);
+
+        // The parent is required only for child-count recomputation; handing it to
+        // the recursive tree updater would walk its entire subtree of siblings.
+        static::assertNotContains($parentId, $treeUpdateIds, 'Parent id leaked into the tree updater.');
+    }
+
     /**
      * @param array<string, mixed> $categoryPayload
      * @param array<string, mixed>|null $translationPayload

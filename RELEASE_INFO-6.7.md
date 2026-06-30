@@ -127,6 +127,11 @@ Sales Channels now have an optional business timezone setting. When configured, 
 
 Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
 
+### Faster category creation and editing
+
+Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.
+
+For extension developers: as a consequence, the `CategoryIndexerEvent` is now dispatched with a smaller id set for these writes. If you subscribe to it and previously relied on receiving sibling categories that were not actually affected by the write, adjust your listener to resolve the categories it needs explicitly.
 ### Rule Builder: "all / at least one" toggle is now config-driven
 
 Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.

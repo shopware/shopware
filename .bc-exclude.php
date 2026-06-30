@@ -111,6 +111,9 @@ return [
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
 
+        // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
+        preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
+
         // DocumentType translations were incorrectly typed as product translations
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#$translations changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#getTranslations() changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),

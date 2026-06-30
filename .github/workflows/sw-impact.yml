@@ -43,7 +43,7 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     env:
-      SW_IMPACT_ARCHIVE_URL: https://github.com/shopware/sw-impact/releases/download/v0.2.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
+      SW_IMPACT_ARCHIVE_URL: https://github.com/shopware/sw-impact/releases/download/v0.3.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
 
     steps:
       - name: Define sw-impact paths

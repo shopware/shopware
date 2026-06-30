@@ -2,6 +2,10 @@
 
 ## Storefront
 
+### robots.txt allows crawling product feed tracking URLs
+
+The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
+
 ### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
@@ -9,6 +13,14 @@
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ## Core
+
+### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
+
+`dal:validate` detects foreign keys that reference something other than a complete PRIMARY or UNIQUE key of the target table.
+MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which breaks schema imports.
+
+**Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
+If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
@@ -129,8 +141,52 @@ To prepare:
 - Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
 - Code that constructs a result directly (`new EntitySearchResult(...)`, `new ProductListingResult(...)`, `new ProductReviewResult(...)`) must be updated for the v6.8.0 constructor: the `$entity` parameter is removed and the remaining parameters reorder.
 - For `ProductListingResult` and `ProductReviewResult`, use the new `fromSearchResult()` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
+### Faster category creation and editing
+
+Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.
+
+For extension developers: as a consequence, the `CategoryIndexerEvent` is now dispatched with a smaller id set for these writes. If you subscribe to it and previously relied on receiving sibling categories that were not actually affected by the write, adjust your listener to resolve the categories it needs explicitly.
+### Rule Builder: "all / at least one" toggle is now config-driven
+
+Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
+
+### Rule Builder: line item purchase price uses a net/gross type field
+
+`LineItemPurchasePriceRule` (`cartLineItemPurchasePrice`) now stores the price type as a `type` field (`gross` / `net`) instead of an `isNet` boolean, aligning it with the generic rule configuration and rendering it via `sw-condition-generic`.
+
+### Not-null translation columns accept falsy defaults
+
+`DefinitionValidator` no longer reports a not-null translation column as missing a default when the column has a falsy but set default such as `0`, `'0'`, or `''`. Only a `null` default is now treated as missing. This removes false positives for plugin entity definitions that use such defaults.
+
+### OneToMany association limit now respects sort order across joined tables
+
+When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
+
+No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
+
+### Added `--no-scaffold` flag to `plugin:create` command
+
+The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that skips all optional scaffold generators, producing only the minimal required plugin skeleton.
+
+```bash
+bin/console plugin:create MyPlugin MyNamespace --no-scaffold
+```
 
 ## API
+
+### Purchase prices removed from Store API order line item payloads
+
+Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.
+Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
+Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
+At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
+Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
+
+### Image CMS element no longer emits a default `min-height` outside cover mode
+
+The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
+
+For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
 
 ### DAL write event listeners no longer expand API ACL requirements
 
@@ -167,6 +223,65 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.
 
 Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
+
+### Block additions and renamings
+
+Due to missing blocks and inappropriate block names, the following templates have received new blocks and/or contain blocks which have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+Added:
+
+* `sw_cms_element_product_box_config_product_selection_label`
+* `sw_cms_element_product_box_config_product_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+Added:
+
+* `sw_cms_element_product_slider_config_content_products_selection_label`
+* `sw_cms_element_product_slider_config_content_products_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+Added:
+
+* `sw_product_cross_selling_assignment_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 # 6.7.12.0 (upcoming)
 
@@ -302,27 +417,7 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
-### Purchase prices removed from Store API order line item payloads
-
-Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.
-Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
-Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
-At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
-Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
-
-### Image CMS element no longer emits a default `min-height` outside cover mode
-
-The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
-
-For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
-
 ## Core
-
-### OneToMany association limit now respects sort order across joined tables
-
-When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
-
-No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
 
 ### Dynamic product groups can keep matching variants ungrouped
 
@@ -336,20 +431,13 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 
 A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
 
-### Rule Builder: "all / at least one" toggle is now config-driven
-
-Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
-
-### Rule Builder: line item purchase price uses a net/gross type field
-
-`LineItemPurchasePriceRule` (`cartLineItemPurchasePrice`) now stores the price type as a `type` field (`gross` / `net`) instead of an `isNet` boolean, aligning it with the generic rule configuration and rendering it via `sw-condition-generic`.
-
 ### Storefront snippets of self-managed apps are loaded
 
 Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
 Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
 The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
 Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+
 ### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 
 The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
@@ -482,9 +570,6 @@ Affected commands:
 - `bin/console plugin:list --json` → `bin/console plugin:list --format json`
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
-### Not-null translation columns accept falsy defaults
-
-`DefinitionValidator` no longer reports a not-null translation column as missing a default when the column has a falsy but set default such as `0`, `'0'`, or `''`. Only a `null` default is now treated as missing. This removes false positives for plugin entity definitions that use such defaults.
 
 ### `cache:watch:delayed` shuts down gracefully
 
@@ -522,65 +607,6 @@ The following classes related to Agentic Commerce product exports, providers, an
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
 ## Administration
-
-### Block additions and renamings
-
-Due to missing blocks and inappropriate block names, the following templates have received new blocks and/or contain blocks which have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
-
-#### sw-cms-el-config-buy-box.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-cross-selling.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
-
-#### sw-cms-el-config-product-box.html.twig
-
-Added:
-
-* `sw_cms_element_product_box_config_product_selection_label`
-* `sw_cms_element_product_box_config_product_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-product-description-reviews.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-product-slider.html.twig
-
-Added:
-
-* `sw_cms_element_product_slider_config_content_products_selection_label`
-* `sw_cms_element_product_slider_config_content_products_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
-
-#### sw-product-cross-selling-assignment.html.twig
-
-Added:
-
-* `sw_product_cross_selling_assignment_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 ### `sw-select-field` forwards `aria-label` to the native select
 

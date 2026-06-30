@@ -255,6 +255,44 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
+    it('should redirect to product listing when product no longer exists', async () => {
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve(null),
+        );
+
+        await wrapper.setProps({
+            productId: 'missing-product-id',
+        });
+        await flushPromises();
+
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.$router.push.mockClear();
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'stale-product-id',
+            parentId: 'stale-parent-id',
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'stale-parent-id',
+        };
+
+        await wrapper.vm.loadProduct();
+        await nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-product.detail.messageProductNotFound',
+        });
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.product.index',
+        });
+        expect(Shopware.Store.get('swProductDetail').product).toEqual({});
+        expect(Shopware.Store.get('swProductDetail').parentProduct).toEqual({});
+        expect(wrapper.find('.sw-card-view').exists()).toBe(false);
+    });
+
     it('should render the fallback tabs branch while the major feature flag is inactive', () => {
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 

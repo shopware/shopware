@@ -84,7 +84,7 @@ class ServiceClientTest extends TestCase
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 

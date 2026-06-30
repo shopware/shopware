@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Storage;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
@@ -46,7 +45,6 @@ class MySQLKeyValueStorageTest extends TestCase
         ], $value);
     }
 
-    #[Depends('testSet')]
     public function testGet(): void
     {
         $this->keyValueStorage->set('key-1', 'value-1');
@@ -58,7 +56,6 @@ class MySQLKeyValueStorageTest extends TestCase
         static::assertSame('default', $this->keyValueStorage->get('key-3', 'default'));
     }
 
-    #[Depends('testSet')]
     public function testHas(): void
     {
         $this->keyValueStorage->set('key-1', 'value-1');
@@ -69,7 +66,6 @@ class MySQLKeyValueStorageTest extends TestCase
         static::assertFalse($this->keyValueStorage->has('key-3'));
     }
 
-    #[Depends('testSet')]
     public function testRemove(): void
     {
         $this->keyValueStorage->set('key-1', 'value-1');

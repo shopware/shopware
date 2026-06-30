@@ -48,7 +48,7 @@ class CmsRoute extends AbstractCmsRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

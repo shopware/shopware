@@ -100,7 +100,7 @@
 
     {% block sw_product_detail_content %}
     <template #content>
-        <sw-card-view>
+        <sw-card-view v-if="!isProductNotFound">
 
             {% block sw_product_detail_content_top %}
             <template v-if="!isLoading && isChild">

@@ -5,13 +5,14 @@ namespace Shopware\Core\Content\ProductExport\Validator;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UrlEncoder;
 
 /**
  * Validates Google Merchant Center XML feeds (RSS 2.0 with the http://base.google.com/ns/1.0 namespace).
  *
- * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
  */
 #[Package('discovery')]
 class GoogleProductExportValidator extends AbstractProviderValidator
@@ -88,11 +89,15 @@ class GoogleProductExportValidator extends AbstractProviderValidator
 
     protected function getProviderTechnicalName(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         return 'google';
     }
 
     protected function validateProviderExport(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         if ($productExportEntity->getFileFormat() !== ProductExportEntity::FILE_FORMAT_XML) {
             $errors->add(new ProviderValidationError(
                 $productExportEntity->getId(),

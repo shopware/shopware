@@ -132,9 +132,14 @@ class InfoControllerTest extends TestCase
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
+                'minSearchTermLength' => 2,
             ],
             'inAppPurchases' => [],
         ];
+
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($expected['adminWorker']['enableQueueStatsWorker']);
+        }
 
         $url = '/api/_info/config';
         $client = $this->getBrowser();

@@ -5,9 +5,21 @@ import ShopwareError from 'src/core/data/ShopwareError';
  * @sw-package checkout
  */
 
+const defaultCustomer = {
+    id: 'test',
+    accountType: 'private',
+    company: 'Shopware AG',
+    requestedGroup: {
+        translated: {
+            name: 'Test',
+        },
+    },
+};
+
 async function createWrapper(
     privileges = [],
     editMode = false,
+    customerResponse = defaultCustomer,
     { featureActive = false, routeName = 'sw.customer.detail.base', routerPush = jest.fn() } = {},
 ) {
     return mount(
@@ -98,17 +110,7 @@ async function createWrapper(
                     repositoryFactory: {
                         create: () => {
                             return {
-                                get: () =>
-                                    Promise.resolve({
-                                        id: 'test',
-                                        accountType: 'private',
-                                        company: 'Shopware AG',
-                                        requestedGroup: {
-                                            translated: {
-                                                name: 'Test',
-                                            },
-                                        },
-                                    }),
+                                get: () => Promise.resolve(customerResponse),
 
                                 searchIds: () =>
                                     Promise.resolve({
@@ -270,6 +272,44 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         expect(wrapper.vm.customer.salutationId).toBe('1');
     });
 
+    it('should redirect to the customer listing when the customer does not exist', async () => {
+        let resolveCustomer = () => {};
+        const customerPromise = new Promise((resolve) => {
+            resolveCustomer = resolve;
+        });
+        const wrapperWithMissingCustomer = await createWrapper([], false, customerPromise);
+        wrapperWithMissingCustomer.vm.createNotificationError = jest.fn();
+
+        resolveCustomer(null);
+
+        await flushPromises();
+
+        expect(wrapperWithMissingCustomer.vm.customer).toBeNull();
+        expect(wrapperWithMissingCustomer.vm.isLoading).toBe(false);
+        expect(wrapperWithMissingCustomer.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-customer.detail.messageCustomerNotFound',
+        });
+        expect(wrapperWithMissingCustomer.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.customer.index' });
+    });
+
+    it('should show a notification when the customer cannot be loaded', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const wrapperWithLoadingError = await createWrapper([], false, Promise.reject(new Error('Could not load customer')));
+
+        await flushPromises();
+
+        expect(wrapperWithLoadingError.vm.customer).toBeNull();
+        expect(wrapperWithLoadingError.vm.isLoading).toBe(false);
+        expect(notificationSpy).toHaveBeenCalledWith({
+            variant: 'error',
+            title: 'global.default.error',
+            message: 'global.notification.notificationLoadingDataErrorMessage',
+        });
+        expect(wrapperWithLoadingError.vm.$router.push).not.toHaveBeenCalled();
+
+        notificationSpy.mockRestore();
+    });
+
     it('should set the initial limit on the addresses association criteria', async () => {
         await flushPromises();
 
@@ -286,7 +326,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should render meteor tabs when the major feature flag is active', async () => {
-        const wrapperWithMeteorTabs = await createWrapper([], false, {
+        const wrapperWithMeteorTabs = await createWrapper([], false, defaultCustomer, {
             featureActive: true,
             routeName: 'sw.customer.detail.addresses',
         });
@@ -318,7 +358,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     it('should navigate when a meteor tab item is clicked', async () => {
         const routerPush = jest.fn();
-        const wrapperWithMeteorTabs = await createWrapper([], true, {
+        const wrapperWithMeteorTabs = await createWrapper([], true, defaultCustomer, {
             featureActive: true,
             routerPush,
         });
@@ -345,7 +385,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
             }),
         });
 
-        const wrapperWithMeteorTabs = await createWrapper([], false, {
+        const wrapperWithMeteorTabs = await createWrapper([], false, defaultCustomer, {
             featureActive: true,
         });
         const tabs = wrapperWithMeteorTabs.getComponent({ name: 'mt-tabs' });

@@ -191,7 +191,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
+use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -107,6 +108,59 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey('danger', $this->controller->flashBag);
         static::assertArrayHasKey(0, $this->controller->flashBag['danger']);
         static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
+    }
+
+    public function testGuestLoginPageWithoutRedirectParametersRendersEmptyArray(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->query->set('redirectTo', 'frontend.account.order.single.page');
+
+        $page = new AccountLoginPage();
+        $this->accountLoginPageLoader->expects($this->once())
+            ->method('load')
+            ->willReturn($page);
+
+        $this->controller->guestLoginPage($request, $context);
+
+        static::assertSame('@Storefront/storefront/page/account/guest-auth.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame([], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
+        static::assertSame('frontend.account.order.single.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertInstanceOf(AccountGuestLoginPageLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testGuestLoginPageNormalizesNonArrayRedirectParameters(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->query->set('redirectTo', 'frontend.account.order.single.page');
+        $request->query->set('redirectParameters', 'not-an-array');
+
+        $this->accountLoginPageLoader->method('load')->willReturn(new AccountLoginPage());
+
+        $this->controller->guestLoginPage($request, $context);
+
+        static::assertSame([], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
+    public function testGuestLoginPageKeepsArrayRedirectParameters(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->query->set('redirectTo', 'frontend.account.order.single.page');
+        $request->query->set('redirectParameters', ['deepLinkCode' => 'abc']);
+
+        $this->accountLoginPageLoader->method('load')->willReturn(new AccountLoginPage());
+
+        $this->controller->guestLoginPage($request, $context);
+
+        static::assertSame(['deepLinkCode' => 'abc'], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
     }
 
     public function testGuestCustomerOnLoginPageShouldBeLoggedOut(): void

@@ -12,12 +12,6 @@ The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` 
 
 `loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
-### Theme media imports accept packaged SVG assets
-
-SVG files referenced from a theme's `theme.json` media fields or preview media are now imported through a theme-scoped media saver that skips SVG active-content validation. This keeps trusted theme packages installable even when their packaged SVG assets contain markup that would be rejected for normal media uploads.
-
-If a theme media import still fails outside the `dev` environment, Shopware logs the failed path, clears the affected theme config value, and continues refreshing the theme. In `dev`, the original exception is still thrown. Regular media uploads and plugin code using the generic media APIs continue to use the normal SVG validation.
-
 ## Core
 
 ### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
@@ -27,6 +21,9 @@ MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which brea
 
 **Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
 If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
+### Plugin activation rolls back when post-activation fails
+
+Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 

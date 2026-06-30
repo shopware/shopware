@@ -166,36 +166,6 @@ SVG;
         }
     }
 
-    public function testThemeFileSaverCanPersistUnsafeSvgWithoutFileContentValidation(): void
-    {
-        $filesystem = new Filesystem();
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        static::assertIsString($tempFile);
-        $filesystem->dumpFile($tempFile, self::UNSAFE_SVG);
-
-        $fileSize = filesize($tempFile);
-        static::assertIsInt($fileSize);
-        $mediaFile = new MediaFile($tempFile, 'image/svg+xml', 'svg', $fileSize);
-
-        $mediaId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-
-        $this->mediaRepository->create([['id' => $mediaId]], $context);
-
-        try {
-            $themeFileSaver = static::getContainer()->get('shopware.storefront.theme.file_saver_without_file_content_validation');
-            static::assertInstanceOf(FileSaver::class, $themeFileSaver);
-
-            $themeFileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
-        } finally {
-            $filesystem->remove($tempFile);
-        }
-
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
-        static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
-    }
-
     public function testPersistFileWithUpperCaseExtension(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');

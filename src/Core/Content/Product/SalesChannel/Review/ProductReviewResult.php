@@ -18,14 +18,29 @@ class ProductReviewResult extends EntitySearchResult
 {
     use CreateFromTrait;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ?string $parentId = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected string $productId;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected RatingMatrix $matrix;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ?ProductReviewEntity $customerReview = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected int $totalReviewsInCurrentLanguage;
 
     /**

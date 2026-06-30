@@ -26,11 +26,47 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 {
     use StateAwareTrait;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
+     */
+    protected string $entity;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
+    protected int $total;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     *
+     * @var TEntityCollection
+     */
+    protected EntityCollection $entities;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected AggregationResultCollection $aggregations;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected int $page;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ?int $limit = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
+    protected Criteria $criteria;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
+    protected Context $context;
 
     /**
      * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
@@ -38,13 +74,18 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        protected string $entity,
-        protected int $total,
-        protected EntityCollection $entities,
+        string $entity,
+        int $total,
+        EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        protected Criteria $criteria,
-        protected Context $context
+        Criteria $criteria,
+        Context $context
     ) {
+        $this->entity = $entity;
+        $this->total = $total;
+        $this->entities = $entities;
+        $this->criteria = $criteria;
+        $this->context = $context;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());

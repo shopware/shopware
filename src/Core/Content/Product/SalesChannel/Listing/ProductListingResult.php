@@ -18,15 +18,26 @@ class ProductListingResult extends EntitySearchResult
 {
     use CreateFromTrait;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ?string $sorting = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     *
      * @var array<string, int|float|string|bool|array<mixed>|null>
      */
     protected array $currentFilters = [];
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ProductSortingCollection $availableSortings;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
+     */
     protected ?string $streamId = null;
 
     /**

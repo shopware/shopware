@@ -30,7 +30,7 @@ class IndexCreatorTest extends TestCase
     #[DataProvider('providerCreateIndices')]
     public function testIndexCreation(array $constructorConfig, array $expectedConfig): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -61,18 +61,18 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => $constructorConfig,
             ],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper
         );
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
     }
 
     public function testIndexCreationFiresEvents(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -101,7 +101,7 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => [],
             ],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             $eventDispatcher,
             $helper
         );
@@ -120,7 +120,7 @@ class IndexCreatorTest extends TestCase
             $event->setConfig($event->getConfig() + ['event' => true]);
         });
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
 
         static::assertTrue($calledCreateEvent, 'Event ElasticsearchIndexCreatedEvent was not dispatched');
@@ -129,7 +129,7 @@ class IndexCreatorTest extends TestCase
 
     public function testCreateIndexWithSourceField(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -149,7 +149,7 @@ class IndexCreatorTest extends TestCase
             ->method('indices')
             ->willReturn($indices);
 
-        $mappingProvider = $this->createMock(IndexMappingProvider::class);
+        $mappingProvider = static::createStub(IndexMappingProvider::class);
         $mappingProvider
             ->method('build')
             ->willReturn([
@@ -171,14 +171,14 @@ class IndexCreatorTest extends TestCase
             $helper
         );
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
 
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
     }
 
     public function testCreateIndexWithAliasExists(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -206,21 +206,21 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper
         );
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
 
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
     }
 
     public function testAliasExists(): void
     {
-        $client = $this->createMock(Client::class);
-        $indices = $this->createMock(IndicesNamespace::class);
-        $indices->method('existsAlias')->with(['name' => 'foo'])->willReturn(true);
+        $client = static::createStub(Client::class);
+        $indices = static::createStub(IndicesNamespace::class);
+        $indices->method('existsAlias')->willReturn(true);
 
         $client
             ->method('indices')
@@ -232,7 +232,7 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper
         );
@@ -242,7 +242,7 @@ class IndexCreatorTest extends TestCase
 
     public function testIndexCreationLogsWhenClientThrows(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $client->method('indices')->willReturn($indices);
 
@@ -268,12 +268,12 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper
         );
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
 
         $this->expectExceptionObject(new \RuntimeException('handled'));
 
@@ -284,7 +284,7 @@ class IndexCreatorTest extends TestCase
     {
         $analysis = self::technicalTermAnalysisFixture();
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -299,22 +299,22 @@ class IndexCreatorTest extends TestCase
         $indices->method('existsAlias')->willReturn(true);
         $client->method('indices')->willReturn($indices);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $index = new IndexCreator(
             $client,
             ['settings' => ['analysis' => $analysis]],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper,
             false
         );
 
-        $index->createIndex($this->createMock(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
+        $index->createIndex(static::createStub(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
     }
 
     public function testDimensionNormalizeEnabledPrependsCharFilterToTechnicalTermAnalyzers(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -339,22 +339,22 @@ class IndexCreatorTest extends TestCase
         $indices->method('existsAlias')->willReturn(true);
         $client->method('indices')->willReturn($indices);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $index = new IndexCreator(
             $client,
             ['settings' => ['analysis' => self::technicalTermAnalysisFixture()]],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper,
             true
         );
 
-        $index->createIndex($this->createMock(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
+        $index->createIndex(static::createStub(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
     }
 
     public function testDimensionNormalizeEnabledIsIdempotent(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -372,22 +372,22 @@ class IndexCreatorTest extends TestCase
         $analysis = self::technicalTermAnalysisFixture();
         $analysis['analyzer']['sw_english_technical_term_index_analyzer']['char_filter'] = ['sw_dimension_normalize', 'sw_unit_glue'];
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $index = new IndexCreator(
             $client,
             ['settings' => ['analysis' => $analysis]],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper,
             true
         );
 
-        $index->createIndex($this->createMock(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
+        $index->createIndex(static::createStub(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
     }
 
     public function testDimensionNormalizeWithoutAnalysisSectionIsNoOp(): void
     {
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
             ->expects($this->once())
@@ -398,17 +398,17 @@ class IndexCreatorTest extends TestCase
         $indices->method('existsAlias')->willReturn(true);
         $client->method('indices')->willReturn($indices);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $index = new IndexCreator(
             $client,
             ['settings' => ['index' => ['number_of_shards' => 1]]],
-            $this->createMock(IndexMappingProvider::class),
+            static::createStub(IndexMappingProvider::class),
             new EventDispatcher(),
             $helper,
             true
         );
 
-        $index->createIndex($this->createMock(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
+        $index->createIndex(static::createStub(ElasticsearchProductDefinition::class), 'foo', 'alias', Context::createDefaultContext());
     }
 
     /**

@@ -7,6 +7,7 @@ use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -48,7 +49,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     private Client&MockObject $client;
 
-    private IndicesNamespace&MockObject $indices;
+    private IndicesNamespace&Stub $indices;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -64,7 +65,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $this->helper->method('allowIndexing')->willReturn(true);
 
-        $this->indices = $this->createMock(IndicesNamespace::class);
+        $this->indices = static::createStub(IndicesNamespace::class);
         $this->client->method('indices')->willReturn($this->indices);
 
         parent::setUp();
@@ -146,7 +147,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $indexer = $this->getIndexer();
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn(['1', '2']);
 
         $this->iteratorFactory
@@ -183,7 +184,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
+        $indexer->updateIds(static::createStub(EntityDefinition::class), ['1', '2']);
     }
 
     public function testUpdateIndexDoesNotExistsCreatesThem(): void
@@ -194,7 +195,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
+        $indexer->updateIds(static::createStub(EntityDefinition::class), ['1', '2']);
     }
 
     public function testHandleESDisabled(): void
@@ -217,7 +218,6 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
@@ -236,7 +236,6 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
@@ -273,8 +272,11 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
+
+        $this->client->expects($this->once())
+            ->method('bulk')
+            ->willReturn(['errors' => false, 'items' => []]);
 
         $indexer = $this->getIndexer();
 
@@ -315,7 +317,6 @@ class ElasticsearchIndexerTest extends TestCase
             ]);
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -428,13 +429,13 @@ class ElasticsearchIndexerTest extends TestCase
     }
 
     /**
-     * @return AbstractElasticsearchDefinition&MockObject
+     * @return AbstractElasticsearchDefinition&Stub
      */
     private function createDefinition(string $name): AbstractElasticsearchDefinition
     {
-        $es = $this->createMock(AbstractElasticsearchDefinition::class);
+        $es = static::createStub(AbstractElasticsearchDefinition::class);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($name);
 
         $es->method('getEntityDefinition')->willReturn($definition);

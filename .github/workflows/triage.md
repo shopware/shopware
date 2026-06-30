@@ -46,7 +46,7 @@ concurrency:                 # explicit — workflow_dispatch default group canc
 engine:
   id: claude
   model: claude-sonnet-4-6   # explicit pin (Sonnet was already the default, just no drift)
-  max-turns: 30              # claude-only; bound the loop so Bash-denials don't burn turns.
+  max-turns: 50              # claude-only hard cap; headroom for hard-to-locate issues while still bounding runaway loops.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in
     # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads.
@@ -54,7 +54,7 @@ engine:
 
 permissions: read-all        # read-only agent; the only output is a run artifact
 network: defaults
-timeout-minutes: 15          # wall-clock budget; max-turns (30) bounds runaway loops.
+timeout-minutes: 15          # wall-clock budget; max-turns (50) bounds runaway loops (~50 turns runs well under this).
 
 tools:
   github:
@@ -122,10 +122,13 @@ post-steps:
 Triage issue **#${{ github.event.issue.number || github.event.inputs.issue_number }}** using the policy and references
 above. Investigate read-only (no labels, comments, or writes).
 
-Write a **best-effort** `TriageOutput` JSON object to a file named `triage-output.json`
-in the workspace root **early** — within your first few tool calls, before you are
-"done" — then refine it as evidence accumulates. Treat producing the file as step one,
-not the finale: a run cut off by the turn limit or timeout must still leave a usable
-result rather than failing with no output. Re-write the whole file on each update. When
-finished, call the `upload_artifact` tool on that path. Emit ONLY the JSON to that file
-— no surrounding prose, no markdown fence.
+Your single deliverable is a `TriageOutput` JSON object written to a file named
+`triage-output.json` in the workspace root, then handed off by calling the
+`upload_artifact` tool on that path. **This upload is the only thing that produces a
+result — a run that is cut off by the turn limit before it calls `upload_artifact`
+produces nothing.** So your job is to *finish*: investigate efficiently per the tool
+budget in the policy, and **emit and upload well before the turn limit** rather than
+spending every turn investigating. When you reach your emit deadline (or have enough to
+classify), write the complete JSON and call `upload_artifact` — once. A lower-confidence
+result that ships beats a perfect one that never uploads. Emit ONLY the JSON to that
+file — no surrounding prose, no markdown fence.

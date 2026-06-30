@@ -240,6 +240,7 @@
                 v-if="showModalPreview"
                 ref="modalPreview"
                 :filters="productStreamFiltersTree"
+                :display-as-group="productStream.displayAsGroup"
                 @modal-close="closeModalPreview"
             />
             {% endblock %}

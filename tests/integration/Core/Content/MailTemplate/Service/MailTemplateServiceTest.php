@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -87,6 +89,30 @@ class MailTemplateServiceTest extends TestCase
         static::assertInstanceOf(MailTemplateRenderResult::class, $rendered['contentHtml']);
         static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
         static::assertNotSame('', $rendered['contentHtml']->getContent());
+    }
+
+    public function testSimulateRevocationRequestTemplate(): void
+    {
+        $formDataVariable = FlowMailVariables::REVOCATION_REQUEST_FORM_DATA;
+        $contentHtml = \sprintf(
+            '<p>{{ %1$s.firstName }} {{ %1$s.lastName }} {{ %1$s.email }} {{ %1$s.contractNumber }} {{ %1$s.submitTime|format_datetime("medium", "short", locale="en-GB") }}</p>',
+            $formDataVariable
+        );
+
+        $rendered = $this->mailTemplateService->simulate(
+            new SimulateRequest(
+                templateParts: [
+                    'contentHtml' => $contentHtml,
+                ],
+                eventName: RevocationRequestEvent::EVENT_NAME,
+            ),
+            $this->context
+        );
+
+        static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
+        static::assertStringContainsString('Max Mustermann', $rendered['contentHtml']->getContent());
+        static::assertStringContainsString('max.mustermann@example.com', $rendered['contentHtml']->getContent());
+        static::assertStringContainsString('10000', $rendered['contentHtml']->getContent());
     }
 
     public function testGetAvailableVariables(): void

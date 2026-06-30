@@ -23,7 +23,7 @@ class NestedFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new NestedFieldQueryBuilder($inner);
 
         static::assertSame($inner, $builder->getDecorated());

@@ -23,7 +23,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new ExplainFieldQueryBuilder($inner);
 
         static::assertSame($inner, $builder->getDecorated());

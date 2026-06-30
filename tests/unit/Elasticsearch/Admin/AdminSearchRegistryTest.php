@@ -8,7 +8,7 @@ use OpenSearch\Exception\RuntimeException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -39,11 +39,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(AdminSearchRegistry::class)]
 class AdminSearchRegistryTest extends TestCase
 {
-    private MockObject&AbstractAdminIndexer $indexer;
+    private AbstractAdminIndexer&Stub $indexer;
 
     protected function setUp(): void
     {
-        $this->indexer = $this->createMock(AbstractAdminIndexer::class);
+        $this->indexer = static::createStub(AbstractAdminIndexer::class);
     }
 
     public function testGetSubscribedEvents(): void
@@ -89,8 +89,10 @@ class AdminSearchRegistryTest extends TestCase
 
         $client->method('indices')->willReturn($indices);
 
+        $indexer = $this->createMock(AbstractAdminIndexer::class);
+
         $registry = new AdminSearchRegistry(
-            ['promotion' => $this->indexer],
+            ['promotion' => $indexer],
             static::createStub(Connection::class),
             static::createStub(MessageBusInterface::class),
             static::createStub(EventDispatcherInterface::class),
@@ -112,7 +114,7 @@ class AdminSearchRegistryTest extends TestCase
             'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
         ];
 
-        $this->indexer->expects($this->once())
+        $indexer->expects($this->once())
             ->method('mapping')
             ->with([
                 'properties' => $properties,
@@ -447,9 +449,10 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testRefreshLogsAndDoesNotIndexIfExceptionIsThrownDuringRefreshIndices(): void
     {
-        $this->indexer->method('getName')->willReturn('promotion-listing');
-        $this->indexer->method('getEntity')->willReturn('promotion');
-        $this->indexer->expects($this->never())->method('fetch');
+        $indexer = $this->createMock(AbstractAdminIndexer::class);
+        $indexer->method('getName')->willReturn('promotion-listing');
+        $indexer->method('getEntity')->willReturn('promotion');
+        $indexer->expects($this->never())->method('fetch');
 
         $client = $this->createMock(Client::class);
         $client->expects($this->never())->method('bulk');
@@ -465,7 +468,7 @@ class AdminSearchRegistryTest extends TestCase
             ->with('Could not refresh indices. Run "bin/console es:admin:mapping:update" & "bin/console es:admin:index" to update indices and reindex. Error: no nodes');
 
         $index = new AdminSearchRegistry(
-            ['promotion' => $this->indexer],
+            ['promotion' => $indexer],
             $connection,
             static::createStub(MessageBusInterface::class),
             static::createStub(EventDispatcherInterface::class),

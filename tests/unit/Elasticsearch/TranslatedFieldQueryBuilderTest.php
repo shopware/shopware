@@ -30,7 +30,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
 
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
 
         static::assertSame($inner, $builder->getDecorated());

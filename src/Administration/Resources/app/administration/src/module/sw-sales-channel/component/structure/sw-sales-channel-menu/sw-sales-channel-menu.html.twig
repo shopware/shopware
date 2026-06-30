@@ -10,10 +10,7 @@
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
         {% block sw_sales_channel_menu_headline_text %}
-        <div
-            v-if="isSidebarExpanded"
-            class="collapsible-text sw-admin-menu__headline_text"
-        >
+        <div class="collapsible-text sw-admin-menu__headline_text">
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
             >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
@@ -30,7 +27,7 @@
                 >
                     <mt-icon
                         name="solid-ellipsis-h-s"
-                        :size="isSidebarExpanded ? '10px' : '16px'"
+                        size="14px"
                     />
                 </button>
             </mt-dropdown-menu-trigger>
@@ -88,7 +85,7 @@
                 <template #additional-text>
                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
                     <button
-                        v-if="entry.domainLink && entry.active && isSidebarExpanded"
+                        v-if="entry.domainLink && entry.active"
                         class="sw-sales-channel-menu-domain-link"
                         :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"

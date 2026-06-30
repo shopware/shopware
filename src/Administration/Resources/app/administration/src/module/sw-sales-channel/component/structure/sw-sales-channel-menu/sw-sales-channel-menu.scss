@@ -13,6 +13,16 @@
         border: none;
         outline: none;
         cursor: inherit;
+        opacity: 1;
+        // Fade the storefront-link button in/out on collapse; `allow-discrete` keeps its previous
+        // "removed from the row" behaviour by deferring `display: none` until the fade has finished.
+        transition:
+            opacity 0.2s ease-in-out,
+            display 0.2s allow-discrete;
+
+        @starting-style {
+            opacity: 0;
+        }
 
         .sw-sales-channel-menu-domain-link__icon {
             color: var(--color-icon-primary-default);
@@ -80,8 +90,15 @@
 }
 
 .sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-admin-menu__headline {
+    // No padding so the (only remaining) context-menu dots centre exactly in the collapsed rail.
     padding: 0;
     justify-content: center;
+
+    // The label's 10px indent lives on the label itself while collapsing, so it fades out in place
+    // instead of jumping left when the headline padding drops to 0. It is display:none at rest anyway.
+    .sw-admin-menu__headline_text {
+        padding-left: var(--scale-size-10, 10px);
+    }
 }
 
 .is--collapsed .sw-sales-channel-menu {
@@ -93,7 +110,19 @@
         }
     }
 
+    .sw-sales-channel-menu-domain-link {
+        opacity: 0;
+        display: none;
+        pointer-events: none;
+    }
+
     .sw-loader {
         display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sw-sales-channel-menu .sw-sales-channel-menu-domain-link {
+        transition: none;
     }
 }

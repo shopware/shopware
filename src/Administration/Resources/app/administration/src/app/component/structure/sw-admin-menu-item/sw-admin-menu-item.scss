@@ -21,6 +21,7 @@ $nesting-line-indent: 36px;
     gap: var(--scale-size-10);
     flex: 1;
     min-width: 0;
+    overflow: hidden;
     padding: 0 var(--scale-size-6) 0 var(--scale-size-10);
     text-decoration: none;
     text-align: left;
@@ -45,6 +46,7 @@ $nesting-line-indent: 36px;
 
         flex-grow: 1;
         text-align: left;
+        min-width: max-content;
     }
 }
 

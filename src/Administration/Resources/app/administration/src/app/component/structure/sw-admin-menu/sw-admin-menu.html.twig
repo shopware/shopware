@@ -22,10 +22,12 @@
 
         {% block sw_admin_menu_header_logo %}
         <div class="sw-admin-menu__header-logo-wrapper">
-            <div
+            <mt-icon
                 class="sw-admin-menu__header-logo"
-                role="img"
-            ></div>
+                name="solid-shopware"
+                size="26px"
+                :aria-label="$tc('global.sw-admin-menu.textProjectName')"
+            />
 
             <button
                 v-if="!isExpanded"
@@ -42,10 +44,7 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <div
-            v-if="isExpanded"
-            class="collapsible-text sw-admin-menu__version"
-        >
+        <div class="collapsible-text sw-admin-menu__version">
             {% block sw_admin_menu_header_title %}
             <div class="sw-admin-menu__title">
                 {{ $tc('global.sw-admin-menu.textProjectName') }}
@@ -175,10 +174,7 @@
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_custom_fields %}
-                    <div
-                        v-if="isExpanded"
-                        class="sw-admin-menu__user-custom-fields collapsible-text"
-                    >
+                    <div class="sw-admin-menu__user-custom-fields collapsible-text">
                         <div class="sw-admin-menu__user-name">
                             {{ userName }}
                         </div>
@@ -189,10 +185,7 @@
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_toggle_icon %}
-                    <div
-                        v-if="isExpanded"
-                        class="sw-admin-menu__user-actions-toggle-icon-wrapper"
-                    >
+                    <div class="sw-admin-menu__user-actions-toggle-icon-wrapper">
                         <mt-icon
                             name="regular-chevron-up-xxs"
                         />

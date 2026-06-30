@@ -136,9 +136,15 @@
             <tag name="shopware.hookable_event.describer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>

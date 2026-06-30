@@ -126,11 +126,13 @@
             <twig:Slot name="additional-filters-end"></twig:Slot>
 
             {# Expand or collapse hidden filters #}
-            <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
-                <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
-                <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
-                <twig:Sw:Icon name="sliders-horizontal" size="xs" />
-            </button>
+            {% if filterAggregations|length > visibleFilterCount %}
+                <button class="sw-filter-panel__filter-btn sw-filter-panel__expand btn-light btn d-none d-md-block">
+                    <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
+                    <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
+                    <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+                </button>
+            {% endif %}
         </div>
     </twig:Sw:Content:Offcanvas>
 

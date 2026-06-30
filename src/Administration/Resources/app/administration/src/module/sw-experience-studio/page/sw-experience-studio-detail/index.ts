@@ -1,14 +1,18 @@
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentLayoutDraftDuplicatePayload,
+    ContentLayoutDraftInsertPayload,
+    ContentLayoutDraftMutationResponse,
+    ContentLayoutDraftRemovePayload,
+} from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 
 import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
 import { castContentElementNodes } from 'src/module/sw-experience-studio/util/content-element-label.util';
 import {
-    duplicateElementInLayout,
     findElementLocation,
-    removeElementFromLayout,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
@@ -20,7 +24,6 @@ import './sw-experience-studio-detail.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { createId } = Shopware.Utils;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
@@ -54,6 +57,14 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate';
+
+type ContentSystemLayoutDraftMutationService = {
+    insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
+    removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
+    duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
+};
+
 /**
  * @private
  * @sw-package discovery
@@ -85,6 +96,8 @@ export default Shopware.Component.wrapComponentConfig({
         pickerTop: number;
         pickerLeft: number;
         inlineEditSession: InlineEditSession;
+        mutationRequestSequence: number;
+        latestMutationRequestId: number;
     } {
         return {
             layout: null,
@@ -100,6 +113,8 @@ export default Shopware.Component.wrapComponentConfig({
             pickerTop: 0,
             pickerLeft: 0,
             inlineEditSession: null,
+            mutationRequestSequence: 0,
+            latestMutationRequestId: 0,
         };
     },
 
@@ -437,7 +452,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.pendingAddElementPayload = null;
         },
 
-        onSelectElementType(component: string): void {
+        async onSelectElementType(component: string): Promise<void> {
             const payload = this.pendingAddElementPayload;
 
             if (!payload) {
@@ -445,19 +460,45 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.applyLayoutMutation((layout) => {
-                const newElement = this.createElementFromType(component);
-
-                if (payload.parentElementId === null) {
-                    return this.insertRootElement(layout, newElement);
+            if (payload.parentElementId !== null) {
+                if (!payload.slotName || !this.layout) {
+                    this.onCloseElementPicker();
+                    return;
                 }
 
-                if (!payload.slotName) {
-                    return false;
+                const parentLocation = findElementLocation(castContentElementNodes(this.layout.layout), payload.parentElementId);
+                const parentElement = parentLocation ? parentLocation.elements[parentLocation.index] : null;
+
+                if (!parentElement) {
+                    this.onCloseElementPicker();
+                    return;
                 }
 
-                return this.insertSlotElement(layout, payload, component, newElement);
-            });
+                if (!this.canInsertIntoSlot(parentElement.component, payload.slotName, component, parentElement)) {
+                    this.createNotificationInfo({
+                        message: this.$t('sw-experience-studio.detail.sidebarTree.addElementNotAllowed'),
+                    });
+                    this.onCloseElementPicker();
+                    return;
+                }
+            }
+
+            const layoutElements = this.layout ? castContentElementNodes(this.layout.layout) : [];
+            const insertPayload: Omit<ContentLayoutDraftInsertPayload, 'layout' | 'rootSource'> = {
+                type: component,
+            };
+
+            if (payload.parentElementId !== null) {
+                insertPayload.parentElementId = payload.parentElementId;
+                insertPayload.slot = payload.slotName;
+            }
+
+            await this.executeStructuralDraftMutation(
+                'insert',
+                layoutElements,
+                insertPayload,
+                (response) => response.affectedElementIds[0] ?? this.selectedElementId,
+            );
 
             this.onCloseElementPicker();
         },
@@ -485,37 +526,49 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onDuplicateElement(elementId: string): void {
-            this.applyLayoutMutation((layout) => {
-                const result = duplicateElementInLayout(layout, elementId);
+        async onDuplicateElement(elementId: string): Promise<void> {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
 
-                if (!result) {
-                    return false;
-                }
+            const layoutElements = castContentElementNodes(this.layout.layout);
 
-                return {
-                    selectedElementId: result.duplicatedId,
-                };
-            });
+            await this.executeStructuralDraftMutation(
+                'duplicate',
+                layoutElements,
+                {
+                    elementId,
+                },
+                (response) => response.affectedElementIds[0] ?? this.selectedElementId,
+            );
         },
 
-        onDeleteElement(elementId: string): void {
-            this.applyLayoutMutation((layout) => {
-                if (!removeElementFromLayout(layout, elementId)) {
-                    return false;
-                }
+        async onDeleteElement(elementId: string): Promise<void> {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
 
-                if (
-                    this.selectedElementId !== null
-                    && findElementLocation(layout, this.selectedElementId) === null
-                ) {
-                    return {
-                        selectedElementId: null,
-                    };
-                }
+            const layoutElements = castContentElementNodes(this.layout.layout);
 
-                return {};
-            });
+            await this.executeStructuralDraftMutation(
+                'remove',
+                layoutElements,
+                {
+                    elementId,
+                },
+                (response) => {
+                    if (!this.selectedElementId) {
+                        return null;
+                    }
+
+                    const selectedLocation = findElementLocation(
+                        castContentElementNodes(response.layout as ContentElementNode[]),
+                        this.selectedElementId,
+                    );
+
+                    return selectedLocation ? this.selectedElementId : null;
+                },
+            );
         },
 
         onElementSettingsChange(payload: {
@@ -525,6 +578,137 @@ export default Shopware.Component.wrapComponentConfig({
             this.applyLayoutMutation((layout) => {
                 return updateElementPropertiesInLayout(layout, payload.elementId, payload.properties) ? {} : false;
             });
+        },
+
+        draftMutationService(): ContentSystemLayoutDraftMutationService {
+            return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
+        },
+
+        resolveMutationRootSource(): string {
+            if (!this.layout) {
+                return 'category';
+            }
+
+            const rootSource = (this.layout as Entity<'content_layout'> & { rootSource?: string | null }).rootSource;
+
+            if (typeof rootSource !== 'string' || rootSource.length === 0) {
+                // Temporary fallback until create-mode root source selection is implemented.
+                return 'category';
+            }
+
+            return rootSource;
+        },
+
+        extractMutationErrorCodes(error: unknown): string[] {
+            const responseErrors = (error as {
+                response?: {
+                    data?: {
+                        errors?: Array<{ code?: unknown }>;
+                    };
+                };
+            }).response?.data?.errors;
+
+            if (!Array.isArray(responseErrors)) {
+                return [];
+            }
+
+            return responseErrors
+                .map((item) => (typeof item.code === 'string' ? item.code : null))
+                .filter((code): code is string => code !== null);
+        },
+
+        notifyMutationError(codes: string[]): void {
+            const structuralErrorCodes = new Set([
+                'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
+                'CONTENT_SYSTEM__MUTATION_CYCLE',
+                'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED',
+                'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS',
+                'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE',
+                'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
+                'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
+            ]);
+
+            if (codes.some((code) => structuralErrorCodes.has(code))) {
+                this.createNotificationError({
+                    message: 'The layout edit is not valid in the current structure. Please review your change and try again.',
+                });
+
+                return;
+            }
+
+            this.createNotificationError({
+                message: 'The layout edit failed. Please try again.',
+            });
+        },
+
+        createDraftMutationPayload(
+            layout: ContentElementNode[],
+            operationPayload: Record<string, unknown>,
+        ): Record<string, unknown> {
+            return {
+                layout: sanitizeContentElementLayoutForWrite(layout),
+                rootSource: this.resolveMutationRootSource(),
+                ...operationPayload,
+            };
+        },
+
+        async requestDraftMutation(
+            operation: DraftMutationOperation,
+            layout: ContentElementNode[],
+            operationPayload: Record<string, unknown>,
+        ): Promise<ContentLayoutDraftMutationResponse> {
+            const service = this.draftMutationService();
+            const payload = this.createDraftMutationPayload(layout, operationPayload);
+
+            if (operation === 'insert') {
+                return service.insertElement(payload as ContentLayoutDraftInsertPayload);
+            }
+
+            if (operation === 'remove') {
+                return service.removeElement(payload as ContentLayoutDraftRemovePayload);
+            }
+
+            return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
+        },
+
+        async executeStructuralDraftMutation(
+            operation: DraftMutationOperation,
+            currentLayout: ContentElementNode[],
+            operationPayload: Record<string, unknown>,
+            resolveSelectedElementId: (response: ContentLayoutDraftMutationResponse) => string | null,
+        ): Promise<void> {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            const requestId = this.mutationRequestSequence + 1;
+            this.mutationRequestSequence = requestId;
+            this.latestMutationRequestId = requestId;
+            this.isLoading = true;
+
+            const previousSelectedElementId = this.selectedElementId;
+
+            try {
+                const response = await this.requestDraftMutation(operation, currentLayout, operationPayload);
+
+                if (requestId !== this.latestMutationRequestId) {
+                    return;
+                }
+
+                this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
+                this.layout.layout = sanitizeContentElementLayoutForWrite(response.layout as ContentElementNode[]);
+                this.selectedElementId = resolveSelectedElementId(response);
+            } catch (error) {
+                if (requestId !== this.latestMutationRequestId) {
+                    return;
+                }
+
+                this.notifyMutationError(this.extractMutationErrorCodes(error));
+            } finally {
+                if (requestId === this.latestMutationRequestId) {
+                    this.isLoading = false;
+                }
+            }
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
@@ -595,75 +779,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return slotDefinition.allowList.includes(childComponent);
-        },
-
-        createElementFromType(component: string): ContentElementNode {
-            const typeSpecification = this.elementTypeStore.getByName(component);
-            const properties: Record<string, unknown> = {};
-
-            if (typeSpecification) {
-                for (const [key, property] of Object.entries(typeSpecification.properties)) {
-                    if (property.default !== null && property.default !== undefined) {
-                        properties[key] = property.default;
-                    }
-                }
-            }
-
-            const slots = typeSpecification?.slots.reduce<Record<string, ContentElementNode[]>>((acc, slot) => {
-                acc[slot.name] = [];
-
-                return acc;
-            }, {});
-
-            return {
-                id: createId(),
-                component,
-                properties,
-                ...(slots && Object.keys(slots).length > 0 ? { slots } : {}),
-            };
-        },
-
-        insertRootElement(layout: ContentElementNode[], newElement: ContentElementNode): LayoutMutationResult {
-            layout.push(newElement);
-
-            return {
-                selectedElementId: newElement.id,
-            };
-        },
-
-        insertSlotElement(
-            layout: ContentElementNode[],
-            payload: AddElementPayload,
-            component: string,
-            newElement: ContentElementNode,
-        ): LayoutMutationResult {
-            const parentLocation = findElementLocation(layout, payload.parentElementId as string);
-
-            if (!parentLocation || !payload.slotName) {
-                return false;
-            }
-
-            const parentElement = parentLocation.elements[parentLocation.index];
-
-            if (!parentElement) {
-                return false;
-            }
-
-            if (!this.canInsertIntoSlot(parentElement.component, payload.slotName, component, parentElement)) {
-                this.createNotificationInfo({
-                    message: this.$t('sw-experience-studio.detail.sidebarTree.addElementNotAllowed'),
-                });
-
-                return false;
-            }
-
-            parentElement.slots = parentElement.slots ?? {};
-            parentElement.slots[payload.slotName] = parentElement.slots[payload.slotName] ?? [];
-            parentElement.slots[payload.slotName].push(newElement);
-
-            return {
-                selectedElementId: newElement.id,
-            };
         },
 
         clearInlineEditSession(): void {

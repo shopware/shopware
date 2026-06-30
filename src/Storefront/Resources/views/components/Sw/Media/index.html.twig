@@ -6,15 +6,13 @@
     media,
 %}
 
-{% if media is not null %}
-    {% set mediaType = media.getMediaType().getName() %}
-    {% set isSpatial = media.isSpatialObject() %}
+{% set mediaType = media.getMediaType().getName() %}
+{% set isSpatial = media.isSpatialObject() %}
 
-    {% if isSpatial %}
-        <twig:Sw:Media:Spacial {{ ...attributes }}></twig:Sw:Media:Spacial>
-    {% elseif mediaType === 'VIDEO' %}
-        {# Video #}
-    {% else %}
-        <twig:Sw:Media:Image {{ ...attributes }}></twig:Sw:Media:Image>
-    {% endif %}
+{% if isSpatial %}
+    <twig:Sw:Media:Spacial :media="media" {{ ...attributes }}></twig:Sw:Media:Spacial>
+{% elseif mediaType === 'VIDEO' %}
+    {# Video #}
+{% else %}
+    <twig:Sw:Media:Image :media="media" {{ ...attributes }}></twig:Sw:Media:Image>
 {% endif %}

@@ -3,7 +3,7 @@
 {# @internal #}
 
 {% props
-    media,
+    media = null,
     height = 'auto',
     sizes = null,
     loading = 'lazy',
@@ -44,4 +44,12 @@
     {% set attributeDefaults = attributeDefaults|merge({ srcset: srcsetValues }) %}
 {% endif %}
 
-<img {{ attributes.defaults(attributeDefaults) }}>
+{% if media is not null %}
+    <img {{ attributes.defaults(attributeDefaults) }}>
+{% else %}
+    <div class="sw-media-image__placeholder">
+        <div class="sw-media-image__placeholder-icon">
+            <twig:Sw:Icon name="image" />
+        </div>
+    </div>
+{% endif %}

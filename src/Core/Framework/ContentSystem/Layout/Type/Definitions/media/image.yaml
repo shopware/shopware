@@ -22,6 +22,9 @@ properties:
     type: Shopware\Core\Content\Media\MediaEntity
     title: "Media"
     description: "Hydrated media entity resolved from mediaId."
+    resolvedBy: "mediaId"
+    adminUI:
+      component: "media-field"
 
   height:
     type: string

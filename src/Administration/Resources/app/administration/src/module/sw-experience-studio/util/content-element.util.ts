@@ -1,7 +1,6 @@
 import type { ContentElementNode } from '../types/content-element.types';
 
 const { cloneDeep } = Shopware.Utils.object;
-const { createId } = Shopware.Utils;
 
 type ContentElementWithAliases = ContentElementNode & {
     dataRequirements?: unknown;
@@ -71,68 +70,6 @@ export function sanitizeContentElementForWrite(element: ContentElementNode): Con
  */
 export function sanitizeContentElementLayoutForWrite(layout: ContentElementNode[]): ContentElementNode[] {
     return layout.map(sanitizeContentElementForWrite);
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function cloneContentElementWithNewIds(element: ContentElementNode): ContentElementNode {
-    const cloned: ContentElementNode = {
-        id: createId(),
-        component: element.component,
-    };
-
-    copyWritableContentElementFields(
-        element,
-        cloned,
-        (slotElements) => slotElements.map(cloneContentElementWithNewIds),
-    );
-
-    return cloned;
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function duplicateElementInLayout(
-    layout: ContentElementNode[],
-    elementId: string,
-): { duplicatedId: string } | null {
-    const location = findElementLocation(layout, elementId);
-
-    if (location === null) {
-        return null;
-    }
-
-    const elementToDuplicate = location.elements[location.index];
-    const duplicate = cloneContentElementWithNewIds(elementToDuplicate);
-
-    location.elements.splice(location.index + 1, 0, duplicate);
-
-    return {
-        duplicatedId: duplicate.id,
-    };
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function removeElementFromLayout(
-    layout: ContentElementNode[],
-    elementId: string,
-): boolean {
-    const location = findElementLocation(layout, elementId);
-
-    if (location === null) {
-        return false;
-    }
-
-    location.elements.splice(location.index, 1);
-
-    return true;
 }
 
 /**

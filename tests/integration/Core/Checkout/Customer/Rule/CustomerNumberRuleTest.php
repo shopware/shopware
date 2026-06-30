@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -194,7 +196,12 @@ class CustomerNumberRuleTest extends TestCase
             $rule->match(new CheckoutRuleScope($salesChannelContext));
             static::fail('Exception was not thrown');
         } catch (\Throwable $exception) {
-            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+            if (Feature::isActive('v6.8.0.0')) {
+                static::assertInstanceOf(CustomerException::class, $exception);
+                static::assertSame(CustomerException::VALUE_NOT_SUPPORTED, $exception->getErrorCode());
+            } else {
+                static::assertInstanceOf(UnsupportedValueException::class, $exception);
+            }
         }
     }
 }

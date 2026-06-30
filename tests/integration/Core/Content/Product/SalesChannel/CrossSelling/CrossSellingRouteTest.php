@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
@@ -432,6 +433,7 @@ class CrossSellingRouteTest extends TestCase
         ]];
         $productData['children'] = [[
             'id' => $variantId,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'options' => [
@@ -688,6 +690,7 @@ class CrossSellingRouteTest extends TestCase
 
         $product = [
             'id' => $id ?? Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => Uuid::randomHex(),
             'stock' => $stock,
             'name' => 'Test',
@@ -717,6 +720,7 @@ class CrossSellingRouteTest extends TestCase
             ]];
             $product['children'] = [[
                 'id' => Uuid::randomHex(),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'options' => [

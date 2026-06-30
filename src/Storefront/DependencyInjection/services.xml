@@ -63,6 +63,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacadeHookFactory" public="true">
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ScriptController"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber">
             <argument type="service" id="theme.repository"/>
 

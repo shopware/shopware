@@ -57,7 +57,7 @@ class LanguageRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField('languageIds', LanguageDefinition::ENTITY_NAME, true);
     }
 }

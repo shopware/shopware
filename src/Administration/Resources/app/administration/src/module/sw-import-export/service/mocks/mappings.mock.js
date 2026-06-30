@@ -40,11 +40,6 @@ export const productProfileOnlyRequired = [
         mappedKey: 'stock',
     },
     {
-        id: '6d38b3815ad84469acb75bfcff236faa',
-        key: 'type',
-        mappedKey: 'type',
-    },
-    {
         id: 'aa30f4742b4d42beb41b6bf27d0742a2',
         key: 'parentVersionId',
         mappedKey: 'parent_version_id',

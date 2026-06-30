@@ -2,10 +2,10 @@ name: Release gate
 
 # Pre-release coverage for patch releases. Runs on pushes to maintenance/release
 # branches (e.g. 6.6.x, 6.7.11.x) so a green branch means "safe to tag".
-# It runs a tuned subset of the nightly suite (see integration.yml profile: release):
-# all supported PHP versions + upgrade tests + acceptance + the admin/php/storefront
-# unit suites, skipping the heavy nightly-only bits (major simulation, visual/Currents,
-# downstream, redis image matrix).
+# It runs a tuned subset of the nightly suite (see the 'release' profile in
+# acceptance.yml / integration.yml): all supported PHP versions + upgrade tests +
+# acceptance + the admin/php/storefront unit suites, skipping the heavy nightly-only
+# bits (major simulation, visual/Currents, downstream, redis image matrix).
 on:
   push:
     branches:
@@ -23,6 +23,12 @@ permissions:
   id-token: write
 
 jobs:
+  acceptance:
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      profile: release
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit

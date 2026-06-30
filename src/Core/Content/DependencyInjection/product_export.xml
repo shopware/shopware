@@ -54,6 +54,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
+            <argument>%shopware.product_stream.indexing%</argument>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">

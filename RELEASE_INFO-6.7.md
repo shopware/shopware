@@ -17,6 +17,12 @@ The product export now paginates products by a keyset cursor on `product.autoInc
 - `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` is deprecated and will be removed in 6.8. It no longer returns the grand total of matching products but the number of products in the last batch. Use the new `hasNextBatch()` to drive pagination and `getLastId()` for the cursor.
 - `Shopware\Core\Content\ProductExport\Struct\ExportBehavior::offset()` is deprecated in favor of the new `lastId()`. The value is now the keyset cursor (highest `product.autoIncrement` already exported), not a row offset.
 
+### Product export resolves dynamic product groups via the indexed mapping
+
+When `shopware.product_stream.indexing` is enabled (default) and the product stream has been indexed, product exports resolve the products of a dynamic product group through the precomputed `product_stream_mapping` (an indexed `streamIds` join) instead of re-evaluating the stream filters per export. It falls back to the dynamic filters when indexing is disabled or the stream has not been indexed yet, so freshly created streams still export immediately.
+
+Membership in `product_stream_mapping` is the union across all sales-channel languages, so for streams that filter on translated fields an export may now include products that match the stream in another language. This matches how the storefront already evaluates dynamic product groups. Disable `shopware.product_stream.indexing` to keep the previous per-export, single-language evaluation.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

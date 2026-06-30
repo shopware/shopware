@@ -63,7 +63,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         Environment $twig,
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly bool $productStreamIndexingEnabled = false
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -103,19 +104,15 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $context->getContext()
         );
 
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productExport->getProductStreamId(),
-            $context->getContext()
-        );
-
         $associations = $this->getAssociations($productExport, $context);
 
         $criteria = new Criteria();
         $criteria
             ->setTitle('product-export::products')
-            ->addFilter(...$filters)
             ->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING))
             ->setLimit($this->readBufferSize);
+
+        $this->addProductStreamFilter($criteria, $productExport->getProductStreamId(), $context);
 
         if ($productExport->isIncludeVariants()) {
             // Only fetch variants and standalone products; parent products that have variants are skipped
@@ -254,6 +251,33 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $fetched,
             $cursor,
             $exportBehavior->batchMode() && $fetched === $this->readBufferSize
+        );
+    }
+
+    /**
+     * Constrain the export to the products of the given dynamic product group.
+     *
+     * When product-stream indexing is enabled and the stream has already been indexed,
+     * the precomputed `product_stream_mapping` is used (an indexed join via `streamIds`)
+     * instead of re-evaluating the dynamic filter tree on every batch. Falls back to the
+     * dynamic filters when indexing is disabled or the stream has not been indexed yet.
+     */
+    private function addProductStreamFilter(Criteria $criteria, string $productStreamId, SalesChannelContext $context): void
+    {
+        if ($this->productStreamIndexingEnabled && $this->streamMappingExists($productStreamId)) {
+            $criteria->addFilter(new EqualsFilter('streamIds', $productStreamId));
+
+            return;
+        }
+
+        $criteria->addFilter(...$this->productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
+    }
+
+    private function streamMappingExists(string $productStreamId): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM product_stream_mapping WHERE product_stream_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($productStreamId)]
         );
     }
 

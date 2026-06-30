@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -619,7 +620,115 @@ class ProductExportGeneratorTest extends TestCase
         static::assertSame(41, $result->getLastId());
     }
 
-    private function createGenerator(): ProductExportGenerator
+    public function testGenerateUsesStreamMappingWhenIndexingEnabledAndStreamIsMapped(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+        $productExport->setProductStreamId($streamId);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id', null, 0, 7);
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->translator->expects($this->once())->method('resetInjection');
+
+        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
+
+        // Indexing is on and the stream mapping has rows -> the dynamic filter builder must
+        // not be used; the export filters by the precomputed streamIds mapping instead.
+        $this->connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn('1');
+        $this->productStreamBuilder->expects($this->never())->method('buildFilters');
+
+        $results = [
+            $this->createProductSearchResult($product, $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$results, $streamId): EntitySearchResult {
+                $streamFilters = array_filter(
+                    $criteria->getFilters(),
+                    static fn ($f) => $f instanceof EqualsFilter && $f->getField() === 'streamIds' && $f->getValue() === $streamId
+                );
+                static::assertNotEmpty($streamFilters, 'Criteria must filter by streamIds when the product stream mapping is used');
+
+                return array_shift($results);
+            });
+
+        $this->productExportRender->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $result = $this->createGenerator(true)->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNotNull($result);
+    }
+
+    public function testGenerateFallsBackToDynamicFiltersWhenStreamNotYetMapped(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+        $productExport->setProductStreamId($streamId);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id', null, 0, 7);
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->translator->expects($this->once())->method('resetInjection');
+
+        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
+
+        // Indexing is on but the mapping has no rows for this stream yet -> fall back to the
+        // dynamic filter builder so a freshly created stream still exports immediately.
+        $this->connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn(false);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('buildFilters')
+            ->with($streamId, $context->getContext())
+            ->willReturn([]);
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        $this->productExportRender->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $result = $this->createGenerator(true)->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNotNull($result);
+    }
+
+    private function createGenerator(bool $productStreamIndexingEnabled = false): ProductExportGenerator
     {
         return new ProductExportGenerator(
             $this->productStreamBuilder,
@@ -636,7 +745,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $productStreamIndexingEnabled
         );
     }
 

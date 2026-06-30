@@ -835,7 +835,10 @@ class StorefrontCartFacadeTest extends TestCase
      */
     private function getSalesChannelContext(): Stub
     {
-        return $this->configureSalesChannelContext(static::createStub(SalesChannelContext::class));
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $this->configureSalesChannelContext($salesChannelContext);
+
+        return $salesChannelContext;
     }
 
     /**
@@ -843,17 +846,13 @@ class StorefrontCartFacadeTest extends TestCase
      */
     private function getSalesChannelContextMock(): MockObject
     {
-        return $this->configureSalesChannelContext($this->createMock(SalesChannelContext::class));
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->configureSalesChannelContext($salesChannelContext);
+
+        return $salesChannelContext;
     }
 
-    /**
-     * @template T of MockObject&SalesChannelContext|Stub&SalesChannelContext
-     *
-     * @param T $salesChannelContext
-     *
-     * @return T
-     */
-    private function configureSalesChannelContext(MockObject|Stub $salesChannelContext): MockObject|Stub
+    private function configureSalesChannelContext(MockObject|Stub $salesChannelContext): void
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
@@ -872,7 +871,5 @@ class StorefrontCartFacadeTest extends TestCase
 
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
-
-        return $salesChannelContext;
     }
 }

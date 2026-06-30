@@ -95,6 +95,8 @@
 .sw-filter-item__count {
     --bs-badge-padding-x: 0.5rem;
     --bs-badge-padding-y: 0.2rem;
+    line-height: 1;
+    height: auto;
 
     &.is--hidden {
         display: none;

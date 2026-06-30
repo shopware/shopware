@@ -11,6 +11,11 @@ export default class FilterPanel extends ShopwareComponent {
 
     init() {
         this.expandButton = this.el.querySelector('.sw-filter-panel__expand');
+
+        if (!this.expandButton) {
+            return;
+        }
+
         this.expandText = this.expandButton.querySelector('.sw-filter-panel__expand-text');
         this.collapseText = this.expandButton.querySelector('.sw-filter-panel__collapse-text');
         this.filterItems = this.el.querySelectorAll('.sw-filter-item');
@@ -22,7 +27,8 @@ export default class FilterPanel extends ShopwareComponent {
     }
 
     registerEvents() {
-        this.expandButton.addEventListener('click', this.onToggleHiddenFilters.bind(this))
+        this.onToggleHiddenFiltersBound = this.onToggleHiddenFilters.bind(this);
+        this.expandButton.addEventListener('click', this.onToggleHiddenFiltersBound);
     }
 
     onToggleHiddenFilters(event) {
@@ -58,6 +64,10 @@ export default class FilterPanel extends ShopwareComponent {
     }
 
     destroy() {
-        this.expandButton.removeEventListener('click', this.onToggleHiddenFilters.bind(this));
+        if (!this.expandButton || !this.onToggleHiddenFiltersBound) {
+            return;
+        }
+
+        this.expandButton.removeEventListener('click', this.onToggleHiddenFiltersBound);
     }
 }

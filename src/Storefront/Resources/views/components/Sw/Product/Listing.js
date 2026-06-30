@@ -8,7 +8,7 @@ export default class ProductListing extends ShopwareComponent {
         sortingParamName: 'order',
         layoutGridClasses: {
             horizontal: ['columns-1'],
-            default: ['columns-sm-2', 'columns-lg-2', 'columns-xl-3', 'columns-4'],
+            default: ['columns-xs-1', 'columns-sm-2', 'columns-md-3', 'columns-lg-4', 'columns-xl-4'],
         },
     };
 
@@ -23,7 +23,7 @@ export default class ProductListing extends ShopwareComponent {
         this.debouncedLoad = this.debounce(async () => {
             const productGrid = this.el.querySelector('.sw-product-listing__grid');
             const pagination = this.el.querySelector('.sw-product-listing__pagination');
-            productGrid.classList.add('has-element-loader');
+            productGrid.classList.add('is--loading');
 
             const location = new URL(window.location);
             const params = { ...this.activeParams };
@@ -38,7 +38,7 @@ export default class ProductListing extends ShopwareComponent {
 
             productGrid.replaceWith(grid);
             pagination.replaceWith(pagi);
-            productGrid.classList.remove('has-element-loader');
+            productGrid.classList.remove('is--loading');
         }, 200);
 
         this.getStateFromUrl();

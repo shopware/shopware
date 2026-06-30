@@ -765,6 +765,10 @@ Enabling the flag requires configuration changes — the worker consume command 
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
 
+### Tax provider priority is preserved across app updates
+
+An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
+
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials

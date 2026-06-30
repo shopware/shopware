@@ -2,7 +2,11 @@
 
 namespace Shopware\Core\Framework\Routing\Telemetry;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Middleware as DriverMiddleware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,12 +25,22 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 final class HttpRequestMetricSubscriber implements EventSubscriberInterface
 {
+    private readonly ?QueryCounter $queryCounter;
+
     public function __construct(
         private readonly Telemetry $telemetry,
         private readonly AreaResolver $areaResolver,
         private readonly DomainResolver $domainResolver,
         private readonly OperationResolver $operationResolver,
+        Connection $connection,
     ) {
+        // Locate the shared counter from the live connection's middleware list (same approach as ConnectionProfiler).
+        $middleware = current(array_filter(
+            $connection->getConfiguration()->getMiddlewares(),
+            static fn (DriverMiddleware $middleware): bool => $middleware instanceof QueryCountMiddleware
+        ));
+
+        $this->queryCounter = $middleware instanceof QueryCountMiddleware ? $middleware->getCounter() : null;
     }
 
     public static function getSubscribedEvents(): array
@@ -52,6 +66,14 @@ final class HttpRequestMetricSubscriber implements EventSubscriberInterface
                 name: 'http.server.request.duration',
                 value: (microtime(true) - (float) $requestStart) * 1000,
                 labels: $labels + ['status_class' => $this->statusClass($event->getResponse()->getStatusCode())],
+            ));
+        }
+
+        if ($this->queryCounter !== null) {
+            $this->telemetry->emit(new ConfiguredMetric(
+                name: 'http.server.request.queries.count',
+                value: $this->queryCounter->reset(),
+                labels: $labels,
             ));
         }
 

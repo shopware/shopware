@@ -53,6 +53,20 @@ shopware:
                         status_class:
                             allowed_values: ['2xx', '3xx', '4xx', '5xx']
 
+                http.server.request.queries.count:
+                    description: 'SQL statements per master request'
+                    type: 'histogram'
+                    parameters:
+                        # a handful of queries on cached/store-api requests up to thousands on import-export, indexing and sync
+                        buckets: [10, 50, 200, 1000, 5000]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]
+
                 http.server.request.memory.peak:
                     description: 'Peak memory per master request'
                     type: 'histogram'

@@ -253,6 +253,7 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\AreaResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\DomainResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\Telemetry\OperationResolver"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.telemetry.subscriber"/>

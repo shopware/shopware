@@ -1,0 +1,31 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Telemetry\Doctrine;
+
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ *
+ * @experimental feature:TELEMETRY_METRICS
+ */
+#[Package('framework')]
+final class QueryCountDriver extends AbstractDriverMiddleware
+{
+    public function __construct(
+        Driver $driver,
+        private readonly QueryCounter $counter,
+    ) {
+        parent::__construct($driver);
+    }
+
+    public function connect(
+        #[\SensitiveParameter]
+        array $params,
+    ): DriverConnection {
+        return new QueryCountConnection(parent::connect($params), $this->counter);
+    }
+}

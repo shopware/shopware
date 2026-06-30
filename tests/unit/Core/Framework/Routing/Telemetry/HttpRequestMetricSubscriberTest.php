@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing\Telemetry;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
@@ -9,6 +11,8 @@ use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
 use Shopware\Core\Framework\Routing\Telemetry\DomainResolver;
 use Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber;
 use Shopware\Core\Framework\Routing\Telemetry\OperationResolver;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\PlatformRequest;
@@ -39,10 +43,15 @@ class HttpRequestMetricSubscriberTest extends TestCase
 
     public function testEmitsMetricsWithSharedLabels(): void
     {
-        $this->createSubscriber()
+        $counter = new QueryCounter();
+        $counter->increment();
+        $counter->increment();
+        $counter->increment();
+
+        $this->createSubscriber($counter)
             ->onKernelTerminate($this->createTerminateEvent('store-api.product.search', ['store-api'], 200, microtime(true)));
 
-        static::assertCount(2, $this->emitted);
+        static::assertCount(3, $this->emitted);
 
         $sharedLabels = ['area' => 'store-api', 'domain' => 'product', 'operation' => 'none'];
 
@@ -51,10 +60,27 @@ class HttpRequestMetricSubscriberTest extends TestCase
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame($sharedLabels + ['status_class' => '2xx'], $duration->labels);
 
+        $queries = $this->getMetric('http.server.request.queries.count');
+        static::assertSame(3, $queries->value);
+        static::assertSame($sharedLabels, $queries->labels);
+
         $memory = $this->getMetric('http.server.request.memory.peak');
         static::assertIsInt($memory->value);
         static::assertGreaterThan(0, $memory->value);
         static::assertSame($sharedLabels, $memory->labels);
+
+        // counter is reset after emission so the next request starts fresh
+        static::assertSame(0, $counter->count());
+    }
+
+    public function testQueryCountIsNotEmittedWhenMiddlewareIsNotWired(): void
+    {
+        // connection without the counting middleware in its chain — the metric is skipped entirely
+        $this->createSubscriber()
+            ->onKernelTerminate($this->createTerminateEvent('frontend.detail.page', ['storefront'], 200, microtime(true)));
+
+        $names = array_map(static fn (ConfiguredMetric $m): string => $m->name, $this->emitted);
+        static::assertNotContains('http.server.request.queries.count', $names);
     }
 
     public function testStatusClassReflectsResponseCode(): void
@@ -85,18 +111,27 @@ class HttpRequestMetricSubscriberTest extends TestCase
         static::fail(\sprintf('Metric "%s" was not emitted', $name));
     }
 
-    private function createSubscriber(): HttpRequestMetricSubscriber
+    /**
+     * @param QueryCounter|null $counter when null, the connection exposes no counting middleware
+     */
+    private function createSubscriber(?QueryCounter $counter = null): HttpRequestMetricSubscriber
     {
         $telemetry = $this->createMock(Telemetry::class);
         $telemetry->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
             $this->emitted[] = $metric;
         });
 
+        $configuration = $this->createMock(Configuration::class);
+        $configuration->method('getMiddlewares')->willReturn($counter === null ? [] : [new QueryCountMiddleware($counter)]);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getConfiguration')->willReturn($configuration);
+
         return new HttpRequestMetricSubscriber(
             $telemetry,
             new AreaResolver(),
             new DomainResolver(new EntityGroupResolver()),
             new OperationResolver(),
+            $connection,
         );
     }
 

@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import {createExtendableSetup} from "../";
+import {createExtendableSetup} from "../index";
 import {computed, reactive, ref} from "vue";
 
 const props = defineProps({
@@ -50,7 +50,6 @@ const {
             }
         })
         const multipliedValue = computed(() => baseValue.value * props.multiplier);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         const addedValue = computed(() => baseValue.value + props.added);
 
         const increment = () => {

@@ -111,7 +111,7 @@ const baseRules = {
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
-        /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/,
+        /^.*(?:\.js|\.ts|\.vue|\.html|\.html\.twig)$/,
     ],
     'vue/multi-word-component-names': [
         'error',
@@ -184,7 +184,6 @@ export default [
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',
-            'src/app/adapter/_mocks_/example-extendable-script-setup-component.vue',
         ],
     },
 
@@ -275,6 +274,22 @@ export default [
         },
         rules: {
             ...baseRules,
+        },
+    },
+
+    {
+        files: ['**/*.vue'],
+        languageOptions: {
+            parser: vueParser,
+            parserOptions: {
+                parser: tseslint.parser,
+                extraFileExtensions: ['.vue'],
+                sourceType: 'module',
+            },
+        },
+        rules: {
+            'no-unused-vars': 'off',
+            'vue/script-setup-uses-vars': 'error',
         },
     },
 

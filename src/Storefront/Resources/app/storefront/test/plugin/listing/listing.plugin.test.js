@@ -44,6 +44,12 @@ describe('ListingPlugin tests', () => {
         spyInit.mockClear();
         spyInitializePlugins.mockClear();
         window.PluginManager.initializePlugins = undefined;
+        delete window.activeRoute;
+        delete window.activeRouteParameters;
+        if (window.router) {
+            delete window.router['frontend.account.login.page'];
+        }
+        window.history.replaceState({}, '', '/');
     });
 
     test('listing plugin exists', () => {
@@ -157,8 +163,9 @@ describe('ListingPlugin tests', () => {
     test('should not autoscroll to top because we are at the top', async () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve('Listing result HTML'),
-            })
+            }),
         );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
@@ -178,8 +185,9 @@ describe('ListingPlugin tests', () => {
     test('should autoscroll to top with scrollOffset because we are not at the top', async () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve('Listing result HTML'),
-            })
+            }),
         );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
@@ -206,8 +214,9 @@ describe('ListingPlugin tests', () => {
     test('should autoscroll to top of cmsElementProductListingWrapper because we are not at the top', () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve('Listing result HTML'),
-            })
+            }),
         );
 
         const distanceToTop = 250;
@@ -235,8 +244,9 @@ describe('ListingPlugin tests', () => {
     test('do not push history state if pass false pushHistory parameter into changeListing', () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve('Listing result HTML'),
-            })
+            }),
         );
 
         jest.spyOn(listingPlugin, '_updateHistory');
@@ -278,6 +288,7 @@ describe('ListingPlugin tests', () => {
         // Mock listing ajax call returning updated results
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
@@ -288,7 +299,7 @@ describe('ListingPlugin tests', () => {
                     </div>
                 </div>
                 `),
-            })
+            }),
         );
 
         listingPlugin.changeListing(true);
@@ -304,6 +315,7 @@ describe('ListingPlugin tests', () => {
     test('builds the labels for the active filters and renders them inside the filter panel', async () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
+                ok: true,
                 text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
@@ -314,7 +326,7 @@ describe('ListingPlugin tests', () => {
                     </div>
                 </div>
                 `),
-            })
+            }),
         );
 
         const MockBooleanFilter = {
@@ -345,5 +357,43 @@ describe('ListingPlugin tests', () => {
 
         expect(activeFilterElements[2].textContent).toMatch('Pommes Spezial');
         expect(activeFilterElements[2].getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
+    });
+
+    test('redirects to login on forbidden listing request', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status: 403,
+                text: jest.fn(),
+            }),
+        );
+
+        const renderResponseSpy = jest.spyOn(listingPlugin, 'renderResponse');
+        const navigateToSpy = jest.spyOn(listingPlugin, '_navigateTo')
+            .mockImplementation(() => {});
+
+        window.router = {
+            ...window.router,
+            'frontend.account.login.page': 'http://localhost/account/login',
+        };
+        window.activeRoute = 'frontend.wishlist.page';
+        window.activeRouteParameters = JSON.stringify({ wishlistId: 'test-wishlist' });
+
+        listingPlugin._buildRequest(true, { p: '2', order: 'name-asc' });
+        await new Promise(process.nextTick);
+
+        expect(renderResponseSpy).not.toHaveBeenCalled();
+        expect(navigateToSpy).toHaveBeenCalledTimes(1);
+
+        const loginUrl = new URL(navigateToSpy.mock.calls[0][0]);
+        const redirectParameters = JSON.parse(loginUrl.searchParams.get('redirectParameters'));
+
+        expect(`${loginUrl.origin}${loginUrl.pathname}`).toBe('http://localhost/account/login');
+        expect(loginUrl.searchParams.get('redirectTo')).toBe('frontend.wishlist.page');
+        expect(redirectParameters).toEqual({
+            wishlistId: 'test-wishlist',
+            p: '2',
+            order: 'name-asc',
+        });
     });
 });

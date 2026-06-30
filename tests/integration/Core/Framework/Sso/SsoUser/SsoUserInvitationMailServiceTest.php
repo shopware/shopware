@@ -90,5 +90,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
         static::assertSame('Administrator invited you to join Demostore', $caughtEvent->getData()['subject']);
+        static::assertNull($caughtEvent->getData()['senderEmail']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -37,6 +39,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -55,6 +58,9 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
+        if ($criteria === null) {
+            return null;
+        }
 
         $this->eventDispatcher->dispatch(new ProductSliderStreamCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
@@ -99,11 +105,23 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         ResolverContext $resolverContext,
         FieldConfig $config,
         FieldConfigCollection $elementConfig
-    ): Criteria {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
-        );
+    ): ?Criteria {
+        try {
+            $filters = $this->productStreamBuilder->buildFilters(
+                $config->getStringValue(),
+                $resolverContext->getSalesChannelContext()->getContext()
+            );
+        } catch (EntityNotFoundException $exception) {
+            $this->logger->warning(
+                'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => $config->getStringValue(),
+                    'exception' => $exception,
+                ]
+            );
+
+            return null;
+        }
 
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 

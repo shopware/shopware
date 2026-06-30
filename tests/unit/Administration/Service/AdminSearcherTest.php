@@ -43,7 +43,7 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithCriteriaNotInRegistry(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(false);
+        $this->definitionInstanceRegistry->method('has')->willReturn(false);
         $this->definitionInstanceRegistry->expects($this->never())->method('getRepository');
 
         $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
@@ -54,7 +54,7 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithNoReadAcl(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(true);
+        $this->definitionInstanceRegistry->method('has')->willReturn(true);
         $this->definitionInstanceRegistry->expects($this->never())->method('getRepository');
 
         $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
@@ -66,7 +66,7 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithReadAcl(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(true);
+        $this->definitionInstanceRegistry->method('has')->willReturn(true);
         $this->definitionInstanceRegistry->expects($this->once())->method('getRepository')->willReturn(
             $this->createMock(EntityRepository::class)
         );

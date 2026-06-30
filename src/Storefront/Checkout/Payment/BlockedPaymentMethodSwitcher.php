@@ -5,10 +5,10 @@ namespace Shopware\Storefront\Checkout\Payment;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,14 +25,25 @@ class BlockedPaymentMethodSwitcher
     {
     }
 
-    public function switch(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
-    {
+    public function switch(
+        ErrorCollection $errors,
+        SalesChannelContext $salesChannelContext,
+        ?PaymentMethodCollection $paymentMethods = null
+    ): PaymentMethodEntity {
         $originalPaymentMethod = $salesChannelContext->getPaymentMethod();
         if (!$this->paymentMethodBlocked($errors)) {
             return $originalPaymentMethod;
         }
 
-        $paymentMethod = $this->getPaymentMethodToChangeTo($errors, $salesChannelContext);
+        $paymentMethod = $this->getPaymentMethodToChangeTo(
+            $errors,
+            $salesChannelContext,
+            $paymentMethods ?? $this->paymentMethodRoute->load(
+                new Request(['onlyAvailable' => true]),
+                $salesChannelContext,
+                new Criteria(),
+            )->getPaymentMethods(),
+        );
         if ($paymentMethod === null) {
             return $originalPaymentMethod;
         }
@@ -53,49 +64,53 @@ class BlockedPaymentMethodSwitcher
         return false;
     }
 
-    private function getPaymentMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?PaymentMethodEntity
-    {
-        $request = new Request(['onlyAvailable' => true]);
-        $criteria = (new Criteria([$salesChannelContext->getSalesChannel()->getPaymentMethodId()]))
-            ->setLimit(1);
+    private function getPaymentMethodToChangeTo(
+        ErrorCollection $errors,
+        SalesChannelContext $salesChannelContext,
+        PaymentMethodCollection $paymentMethods
+    ): ?PaymentMethodEntity {
+        $blocked = $this->getBlockedPaymentMethodLookup($errors);
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $blockedPaymentMethodIds = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getPaymentMethodId() : null);
-
-            $defaultPaymentMethod = $this->paymentMethodRoute->load(
-                $request,
-                $salesChannelContext,
-                $criteria,
-            )->getPaymentMethods()->first();
-
-            if ($defaultPaymentMethod !== null && !\in_array($defaultPaymentMethod->getId(), $blockedPaymentMethodIds, true)) {
-                return $defaultPaymentMethod;
-            }
-
-            $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('id', $blockedPaymentMethodIds));
-        } else {
-            $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
-
-            $defaultPaymentMethod = $this->paymentMethodRoute->load(
-                $request,
-                $salesChannelContext,
-                $criteria,
-            )->getPaymentMethods()->first();
-
-            if ($defaultPaymentMethod !== null && !\in_array($defaultPaymentMethod->getName(), $blockedPaymentMethodNames, true)) {
-                return $defaultPaymentMethod;
-            }
-
-            $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('name', $blockedPaymentMethodNames));
+        $defaultPaymentMethod = $paymentMethods->get($salesChannelContext->getSalesChannel()->getPaymentMethodId());
+        if ($defaultPaymentMethod !== null && !$this->isBlocked($defaultPaymentMethod, $blocked)) {
+            return $defaultPaymentMethod;
         }
 
-        return $this->paymentMethodRoute->load(
-            $request,
-            $salesChannelContext,
-            $criteria
-        )->getPaymentMethods()->first();
+        foreach ($paymentMethods as $paymentMethod) {
+            if (!$this->isBlocked($paymentMethod, $blocked)) {
+                return $paymentMethod;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getBlockedPaymentMethodLookup(ErrorCollection $errors): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based lookup below
+            return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null));
+        }
+
+        return \array_flip($errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getPaymentMethodId() : null));
+    }
+
+    /**
+     * @param array<string, string> $blocked
+     */
+    private function isBlocked(PaymentMethodEntity $paymentMethod, array $blocked): bool
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            // @deprecated tag:v6.8.0 - remove this branch; keep only the id-based check below
+            $name = $paymentMethod->getName();
+
+            return $name !== null && isset($blocked[$name]);
+        }
+
+        return isset($blocked[$paymentMethod->getId()]);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void

@@ -135,8 +135,7 @@ class SmtpOauthTokenProviderTest extends TestCase
 
         $provider = new SmtpOauthTokenProvider($httpClient, $cache, $configService);
 
-        $this->expectException(MailException::class);
-        $this->expectExceptionMessage('Failed to fetch oauth token: Error details');
+        $this->expectExceptionObject(MailException::oauthError('Failed to fetch oauth token: Error details'));
 
         $provider->getToken();
     }

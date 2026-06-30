@@ -39,7 +39,6 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogue;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -544,7 +543,6 @@ class SnippetServiceTest extends TestCase
             snippetSetRepository: $snippetSetRepository,
             client: $this->createMock(ClientInterface::class),
             config: $config,
-            validator: Validation::createValidator(),
         );
     }
 }

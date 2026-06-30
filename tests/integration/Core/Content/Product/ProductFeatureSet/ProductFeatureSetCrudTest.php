@@ -9,7 +9,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -86,10 +89,21 @@ class ProductFeatureSetCrudTest extends TestCase
             'id' => $ids->create('feature-set'),
         ];
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage('This value should not be blank.');
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should not be blank.', null, [], '', null, null),
+            ]),
+        ));
 
-        static::getContainer()->get('product_feature_set.repository')
-            ->create([$data], Context::createDefaultContext());
+        try {
+            static::getContainer()->get('product_feature_set.repository')
+                ->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 }

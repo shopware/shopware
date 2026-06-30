@@ -258,11 +258,6 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value, ?bool $protected = null): self
     {
-        $protected = false;
-        if (\func_num_args() === 3) {
-            $protected = func_get_arg(2);
-        }
-
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw CartException::invalidPayload($key, $this->getId());
         }
@@ -636,17 +631,27 @@ class LineItem extends Struct
     {
         $data = parent::jsonSerialize();
 
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUnprotectedPayload(): array
+    {
         $payload = [];
 
-        foreach ($data['payload'] as $key => $value) {
+        foreach ($this->payload as $key => $value) {
             if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
                 continue;
             }
+
             $payload[$key] = $value;
         }
-        $data['payload'] = $payload;
 
-        return $data;
+        return $payload;
     }
 
     /**

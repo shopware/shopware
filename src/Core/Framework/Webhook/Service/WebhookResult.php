@@ -22,6 +22,7 @@ final readonly class WebhookResult
         public ?array $headers,
         public ?string $errorMessage = null,
         public ?\Throwable $exception = null,
+        public ?int $processingTimeSeconds = null,
     ) {
     }
 

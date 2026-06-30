@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
@@ -51,7 +52,8 @@ class RuleGenerator implements DemodataGeneratorInterface
         private readonly EntityWriterInterface $writer,
         private readonly EntityRepository $paymentMethodRepository,
         private readonly EntityRepository $shippingMethodRepository,
-        private readonly RuleDefinition $ruleDefinition
+        private readonly RuleDefinition $ruleDefinition,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -89,7 +91,7 @@ class RuleGenerator implements DemodataGeneratorInterface
                 'name' => 'New customer',
             ],
             [
-                'rule' => (new DateRangeRule())->assign(['fromDate' => new \DateTime(), 'toDate' => (new \DateTime())->modify('+2 day')]),
+                'rule' => (new DateRangeRule())->assign(['fromDate' => $this->clock->now(), 'toDate' => $this->clock->now()->modify('+2 day')]),
                 'name' => 'Next two days',
             ],
             [

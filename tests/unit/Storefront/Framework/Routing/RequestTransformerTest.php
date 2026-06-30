@@ -14,6 +14,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -35,7 +37,7 @@ class RequestTransformerTest extends TestCase
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
-        $domainLoader->expects($this->never())->method('load');
+        $domainLoader->expects($this->never())->method('loadDomains');
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, $registeredApiPrefixes, $domainLoader);
 
@@ -52,7 +54,7 @@ class RequestTransformerTest extends TestCase
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->expects($this->once())->method('load')->willReturn([]);
+        $domainLoader->expects($this->once())->method('loadDomains')->willReturn(new DomainCollection());
 
         // no registered api prefixes ==> sales channel is always required
         $registeredApiPrefixes = [];
@@ -95,24 +97,25 @@ class RequestTransformerTest extends TestCase
             'isCanonical' => false,
         ]);
 
+        $domains = new DomainCollection();
+        $domains->set($domainKey, DomainStruct::fromArray([
+            'url' => $domainKey,
+            'id' => $domainId,
+            'salesChannelId' => $salesChannelId,
+            'typeId' => 'storefront',
+            'snippetSetId' => $snippetSetId,
+            'currencyId' => $currencyId,
+            'languageId' => $languageId,
+            'themeId' => $themeId,
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->method('load')->willReturn([
-            $domainKey => [
-                'url' => $domainKey,
-                'id' => $domainId,
-                'salesChannelId' => $salesChannelId,
-                'typeId' => 'storefront',
-                'snippetSetId' => $snippetSetId,
-                'currencyId' => $currencyId,
-                'languageId' => $languageId,
-                'themeId' => $themeId,
-                'maintenance' => '0',
-                'maintenanceIpWhitelist' => '',
-                'locale' => 'en-GB',
-                'themeName' => 'Storefront',
-                'parentThemeName' => '',
-            ],
-        ]);
+        $domainLoader->method('loadDomains')->willReturn($domains);
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader);
 
@@ -222,6 +225,115 @@ class RequestTransformerTest extends TestCase
             'expectedAbsoluteBaseUrl' => 'http://shöpwäre.com',
             'expectedStorefrontUrl' => 'http://shöpwäre.com/de',
             'expectedResolvedUri' => '/outdoor',
+        ];
+
+        yield 'virtual path before index.php' => [
+            // see https://github.com/shopware/shopware/issues/6666
+            'requestUrl' => 'http://shopware.com/de/index.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
+
+        yield 'virtual path before index.php in subdirectory' => [
+            // see https://github.com/shopware/shopware/issues/6666
+            'requestUrl' => 'http://shopware.com/public/de/index.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/public/index.php',
+                'PHP_SELF' => '/public/de/index.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/public/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com/public',
+            'expectedStorefrontUrl' => 'http://shopware.com/public/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
+
+        yield 'virtual path equals base url with index.php' => [
+            // /de/index.php with no further path should resolve to the sales-channel home
+            'requestUrl' => 'http://shopware.com/de/index.php',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/',
+        ];
+
+        yield 'virtual path with trailing slash after index.php' => [
+            // /de/index.php/ (trailing slash, no further path) should also resolve to home
+            'requestUrl' => 'http://shopware.com/de/index.php/',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php/',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/',
+        ];
+
+        yield 'virtual path before custom front controller (app.php)' => [
+            // ensure the strip uses basename($scriptName) and works for non-index.php front controllers
+            'requestUrl' => 'http://shopware.com/de/app.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/app.php',
+                'SCRIPT_NAME' => '/app.php',
+                'PHP_SELF' => '/de/app.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
+
+        yield 'slug with index.php prefix is preserved (boundary guard)' => [
+            // a hypothetical SEO slug like "index.php-shop" must not be mangled by the strip;
+            // the `$scriptName . '/'` suffix on str_starts_with ensures only the bare script
+            // basename followed by a path separator is stripped.
+            'requestUrl' => 'http://shopware.com/de/index.php-shop',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php-shop',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/index.php-shop',
+        ];
+
+        yield 'slug with index.php prefix is preserved when followed by sub-path' => [
+            // an "index.php-shop" parent slug with a deeper path must also pass through unchanged.
+            // The `$scriptName . '/'` boundary requires an exact script-name segment, so
+            // "index.php-shop/foo" cannot be partial-stripped to "-shop/foo".
+            'requestUrl' => 'http://shopware.com/de/index.php-shop/foo',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php-shop/foo',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/index.php-shop/foo',
         ];
     }
 

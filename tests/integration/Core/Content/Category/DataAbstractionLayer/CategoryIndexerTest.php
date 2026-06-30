@@ -156,7 +156,7 @@ class CategoryIndexerTest extends TestCase
         }
 
         static::assertNotNull($message);
-        static::assertEqualsCanonicalizing($expectedSkips, $message->getSkip());
+        static::assertEqualsCanonicalizing(array_values($expectedSkips), array_values($message->getSkip()));
     }
 
     /**
@@ -185,6 +185,13 @@ class CategoryIndexerTest extends TestCase
             'translationPayload' => null,
             'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
             'expectedSkips' => [],
+        ];
+
+        yield 'category: active state change - at least update seo url' => [
+            'categoryPayload' => ['active' => true],
+            'translationPayload' => null,
+            'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
+            'expectedSkips' => [CategoryIndexer::BREADCRUMB_UPDATER, CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
         ];
 
         // INSERT always runs all updaters

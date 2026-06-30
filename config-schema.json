@@ -129,6 +129,9 @@
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
                 },
+                "mcp": {
+                    "$ref": "#/definitions/mcp"
+                },
                 "webhook": {
                     "$ref": "#/definitions/webhook"
                 }
@@ -343,6 +346,25 @@
                 }
             }
         },
+        "mcp": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_tools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Restrict which MCP tools are exposed. Empty array means all tools are allowed."
+                },
+                "app_tool_timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "title": "Timeout in seconds for app webhook MCP tool calls."
+                }
+            },
+            "title": "MCP (Model Context Protocol)"
+        },
         "messenger": {
             "type": "object",
             "additionalProperties": false,
@@ -520,6 +542,9 @@
                 },
                 "cart_add_line_item_from": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "mcp": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"
@@ -600,10 +625,26 @@
                 },
                 "cache_compression": {
                     "type": "boolean",
+                    "default": null,
+                    "description": "Controls the cache compression before the storage",
+                    "deprecationMessage": "The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead."
+                },
+                "compress": {
+                    "type": "boolean",
                     "default": true,
                     "description": "Controls the cache compression before the storage"
                 },
                 "cache_compression_method": {
+                    "type": "string",
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
+                    "default": null,
+                    "description": "Controls the cache compression method",
+                    "deprecationMessage": "The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead."
+                },
+                "compression_method": {
                     "type": "string",
                     "enum": [
                         "gzip",

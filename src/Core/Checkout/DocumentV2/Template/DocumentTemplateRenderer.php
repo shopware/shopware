@@ -6,12 +6,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Twig\Environment;
 
 /**
  * Renders a document Twig template under the order's locale, translator and sales-channel context.
@@ -27,7 +27,7 @@ final readonly class DocumentTemplateRenderer
 {
     public function __construct(
         private TemplateFinder $templateFinder,
-        private Environment $twig,
+        private TwigEnvironment $twig,
         private AbstractTranslator $translator,
         private AbstractSalesChannelContextFactory $contextFactory,
         private string $rootDir,
@@ -73,9 +73,10 @@ final readonly class DocumentTemplateRenderer
         try {
             $this->templateFinder->reset();
 
-            return $this->twig->render(
+            return $this->twig->renderWithTimezoneOverride(
                 $this->templateFinder->find($view),
-                $parameters
+                $parameters,
+                $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
             );
         } catch (\Throwable $exception) {
             throw DocumentV2Exception::templateRenderFailed($view, $exception);

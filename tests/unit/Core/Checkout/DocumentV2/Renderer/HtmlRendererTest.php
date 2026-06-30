@@ -24,12 +24,12 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Twig\Environment;
 
 /**
  * @internal
@@ -44,7 +44,7 @@ class HtmlRendererTest extends TestCase
     {
         $renderer = $this->createRenderer(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            $this->createMock(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
@@ -66,9 +66,9 @@ class HtmlRendererTest extends TestCase
             ->with(self::HTML_TEMPLATE_PATH)
             ->willReturn(self::HTML_TEMPLATE_PATH);
 
-        $env = $this->createMock(Environment::class);
+        $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
-            ->method('render')
+            ->method('renderWithTimezoneOverride')
             ->with(
                 self::HTML_TEMPLATE_PATH,
                 static::callback(function (array $parameters): bool {
@@ -82,7 +82,8 @@ class HtmlRendererTest extends TestCase
                     static::assertInstanceOf(PaginationCounter::class, $parameters['counter']);
 
                     return true;
-                })
+                }),
+                null,
             )
             ->willReturn($rendered);
 
@@ -112,7 +113,7 @@ class HtmlRendererTest extends TestCase
     {
         $renderer = $this->createRenderer(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            $this->createMock(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -133,7 +134,7 @@ class HtmlRendererTest extends TestCase
         );
     }
 
-    private function createRenderer(TemplateFinder $finder, Environment $env): HtmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): HtmlRenderer
     {
         return new HtmlRenderer(
             new DocumentTemplateRenderer(

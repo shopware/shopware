@@ -1,6 +1,24 @@
 @import "~scss/variables";
 
 .sw-settings-storefront {
+    .sw-settings-storefront__input-fields {
+        .mt-card__toolbar {
+            padding-bottom: 20px;
+        }
+    }
+
+    .sw-settings-storefront__sales-channel-switch {
+        width: 100%;
+
+        .sw-sales-channel-switch {
+            width: 100%;
+        }
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+    }
+
     .sw-settings-storefront__first-configuration {
         margin-bottom: 16px;
     }

@@ -32,6 +32,19 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // Intentional rename of the technical-term analyzer chain so the public
+        // identifier matches how the chain is referenced everywhere else
+        // (constants, `buildTextFieldConfig(technicalTerms: true)`, the
+        // architecture doc). Shopware-internal users were already going through
+        // `ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_*` and the
+        // `TECHNICAL_TERM_SEARCH_FIELD` const — both still resolve correctly;
+        // only the underlying analyzer string moved from
+        // `sw_*_word_delimiter_*_analyzer` to `sw_*_technical_term_*_analyzer`.
+        // Documented in UPGRADE-6.8.md.
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_INDEX', '/'),
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_SEARCH', '/'),
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::TECHNICAL_TERM_SEARCH_FIELD', '/'),
+
         // Had a typo in the internal annotation
         preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
 
@@ -80,5 +93,51 @@ return [
         preg_quote('CHANGED: Shopware\Core\Framework\Adapter\Twig\SwTwigFunction was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::resetEscapeCache() was removed', '/'),
+
+        // The implemented Twig extension contract already documents this as array<NodeVisitorInterface>
+        preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+
+        // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
+        preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
+        preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),
+
+        // Optional parameter added with default null; existing callers are unaffected
+        preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
+
+        // Rule classes are tagged @final
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule#$birthday changed from string|null to string|array|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule#$lineItemReleaseDate changed from string|null to string|array|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
+
+        // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
+        preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
+
+        // DocumentType translations were incorrectly typed as product translations
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#$translations changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#getTranslations() changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
+        preg_quote('CHANGED: The parameter $translations of Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#setTranslations() changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection', '/'),
+
+        // Contravariant widening so the filter also accepts PartialEntity media from partial listing loading
+        preg_quote('The parameter $media of Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter#encodeMediaUrl() changed from', '/'),
+
+        // Experimental MCP feature (gated behind the MCP_SERVER flag, all MCP classes are
+        // @experimental stableVersion:v6.8.0). The MCP rate-limit route was split per API
+        // scope, replacing the single RateLimiter::MCP constant with MCP_ADMIN_API /
+        // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
+        // was not auto-skipped, but it is part of the still-experimental MCP surface.
+        preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
+
+        // Revert of #15865 (grouped product listings / "display as group"). The public API that PR
+        // introduced is intentionally removed again as part of the revert; coordinated with the
+        // SwagCommercial revert (shopware/SwagCommercial#3003).
+        preg_quote('REMOVED: Class Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder has been deleted', '/'),
+        preg_quote('REMOVED: These ancestors of Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder have been removed:', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder#enrichCriteria() was removed', '/'),
+        preg_quote('REMOVED: Constant Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED was removed', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$displayAsGroup was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#isDisplayAsGroup() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
     ],
 ];

@@ -19,6 +19,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="cms_slot.repository" />
             <argument type="service" id="category.repository" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
     </services>
 </container>

@@ -39,11 +39,10 @@ class CartVolumeRuleTest extends TestCase
         $cartRuleScope = $this->createMock(CartRuleScope::class);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
+            $this->expectExceptionObject(new UnsupportedValueException('NULL', CartVolumeRule::class));
         } else {
-            $this->expectException(CartException::class);
+            $this->expectExceptionObject(CartException::unsupportedValue('NULL', CartVolumeRule::class));
         }
-        $this->expectExceptionMessage('Unsupported value of type NULL in Shopware\Core\Checkout\Cart\Rule\CartVolumeRule');
 
         $cartVolumeRule->match($cartRuleScope);
     }

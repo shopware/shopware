@@ -57,9 +57,14 @@ class IconCacheTwigFilterTest extends TestCase
         $controller->setTemplateFinder($twig->getExtension(NodeExtension::class)->getFinder());
 
         $controller->systemConfigService = self::createMock(SystemConfigService::class);
-        $controller->systemConfigService->method('get')->willReturn(true);
+        $controller->systemConfigService
+            ->expects($this->once())
+            ->method('get')
+            ->with('core.storefrontSettings.iconCache', 'sales-channel-id')
+            ->willReturn(true);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
 
         $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
         static::assertSame(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
@@ -123,8 +128,7 @@ class IconCacheTwigFilterTest extends TestCase
         $twig = new Environment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())
-            ->method('getBundles')
+        $kernel->method('getBundles')
             ->willReturn($bundles);
 
         $builder = $this->createMock(BundleHierarchyBuilder::class);
@@ -133,8 +137,7 @@ class IconCacheTwigFilterTest extends TestCase
             ->willReturn(['Storefront' => 0]);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects($this->any())
-            ->method('getScopes')
+        $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -23,7 +24,8 @@ class ShopConfigurator
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -172,7 +174,7 @@ class ShopConfigurator
             return;
         }
 
-        $storageDate = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $storageDate = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach ($missingTranslations as $stateId => $shortCode) {
             if (!\array_key_exists($shortCode, $defaultTranslations)) {

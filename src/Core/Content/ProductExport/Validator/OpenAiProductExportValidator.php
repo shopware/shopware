@@ -7,10 +7,11 @@ use Shopware\Core\Content\ProductExport\Error\JsonlValidationError;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
  */
 #[Package('discovery')]
 class OpenAiProductExportValidator extends AbstractProviderValidator
@@ -25,13 +26,25 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
         'pre_order',
     ];
 
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly JsonlRowParser $jsonlRowParser,
+    ) {
+    }
+
     protected function getProviderTechnicalName(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         return 'open-ai';
     }
 
     protected function validateProviderExport(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         if ($productExportEntity->getFileFormat() !== ProductExportEntity::FILE_FORMAT_JSONL) {
             $errors->add(new ProviderValidationError(
                 $productExportEntity->getId(),
@@ -269,5 +282,15 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
                 ));
             }
         }
+    }
+
+    /**
+     * @throws ProductExportException
+     *
+     * @return list<array{line:int, row:array<string, mixed>}>
+     */
+    private function parseJsonlRows(string $productExportContent): array
+    {
+        return $this->jsonlRowParser->parse($productExportContent);
     }
 }

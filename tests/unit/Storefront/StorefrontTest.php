@@ -12,6 +12,7 @@ use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompil
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Mcp\Tool\ThemeConfigTool;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\System\SalesChannel\SalesChannelAnalyticsLoader;
 use Shopware\Storefront\Theme\ThemeService;
@@ -68,6 +69,7 @@ class StorefrontTest extends TestCase
         static::assertTrue($container->has(NavigationController::class), 'controller.xml');
         static::assertTrue($container->has(ThemeService::class), 'theme.xml');
         static::assertTrue($container->has(SalesChannelAnalyticsLoader::class), 'system.xml');
+        static::assertTrue($container->has(ThemeConfigTool::class), 'mcp.php');
     }
 
     private function buildContainer(): ContainerBuilder

@@ -45,9 +45,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,6 +91,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private RequestStack&MockObject $requestStackMock;
 
+    private CustomFieldSetPersister&MockObject $customFieldSetPersister;
+
     protected function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
@@ -107,6 +113,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->method('getMigrationNamespace')->willReturn('migration');
 
         $this->requestStackMock = $this->createMock(RequestStack::class);
+        $this->customFieldSetPersister = $this->createMock(CustomFieldSetPersister::class);
 
         $this->pluginLifecycleService = new PluginLifecycleService(
             $this->pluginRepoMock,
@@ -126,7 +133,18 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
+            $this->customFieldSetPersister,
+            new NativeClock()
         );
+    }
+
+    protected function tearDown(): void
+    {
+        // uninstallPlugin() populates PluginLifecycleService::$pluginToBeDeleted; reset just that
+        // one static so it doesn't leak into other tests. Do NOT use #[BackupStaticProperties(true)]:
+        // it serialize-restores every loaded class's statics, which desyncs Doctrine's global
+        // Type registry (spl_object_id-keyed reverse index) and breaks Type::lookupName() worker-wide.
+        (new \ReflectionClass(PluginLifecycleService::class))->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testInstallPlugin(): void
@@ -171,8 +189,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects($this->once())->method('executeComposerCommands')->willReturn(true);
         $this->pluginMock->expects($this->once())->method('install')->willThrowException(new \Exception('not working'));
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('not working');
+        $this->expectExceptionObject(new \Exception('not working'));
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
     }
@@ -306,6 +323,27 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
     }
 
+    public function testUninstallPluginRemovesCustomFieldsByExtensionName(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $context = Context::createDefaultContext();
+        $extensionName = $this->pluginMock->getName();
+
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+
+        $this->customFieldSetPersister->expects($this->once())
+            ->method('sync')
+            ->with(
+                static::callback(static fn (CustomFields $customFields): bool => $customFields->getCustomFieldSets() === []),
+                null,
+                $extensionName,
+                $context
+            );
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
+    }
+
     public function testUninstallPluginNotInstalled(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -402,6 +440,27 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }
 
+    public function testUpdatePluginSyncsEmptyCustomFieldsWhenXmlFileIsMissing(): void
+    {
+        $plugin = $this->getPluginEntityMock();
+        $context = Context::createDefaultContext();
+        $extensionName = $this->pluginMock->getName();
+
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(false);
+
+        $this->customFieldSetPersister->expects($this->once())
+            ->method('sync')
+            ->with(
+                static::callback(static fn (CustomFields $customFields): bool => $customFields->getCustomFieldSets() === []),
+                null,
+                $extensionName,
+                $context
+            );
+
+        $this->pluginLifecycleService->updatePlugin($plugin, $context);
+    }
+
     public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
     {
         $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
@@ -423,6 +482,8 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->createMock(VersionSanitizer::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
                 $this->requestStackMock,
+                $this->createMock(CustomFieldSetPersister::class),
+                new MockClock(),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();
@@ -455,10 +516,6 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertEmpty($replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
-
-        // need to reset the static properties to avoid side effects in other test cases
-        $reflection = new \ReflectionClass(PluginLifecycleService::class);
-        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void
@@ -595,8 +652,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->container->set('kernel', $kernelMock);
 
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage('Container parameter "kernel.plugin_dir" needs to be of type "string"');
+        $this->expectExceptionObject(PluginException::invalidContainerParameter('kernel.plugin_dir', 'string'));
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
@@ -632,8 +688,7 @@ class PluginLifecycleServiceTest extends TestCase
             ]
         ));
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Failed to reboot the kernel');
+        $this->expectExceptionObject(new \RuntimeException('Failed to reboot the kernel'));
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
@@ -740,8 +795,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->pluginRepoMock->method('update')->willThrowException(new \Exception('failed update'));
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('failed update');
+        $this->expectExceptionObject(new \Exception('failed update'));
 
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }
@@ -814,8 +868,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
 
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage('"Shopware\Core\Framework\Plugin" in the container should be an instance of Shopware\Core\Framework\Plugin');
+        $this->expectExceptionObject(PluginException::wrongBaseClass(Plugin::class));
 
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }

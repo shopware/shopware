@@ -134,7 +134,7 @@ class GenerateThumbnailsCommand extends Command
     private function getFolderFilterFromInput(InputInterface $input, Context $context): ?EqualsAnyFilter
     {
         $rawInput = $input->getOption('folder-name');
-        if (empty($rawInput)) {
+        if ($rawInput === null || $rawInput === '') {
             return null;
         }
 

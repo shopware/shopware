@@ -68,8 +68,7 @@ class AsyncAwsSignerTest extends TestCase
             ->method('error')
             ->with(static::stringContains('Error signing request'));
 
-        $this->expectException(ElasticsearchException::class);
-        $this->expectExceptionMessage('Could not get AWS credentials');
+        $this->expectExceptionObject(ElasticsearchException::awsCredentialsNotFound());
 
         $request = (new HttpFactory())->createRequest('GET', 'https://example.com/test');
 

@@ -38,6 +38,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(AppSecretRotationService::class)]
 class AppSecretRotationServiceTest extends TestCase
 {
+    /**
+     * A freshly generated secret/access-key is base64url-encoded (see AccessKeyHelper): the `+/=` of standard
+     * base64 are mapped to `-_` and stripped. Matching this charset proves the value handed to the app server
+     * is a newly minted secret, not the stale one carried over from the previous integration.
+     */
+    private const FRESHLY_GENERATED_SECRET = '/^[A-Za-z0-9_-]+$/';
+
     private AppSecretRotationService $service;
 
     private AppRegistrationService&MockObject $registrationService;
@@ -77,6 +84,7 @@ class AppSecretRotationServiceTest extends TestCase
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        // A fixed clock so the soft-delete timestamp written for a retired integration is deterministic.
         $this->clock = new MockClock('2025-06-13 12:00:00');
         $this->registrationLock = $this->createMock(AppRegistrationLock::class);
         $this->lock = $this->createMock(LockInterface::class);
@@ -132,12 +140,12 @@ class AppSecretRotationServiceTest extends TestCase
 
         $this->registrationLock->method('acquire')->willReturn($this->lock);
 
+        // the app id resolves to no entity, so loadApp throws before anything is rotated
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->expects($this->once())
             ->method('get')
             ->with($appId)
             ->willReturn(null);
-
         $this->appRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
@@ -150,24 +158,11 @@ class AppSecretRotationServiceTest extends TestCase
     public function testRotateNowSuccessfullyRotatesSecret(): void
     {
         $appId = Uuid::randomHex();
-        $integrationId = Uuid::randomHex();
+        $oldIntegrationId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
-        $integration->setLabel('TestApp Integration');
-        $integration->setAccessKey('old-access-key');
-        $integration->setSecretAccessKey('old-secret-key');
-
-        $app = new AppEntity();
-        $app->setId($appId);
-        $app->setName('TestApp');
-        $app->setIntegrationId($integrationId);
-        $app->setIntegration($integration);
-
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with($appId)->willReturn($app);
-        $this->appRepository->method('search')->willReturn($searchResult);
+        $app = $this->createAppOnIntegration($appId, $oldIntegrationId);
+        $this->setupAppLookup($appId, $app);
 
         // the per-app lock is taken for the whole rotation and released afterwards
         $this->registrationLock->expects($this->once())->method('acquire')->willReturn($this->lock);
@@ -184,28 +179,29 @@ class AppSecretRotationServiceTest extends TestCase
             ->with(
                 $manifest,
                 $appId,
-                static::matchesRegularExpression('/^[A-Za-z0-9_-]+$/'),
+                static::matchesRegularExpression(self::FRESHLY_GENERATED_SECRET),
                 $context
             );
 
         // the app is moved onto a freshly minted integration (created via the nested write)...
         $this->appRepository->expects($this->once())
             ->method('update')
-            ->with(static::callback(function (array $data) use ($appId, $integrationId): bool {
+            ->with(static::callback(function (array $data) use ($appId, $oldIntegrationId): bool {
                 return $data[0]['id'] === $appId
                     && isset($data[0]['integration']['id'], $data[0]['integration']['label'], $data[0]['integration']['accessKey'], $data[0]['integration']['secretAccessKey'])
-                    && $data[0]['integration']['id'] !== $integrationId;
+                    && $data[0]['integration']['id'] !== $oldIntegrationId;
             }), static::isInstanceOf(Context::class));
 
-        // ...and the old integration is retired
+        // ...and the old integration is retired with the current (fixed-clock) timestamp
         $this->integrationRepository->expects($this->once())
             ->method('update')
-            ->with(static::callback(function (array $data) use ($integrationId): bool {
-                return $data[0]['id'] === $integrationId
+            ->with(static::callback(function (array $data) use ($oldIntegrationId): bool {
+                return $data[0]['id'] === $oldIntegrationId
                     && $data[0]['deletedAt'] instanceof \DateTimeImmutable
                     && $data[0]['deletedAt']->format(\DateTimeInterface::ATOM) === $this->clock->now()->format(\DateTimeInterface::ATOM);
             }), static::isInstanceOf(Context::class));
 
+        // one log when rotation starts, one when it completes
         $this->logger->expects($this->exactly(2))
             ->method('info');
 
@@ -233,24 +229,12 @@ class AppSecretRotationServiceTest extends TestCase
     public function testRotateNowAbortsWhenAPendingSecretIsUnresolved(): void
     {
         $appId = Uuid::randomHex();
-        $integrationId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
-        $integration->setLabel('TestApp Integration');
-
-        $app = new AppEntity();
-        $app->setId($appId);
-        $app->setName('TestApp');
-        $app->setIntegrationId($integrationId);
-        $app->setIntegration($integration);
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         // a previous rotation left an unresolved pending secret
         $app->setUnconfirmedAppSecrets(['left-over-pending']);
-
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with($appId)->willReturn($app);
-        $this->appRepository->method('search')->willReturn($searchResult);
+        $this->setupAppLookup($appId, $app);
 
         // the lock is taken, and released again even though we abort
         $this->registrationLock->expects($this->once())->method('acquire')->willReturn($this->lock);
@@ -271,35 +255,17 @@ class AppSecretRotationServiceTest extends TestCase
         // app orphaned on it. Mirrors rotateNow's \Throwable handling; an outer catch of only AppException
         // would let this escape with the new integration current and the old one soft-deleted.
         $appId = Uuid::randomHex();
-        $integrationId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $integration = new IntegrationEntity();
-        $integration->setId($integrationId);
-        $integration->setLabel('TestApp Integration');
-
-        $app = new AppEntity();
-        $app->setId($appId);
-        $app->setName('TestApp');
-        $app->setIntegrationId($integrationId);
-        $app->setIntegration($integration);
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         $app->setUnconfirmedAppSecrets(['pending-secret']);
         $app->setAppSecret('committed-secret');
-
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with($appId)->willReturn($app);
-        $this->appRepository->method('search')->willReturn($searchResult);
+        $this->setupAppLookup($appId, $app);
 
         $this->registrationLock->method('acquire')->willReturn($this->lock);
         $this->lock->expects($this->once())->method('release');
 
-        $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getSetup')->willReturn(Setup::fromArray(['registrationUrl' => 'https://example.com/register']));
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('hasFile')->willReturn(false);
-        $filesystem->method('path')->willReturn('/path/to/manifest.xml');
-        $this->sourceResolver->method('filesystemForApp')->willReturn($filesystem);
-        $this->manifestFactory->method('createFromXmlFile')->willReturn($manifest);
+        $this->setupResolvableManifestWithSetup();
 
         // the recovery re-registration blows up with a non-AppException
         $this->registrationService->method('reRegisterWithAppHeldSecret')
@@ -320,9 +286,40 @@ class AppSecretRotationServiceTest extends TestCase
         // the secret the app still trusts behind it in the pending list. Recovery must try every entry rather
         // than give up on the head alone and report the app "claimed".
         $appId = Uuid::randomHex();
-        $integrationId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
+        $secretAppStillTrusts = 'the-secret-the-app-still-trusts';
+
+        $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
+        $app->setUnconfirmedAppSecrets(['minted-by-the-prior-recovery', $secretAppStillTrusts]);
+        $this->setupAppLookup($appId, $app);
+
+        $this->registrationLock->method('acquire')->willReturn($this->lock);
+        $this->lock->expects($this->once())->method('release');
+
+        $this->setupResolvableManifestWithSetup();
+
+        // the app rejects the freshly minted pending but accepts the remembered candidate
+        $triedSecrets = [];
+        $this->registrationService->method('reRegisterWithAppHeldSecret')
+            ->willReturnCallback(function (Manifest $manifest, string $id, string $secretAccessKey, Context $context, string $appHeldSecret) use (&$triedSecrets, $secretAppStillTrusts): void {
+                $triedSecrets[] = $appHeldSecret;
+                if ($appHeldSecret !== $secretAppStillTrusts) {
+                    throw AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret');
+                }
+            });
+
+        $this->service->recoverNow($appId, $context);
+
+        static::assertContains($secretAppStillTrusts, $triedSecrets, 'recovery must try the secret remembered from a prior ambiguous attempt');
+    }
+
+    /**
+     * Builds an installed app sitting on its integration — the shape both rotation and recovery start from.
+     * Scenario-specific state (the unconfirmed list, the committed secret) is set by the caller.
+     */
+    private function createAppOnIntegration(string $appId, string $integrationId): AppEntity
+    {
         $integration = new IntegrationEntity();
         $integration->setId($integrationId);
         $integration->setLabel('TestApp Integration');
@@ -332,35 +329,36 @@ class AppSecretRotationServiceTest extends TestCase
         $app->setName('TestApp');
         $app->setIntegrationId($integrationId);
         $app->setIntegration($integration);
-        $app->setUnconfirmedAppSecrets(['minted-by-the-prior-recovery', 'the-secret-the-app-still-trusts']);
 
+        return $app;
+    }
+
+    /**
+     * Wires the app repository so that loading $appId yields $app (or, with null, resolves to "not found").
+     */
+    private function setupAppLookup(string $appId, ?AppEntity $app): void
+    {
         $searchResult = $this->createMock(EntitySearchResult::class);
         $searchResult->method('get')->with($appId)->willReturn($app);
+
         $this->appRepository->method('search')->willReturn($searchResult);
+    }
 
-        $this->registrationLock->method('acquire')->willReturn($this->lock);
-        $this->lock->expects($this->once())->method('release');
-
+    /**
+     * Wires the source resolver and manifest factory to return a manifest that still declares <setup>, which
+     * recovery requires before it will re-register. The manifest/filesystem paths are irrelevant here, so they
+     * are left unconstrained.
+     */
+    private function setupResolvableManifestWithSetup(): void
+    {
         $manifest = $this->createMock(Manifest::class);
         $manifest->method('getSetup')->willReturn(Setup::fromArray(['registrationUrl' => 'https://example.com/register']));
+
         $filesystem = $this->createMock(Filesystem::class);
         $filesystem->method('hasFile')->willReturn(false);
         $filesystem->method('path')->willReturn('/path/to/manifest.xml');
+
         $this->sourceResolver->method('filesystemForApp')->willReturn($filesystem);
         $this->manifestFactory->method('createFromXmlFile')->willReturn($manifest);
-
-        // the app rejects the freshly minted pending but accepts the remembered candidate
-        $tried = [];
-        $this->registrationService->method('reRegisterWithAppHeldSecret')
-            ->willReturnCallback(function (Manifest $manifest, string $id, string $secretAccessKey, Context $context, string $appHeldSecret) use (&$tried): void {
-                $tried[] = $appHeldSecret;
-                if ($appHeldSecret !== 'the-secret-the-app-still-trusts') {
-                    throw AppException::appRegistrationRejected('TestApp', 'the app does not trust this secret');
-                }
-            });
-
-        $this->service->recoverNow($appId, $context);
-
-        static::assertContains('the-secret-the-app-still-trusts', $tried, 'recovery must try the secret remembered from a prior ambiguous attempt');
     }
 }

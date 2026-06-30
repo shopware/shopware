@@ -7,14 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
+use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
-use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -65,21 +65,21 @@ class TranslationController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:translation:create']],
         methods: ['POST'],
     )]
-    public function install(Request $request, Context $context): Response
-    {
-        $activate = $request->request->getBoolean('activate', true);
-
-        if ($request->request->getBoolean('all')) {
+    public function install(
+        #[MapRequestPayload] InstallTranslationRequest $parameters,
+        Context $context,
+    ): Response {
+        if ($parameters->all) {
             $locales = $this->config->locales;
         } else {
-            $locales = $this->getRequestedLocales($request);
+            $locales = $parameters->locales;
             $this->config->validateLocales($locales);
         }
 
         return $this->loadTranslations(
             $this->metadataLoader->getUpdatedLocalMetadata($locales),
             $context,
-            $activate,
+            $parameters->activate,
             $locales,
         );
     }
@@ -131,22 +131,5 @@ class TranslationController extends AbstractController
             'skipped' => $skipped,
             'unavailable' => $unavailable,
         ]);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getRequestedLocales(Request $request): array
-    {
-        $locales = $request->request->all()['locales'] ?? [];
-
-        if (!\is_array($locales)) {
-            throw SnippetException::invalidLocalesType();
-        }
-
-        /** @var list<string> $locales */
-        $locales = array_values($locales);
-
-        return $locales;
     }
 }

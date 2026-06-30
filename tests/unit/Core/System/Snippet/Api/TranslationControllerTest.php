@@ -15,11 +15,11 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -100,7 +100,7 @@ class TranslationControllerTest extends TestCase
         $this->metadataLoader->expects($this->once())->method('save')->with($metadata);
 
         $response = $this->controller->install(
-            new Request([], ['locales' => ['de-DE', 'es-ES']]),
+            new InstallTranslationRequest(locales: ['de-DE', 'es-ES']),
             $this->context()
         );
 
@@ -116,22 +116,12 @@ class TranslationControllerTest extends TestCase
         $this->metadataLoader->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
         $this->translationLoader->expects($this->never())->method('load');
 
-        $response = $this->controller->install(new Request([], ['locales' => ['de-DE']]), $this->context());
+        $response = $this->controller->install(new InstallTranslationRequest(locales: ['de-DE']), $this->context());
 
         $content = $this->decode($response);
         static::assertSame([], $content['updated']);
         static::assertSame([], $content['skipped']);
         static::assertSame(['de-DE'], $content['unavailable']);
-    }
-
-    public function testInstallThrowsWhenLocalesIsNotAnArray(): void
-    {
-        $this->translationLoader->expects($this->never())->method('load');
-        $this->metadataLoader->expects($this->never())->method('getUpdatedLocalMetadata');
-
-        $this->expectExceptionObject(SnippetException::invalidLocalesType());
-
-        $this->controller->install(new Request([], ['locales' => 'de-DE']), $this->context());
     }
 
     public function testInstallAllUsesConfiguredLocales(): void
@@ -141,7 +131,7 @@ class TranslationControllerTest extends TestCase
             ->with(['de-DE', 'es-ES'])
             ->willReturn($this->metadataCollection(['de-DE' => false, 'es-ES' => false]));
 
-        $this->controller->install(new Request([], ['all' => true]), $this->context());
+        $this->controller->install(new InstallTranslationRequest(all: true), $this->context());
     }
 
     public function testInstallActivateFalseIsPassedToLoader(): void
@@ -154,7 +144,7 @@ class TranslationControllerTest extends TestCase
             ->with('de-DE', static::isInstanceOf(Context::class), false);
 
         $this->controller->install(
-            new Request([], ['locales' => ['de-DE'], 'activate' => false]),
+            new InstallTranslationRequest(locales: ['de-DE'], activate: false),
             $this->context()
         );
     }
@@ -166,7 +156,7 @@ class TranslationControllerTest extends TestCase
 
         $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
 
-        $this->controller->install(new Request([], ['locales' => ['xx-XX']]), $this->context());
+        $this->controller->install(new InstallTranslationRequest(locales: ['xx-XX']), $this->context());
     }
 
     public function testInstallThrowsWhenNoLocalesProvided(): void
@@ -175,7 +165,7 @@ class TranslationControllerTest extends TestCase
 
         $this->expectExceptionObject(SnippetException::noLocalesArgumentProvided());
 
-        $this->controller->install(new Request(), $this->context());
+        $this->controller->install(new InstallTranslationRequest(), $this->context());
     }
 
     public function testUpdateLoadsAllInstalledRequiringUpdate(): void

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -34,6 +35,7 @@ final class WebhookEventMessageHandler
         private readonly Client $client,
         private readonly EntityRepository $webhookEventLogRepository,
         private readonly RelatedWebhooks $relatedWebhooks,
+        private readonly WebhookSigningSecretResolver $signingSecretResolver,
     ) {
     }
 
@@ -69,9 +71,12 @@ final class WebhookEventMessageHandler
             'timeout' => self::TIMEOUT,
         ];
 
-        if ($message->getSecret()) {
+        // Resolve the signing secret at delivery time so a webhook queued or retried across an
+        // app-secret rotation is signed with the secret the app currently verifies against.
+        $secret = $this->signingSecretResolver->resolve($message);
+        if ($secret) {
             $requestContent[AuthMiddleware::APP_REQUEST_TYPE] = [
-                AuthMiddleware::APP_SECRET => $message->getSecret(),
+                AuthMiddleware::APP_SECRET => $secret,
             ];
         }
 

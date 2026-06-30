@@ -95,23 +95,8 @@ class BusinessEventEncoderTest extends TestCase
 
     public function testEncodeWithInvalidObjectOrData(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(\RuntimeException::class);
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-
-            return;
-        }
-
-        try {
-            $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
-        } catch (WebhookException $exception) {
-            static::assertSame('Unknown EventDataType: invalid', $exception->getMessage());
-            static::assertSame(WebhookException::UNKNOWN_DATA_TYPE, $exception->getErrorCode());
-
-            return;
-        }
-
-        static::fail('Exception should have been thrown');
+        $this->expectExceptionObject(WebhookException::invalidDataMapping('invalid', InvalidTypeBusinessEvent::class));
+        $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
     }
 
     public function testRegisteredBusinessEventsExposeWebhookPayloadGetters(): void

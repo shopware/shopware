@@ -162,11 +162,30 @@ export default {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? '' : value;
+            this.element.config.minHeight.value = this.formatMinHeight(value);
             this.emitUpdate();
         },
 
-        onChangeDisplayMode() {
+        formatMinHeight(value) {
+            if (value === null || value === '') {
+                return '';
+            }
+
+            const trimmed = String(value).trim();
+
+            return this.isUnitlessNumber(trimmed) ? `${trimmed}px` : trimmed;
+        },
+
+        isUnitlessNumber(value) {
+            return /^\d+(\.\d+)?$/.test(value);
+        },
+
+        onChangeDisplayMode(value) {
+            // min-height is only meaningful in cover mode; clear it otherwise so no value is persisted/sent
+            if (value !== 'cover') {
+                this.element.config.minHeight.value = '';
+            }
+
             this.emitUpdate();
         },
 

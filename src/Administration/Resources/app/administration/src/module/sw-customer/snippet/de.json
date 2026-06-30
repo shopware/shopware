@@ -163,6 +163,8 @@
       "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
+      "cardTitle": "Adressen",
+      "filterPlaceholder": "Adressen durchsuchen …",
       "buttonAddAddress": "Adresse anlegen",
       "buttonClose": "Schließen",
       "buttonDelete": "Löschen",

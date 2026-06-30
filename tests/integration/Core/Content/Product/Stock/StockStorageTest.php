@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -946,6 +947,7 @@ class StockStorageTest extends TestCase
             'stock' => 5,
             'name' => 'Test',
             'isCloseout' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],

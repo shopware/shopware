@@ -62,7 +62,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $url = $entity['url'] ?? null;
 
-        if (empty($url)) {
+        if ($url === null || $url === '') {
             return $deserialized;
         }
 

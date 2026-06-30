@@ -25,6 +25,7 @@ class Context extends Struct
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     final public const ELASTICSEARCH_EXPLAIN_MODE = 'explain-mode';
+    final public const SYSTEM_SCOPE_DAL_WRITE_EVENT = 'system-scope-dal-write-event';
 
     protected string $scope = self::USER_SCOPE;
 
@@ -32,6 +33,11 @@ class Context extends Struct
 
     #[Ignore]
     protected array $extensions = [];
+
+    /**
+     * @var list<list<string>>
+     */
+    private array $scopeStates = [];
 
     /**
      * @param array<string> $ruleIds
@@ -186,20 +192,43 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $states will be added. It accepts temporary states that should exist only for this scope; nested scopes do not inherit them unless they pass the same states again.
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
      *
      * @return TReturn the return value of the provided callback function
      */
-    public function scope(string $scope, \Closure $callback): mixed
+    public function scope(string $scope, \Closure $callback/* , array $states = [] */): mixed
     {
         $currentScope = $this->getScope();
+        /** @deprecated tag:v6.8.0 - Remove next line as $states will become a part of method signature */
+        /** @var list<string> $states */
+        $states = \func_get_args()[2] ?? [];
+        $states = array_values(array_unique($states));
+
+        // Merge all surrounding scope states so nested scopes can drop temporary states from every parent scope unless they opt in again.
+        $outerScopeStates = array_values(array_unique(array_merge(...$this->scopeStates)));
+        // States passed to this scope stay active; all other temporary states from parent scopes are hidden for this callback.
+        $removeScopeStates = array_values(array_diff($outerScopeStates, $states));
+        // Only states that were not already present are removed again when this scope exits.
+        $addScopeStates = array_values(array_diff($states, $this->getStates()));
+
+        $this->removeStates(...$removeScopeStates);
+        $this->addState(...$addScopeStates);
+
         $this->scope = $scope;
+        $this->scopeStates[] = $states;
 
         try {
             $result = $callback($this);
         } finally {
+            array_pop($this->scopeStates);
+
+            $this->removeStates(...$addScopeStates);
+            $this->addState(...$removeScopeStates);
+
             $this->scope = $currentScope;
         }
 
@@ -304,5 +333,12 @@ class Context extends Struct
     public function lockRules(): void
     {
         $this->rulesLocked = true;
+    }
+
+    private function removeStates(string ...$states): void
+    {
+        foreach ($states as $state) {
+            $this->removeState($state);
+        }
     }
 }

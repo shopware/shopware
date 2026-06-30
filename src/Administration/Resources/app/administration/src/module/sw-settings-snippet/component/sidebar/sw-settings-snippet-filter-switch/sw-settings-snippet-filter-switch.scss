@@ -1,15 +1,13 @@
-$sw-settings-snippets-sidebar-border: var(--color-border-primary-default);
-
 .sw-settings-snippet-filter-switch {
     .sw-settings-snippet-filter-switch__field {
         padding-left: 20px;
 
         &.border-top {
-            border-top: 1px solid $sw-settings-snippets-sidebar-border;
+            border-top: 1px solid var(--color-border-secondary-default);
         }
 
         &.border-bottom {
-            border-bottom: 1px solid $sw-settings-snippets-sidebar-border;
+            border-bottom: 1px solid var(--color-border-secondary-default);
         }
 
         &.sw-settings-snippet-filter-switch--small {

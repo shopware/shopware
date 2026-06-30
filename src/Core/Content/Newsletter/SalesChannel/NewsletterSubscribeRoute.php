@@ -255,11 +255,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $definition->add('email', new NotBlank(), new Email())
             ->add('option', new NotBlank(), new Choice(choices: array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
-        if (!empty($dataBag->get('firstName'))) {
+        if ($dataBag->get('firstName') !== null && $dataBag->get('firstName') !== '') {
             $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 
-        if (!empty($dataBag->get('lastName'))) {
+        if ($dataBag->get('lastName') !== null && $dataBag->get('lastName') !== '') {
             $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 

@@ -6,8 +6,11 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\File\Rendering\Extension\SalesChannelFileRenderParametersExtension;
+use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -28,9 +31,11 @@ class SalesChannelFileRenderer
      */
     public function __construct(
         private readonly Environment $twig,
+        private readonly SalesChannelFileTemplateResolver $templateResolver,
         private readonly SalesChannelFileTemplateOverrideLoader $templateOverrideLoader,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly EntityRepository $salesChannelRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -39,14 +44,16 @@ class SalesChannelFileRenderer
      */
     public function render(SalesChannelFile $file, SalesChannelContext $context, array $templateOverrides = []): string
     {
-        $overrideTemplates = $this->buildOverrideTemplates($file, $templateOverrides);
+        $templates = $this->templateResolver->resolveTemplateChain($file, $context->getSalesChannelId());
+        $overrideTemplates = $this->buildOverrideTemplates($templates, $templateOverrides);
         $parameters = $this->buildParameters($file, $context);
-        $templateName = $this->getRenderTemplateName($file);
+        $templateName = $this->getRenderTemplateName($file, $templates);
 
         $userProvidedContent = $this->getUserProvidedContent($templateOverrides);
         if ($userProvidedContent !== null) {
+            $parentTemplateName = $templateName;
             $templateName = \sprintf(self::USER_PROVIDED_CONTENT_TEMPLATE, $file->templatePath);
-            $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($file, $userProvidedContent, $this->getRenderTemplateName($file));
+            $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($userProvidedContent, $parentTemplateName);
         }
 
         $content = $this->templateOverrideLoader->withTemplateOverrides(
@@ -57,24 +64,25 @@ class SalesChannelFileRenderer
         return $this->seoUrlPlaceholderHandler->replace($content, '', $context);
     }
 
-    private function getRenderTemplateName(SalesChannelFile $file): string
+    /**
+     * @param array<string, string> $templates
+     */
+    private function getRenderTemplateName(SalesChannelFile $file, array $templates): string
     {
-        $key = array_key_last($file->templates);
-        $templateName = $key === null ? null : $file->templates[$key];
-
-        return \is_string($templateName) ? $templateName : $file->baseTemplateName;
+        return array_first($templates) ?? $file->baseTemplateName;
     }
 
     /**
+     * @param array<string, string> $templates
      * @param array<string, mixed> $templateOverrides
      *
      * @return array<string, string>
      */
-    private function buildOverrideTemplates(SalesChannelFile $file, array $templateOverrides): array
+    private function buildOverrideTemplates(array $templates, array $templateOverrides): array
     {
         $overrideTemplates = [];
 
-        foreach ($file->templates as $twigNamespace => $templateName) {
+        foreach ($templates as $twigNamespace => $templateName) {
             $override = $templateOverrides[$twigNamespace] ?? null;
 
             if (!\is_string($override)) {
@@ -101,13 +109,13 @@ class SalesChannelFileRenderer
         return $userProvidedContent;
     }
 
-    private function buildUserProvidedContentTemplate(SalesChannelFile $file, string $userProvidedContent, string $parentTemplateName): string
+    private function buildUserProvidedContentTemplate(string $userProvidedContent, string $parentTemplateName): string
     {
         $encodedContent = json_encode($userProvidedContent, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         \assert(\is_string($encodedContent));
 
-        // The parent was already resolved by discovery; using sw_extends here would resolve
-        // the hierarchy again from the generated namespace and could skip extension templates.
+        // The generated override namespace is not part of the normal namespace hierarchy.
+        // Resolve the render entry first, then extend that concrete template.
         return \sprintf(
             "{%% extends '%s' %%}\n\n{%% block user_provided_content %%}{{ %s|raw }}{%% endblock %%}",
             $parentTemplateName,
@@ -120,9 +128,23 @@ class SalesChannelFileRenderer
      */
     private function buildParameters(SalesChannelFile $file, SalesChannelContext $context): array
     {
+        $salesChannel = $this->loadSalesChannel($context);
+
+        return $this->extensions->publish(
+            name: SalesChannelFileRenderParametersExtension::NAME,
+            extension: new SalesChannelFileRenderParametersExtension($file, $context, $salesChannel),
+            function: $this->buildDefaultParameters(...),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDefaultParameters(SalesChannelFile $file, SalesChannelContext $context, SalesChannelEntity $salesChannel): array
+    {
         return [
             'context' => $context,
-            'salesChannel' => $this->loadSalesChannel($context),
+            'salesChannel' => $salesChannel,
             'salesChannelFile' => $file,
         ];
     }
@@ -133,8 +155,10 @@ class SalesChannelFileRenderer
         $criteria->setTitle('sales-channel-file-renderer::sales-channel');
         $criteria->addAssociation('languages.translationCode');
         $criteria->addAssociation('currencies');
+        $criteria->addAssociation('domains');
         $criteria->getAssociation('languages')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->getAssociation('currencies')->addSorting(new FieldSorting('isoCode', FieldSorting::ASCENDING));
+        $criteria->getAssociation('domains')->addSorting(new FieldSorting('url', FieldSorting::ASCENDING));
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->first();
 

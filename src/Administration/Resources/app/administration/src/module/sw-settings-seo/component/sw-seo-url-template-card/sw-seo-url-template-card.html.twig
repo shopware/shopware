@@ -22,7 +22,7 @@
     {% endblock %}
 
     {% block sw_seo_url_template_card_entries %}
-    <template v-if="!isLoading && !salesChannelIsHeadless">
+    <template v-if="!isLoading">
         <div
             v-for="(seoUrlTemplate, index) in getTemplatesForSalesChannel(salesChannelId)"
             :key="index"
@@ -35,7 +35,7 @@
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
                     v-model:value="seoUrlTemplate.template"
-                    :has-parent="seoUrlTemplate.salesChannelId !== null"
+                    :has-parent="seoUrlTemplate.salesChannelId !== null && !salesChannelIsHeadless"
                     :inherited-value="getPlaceholder(seoUrlTemplate)"
                     @update:value="onInput(seoUrlTemplate)"
                 >
@@ -136,9 +136,6 @@
             {% endblock %}
         </div>
     </template>
-    <div v-if="salesChannelIsHeadless && !isLoading">
-        {{ $t('sw-seo-url.textSeoUrlsDisallowedForHeadless') }}
-    </div>
     {% endblock %}
 </mt-card>
 {% endblock %}

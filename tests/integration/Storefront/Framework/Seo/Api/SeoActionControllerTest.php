@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
@@ -223,6 +224,51 @@ class SeoActionControllerTest extends TestCase
 
         $urls = array_column($data, 'seoPathInfo');
         static::assertContains('B/', $urls);
+    }
+
+    public function testPreviewForHeadlessStoreApiRoute(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        // The product is not visible in the headless sales channel; the preview resolves any entity of the definition.
+        $this->createTestProduct($salesChannelId);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('test', $data[0]['seoPathInfo']);
+    }
+
+    public function testGetSeoContextForHeadlessStoreApiRoute(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $this->createTestProduct($salesChannelId);
+
+        // The store-api route name resolves to the product definition via the tagged entity routes; no entityName needed.
+        $data = ['routeName' => ProductStoreApiUrlRoute::ROUTE_NAME];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/context', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($data['product'] ?? null);
     }
 
     public function testUnknownRoute(): void

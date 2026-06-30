@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
@@ -43,6 +44,7 @@ class SeoActionController extends AbstractController
      * @internal
      *
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param iterable<EntitySeoUrlRouteInterface> $entitySeoUrlRoutes
      */
     public function __construct(
         private readonly SeoUrlGenerator $seoUrlGenerator,
@@ -53,7 +55,8 @@ class SeoActionController extends AbstractController
         private readonly DataValidator $validator,
         private readonly EntityRepository $salesChannelRepository,
         private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly iterable $entitySeoUrlRoutes = []
     ) {
     }
 
@@ -120,25 +123,20 @@ class SeoActionController extends AbstractController
         $routeName = $data->get('routeName');
         $fk = $data->get('foreignKey');
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-        if (!$seoUrlRoute) {
-            throw SeoException::seoUrlRouteNotFound($routeName);
+
+        // Headless store-api routes are not registered as full SEO URL routes; resolve them via the tagged entity
+        // routes and wrap them in a ConfiguredSeoUrlRoute, which falls back to a generic mapping (entity by name).
+        if ($seoUrlRoute === null) {
+            $entityRoute = $routeName !== null ? $this->findEntitySeoUrlRoute($routeName) : null;
+            if ($entityRoute === null) {
+                throw SeoException::seoUrlRouteNotFound((string) $routeName);
+            }
+
+            $seoUrlRoute = new ConfiguredSeoUrlRoute($entityRoute, $entityRoute->getConfig());
         }
 
-        $config = $seoUrlRoute->getConfig();
-        $repository = $this->getRepository($config);
-
-        $criteria = new Criteria();
-        if ($fk !== null && $fk !== '') {
-            $criteria = new Criteria([$fk]);
-        }
-        $criteria->setLimit(1);
-
-        $entity = $repository
-            ->search($criteria, $context)
-            ->getEntities()
-            ->first();
-
-        if (!$entity) {
+        $entity = $this->loadPreviewEntity($seoUrlRoute->getConfig(), $fk, $context);
+        if ($entity === null) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
@@ -305,7 +303,7 @@ class SeoActionController extends AbstractController
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
 
         if (!$seoUrlRoute) {
-            throw SeoException::seoUrlRouteNotFound($seoUrlTemplate['routeName']);
+            return $this->getPreviewFromConfig($seoUrlTemplate, $context, $previewCriteria);
         }
 
         $config = $seoUrlRoute->getConfig();
@@ -333,6 +331,72 @@ class SeoActionController extends AbstractController
         $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($seoUrlRoute, $config), $context, $salesChannel);
 
         return \is_array($result) ? $result : iterator_to_array($result);
+    }
+
+    /**
+     * Previews a template for a route that is not registered as a full SEO URL route (e.g. the store-api routes
+     * used by headless sales channels). The config (entity definition + route name) is resolved from the tagged
+     * entity routes, and any entity of the definition is used to render the template — no sales-channel scoping.
+     *
+     * @param array<string, mixed> $seoUrlTemplate
+     *
+     * @return array<SeoUrlEntity>
+     */
+    private function getPreviewFromConfig(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria): array
+    {
+        $routeName = $seoUrlTemplate['routeName'];
+        $entityRoute = $this->findEntitySeoUrlRoute($routeName);
+
+        if ($entityRoute === null) {
+            throw SeoException::seoUrlRouteNotFound($routeName);
+        }
+
+        $config = $entityRoute->getConfig();
+        $config->setSkipInvalid(false);
+        $repository = $this->getRepository($config);
+
+        $criteria = $previewCriteria ?? new Criteria();
+        $criteria->setLimit(10);
+
+        $ids = $repository->searchIds($criteria, $context)->getIds();
+        if ($ids === []) {
+            throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $routeName);
+        }
+
+        $salesChannel = $this->resolveSalesChannel($seoUrlTemplate, $context);
+        if ($salesChannel === null) {
+            throw SeoException::salesChannelIdParameterIsMissing();
+        }
+
+        $template = $seoUrlTemplate['template'] ?? '';
+
+        // The store-api route has no registered SEO URL route; wrap it so it can be rendered through the regular
+        // generator. ConfiguredSeoUrlRoute applies no sales-channel scoping and a generic entity mapping for it.
+        $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($entityRoute, $config), $context, $salesChannel);
+
+        return \is_array($result) ? $result : iterator_to_array($result);
+    }
+
+    private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
+    {
+        foreach ($this->entitySeoUrlRoutes as $entitySeoUrlRoute) {
+            if ($entitySeoUrlRoute->getConfig()->getRouteName() === $routeName) {
+                return $entitySeoUrlRoute;
+            }
+        }
+
+        return null;
+    }
+
+    private function loadPreviewEntity(SeoUrlRouteConfig $config, ?string $foreignKey, Context $context): ?Entity
+    {
+        $criteria = $foreignKey !== null && $foreignKey !== '' ? new Criteria([$foreignKey]) : new Criteria();
+        $criteria->setLimit(1);
+
+        return $this->getRepository($config)
+            ->search($criteria, $context)
+            ->getEntities()
+            ->first();
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -16,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
 {
     public function __construct(
-        private readonly SeoUrlRouteInterface $decorated,
+        private readonly EntitySeoUrlRouteInterface $decorated,
         private readonly SeoUrlRouteConfig $config
     ) {
     }
@@ -28,11 +29,23 @@ class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
-        $this->decorated->prepareCriteria($criteria, $salesChannel);
+        // Config-only routes (e.g. the store-api routes used by headless sales channels) are not sales-channel scoped.
+        if ($this->decorated instanceof SeoUrlRouteInterface) {
+            $this->decorated->prepareCriteria($criteria, $salesChannel);
+        }
     }
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
-        return $this->decorated->getMapping($entity, $salesChannel);
+        if ($this->decorated instanceof SeoUrlRouteInterface) {
+            return $this->decorated->getMapping($entity, $salesChannel);
+        }
+
+        // Fallback for config-only routes: expose the entity in the template under its entity name.
+        return new SeoUrlMapping(
+            $entity,
+            $this->config->getPrimaryKeyParameter($entity->getUniqueIdentifier()),
+            [$this->config->getDefinition()->getEntityName() => $entity->jsonSerialize()]
+        );
     }
 }

@@ -11,6 +11,17 @@ const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
+/**
+ * Maps the storefront SEO URL routes to their store-api counterparts used for headless sales channels.
+ * Headless sales channels generate SEO URLs via the store-api routes instead of the storefront routes,
+ * so they get their own template entities (without inherited default values).
+ */
+const HEADLESS_SEO_URL_ROUTES = [
+    { storefrontRouteName: 'frontend.detail.page', routeName: 'store-api.product.detail', entityName: 'product' },
+    { storefrontRouteName: 'frontend.navigation.page', routeName: 'store-api.category.detail', entityName: 'category' },
+    { storefrontRouteName: 'frontend.landing.page', routeName: 'store-api.landing-page.detail', entityName: 'landing_page' },
+];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -19,6 +30,8 @@ export default {
         'seoUrlTemplateService',
         'repositoryFactory',
     ],
+
+    emits: ['sales-channel-changed'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -114,6 +127,8 @@ export default {
                             this.defaultSeoUrlTemplates.add(entity);
                         }
                     });
+                } else if (this.salesChannelIsHeadless) {
+                    this.createHeadlessSeoUrlTemplates(salesChannelId);
                 } else {
                     this.createSeoUrlTemplatesFromDefaultRoutes(salesChannelId);
                 }
@@ -150,6 +165,29 @@ export default {
                 }
             });
         },
+        createHeadlessSeoUrlTemplates(salesChannelId) {
+            // Headless sales channels do not inherit the storefront defaults. Create an empty template entity
+            // per store-api route so the user can configure them without any default value.
+            HEADLESS_SEO_URL_ROUTES.forEach((route) => {
+                const entityAlreadyExists = this.seoUrlTemplates.some((entity) => {
+                    return entity.routeName === route.routeName && entity.salesChannelId === salesChannelId;
+                });
+
+                if (entityAlreadyExists) {
+                    return;
+                }
+
+                const entity = this.seoUrlTemplateRepository.create();
+                entity.routeName = route.routeName;
+                entity.salesChannelId = salesChannelId;
+                entity.entityName = route.entityName;
+                entity.template = null;
+                this.seoUrlTemplates.add(entity);
+            });
+        },
+        isHeadlessRoute(routeName) {
+            return HEADLESS_SEO_URL_ROUTES.some((route) => route.routeName === routeName);
+        },
         createVariableOptions(id, data) {
             const storeOptions = [];
 
@@ -179,7 +217,11 @@ export default {
             return false;
         },
         getLabel(seoUrlTemplate) {
-            const routeName = seoUrlTemplate.routeName.replace(/\./g, '-');
+            // Headless store-api routes reuse the existing storefront route labels (they describe the same entity).
+            const headlessRoute = HEADLESS_SEO_URL_ROUTES.find((route) => route.routeName === seoUrlTemplate.routeName);
+            const labelRouteName = headlessRoute ? headlessRoute.storefrontRouteName : seoUrlTemplate.routeName;
+
+            const routeName = labelRouteName.replace(/\./g, '-');
             if (this.$t(`sw-seo-url-template-card.routeNames.${routeName}`)) {
                 return this.$t(`sw-seo-url-template-card.routeNames.${routeName}`);
             }
@@ -187,7 +229,8 @@ export default {
             return seoUrlTemplate.routeName;
         },
         getPlaceholder(seoUrlTemplate) {
-            if (!seoUrlTemplate.salesChannelId) {
+            // Headless templates have no inherited default value.
+            if (!seoUrlTemplate.salesChannelId || this.isHeadlessRoute(seoUrlTemplate.routeName)) {
                 return null;
             }
 
@@ -207,14 +250,13 @@ export default {
                 return;
             }
 
-            this.seoUrlTemplates.forEach((entry) => {
-                if (entry.template === null) {
-                    this.seoUrlTemplates.remove(entry.id);
-                }
-            });
+            // Only persist templates that have a value; the empty blueprint entries are not stored.
+            // Filter into a new collection instead of removing while iterating (removing during forEach
+            // shifts the indices and would skip entries, persisting blank rows).
+            const templatesToSync = this.seoUrlTemplates.filter((entry) => entry.template !== null);
 
             this.seoUrlTemplateRepository
-                .sync(this.seoUrlTemplates)
+                .sync(templatesToSync)
                 .then(() => {
                     this.seoUrlTemplates = new EntityCollection(
                         this.seoUrlTemplateRepository.route,
@@ -315,11 +357,27 @@ export default {
         },
         onSalesChannelChanged(salesChannelId) {
             this.salesChannelId = salesChannelId;
+            this.$emit('sales-channel-changed', this.salesChannelIsHeadless);
             this.fetchSeoUrlTemplates(salesChannelId);
         },
         getTemplatesForSalesChannel(salesChannelId) {
-            return this.seoUrlTemplates.filter((templateEntity) => {
-                return templateEntity.salesChannelId === salesChannelId;
+            const templates = [];
+            this.seoUrlTemplates.forEach((templateEntity) => {
+                if (templateEntity.salesChannelId === salesChannelId) {
+                    templates.push(templateEntity);
+                }
+            });
+
+            // Keep a stable field order regardless of the order entities are loaded from / created after saving.
+            const orderedRouteNames = [];
+            if (this.salesChannelIsHeadless) {
+                HEADLESS_SEO_URL_ROUTES.forEach((route) => orderedRouteNames.push(route.routeName));
+            } else {
+                this.defaultSeoUrlTemplates.forEach((entity) => orderedRouteNames.push(entity.routeName));
+            }
+
+            return templates.sort((a, b) => {
+                return orderedRouteNames.indexOf(a.routeName) - orderedRouteNames.indexOf(b.routeName);
             });
         },
     },

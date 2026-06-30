@@ -172,7 +172,7 @@ class PromotionRedemptionLockerTest extends TestCase
 
     public function testReleaseLocks(): void
     {
-        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory = static::createStub(LockFactory::class);
         $locker = new PromotionRedemptionLocker($lockFactory);
 
         $lock1 = $this->createMock(SharedLockInterface::class);
@@ -195,7 +195,7 @@ class PromotionRedemptionLockerTest extends TestCase
 
     public function testReleaseLocksWithoutExtension(): void
     {
-        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory = static::createStub(LockFactory::class);
         $locker = new PromotionRedemptionLocker($lockFactory);
 
         $extension = new CheckoutPlaceOrderExtension(new Cart('test'), Generator::generateSalesChannelContext(), new RequestDataBag());
@@ -206,7 +206,7 @@ class PromotionRedemptionLockerTest extends TestCase
 
     public function testGetLockKey(): void
     {
-        $locker = new PromotionRedemptionLocker($this->createMock(LockFactory::class));
+        $locker = new PromotionRedemptionLocker(static::createStub(LockFactory::class));
         $key = $locker->getLockKey('promotion-id');
         static::assertSame('promotion-promotion-id', $key);
     }

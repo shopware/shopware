@@ -41,6 +41,8 @@ export default {
             flyoutReferenceElement: null,
             viewportWidth: null,
             shopName: '',
+            isTogglingSidebar: false,
+            toggleSidebarTimeout: null,
         };
     },
 
@@ -152,6 +154,7 @@ The admin menu only supports up to three levels of nesting.`,
                 'is--expanded': this.isExpanded,
                 'is--collapsed': !this.isExpanded,
                 'is--off-canvas-shown': this.isOffCanvasShown,
+                'is--toggling': this.isTogglingSidebar,
             };
         },
 
@@ -207,6 +210,7 @@ The admin menu only supports up to three levels of nesting.`,
     watch: {
         isExpanded() {
             this.toggleSidebar();
+            this.suppressLogoHoverDuringToggle();
         },
         '$route.fullPath': {
             handler() {
@@ -251,6 +255,10 @@ The admin menu only supports up to three levels of nesting.`,
 
         beforeUnmountedComponent() {
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+
+            if (this.toggleSidebarTimeout) {
+                clearTimeout(this.toggleSidebarTimeout);
+            }
         },
 
         onToggleCanvas(state) {
@@ -314,6 +322,20 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             this.toggleSidebar();
+        },
+
+        suppressLogoHoverDuringToggle() {
+            this.isTogglingSidebar = true;
+
+            if (this.toggleSidebarTimeout) {
+                clearTimeout(this.toggleSidebarTimeout);
+            }
+
+            // 300ms matches the 0.3s panel width transition.
+            this.toggleSidebarTimeout = setTimeout(() => {
+                this.isTogglingSidebar = false;
+                this.toggleSidebarTimeout = null;
+            }, 300);
         },
 
         toggleSidebar() {

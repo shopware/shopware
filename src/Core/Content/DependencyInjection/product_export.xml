@@ -88,7 +88,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="string">%product_export.read_buffer_size%</argument>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>

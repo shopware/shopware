@@ -10,6 +10,13 @@
 
 ## Core
 
+### Product export pagination changed to keyset; `getTotal()`/`offset()` deprecated
+
+The product export now paginates products by a keyset cursor on `product.autoIncrement` instead of `LIMIT`/`OFFSET`, and no longer computes an exact product count per batch. This removes the `getTotalCount()` timeout on large catalogs and makes per-batch cost independent of how far the export has progressed.
+
+- `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` is deprecated and will be removed in 6.8. It no longer returns the grand total of matching products but the number of products in the last batch. Use the new `hasNextBatch()` to drive pagination and `getLastId()` for the cursor.
+- `Shopware\Core\Content\ProductExport\Struct\ExportBehavior::offset()` is deprecated in favor of the new `lastId()`. The value is now the keyset cursor (highest `product.autoIncrement` already exported), not a row offset.
+
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 
 The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.

@@ -14,13 +14,16 @@ class ProductExportPartialGeneration implements AsyncMessageInterface
     public function __construct(
         private readonly string $productExportId,
         private readonly string $salesChannelId,
-        private readonly int $offset = 0
+        private readonly int $lastId = 0
     ) {
     }
 
-    public function getOffset(): int
+    /**
+     * Keyset cursor: the highest product.autoIncrement already exported. 0 starts a fresh run.
+     */
+    public function getLastId(): int
     {
-        return $this->offset;
+        return $this->lastId;
     }
 
     public function getProductExportId(): string

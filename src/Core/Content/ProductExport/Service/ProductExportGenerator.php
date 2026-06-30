@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -20,12 +19,13 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -114,7 +114,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria
             ->setTitle('product-export::products')
             ->addFilter(...$filters)
-            ->setOffset($exportBehavior->offset())
+            ->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING))
             ->setLimit($this->readBufferSize);
 
         if ($productExport->isIncludeVariants()) {
@@ -124,7 +124,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 new EqualsFilter('childCount', 0),
             ]));
         } else {
-            // Only fetch main and standalone products so getTotal() and pagination reflect the renderable count
+            // Only fetch main and standalone products
             $criteria->addFilter(new EqualsFilter('parentId', null));
         }
 
@@ -141,10 +141,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
         );
 
-        $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        // Keyset pagination over product.autoIncrement: each batch seeks past the last
+        // exported id instead of using OFFSET, so the cost stays constant regardless of
+        // how deep into the catalog we are. The last batch is the one that does not fill
+        // the read buffer, so no COUNT query is needed to drive pagination.
+        $cursor = $exportBehavior->lastId();
+        $products = $this->fetchBatch($criteria, $cursor, $context);
 
-        $total = $iterator->getTotal();
-        if ($total === 0) {
+        if ($products->count() === 0 && $cursor === 0) {
             $exception = ProductExportException::productExportNotFound($productExport->getId());
 
             $loggingEvent = new ProductExportLoggingEvent(
@@ -176,28 +180,53 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             )
         );
 
-        if ($productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL) {
-            $content .= $this->generateJsonlBody($iterator, $productExport, $context, $productContext->getContext(), $exportBehavior);
-        } else {
-            while ($productResult = $iterator->fetch()) {
-                foreach ($productResult->getEntities() as $product) {
-                    $data = $productContext->getContext();
-                    $data['product'] = $product;
+        $isJsonl = $productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL;
+        $body = '';
+        $fetched = 0;
 
-                    $renderedBody = $this->renderProductBody($productExport, $context, $data);
+        while ($products->count() > 0) {
+            $fetched = $products->count();
 
-                    if ($renderedBody === null) {
-                        continue;
-                    }
+            foreach ($products as $product) {
+                $cursor = $product->getAutoIncrement();
 
-                    $content .= $renderedBody;
+                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                    continue; // Skip main product if variants are included
+                }
+                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
+                    continue; // Skip variants unless they are included
                 }
 
-                if ($exportBehavior->batchMode()) {
-                    break;
+                $data = $productContext->getContext();
+                $data['product'] = $product;
+
+                $renderedBody = $this->renderProductBody($productExport, $context, $data);
+                if ($renderedBody === null) {
+                    continue;
+                }
+
+                if ($isJsonl) {
+                    $row = $this->normalizeJsonlRow($productExport, $renderedBody);
+                    $body .= $body === '' ? $row : \PHP_EOL . $row;
+                } else {
+                    $body .= $renderedBody;
                 }
             }
+
+            // In batch mode the partial-generation handler dispatches the next message;
+            // a short buffer means there is no further batch.
+            if ($exportBehavior->batchMode() || $fetched < $this->readBufferSize) {
+                break;
+            }
+
+            $products = $this->fetchBatch($criteria, $cursor, $context);
         }
+
+        if ($isJsonl && $body !== '') {
+            $body .= \PHP_EOL;
+        }
+
+        $content .= $body;
 
         if ($exportBehavior->generateFooter()) {
             $content .= $this->productExportRender->renderFooter($productExport, $context);
@@ -222,62 +251,25 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         return new ProductExportResult(
             $encodingEvent->getEncodedContent(),
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
-            $iterator->getTotal()
+            $fetched,
+            $cursor,
+            $exportBehavior->batchMode() && $fetched === $this->readBufferSize
         );
     }
 
-    /**
-     * @param array<string, mixed> $baseContext
-     * @param SalesChannelRepositoryIterator<SalesChannelProductCollection> $iterator
-     */
-    private function generateJsonlBody(
-        SalesChannelRepositoryIterator $iterator,
-        ProductExportEntity $productExport,
-        SalesChannelContext $context,
-        array $baseContext,
-        ExportBehavior $exportBehavior
-    ): string {
-        $content = '';
+    private function fetchBatch(Criteria $criteria, int $cursor, SalesChannelContext $context): SalesChannelProductCollection
+    {
+        $batchCriteria = clone $criteria;
+        $batchCriteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        while ($productResult = $iterator->fetch()) {
-            foreach ($productResult->getEntities() as $product) {
-                \assert($product instanceof SalesChannelProductEntity);
-
-                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                    continue; // Skip main product if variants are included
-                }
-                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                    continue; // Skip variants unless they are included
-                }
-
-                $data = $baseContext;
-                $data['product'] = $product;
-
-                $renderedBody = $this->renderProductBody($productExport, $context, $data);
-
-                if ($renderedBody === null) {
-                    continue;
-                }
-
-                $normalizedRow = $this->normalizeJsonlRow($productExport, $renderedBody);
-
-                if ($content !== '') {
-                    $content .= \PHP_EOL;
-                }
-
-                $content .= $normalizedRow;
-            }
-
-            if ($exportBehavior->batchMode()) {
-                break;
-            }
+        if ($cursor > 0) {
+            $batchCriteria->addFilter(new RangeFilter('autoIncrement', [RangeFilter::GT => $cursor]));
         }
 
-        if ($content === '') {
-            return '';
-        }
+        /** @var SalesChannelProductCollection $products */
+        $products = $this->productRepository->search($batchCriteria, $context)->getEntities();
 
-        return $content . \PHP_EOL;
+        return $products;
     }
 
     private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string

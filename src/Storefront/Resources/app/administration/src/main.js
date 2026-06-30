@@ -8,4 +8,3 @@ import './modules/sw-settings-storefront';
 import './extension/sw-sales-channel';
 
 import './init/api-service.init';
-import './init/notification.init';

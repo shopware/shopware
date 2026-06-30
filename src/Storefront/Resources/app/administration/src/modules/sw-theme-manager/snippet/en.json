@@ -207,9 +207,7 @@
         }
       },
       "asyncCompilation": {
-        "startedTitle": "Theme compilation started",
         "started": "The compilation of the changes will be started in the background. You may see the changes with a delay (approx. 1 minute). You will receive a notification once the compilation is done.",
-        "completedTitle": "Theme compilation completed",
         "completed": "The theme compilation has been completed."
       }
     },

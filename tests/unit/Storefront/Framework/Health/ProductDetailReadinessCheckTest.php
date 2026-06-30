@@ -174,7 +174,6 @@ class ProductDetailReadinessCheckTest extends TestCase
     private function initCreateEmptyResult(): void
     {
         $this->util->method('createEmptyResult')
-            ->with('ProductDetailReadiness', 'No sales channels with product detail pages found.')
             ->willReturn(new Result(
                 'ProductDetailReadiness',
                 Status::SKIPPED,

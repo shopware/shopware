@@ -72,7 +72,6 @@ class StorybookServiceTest extends TestCase
             ->willReturn($this->createSalesChannelIdSearchResult($salesChannelId));
 
         $this->contextFactory->method('create')
-            ->with('', $salesChannelId)
             ->willReturn($salesChannelContext);
 
         $result = $this->createService()->createSalesChannelContext();
@@ -93,11 +92,9 @@ class StorybookServiceTest extends TestCase
     public function testGetThemeIdReturnsThemeIdFromTechnicalName(): void
     {
         $this->themeLoader->method('load')
-            ->with('sales-channel-id')
             ->willReturn(['Storefront']);
 
         $this->themeRuntimeConfigStorage->method('getThemeIdByTechnicalName')
-            ->with('Storefront')
             ->willReturn('theme-id-123');
 
         $result = $this->createService()->getThemeId('sales-channel-id');

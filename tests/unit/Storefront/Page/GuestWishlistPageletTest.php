@@ -49,7 +49,7 @@ class GuestWishlistPageletTest extends TestCase
         $this->systemConfigServiceStub = new StaticSystemConfigService([
             'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
         ]);
-        $this->salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $this->eventDispatcher = new EventDispatcher();
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
     }

@@ -30,10 +30,10 @@ class RequestTransformerTest extends TestCase
     #[DataProvider('notRequiredSalesChannelProvider')]
     public function testSalesChannelIsNotRequired(array $registeredApiPrefixes, string $requestUri): void
     {
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver = static::createStub(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
@@ -49,10 +49,10 @@ class RequestTransformerTest extends TestCase
 
     public function testSalesChannelIsRequired(): void
     {
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver = static::createStub(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
         $domainLoader->expects($this->once())->method('loadDomains')->willReturn(new DomainCollection());
 
@@ -88,10 +88,10 @@ class RequestTransformerTest extends TestCase
 
         $domainKey = rtrim($domainUrl, '/') . '/';
 
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver = static::createStub(AbstractSeoResolver::class);
         $resolver->method('resolve')->willReturnCallback(static fn ($langId, $scId, $seoPathInfo) => [
             'pathInfo' => '/' . ltrim($seoPathInfo, '/'),
             'isCanonical' => false,
@@ -114,7 +114,7 @@ class RequestTransformerTest extends TestCase
             'parentThemeName' => '',
         ]));
 
-        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader = static::createStub(AbstractDomainLoader::class);
         $domainLoader->method('loadDomains')->willReturn($domains);
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader);

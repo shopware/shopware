@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
@@ -30,7 +31,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[CoversClass(AdminExtensionApiController::class)]
 class AdminExtensionApiControllerTest extends TestCase
 {
-    private MockObject&AppPayloadServiceHelper $appPayloadServiceHelper;
+    private AppPayloadServiceHelper&Stub $appPayloadServiceHelper;
 
     private Context $context;
 
@@ -39,18 +40,18 @@ class AdminExtensionApiControllerTest extends TestCase
      */
     private MockObject&EntityRepository $entityRepository;
 
-    private MockObject&Executor $executor;
+    private Executor&Stub $executor;
 
-    private MockObject&QuerySigner $querySigner;
+    private QuerySigner&Stub $querySigner;
 
     private AdminExtensionApiController $controller;
 
     protected function setUp(): void
     {
-        $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $this->appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $this->context = Context::createDefaultContext();
-        $this->querySigner = $this->createMock(QuerySigner::class);
-        $this->executor = $this->createMock(Executor::class);
+        $this->querySigner = static::createStub(QuerySigner::class);
+        $this->executor = static::createStub(Executor::class);
         $this->entityRepository = $this->createMock(EntityRepository::class);
 
         $this->controller = new AdminExtensionApiController(
@@ -119,10 +120,12 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
         $this->assertEntityRepositoryWithEntity($entity);
 
-        $this->appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
-        $this->executor->expects($this->once())->method('execute');
+        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->expects($this->once())->method('buildSource')->with('1.0.0', $entity->getName());
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->once())->method('execute');
 
-        $this->controller->runAction(
+        $this->buildController(executor: $executor, appPayloadServiceHelper: $appPayloadServiceHelper)->runAction(
             new RequestDataBag([
                 'appName' => $entity->getName(),
                 'url' => 'https://foo.bar',
@@ -148,11 +151,12 @@ class AdminExtensionApiControllerTest extends TestCase
 
         $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'test-uri']);
 
-        $this->querySigner->expects($this->once())->method('signUri')
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->once())->method('signUri')
             ->with($requestBag->get('uri'), $entity, $this->context)
-            ->willReturn($this->createMock(UriInterface::class));
+            ->willReturn(static::createStub(UriInterface::class));
 
-        $response = $this->controller->signUri($requestBag, $this->context);
+        $response = $this->buildController(querySigner: $querySigner)->signUri($requestBag, $this->context);
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"uri":""}', $response->getContent());
@@ -191,5 +195,23 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity->setAllowedHosts($allowedHosts);
 
         return $entity;
+    }
+
+    /**
+     * @param (Executor&MockObject)|null $executor
+     * @param (AppPayloadServiceHelper&MockObject)|null $appPayloadServiceHelper
+     * @param (QuerySigner&MockObject)|null $querySigner
+     */
+    private function buildController(
+        ?Executor $executor = null,
+        ?AppPayloadServiceHelper $appPayloadServiceHelper = null,
+        ?QuerySigner $querySigner = null
+    ): AdminExtensionApiController {
+        return new AdminExtensionApiController(
+            $executor ?? $this->executor,
+            $appPayloadServiceHelper ?? $this->appPayloadServiceHelper,
+            $this->entityRepository,
+            $querySigner ?? $this->querySigner
+        );
     }
 }

@@ -415,7 +415,7 @@ PHP_EOL,
 
     public function testScssVariablesEventAddsNewVariablesToArray(): void
     {
-        $subscriber = new MockThemeVariablesSubscriber($this->createMock(SystemConfigService::class));
+        $subscriber = new MockThemeVariablesSubscriber(static::createStub(SystemConfigService::class));
 
         $variables = [
             'sw-color-brand-primary' => '#008490',
@@ -508,7 +508,7 @@ PHP_EOL,
         $this->filesystem->write('temp/test.png', '');
         $png = $this->filesystem->readStream('temp/test.png');
 
-        $this->copyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
+        $this->copyBatchInputFactory->method('fromDirectory')->willReturn(
             [
                 new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
@@ -702,7 +702,7 @@ PHP_EOL,
             ->willReturnCallback(static fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             $sourceResolver,
             new SymfonyFilesystem(),
         );
@@ -756,7 +756,7 @@ PHP_EOL,
         $compiler = $this->getThemeCompiler();
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver([]),
             new SymfonyFilesystem(),
         );
@@ -826,7 +826,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
             true,

@@ -682,15 +682,15 @@ class AdministrationControllerTest extends TestCase
 
         /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([$collection]);
-        $customerEmailUniqueChecker = $this->createMock(CustomerEmailUniqueChecker::class);
+        $customerEmailUniqueChecker = static::createStub(CustomerEmailUniqueChecker::class);
         $customerEmailUniqueChecker
             ->method('findConflictingCustomerId')
             ->willReturn($collection->first()?->getId());
 
         return new AdministrationController(
-            $this->createMock(TemplateFinder::class),
-            $firstRunWizardService ?? $this->createMock(FirstRunWizardService::class),
-            $snippetFinder ?? $this->createMock(SnippetFinderInterface::class),
+            static::createStub(TemplateFinder::class),
+            $firstRunWizardService ?? static::createStub(FirstRunWizardService::class),
+            $snippetFinder ?? static::createStub(SnippetFinderInterface::class),
             [],
             new KnownIpsCollector(),
             $this->connection,
@@ -704,7 +704,7 @@ class AdministrationControllerTest extends TestCase
             $this->fileSystemOperator,
             $this->serviceRegistryUrl,
             $languageRepository ?? $this->languageRepository,
-            $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
+            $tokenValidator ?? static::createStub(SymfonyBearerTokenValidator::class),
             $this->analyticsGatewayUrl,
             $customerEmailUniqueChecker,
             $this->refreshTokenTtl,

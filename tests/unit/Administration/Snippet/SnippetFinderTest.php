@@ -9,7 +9,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetFinder;
@@ -232,7 +232,7 @@ class SnippetFinderTest extends TestCase
         array $pluginPaths = [],
         array $activePluginPaths = [],
         array $bundlePaths = []
-    ): Kernel&MockObject {
+    ): Kernel&Stub {
         $getBundleMockByPath = static function (string $path): Plugin {
             $path = __DIR__ . '/fixtures/' . $path;
 
@@ -246,7 +246,7 @@ class SnippetFinderTest extends TestCase
         $plugins = array_map($getBundleMockByPath, $pluginPaths);
         $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
 
-        $adminBundle = $this->createMock(Administration::class);
+        $adminBundle = static::createStub(Administration::class);
 
         $adminBundleFileName = (new \ReflectionClass(Administration::class))->getFileName();
         static::assertNotFalse($adminBundleFileName);
@@ -258,7 +258,7 @@ class SnippetFinderTest extends TestCase
         $property = new \ReflectionProperty(Administration::class, 'name');
         $property->setValue($adminBundle, 'Administration');
 
-        $storefrontBundle = $this->createMock(Storefront::class);
+        $storefrontBundle = static::createStub(Storefront::class);
         $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
         static::assertNotFalse($storefrontBundleFileName);
 
@@ -276,7 +276,7 @@ class SnippetFinderTest extends TestCase
             $storefrontBundle,
         ];
 
-        $pluginCollectionMock = $this->createMock(KernelPluginCollection::class);
+        $pluginCollectionMock = static::createStub(KernelPluginCollection::class);
         $pluginCollectionMock
             ->method('all')
             ->willReturn($plugins);
@@ -284,12 +284,12 @@ class SnippetFinderTest extends TestCase
             ->method('getActives')
             ->willReturn($activePlugins);
 
-        $pluginLoaderMock = $this->createMock(KernelPluginLoader::class);
+        $pluginLoaderMock = static::createStub(KernelPluginLoader::class);
         $pluginLoaderMock
             ->method('getPluginInstances')
             ->willReturn($pluginCollectionMock);
 
-        $kernelMock = $this->createMock(Kernel::class);
+        $kernelMock = static::createStub(Kernel::class);
         $kernelMock
             ->method('getPluginLoader')
             ->willReturn($pluginLoaderMock);
@@ -382,9 +382,9 @@ class SnippetFinderTest extends TestCase
     /**
      * @param array<string, mixed> $snippets
      */
-    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&MockObject
+    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&Stub
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $returns = [];
         foreach ($snippets as $key => $value) {
@@ -393,14 +393,6 @@ class SnippetFinderTest extends TestCase
 
         $connection
             ->method('fetchAllAssociative')
-            ->with(
-                'SELECT app_administration_snippet.value
-             FROM locale
-             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
-             INNER JOIN app ON app_administration_snippet.app_id = app.id
-             WHERE locale.code = :code AND app.active = 1;',
-                ['code' => $expectedLocale]
-            )
             ->willReturn($returns);
 
         return $connection;
@@ -421,8 +413,8 @@ class SnippetFinderTest extends TestCase
     }
 
     private function getSnippetFinder(
-        (Kernel&MockObject)|null $kernel = null,
-        (Connection&MockObject)|null $connection = null,
+        (Kernel&Stub)|null $kernel = null,
+        (Connection&Stub)|null $connection = null,
         ?TranslationConfig $translationConfig = null,
     ): SnippetFinder {
         $config = $translationConfig ?? new TranslationConfig(
@@ -460,7 +452,7 @@ class SnippetFinderTest extends TestCase
             languageRepository: $this->languageRepository,
             localeRepository: $this->localeRepository,
             snippetSetRepository: $this->snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $translationConfig,
         );
     }

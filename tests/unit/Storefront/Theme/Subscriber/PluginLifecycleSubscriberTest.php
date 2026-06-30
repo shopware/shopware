@@ -56,10 +56,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
-        $updateContext = $this->createMock(UpdateContext::class);
+        $updateContext = static::createStub(UpdateContext::class);
         $updateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPreUpdateEvent::class);
+        $event = static::createStub(PluginPreUpdateEvent::class);
         $event->method('getContext')->willReturn($updateContext);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -76,10 +76,10 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testPluginPostUpdateRefreshesImportMaps(): void
     {
         $context = Context::createDefaultContext();
-        $updateContext = $this->createMock(UpdateContext::class);
+        $updateContext = static::createStub(UpdateContext::class);
         $updateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostUpdateEvent::class);
+        $event = static::createStub(PluginPostUpdateEvent::class);
         $event->method('getContext')->willReturn($updateContext);
 
         $configurations = new StorefrontPluginConfigurationCollection([new StorefrontPluginConfiguration('TestPlugin')]);
@@ -102,10 +102,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin->setName('MissingPlugin');
 
         $context = Context::createDefaultContext();
-        $updateContext = $this->createMock(UpdateContext::class);
+        $updateContext = static::createStub(UpdateContext::class);
         $updateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPreUpdateEvent::class);
+        $event = static::createStub(PluginPreUpdateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($updateContext);
 
@@ -138,10 +138,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreDeactivateEvent::class);
+        $event = static::createStub(PluginPreDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -162,10 +162,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreDeactivateEvent::class);
+        $event = static::createStub(PluginPreDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -192,10 +192,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreDeactivateEvent::class);
+        $event = static::createStub(PluginPreDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -216,10 +216,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreUninstallEvent::class);
+        $event = static::createStub(PluginPreUninstallEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($uninstallContext);
 
@@ -231,10 +231,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostDeactivateEvent::class);
+        $event = static::createStub(PluginPostDeactivateEvent::class);
         $event->method('getContext')->willReturn($deactivateContext);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -255,10 +255,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin->setName('MissingPlugin');
 
         $context = Context::createDefaultContext();
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostDeactivateEvent::class);
+        $event = static::createStub(PluginPostDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -289,10 +289,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $context = Context::createDefaultContext();
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostDeactivateEvent::class);
+        $event = static::createStub(PluginPostDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -319,10 +319,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $context = Context::createDefaultContext();
-        $deactivateContext = $this->createMock(DeactivateContext::class);
+        $deactivateContext = static::createStub(DeactivateContext::class);
         $deactivateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostDeactivateEvent::class);
+        $event = static::createStub(PluginPostDeactivateEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($deactivateContext);
 
@@ -343,10 +343,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPreUninstallEvent::class);
+        $event = static::createStub(PluginPreUninstallEvent::class);
         $event->method('getContext')->willReturn($uninstallContext);
 
         $themeLifecycleHandler = $this->createMock(ThemeLifecycleHandler::class);
@@ -390,10 +390,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreUninstallEvent::class);
+        $event = static::createStub(PluginPreUninstallEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($uninstallContext);
 
@@ -428,10 +428,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPreUninstallEvent::class);
+        $event = static::createStub(PluginPreUninstallEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($uninstallContext);
 
@@ -446,21 +446,21 @@ class PluginLifecycleSubscriberTest extends TestCase
             ->with('FakePlugin', static::isInstanceOf(Context::class));
 
         $subscriber = new PluginLifecycleSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             '/var/www/html',
-            $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
-            $this->createMock(ThemeLifecycleHandler::class),
+            static::createStub(AbstractStorefrontPluginConfigurationFactory::class),
+            static::createStub(ThemeLifecycleHandler::class),
             $themeLifecycleService,
         );
 
         $plugin = new PluginEntity();
         $plugin->setName('FakePlugin');
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('keepUserData')->willReturn(false);
         $uninstallContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPostUninstallEvent::class);
+        $event = static::createStub(PluginPostUninstallEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($uninstallContext);
 
@@ -473,21 +473,21 @@ class PluginLifecycleSubscriberTest extends TestCase
         $themeLifecycleService->expects($this->never())->method('removeTheme');
 
         $subscriber = new PluginLifecycleSubscriber(
-            $this->createMock(StorefrontPluginRegistry::class),
+            static::createStub(StorefrontPluginRegistry::class),
             '/var/www/html',
-            $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
-            $this->createMock(ThemeLifecycleHandler::class),
+            static::createStub(AbstractStorefrontPluginConfigurationFactory::class),
+            static::createStub(ThemeLifecycleHandler::class),
             $themeLifecycleService,
         );
 
         $plugin = new PluginEntity();
         $plugin->setName('FakePlugin');
 
-        $uninstallContext = $this->createMock(UninstallContext::class);
+        $uninstallContext = static::createStub(UninstallContext::class);
         $uninstallContext->method('keepUserData')->willReturn(true);
         $uninstallContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $event = $this->createMock(PluginPostUninstallEvent::class);
+        $event = static::createStub(PluginPostUninstallEvent::class);
         $event->method('getPlugin')->willReturn($plugin);
         $event->method('getContext')->willReturn($uninstallContext);
 
@@ -497,7 +497,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testPluginPostActivateInstallsThemeAndRefreshesImportMaps(): void
     {
         $context = Context::createDefaultContext();
-        $activateContext = $this->createMock(ActivateContext::class);
+        $activateContext = static::createStub(ActivateContext::class);
         $activateContext->method('getContext')->willReturn($context);
 
         $plugin = new PluginEntity();
@@ -505,7 +505,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin->setBaseClass(AsyncPlugin::class);
         $plugin->setPath('/plugins/AsyncPlugin');
 
-        $event = $this->createMock(PluginPostActivateEvent::class);
+        $event = static::createStub(PluginPostActivateEvent::class);
         $event->method('getContext')->willReturn($activateContext);
         $event->method('getPlugin')->willReturn($plugin);
 
@@ -554,10 +554,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
-        $activateContext = $this->createMock(ActivateContext::class);
+        $activateContext = static::createStub(ActivateContext::class);
         $activateContext->method('getContext')->willReturn($context);
 
-        $event = $this->createMock(PluginPostActivateEvent::class);
+        $event = static::createStub(PluginPostActivateEvent::class);
         $event->method('getContext')->willReturn($activateContext);
         $event->method('getPlugin')->willReturn(new PluginEntity());
 
@@ -580,7 +580,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testPluginPostActivateThrowsForInvalidPluginClass(): void
     {
         $context = Context::createDefaultContext();
-        $activateContext = $this->createMock(ActivateContext::class);
+        $activateContext = static::createStub(ActivateContext::class);
         $activateContext->method('getContext')->willReturn($context);
 
         $plugin = new PluginEntity();
@@ -588,7 +588,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $plugin->setPath('/plugins/InvalidPlugin');
         $plugin->assign(['baseClass' => InvalidPluginForLifecycleSubscriber::class]);
 
-        $event = $this->createMock(PluginPostActivateEvent::class);
+        $event = static::createStub(PluginPostActivateEvent::class);
         $event->method('getContext')->willReturn($activateContext);
         $event->method('getPlugin')->willReturn($plugin);
 
@@ -610,9 +610,9 @@ class PluginLifecycleSubscriberTest extends TestCase
         return new PluginLifecycleSubscriber(
             $registry,
             '/var/www/html',
-            $factory ?? $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
+            $factory ?? static::createStub(AbstractStorefrontPluginConfigurationFactory::class),
             $themeLifecycleHandler,
-            $themeLifecycleService ?? $this->createMock(ThemeLifecycleService::class),
+            $themeLifecycleService ?? static::createStub(ThemeLifecycleService::class),
         );
     }
 }

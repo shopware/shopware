@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminProductStreamController;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -28,20 +29,20 @@ class AdminProductStreamControllerTest extends TestCase
 {
     private MockObject&RequestCriteriaBuilder $requestCriteriaBuilder;
 
-    private MockObject&SalesChannelContextServiceInterface $salesChannelContextService;
+    private Stub&SalesChannelContextServiceInterface $salesChannelContextService;
 
     /**
      * @var MockObject&SalesChannelRepository<ProductCollection>
      */
     private MockObject&SalesChannelRepository $salesChannelRepository;
 
-    private MockObject&ProductDefinition $productDefinition;
+    private Stub&ProductDefinition $productDefinition;
 
     protected function setUp(): void
     {
-        $this->productDefinition = $this->createMock(ProductDefinition::class);
+        $this->productDefinition = static::createStub(ProductDefinition::class);
         $this->salesChannelRepository = $this->createMock(SalesChannelRepository::class);
-        $this->salesChannelContextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $this->salesChannelContextService = static::createStub(SalesChannelContextServiceInterface::class);
         $this->requestCriteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
     }
 

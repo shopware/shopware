@@ -68,7 +68,6 @@ class StorybookControllerTest extends TestCase
             ->willReturn($salesChannelContext);
 
         $this->storybookService->method('getThemeId')
-            ->with($salesChannelId)
             ->willReturn('theme-id-123');
 
         $request = $this->createStorybookRequest();

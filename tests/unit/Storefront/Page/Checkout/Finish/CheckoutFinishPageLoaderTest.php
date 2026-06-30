@@ -167,7 +167,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
 
         $this->createLoader($pageLoader, $this->createMock(OrderRoute::class))->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
     }
 
@@ -221,10 +221,10 @@ class CheckoutFinishPageLoaderTest extends TestCase
     private function createLoader(GenericPageLoader $pageLoader, OrderRoute $getOrderRouteWithValidOrder, array $systemConfig = []): CheckoutFinishPageLoader
     {
         return new CheckoutFinishPageLoader(
-            $this->createMock(EventDispatcher::class),
+            static::createStub(EventDispatcher::class),
             $pageLoader,
             $getOrderRouteWithValidOrder,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
             new StaticSystemConfigService($systemConfig),
         );
     }

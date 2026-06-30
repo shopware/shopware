@@ -169,7 +169,6 @@ class ProductListingReadinessCheckTest extends TestCase
     private function initCreateEmptyResult(): void
     {
         $this->util->method('createEmptyResult')
-            ->with('ProductListingReadiness', 'No sales channels with product listing pages found.')
             ->willReturn(new Result(
                 'ProductListingReadiness',
                 Status::SKIPPED,

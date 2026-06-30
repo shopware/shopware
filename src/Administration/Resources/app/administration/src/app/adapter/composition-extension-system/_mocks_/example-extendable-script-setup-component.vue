@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import {createExtendableSetup} from "../composition-extension-system";
+import {createExtendableSetup} from "../";
 import {computed, reactive, ref} from "vue";
 
 const props = defineProps({

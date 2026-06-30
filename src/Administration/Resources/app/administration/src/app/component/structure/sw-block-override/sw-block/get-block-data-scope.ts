@@ -1,5 +1,5 @@
 import { getCurrentInstance } from 'vue';
-import { getScriptSetupDataScope } from 'src/app/adapter/composition-extension-data-scope';
+import { getScriptSetupDataScope } from 'src/app/adapter/composition-extension-system/data-scope-helper';
 
 /**
  * @sw-package framework

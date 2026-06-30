@@ -10,8 +10,8 @@ import {
 } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
-import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
-import type { OverrideFn } from './options-composition-shim';
+import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
+import type { OverrideFn } from '../options-composition-shim';
 import {
     createDataScope,
     createOverrideLocalState,
@@ -20,14 +20,14 @@ import {
     isOverrideLocalStateKey,
     mergeOverrideState,
     setDataScopeForInstance,
-} from './composition-extension-data-scope';
+} from './data-scope-helper';
 import type {
     ExtendableSetupState,
     OverrideLocalState,
-} from './composition-extension-data-scope';
+} from './data-scope-helper';
 
 /** @private */
-export { getScriptSetupDataScope } from './composition-extension-data-scope';
+export { getScriptSetupDataScope } from './data-scope-helper';
 
 /**
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -462,7 +462,11 @@ export function createExtendableSetup<
         Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
     >(reactiveSetupState);
 
-    setDataScopeForInstance(getCurrentInstance(), state);
+    const instance = getCurrentInstance();
+
+    if (instance) {
+        setDataScopeForInstance(instance, state);
+    }
 
     return state;
 }

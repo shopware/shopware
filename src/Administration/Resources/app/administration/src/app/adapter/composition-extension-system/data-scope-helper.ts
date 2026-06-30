@@ -18,7 +18,9 @@ import {
  *
  * @example
  * const dataScope = createDataScope(reactiveSetupState);
- * setDataScopeForInstance(getCurrentInstance(), dataScope);
+ * const instance = getCurrentInstance();
+ *
+ * if (instance) setDataScopeForInstance(instance, dataScope);
  */
 
 /**
@@ -224,12 +226,8 @@ export const createDataScope = <TState extends object>(
  * setDataScopeForInstance(getCurrentInstance(), dataScope);
  */
 export const setDataScopeForInstance = <TState extends object>(
-    instance: ComponentInternalInstance | null,
+    instance: ComponentInternalInstance,
     state: ExtendableSetupState<TState>,
 ): void => {
-    if (!instance) {
-        return;
-    }
-
     scriptSetupDataScopeByInstance.set(instance, proxyRefs(state) as ScriptSetupDataScope);
 };

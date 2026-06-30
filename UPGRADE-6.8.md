@@ -176,9 +176,9 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## `EntitySearchResult` and subclasses no longer extend `EntityCollection`
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
 
-`EntitySearchResult` is now a standalone result wrapper. The class hierarchy and several APIs changed:
+`EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` are now standalone result wrappers. The class hierarchy and several APIs changed:
 
 - `EntitySearchResult` no longer extends `EntityCollection`. Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) on `$result->getEntities()`.
 - `ProductListingResult` and `ProductReviewResult` no longer extend `EntitySearchResult`. They are standalone wrappers. Convert from a base search result with `ProductListingResult::fromSearchResult(...)` / `ProductReviewResult::fromSearchResult(...)`.

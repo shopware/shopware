@@ -59,8 +59,6 @@ export const COMPONENTS = {
     LINE_ITEM: 'sw-condition-line-item',
     LINE_ITEM_WITH_QUANTITY: 'sw-condition-line-item-with-quantity',
     LINE_ITEM_PROPERTY: 'sw-condition-line-item-property',
-    LINE_ITEM_PURCHASE_PRICE: 'sw-condition-line-item-purchase-price',
-    LINE_ITEM_IN_CATEGORY: 'sw-condition-line-item-in-category',
     LINE_ITEM_CUSTOM_FIELD: 'sw-condition-line-item-custom-field',
     LINE_ITEM_GOODS_TOTAL: 'sw-condition-line-item-goods-total',
     CUSTOMER_CUSTOM_FIELD: 'sw-condition-customer-custom-field',
@@ -530,7 +528,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemPurchasePrice',
-        component: COMPONENTS.LINE_ITEM_PURCHASE_PRICE,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
@@ -565,7 +563,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemInCategory',
-        component: COMPONENTS.LINE_ITEM_IN_CATEGORY,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,

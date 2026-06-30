@@ -44,7 +44,7 @@ const SEVERITIES = new Set<string>(['low', 'medium', 'high', 'critical']);
 const CHANGE_SIZES = new Set<string>(['quick-fix', 'small', 'medium', 'large', 'unknown']);
 
 // The closed label catalogue. KEEP IN SYNC with the canonical list in
-// .claude/skills/triage/references/DOMAINS.md — when a label is added/removed
+// .agents/skills/triage/references/DOMAINS.md — when a label is added/removed
 // there, mirror it here (and vice-versa). Kept as a hardcoded set on purpose:
 // parsing the prose doc at runtime would make this gate fragile and non-hermetic.
 const COMPONENT_LABELS = new Set<string>(['component/core', 'component/administration', 'component/storefront']);

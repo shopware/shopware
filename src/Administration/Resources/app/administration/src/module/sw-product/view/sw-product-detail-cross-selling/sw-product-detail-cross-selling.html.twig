@@ -46,7 +46,6 @@
                 showOnDisabledElements: true
             }"
             class="sw-product-detail-cross-selling__add-btn"
-            ghost
             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
             variant="secondary"
             @click="onAddCrossSelling"
@@ -154,7 +153,6 @@
                         disabled: acl.can('product.editor') && isSystemDefaultLanguage,
                         showOnDisabledElements: true
                     }"
-                    ghost
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
                     variant="secondary"
                     @click="onAddCrossSelling"

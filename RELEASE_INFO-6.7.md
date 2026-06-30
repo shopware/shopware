@@ -5,6 +5,274 @@
 ### Webhooks are signed with the current app secret after a secret rotation
 
 Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.
+## Storefront
+
+### robots.txt allows crawling product feed tracking URLs
+
+The default storefront `robots.txt` now emits `Allow: /*referringSalesChannel=` alongside the existing `Disallow: /*?`. Product feed links (the sales-channel tracking feed used by agentic commerce) carry a `referringSalesChannel` query parameter; the blanket `Disallow: /*?` previously stopped Googlebot from crawling those landing pages, which caused Google Merchant Center to disapprove the products. The clean, parameter-free URL is still what gets indexed via the page's `rel=canonical`. Plugins that emit their own tracking parameters can add an equivalent `Allow` directive by subscribing to `RobotsPageLoadedEvent`.
+
+### Deprecated `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` is deprecated and will be removed with Shopware 6.8. Use the new `loadDomains()` method instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL.
+
+`loadDomains()` is already available: its default implementation builds the collection from `load()` for backward compatibility, but will become abstract with 6.8. If you decorate `AbstractDomainLoader`, implement `loadDomains()` in your decorator. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
+## Core
+
+### DAL validation now checks for non-standard foreign keys (MySQL 8.4)
+
+`dal:validate` detects foreign keys that reference something other than a complete PRIMARY or UNIQUE key of the target table.
+MySQL 8.4 rejects such FKs when `restrict_fk_on_non_standard_key=ON`, which breaks schema imports.
+
+**Plugin authors:** if `dal:validate` newly fails for your plugin, the fix is to extend the FK to cover all columns of the referenced key (typically adding the missing `version_id` column).
+If you need to temporarily suppress a specific constraint name while migrating, pass `--tolerate-foreign-key=<constraint_name>` to the command.
+
+### Deprecated `maintenanceIpWhitelist` wording of the sales channel
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel is deprecated in favor of `maintenanceIpAllowlist`.
+The deprecated members keep working and will be replaced in Shopware 6.8. Migrate your code now:
+
+- DAL: use the new field `maintenanceIpAllowlist` instead of `maintenanceIpWhitelist`. Both fields are available and kept in sync during the transition.
+- `Shopware\Core\System\SalesChannel\SalesChannelEntity`: use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead of `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()`.
+- `Shopware\Core\SalesChannelRequest`: use the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead of `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST`.
+- `Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: use the constant `MAINTENANCE_ALLOWLIST_HEADER` instead of `MAINTENANCE_WHITELIST_HEADER`.
+
+The new `sales_channel.maintenance_ip_allowlist` database column is added and kept in sync with the deprecated `maintenance_ip_whitelist` column. The deprecated field and column will be removed with Shopware 6.8.
+
+### Deprecated core script response rendering
+
+`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade::render()` is deprecated and will be removed in Shopware 6.8.0.0.
+The method remains available in 6.7 for backwards compatibility when the Storefront bundle and a `SalesChannelContext` are available.
+
+Extension authors should type the script `response` service for the hook they implement:
+use `Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade` for admin-api and store-api hooks and avoid `render()` there;
+use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` for Storefront hooks that render Twig templates.
+
+```twig
+{# admin-api and store-api hooks #}
+{# @var services.response \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade #}
+
+{# Storefront hooks #}
+{# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
+```
+
+### Declarative custom fields via `Resources/config/custom-fields.xml`
+
+Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
+
+This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
+
+The XML format is the same one already used by apps in the manifest:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>my_plugin_fields</name>
+        <label>My Fields</label>
+        <label lang="de-DE">Meine Felder</label>
+        <related-entities>
+            <product/>
+        </related-entities>
+        <fields>
+            <int name="my_plugin_weight">
+                <label>Weight</label>
+                <position>1</position>
+            </int>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+New classes:
+- `Shopware\Core\System\CustomField\CustomFieldSetPersister` — shared persistence logic for custom field sets
+- `Shopware\Core\System\CustomField\CustomFieldXmlLoader` — loads and validates `custom-fields.xml` files
+
+The custom field XML DTO classes have been moved from `Shopware\Core\Framework\App\Manifest\Xml\CustomField` to `Shopware\Core\System\CustomField\Xml` to make them properly reusable outside the app system.
+
+### Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The orchestration logic of `ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) has moved into the new `ScheduledTaskExecutor` service.
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the new `ScheduledTaskExecutorCompilerPass`.
+Scheduled task handlers registered through the container — the standard way plugins register them — require **no changes** and keep working as before.
+
+The inline execution logic in `ScheduledTaskHandler::__invoke()` is deprecated and will be removed in Shopware 6.8.0.0.
+This only affects code that instantiates a `ScheduledTaskHandler` manually instead of resolving it from the container (for example in tests).
+In that case, set the executor explicitly to opt into the new behaviour, otherwise the handler falls back to the deprecated inline logic and triggers a deprecation warning:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks are deprecated and will be removed in Shopware 6.8.0.0. They remain overridable until then — the executor still routes through an overridden `rescheduleTask()` for backwards compatibility — but new code should not rely on them, as the executor owns the status transitions and rescheduling.
+
+If you need to control when a task runs next (instead of the default `now + runInterval` schedule), implement the new `DynamicallyScheduledTaskHandler` interface rather than overriding `rescheduleTask()`. The executor asks the handler for the next execution time via `getNextExecutionTime()` and persists it, so the handler only answers the "when", not the "how":
+
+```php
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\DynamicallyScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+
+class MyScheduledTaskHandler extends ScheduledTaskHandler implements DynamicallyScheduledTaskHandler
+{
+    public function getNextExecutionTime(ScheduledTask $task, ScheduledTaskEntity $taskEntity): ?\DateTimeInterface
+    {
+        // return the next execution time, or null to fall back to the default `now + runInterval` schedule
+        return $this->nextPendingRecordTimestamp();
+    }
+}
+```
+
+### Sales Channel business timezone
+
+Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone.
+
+Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
+
+### Faster category creation and editing
+
+Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.
+
+For extension developers: as a consequence, the `CategoryIndexerEvent` is now dispatched with a smaller id set for these writes. If you subscribe to it and previously relied on receiving sibling categories that were not actually affected by the write, adjust your listener to resolve the categories it needs explicitly.
+### Rule Builder: "all / at least one" toggle is now config-driven
+
+Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
+
+### Rule Builder: line item purchase price uses a net/gross type field
+
+`LineItemPurchasePriceRule` (`cartLineItemPurchasePrice`) now stores the price type as a `type` field (`gross` / `net`) instead of an `isNet` boolean, aligning it with the generic rule configuration and rendering it via `sw-condition-generic`.
+
+### Not-null translation columns accept falsy defaults
+
+`DefinitionValidator` no longer reports a not-null translation column as missing a default when the column has a falsy but set default such as `0`, `'0'`, or `''`. Only a `null` default is now treated as missing. This removes false positives for plugin entity definitions that use such defaults.
+
+### OneToMany association limit now respects sort order across joined tables
+
+When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
+
+No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
+
+### Added `--no-scaffold` flag to `plugin:create` command
+
+The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that skips all optional scaffold generators, producing only the minimal required plugin skeleton.
+
+```bash
+bin/console plugin:create MyPlugin MyNamespace --no-scaffold
+```
+
+## API
+
+### Purchase prices removed from Store API order line item payloads
+
+Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.
+Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
+Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
+At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
+Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
+
+### Image CMS element no longer emits a default `min-height` outside cover mode
+
+The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
+
+For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
+
+### DAL write event listeners no longer expand API ACL requirements
+
+DAL post-write events such as `EntityWrittenContainerEvent` and entity-specific `.written` events are now dispatched in system scope after Admin API and Sync API writes, while preserving the original context source.
+
+This matters for plugins that subscribe to core write events and update their own entities as a side effect.
+Previously, a listener on an event such as `product.written` still ran in the CRUD context of the triggering API request.
+When that listener wrote an extension-owned entity, the API user also needed permissions for that extension entity, even though the submitted request only changed products.
+Activating such a plugin could therefore change the required ACL permissions for existing Admin API or Sync API clients.
+
+With this change, listener-side DAL writes are treated as trusted system-side follow-up work of the original write.
+API consumers only need the privileges required for the submitted write payload; plugin-internal denormalization, synchronization, indexing, or bookkeeping writes performed from DAL write listeners no longer expand the caller's ACL requirements.
+
+Extension authors can still inspect who triggered the write via `$event->getContext()->getSource()`.
+If a listener intentionally wants to make a side effect depend on the triggering user or integration, it should check the source explicitly instead of relying on `$event->getContext()->getScope()` being `Context::USER_SCOPE`.
+No adoption is required for normal write-event listeners; remove any extra API permission requirements that only existed to satisfy listener-internal entity writes.
+
+Private media visibility is not implicitly widened by this change.
+During DAL write-event dispatch, Shopware marks the context with `Context::SYSTEM_SCOPE_DAL_WRITE_EVENT` so private media searches still apply normal visibility restrictions.
+If a listener intentionally needs private media access, wrap that specific read in `$context->scope(Context::SYSTEM_SCOPE, ...)`; explicit system-scope reads continue to opt in to private media visibility.
+
+## App System
+
+### Deprecation of inline `<custom-fields>` in `manifest.xml`
+
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
+
+When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+
+## Administration
+
+### Snippet inheritance from JSON language files
+
+The snippet detail page (`Settings > Snippets`) now indicates if a snippet is defined in a JSON language file and if it has been changed, displays its original value. Additionally, editors can now restore inheritance from the underlying JSON file.
+
+Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
+
+### Block additions and renamings
+
+Due to missing blocks and inappropriate block names, the following templates have received new blocks and/or contain blocks which have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
+
+#### sw-cms-el-config-buy-box.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-cross-selling.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
+
+#### sw-cms-el-config-product-box.html.twig
+
+Added:
+
+* `sw_cms_element_product_box_config_product_selection_label`
+* `sw_cms_element_product_box_config_product_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-description-reviews.html.twig
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
+* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
+
+#### sw-cms-el-config-product-slider.html.twig
+
+Added:
+
+* `sw_cms_element_product_slider_config_content_products_selection_label`
+* `sw_cms_element_product_slider_config_content_products_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
+
+#### sw-product-cross-selling-assignment.html.twig
+
+Added:
+
+* `sw_product_cross_selling_assignment_select_result_item`
+
+Deprecated -> Replacement:
+
+* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 # 6.7.12.0 (upcoming)
 
@@ -140,27 +408,7 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
 The Administration role editor also adds these privileges to newly generated role permission sets.
 
-### Purchase prices removed from Store API order line item payloads
-
-Order line item JSON serialization no longer exposes product `purchasePrices` in the payload returned by Store API order responses.
-Purchase prices are confidential cost data and were not intended to be part of customer-facing APIs.
-Headless storefronts, apps, and integrations must stop reading `orders.elements[].lineItems[].payload.purchasePrices`; there is no Store API replacement for this confidential value.
-At PHP level, the raw payload remains available through `LineItem::getPayload()`, `LineItem::getPayloadValue()`, and `OrderLineItemEntity::getPayload()`, but `LineItem::jsonSerialize()` and `OrderLineItemEntity::jsonSerialize()` omit protected purchase prices from API output.
-Because the field is removed during JSON serialization, the change applies to existing and new orders without rewriting historical order payloads.
-
-### Image CMS element no longer emits a default `min-height` outside cover mode
-
-The `min-height` of the image CMS element (`cms_slot` of type `image`) is now only meaningful in the `cover` display mode. New image elements default to an empty `minHeight` instead of `340px`, the Administration clears the value when switching away from `cover`, and the Storefront only applies a `min-height` (falling back to `340px`) when the display mode is `cover`. This fixes a forced height being applied in the `standard` and `stretch` display modes.
-
-For the Storefront this is purely a rendering fix. Headless and Composable Frontends that read `config.minHeight.value` from the Store API should gate the value on `config.displayMode.value === 'cover'`, because relying on the previous `340px` default in non-cover modes no longer reflects the rendered behaviour. Existing image elements keep their stored `minHeight`; only newly created elements use the new empty default.
-
 ## Core
-
-### OneToMany association limit now respects sort order across joined tables
-
-When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.
-
-No changes to calling code are required, but the sorting of associations with a limit may change for OneToMany associations, as they now reliably return the top-N rows in the requested order.
 
 ### Dynamic product groups can keep matching variants ungrouped
 
@@ -173,12 +421,14 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 ### Rule Builder: new "Quantity per item" condition
 
 A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
+
 ### Storefront snippets of self-managed apps are loaded
 
 Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
 Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
 The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
 Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+
 ### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 
 The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
@@ -348,65 +598,6 @@ The following classes related to Agentic Commerce product exports, providers, an
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
 
 ## Administration
-
-### Block additions and renamings
-
-Due to missing blocks and inappropriate block names, the following templates have received new blocks and/or contain blocks which have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
-
-#### sw-cms-el-config-buy-box.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_cms_element_buy_box_config_product_variant_label` -> `sw_cms_element_buy_box_config_product_selection_label`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_buy_box_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-cross-selling.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_cross_selling_config_content_products_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_cross_selling_config_content_products_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_cross_selling_config_content_products_select_result_item_inner`
-
-#### sw-cms-el-config-product-box.html.twig
-
-Added:
-
-* `sw_cms_element_product_box_config_product_selection_label`
-* `sw_cms_element_product_box_config_product_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_box_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-product-description-reviews.html.twig
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_variant_selected_item` -> `sw_cms_element_product_description_reviews_config_product_selection_label`
-* `sw_entity_single_select_variant_result_item` -> `sw_cms_element_product_description_reviews_config_product_select_result_item`
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_description_reviews_config_product_select_result_item_inner`
-
-#### sw-cms-el-config-product-slider.html.twig
-
-Added:
-
-* `sw_cms_element_product_slider_config_content_products_selection_label`
-* `sw_cms_element_product_slider_config_content_products_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_cms_element_product_slider_config_content_products_select_result_item_inner`
-
-#### sw-product-cross-selling-assignment.html.twig
-
-Added:
-
-* `sw_product_cross_selling_assignment_select_result_item`
-
-Deprecated -> Replacement:
-
-* `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
 ### `sw-select-field` forwards `aria-label` to the native select
 
@@ -1485,8 +1676,6 @@ In addition, we have refactored several places to use direct CSS or SCSS variabl
 Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
 The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
 If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
-
-## App System
 
 ## Hosting & Configuration
 

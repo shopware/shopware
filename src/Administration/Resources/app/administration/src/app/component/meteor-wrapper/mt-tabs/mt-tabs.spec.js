@@ -57,6 +57,24 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         ]);
     });
 
+    it('should use the legacy small layout by default', async () => {
+        const wrapper = await createWrapper();
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+        expect(mtTabsOriginal.props('small')).toBe(true);
+    });
+
+    it('should allow consumers to opt out of the legacy small layout', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                small: false,
+            },
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+        expect(mtTabsOriginal.props('small')).toBe(false);
+    });
+
     it('should pass the merged items from the props and extension store to the final component', async () => {
         const wrapper = await createWrapper();
 
@@ -106,6 +124,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
             { label: 'Tab 1', name: 'tab1' },
             { label: 'Tab 3', name: 'tab3' },
         ]);
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(true);
         expect(wrapper.get('.tab-content').text()).toBe('tab1');
         expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);
 

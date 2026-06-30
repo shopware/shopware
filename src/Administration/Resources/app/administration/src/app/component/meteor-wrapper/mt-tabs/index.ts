@@ -2,6 +2,7 @@ import MtTabs from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../store/tabs.store';
+import './mt-tabs.scss';
 
 /**
  * @sw-package framework
@@ -41,6 +42,12 @@ export default Shopware.Component.wrapComponentConfig({
             default: true,
         },
 
+        small: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         items: {
             type: Array as PropType<TabItem[]>,
             required: true,
@@ -64,6 +71,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.tabExtensions.find((extension) => {
                 return extension.componentSectionId === this.activeItem;
             });
+        },
+
+        hasCustomContent(): boolean {
+            return Boolean(this.$slots.content || this.activeTabExtension);
         },
 
         mergedItems(): TabItem[] {

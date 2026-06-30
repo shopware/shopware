@@ -4,11 +4,12 @@
     ref="mtTabsOriginal"
     :default-item="defaultItem"
     :items="mergedItems"
+    :small="small"
     @new-item-active="onNewItemActive"
 />
 
 <div
-    v-if="$slots.content || activeTabExtension"
+    v-if="hasCustomContent"
     class="mt-tabs__custom-content"
 >
     <slot

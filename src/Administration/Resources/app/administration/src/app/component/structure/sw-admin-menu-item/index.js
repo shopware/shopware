@@ -157,10 +157,10 @@ export default {
                 return false;
             }
 
-            if (!this.sidebarExpanded && this.menuDepth === 1) {
-                return false;
-            }
-
+            // Keep collapsible items on the same <MtCollapsible> template branch whether the sidebar
+            // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
+            // navigation icons flash; the collapsed appearance is handled purely via CSS and the
+            // forced-closed collapsibleOpen state instead.
             if (!this.sidebarExpanded && this.menuDepth >= 2) {
                 return true;
             }

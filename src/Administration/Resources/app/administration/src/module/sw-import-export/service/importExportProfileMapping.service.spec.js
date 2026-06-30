@@ -37,6 +37,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         'versionId',
         'parentVersionId',
         'stock',
+        'type',
         'productManufacturerVersionId',
         'taxId',
         'productNumber',
@@ -89,6 +90,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
                 'taxId',
                 'productNumber',
                 'stock',
+                'type',
                 'name',
                 'canonicalProductVersionId',
                 'cmsPageVersionId',
@@ -242,6 +244,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
+            'product.type',
             'translations.DEFAULT.name',
         ]);
     });
@@ -337,6 +340,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'stock',
             'tax.id',
             'translations.DEFAULT.name',
+            'type',
         ]);
     });
 
@@ -354,6 +358,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'tax.name',
             'tax.position',
             'translations.DEFAULT.name',
+            'type',
         ]);
     });
 
@@ -411,6 +416,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
+            'product.type',
             'option.id',
             'option.group.id',
             'option.group.displayType',

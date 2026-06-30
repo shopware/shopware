@@ -653,6 +653,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ].forEach((property) => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
             {
+                label: 'translations.DEFAULT.createdAt',
+                value: 'translations.DEFAULT.createdAt',
+            },
+            {
+                label: 'translations.DEFAULT.updatedAt',
+                value: 'translations.DEFAULT.updatedAt',
+            },
+            {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
             },
@@ -704,14 +712,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 label: 'translations.DEFAULT.customFields',
                 value: 'translations.DEFAULT.customFields',
                 relation: true,
-            },
-            {
-                label: 'translations.DEFAULT.createdAt',
-                value: 'translations.DEFAULT.createdAt',
-            },
-            {
-                label: 'translations.DEFAULT.updatedAt',
-                value: 'translations.DEFAULT.updatedAt',
             },
             {
                 label: 'translations.DEFAULT.productId',
@@ -746,6 +746,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ].forEach((property) => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
             {
+                label: 'translations.DEFAULT.createdAt',
+                value: 'translations.DEFAULT.createdAt',
+            },
+            {
+                label: 'translations.DEFAULT.updatedAt',
+                value: 'translations.DEFAULT.updatedAt',
+            },
+            {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
             },
@@ -797,14 +805,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 label: 'translations.DEFAULT.customFields',
                 value: 'translations.DEFAULT.customFields',
                 relation: true,
-            },
-            {
-                label: 'translations.DEFAULT.createdAt',
-                value: 'translations.DEFAULT.createdAt',
-            },
-            {
-                label: 'translations.DEFAULT.updatedAt',
-                value: 'translations.DEFAULT.updatedAt',
             },
             {
                 label: 'translations.DEFAULT.productId',
@@ -841,6 +841,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ].forEach((property) => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
             {
+                label: 'translations.DEFAULT.createdAt',
+                value: 'translations.DEFAULT.createdAt',
+            },
+            {
+                label: 'translations.DEFAULT.updatedAt',
+                value: 'translations.DEFAULT.updatedAt',
+            },
+            {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
             },
@@ -892,14 +900,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 label: 'translations.DEFAULT.customFields',
                 value: 'translations.DEFAULT.customFields',
                 relation: true,
-            },
-            {
-                label: 'translations.DEFAULT.createdAt',
-                value: 'translations.DEFAULT.createdAt',
-            },
-            {
-                label: 'translations.DEFAULT.updatedAt',
-                value: 'translations.DEFAULT.updatedAt',
             },
             {
                 label: 'translations.DEFAULT.productId',

@@ -71,6 +71,10 @@ describe('src/app/service/entity-validation.service.js', () => {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 source: { pointer: '/0/name' },
             },
+            {
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                source: { pointer: '/0/type' },
+            },
         ]);
     });
 
@@ -82,6 +86,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        testEntity.type = 'physical';
         testEntity.price = [
             {
                 gross: null,
@@ -115,6 +120,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        testEntity.type = 'physical';
         testEntity.price = [
             {
                 gross: 10,
@@ -139,6 +145,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        testEntity.type = 'physical';
         testEntity.price = [
             {
                 gross: 10,
@@ -186,6 +193,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        testEntity.type = 'physical';
         testEntity.price = [
             {
                 gross: 10,

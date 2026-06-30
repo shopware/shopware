@@ -137,7 +137,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service(SalesChannelContextPersister::class),
             service(Connection::class),
-            param('product_export.read_buffer_size'),
             service(LanguageLocaleCodeProvider::class),
             service(ClockInterface::class),
         ])

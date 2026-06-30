@@ -272,6 +272,17 @@ If you need to temporarily suppress a specific constraint name while migrating, 
 ### Plugin activation rolls back when post-activation fails
 
 Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
+### Product export pagination changed to keyset; `getTotal()` deprecated
+
+The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, and no longer computes an exact product count per batch. This removes the `getTotalCount()` timeout on large catalogs and makes per-batch cost independent of how far the export has progressed. When a subscriber sorts the product criteria via `ProductExportProductCriteriaEvent`, the export falls back to deterministic, resumable offset pagination for that order.
+
+- `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated and will be removed in 6.8. The export no longer computes a grand total; use `hasNextBatch()` to drive pagination and `getOffset()` for the resume position.
+- `ExportBehavior::offset()`, `ProductExportPartialGeneration::getOffset()` and `ProductExportResult::getOffset()` keep the historical `offset` name; the value is now an opaque resume position — an `autoIncrement` keyset cursor for unsorted exports, or a row offset for sorted ones.
+
+### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
+
+- `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator` now iterates by an `autoIncrement` keyset (seek) instead of `OFFSET` when the entity has an autoIncrement field **and the criteria defines no sorting** (keyset requires `autoIncrement` to be the primary order), mirroring `RepositoryIterator`. A criteria with its own sorting keeps using offset iteration. It accepts an optional resume position and exposes the current one via `getOffset()`.
+- `Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository::getDefinition()` was added (parity with `EntityRepository`).
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 

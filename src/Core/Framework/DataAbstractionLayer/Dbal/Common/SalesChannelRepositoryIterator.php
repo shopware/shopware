@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -18,18 +20,33 @@ class SalesChannelRepositoryIterator
 {
     private readonly Criteria $criteria;
 
+    private bool $autoIncrement = false;
+
     /**
      * @param SalesChannelRepository<TEntityCollection> $repository
+     * @param int|null $offset resume position for the next batch: an autoIncrement keyset cursor in
+     *                         keyset mode, otherwise a plain row offset
      */
     public function __construct(
         private readonly SalesChannelRepository $repository,
         private readonly SalesChannelContext $context,
-        ?Criteria $criteria = null
+        ?Criteria $criteria = null,
+        private ?int $offset = null
     ) {
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
             $criteria->setLimit(50);
+        }
+
+        // Seek by autoIncrement keyset (like RepositoryIterator) instead of OFFSET, but only when
+        // the entity supports it AND the caller has not defined its own sorting: keyset requires
+        // autoIncrement to be the primary order, so a custom sort keeps using offset pagination.
+        if ($criteria->getSorting() === [] && $repository->getDefinition()->hasAutoIncrement()) {
+            $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
+            $this->autoIncrement = true;
+        } elseif ($this->offset !== null) {
+            $criteria->setOffset($this->offset);
         }
 
         $this->criteria = $criteria;
@@ -73,11 +90,55 @@ class SalesChannelRepositoryIterator
      */
     public function fetch(): ?EntitySearchResult
     {
+        if ($this->autoIncrement) {
+            return $this->fetchByAutoIncrement();
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $result = $this->repository->search($this->criteria, $this->context);
 
-        // increase offset for next iteration
-        $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
+        // advance the offset for the next iteration / batch
+        $this->offset = (int) $this->criteria->getOffset() + (int) $this->criteria->getLimit();
+        $this->criteria->setOffset($this->offset);
+
+        if ($result->getIds() === []) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Resume position for the next batch: the highest autoIncrement seen in keyset mode, or the next
+     * row offset when paginating a sorted criteria by offset.
+     */
+    public function getOffset(): int
+    {
+        return $this->offset ?? 0;
+    }
+
+    /**
+     * @return EntitySearchResult<TEntityCollection>|null
+     */
+    private function fetchByAutoIncrement(): ?EntitySearchResult
+    {
+        // Keyset seek: never uses OFFSET, so each page costs the same regardless of depth.
+        $this->criteria->setOffset(0);
+        $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+        if ($this->offset !== null) {
+            $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $this->offset]));
+        }
+
+        $result = $this->repository->search($this->criteria, $this->context);
+
+        $last = $result->getEntities()->last();
+        if ($last !== null) {
+            $value = $last->get('autoIncrement');
+            if (\is_int($value)) {
+                $this->offset = $value;
+            }
+        }
 
         if ($result->getEntities()->getIds() === []) {
             return null;

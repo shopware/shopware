@@ -25,7 +25,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -52,7 +52,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -79,7 +79,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')

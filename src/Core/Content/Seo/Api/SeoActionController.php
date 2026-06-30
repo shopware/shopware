@@ -300,79 +300,39 @@ class SeoActionController extends AbstractController
      */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {
-        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
+        $routeName = $seoUrlTemplate['routeName'];
 
-        if (!$seoUrlRoute) {
-            return $this->getPreviewFromConfig($seoUrlTemplate, $context, $previewCriteria);
+        // Registered storefront routes resolve directly; store-api routes (headless) resolve via the tagged
+        // entity routes. Either way they are wrapped in ConfiguredSeoUrlRoute so the generator can render them.
+        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName) ?? $this->findEntitySeoUrlRoute($routeName);
+
+        if ($seoUrlRoute === null) {
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         $config = $seoUrlRoute->getConfig();
         $config->setSkipInvalid(false);
+        $route = new ConfiguredSeoUrlRoute($seoUrlRoute, $config);
+
         $repository = $this->getRepository($config);
 
-        $criteria = $previewCriteria ?? new Criteria();
-        $criteria->setLimit(10);
-
         $salesChannel = $this->resolveSalesChannel($seoUrlTemplate, $context);
-        if ($salesChannel !== null) {
-            $seoUrlRoute->prepareCriteria($criteria, $salesChannel);
-        }
-
-        $ids = $repository->searchIds($criteria, $context)->getIds();
-        if ($ids === []) {
-            throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $seoUrlTemplate['routeName']);
-        }
-
-        $template = $seoUrlTemplate['template'] ?? '';
         if ($salesChannel === null) {
             throw SeoException::salesChannelIdParameterIsMissing();
         }
 
-        $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($seoUrlRoute, $config), $context, $salesChannel);
-
-        return \is_array($result) ? $result : iterator_to_array($result);
-    }
-
-    /**
-     * Previews a template for a route that is not registered as a full SEO URL route (e.g. the store-api routes
-     * used by headless sales channels). The config (entity definition + route name) is resolved from the tagged
-     * entity routes, and any entity of the definition is used to render the template — no sales-channel scoping.
-     *
-     * @param array<string, mixed> $seoUrlTemplate
-     *
-     * @return array<SeoUrlEntity>
-     */
-    private function getPreviewFromConfig(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria): array
-    {
-        $routeName = $seoUrlTemplate['routeName'];
-        $entityRoute = $this->findEntitySeoUrlRoute($routeName);
-
-        if ($entityRoute === null) {
-            throw SeoException::seoUrlRouteNotFound($routeName);
-        }
-
-        $config = $entityRoute->getConfig();
-        $config->setSkipInvalid(false);
-        $repository = $this->getRepository($config);
-
         $criteria = $previewCriteria ?? new Criteria();
         $criteria->setLimit(10);
+        $route->prepareCriteria($criteria, $salesChannel);
 
         $ids = $repository->searchIds($criteria, $context)->getIds();
         if ($ids === []) {
             throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $routeName);
         }
 
-        $salesChannel = $this->resolveSalesChannel($seoUrlTemplate, $context);
-        if ($salesChannel === null) {
-            throw SeoException::salesChannelIdParameterIsMissing();
-        }
-
         $template = $seoUrlTemplate['template'] ?? '';
 
-        // The store-api route has no registered SEO URL route; wrap it so it can be rendered through the regular
-        // generator. ConfiguredSeoUrlRoute applies no sales-channel scoping and a generic entity mapping for it.
-        $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($entityRoute, $config), $context, $salesChannel);
+        $result = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
         return \is_array($result) ? $result : iterator_to_array($result);
     }

@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
-use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -49,20 +49,37 @@ class ConfiguredSeoUrlRouteTest extends TestCase
         static::assertSame($mapping, $route->getMapping($entity, $salesChannel));
     }
 
-    public function testFallsBackForConfigOnlyRoutes(): void
+    public function testDelegatesPrepareCriteriaButFallsBackToGenericMappingForEntityRoutes(): void
     {
-        // store-api routes only implement EntitySeoUrlRouteInterface (no prepareCriteria / getMapping)
-        $decorated = new ProductStoreApiUrlRoute(new ProductDefinition());
+        // store-api routes implement only EntitySeoUrlRouteInterface (prepareCriteria, but no getMapping)
+        $decorated = new class($this->createConfig()) implements EntitySeoUrlRouteInterface {
+            public bool $prepareCriteriaCalled = false;
 
-        $route = new ConfiguredSeoUrlRoute($decorated, $this->createConfig());
+            public function __construct(private readonly SeoUrlRouteConfig $config)
+            {
+            }
 
-        // prepareCriteria is a no-op (no sales-channel scoping)
+            public function getConfig(): SeoUrlRouteConfig
+            {
+                return $this->config;
+            }
+
+            public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
+            {
+                $this->prepareCriteriaCalled = true;
+                $criteria->addFilter(new EqualsFilter('active', true));
+            }
+        };
+
+        $route = new ConfiguredSeoUrlRoute($decorated, $decorated->getConfig());
+
+        // prepareCriteria is delegated to the decorated entity route
         $criteria = new Criteria();
-        $criteria->addFilter($filter = new EqualsFilter('foo', 'bar'));
         $route->prepareCriteria($criteria, new SalesChannelEntity());
-        static::assertSame([$filter], $criteria->getFilters());
+        static::assertTrue($decorated->prepareCriteriaCalled);
+        static::assertCount(1, $criteria->getFilters());
 
-        // getMapping exposes the entity under its entity name + the primary key parameter
+        // getMapping falls back to a generic mapping (entity under its entity name + the primary key parameter)
         $entity = new PartialEntity();
         $entity->setUniqueIdentifier('abc123');
         $entity->assign(['name' => 'foo']);

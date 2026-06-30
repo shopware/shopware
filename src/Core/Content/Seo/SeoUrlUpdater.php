@@ -3,14 +3,14 @@
 namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -27,6 +27,7 @@ class SeoUrlUpdater
      *
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param iterable<EntitySeoUrlRouteInterface> $entitySeoUrlRoutes
      */
     public function __construct(
         private readonly EntityRepository $languageRepository,
@@ -34,7 +35,8 @@ class SeoUrlUpdater
         private readonly SeoUrlGenerator $seoUrlGenerator,
         private readonly SeoUrlPersister $seoUrlPersister,
         private readonly Connection $connection,
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly iterable $entitySeoUrlRoutes = []
     ) {
     }
 
@@ -43,24 +45,52 @@ class SeoUrlUpdater
      */
     public function update(string $routeName, array $ids): void
     {
-        $templates = $routeName !== '' ? $this->loadUrlTemplate($routeName) : [];
-        if ($templates === []) {
+        if ($routeName === '') {
             return;
         }
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-        if ($route === null) {
+
+        if ($route !== null) {
+            $templates = $this->loadUrlTemplate($routeName, false);
+            if ($templates !== []) {
+                $this->generateAndPersist($route, $routeName, $templates, $ids);
+            }
+
+            return;
+        }
+
+        // headless route (store-api): not registered as a full route, but configurable per headless sales channel
+        $entityRoute = $this->findEntitySeoUrlRoute($routeName);
+        if ($entityRoute === null) {
             throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
+        $templates = $this->loadUrlTemplate($routeName, true);
+        if ($templates === []) {
+            return;
+        }
+
+        $this->generateAndPersist(
+            new ConfiguredSeoUrlRoute($entityRoute, $entityRoute->getConfig()),
+            $routeName,
+            $templates,
+            $ids
+        );
+    }
+
+    /**
+     * @param list<string> $ids
+     * @param list<array{salesChannelId: string, languageId: string, template: string}> $templates
+     */
+    private function generateAndPersist(SeoUrlRouteInterface $route, string $routeName, array $templates, array $ids): void
+    {
         $context = Context::createDefaultContext();
 
         $languageChains = $this->fetchLanguageChains($context);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
-
-        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
+        $salesChannelIds = array_values(array_unique(array_column($templates, 'salesChannelId')));
+        $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
 
         foreach ($templates as $config) {
             $template = $config['template'];
@@ -85,14 +115,23 @@ class SeoUrlUpdater
         }
     }
 
+    private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
+    {
+        foreach ($this->entitySeoUrlRoutes as $entitySeoUrlRoute) {
+            if ($entitySeoUrlRoute->getConfig()->getRouteName() === $routeName) {
+                return $entitySeoUrlRoute;
+            }
+        }
+
+        return null;
+    }
+
     /**
-     * Loads the SEO url templates for the given $routeName for all combinations of languages and sales channels
-     *
      * @param non-empty-string $routeName
      *
      * @return list<array{salesChannelId: string, languageId: string, template: string}>
      */
-    private function loadUrlTemplate(string $routeName): array
+    private function loadUrlTemplate(string $routeName, bool $isHeadless): array
     {
         $query = 'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
@@ -101,10 +140,11 @@ class SeoUrlUpdater
              INNER JOIN sales_channel
                ON domains.sales_channel_id = sales_channel.id
                AND sales_channel.active = 1';
-        $parameters = [];
 
-        $query .= ' AND sales_channel.type_id != :apiTypeId';
-        $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
+        $query .= $isHeadless
+            ? ' AND sales_channel.type_id = :apiTypeId'
+            : ' AND sales_channel.type_id != :apiTypeId';
+        $parameters = ['apiTypeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API)];
 
         $domains = $this->connection->fetchAllAssociative($query, $parameters);
 
@@ -119,20 +159,23 @@ class SeoUrlUpdater
             ['route' => $routeName]
         );
 
-        if (!\array_key_exists('', $salesChannelTemplates)) {
+        $default = $salesChannelTemplates[''] ?? null;
+
+        if (!$isHeadless && $default === null) {
             throw SeoException::invalidTemplate('Default templates not configured');
         }
 
-        $default = (string) $salesChannelTemplates[''];
-
         $result = [];
         foreach ($domains as $domain) {
-            $salesChannelId = $domain['salesChannelId'];
+            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? $default;
+            if ($template === null) {
+                continue;
+            }
 
             $result[] = [
-                'salesChannelId' => $salesChannelId,
+                'salesChannelId' => $domain['salesChannelId'],
                 'languageId' => $domain['languageId'],
-                'template' => $salesChannelTemplates[$salesChannelId] ?? $default,
+                'template' => (string) $template,
             ];
         }
 

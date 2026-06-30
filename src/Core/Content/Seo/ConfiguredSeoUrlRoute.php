@@ -29,10 +29,7 @@ class ConfiguredSeoUrlRoute implements SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
-        // Config-only routes (e.g. the store-api routes used by headless sales channels) are not sales-channel scoped.
-        if ($this->decorated instanceof SeoUrlRouteInterface) {
-            $this->decorated->prepareCriteria($criteria, $salesChannel);
-        }
+        $this->decorated->prepareCriteria($criteria, $salesChannel);
     }
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping

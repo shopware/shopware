@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
@@ -168,6 +169,46 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNull($seoUrl);
     }
 
+    public function testHeadlessSalesChannelSeoUrlsAreGeneratedForVisibleProductsOnly(): void
+    {
+        // store-api template configured for the headless sales channel
+        static::getContainer()->get(Connection::class)->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id']),
+            'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.translated.name }}',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $visible = (new ProductBuilder($this->ids, 'visible'))
+            ->price(100)
+            ->name('visible-product')
+            ->visibility($this->headlessSalesChannel['id'])
+            ->build();
+
+        // not assigned to the headless sales channel, so it must not get a SEO URL there
+        $hidden = (new ProductBuilder($this->ids, 'hidden'))
+            ->price(100)
+            ->name('hidden-product')
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$visible, $hidden], Context::createDefaultContext());
+
+        static::getContainer()->get(SeoUrlUpdater::class)->update(
+            ProductStoreApiUrlRoute::ROUTE_NAME,
+            [$this->ids->get('visible'), $this->ids->get('hidden')]
+        );
+
+        $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('visible'));
+        static::assertNotNull($seoUrl);
+        static::assertSame($this->headlessSalesChannel['id'], $seoUrl->getSalesChannelId());
+        static::assertSame(ProductStoreApiUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
+        static::assertSame('visible-product', $seoUrl->getSeoPathInfo());
+
+        static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
+    }
+
     /**
      * @return iterable<string, array{translations: list<string>, pathInfo: non-empty-string}>
      */
@@ -189,5 +230,17 @@ class SeoUrlUpdaterTest extends TestCase
             'translations' => [self::DEFAULT],
             'pathInfo' => self::DEFAULT,
         ];
+    }
+
+    private function findHeadlessProductSeoUrl(string $foreignKey): ?SeoUrlEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $foreignKey));
+        $criteria->addFilter(new EqualsFilter('routeName', ProductStoreApiUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->headlessSalesChannel['id']));
+
+        $seoUrl = static::getContainer()->get('seo_url.repository')->search($criteria, Context::createDefaultContext())->first();
+
+        return $seoUrl instanceof SeoUrlEntity ? $seoUrl : null;
     }
 }

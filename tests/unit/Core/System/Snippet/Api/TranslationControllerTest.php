@@ -17,7 +17,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ class TranslationControllerTest extends TestCase
 {
     private TranslationConfig $config;
 
-    private TranslationMetadataLoader&MockObject $metadataLoader;
+    private TranslationMetadataStore&MockObject $metadataStore;
 
     private AbstractTranslationLoader&MockObject $translationLoader;
 
@@ -51,15 +51,15 @@ class TranslationControllerTest extends TestCase
             new Uri('http://localhost:8000/metadata.json'),
             [],
         );
-        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
+        $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
         $this->translationLoader = $this->createMock(AbstractTranslationLoader::class);
 
-        $this->controller = new TranslationController($this->config, $this->metadataLoader, $this->translationLoader);
+        $this->controller = new TranslationController($this->config, $this->metadataStore, $this->translationLoader);
     }
 
     public function testListReturnsConfiguredLocalesWithMetadata(): void
     {
-        $this->metadataLoader->method('getLocalMetadata')->willReturn(new MetadataCollection([
+        $this->metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
             MetadataEntry::create([
                 'locale' => 'de-DE',
                 'updatedAt' => '2025-08-07T11:26:28.974+00:00',
@@ -88,7 +88,7 @@ class TranslationControllerTest extends TestCase
     public function testInstallLoadsRequestedLocalesAndSavesMetadata(): void
     {
         $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->with(['de-DE', 'es-ES'])
             ->willReturn($metadata);
@@ -97,7 +97,7 @@ class TranslationControllerTest extends TestCase
             ->method('load')
             ->with('de-DE', static::isInstanceOf(Context::class), true);
 
-        $this->metadataLoader->expects($this->once())->method('save')->with($metadata);
+        $this->metadataStore->expects($this->once())->method('save')->with($metadata);
 
         $response = $this->controller->install(
             new InstallTranslationRequest(locales: ['de-DE', 'es-ES']),
@@ -113,7 +113,7 @@ class TranslationControllerTest extends TestCase
     public function testInstallReportsRequestedLocalesWithoutTranslation(): void
     {
         // The remote metadata has no entry for the requested locale, so nothing is installed for it.
-        $this->metadataLoader->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
+        $this->metadataStore->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
         $this->translationLoader->expects($this->never())->method('load');
 
         $response = $this->controller->install(new InstallTranslationRequest(locales: ['de-DE']), $this->context());
@@ -126,7 +126,7 @@ class TranslationControllerTest extends TestCase
 
     public function testInstallAllUsesConfiguredLocales(): void
     {
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->with(['de-DE', 'es-ES'])
             ->willReturn($this->metadataCollection(['de-DE' => false, 'es-ES' => false]));
@@ -136,7 +136,7 @@ class TranslationControllerTest extends TestCase
 
     public function testInstallActivateFalseIsPassedToLoader(): void
     {
-        $this->metadataLoader->method('getUpdatedLocalMetadata')
+        $this->metadataStore->method('getUpdatedLocalMetadata')
             ->willReturn($this->metadataCollection(['de-DE' => true]));
 
         $this->translationLoader->expects($this->once())
@@ -152,7 +152,7 @@ class TranslationControllerTest extends TestCase
     public function testInstallThrowsOnInvalidLocale(): void
     {
         $this->translationLoader->expects($this->never())->method('load');
-        $this->metadataLoader->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
 
         $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
 
@@ -171,7 +171,7 @@ class TranslationControllerTest extends TestCase
     public function testUpdateLoadsAllInstalledRequiringUpdate(): void
     {
         $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->with(null)
             ->willReturn($metadata);
@@ -180,7 +180,7 @@ class TranslationControllerTest extends TestCase
             ->method('load')
             ->with('de-DE', static::isInstanceOf(Context::class), true);
 
-        $this->metadataLoader->expects($this->once())->method('save')->with($metadata);
+        $this->metadataStore->expects($this->once())->method('save')->with($metadata);
 
         $response = $this->controller->update($this->context());
 
@@ -193,7 +193,7 @@ class TranslationControllerTest extends TestCase
     public function testDeleteRemovesFilesAndMetadata(): void
     {
         $this->translationLoader->expects($this->once())->method('deleteTranslation')->with('de-DE');
-        $this->metadataLoader->expects($this->once())->method('remove')->with('de-DE');
+        $this->metadataStore->expects($this->once())->method('remove')->with('de-DE');
 
         $response = $this->controller->delete('de-DE');
 
@@ -204,7 +204,7 @@ class TranslationControllerTest extends TestCase
     public function testDeleteThrowsOnInvalidLocale(): void
     {
         $this->translationLoader->expects($this->never())->method('deleteTranslation');
-        $this->metadataLoader->expects($this->never())->method('remove');
+        $this->metadataStore->expects($this->never())->method('remove');
 
         $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
 

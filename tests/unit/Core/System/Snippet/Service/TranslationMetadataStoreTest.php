@@ -18,7 +18,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 
@@ -26,8 +26,8 @@ use Shopware\Core\System\Snippet\Struct\TranslationConfig;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(TranslationMetadataLoader::class)]
-class TranslationMetadataLoaderTest extends TestCase
+#[CoversClass(TranslationMetadataStore::class)]
+class TranslationMetadataStoreTest extends TestCase
 {
     private TranslationConfig $config;
 
@@ -69,7 +69,7 @@ class TranslationMetadataLoaderTest extends TestCase
             ],
         ]);
 
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
 
         $metadata = $this->getMetadataCollection();
         $loader->save($metadata);
@@ -103,7 +103,7 @@ class TranslationMetadataLoaderTest extends TestCase
             );
 
         $this->client = $client;
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
 
         $this->expectExceptionObject(SnippetException::translationMetadataDownloadFailed(new Uri('http://localhost:8000/metadata.json'), new \Exception('Error')));
         $loader->getUpdatedLocalMetadata(['es-ES', 'it-IT']);
@@ -137,7 +137,7 @@ class TranslationMetadataLoaderTest extends TestCase
 
         $metadata = $this->getMetadataCollection();
 
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
         $loader->save($metadata);
 
         $metadata = $this->readMetadataFromLocalFilesystem();
@@ -193,7 +193,7 @@ class TranslationMetadataLoaderTest extends TestCase
 
         $metadata = $this->getMetadataCollection();
 
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
         $loader->save($metadata);
 
         $updated = $loader->getUpdatedLocalMetadata();
@@ -212,7 +212,7 @@ class TranslationMetadataLoaderTest extends TestCase
     public function testRemoveDeletesEntryFromLocalMetadata(): void
     {
         $this->initClient([]);
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
         $loader->save($this->getMetadataCollection());
 
         $loader->remove('it-IT');
@@ -225,7 +225,7 @@ class TranslationMetadataLoaderTest extends TestCase
     public function testRemoveIsNoOpForUnknownLocale(): void
     {
         $this->initClient([]);
-        $loader = $this->getTranslationMetadataLoader();
+        $loader = $this->getTranslationMetadataStore();
         $loader->save($this->getMetadataCollection());
 
         $loader->remove('fr-FR');
@@ -235,9 +235,9 @@ class TranslationMetadataLoaderTest extends TestCase
         static::assertArrayHasKey('es-ES', $metadata);
     }
 
-    private function getTranslationMetadataLoader(): TranslationMetadataLoader
+    private function getTranslationMetadataStore(): TranslationMetadataStore
     {
-        return new TranslationMetadataLoader($this->config, $this->client, $this->filesystem);
+        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem);
     }
 
     /**

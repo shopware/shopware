@@ -9,7 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +26,7 @@ class TranslationController extends AbstractController
      */
     public function __construct(
         private readonly TranslationConfig $config,
-        private readonly TranslationMetadataLoader $metadataLoader,
+        private readonly TranslationMetadataStore $metadataStore,
         private readonly AbstractTranslationLoader $translationLoader,
     ) {
     }
@@ -39,7 +39,7 @@ class TranslationController extends AbstractController
     )]
     public function list(): Response
     {
-        $installed = $this->metadataLoader->getLocalMetadata();
+        $installed = $this->metadataStore->getLocalMetadata();
 
         $items = [];
         foreach ($this->config->languages as $language) {
@@ -77,7 +77,7 @@ class TranslationController extends AbstractController
         }
 
         return $this->loadTranslations(
-            $this->metadataLoader->getUpdatedLocalMetadata($locales),
+            $this->metadataStore->getUpdatedLocalMetadata($locales),
             $context,
             $parameters->activate,
             $locales,
@@ -92,7 +92,7 @@ class TranslationController extends AbstractController
     )]
     public function update(Context $context): Response
     {
-        return $this->loadTranslations($this->metadataLoader->getUpdatedLocalMetadata(), $context, true, []);
+        return $this->loadTranslations($this->metadataStore->getUpdatedLocalMetadata(), $context, true, []);
     }
 
     #[Route(
@@ -106,7 +106,7 @@ class TranslationController extends AbstractController
         $this->config->validateLocales([$locale]);
 
         $this->translationLoader->deleteTranslation($locale);
-        $this->metadataLoader->remove($locale);
+        $this->metadataStore->remove($locale);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -124,7 +124,7 @@ class TranslationController extends AbstractController
             $this->translationLoader->load($locale, $context, $activate);
         }
 
-        $this->metadataLoader->save($metadata);
+        $this->metadataStore->save($metadata);
 
         return new JsonResponse([
             'updated' => $localesRequiringUpdate,

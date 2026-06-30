@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @phpstan-type DecodedMetadata array<string, array{locale: string, updatedAt: string, progress: int}>
  */
 #[Package('discovery')]
-class TranslationMetadataLoader
+class TranslationMetadataStore
 {
     private const CROWDIN_METADATA_LOCK = 'crowdin-metadata.lock';
 

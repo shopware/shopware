@@ -54,21 +54,21 @@
         <service id="Shopware\Core\System\Snippet\Command\InstallTranslationCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Command\UpdateTranslationCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Command\ListTranslationsCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore"/>
 
             <tag name="console.command"/>
         </service>
@@ -92,7 +92,7 @@
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader">
+        <service id="Shopware\Core\System\Snippet\Service\TranslationMetadataStore">
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="shopware.translation.client"/>
             <argument type="service" id="shopware.filesystem.private"/>

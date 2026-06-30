@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -30,7 +30,7 @@ class InstallTranslationCommand extends Command
     public function __construct(
         private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
-        private readonly TranslationMetadataLoader $metadataLoader,
+        private readonly TranslationMetadataStore $metadataStore,
     ) {
         parent::__construct();
     }
@@ -47,7 +47,7 @@ class InstallTranslationCommand extends Command
         $locales = $this->getLocales($input, $output);
 
         try {
-            $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
+            $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
         } catch (\Throwable $e) {
             TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
@@ -77,7 +77,7 @@ class InstallTranslationCommand extends Command
 
         $output->write(\PHP_EOL);
 
-        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataLoader->save($metadata), $output);
+        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
 
         return self::SUCCESS;
     }

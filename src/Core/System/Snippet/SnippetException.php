@@ -30,6 +30,8 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_INVALID_LOCALES_PROVIDED = 'SYSTEM__INVALID_LOCALES_PROVIDED';
 
+    final public const SNIPPET_INVALID_LOCALES_TYPE = 'SYSTEM__INVALID_LOCALES_TYPE';
+
     final public const SNIPPET_TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_DIRECTORY_DOES_NOT_EXISTS';
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
@@ -143,6 +145,15 @@ class SnippetException extends HttpException
                 'locales' => $locales,
                 'all' => $all,
             ]
+        );
+    }
+
+    public static function invalidLocalesType(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_INVALID_LOCALES_TYPE,
+            'The "locales" parameter must be an array of locale codes.'
         );
     }
 

@@ -111,6 +111,13 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        },
+                                        "unavailable": {
+                                            "description": "Requested locale codes that have no translation available and were not installed.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         }
                                     }
                                 }
@@ -145,6 +152,13 @@
                                         },
                                         "skipped": {
                                             "description": "Locale codes that were already up to date.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "unavailable": {
+                                            "description": "Requested locale codes that have no translation available and were not installed.",
                                             "type": "array",
                                             "items": {
                                                 "type": "string"

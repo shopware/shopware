@@ -107,6 +107,31 @@ class TranslationControllerTest extends TestCase
         $content = $this->decode($response);
         static::assertSame(['de-DE'], $content['updated']);
         static::assertSame(['es-ES'], $content['skipped']);
+        static::assertSame([], $content['unavailable']);
+    }
+
+    public function testInstallReportsRequestedLocalesWithoutTranslation(): void
+    {
+        // The remote metadata has no entry for the requested locale, so nothing is installed for it.
+        $this->metadataLoader->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $response = $this->controller->install(new Request([], ['locales' => ['de-DE']]), $this->context());
+
+        $content = $this->decode($response);
+        static::assertSame([], $content['updated']);
+        static::assertSame([], $content['skipped']);
+        static::assertSame(['de-DE'], $content['unavailable']);
+    }
+
+    public function testInstallThrowsWhenLocalesIsNotAnArray(): void
+    {
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->metadataLoader->expects($this->never())->method('getUpdatedLocalMetadata');
+
+        $this->expectExceptionObject(SnippetException::invalidLocalesType());
+
+        $this->controller->install(new Request([], ['locales' => 'de-DE']), $this->context());
     }
 
     public function testInstallAllUsesConfiguredLocales(): void
@@ -172,6 +197,7 @@ class TranslationControllerTest extends TestCase
         $content = $this->decode($response);
         static::assertSame(['de-DE'], $content['updated']);
         static::assertSame(['es-ES'], $content['skipped']);
+        static::assertSame([], $content['unavailable']);
     }
 
     public function testDeleteRemovesFilesAndMetadata(): void

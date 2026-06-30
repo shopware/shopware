@@ -9,6 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -71,12 +72,16 @@ class TranslationController extends AbstractController
         if ($request->request->getBoolean('all')) {
             $locales = $this->config->locales;
         } else {
-            /** @var list<string> $locales */
-            $locales = $request->request->all('locales');
+            $locales = $this->getRequestedLocales($request);
             $this->config->validateLocales($locales);
         }
 
-        return $this->loadTranslations($this->metadataLoader->getUpdatedLocalMetadata($locales), $context, $activate);
+        return $this->loadTranslations(
+            $this->metadataLoader->getUpdatedLocalMetadata($locales),
+            $context,
+            $activate,
+            $locales,
+        );
     }
 
     #[Route(
@@ -87,7 +92,7 @@ class TranslationController extends AbstractController
     )]
     public function update(Context $context): Response
     {
-        return $this->loadTranslations($this->metadataLoader->getUpdatedLocalMetadata(), $context);
+        return $this->loadTranslations($this->metadataLoader->getUpdatedLocalMetadata(), $context, true, []);
     }
 
     #[Route(
@@ -106,10 +111,14 @@ class TranslationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    private function loadTranslations(MetadataCollection $metadata, Context $context, bool $activate = true): Response
+    /**
+     * @param list<string> $requestedLocales locales the caller asked for, used to report requested locales that have no translation available
+     */
+    private function loadTranslations(MetadataCollection $metadata, Context $context, bool $activate, array $requestedLocales): Response
     {
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
         $skipped = array_values(array_diff($metadata->getKeys(), $localesRequiringUpdate));
+        $unavailable = array_values(array_diff($requestedLocales, $metadata->getKeys()));
 
         foreach ($localesRequiringUpdate as $locale) {
             $this->translationLoader->load($locale, $context, $activate);
@@ -120,6 +129,24 @@ class TranslationController extends AbstractController
         return new JsonResponse([
             'updated' => $localesRequiringUpdate,
             'skipped' => $skipped,
+            'unavailable' => $unavailable,
         ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRequestedLocales(Request $request): array
+    {
+        $locales = $request->request->all()['locales'] ?? [];
+
+        if (!\is_array($locales)) {
+            throw SnippetException::invalidLocalesType();
+        }
+
+        /** @var list<string> $locales */
+        $locales = array_values($locales);
+
+        return $locales;
     }
 }

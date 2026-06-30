@@ -1,5 +1,6 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
+import 'src/app/store/admin-user-config.store';
 
 const { Mixin } = Shopware;
 const utils = Shopware.Utils;

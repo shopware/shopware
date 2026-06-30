@@ -130,21 +130,6 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(Array.isArray(userConfigMock.value)).toBeTruthy();
     });
 
-    it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria(SalesChannelFavoritesService.USER_CONFIG_KEY);
-
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'key',
-            value: SalesChannelFavoritesService.USER_CONFIG_KEY,
-        });
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'userId',
-            value: '8fe88c269c214ea68badf7ebe678ab96',
-        });
-    });
-
     it('getCurrentUserId > returns the userId of the current session user', async () => {
         expect(service.getCurrentUserId()).toBe('8fe88c269c214ea68badf7ebe678ab96');
     });

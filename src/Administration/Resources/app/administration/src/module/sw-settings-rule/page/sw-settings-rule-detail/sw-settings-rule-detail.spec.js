@@ -110,6 +110,51 @@ const languageRepositoryMock = {
     ),
 };
 
+const languageSwitchStub = {
+    props: [
+        'saveChangesFunction',
+        'abortChangeFunction',
+    ],
+    emits: ['on-change'],
+    data() {
+        return {
+            isOpen: false,
+            showUnsavedChangesModal: false,
+        };
+    },
+    methods: {
+        openSelect() {
+            this.isOpen = true;
+        },
+
+        selectLanguage() {
+            if (this.abortChangeFunction()) {
+                this.showUnsavedChangesModal = true;
+
+                return;
+            }
+
+            this.$emit('on-change', 'uuid1');
+        },
+
+        async saveLanguageChange() {
+            await this.saveChangesFunction();
+            this.$emit('on-change', 'uuid1');
+        },
+    },
+    template: `
+        <div>
+            <button class="sw-select__selection" @click="openSelect"></button>
+            <button v-if="isOpen" class="sw-select-result" @click="selectLanguage"></button>
+            <button
+                v-if="showUnsavedChangesModal"
+                id="sw-language-switch-save-changes-button"
+                @click="saveLanguageChange"
+            ></button>
+        </div>
+    `,
+};
+
 const appConditionRepositoryMock = {
     search: jest.fn(() => Promise.resolve(getCollection('app_script_condition', []))),
 };
@@ -211,7 +256,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-language-switch': await wrapTestComponent('sw-language-switch'),
+                'sw-language-switch': languageSwitchStub,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -442,10 +487,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 ruleMock.conditions.entity,
                 ruleMock.conditions.source,
             ],
-            ['language'],
         ];
 
-        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(4);
+        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(3);
         expect(wrapper.vm.repositoryFactory.create.mock.calls).toEqual(expectedRepositories);
     });
 
@@ -616,6 +660,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         { name: 'rule changed', abort: false },
         { name: 'rule not changed', abort: true },
     ])('should change language switch', async ({ abort }) => {
+        Shopware.Store.get('context').api.languageId = 'default-language-id';
         ruleRepositoryMock.hasChanges.mockReturnValueOnce(abort);
         const wrapper = await createWrapper();
         await flushPromises();

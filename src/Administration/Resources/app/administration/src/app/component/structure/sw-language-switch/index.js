@@ -1,5 +1,6 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
+import 'src/app/store/admin-reference-data.store';
 
 const { warn } = Shopware.Utils.debug;
 

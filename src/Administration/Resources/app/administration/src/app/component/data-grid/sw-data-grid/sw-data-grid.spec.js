@@ -9,6 +9,13 @@ import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/app/store/admin-user-config.store';
 
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
     id: '021150d043ee49e18642daef58e92c96',
@@ -65,6 +72,7 @@ describe('components/data-grid/sw-data-grid', () => {
             [configurationKey]: (userConfig ?? defaultUserConfig).value,
         };
         adminUserConfigStore.loaded = true;
+        adminUserConfigStore.userId = adminUserConfigStore.getCurrentUserId();
 
         jest.spyOn(adminUserConfigStore, 'upsert').mockResolvedValue();
 
@@ -164,6 +172,8 @@ describe('components/data-grid/sw-data-grid', () => {
     beforeEach(() => {
         jest.restoreAllMocks();
         jest.clearAllMocks();
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
         Shopware.Store.get('adminUserConfig').$reset();
     });
 

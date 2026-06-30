@@ -7,6 +7,14 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import 'src/app/store/admin-user-config.store';
+
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
@@ -213,6 +221,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 return msg.includes('Did not persist user config, as permissions are missing');
             },
         });
+    });
+
+    beforeEach(() => {
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
+        Shopware.Store.get('adminUserConfig').$reset();
     });
 
     it('should show the right list of pageTypes for the filters', async () => {

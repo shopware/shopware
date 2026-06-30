@@ -176,13 +176,18 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## `EntitySearchResult` and subclasses are deprecated
+## `EntitySearchResult` and subclasses no longer extend `EntityCollection`
 
-Related structural changes planned for v6.8.0:
+`EntitySearchResult` is now a standalone result wrapper. The class hierarchy and several APIs changed:
 
-1. `EntitySearchResult` will no longer extend `EntityCollection`.
-2. `ProductListingResult` and `ProductReviewResult` will no longer extend `EntitySearchResult`.
-3. The `EntitySearchResult` constructor signature will change: the `$entity` parameter will be removed and the remaining parameters will reorder. Code that constructs `EntitySearchResult` directly (or via `new ProductListingResult(...)` / `new ProductReviewResult(...)`) must be updated.
+- `EntitySearchResult` no longer extends `EntityCollection`. Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) on `$result->getEntities()`.
+- `ProductListingResult` and `ProductReviewResult` no longer extend `EntitySearchResult`. They are standalone wrappers. Convert from a base search result with `ProductListingResult::fromSearchResult(...)` / `ProductReviewResult::fromSearchResult(...)`.
+- The `EntitySearchResult` constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The result properties (`$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, `$aggregations`, and subclass-specific fields like `$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, `$parentId`) are now `readonly`.
+- The setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed. Ask the wrapped `EntityCollection` if you need to know the entity type.
+- Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
+- Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
 
 ## Scheduled task execution moved to `ScheduledTaskExecutor`
 

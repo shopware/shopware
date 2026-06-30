@@ -118,13 +118,16 @@ Without a value, document rendering keeps its previous behaviour, which depends 
 ### `EntitySearchResult` and result subclasses deprecated
 
 `EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` are deprecated for v6.8.0.
-In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`.
+In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`. The constructor signature changes, the result properties become `readonly`, and the `$entity` field is removed entirely.
 
 To prepare:
 
 - Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result.
 - In Twig, use `{% for x in searchResult.entities %}` instead of `{% for x in searchResult %}`, and `searchResult.entities` instead of `searchResult.elements`.
+- Stop writing to result properties (`$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, `$aggregations`, and the subclass-specific fields like `$sorting`, `$currentFilters`, `$matrix`, …). They become `readonly` in v6.8.0. The wrapper setters (`setPage`, `setLimit`, `setEntity`, `setCustomFields`) are deprecated and will be removed.
+- Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0; ask `$result->getEntities()` if you need to know the type.
 - Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
+- Code that constructs a result directly (`new EntitySearchResult(...)`, `new ProductListingResult(...)`, `new ProductReviewResult(...)`) must be updated for the v6.8.0 constructor: the `$entity` parameter is removed and the remaining parameters reorder.
 - For `ProductListingResult` and `ProductReviewResult`, use the new `fromSearchResult()` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
 
 ## API
@@ -315,7 +318,6 @@ For the Storefront this is purely a rendering fix. Headless and Composable Front
 
 ## Core
 
-See `UPGRADE-6.8.md` for the detailed migration steps.
 ### OneToMany association limit now respects sort order across joined tables
 
 When a paginated OneToMany association was loaded with both `setLimit()` and a sort on a field belonging to a joined entity (i.e. `product.media.position`), the limit could select the wrong rows.

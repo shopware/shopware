@@ -141,6 +141,6 @@ return [
         preg_quote('REMOVED: Method Shopware\Core\Content\ProductStream\ProductStreamEntity#setDisplayAsGroup() was removed', '/'),
 
         // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
-        preg_quote('CHANGED: The parameter $collection of Shopware\Core\Framework\DataAbstractionLayer\EntityCollection#merge() changed from self to Shopware\Core\Framework\DataAbstractionLayer\EntityCollection', '/'),
+        'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
     ],
 ];

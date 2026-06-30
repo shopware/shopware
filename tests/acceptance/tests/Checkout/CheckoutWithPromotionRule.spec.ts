@@ -76,14 +76,16 @@ test.describe('Newsletter recipient promotion', () => {
                 await ShopCustomer.expects(promoItem.promotionLabel).toContainText(promotionName);
                 await ShopCustomer.expects(promoItem.promotionPrice).toContainText(formatPrice(discountValue));
                 await ShopCustomer.expects(StorefrontOffCanvasCart.subTotalPrice).toContainText(formatPrice(discountPrice));
-                
-                await ShopCustomer.presses(StorefrontOffCanvasCart.goToCheckoutButton);
 
+                await ShopCustomer.presses(StorefrontOffCanvasCart.goToCheckoutButton);
                 if (customerType === 'Guest') {
+                    await StorefrontAccountLogin.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
                     await ShopCustomer.expects(StorefrontAccountLogin.registerEmailInput).toBeVisible();
                     await ShopCustomer.attemptsTo(Register({ email: customer.email, isGuest: true }));
-                }
+                } 
+                await StorefrontCheckoutConfirm.page.waitForURL('**/checkout/confirm', { waitUntil: 'commit' });
                 await ShopCustomer.expects(StorefrontCheckoutConfirm.headline).toBeVisible();
+
                 await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
                 await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 

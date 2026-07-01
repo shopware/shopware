@@ -10,6 +10,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
+use Shopware\Core\System\Snippet\Service\TranslationRemover;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +29,7 @@ class TranslationController extends AbstractController
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataStore $metadataStore,
         private readonly AbstractTranslationLoader $translationLoader,
+        private readonly TranslationRemover $translationRemover,
     ) {
     }
 
@@ -106,8 +108,7 @@ class TranslationController extends AbstractController
     {
         $this->config->validateLocales([$locale]);
 
-        $this->translationLoader->deleteTranslation($locale);
-        $this->metadataStore->remove($locale);
+        $this->translationRemover->remove($locale);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

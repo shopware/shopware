@@ -18,6 +18,7 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
+use Shopware\Core\System\Snippet\Service\TranslationRemover;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,8 @@ class TranslationControllerTest extends TestCase
     private TranslationMetadataStore&MockObject $metadataStore;
 
     private AbstractTranslationLoader&MockObject $translationLoader;
+
+    private TranslationRemover&MockObject $translationRemover;
 
     private TranslationController $controller;
 
@@ -53,8 +56,14 @@ class TranslationControllerTest extends TestCase
         );
         $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
         $this->translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $this->translationRemover = $this->createMock(TranslationRemover::class);
 
-        $this->controller = new TranslationController($this->config, $this->metadataStore, $this->translationLoader);
+        $this->controller = new TranslationController(
+            $this->config,
+            $this->metadataStore,
+            $this->translationLoader,
+            $this->translationRemover,
+        );
     }
 
     public function testListReturnsConfiguredLocalesWithMetadata(): void
@@ -192,8 +201,7 @@ class TranslationControllerTest extends TestCase
 
     public function testDeleteRemovesFilesAndMetadata(): void
     {
-        $this->translationLoader->expects($this->once())->method('deleteTranslation')->with('de-DE');
-        $this->metadataStore->expects($this->once())->method('remove')->with('de-DE');
+        $this->translationRemover->expects($this->once())->method('remove')->with('de-DE');
 
         $response = $this->controller->delete('de-DE');
 
@@ -203,8 +211,7 @@ class TranslationControllerTest extends TestCase
 
     public function testDeleteThrowsOnInvalidLocale(): void
     {
-        $this->translationLoader->expects($this->never())->method('deleteTranslation');
-        $this->metadataStore->expects($this->never())->method('remove');
+        $this->translationRemover->expects($this->never())->method('remove');
 
         $this->expectExceptionObject(SnippetException::invalidLocalesProvided('xx-XX', 'de-DE, es-ES'));
 

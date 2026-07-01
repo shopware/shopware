@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
@@ -40,35 +40,16 @@ class AuthControllerTest extends TestCase
 {
     private AuthControllerTestClass $controller;
 
-    private MockObject&AccountLoginPageLoader $accountLoginPageLoader;
+    private AccountLoginPageLoader&Stub $accountLoginPageLoader;
 
-    private MockObject&AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader;
+    private AbstractSendPasswordRecoveryMailRoute&Stub $passwordRecoveryPageLoader;
 
     protected function setUp(): void
     {
-        $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
-        $this->passwordRecoveryPageLoader = $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
-        $resetPasswordRoute = $this->createMock(AbstractResetPasswordRoute::class);
-        $loginRoute = $this->createMock(AbstractLoginRoute::class);
-        $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
-        $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
-        $cartFacade = $this->createMock(StorefrontCartFacade::class);
-        $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
+        $this->accountLoginPageLoader = static::createStub(AccountLoginPageLoader::class);
+        $this->passwordRecoveryPageLoader = static::createStub(AbstractSendPasswordRecoveryMailRoute::class);
 
-        $this->controller = new AuthControllerTestClass(
-            $this->accountLoginPageLoader,
-            $this->passwordRecoveryPageLoader,
-            $resetPasswordRoute,
-            $loginRoute,
-            $logoutRoute,
-            $imitateCustomerRoute,
-            $cartFacade,
-            $recoverPasswordRoute,
-        );
-
-        $containerBuilder = new ContainerBuilder();
-        $containerBuilder->set('request_stack', new RequestStack());
-        $this->controller->setContainer($containerBuilder);
+        $this->controller = $this->createController();
     }
 
     public function testAccountRegister(): void
@@ -80,19 +61,21 @@ class AuthControllerTest extends TestCase
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects($this->once())
+        $accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
+        $accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
+        $controller = $this->createController($accountLoginPageLoader);
 
-        $this->controller->loginPage($request, $dataBag, $context);
+        $controller->loginPage($request, $dataBag, $context);
 
-        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('[]', $this->controller->renderStorefrontParameters['redirectParameters'] ?? '');
-        static::assertSame('frontend.account.login.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertInstanceOf(AccountLoginPageLoadedHook::class, $this->controller->calledHook);
+        static::assertSame($page, $controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('[]', $controller->renderStorefrontParameters['redirectParameters'] ?? '');
+        static::assertSame('frontend.account.login.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertInstanceOf(AccountLoginPageLoadedHook::class, $controller->calledHook);
     }
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
@@ -119,16 +102,18 @@ class AuthControllerTest extends TestCase
         $request->query->set('redirectTo', 'frontend.account.order.single.page');
 
         $page = new AccountLoginPage();
-        $this->accountLoginPageLoader->expects($this->once())
+        $accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
+        $accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->willReturn($page);
+        $controller = $this->createController($accountLoginPageLoader);
 
-        $this->controller->guestLoginPage($request, $context);
+        $controller->guestLoginPage($request, $context);
 
-        static::assertSame('@Storefront/storefront/page/account/guest-auth.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame([], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
-        static::assertSame('frontend.account.order.single.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? null);
-        static::assertInstanceOf(AccountGuestLoginPageLoadedHook::class, $this->controller->calledHook);
+        static::assertSame('@Storefront/storefront/page/account/guest-auth.html.twig', $controller->renderStorefrontView);
+        static::assertSame([], $controller->renderStorefrontParameters['redirectParameters'] ?? null);
+        static::assertSame('frontend.account.order.single.page', $controller->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertInstanceOf(AccountGuestLoginPageLoadedHook::class, $controller->calledHook);
     }
 
     public function testGuestLoginPageNormalizesNonArrayRedirectParameters(): void
@@ -192,20 +177,51 @@ class AuthControllerTest extends TestCase
 
         $exception = new ConstraintViolationException($violations, ['email' => 'test@test']);
 
-        $this->passwordRecoveryPageLoader
+        $passwordRecoveryPageLoader = $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+        $passwordRecoveryPageLoader
             ->expects($this->once())
             ->method('sendRecoveryMail')
             ->willThrowException($exception);
+        $controller = $this->createController(passwordRecoveryPageLoader: $passwordRecoveryPageLoader);
 
-        $this->controller->generateAccountRecovery($request, $dataBag, Generator::generateSalesChannelContext());
+        $controller->generateAccountRecovery($request, $dataBag, Generator::generateSalesChannelContext());
 
-        static::assertSame('frontend.account.recover.page', $this->controller->forwardToRoute);
+        static::assertSame('frontend.account.recover.page', $controller->forwardToRoute);
 
         /** @var ConstraintViolationException $formViolations */
-        $formViolations = $this->controller->forwardToRouteAttributes['formViolations'];
+        $formViolations = $controller->forwardToRouteAttributes['formViolations'];
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
+    }
+
+    private function createController(
+        ?AccountLoginPageLoader $accountLoginPageLoader = null,
+        ?AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader = null,
+    ): AuthControllerTestClass {
+        $resetPasswordRoute = static::createStub(AbstractResetPasswordRoute::class);
+        $loginRoute = static::createStub(AbstractLoginRoute::class);
+        $logoutRoute = static::createStub(AbstractLogoutRoute::class);
+        $imitateCustomerRoute = static::createStub(AbstractImitateCustomerRoute::class);
+        $cartFacade = static::createStub(StorefrontCartFacade::class);
+        $recoverPasswordRoute = static::createStub(AccountRecoverPasswordPageLoader::class);
+
+        $controller = new AuthControllerTestClass(
+            $accountLoginPageLoader ?? $this->accountLoginPageLoader,
+            $passwordRecoveryPageLoader ?? $this->passwordRecoveryPageLoader,
+            $resetPasswordRoute,
+            $loginRoute,
+            $logoutRoute,
+            $imitateCustomerRoute,
+            $cartFacade,
+            $recoverPasswordRoute,
+        );
+
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->set('request_stack', new RequestStack());
+        $controller->setContainer($containerBuilder);
+
+        return $controller;
     }
 }
 

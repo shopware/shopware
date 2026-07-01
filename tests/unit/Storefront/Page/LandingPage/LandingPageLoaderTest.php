@@ -43,9 +43,9 @@ class LandingPageLoaderTest extends TestCase
         $landingPageRouteMock->expects($this->never())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
-            $this->createMock(GenericPageLoader::class),
+            static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $request = new Request([], [], []);
@@ -61,9 +61,9 @@ class LandingPageLoaderTest extends TestCase
         $landingPageRouteMock->expects($this->once())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
-            $this->createMock(GenericPageLoader::class),
+            static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $landingPageId = Uuid::randomHex();
@@ -163,16 +163,15 @@ class LandingPageLoaderTest extends TestCase
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage($cmsPage);
 
-        $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
+        $landingPageRouteMock = static::createStub(LandingPageRoute::class);
         $landingPageRouteMock
             ->method('load')
-            ->with($landingPageId, $request, $salesChannelContext)
             ->willReturn(new LandingPageRouteResponse($landingPage));
 
         return new LandingPageLoader(
-            $this->createMock(GenericPageLoader::class),
+            static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 
@@ -191,16 +190,15 @@ class LandingPageLoaderTest extends TestCase
         $landingPage->setTranslated($translated);
         $landingPage->setName('INCORRECT_NAME');
 
-        $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
+        $landingPageRouteMock = static::createStub(LandingPageRoute::class);
         $landingPageRouteMock
             ->method('load')
-            ->with($landingPageId, $request, $salesChannelContext)
             ->willReturn(new LandingPageRouteResponse($landingPage));
 
         return new LandingPageLoader(
-            $this->createMock(GenericPageLoader::class),
+            static::createStub(GenericPageLoader::class),
             $landingPageRouteMock,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 

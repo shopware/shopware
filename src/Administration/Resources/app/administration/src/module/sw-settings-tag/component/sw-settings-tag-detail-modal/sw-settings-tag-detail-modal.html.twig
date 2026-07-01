@@ -15,6 +15,7 @@
                 position-identifier="sw-settings-tag-detail-modal"
                 :default-item="initialTab"
                 :items="tagDetailModalTabs"
+                :small="true"
                 @new-item-active="initialTab = $event"
             />
             {% endblock %}

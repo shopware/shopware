@@ -15,6 +15,7 @@
             :default-item="activeTab"
             :items="tabs"
             :use-routes-for-extensions="false"
+            :small="true"
             @new-item-active="activeTab = $event"
         />
         {% endblock %}

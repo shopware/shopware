@@ -20,6 +20,7 @@
                     position-identifier=""
                     :default-item="getActiveTab(componentSection)?.name"
                     :items="componentSectionTabItems[componentSectionIndex]"
+                    :small="true"
                     @new-item-active="setActiveTab($event)"
                 />
             </template>

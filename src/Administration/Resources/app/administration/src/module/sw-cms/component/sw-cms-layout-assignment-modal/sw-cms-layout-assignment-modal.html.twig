@@ -47,6 +47,7 @@
             class="sw-cms-layout-assignment-modal__tabs"
             :default-item="activeTab"
             :items="layoutAssignmentTabs"
+            :small="true"
             @new-item-active="activeTab = $event"
         />
         {% endblock %}

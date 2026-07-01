@@ -11,6 +11,7 @@
             position-identifier="sw-order-new-customer-modal"
             :default-item="activeTab"
             :items="newCustomerModalTabs"
+            :small="true"
             @new-item-active="activeTab = $event"
         />
         {% endblock %}

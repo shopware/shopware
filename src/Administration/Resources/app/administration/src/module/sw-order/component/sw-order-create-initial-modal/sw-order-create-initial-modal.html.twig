@@ -15,6 +15,7 @@
                 position-identifier="sw-order-create-initial-modal"
                 :default-item="activeTab"
                 :items="orderCreateInitialModalTabs"
+                :small="true"
                 @new-item-active="activeTab = $event"
             />
             {% endblock %}

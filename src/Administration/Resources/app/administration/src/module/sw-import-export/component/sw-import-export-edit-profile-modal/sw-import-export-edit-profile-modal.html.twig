@@ -23,6 +23,7 @@
                 position-identifier="sw-import-export-edit-profile-modal"
                 :default-item="activeTab"
                 :items="profileTabs"
+                :small="true"
                 @new-item-active="activeTab = $event"
             />
             {% endblock %}

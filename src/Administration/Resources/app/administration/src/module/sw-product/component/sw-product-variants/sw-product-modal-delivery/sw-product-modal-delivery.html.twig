@@ -16,6 +16,7 @@
                 position-identifier="sw-product-modal-delivery"
                 :default-item="activeTab"
                 :items="deliveryTabs"
+                :small="true"
                 @new-item-active="activeTab = $event"
             />
             {% endblock %}

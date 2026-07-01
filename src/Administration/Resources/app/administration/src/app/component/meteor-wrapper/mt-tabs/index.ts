@@ -45,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
         small: {
             type: Boolean,
             required: false,
-            default: true,
+            default: false,
         },
 
         items: {

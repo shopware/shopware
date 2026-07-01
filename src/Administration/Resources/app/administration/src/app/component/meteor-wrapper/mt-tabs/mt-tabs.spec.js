@@ -57,22 +57,22 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         ]);
     });
 
-    it('should use the legacy small layout by default', async () => {
+    it('should not use the small layout by default', async () => {
         const wrapper = await createWrapper();
 
         const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
-        expect(mtTabsOriginal.props('small')).toBe(true);
+        expect(mtTabsOriginal.props('small')).toBe(false);
     });
 
-    it('should allow consumers to opt out of the legacy small layout', async () => {
+    it('should allow consumers to opt into the small layout', async () => {
         const wrapper = await createWrapper({
             props: {
-                small: false,
+                small: true,
             },
         });
 
         const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
-        expect(mtTabsOriginal.props('small')).toBe(false);
+        expect(mtTabsOriginal.props('small')).toBe(true);
     });
 
     it('should pass the merged items from the props and extension store to the final component', async () => {

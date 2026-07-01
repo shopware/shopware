@@ -14,6 +14,7 @@
                 position-identifier="sw-sales-channel-products-assignment-modal"
                 :default-item="activeTab"
                 :items="productAssignmentTabs"
+                :small="true"
                 @new-item-active="activeTab = $event"
             />
             {% endblock %}

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -34,6 +35,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ProductListingLoader
 {
+    /**
+     * Criteria state that suppresses the variant grouping (`displayGroup` field grouping) otherwise
+     * applied to product listings. Set by {@see AbstractProductStreamBuilder::enrichCriteria()}
+     * when a product stream is configured to not display its variants as a group.
+     */
+    final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
+
     /**
      * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
      * data required by the default storefront product boxes. Nested association fields (e.g.
@@ -326,11 +334,15 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $this->addGrouping($criteria);
+        $displayAsGroup = !$this->shouldSkipGrouping($criteria);
+
+        if ($displayAsGroup) {
+            $this->addGrouping($criteria);
+        }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        if ($isSearchRoute && $this->systemConfigService->getBool(
+        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
@@ -361,10 +373,9 @@ class ProductListingLoader
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
         $mapping = array_combine($keys, $keys);
-
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = !$this->shouldSkipGrouping($criteria) && $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -411,5 +422,10 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    private function shouldSkipGrouping(Criteria $criteria): bool
+    {
+        return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
     }
 }

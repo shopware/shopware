@@ -23,12 +23,12 @@ use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Twig\Environment;
 
 /**
  * @internal
@@ -43,7 +43,7 @@ class XmlRendererTest extends TestCase
     {
         $renderer = $this->createRenderer(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            $this->createMock(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
@@ -62,9 +62,9 @@ class XmlRendererTest extends TestCase
             ->with(self::ZUGFERD_TEMPLATE_PATH)
             ->willReturn(self::ZUGFERD_TEMPLATE_PATH);
 
-        $env = $this->createMock(Environment::class);
+        $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
-            ->method('render')
+            ->method('renderWithTimezoneOverride')
             ->with(
                 self::ZUGFERD_TEMPLATE_PATH,
                 static::callback(function (array $parameters) use ($renderData): bool {
@@ -73,6 +73,7 @@ class XmlRendererTest extends TestCase
 
                     return true;
                 }),
+                null,
             )
             ->willReturn($rendered);
 
@@ -99,13 +100,14 @@ class XmlRendererTest extends TestCase
         $finder = $this->createMock(TemplateFinder::class);
         $finder->method('find')->willReturn(self::ZUGFERD_TEMPLATE_PATH);
 
-        $env = $this->createMock(Environment::class);
-        $env->method('render')->willReturn('<root><unclosed></root>');
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<root><unclosed></root>');
 
         $renderer = $this->createRenderer($finder, $env);
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessage('Generated XML is malformed');
+        static::expectExceptionObject(
+            DocumentV2Exception::malformedXml(1, ['line:1' => ['Opening and ending tag mismatch: unclosed line 1 and root']]),
+        );
 
         $renderer->renderToString(
             $this->createInput($renderData),
@@ -118,7 +120,7 @@ class XmlRendererTest extends TestCase
     {
         $renderer = $this->createRenderer(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            $this->createMock(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -139,7 +141,7 @@ class XmlRendererTest extends TestCase
         );
     }
 
-    private function createRenderer(TemplateFinder $finder, Environment $env): XmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): XmlRenderer
     {
         return new XmlRenderer(
             new DocumentTemplateRenderer(

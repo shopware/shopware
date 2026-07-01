@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer\DocumentRendererSnapshotTest
  */
 #[Package('after-sales')]
 abstract readonly class AbstractRenderData

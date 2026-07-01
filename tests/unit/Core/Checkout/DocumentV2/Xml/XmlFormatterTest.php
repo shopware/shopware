@@ -60,8 +60,9 @@ class XmlFormatterTest extends TestCase
 
     public function testThrowsOnMalformedXml(): void
     {
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessage('Generated XML is malformed');
+        static::expectExceptionObject(
+            DocumentV2Exception::malformedXml(1, ['line:1' => ['Opening and ending tag mismatch: unclosed line 1 and root']]),
+        );
 
         (new XmlFormatter())->format('<root><unclosed></root>');
     }

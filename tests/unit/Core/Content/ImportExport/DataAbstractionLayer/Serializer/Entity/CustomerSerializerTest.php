@@ -31,7 +31,7 @@ class CustomerSerializerTest extends TestCase
         array $expected,
         array $cacheEntities,
     ): void {
-        $repositoryMock = $this->createMock(EntityRepository::class);
+        $repositoryMock = static::createStub(EntityRepository::class);
         $serializer = new CustomerSerializer(
             $repositoryMock,
             $repositoryMock,
@@ -40,9 +40,9 @@ class CustomerSerializerTest extends TestCase
         );
 
         $customerDefinition = new CustomerDefinition();
-        $customerDefinition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $customerDefinition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $serializer->setRegistry($this->createMock(SerializerRegistry::class));
+        $serializer->setRegistry(static::createStub(SerializerRegistry::class));
 
         $result = iterator_to_array($serializer->deserialize(new Config([], [], []), $customerDefinition, $data));
         static::assertSame($expected, $result);

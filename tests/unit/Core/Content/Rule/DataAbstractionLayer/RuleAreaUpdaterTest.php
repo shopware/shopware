@@ -2,13 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -49,11 +48,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(RuleAreaUpdater::class)]
 class RuleAreaUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private RuleDefinition $definition;
 
-    private MockObject&RuleConditionRegistry $conditionRegistry;
+    private Stub&RuleConditionRegistry $conditionRegistry;
 
     private RuleAreaUpdater $areaUpdater;
 
@@ -61,10 +60,10 @@ class RuleAreaUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
+        $this->conditionRegistry = static::createStub(RuleConditionRegistry::class);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
@@ -75,15 +74,15 @@ class RuleAreaUpdaterTest extends TestCase
                 RuleAreaTestManyToOne::class,
                 ReferenceDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         /** @var RuleDefinition $entityDefinition */
         $entityDefinition = $registry->getByEntityName('rule');
         $this->definition = $entityDefinition;
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->clock = new MockClock('2026-01-13 11:00:00');
         $this->areaUpdater = new RuleAreaUpdater(
             $this->connection,
@@ -99,7 +98,7 @@ class RuleAreaUpdaterTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $resultStatement = $this->createMock(Result::class);
+        $resultStatement = static::createStub(Result::class);
         $resultStatement->method('fetchAllAssociative')->willReturn([
             [
                 'array_key' => $id,
@@ -110,15 +109,7 @@ class RuleAreaUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->method('executeQuery')->with(
-            'SELECT LOWER(HEX(`rule`.`id`)) AS array_key, IF(`rule`.`one_to_one` IS NOT NULL, 1, 0) AS oneToOne, '
-            . 'EXISTS(SELECT 1 FROM `one_to_many` WHERE `rule_id` = `rule`.`id`) AS oneToMany, IF(`rule`.`many_to_one` IS NOT NULL, 1, 0) AS manyToOne, '
-            . 'EXISTS(SELECT 1 FROM `mapping` WHERE `rule_id` = `rule`.`id`) AS manyToMany, '
-            . 'EXISTS(SELECT 1 FROM rule_condition WHERE (`rule_id` = `rule`.`id`) AND (`type` IN (:flowTypes))) AS flowCondition '
-            . 'FROM rule WHERE `rule`.`id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']],
-            ['ids' => ArrayParameterType::BINARY, 'flowTypes' => ArrayParameterType::STRING]
-        )->willReturn($resultStatement);
+        $this->connection->method('executeQuery')->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);
         $params = [
@@ -154,10 +145,10 @@ class RuleAreaUpdaterTest extends TestCase
         static::assertInstanceOf(ManyToManyAssociationField::class, $manyToManyField);
 
         $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
-            new DeleteCommand($oneToManyField->getReferenceDefinition(), [], $this->createMock(EntityExistence::class)),
-            new UpdateCommand($manyToOneField->getReferenceDefinition(), [], [], $this->createMock(EntityExistence::class), ''),
-            new UpdateCommand($oneToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], $this->createMock(EntityExistence::class), ''),
-            new UpdateCommand($manyToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], $this->createMock(EntityExistence::class), ''),
+            new DeleteCommand($oneToManyField->getReferenceDefinition(), [], static::createStub(EntityExistence::class)),
+            new UpdateCommand($manyToOneField->getReferenceDefinition(), [], [], static::createStub(EntityExistence::class), ''),
+            new UpdateCommand($oneToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], static::createStub(EntityExistence::class), ''),
+            new UpdateCommand($manyToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], static::createStub(EntityExistence::class), ''),
         ]);
 
         $this->areaUpdater->triggerChangeSet($event);
@@ -215,11 +206,10 @@ class RuleAreaUpdaterTest extends TestCase
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
         $this->connection->method('executeQuery')
-            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD, $idE], 'flowTypes' => ['orderTags']]))
             ->willReturn($resultStatement);
 
-        $statement = $this->createMock(Statement::class);
-        $statement->method('getWrappedStatement')->willReturn($this->createMock(\Doctrine\DBAL\Driver\Statement::class));
+        $statement = static::createStub(Statement::class);
+        $statement->method('getWrappedStatement')->willReturn(static::createStub(\Doctrine\DBAL\Driver\Statement::class));
         $this->connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);

@@ -15,17 +15,17 @@ the checklist for adding a new skill), see
 .github/
 ├── workflows/
 │   ├── agentics-maintenance.yml # generated safe-output maintenance/replay
-│   ├── bugfixer.md       # gh aw SOURCE (edit this)
-│   ├── bugfixer.lock.yml # compiled — `gh aw compile` regenerates it
-│   ├── triage.md         # gh aw SOURCE (edit this)
-│   └── triage.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-bugfixer.md       # gh aw SOURCE (edit this)
+│   ├── sw-bugfixer.lock.yml # compiled — `gh aw compile` regenerates it
+│   ├── sw-triage.md         # gh aw SOURCE (edit this)
+│   └── sw-triage.lock.yml   # compiled — `gh aw compile` regenerates it
 └── aw/
     ├── README.md            # this file
-    ├── bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
-    ├── triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
     ├── shared/
-    │   ├── bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
-    │   └── triage-policy.md   # AND referenced by the interactive skill (single source)
+    │   ├── sw-bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
+    │   └── sw-triage-policy.md   # AND referenced by the interactive skill (single source)
     ├── actions-lock.json    # SHA pins for every action gh aw injects
     └── logs/                # gh aw run snapshots (gitignored — personal scratch)
 ```
@@ -34,8 +34,8 @@ the checklist for adding a new skill), see
 
 | Workflow | Trigger | Engine | Output |
 |---|---|---|---|
-| `bugfixer` | `qi/bugfixer` issue label, `workflow_dispatch`, `/bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
-| `triage` | `workflow_dispatch` (input: `issue_number`), `/triage` issue comment, `qi/triage` issue label | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
+| `sw-bugfixer` | `qi/sw-bugfixer` issue label, `workflow_dispatch`, `/sw-bugfixer ...` on PRs | `claude` / `claude-opus-4-8` | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
+| `sw-triage` | `workflow_dispatch` (input: `issue_number`), `/triage` issue comment, `qi/sw-triage` issue label | `claude` / `claude-sonnet-4-6` | `triage-output.json` via `upload-artifact` |
 
 The triage agent job is read-only — it cannot label, comment, or close. Command-trigger activation may add status/reaction feedback, and the validated artifact is consumed by the downstream processor that posts the triage result.
 
@@ -56,7 +56,7 @@ The Bugfixer agent also runs without direct write credentials. Branch creation, 
 ## Pinning
 
 - **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.81.2`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
-- **Engine model** — `triage.md` is pinned to `claude-sonnet-4-6`; `bugfixer.md` is pinned to `claude-opus-4-8` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
+- **Engine model** — `sw-triage.md` is pinned to `claude-sonnet-4-6`; `sw-bugfixer.md` is pinned to `claude-opus-4-8` because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
 - **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
 
 ## Secrets
@@ -76,14 +76,14 @@ That keeps the engine code path unchanged while sourcing from the correct secret
 
 ```bash
 # Dispatch a workflow (workflow must be registered — see below)
-gh aw run triage -f issue_number=17018
-gh aw run bugfixer -f mode=fix-bug -f issue_number=17018
+gh aw run sw-triage -f issue_number=17018
+gh aw run sw-bugfixer -f mode=fix-bug -f issue_number=17018
 
 # Audit a run (token usage + cost)
 gh aw audit <run-id>
 
 # Tail the most recent run
-gh workflow view triage --web
+gh workflow view sw-triage --web
 ```
 
 Runs are persisted under `.github/aw/logs/run-<id>/` after `gh aw audit` — useful for replay, regression diffing, and as snapshot evidence. The directory is gitignored; treat it as personal scratch, not shared state.
@@ -109,8 +109,8 @@ GitHub Actions only exposes `workflow_dispatch` for workflows that have run at l
 
 `gh aw` does **not** enforce user-defined output schemas — the `upload-artifact` safe-output just stores the file. We run our own post-processing:
 
-- `.github/workflows/process-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-triage-output.ts` against the `triage-output.json` payload before applying deterministic issue updates.
+- `.github/workflows/process-sw-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-sw-triage-output.ts` against the `triage-output.json` payload before applying deterministic issue updates.
 - The validator enforces the field-level limits the agent had only as prompt hints (`reasoning` ≤ 2000 chars, `evidence_quotes[]` ≤ 500 chars × ≤ 5 entries) and scans for accidental or prompt-injection-induced secret leakage (GitHub PATs, Anthropic keys, long base64 blocks). It is TypeScript, run via Node's native type-stripping, no dependencies.
-- The `TriageOutput` shape and field rules live in `.claude/skills/triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
+- The `TriageOutput` shape and field rules live in `.claude/skills/sw-triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
 
 A failed validation appears as a red `Triage Result Processor` run — visible to the maintainer who dispatched the triage. The staging artifact is not deleted on failure (would need `actions: write`); the visibility of the failed check is the gate.

@@ -38,6 +38,6 @@ jobs:
           git diff --exit-code -- \
             .gitattributes \
             .github/workflows/agentics-maintenance.yml \
-            .github/workflows/bugfixer.lock.yml \
-            .github/workflows/triage.lock.yml \
+            .github/workflows/sw-bugfixer.lock.yml \
+            .github/workflows/sw-triage.lock.yml \
             .github/aw/actions-lock.json

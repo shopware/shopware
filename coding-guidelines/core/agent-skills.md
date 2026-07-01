@@ -81,7 +81,7 @@ skills — never per-skill.
    interactive skill references the same file via its repo-root path; the
    gh aw policy fragment imports it via
    <code v-pre>{{#runtime-import .github/aw/shared/&lt;name&gt;-policy.md}}</code>. See how the
-   `triage` skill wires it up for the exact pattern.
+   `sw-triage` skill wires it up for the exact pattern.
 
 3. **Decide on the unattended path.** If the skill should also run in CI:
    create `.github/workflows/<name>.md` (gh aw frontmatter) plus

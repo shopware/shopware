@@ -1,6 +1,6 @@
 ---
 # gh aw SOURCE for Shopware issue triage (read-only).
-# Compile with `gh aw compile` → produces triage.lock.yml (committed, never hand-edited).
+# Compile with `gh aw compile` → produces sw-triage.lock.yml (committed, never hand-edited).
 
 on:
   workflow_dispatch:
@@ -11,10 +11,10 @@ on:
         required: false
         type: number
   slash_command:
-    name: triage
+    name: sw-triage
     events: [issue_comment]
   label_command:
-    name: qi/triage
+    name: qi/sw-triage
     events: [issues]
     remove_label: false
   status-comment:
@@ -27,20 +27,20 @@ if: >-
     github.event_name == 'issue_comment' &&
     github.event.issue.pull_request == null &&
     (
-      github.event.comment.body == '/triage' ||
-      startsWith(github.event.comment.body, '/triage ')
+      github.event.comment.body == '/sw-triage' ||
+      startsWith(github.event.comment.body, '/sw-triage ')
     )
   ) ||
   (
     github.event_name == 'issues' &&
     github.event.action == 'labeled' &&
-    github.event.label.name == 'qi/triage'
+    github.event.label.name == 'qi/sw-triage'
   )
 
 run-name: "Shopware Issue Triage #${{ github.event.issue.number || github.event.inputs.issue_number }}"
 
 concurrency:                 # explicit — workflow_dispatch default group cancels parallel runs (gh-aw #19467)
-  group: triage-${{ github.event.issue.number || github.event.inputs.issue_number }}
+  group: sw-triage-${{ github.event.issue.number || github.event.inputs.issue_number }}
   cancel-in-progress: false
 
 engine:
@@ -113,7 +113,7 @@ post-steps:
 
 # Shopware Issue Triage
 
-{{#runtime-import .github/aw/triage-policy.md}}
+{{#runtime-import .github/aw/sw-triage-policy.md}}
 
 ---
 

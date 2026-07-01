@@ -115,6 +115,62 @@ class TranslationControllerTest extends TestCase
         static::assertFalse($filesystem->directoryExists('translation/locale/' . self::LOCALE));
     }
 
+    public function testEndpointsAreForbiddenWithoutTranslationPrivileges(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+
+        $browser->jsonRequest('GET', '/api/_action/translation/list');
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('POST', '/api/_action/translation/install', ['locales' => ['xx-XX']]);
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('POST', '/api/_action/translation/update');
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+
+        $browser->jsonRequest('DELETE', '/api/_action/translation/xx-XX');
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testListAllowedWithReadPrivilege(): void
+    {
+        $browser = $this->getBrowser(true, [], ['system:translation:read']);
+
+        $browser->jsonRequest('GET', '/api/_action/translation/list');
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testInstallAllowedWithCreatePrivilege(): void
+    {
+        $browser = $this->getBrowser(true, [], ['system:translation:create']);
+
+        // ACL passes; the invalid locale then fails validation (400), proving the privilege granted access.
+        $browser->jsonRequest('POST', '/api/_action/translation/install', ['locales' => ['xx-XX']]);
+
+        static::assertSame(400, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testUpdateAllowedWithUpdatePrivilege(): void
+    {
+        $this->appendTranslationResponse(new Response(200, [], '[]'));
+        $browser = $this->getBrowser(true, [], ['system:translation:update']);
+
+        $browser->jsonRequest('POST', '/api/_action/translation/update');
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testDeleteAllowedWithDeletePrivilege(): void
+    {
+        $browser = $this->getBrowser(true, [], ['system:translation:delete']);
+
+        // ACL passes; the invalid locale then fails validation (400), proving the privilege granted access.
+        $browser->jsonRequest('DELETE', '/api/_action/translation/xx-XX');
+
+        static::assertSame(400, $browser->getResponse()->getStatusCode());
+    }
+
     /**
      * Queues the remote responses for a full install: the metadata lookup followed by enough empty
      * snippet-file responses to cover all configured bundles and plugins.

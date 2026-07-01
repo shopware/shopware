@@ -31,7 +31,7 @@ No flags, no plugins — drop into a session and just describe what you want.
 
 A skill can additionally run unattended in CI via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw): a workflow source at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment at `.github/aw/<name>-policy.md`. When both surfaces exist, the shared rubric lives in `.github/aw/shared/<name>-policy.md` and is loaded by both surfaces — they cannot drift on the policy.
 
-Current twins: `sw-triage` and `sw-bugfixer` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
+Current twins: `sw-triage`, `sw-bugfixer`, and `sw-review` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
 
 For the gh aw setup, secrets, and registration mechanics, see [`.github/aw/README.md`](../../.github/aw/README.md).
 

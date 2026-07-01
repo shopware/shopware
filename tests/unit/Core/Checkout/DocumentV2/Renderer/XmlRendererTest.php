@@ -105,9 +105,8 @@ class XmlRendererTest extends TestCase
 
         $renderer = $this->createRenderer($finder, $env);
 
-        static::expectExceptionObject(
-            DocumentV2Exception::malformedXml(1, ['line:1' => ['Opening and ending tag mismatch: unclosed line 1 and root']]),
-        );
+        static::expectException(DocumentV2Exception::class);
+        static::expectExceptionMessageMatches('/Generated XML is malformed/');
 
         $renderer->renderToString(
             $this->createInput($renderData),

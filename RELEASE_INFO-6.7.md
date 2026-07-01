@@ -1,5 +1,10 @@
 # 6.7.13.0 (upcoming)
 
+## Core
+
+### Webhooks are signed with the current app secret after a secret rotation
+
+Webhook deliveries now resolve the app's HMAC signing secret at delivery time instead of reusing the secret captured when the webhook was queued. A webhook that was queued or retried across an app-secret rotation was previously still signed with the stale secret, so the receiving app rejected it with a signature error until the message was dropped. Apps no longer need to do anything — deliveries that span a rotation are signed with the secret the app currently verifies against.
 ## Storefront
 
 ### robots.txt allows crawling product feed tracking URLs
@@ -127,6 +132,11 @@ Sales Channels now have an optional business timezone setting. When configured, 
 
 Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
 
+### Faster category creation and editing
+
+Creating or editing a single category no longer re-indexes unrelated categories. Previously, adding a sub-category or changing a single field (such as the name) of one category re-indexed the whole branch — every sibling and the parent's entire subtree — which produced a large number of SQL queries and noticeably slow saves in shops with many categories. A category write now only re-indexes the affected category and its own descendants (plus the parent's child count when a category is created, deleted, or moved to a different parent). Merchants with large category trees will see significantly faster saving in the Categories module and lower database load.
+
+For extension developers: as a consequence, the `CategoryIndexerEvent` is now dispatched with a smaller id set for these writes. If you subscribe to it and previously relied on receiving sibling categories that were not actually affected by the write, adjust your listener to resolve the categories it needs explicitly.
 ### Rule Builder: "all / at least one" toggle is now config-driven
 
 Whether a line item condition offers the "all / at least one" match-all toggle is now decided by the condition's `getConfig()` (`isMatchAny`) instead of being shown for every line item condition.
@@ -152,6 +162,14 @@ The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that 
 ```bash
 bin/console plugin:create MyPlugin MyNamespace --no-scaffold
 ```
+
+### Dynamic product groups can keep matching variants ungrouped
+
+Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
+When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
+
+The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
+Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
 ## API
 
@@ -746,6 +764,10 @@ Enabling the flag requires configuration changes — the worker consume command 
 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
 
+### Tax provider priority is preserved across app updates
+
+An app tax provider's `priority` is now only seeded from the manifest when the provider is first installed. App updates no longer touch the priority, so the merchant's manual ordering is retained.
+
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials
@@ -1116,6 +1138,19 @@ Shopware now supports building product breadcrumbs based on the referring catego
 To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and activate the "Build breadcrumb based on referrer category" setting in Settings > Products.
 
 ## API
+
+### SEO URL paths reject characters that are not URL-allowed on write
+
+Writes to `seo_url.seoPathInfo` now reject strings containing sequences that are not allowed in URLs: a stray `%` that does not form a valid percent-escape (`%XX`), the fragment marker `#`, backslashes, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
+Query strings (`path?foo=bar`) and valid percent-escapes (`caf%C3%A9`) remain allowed — they are URL-valid and resolvable by the SEO resolver.
+The validation runs in three places backed by a single rule (`ValidSeoPathInfo::containsDisallowedCharacters`):
+
+* the admin `POST /api/_action/seo-url/create-custom-url` and `PATCH /api/_action/seo-url/canonical` endpoints (via `SeoUrlValidationFactory`),
+* raw `POST /api/seo-url` DAL writes (via a new `PreWriteValidationEvent` subscriber, `SeoUrlWriteValidator`),
+* and the inline admin UI form (`sw-seo-url`).
+
+API consumers that currently persist any of these sequences in `seoPathInfo` will receive a `CONTENT__SEO_URL_INVALID_CHARACTERS` violation where the write previously succeeded.
+Percent-encode the value (`%25` for a literal `%`) or sanitise it on the client side before sending.
 
 ### Per-user and per-IP rate limiters for login and OAuth
 

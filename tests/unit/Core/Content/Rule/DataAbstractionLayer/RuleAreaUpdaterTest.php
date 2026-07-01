@@ -56,6 +56,8 @@ class RuleAreaUpdaterTest extends TestCase
 
     private RuleAreaUpdater $areaUpdater;
 
+    private StaticDefinitionInstanceRegistry $registry;
+
     private MockClock $clock;
 
     protected function setUp(): void
@@ -81,17 +83,10 @@ class RuleAreaUpdaterTest extends TestCase
         /** @var RuleDefinition $entityDefinition */
         $entityDefinition = $registry->getByEntityName('rule');
         $this->definition = $entityDefinition;
+        $this->registry = $registry;
 
-        $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->clock = new MockClock('2026-01-13 11:00:00');
-        $this->areaUpdater = new RuleAreaUpdater(
-            $this->connection,
-            $this->definition,
-            $this->conditionRegistry,
-            $cacheInvalidator,
-            $registry,
-            $this->clock,
-        );
+        $this->areaUpdater = $this->createAreaUpdater();
     }
 
     public function testUpdate(): void
@@ -109,7 +104,15 @@ class RuleAreaUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->method('executeQuery')->willReturn($resultStatement);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturnCallback(function (string $sql, array $params) use ($resultStatement, $id): Result {
+                static::assertSame(['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']], $params);
+
+                return $resultStatement;
+            });
 
         $statement = $this->createMock(Statement::class);
         $params = [
@@ -125,11 +128,11 @@ class RuleAreaUpdaterTest extends TestCase
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });
         $statement->expects($this->once())->method('executeStatement')->willReturn(1);
-        $this->connection->method('prepare')->willReturn($statement);
+        $connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
-        $this->areaUpdater->update([$id]);
+        $this->createAreaUpdater($connection)->update([$id]);
     }
 
     public function testTriggerChangeset(): void
@@ -205,16 +208,36 @@ class RuleAreaUpdaterTest extends TestCase
 
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
-        $this->connection->method('executeQuery')
-            ->willReturn($resultStatement);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->expects($this->once())
+            ->method('executeQuery')
+            ->willReturnCallback(function (string $sql, array $params) use ($resultStatement, $idA, $idB, $idC, $idD, $idE): Result {
+                static::assertSame(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD, $idE], 'flowTypes' => ['orderTags']], $params);
+
+                return $resultStatement;
+            });
 
         $statement = static::createStub(Statement::class);
         $statement->method('getWrappedStatement')->willReturn(static::createStub(\Doctrine\DBAL\Driver\Statement::class));
-        $this->connection->method('prepare')->willReturn($statement);
+        $connection->method('prepare')->willReturn($statement);
 
         $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
-        $this->areaUpdater->onEntityWritten($event);
+        $this->createAreaUpdater($connection)->onEntityWritten($event);
+    }
+
+    private function createAreaUpdater(?Connection $connection = null): RuleAreaUpdater
+    {
+        return new RuleAreaUpdater(
+            $connection ?? $this->connection,
+            $this->definition,
+            $this->conditionRegistry,
+            static::createStub(CacheInvalidator::class),
+            $this->registry,
+            $this->clock,
+        );
     }
 }
 

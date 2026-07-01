@@ -103,7 +103,7 @@ class InstallTranslationCommand extends Command
 
         $locales = explode(',', $locales);
 
-        $this->config->validateLocales($locales);
+        $this->config->assertLocalesAreConfigured($locales);
 
         return $locales;
     }
@@ -152,7 +152,7 @@ class InstallTranslationCommand extends Command
         /** @var list<string> $selected */
         $selected = (new SymfonyStyle($input, $output))->askQuestion($question);
 
-        $this->config->validateLocales($selected);
+        $this->config->assertLocalesAreConfigured($selected);
 
         return $selected;
     }

@@ -196,7 +196,7 @@ If a listener intentionally needs private media access, wrap that specific read 
 
 ### Manage translation downloads via the Admin API
 
-The translation download/update functionality previously only available through the `translation:list`, `translation:install`, and `translation:update` CLI commands is now also exposed through the Admin API, so it can be driven from the Administration without shell access. The new routes behave identically to the commands and reuse the same services:
+Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
 
 - `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
 - `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
@@ -205,7 +205,7 @@ The translation download/update functionality previously only available through 
 
 The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
 
-`install` and `update` process the locales **synchronously and sequentially**, downloading each locale's snippet files during the request. Installing many locales at once (especially `all: true`, which covers every configured locale) can therefore take a while and may hit request timeouts; the operation is also not atomic, so if a locale fails mid-run the locales processed before it remain installed. Prefer installing locales in smaller batches when driving these routes from a UI or integration.
+`install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
 
 Two events are dispatched from the underlying services (so they fire for both the Admin API and the `translation:*` CLI commands), giving extensions a targeted hook instead of having to filter generic DAL write events:
 

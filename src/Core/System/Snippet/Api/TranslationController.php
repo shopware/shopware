@@ -76,7 +76,7 @@ class TranslationController extends AbstractController
             $locales = $this->config->locales;
         } else {
             $locales = $parameters->locales;
-            $this->config->validateLocales($locales);
+            $this->config->assertLocalesAreConfigured($locales);
         }
 
         return $this->loadTranslations(
@@ -106,7 +106,7 @@ class TranslationController extends AbstractController
     )]
     public function delete(string $locale): Response
     {
-        $this->config->validateLocales([$locale]);
+        $this->config->assertLocalesAreConfigured([$locale]);
 
         $this->translationRemover->remove($locale);
 

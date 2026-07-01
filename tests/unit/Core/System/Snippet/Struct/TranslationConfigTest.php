@@ -88,31 +88,31 @@ class TranslationConfigTest extends TestCase
         static::assertSame('MappedPluginWithMapping', $mappedName);
     }
 
-    public function testValidateLocalesPassesForConfiguredLocales(): void
+    public function testAssertLocalesAreConfiguredAcceptsKnownLocales(): void
     {
         $config = $this->getConfig(['en-GB', 'de-DE']);
 
-        $config->validateLocales(['de-DE']);
+        $config->assertLocalesAreConfigured(['de-DE']);
 
         $this->expectNotToPerformAssertions();
     }
 
-    public function testValidateLocalesThrowsWhenEmpty(): void
+    public function testAssertLocalesAreConfiguredThrowsWhenEmpty(): void
     {
         $config = $this->getConfig(['en-GB', 'de-DE']);
 
         $this->expectExceptionObject(SnippetException::noLocalesArgumentProvided());
 
-        $config->validateLocales([]);
+        $config->assertLocalesAreConfigured([]);
     }
 
-    public function testValidateLocalesThrowsForUnconfiguredLocales(): void
+    public function testAssertLocalesAreConfiguredThrowsForUnknownLocales(): void
     {
         $config = $this->getConfig(['en-GB', 'de-DE']);
 
         $this->expectExceptionObject(SnippetException::invalidLocalesProvided('fr-FR, es-ES', 'en-GB, de-DE'));
 
-        $config->validateLocales(['de-DE', 'fr-FR', 'es-ES']);
+        $config->assertLocalesAreConfigured(['de-DE', 'fr-FR', 'es-ES']);
     }
 
     /**

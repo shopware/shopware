@@ -8,7 +8,7 @@
                     "Translation Management"
                 ],
                 "summary": "List configured translation locales",
-                "description": "Lists every locale configured for translation download together with its locally installed metadata. Mirrors the `translation:list` CLI command.",
+                "description": "Lists every locale configured for translation download together with its locally installed metadata.",
                 "operationId": "translationList",
                 "responses": {
                     "200": {
@@ -61,7 +61,7 @@
                     "Translation Management"
                 ],
                 "summary": "Install translations for locales",
-                "description": "Downloads and installs translations for the given locales, or for all configured locales when `all` is set. Created languages are activated unless `activate` is set to `false`. Mirrors the `translation:install` CLI command.",
+                "description": "Downloads and installs translations for the given locales, or for all configured locales when `all` is set. Created languages are activated unless `activate` is set to `false`.",
                 "operationId": "translationInstall",
                 "requestBody": {
                     "required": false,
@@ -133,7 +133,7 @@
                     "Translation Management"
                 ],
                 "summary": "Update all installed translations",
-                "description": "Updates all installed translations. Mirrors the `translation:update` CLI command.",
+                "description": "Updates all installed translations.",
                 "operationId": "translationUpdate",
                 "responses": {
                     "200": {

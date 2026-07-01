@@ -39,9 +39,13 @@ class TranslationConfig extends Struct
     }
 
     /**
+     * Asserts that the given locales are part of the translation set Shopware is configured to offer (translation.yaml).
+     *
      * @param list<string> $locales
+     *
+     * @throws SnippetException when no locales are given or a locale is not configured
      */
-    public function validateLocales(array $locales): void
+    public function assertLocalesAreConfigured(array $locales): void
     {
         if ($locales === []) {
             throw SnippetException::noLocalesArgumentProvided();

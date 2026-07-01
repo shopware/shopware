@@ -26,8 +26,8 @@ class BindingSpecificationDtoTest extends TestCase
         static::assertSame('core', $specification->source());
     }
 
-    #[TestDox('renames the wire key "loader" onto the LoaderBinding source property')]
-    public function testResolvesEntryLoaderBecomesLoaderBindingSource(): void
+    #[TestDox('renames the wire key "loader" onto the LoaderBinding loader property')]
+    public function testResolvesEntryLoaderBecomesLoaderBindingLoader(): void
     {
         $dto = new BindingSpecificationDto('media-gallery', 'label', [
             'image' => ['loader' => 'entity', 'config' => ['entity' => 'media']],
@@ -36,7 +36,7 @@ class BindingSpecificationDtoTest extends TestCase
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
         static::assertArrayHasKey('image', $resolves);
-        static::assertSame('entity', $resolves['image']->source);
+        static::assertSame('entity', $resolves['image']->loader);
         static::assertSame(['entity' => 'media'], $resolves['image']->config);
     }
 

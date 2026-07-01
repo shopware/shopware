@@ -225,6 +225,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemBindingSpecificationLifecycleHandler">

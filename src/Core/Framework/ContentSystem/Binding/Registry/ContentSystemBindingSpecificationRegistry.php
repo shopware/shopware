@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Registry;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -34,7 +35,17 @@ class ContentSystemBindingSpecificationRegistry extends AbstractContentSystemBin
 
         foreach ($this->loaders as $loader) {
             foreach ($loader->load() as $specification) {
-                $specifications[$specification->source() . ':' . $specification->id()] = $specification;
+                $qualifiedId = $specification->source() . ':' . $specification->id();
+
+                if (isset($specifications[$qualifiedId])) {
+                    throw ContentSystemException::bindingSpecificationDuplicate(
+                        $specification->id(),
+                        $specifications[$qualifiedId]->source(),
+                        $specification->source(),
+                    );
+                }
+
+                $specifications[$qualifiedId] = $specification;
             }
         }
 

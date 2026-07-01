@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * Sole write path for app bindings into the database.
@@ -41,6 +42,7 @@ class ContentSystemBindingSpecificationPersister
         private readonly BindingSpecificationSerializer $serializer,
         private readonly Connection $connection,
         private readonly AbstractContentSystemBindingSpecificationRegistry $registry,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
@@ -53,39 +55,50 @@ class ContentSystemBindingSpecificationPersister
         $appId = $context->app->getId();
 
         $resolvedDtos = $this->loadDtos($context);
-        $existing = $this->getExistingBindings($appId, $context->context);
 
-        if ($resolvedDtos === [] && $existing->count() === 0) {
-            return;
-        }
+        // Serialize concurrent same-app persists: read the existing set, compute the delta, and write it
+        // as one lock-held unit, so a racing install cannot diff against a stale snapshot and leave a
+        // superset of the intended final state.
+        $lock = $this->lockFactory->createLock('content_system_binding_persist_' . $appId, 5.0);
+        $lock->acquire(true);
 
-        $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
-        $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
+        try {
+            $existing = $this->getExistingBindings($appId, $context->context);
 
-        // Upsert and delete are one atomic unit: a partial failure must not leave the registered set
-        // half-synced (a stale-but-valid row alongside a committed new one).
-        $this->connection->transactional(function () use ($upserts, $deleteIds, $context): void {
-            if ($upserts !== []) {
-                try {
-                    $this->bindingSpecificationRepository->upsert($upserts, $context->context);
-                } catch (UniqueConstraintViolationException $e) {
-                    throw AppException::contentSystemBindingSpecificationDuplicate(
-                        array_column($upserts, 'name'),
-                        'app:' . $context->app->getName(),
-                        $e,
-                    );
+            if ($resolvedDtos === [] && $existing->count() === 0) {
+                return;
+            }
+
+            $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
+            $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
+
+            // Upsert and delete are one atomic unit: a partial failure must not leave the registered set
+            // half-synced (a stale-but-valid row alongside a committed new one).
+            $this->connection->transactional(function () use ($upserts, $deleteIds, $context): void {
+                if ($upserts !== []) {
+                    try {
+                        $this->bindingSpecificationRepository->upsert($upserts, $context->context);
+                    } catch (UniqueConstraintViolationException $e) {
+                        throw AppException::contentSystemBindingSpecificationDuplicate(
+                            array_column($upserts, 'name'),
+                            'app:' . $context->app->getName(),
+                            $e,
+                        );
+                    }
                 }
-            }
 
-            if ($deleteIds !== []) {
-                $this->bindingSpecificationRepository->delete($deleteIds, $context->context);
-            }
-        });
+                if ($deleteIds !== []) {
+                    $this->bindingSpecificationRepository->delete($deleteIds, $context->context);
+                }
+            });
 
-        // Invalidate only after the transaction commits, so the cache is never refreshed from a write
-        // that rolled back.
-        if ($upserts !== [] || $deleteIds !== []) {
-            $this->registry->invalidate();
+            // Invalidate only after the transaction commits, so the cache is never refreshed from a write
+            // that rolled back. Kept inside the lock so read → write → invalidate is one critical section.
+            if ($upserts !== [] || $deleteIds !== []) {
+                $this->registry->invalidate();
+            }
+        } finally {
+            $lock->release();
         }
     }
 

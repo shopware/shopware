@@ -230,11 +230,13 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer"/>
             <tag name="content_system.output_format" format="data"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer"/>
             <tag name="content_system.output_format" format="decomposed"/>
         </service>
 

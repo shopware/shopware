@@ -78,7 +78,7 @@ final readonly class BindingSpecification
         $resolves = [];
         foreach ($this->resolves as $key => $binding) {
             $resolves[$key] = [
-                'loader' => $binding->source,
+                'loader' => $binding->loader,
                 'config' => $binding->config,
             ];
         }

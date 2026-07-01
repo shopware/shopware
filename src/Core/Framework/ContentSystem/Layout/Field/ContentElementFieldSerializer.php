@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -253,7 +254,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'providesContext' => $providesContextField,
                     'acceptsContext' => $acceptsContextField,
                     'style' => $styleField,
-                    'attributedSpecifications' => new Optional([new Type('array')]),
+                    'attributedSpecifications' => new Optional([new Type('array'), new All([new Type('string')])]),
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

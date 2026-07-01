@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
@@ -86,6 +87,22 @@ class ContentSystemBindingSpecificationRegistryTest extends TestCase
         $this->expectExceptionObject(new DecorationPatternException(ContentSystemBindingSpecificationRegistry::class));
 
         (new ContentSystemBindingSpecificationRegistry([]))->getDecorated();
+    }
+
+    #[TestDox('throws bindingSpecificationDuplicate when two loaders emit the same source-qualified id')]
+    public function testThrowsOnCrossLoaderQualifiedIdCollision(): void
+    {
+        $registry = new ContentSystemBindingSpecificationRegistry([
+            $this->loader($this->specification('dup', 'Sw:Product', 'app:Acme')),
+            $this->loader($this->specification('dup', 'Sw:Product', 'app:Acme')),
+        ]);
+
+        try {
+            $registry->all();
+            static::fail('Expected ContentSystemException.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_DUPLICATE, $e->getErrorCode());
+        }
     }
 
     private function specification(string $id, string $type, string $source): BindingSpecification

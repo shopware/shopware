@@ -32,6 +32,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AttributionReconciler
 {
+    /**
+     * Per-reconcile() memo of the specification side of the honesty comparison, keyed by "specificationId:key".
+     *
+     * @var array<string, array{source: string, encoded: array<int|string, mixed>}|null>
+     */
+    private array $specWiringCache = [];
+
     public function __construct(
         private readonly AbstractContentSystemBindingSpecificationRegistry $registry,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
@@ -46,6 +53,8 @@ class AttributionReconciler
      */
     public function reconcile(array $forest): array
     {
+        $this->specWiringCache = [];
+
         $reconciled = [];
 
         foreach ($forest as $node) {
@@ -70,6 +79,10 @@ class AttributionReconciler
 
     private function reconcileElement(ContentElement $element): ContentElement
     {
+        if ($element->getSlots() === [] && $element->getAttributedSpecifications() === []) {
+            return $element;
+        }
+
         $slots = [];
         foreach ($element->getSlots() as $name => $slotContent) {
             $children = [];
@@ -260,22 +273,28 @@ class AttributionReconciler
      */
     private function specWiring(string $specificationId, string $key): ?array
     {
+        $cacheKey = $specificationId . ':' . $key;
+
+        if (\array_key_exists($cacheKey, $this->specWiringCache)) {
+            return $this->specWiringCache[$cacheKey];
+        }
+
         $specification = $this->registry->get($specificationId);
 
         if ($specification === null) {
-            return null;
+            return $this->specWiringCache[$cacheKey] = null;
         }
 
         $binding = $specification->resolves()[$key] ?? null;
 
         if ($binding === null) {
-            return null;
+            return $this->specWiringCache[$cacheKey] = null;
         }
 
-        $source = $binding->source;
+        $source = $binding->loader;
         $configObject = $this->configSerializerProvider->decode($source, $binding->config);
         $encoded = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
 
-        return ['source' => $source, 'encoded' => $encoded];
+        return $this->specWiringCache[$cacheKey] = ['source' => $source, 'encoded' => $encoded];
     }
 }

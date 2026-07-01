@@ -58,6 +58,18 @@ class DataLoaderConfigSerializerProvider
             throw ContentSystemException::configSerializerNotRegistered($source);
         }
 
-        return $this->locator->get($source)->encode($config);
+        try {
+            return $this->locator->get($source)->encode($config);
+        } catch (HttpException $e) {
+            if ($e instanceof ContentSystemException) {
+                throw $e;
+            }
+
+            // Mirror decode(): a domain serializer's encode() throws its own domain HttpException (a sibling
+            // of ContentSystemException — DomainExceptionRule forbids throwing ContentSystemException directly).
+            // Re-classify it here so the single client-defect guard the reconciler relies on catches it, rather
+            // than the sibling escaping as an uncaught 500 on every content_layout write.
+            throw ContentSystemException::invalidLoaderConfig($source, $e);
+        }
     }
 }

@@ -61,9 +61,11 @@ final class BindElement extends AbstractLayoutMutation
             $attributedSpecifications,
         );
 
+        $result = $this->replaceNode($tree, $this->elementId, $replacement);
+
         $this->affected = [$replacement->getId()];
 
-        return $this->replaceNode($tree, $this->elementId, $replacement);
+        return $result;
     }
 
     /**
@@ -74,7 +76,7 @@ final class BindElement extends AbstractLayoutMutation
         $dataRequirements = [];
 
         foreach ($specification->resolves() as $key => $binding) {
-            $dataRequirements[$key] = new DataRequirement($key, $binding->source, $this->configSerializerProvider->decode($binding->source, $binding->config));
+            $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $binding->config));
         }
 
         return $dataRequirements;

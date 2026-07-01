@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -160,6 +161,91 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ));
 
         $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('from-media-library', $specifications[0]->id());
+    }
+
+    #[TestDox('loads a persisted binding whose name is the string "0" instead of silently skipping it')]
+    public function testLoadsBindingNamedZero(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '0', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->once())->method('validate')->willReturn(new ConstraintViolationList());
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('0', $specifications[0]->id());
+    }
+
+    #[TestDox('skips a row when the validator throws, keeping the valid sibling, instead of aborting the whole load')]
+    public function testSkipsRowWhenValidatorThrowsWhileValidSiblingSurvives(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'boom', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->exactly(2))
+            ->method('validate')
+            ->willReturnCallback(function (): ConstraintViolationList {
+                static $calls = 0;
+                if (++$calls === 2) {
+                    throw new \RuntimeException('validator infrastructure failure');
+                }
+
+                return new ConstraintViolationList();
+            });
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('app:Acme:boom'));
+
+        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('from-media-library', $specifications[0]->id());
+    }
+
+    #[TestDox('skips a row when denormalize() throws, keeping the valid sibling, instead of aborting the whole load')]
+    public function testSkipsRowWhenDenormalizeThrowsWhileValidSiblingSurvives(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => 'boom', 'schema' => json_encode(['type' => 'x']), 'app_name' => 'Acme'],
+            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $serializer = $this->createMock(BindingSpecificationSerializer::class);
+        $serializer->method('denormalize')->willReturnCallback(
+            static function (array $data): BindingSpecificationDto {
+                if (($data['type'] ?? null) === 'x') {
+                    throw new \RuntimeException('denormalize failure');
+                }
+
+                return (new BindingSpecificationSerializer())->denormalize($data);
+            }
+        );
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with(static::stringContains('app:Acme:boom'));
+
+        $loader = new DatabaseBindingSpecificationLoader('prod', $connection, $logger, $serializer, $validator);
+        $specifications = $loader->load();
 
         static::assertCount(1, $specifications);
         static::assertSame('from-media-library', $specifications[0]->id());

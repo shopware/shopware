@@ -54,7 +54,7 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
         foreach ($rows as $row) {
             $source = 'app:' . $row['app_name'];
 
-            if (!$row['name']) {
+            if ($row['name'] === '') {
                 $this->logger->warning(\sprintf('Skipping binding specification "%s:<unknown>": persisted row has no name and cannot be registered', $source), [
                     'source' => $source,
                 ]);
@@ -87,6 +87,8 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
 
             try {
                 $dto = $this->serializer->denormalize($schema);
+
+                $violations = $this->validator->validate(new BindingSpecificationDtoCollection([$name => $dto]));
             } catch (\Throwable $e) {
                 $this->logger->warning(\sprintf('Skipping binding specification "%s": invalid schema: %s', $identifier, $e->getMessage()), [
                     'identifier' => $identifier,
@@ -96,7 +98,6 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
                 continue;
             }
 
-            $violations = $this->validator->validate(new BindingSpecificationDtoCollection([$name => $dto]));
             if ($violations->count() > 0) {
                 $messages = [];
                 foreach ($violations as $violation) {

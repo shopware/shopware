@@ -117,4 +117,51 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
             static::assertSame($original, $e);
         }
     }
+
+    #[TestDox('encode() rethrows a ContentSystemException from the serializer unchanged')]
+    public function testEncodeRethrowsContentSystemExceptionUnchanged(): void
+    {
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $original = ContentSystemException::invalidFieldValueType('config', 'array', 'string');
+        $serializer->method('encode')->willThrowException($original);
+
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
+
+        try {
+            $provider->encode('entity', static::createStub(AbstractContentDataLoaderConfig::class));
+            static::fail('Expected ContentSystemException.');
+        } catch (ContentSystemException $e) {
+            static::assertSame($original, $e);
+        }
+    }
+
+    #[TestDox('encode() reclassifies a non-ContentSystemException HttpException as invalidLoaderConfig')]
+    public function testEncodeReclassifiesForeignHttpExceptionAsInvalidLoaderConfig(): void
+    {
+        $domainException = new class(Response::HTTP_BAD_REQUEST, 'DOMAIN__BAD', 'bad config') extends HttpException {};
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('encode')->willThrowException($domainException);
+
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
+
+        try {
+            $provider->encode('entity', static::createStub(AbstractContentDataLoaderConfig::class));
+            static::fail('Expected ContentSystemException.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::INVALID_FIELD_VALUE_TYPE, $e->getErrorCode());
+            static::assertSame($domainException, $e->getPrevious());
+        }
+    }
+
+    #[TestDox('encode() lets a bare non-HttpException from the serializer propagate unwrapped')]
+    public function testEncodeLetsBarePhpExceptionPropagate(): void
+    {
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('encode')->willThrowException(new \RuntimeException('boom'));
+
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
+
+        $this->expectException(\RuntimeException::class);
+        $provider->encode('entity', static::createStub(AbstractContentDataLoaderConfig::class));
+    }
 }

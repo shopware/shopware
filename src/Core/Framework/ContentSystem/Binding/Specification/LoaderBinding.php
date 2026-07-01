@@ -16,7 +16,7 @@ final readonly class LoaderBinding
      * @param array<string, mixed> $config
      */
     public function __construct(
-        public string $source,
+        public string $loader,
         public array $config,
     ) {
     }

@@ -71,16 +71,16 @@ class ConfigCanonicalizerTest extends TestCase
         static::assertSame([], $this->canonicalizer->canonicalize([]));
     }
 
-    #[TestDox('value-sorts a list of maps by array comparison, without key-sorting each map\'s own keys')]
-    public function testValueSortsListOfMapsWithoutCanonicalizingNestedMapKeys(): void
+    #[TestDox('canonicalizes each map inside a list (key-sorting it) and then value-sorts the list')]
+    public function testCanonicalizesEachMapInAListAndSortsTheList(): void
     {
-        // array_is_list() is true for this list, so canonicalize() takes the list branch (sort() only) rather
-        // than recursing per element: the list is reordered, but each map's own key order is left as authored.
+        // canonicalize() recurses into each list item before sorting, so a nested map's own keys are sorted
+        // too and the list is ordered by the resulting canonical maps.
         static::assertSame(
             [
                 'items' => [
-                    ['name' => 'apple', 'id' => 1],
-                    ['name' => 'zebra', 'id' => 2],
+                    ['id' => 1, 'name' => 'apple'],
+                    ['id' => 2, 'name' => 'zebra'],
                 ],
             ],
             $this->canonicalizer->canonicalize([
@@ -90,5 +90,14 @@ class ConfigCanonicalizerTest extends TestCase
                 ],
             ])
         );
+    }
+
+    #[TestDox('canonicalizes map items nested inside a list so inner key order does not affect equality')]
+    public function testCanonicalizesMapsNestedInLists(): void
+    {
+        $a = ['orderings' => [['field' => 'name', 'direction' => 'ASC'], ['field' => 'price', 'direction' => 'DESC']]];
+        $b = ['orderings' => [['direction' => 'DESC', 'field' => 'price'], ['direction' => 'ASC', 'field' => 'name']]];
+
+        static::assertSame($this->canonicalizer->canonicalize($a), $this->canonicalizer->canonicalize($b));
     }
 }

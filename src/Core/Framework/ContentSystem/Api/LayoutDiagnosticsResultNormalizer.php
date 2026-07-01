@@ -62,11 +62,15 @@ final class LayoutDiagnosticsResultNormalizer
      */
     private function normalizeCandidate(ResolutionCandidate $candidate): array
     {
-        // A Stored candidate carries no loader-shaped fields — it is applied wiring, not an environment
-        // offer — so its loaderSource/configTemplate/configComplete serialize as null (clients branch on
-        // `origin` before reading them). loaderSource/configTemplate are already null by construction; the
-        // non-nullable bool configComplete is the one that must be explicitly nulled here.
-        $isStored = $candidate->origin === CandidateOrigin::Stored;
+        // configComplete is meaningful only for a Loader candidate. A Stored candidate carries no loader-shaped
+        // fields — it is applied wiring, not an environment offer — so it serializes null. A Parent candidate is
+        // pinned false per the documented wire contract, so a Parent constructed with configComplete=true can
+        // never contradict the schema.
+        $configComplete = match ($candidate->origin) {
+            CandidateOrigin::Stored => null,
+            CandidateOrigin::Parent => false,
+            CandidateOrigin::Loader => $candidate->configComplete,
+        };
 
         return [
             'origin' => $candidate->origin->value,
@@ -77,7 +81,7 @@ final class LayoutDiagnosticsResultNormalizer
             'contextType' => $candidate->contextType?->value,
             'loaderSource' => $candidate->loaderSource,
             'configTemplate' => $candidate->configTemplate,
-            'configComplete' => $isStored ? null : $candidate->configComplete,
+            'configComplete' => $configComplete,
         ];
     }
 

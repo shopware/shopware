@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Format;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -19,6 +20,7 @@ class DecomposedResponseFactory extends AbstractResponseFactory
 {
     public function __construct(
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
+        private readonly ConfigCanonicalizer $configCanonicalizer,
     ) {
     }
 
@@ -32,6 +34,6 @@ class DecomposedResponseFactory extends AbstractResponseFactory
 
     public function createResponse(ContentPage $contentPage): AbstractContentRouteResponse
     {
-        return new ContentDecomposedRouteResponse($contentPage->getContentDecomposedPage($this->configSerializerProvider));
+        return new ContentDecomposedRouteResponse($contentPage->getContentDecomposedPage($this->configSerializerProvider, $this->configCanonicalizer));
     }
 }

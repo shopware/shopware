@@ -614,6 +614,25 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertCount(0, $violations);
     }
 
+    #[TestDox('rejects a non-string value in the attributedSpecifications map')]
+    public function testRejectsNonStringAttributionValue(): void
+    {
+        $element = [
+            'id' => 'el',
+            'component' => 'text',
+            'attributedSpecifications' => ['product' => 123],
+        ];
+
+        $violations = $this->validateElementAgainstContentElementFieldConstraints($element);
+
+        $paths = array_map(
+            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+            iterator_to_array($violations)
+        );
+
+        static::assertContains('[attributedSpecifications][product]', $paths);
+    }
+
     #[TestDox('throws exception when buildConstraints receives wrong field type')]
     public function testBuildConstraintsThrowsOnNonContentElementField(): void
     {

@@ -29,9 +29,10 @@ class ContentPage extends Struct
     }
 
     public function getContentDecomposedPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider
+        DataLoaderConfigSerializerProvider $configSerializerProvider,
+        ConfigCanonicalizer $configCanonicalizer
     ): ContentDecomposedPage {
-        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, new ConfigCanonicalizer());
+        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, $configCanonicalizer);
 
         foreach ($this->elements as $element) {
             $clone = clone $element;
@@ -59,9 +60,10 @@ class ContentPage extends Struct
     }
 
     public function getContentDataPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider
+        DataLoaderConfigSerializerProvider $configSerializerProvider,
+        ConfigCanonicalizer $configCanonicalizer
     ): ContentDataPage {
-        return $this->getContentDecomposedPage($configSerializerProvider)->getContentDataPage();
+        return $this->getContentDecomposedPage($configSerializerProvider, $configCanonicalizer)->getContentDataPage();
     }
 
     /**

@@ -189,6 +189,20 @@ class BindElementTest extends TestCase
         $this->assertInputTreeUnmutated($before, $tree);
     }
 
+    #[TestDox('reports the bound element as affected and detaches nothing')]
+    public function testReportsAffectedElementAndNoDetachment(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $bind = new BindElement($this->registry($config), 'spec-1', 'el', $this->serializers($config));
+
+        $bind->apply([new ContentElement('el', 'Sw:Product')]);
+
+        static::assertSame(['el'], $bind->affected());
+        static::assertSame([], $bind->orphaned());
+        static::assertSame([], $bind->droppedWiring());
+        static::assertSame([], $bind->droppedProperties());
+    }
+
     private function registry(AbstractContentDataLoaderConfig $config): AbstractContentSystemBindingSpecificationRegistry
     {
         $specification = new BindingSpecification(

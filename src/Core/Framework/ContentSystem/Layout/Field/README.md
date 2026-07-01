@@ -5,7 +5,7 @@ Custom DAL field types for persisting ContentElement structures to JSON. Each fi
 ## Key Classes
 
 - `ContentElementField` / `ContentElementFieldSerializer` - Single ContentElement
-- `ContentElementListField` / `ContentElementListFieldSerializer` - ContentElement arrays (the `content_layout.layout` column). Its `normalize` hook seeds the element types' primitive defaults into the write payload via `Layout/LayoutDefaultSeeder`, ahead of the resolvability gate
+- `ContentElementListField` / `ContentElementListFieldSerializer` - ContentElement arrays (the `content_layout.layout` column). Its `normalize` hook runs two write-boundary passes ahead of the resolvability gate: `Layout/LayoutDefaultSeeder` seeds the element types' primitive defaults, then `Binding/AttributionReconciler` re-derives each element's `attributedSpecifications` against its current wiring (dropping a diverged attribution, never throwing)
 - `ElementSlotsField` / `ElementSlotsFieldSerializer` - Slot arrays
 - `ElementStyleField` / `ElementStyleFieldSerializer` - The element's universal `ElementStyle`. The write path validates it against the style option registry; the read path is registry-free and keeps unknown options verbatim (the strict write rejects them). Composed into `ContentElementFieldSerializer`
 - `DataRequirementsField`, `ContextProvidersField`, `ContextConsumersField` - With matching serializers

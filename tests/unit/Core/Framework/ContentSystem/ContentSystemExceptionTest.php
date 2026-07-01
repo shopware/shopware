@@ -331,5 +331,44 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
             '[0].id: id must be a non-empty string; [1].component: component must be a non-empty string',
         ];
+
+        yield 'binding specification duplicate' => [
+            ContentSystemException::bindingSpecificationDuplicate('from-media-library', 'core', 'app:Acme'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE',
+            'from-media-library',
+        ];
+
+        yield 'binding specification load failed' => [
+            ContentSystemException::bindingSpecificationLoadFailed('/path/x.yaml', 'missing or empty "id"'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
+            '/path/x.yaml',
+        ];
+
+        yield 'binding specifications invalid' => [
+            ContentSystemException::bindingSpecificationsInvalid(
+                new ConstraintViolationList([
+                    new ConstraintViolation('must not be blank', null, [], null, 'resolves[media]', null),
+                ])
+            ),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID',
+            'resolves[media]',
+        ];
+
+        yield 'binding specification not found' => [
+            ContentSystemException::bindingSpecificationNotFound('ghost'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND',
+            'ghost',
+        ];
+
+        yield 'binding type mismatch' => [
+            ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
+            'Sw:Media:Image',
+        ];
     }
 }

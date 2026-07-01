@@ -27,23 +27,36 @@ class ConfigCanonicalizer
      */
     public function canonicalize(array $config): array
     {
+        if (array_is_list($config)) {
+            return $this->canonicalizeList($config);
+        }
+
         ksort($config);
 
         foreach ($config as $key => $value) {
-            if (!\is_array($value)) {
-                continue;
+            if (\is_array($value)) {
+                $config[$key] = $this->canonicalize($value);
             }
-
-            if (array_is_list($value)) {
-                sort($value);
-                $config[$key] = $value;
-
-                continue;
-            }
-
-            $config[$key] = $this->canonicalize($value);
         }
 
         return $config;
+    }
+
+    /**
+     * @param list<mixed> $list
+     *
+     * @return list<mixed>
+     */
+    private function canonicalizeList(array $list): array
+    {
+        foreach ($list as $index => $item) {
+            if (\is_array($item)) {
+                $list[$index] = $this->canonicalize($item);
+            }
+        }
+
+        sort($list);
+
+        return $list;
     }
 }

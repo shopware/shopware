@@ -100,6 +100,7 @@ class AttributionReconcilerTest extends TestCase
         $reconciled = $result[0];
         static::assertInstanceOf(ContentElement::class, $reconciled);
         static::assertSame([], $reconciled->getAttributedSpecifications());
+        static::assertSame($element->getDataRequirements(), $reconciled->getDataRequirements());
     }
 
     #[TestDox('drops attribution when the specification no longer resolves the attributed key')]
@@ -119,6 +120,7 @@ class AttributionReconcilerTest extends TestCase
         $reconciled = $result[0];
         static::assertInstanceOf(ContentElement::class, $reconciled);
         static::assertSame([], $reconciled->getAttributedSpecifications());
+        static::assertSame($element->getDataRequirements(), $reconciled->getDataRequirements());
     }
 
     #[TestDox('drops attribution when the stored config no longer decodes, without throwing out of reconcile()')]

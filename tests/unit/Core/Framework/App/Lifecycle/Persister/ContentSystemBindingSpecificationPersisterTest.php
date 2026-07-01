@@ -29,6 +29,9 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -327,6 +330,27 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $persister->persist($this->buildContext());
     }
 
+    #[TestDox('serializes the persist under a per-app lock, acquiring it blocking and releasing it')]
+    public function testAcquiresAndReleasesPerAppLockAroundPersist(): void
+    {
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with(static::stringContains($this->ids->get('app')), static::anything())
+            ->willReturn($lock);
+
+        $repo = $this->createEmptyRepository();
+        $persister = $this->buildPersister($repo, lockFactory: $lockFactory);
+
+        $persister->persist($this->buildContext());
+
+        static::assertCount(1, $repo->upserts);
+    }
+
     private function buildExistingEntity(string $idKey, string $name): AppContentSystemBindingSpecificationEntity
     {
         $entity = new AppContentSystemBindingSpecificationEntity();
@@ -347,6 +371,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         ?YamlBindingSpecificationLoader $loader = null,
         ?AbstractContentSystemBindingSpecificationRegistry $registry = null,
         ?Connection $connection = null,
+        ?LockFactory $lockFactory = null,
     ): ContentSystemBindingSpecificationPersister {
         $registry ??= static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
 
@@ -356,6 +381,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
             $registry,
+            $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
     }
 
@@ -376,6 +402,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
             $this->serializer,
             $this->runTransactionStub(),
             $registry,
+            new LockFactory(new InMemoryStore()),
         );
     }
 

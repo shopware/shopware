@@ -122,16 +122,17 @@ stray uploader elsewhere on the page.
 - **NEVER** use CSS classes, data-test ids, or attribute selectors — not even as a
   fallback. An element no semantic locator can reach IS a `PRECONDITION_NOT_FOUND` (and may
   mean the bug isn't faithfully automatable — set low confidence).
-- **For icon/tooltip buttons, match the ACCESSIBLE NAME with a case-insensitive REGEX — never an
-  exact `getByTitle`/`getByLabel` string.** An admin icon-button's name may come from `title`,
-  `aria-label`, or a localized snippet, so an exact `getByTitle('Settings')` misses when the real
-  name differs by a word or locale. Live miss on #31: the Settings cog rendered top-right but
-  `getByTitle('Settings')` never matched → false `PRECONDITION_NOT_FOUND` on a perfectly loaded
-  editor. Prefer `getByRole('button', { name: /settings?/i })` (the accessible name spans
-  title|aria-label|text) and add `.or()` fallbacks for known alternates
-  (`getByRole('button', { name: /settings?|einstellungen/i })`). This only *reduces* the guess:
-  a control whose real name you have not seen is still a coin-flip — the reliable fix is to
-  inspect the live DOM before authoring (see `probe-ui`).
+- **Admin toolbar/action icons are frequently `<img title="…">` or icon elements — role `img`,
+  NOT `button` — so `getByRole('button', {name})` CANNOT reach them; `getByTitle(...)` can.**
+  `getByTitle` is a valid user-facing locator (it targets the visible tooltip, not a raw CSS
+  attribute selector), so USE it for these — do not avoid it. Ground truth on #31: the CMS editor
+  Settings cog is `<img title="Settings">` inside `sw-cms-toolbar__actions` (role `img`, no
+  accessible name), so `getByRole('button',{name:/settings/i})` never matched it while
+  `getByTitle('Settings')` does. When you cannot classify a control up front, combine both roles
+  with `.or()` + a case-insensitive regex to tolerate role AND locale drift:
+  `page.getByRole('button', { name: /settings?/i }).or(page.getByTitle(/settings?|einstellungen/i))`.
+  ALWAYS confirm the real markup with `probe-ui` first — it lists the `title`/`aria-label` of icon
+  controls precisely so you target the one that exists.
 
 ## Structure: precondition vs symptom (this drives the verdict)
 **(1) Navigation / precondition** — reach the state and WAIT for each element it depends on:

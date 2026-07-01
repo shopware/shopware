@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener\Authentication;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Context;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -27,7 +27,7 @@ class UserCredentialsChangedSubscriberTest extends TestCase
         $subscriber = new UserCredentialsChangedSubscriber(
             $this->refreshTokenRepositoryExpectingRevocation(),
             $this->connectionExpectingTimestampUpdate(),
-            $this->clock()
+            new MockClock('2026-06-30 12:00:00')
         );
 
         $subscriber->onUserWritten($this->event([
@@ -47,7 +47,7 @@ class UserCredentialsChangedSubscriberTest extends TestCase
         $subscriber = new UserCredentialsChangedSubscriber(
             $refreshTokenRepository,
             $connection,
-            $this->clock()
+            new MockClock('2026-06-30 12:00:00')
         );
 
         $subscriber->onUserWritten($this->event([
@@ -61,7 +61,7 @@ class UserCredentialsChangedSubscriberTest extends TestCase
         $subscriber = new UserCredentialsChangedSubscriber(
             $this->refreshTokenRepositoryExpectingRevocation(),
             $this->connectionExpectingTimestampUpdate(),
-            $this->clock()
+            new MockClock('2026-06-30 12:00:00')
         );
 
         $subscriber->onUserWritten($this->event([
@@ -106,15 +106,5 @@ class UserCredentialsChangedSubscriberTest extends TestCase
             );
 
         return $connection;
-    }
-
-    private function clock(): ClockInterface
-    {
-        return new class implements ClockInterface {
-            public function now(): \DateTimeImmutable
-            {
-                return new \DateTimeImmutable('2026-06-30 12:00:00');
-            }
-        };
     }
 }

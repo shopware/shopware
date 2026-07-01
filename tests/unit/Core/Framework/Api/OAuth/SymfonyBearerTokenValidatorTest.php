@@ -99,7 +99,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
 
     public function testInactiveUser(): void
     {
-        $request = new Request([], [], [], [], [], ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
+        $request = new Request(server: ['HTTP_authorization' => 'Bearer ' . self::VALID_TOKEN]);
 
         $validator = new SymfonyBearerTokenValidator(
             $this->createMock(AccessTokenRepositoryInterface::class),

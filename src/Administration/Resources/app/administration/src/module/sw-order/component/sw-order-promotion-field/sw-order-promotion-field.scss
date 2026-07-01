@@ -1,6 +1,24 @@
 @import "~scss/variables";
 
 .sw-order-promotion-field {
+    .sw-order-promotion-tag-field {
+        margin-bottom: 0;
+    }
+
+    &__apply_code {
+        &__button {
+            width: min-content;
+            margin-top: var(--scale-size-24);
+        }
+    }
+
+    &__divider {
+        margin: var(--scale-size-24) 0;
+        border: none;
+        height: 1px;
+        background-color: var(--color-border-secondary-default);
+    }
+
     &__apply_auto_promotions {
         &__title {
             color: var(--color-text-primary-default);

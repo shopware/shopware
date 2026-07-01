@@ -163,6 +163,73 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
+    it('should add a promotion code tag via applyCode without a keyboard event', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                { code: 'EXISTING-CODE' },
+            ],
+        });
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+        });
+
+        wrapper.vm.applyCode();
+
+        expect(wrapper.emitted('update:value')).toEqual([
+            [
+                [
+                    { code: 'EXISTING-CODE' },
+                    { code: 'SUMMER-SALE' },
+                ],
+            ],
+        ]);
+        expect(wrapper.vm.newTagName).toBe('');
+    });
+
+    it('should not add a duplicate code via applyCode', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                { code: 'SUMMER-SALE' },
+            ],
+        });
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+        });
+
+        wrapper.vm.applyCode();
+
+        expect(wrapper.emitted('update:value')).toBeUndefined();
+        expect(wrapper.vm.newTagName).toBe('SUMMER-SALE');
+    });
+
+    it('should not add an empty code via applyCode', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: '',
+        });
+
+        wrapper.vm.applyCode();
+
+        expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
+    it('should not add the code via applyCode when the field is disabled', async () => {
+        const wrapper = await createWrapper({
+            disabled: true,
+        });
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+        });
+
+        wrapper.vm.applyCode();
+
+        expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
     it('should emit the removed promotion code tag', async () => {
         const wrapper = await createWrapper();
         const item = { code: 'SUMMER-SALE' };

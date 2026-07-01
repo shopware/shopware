@@ -160,6 +160,10 @@ The snippet detail page (`Settings > Snippets`) now indicates if a snippet is de
 
 Clicking the "restore inheritance" icon on an overridden field marks the database record for deletion upon saving. This allows the snippet to fall back to the JSON file value and ensures it stays synchronized with any future updates made to the language file.
 
+### Explicit "Apply code" button in the order promotions section
+
+The "Promotions" section of the order detail page now has a dedicated "Apply code" button next to the code input, so applying a code promotion no longer relies on pressing `Enter` inside the field. The neighbouring section that re-evaluates automatic promotions was relabeled to "Automatic promotions" with an "Update automatic promotions" button to make the distinction between the two mechanics clear.
+
 # 6.7.12.0 (upcoming)
 
 ## Features

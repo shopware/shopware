@@ -342,6 +342,10 @@ export default {
             );
         },
 
+        onApplyCode() {
+            this.$refs.promotionTagField.applyCode();
+        },
+
         async onSubmitCode(code) {
             this.emitLoadingChange(true);
 

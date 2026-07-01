@@ -44,7 +44,12 @@ export default {
                 return;
             }
 
-            if (typeof this.newTagName !== 'string' || this.newTagName === '') {
+            this.applyCode();
+        },
+
+        // Adds the typed code as a tag; used by Enter and the "Apply code" button.
+        applyCode() {
+            if (this.disabled || typeof this.newTagName !== 'string' || this.newTagName === '') {
                 return;
             }
 

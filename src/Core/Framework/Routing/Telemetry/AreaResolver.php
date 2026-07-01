@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 class AreaResolver

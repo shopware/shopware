@@ -6,11 +6,16 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Framework\Telemetry\Doctrine\QueryCountMiddlewareTest;
 
 /**
  * @internal
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @codeCoverageIgnore
+ *
+ * @see QueryCountMiddlewareTest
+ *
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 final class QueryCountDriver extends AbstractDriverMiddleware

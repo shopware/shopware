@@ -17,11 +17,15 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Shared resolver — reused by the HTTP request (admin-CRUD `domain`) and DAL search collectors.
  *
+ * The hardcoded maps are intentional (optimized for deletion): while the label set is still changing,
+ * one map with no extension API is simpler to maintain. Once the groups are stable we can switch to a cleaner approach,
+ * e.g. a telemetry-group attribute on the EntityDefinition.
+ *
  * @internal
  *
  * @final
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 class EntityGroupResolver

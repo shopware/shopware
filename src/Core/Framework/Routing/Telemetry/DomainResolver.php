@@ -20,11 +20,15 @@ use Symfony\Component\HttpFoundation\Request;
  * `policy: open`. Route → group results are memoized per process (the storefront/store api/admin action route keyspace
  * is finite and fixed, resulting map is small, so reset/eviction is not implemented).
  *
+ * The hardcoded maps are intentional (optimized for deletion): while the label set is still changing,
+ * one map with no extension API is simpler to maintain. Once the groups are stable we can switch to a cleaner approach,
+ * e.g. a telemetry-group attribute on the route.
+ *
  * @internal
  *
  * @final
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 class DomainResolver

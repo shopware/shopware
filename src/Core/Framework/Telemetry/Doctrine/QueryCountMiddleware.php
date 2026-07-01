@@ -14,7 +14,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
+ *
+ * @see Shopware\Tests\Unit\Core\Framework\Telemetry\Doctrine\QueryCountMiddlewareTest
  */
 #[Package('framework')]
 final class QueryCountMiddleware implements Middleware

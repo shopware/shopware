@@ -27,7 +27,7 @@ use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
  *
  * @final
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('checkout')]
 class CartMetricsInstrumentor

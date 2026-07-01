@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  *
- * @experimental feature:TELEMETRY_METRICS
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
 final class QueryCounter

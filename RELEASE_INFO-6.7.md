@@ -205,6 +205,8 @@ The translation download/update functionality previously only available through 
 
 The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
 
+`install` and `update` process the locales **synchronously and sequentially**, downloading each locale's snippet files during the request. Installing many locales at once (especially `all: true`, which covers every configured locale) can therefore take a while and may hit request timeouts; the operation is also not atomic, so if a locale fails mid-run the locales processed before it remain installed. Prefer installing locales in smaller batches when driving these routes from a UI or integration.
+
 Two events are dispatched from the underlying services (so they fire for both the Admin API and the `translation:*` CLI commands), giving extensions a targeted hook instead of having to filter generic DAL write events:
 
 - `Shopware\Core\System\Snippet\Event\TranslationLoadedEvent` — after a locale's translations are downloaded and installed (carries the locale and the `Context`).

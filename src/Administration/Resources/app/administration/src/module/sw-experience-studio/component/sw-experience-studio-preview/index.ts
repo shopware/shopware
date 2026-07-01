@@ -19,7 +19,15 @@ type PreviewMessagePayload = {
     type?: string;
     elementId?: string | null;
     value?: string | null;
+    requestId?: number;
+    top?: number;
+    left?: number;
 } | null;
+
+type PreviewScrollPosition = {
+    top: number;
+    left: number;
+};
 
 /**
  * @private
@@ -78,6 +86,8 @@ export default Shopware.Component.wrapComponentConfig({
             activeFrame: null as 'a' | 'b' | null,
             loadingFrame: null as 'a' | 'b' | null,
             latestRequestId: 0,
+            pendingScrollPosition: null as PreviewScrollPosition | null,
+            scrollRequestSequence: 0,
             debouncedLoadPreview: null as (() => void) | null,
             previewMessageHandler: null as ((event: MessageEvent) => void) | null,
         };
@@ -224,6 +234,20 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        getFrameOrigin(frame: 'a' | 'b'): string | null {
+            const frameUrl = this.getFrameUrl(frame);
+
+            if (!frameUrl) {
+                return null;
+            }
+
+            try {
+                return new URL(frameUrl, window.location.origin).origin;
+            } catch {
+                return null;
+            }
+        },
+
         isTrustedPreviewMessage(event: MessageEvent): boolean {
             const activeFrame = this.getActiveFrameElement();
 
@@ -253,6 +277,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.iframeBUrl = null;
             this.activeFrame = null;
             this.loadingFrame = null;
+            this.pendingScrollPosition = null;
         },
 
         getFrameUrl(frame: 'a' | 'b'): string | null {
@@ -275,13 +300,163 @@ export default Shopware.Component.wrapComponentConfig({
             return classes;
         },
 
-        onPreviewFrameLoad(frame: 'a' | 'b'): void {
+        async onPreviewFrameLoad(frame: 'a' | 'b'): Promise<void> {
+            if (this.loadingFrame !== frame) {
+                return;
+            }
+
+            const scrollPositionToRestore = this.pendingScrollPosition;
+
+            if (scrollPositionToRestore) {
+                await this.restoreFrameScrollPosition(frame, scrollPositionToRestore);
+            }
+
             if (this.loadingFrame !== frame) {
                 return;
             }
 
             this.activeFrame = frame;
             this.loadingFrame = null;
+            this.pendingScrollPosition = null;
+        },
+
+        captureActiveFrameScrollPosition(): PreviewScrollPosition | null {
+            const activeFrame = this.getActiveFrameElement();
+            const activeFrameWindow = activeFrame?.contentWindow;
+
+            if (!activeFrameWindow) {
+                return null;
+            }
+
+            try {
+                return {
+                    top: activeFrameWindow.scrollY,
+                    left: activeFrameWindow.scrollX,
+                };
+            } catch {
+                return null;
+            }
+        },
+
+        requestActiveFrameScrollPosition(): Promise<PreviewScrollPosition | null> {
+            const directScrollPosition = this.captureActiveFrameScrollPosition();
+
+            if (directScrollPosition) {
+                return Promise.resolve(directScrollPosition);
+            }
+
+            const activeFrame = this.getActiveFrameElement();
+            const activeOrigin = this.getActiveFrameOrigin();
+            const activeFrameWindow = activeFrame?.contentWindow;
+
+            if (!activeFrameWindow || !activeOrigin) {
+                return Promise.resolve(null);
+            }
+
+            const requestId = this.scrollRequestSequence + 1;
+            this.scrollRequestSequence = requestId;
+
+            return new Promise((resolve) => {
+                let timeoutId: number | null = null;
+
+                const finish = (result: PreviewScrollPosition | null): void => {
+                    window.removeEventListener('message', onMessage);
+
+                    if (timeoutId !== null) {
+                        window.clearTimeout(timeoutId);
+                    }
+
+                    resolve(result);
+                };
+
+                const onMessage = (event: MessageEvent): void => {
+                    if (!this.isTrustedPreviewMessage(event)) {
+                        return;
+                    }
+
+                    const payload = event.data as PreviewMessagePayload;
+
+                    if (
+                        payload?.type !== 'scroll-position'
+                        || payload.requestId !== requestId
+                        || typeof payload.top !== 'number'
+                        || typeof payload.left !== 'number'
+                    ) {
+                        return;
+                    }
+
+                    finish({
+                        top: payload.top,
+                        left: payload.left,
+                    });
+                };
+
+                window.addEventListener('message', onMessage);
+                timeoutId = window.setTimeout(() => finish(null), 250);
+
+                activeFrameWindow.postMessage({
+                    source: 'sw-experience-studio-admin',
+                    type: 'capture-scroll',
+                    requestId,
+                }, activeOrigin);
+            });
+        },
+
+        restoreFrameScrollPosition(frame: 'a' | 'b', scrollPosition: PreviewScrollPosition): Promise<void> {
+            const frameElement = frame === 'a'
+                ? this.$refs.iframeA as HTMLIFrameElement | null
+                : this.$refs.iframeB as HTMLIFrameElement | null;
+
+            const frameWindow = frameElement?.contentWindow;
+            const frameOrigin = this.getFrameOrigin(frame);
+
+            if (!frameWindow || !frameOrigin) {
+                return Promise.resolve();
+            }
+
+            const requestId = this.scrollRequestSequence + 1;
+            this.scrollRequestSequence = requestId;
+
+            return new Promise((resolve) => {
+                let timeoutId: number | null = null;
+
+                const finish = (): void => {
+                    window.removeEventListener('message', onMessage);
+
+                    if (timeoutId !== null) {
+                        window.clearTimeout(timeoutId);
+                    }
+
+                    resolve();
+                };
+
+                const onMessage = (event: MessageEvent): void => {
+                    const payload = event.data as PreviewMessagePayload;
+
+                    if (
+                        event.source !== frameWindow
+                        || event.origin !== frameOrigin
+                        || payload?.source !== 'sw-experience-studio-preview'
+                        || payload?.type !== 'scroll-restored'
+                        || payload.requestId !== requestId
+                    ) {
+                        return;
+                    }
+
+                    finish();
+                };
+
+                window.addEventListener('message', onMessage);
+                timeoutId = window.setTimeout(() => finish(), 250);
+
+                frameWindow.postMessage({
+                    source: 'sw-experience-studio-admin',
+                    type: 'restore-scroll',
+                    requestId,
+                    top: scrollPosition.top,
+                    left: scrollPosition.left,
+                }, frameOrigin);
+            });
         },
 
         assignLoadingFrame(url: string): void {
@@ -332,6 +507,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.previewLoadError = null;
+                this.pendingScrollPosition = await this.requestActiveFrameScrollPosition();
                 this.assignLoadingFrame(previewUrl);
             } catch {
                 if (requestId !== this.latestRequestId) {

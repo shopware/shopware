@@ -45,5 +45,15 @@
         flex: 1;
         overflow: auto;
         padding: 8px 12px 12px;
+
+        &.is--valid-drop {
+            background: var(--color-background-brand-hover);
+        }
+
+        &.is--invalid-drop {
+            background: var(--color-background-critical-subtle);
+            outline: 1px solid var(--color-border-critical-default);
+            outline-offset: -1px;
+        }
     }
 }

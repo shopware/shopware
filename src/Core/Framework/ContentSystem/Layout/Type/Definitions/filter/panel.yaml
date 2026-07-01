@@ -1,7 +1,7 @@
 meta:
   label: "Filter Panel"
   description: "Product listing filter panel with sorting and layout switch actions."
-  icon: "regular-funnel"
+  icon: "regular-filter-s"
   category: "commerce"
   copilot:
     summary: "Listing filter and sorting panel."
@@ -10,29 +10,6 @@ meta:
       - "Use additional filter slots to extend built-in filters."
 
 properties:
-  totalCount:
-    type: integer
-    title: "Total Count"
-    description: "Total number of matching products."
-    default: 0
-    adminUI:
-      component: "number"
-
-  currentSorting:
-    type: string
-    title: "Current Sorting"
-    description: "Active sorting key for listing results."
-
-  filterAggregations:
-    type: Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection
-    title: "Filter Aggregations"
-    description: "Hydrated aggregations used to render filter options."
-
-  availableSortings:
-    type: Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection
-    title: "Available Sortings"
-    description: "Hydrated sorting options for the listing."
-
   showLayoutSwitch:
     type: boolean
     title: "Show Layout Switch"
@@ -46,9 +23,3 @@ properties:
     default: 3
     adminUI:
       component: "number"
-
-slots:
-  - name: additional-filters-start
-    description: "Additional filters rendered before built-in filters."
-  - name: additional-filters-end
-    description: "Additional filters rendered after built-in filters."

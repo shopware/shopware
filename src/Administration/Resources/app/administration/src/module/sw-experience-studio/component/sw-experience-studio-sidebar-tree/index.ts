@@ -11,12 +11,23 @@ interface AddElementPayload {
     anchorLeft: number;
 }
 
+interface MoveElementPayload {
+    elementId: string;
+    newParentElementId: string | null;
+    newSlotName: string | null;
+    newIndex: number | null;
+}
+
 /**
  * @private
  * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    constants: {
+        DRAG_GROUP: 'experience-studio-sidebar-tree',
+    },
 
     inject: [
         'acl',
@@ -33,6 +44,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        validateMoveTarget: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     emits: [
@@ -40,6 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
         'add-element',
         'duplicate-element',
         'delete-element',
+        'move-element',
     ],
 
     computed: {
@@ -85,6 +102,59 @@ export default Shopware.Component.wrapComponentConfig({
 
         onDeleteElement(elementId: string): void {
             this.$emit('delete-element', elementId);
+        },
+
+        onMoveElement(payload: MoveElementPayload): void {
+            this.$emit('move-element', payload);
+        },
+
+        validateMoveDrop(
+            dragData: { elementId: string } | null,
+            dropData: Omit<MoveElementPayload, 'elementId'> | null,
+        ): boolean {
+            if (!this.allowEdit || !dragData || !dropData) {
+                return false;
+            }
+
+            if (typeof this.validateMoveTarget === 'function') {
+                return this.validateMoveTarget({
+                    elementId: dragData.elementId,
+                    newParentElementId: dropData.newParentElementId,
+                    newSlotName: dropData.newSlotName,
+                    newIndex: dropData.newIndex,
+                });
+            }
+
+            return true;
+        },
+
+        rootDropConfig() {
+            return {
+                dragGroup: this.$options.constants.DRAG_GROUP,
+                data: {
+                    newParentElementId: null,
+                    newSlotName: null,
+                    newIndex: null,
+                },
+                validateDrop: this.validateMoveDrop,
+                onDrop: this.onRootDrop,
+            };
+        },
+
+        onRootDrop(
+            dragData: { elementId: string } | null,
+            dropData: Omit<MoveElementPayload, 'elementId'> | null,
+        ): void {
+            if (!dragData || !dropData) {
+                return;
+            }
+
+            this.$emit('move-element', {
+                elementId: dragData.elementId,
+                newParentElementId: dropData.newParentElementId,
+                newSlotName: dropData.newSlotName,
+                newIndex: dropData.newIndex,
+            });
         },
     },
 });

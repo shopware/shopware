@@ -59,7 +59,13 @@
       },
       "elementPicker": {
         "title": "Element hinzufügen",
-        "noElements": "Für diese Position sind keine Elementtypen verfügbar."
+        "noElements": "Für diese Position sind keine Elementtypen verfügbar.",
+        "categoryHeadlines": {
+          "content": "Inhalt",
+          "commerce": "Commerce",
+          "layout": "Layout",
+          "other": "Sonstige"
+        }
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert."
     }

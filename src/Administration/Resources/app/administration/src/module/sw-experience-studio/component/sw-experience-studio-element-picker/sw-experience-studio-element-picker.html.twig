@@ -29,27 +29,35 @@
 
         <div
             v-else
-            class="sw-experience-studio-element-picker__grid"
+            class="sw-experience-studio-element-picker__sections"
         >
-            <button
-                v-for="element in elements"
-                :key="element.name"
-                class="sw-experience-studio-element-picker__item"
-                type="button"
-                :title="element.label"
-                @click="onSelect(element.name)"
+            <div
+                v-for="group in groupedElements"
+                :key="group.key"
+                class="sw-experience-studio-element-picker__section"
             >
-                <div class="sw-experience-studio-element-picker__icon-square">
-                    <mt-icon
-                        :name="element.icon || 'regular-square'"
-                        size="20px"
-                    />
+                <div class="sw-experience-studio-element-picker__section-title">
+                    <span>{{ $t(group.headlineSnippetKey) }}</span>
                 </div>
 
-                <span class="sw-experience-studio-element-picker__label">
-                    {{ element.label }}
-                </span>
-            </button>
+                <div class="sw-experience-studio-element-picker__grid">
+                    <button
+                        v-for="element in group.elements"
+                        :key="element.name"
+                        class="sw-experience-studio-element-picker__item"
+                        type="button"
+                        v-tooltip="{ message: element.label }"
+                        @click="onSelect(element.name)"
+                    >
+                        <div class="sw-experience-studio-element-picker__icon-square">
+                            <mt-icon
+                                :name="element.icon || 'regular-square'"
+                                size="20px"
+                            />
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

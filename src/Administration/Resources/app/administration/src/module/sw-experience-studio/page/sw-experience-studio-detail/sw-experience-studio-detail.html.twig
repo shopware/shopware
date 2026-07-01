@@ -35,10 +35,12 @@
                     class="sw-experience-studio-detail__sidebar-tree"
                     :layout="layout"
                     :selected-element-id="selectedElementId"
+                    :validate-move-target="validateMoveTarget"
                     @select-element="onSelectElement"
                     @add-element="onAddElement"
                     @duplicate-element="onDuplicateElement"
                     @delete-element="onDeleteElement"
+                    @move-element="onMoveElement"
                 />
                 {% endblock %}
 

@@ -49,6 +49,16 @@ export type ContentLayoutDraftDuplicatePayload = ContentLayoutDraftMutationEnvel
     index?: number | null;
 };
 
+/**
+ * @private
+ */
+export type ContentLayoutDraftMovePayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    newParentId?: string | null;
+    newSlot?: string | null;
+    index?: number | null;
+};
+
 type ContentLayoutDraftMutationDiagnostics = {
     wellFormed: boolean;
     resolvable: boolean;
@@ -87,6 +97,10 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     duplicateElement(payload: ContentLayoutDraftDuplicatePayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('duplicate-element', payload);
+    }
+
+    moveElement(payload: ContentLayoutDraftMovePayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('move-element', payload);
     }
 
     private mutate(

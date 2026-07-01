@@ -49,4 +49,60 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         }, event);
         expect(untrusted).toBe(false);
     });
+
+    it('captures current active frame scroll position', () => {
+        const scrollPosition = methods.captureActiveFrameScrollPosition.call({
+            getActiveFrameElement: () => ({
+                contentWindow: {
+                    scrollY: 240,
+                    scrollX: 16,
+                },
+            }),
+        });
+
+        expect(scrollPosition).toEqual({
+            top: 240,
+            left: 16,
+        });
+    });
+
+    it('restores scroll position before loading frame switch', async () => {
+        const restoreFrameScrollPosition = jest.fn().mockResolvedValue(undefined);
+        const vm = {
+            loadingFrame: 'b',
+            activeFrame: 'a',
+            pendingScrollPosition: {
+                top: 140,
+                left: 0,
+            },
+            restoreFrameScrollPosition,
+        };
+
+        await methods.onPreviewFrameLoad.call(vm, 'b');
+
+        expect(vm.activeFrame).toBe('b');
+        expect(vm.loadingFrame).toBeNull();
+        expect(vm.pendingScrollPosition).toBeNull();
+        expect(restoreFrameScrollPosition).toHaveBeenCalledWith('b', {
+            top: 140,
+            left: 0,
+        });
+    });
+
+    it('prefers direct scroll capture before message fallback', async () => {
+        const captureActiveFrameScrollPosition = jest.fn().mockReturnValue({
+            top: 99,
+            left: 12,
+        });
+
+        const result = await methods.requestActiveFrameScrollPosition.call({
+            captureActiveFrameScrollPosition,
+        });
+
+        expect(captureActiveFrameScrollPosition).toHaveBeenCalledTimes(1);
+        expect(result).toEqual({
+            top: 99,
+            left: 12,
+        });
+    });
 });

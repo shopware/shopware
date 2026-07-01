@@ -2,7 +2,7 @@ meta:
   label: "Image"
   description: "Responsive image element with media source and loading behavior."
   icon: "regular-image"
-  category: "media"
+  category: "content"
   copilot:
     summary: "Image media element."
     hints:

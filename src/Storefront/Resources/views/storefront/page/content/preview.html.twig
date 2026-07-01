@@ -48,6 +48,65 @@
                 }, '*');
             }
 
+            function handleParentMessage(event) {
+                if (!window.parent || event.source !== window.parent) {
+                    return;
+                }
+
+                const payload = event.data;
+
+                if (!payload || payload.source !== 'sw-experience-studio-admin') {
+                    return;
+                }
+
+                if (payload.type === 'capture-scroll' && typeof payload.requestId === 'number') {
+                    emitPreviewMessage('scroll-position', {
+                        requestId: payload.requestId,
+                        top: window.scrollY,
+                        left: window.scrollX,
+                    });
+
+                    return;
+                }
+
+                if (
+                    payload.type === 'restore-scroll'
+                    && typeof payload.top === 'number'
+                    && typeof payload.left === 'number'
+                ) {
+                    const doc = document.documentElement;
+                    const body = document.body;
+                    const previousDocBehavior = doc.style.scrollBehavior;
+                    const previousBodyBehavior = body ? body.style.scrollBehavior : '';
+
+                    doc.style.scrollBehavior = 'auto';
+
+                    if (body) {
+                        body.style.scrollBehavior = 'auto';
+                    }
+
+                    window.scrollTo({
+                        left: payload.left,
+                        top: payload.top,
+                        behavior: 'auto',
+                    });
+
+                    window.requestAnimationFrame(function () {
+                        window.requestAnimationFrame(function () {
+                            doc.style.scrollBehavior = previousDocBehavior;
+
+                            if (body) {
+                                body.style.scrollBehavior = previousBodyBehavior;
+                            }
+
+                            emitPreviewMessage('scroll-restored', {
+                                requestId: typeof payload.requestId === 'number' ? payload.requestId : null,
+                            });
+                        });
+                    });
+                }
+            }
+
             function isInteractiveTarget(target) {
                 return target instanceof Element && target.closest(interactiveSelector) !== null;
             }
@@ -633,6 +692,8 @@
                 event.preventDefault();
                 event.stopPropagation();
             }, true);
+
+            window.addEventListener('message', handleParentMessage);
         })();
     </script>
 {% endblock %}

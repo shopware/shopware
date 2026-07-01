@@ -3,6 +3,7 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
+    ContentLayoutDraftMovePayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
@@ -42,6 +43,14 @@ type ElementPickerItem = {
     name: string;
     label: string;
     icon: string | null;
+    category: string | null;
+};
+
+type MoveElementPayload = {
+    elementId: string;
+    newParentElementId: string | null;
+    newSlotName: string | null;
+    newIndex: number | null;
 };
 
 type LayoutPreviewContext = {
@@ -57,12 +66,13 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate';
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
+    moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
 };
 
 /**
@@ -207,6 +217,7 @@ export default Shopware.Component.wrapComponentConfig({
                 name: typeSpecification.name,
                 label: typeSpecification.label,
                 icon: typeSpecification.icon,
+                category: typeSpecification.category,
             }));
         },
 
@@ -571,6 +582,119 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
+        async onMoveElement(payload: MoveElementPayload): Promise<void> {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const normalizedMoveIndex = this.normalizeMoveIndex(layoutElements, payload);
+
+            await this.executeStructuralDraftMutation(
+                'move',
+                layoutElements,
+                {
+                    elementId: payload.elementId,
+                    newParentId: payload.newParentElementId,
+                    newSlot: payload.newSlotName,
+                    index: normalizedMoveIndex,
+                },
+                () => payload.elementId,
+            );
+        },
+
+        normalizeMoveIndex(layout: ContentElementNode[], payload: MoveElementPayload): number | null {
+            if (payload.newIndex === null || payload.newIndex === undefined) {
+                return null;
+            }
+
+            const sourceLocation = findElementLocation(layout, payload.elementId);
+
+            if (!sourceLocation) {
+                return payload.newIndex;
+            }
+
+            const targetElements = this.resolveMoveTargetElements(layout, payload.newParentElementId, payload.newSlotName);
+
+            if (!targetElements || sourceLocation.elements !== targetElements) {
+                return payload.newIndex;
+            }
+
+            if (sourceLocation.index < payload.newIndex) {
+                return payload.newIndex - 1;
+            }
+
+            return payload.newIndex;
+        },
+
+        resolveMoveTargetElements(
+            layout: ContentElementNode[],
+            newParentElementId: string | null,
+            newSlotName: string | null,
+        ): ContentElementNode[] | null {
+            if (newParentElementId === null) {
+                return layout;
+            }
+
+            if (!newSlotName) {
+                return null;
+            }
+
+            const targetParentLocation = findElementLocation(layout, newParentElementId);
+            const targetParentElement = targetParentLocation
+                ? targetParentLocation.elements[targetParentLocation.index]
+                : null;
+
+            if (!targetParentElement) {
+                return null;
+            }
+
+            return targetParentElement.slots?.[newSlotName] ?? [];
+        },
+
+        validateMoveTarget(payload: MoveElementPayload): boolean {
+            if (!this.layout) {
+                return false;
+            }
+
+            const layoutElements = castContentElementNodes(this.layout.layout);
+            const draggedLocation = findElementLocation(layoutElements, payload.elementId);
+            const draggedElement = draggedLocation ? draggedLocation.elements[draggedLocation.index] : null;
+
+            if (!draggedElement) {
+                return false;
+            }
+
+            if (payload.newParentElementId === null) {
+                return true;
+            }
+
+            if (!payload.newSlotName) {
+                return false;
+            }
+
+            const targetParentLocation = findElementLocation(layoutElements, payload.newParentElementId);
+            const targetParentElement = targetParentLocation
+                ? targetParentLocation.elements[targetParentLocation.index]
+                : null;
+
+            if (!targetParentElement) {
+                return false;
+            }
+
+            if (this.isElementInSubtree(draggedElement, payload.newParentElementId)) {
+                return false;
+            }
+
+            return this.canInsertIntoSlot(
+                targetParentElement.component,
+                payload.newSlotName,
+                draggedElement.component,
+                targetParentElement,
+                payload.elementId,
+            );
+        },
+
         onElementSettingsChange(payload: {
             elementId: string;
             properties: Record<string, unknown>;
@@ -668,6 +792,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return service.removeElement(payload as ContentLayoutDraftRemovePayload);
             }
 
+            if (operation === 'move') {
+                return service.moveElement(payload as ContentLayoutDraftMovePayload);
+            }
+
             return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
         },
 
@@ -760,6 +888,7 @@ export default Shopware.Component.wrapComponentConfig({
             slotName: string,
             childComponent: string,
             parentElement: ContentElementNode,
+            ignoreElementId: string | null = null,
         ): boolean {
             const parentType = this.elementTypeStore.getByName(parentComponent);
             const slotDefinition = parentType?.slots.find((slot) => slot.name === slotName);
@@ -768,7 +897,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return true;
             }
 
-            const existingElements = parentElement.slots?.[slotName] ?? [];
+            const existingElements = (parentElement.slots?.[slotName] ?? []).filter((element) => {
+                return ignoreElementId === null || element.id !== ignoreElementId;
+            });
 
             if (slotDefinition.maxElements !== null && existingElements.length >= slotDefinition.maxElements) {
                 return false;
@@ -779,6 +910,22 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return slotDefinition.allowList.includes(childComponent);
+        },
+
+        isElementInSubtree(element: ContentElementNode, soughtElementId: string): boolean {
+            if (element.id === soughtElementId) {
+                return true;
+            }
+
+            for (const slotElements of Object.values(element.slots ?? {})) {
+                for (const childElement of slotElements) {
+                    if (this.isElementInSubtree(childElement, soughtElementId)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         },
 
         clearInlineEditSession(): void {

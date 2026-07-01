@@ -59,7 +59,13 @@
       },
       "elementPicker": {
         "title": "Add element",
-        "noElements": "No element types are available for this position."
+        "noElements": "No element types are available for this position.",
+        "categoryHeadlines": {
+          "content": "Content",
+          "commerce": "Commerce",
+          "layout": "Layout",
+          "other": "Other"
+        }
       },
       "messageSaved": "Content layout saved successfully."
     }

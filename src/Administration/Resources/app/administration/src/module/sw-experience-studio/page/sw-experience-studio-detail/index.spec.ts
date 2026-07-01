@@ -125,6 +125,43 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(payload.type).toBe('Sw:Content:Text');
     });
 
+    it('moves element via structural draft mutation', async () => {
+        const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
+        const normalizeMoveIndex = jest.fn().mockReturnValue(1);
+        const vm = {
+            layout: {
+                layout: [
+                    {
+                        id: 'element-1',
+                        component: 'Sw:Content:Text',
+                    },
+                ],
+            },
+            allowSave: true,
+            executeStructuralDraftMutation,
+            normalizeMoveIndex,
+        };
+
+        await methods.onMoveElement.call(vm, {
+            elementId: 'element-1',
+            newParentElementId: 'parent-1',
+            newSlotName: 'main',
+            newIndex: 2,
+        });
+
+        expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
+            'move',
+            [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            {
+                elementId: 'element-1',
+                newParentId: 'parent-1',
+                newSlot: 'main',
+                index: 1,
+            },
+            expect.any(Function),
+        );
+    });
+
     it('records history and applies latest successful draft mutation response', async () => {
         const pushToHistory = jest.fn();
         const vm = {
@@ -241,5 +278,111 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         await firstCall;
 
         expect(vm.layout.layout[0].id).toBe('newer');
+    });
+
+    it('calls move mutation endpoint for move operations', async () => {
+        const moveElement = jest.fn().mockResolvedValue({
+            layout: [],
+            resolutions: {},
+            diagnostics: {
+                wellFormed: true,
+                resolvable: true,
+                violations: [],
+            },
+            affectedElementIds: [],
+            orphaned: [],
+            droppedWiring: [],
+            droppedProperties: {},
+        });
+        const vm = {
+            draftMutationService: () => ({
+                moveElement,
+            }),
+            createDraftMutationPayload: jest.fn().mockReturnValue({
+                layout: [],
+                rootSource: 'category',
+                elementId: 'element-1',
+                newParentId: null,
+                newSlot: null,
+            }),
+        };
+
+        await methods.requestDraftMutation.call(
+            vm,
+            'move',
+            [],
+            {
+                elementId: 'element-1',
+                newParentId: null,
+                newSlot: null,
+            },
+        );
+
+        expect(moveElement).toHaveBeenCalledWith({
+            layout: [],
+            rootSource: 'category',
+            elementId: 'element-1',
+            newParentId: null,
+            newSlot: null,
+        });
+    });
+
+    it('rejects invalid move targets from subtree cycles', () => {
+        const vm = {
+            layout: {
+                layout: [
+                    {
+                        id: 'parent',
+                        component: 'Sw:Layout:Container',
+                        slots: {
+                            main: [
+                                {
+                                    id: 'child',
+                                    component: 'Sw:Content:Text',
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            isElementInSubtree: methods.isElementInSubtree,
+        };
+
+        expect(
+            methods.validateMoveTarget.call(vm, {
+                elementId: 'parent',
+                newParentElementId: 'child',
+                newSlotName: 'main',
+                newIndex: 0,
+            }),
+        ).toBe(false);
+    });
+
+    it('adjusts move index when reordering in same slot', () => {
+        const layout = [
+            {
+                id: 'parent',
+                component: 'Sw:Layout:Container',
+                slots: {
+                    main: [
+                        { id: 'a', component: 'Sw:Content:Text' },
+                        { id: 'b', component: 'Sw:Content:Text' },
+                        { id: 'c', component: 'Sw:Content:Text' },
+                    ],
+                },
+            },
+        ];
+        const vm = {
+            resolveMoveTargetElements: methods.resolveMoveTargetElements,
+        };
+
+        const normalizedIndex = methods.normalizeMoveIndex.call(vm, layout, {
+            elementId: 'a',
+            newParentElementId: 'parent',
+            newSlotName: 'main',
+            newIndex: 2,
+        });
+
+        expect(normalizedIndex).toBe(1);
     });
 });

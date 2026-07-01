@@ -7,6 +7,8 @@
             'is--active': isSelected,
             'is--expandable': hasSlots
         }"
+        v-draggable="dragConfig()"
+        v-droppable="dropConfigForElement()"
         role="button"
         tabindex="0"
         @click="onSelectElement"
@@ -31,7 +33,7 @@
         <div class="sw-experience-studio-sidebar-tree-node__label">
             <mt-icon
                 class="sw-experience-studio-sidebar-tree-node__type-icon"
-                name="bars-square-s"
+                :name="typeIcon"
                 size="12px"
             />
 
@@ -77,22 +79,6 @@
                 />
             </button>
 
-            <button
-                v-tooltip="{
-                    message: $t('sw-experience-studio.detail.sidebarTree.configureElement'),
-                    disabled: allowEdit
-                }"
-                class="sw-experience-studio-sidebar-tree-node__action"
-                type="button"
-                :disabled="!allowEdit || undefined"
-                :aria-label="$t('sw-experience-studio.detail.sidebarTree.configureElement')"
-                @click.stop="onConfigureElement"
-            >
-                <mt-icon
-                    name="regular-cog"
-                    size="16px"
-                />
-            </button>
         </div>
         {% endblock %}
     </div>
@@ -146,17 +132,27 @@
                 {% block sw_experience_studio_sidebar_tree_node_slot_elements %}
                 <div class="sw-experience-studio-sidebar-tree-node__slot-elements">
                     <sw-experience-studio-sidebar-tree-node
-                        v-for="childElement in slot.elements"
+                        v-for="(childElement, childIndex) in slot.elements"
                         :key="childElement.id"
                         :element="childElement"
                         :selected-element-id="selectedElementId"
                         :depth="depth + 1"
+                        :allow-drag-and-drop="allowDragAndDrop"
+                        :validate-move-target="validateMoveTarget"
+                        :parent-element-id="contentElement.id"
+                        :parent-slot-name="slot.name"
+                        :index-in-parent="childIndex"
                         @select-element="$emit('select-element', $event)"
                         @add-element="$emit('add-element', $event)"
                         @duplicate-element="$emit('duplicate-element', $event)"
                         @delete-element="$emit('delete-element', $event)"
+                        @move-element="$emit('move-element', $event)"
                     />
                 </div>
+                <div
+                    class="sw-experience-studio-sidebar-tree-node__slot-drop-target"
+                    v-droppable="dropConfigForSlot(slot.name)"
+                ></div>
                 {% endblock %}
             </div>
         </template>

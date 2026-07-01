@@ -122,9 +122,9 @@ class HtmlRendererTest extends TestCase
 
         $rendered = '<html>print</html>';
 
-        $env = $this->createMock(Environment::class);
+        $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
-            ->method('render')
+            ->method('renderWithTimezoneOverride')
             ->with(
                 self::HTML_TEMPLATE_PATH,
                 static::callback(function (array $parameters) use ($renderData): bool {
@@ -133,7 +133,8 @@ class HtmlRendererTest extends TestCase
                     static::assertSame($renderData->config->itemsPerPage, $parameters['config']->itemsPerPage);
 
                     return true;
-                })
+                }),
+                null,
             )
             ->willReturn($rendered);
 

@@ -134,7 +134,8 @@ export default {
         },
 
         async loadCoverImageDescriptionHintConfig() {
-            const config = await Shopware.Store.get('adminUserConfig').get('product.hideCoverImageDescriptionHint');
+            const config = (await Shopware.Service('userConfigService').search(['product.hideCoverImageDescriptionHint']))
+                ?.data?.['product.hideCoverImageDescriptionHint'];
 
             this.hideCoverImageDescriptionHint = !!config?.value;
         },
@@ -142,7 +143,7 @@ export default {
         async onCloseCoverImageDescriptionHint() {
             this.hideCoverImageDescriptionHint = true;
 
-            await Shopware.Store.get('adminUserConfig').upsert({
+            await Shopware.Service('userConfigService').upsert({
                 'product.hideCoverImageDescriptionHint': {
                     value: true,
                 },
@@ -163,10 +164,19 @@ export default {
         },
 
         loadProductNumberRangeId() {
-            return Shopware.Store.get('adminReferenceData')
-                .loadProductNumberRangeIds()
+            const criteria = new Shopware.Data.Criteria(1, 25);
+
+            criteria.addFilter(Shopware.Data.Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Shopware.Data.Criteria.equals('global', true));
+
+            return Shopware.Service('repositoryFactory')
+                .create('number_range')
+                .searchIds(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'number-range-ids', 'product'],
+                    ttl: 5 * 60 * 1000,
+                })
                 .then((numberRangeIds) => {
-                    this.productNumberRangeId = numberRangeIds[0];
+                    this.productNumberRangeId = numberRangeIds.data[0];
                 });
         },
     },

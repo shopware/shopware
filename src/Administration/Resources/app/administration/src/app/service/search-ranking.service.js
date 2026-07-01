@@ -180,7 +180,9 @@ export default function createSearchRankingService() {
 
     function clearCacheUserSearchConfiguration() {
         cacheUserSearchConfiguration = undefined;
-        Shopware.Store.get('adminUserConfig').invalidate();
+        Shopware.Service('cacheService').invalidateCaches({
+            cacheKey: ['user-config'],
+        });
     }
 
     async function getMinSearchTermLength() {
@@ -440,9 +442,11 @@ export default function createSearchRankingService() {
             return entityName ? cacheUserSearchConfiguration[entityName] : cacheUserSearchConfiguration;
         }
 
-        return Shopware.Store.get('adminUserConfig')
-            .get(KEY_USER_SEARCH_PREFERENCE)
-            .then((value) => {
+        return Shopware.Service('userConfigService')
+            .search([KEY_USER_SEARCH_PREFERENCE])
+            .then((response) => {
+                const value = response?.data?.[KEY_USER_SEARCH_PREFERENCE];
+
                 if (!value) {
                     return undefined;
                 }

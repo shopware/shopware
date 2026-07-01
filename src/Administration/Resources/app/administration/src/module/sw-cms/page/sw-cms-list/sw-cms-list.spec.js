@@ -7,7 +7,6 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/app/store/admin-user-config.store';
 
 const userConfigServiceMock = {
     search: jest.fn(() => Promise.resolve({ data: {} })),
@@ -226,7 +225,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     beforeEach(() => {
         userConfigServiceMock.search.mockResolvedValue({ data: {} });
         userConfigServiceMock.upsert.mockResolvedValue();
-        Shopware.Store.get('adminUserConfig').$reset();
     });
 
     it('should show the right list of pageTypes for the filters', async () => {

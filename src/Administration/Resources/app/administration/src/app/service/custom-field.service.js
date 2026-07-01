@@ -1,6 +1,7 @@
 const { remove } = Shopware.Utils.array;
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
+const DEFAULT_TTL = 5 * 60 * 1000;
 
 /**
  * @sw-package framework
@@ -14,8 +15,6 @@ const { Criteria } = Shopware.Data;
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createCustomFieldService() {
-    const customFieldSetCache = {};
-    const pendingCustomFieldSetLoads = {};
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
@@ -164,29 +163,19 @@ export default function createCustomFieldService() {
         });
     }
 
-    function getCustomFieldSets(entityName) {
-        if (customFieldSetCache[entityName]) {
-            return Promise.resolve(customFieldSetCache[entityName]);
-        }
-
-        if (pendingCustomFieldSetLoads[entityName]) {
-            return pendingCustomFieldSetLoads[entityName];
-        }
-
+    function getCustomFieldSets(entityName, forceReload = false) {
         const customFieldSetRepository = Service('repositoryFactory').create('custom_field_set');
+        const cacheService = Service('cacheService');
 
-        pendingCustomFieldSetLoads[entityName] = customFieldSetRepository
-            .search(customFieldSetCriteria(entityName), Shopware.Context.api)
-            .then((sets) => {
-                customFieldSetCache[entityName] = sets.filter((set) => set.customFields.length > 0);
-
-                return customFieldSetCache[entityName];
-            })
-            .finally(() => {
-                pendingCustomFieldSetLoads[entityName] = null;
-            });
-
-        return pendingCustomFieldSetLoads[entityName];
+        return cacheService.query({
+            key: ['custom-field-sets', entityName, Shopware.Context.api.languageId ?? 'default'],
+            ttl: DEFAULT_TTL,
+            forceReload,
+            fn: () =>
+                customFieldSetRepository
+                    .search(customFieldSetCriteria(entityName), Shopware.Context.api)
+                    .then((sets) => sets.filter((set) => set.customFields.length > 0)),
+        });
     }
 
     function customFieldSetCriteria(entityName) {

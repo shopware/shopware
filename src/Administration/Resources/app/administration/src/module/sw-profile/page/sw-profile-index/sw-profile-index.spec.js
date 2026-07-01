@@ -6,7 +6,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
-import 'src/app/store/admin-user-config.store';
 import 'src/module/sw-profile/store/sw-profile.store';
 
 async function createWrapper(
@@ -133,9 +132,8 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('adminUserConfig').$reset();
         Shopware.Store.get('swProfile').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
     });
 
     afterEach(() => {
@@ -326,7 +324,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         await wrapper.vm.saveUserSearchPreferences();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'search.preferences': [
                 {
                     product: {

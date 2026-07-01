@@ -1,6 +1,4 @@
 import Store from 'src/app/store';
-import 'src/app/store/admin-reference-data.store';
-import 'src/app/store/admin-user-config.store';
 import '../store/admin-menu.store';
 import '../store/block-override.store';
 import 'src/app/store/extension-entry-routes.store';

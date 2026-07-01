@@ -7,7 +7,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
-import 'src/app/store/admin-reference-data.store';
 import Criteria from 'src/core/data/criteria.data';
 
 const { Module } = Shopware;
@@ -313,13 +312,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
-        Shopware.Store.get('adminReferenceData').$reset();
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadSalesChannelTypes').mockResolvedValue([
-            {
-                id: 'xxxxxxx',
-                translated: { name: 'Storefront' },
-            },
-        ]);
 
         userActivityApiServiceMock = {
             getIncrement: jest.fn(() => Promise.resolve({})),

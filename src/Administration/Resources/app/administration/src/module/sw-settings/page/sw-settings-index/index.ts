@@ -123,7 +123,9 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async getUserConfig() {
-            const config = await Shopware.Store.get('adminUserConfig').get<{ value?: boolean }>('settings.hideRenameBanner');
+            const config = (await Shopware.Service('userConfigService').search(['settings.hideRenameBanner']))?.data?.[
+                'settings.hideRenameBanner'
+            ] as { value?: boolean } | undefined;
 
             this.hideSettingRenameBanner = !!config?.value;
         },
@@ -134,7 +136,7 @@ export default Shopware.Component.wrapComponentConfig({
         async onCloseSettingRenameBanner() {
             this.hideSettingRenameBanner = true;
 
-            await Shopware.Store.get('adminUserConfig').upsert({
+            await Shopware.Service('userConfigService').upsert({
                 'settings.hideRenameBanner': {
                     value: true,
                 },

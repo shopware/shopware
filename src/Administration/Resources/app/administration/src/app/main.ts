@@ -47,6 +47,7 @@ import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 import FileValidationService from 'src/app/service/file-validation.service';
+import CacheService from 'src/app/service/cache.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -130,6 +131,9 @@ Application.addServiceProvider('feature', () => {
         addCustomerGroupRegistrationListener(loginService);
 
         return loginService;
+    })
+    .addServiceProvider('cacheService', () => {
+        return new CacheService();
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;

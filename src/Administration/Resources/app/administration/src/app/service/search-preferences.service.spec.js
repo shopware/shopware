@@ -3,11 +3,10 @@
  */
 import SearchPreferencesService from 'src/app/service/search-preferences.service';
 import orderDefaultSearchConfiguration from 'src/module/sw-order/default-search-configuration';
-import 'src/app/store/admin-user-config.store';
 
 describe('searchPreferencesService', () => {
     beforeEach(() => {
-        Shopware.Store.get('adminUserConfig').$reset();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
     });
 
     it('is registered correctly', () => {

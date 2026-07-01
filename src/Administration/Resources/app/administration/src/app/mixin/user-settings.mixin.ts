@@ -88,7 +88,9 @@ export default Shopware.Mixin.register(
                 }
 
                 if (!userId || userId === this.currentUser?.id) {
-                    return (await Shopware.Store.get('adminUserConfig').get(identifier)) ?? null;
+                    const response = await Shopware.Service('userConfigService').search([identifier]);
+
+                    return response?.data?.[identifier] ?? null;
                 }
 
                 const entity = await this.getUserSettingsEntity(identifier, userId);
@@ -133,7 +135,7 @@ export default Shopware.Mixin.register(
                 }
 
                 if (!userId || userId === this.currentUser?.id) {
-                    return Shopware.Store.get('adminUserConfig').upsert({
+                    return Shopware.Service('userConfigService').upsert({
                         [identifier]: entityValue,
                     });
                 }

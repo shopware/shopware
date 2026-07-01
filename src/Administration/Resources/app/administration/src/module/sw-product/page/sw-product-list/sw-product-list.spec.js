@@ -8,8 +8,6 @@ import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/store/admin-reference-data.store';
-import 'src/app/store/admin-user-config.store';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -381,11 +379,8 @@ describe('module/sw-product/page/sw-product-list', () => {
     beforeEach(async () => {
         jest.restoreAllMocks();
         lastProductSearchCriteria = null;
-        Shopware.Store.get('adminReferenceData').$reset();
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadCurrencies').mockResolvedValue(getCurrencyData());
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         const data = await createWrapper();
         wrapper = data.wrapper;
@@ -428,10 +423,10 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(skeletonElement.exists()).toBe(false);
     });
 
-    it('loads currencies from the shared reference data store', async () => {
+    it('loads currencies through the shared cache path', async () => {
         await wrapper.vm.getList();
 
-        expect(Shopware.Store.get('adminReferenceData').loadCurrencies).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.currencies).toEqual(getCurrencyData());
     });
 
     it('should sort products by different currencies', async () => {

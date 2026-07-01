@@ -39,7 +39,7 @@ export default class AdminNotificationWorker {
 
                 if (timestamp) {
                     this._timestamp = timestamp;
-                    Shopware.Store.get('adminUserConfig').upsert({
+                    Shopware.Service('userConfigService').upsert({
                         [READ_NOTIFICATION]: { timestamp },
                     });
                 }
@@ -68,7 +68,7 @@ export default class AdminNotificationWorker {
     }
 
     async fetchUserConfig() {
-        const value = await Shopware.Store.get('adminUserConfig').get(READ_NOTIFICATION);
+        const value = (await Shopware.Service('userConfigService').search([READ_NOTIFICATION]))?.data?.[READ_NOTIFICATION];
 
         if (value) {
             this._timestamp = value.timestamp;

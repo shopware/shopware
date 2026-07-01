@@ -147,47 +147,59 @@ When an app has a `Resources/config/custom-fields.xml` file, it takes priority o
 
 ## Administration
 
-### Administration caches shared user configuration and reference data
+### Administration caches shared user configuration and lookup data
 
-Administration now reuses shared Pinia stores for current-user configuration and frequently loaded reference data such as currencies, taxes, active languages, sales channel types, product number ranges, and the system currency. This reduces repeated Admin API requests when multiple Administration components need the same data.
+Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
 
-Custom Administration extensions that update these values outside the standard Shopware services should reload the affected view, invalidate the related store, or request a forced reload before expecting already mounted components to show the changed data.
-
-If your plugin updates current-user configuration, prefer writing through the store so the cache stays in sync:
+Current-user configuration is cached per current user through `userConfigService`. Read individual keys from the shared cached `_info/config-me` response and write changes through the same service:
 
 ```js
-const userConfigStore = Shopware.Store.get('adminUserConfig');
+const userConfigService = Shopware.Service('userConfigService');
 
-await userConfigStore.upsert({
-    'my-plugin.config-key': value,
+const response = await userConfigService.search(['my-plugin.config-key']);
+const value = response?.data?.['my-plugin.config-key'];
+
+await userConfigService.upsert({
+    'my-plugin.config-key': nextValue,
 });
 ```
 
-If your plugin updates `user_config` through another API path, invalidate the cached values before reading them again:
+Shared entity reads can be cached directly on repository reads by passing a stable `cacheKey`:
 
 ```js
-const userConfigStore = Shopware.Store.get('adminUserConfig');
+const criteria = new Shopware.Data.Criteria(1, 500);
+criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC', false));
 
-userConfigStore.invalidate();
-
-const value = await userConfigStore.get('my-plugin.config-key');
+const currencies = await Shopware.Service('repositoryFactory')
+    .create('currency')
+    .search(criteria, Shopware.Context.api, {
+        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+        ttl: 5 * 60 * 1000,
+    });
 ```
 
-For cached reference data, force a reload of the affected data or invalidate it so the next read fetches fresh data:
+If your plugin changes cached data and needs a fresh follow-up read, either invalidate the affected cache key prefix or force the next read to reload:
 
 ```js
-const referenceDataStore = Shopware.Store.get('adminReferenceData');
+const cacheService = Shopware.Service('cacheService');
+const taxRepository = Shopware.Service('repositoryFactory').create('tax');
 
-// Pass true to force a reload, even when the cached currencies are still fresh.
-const currencies = await referenceDataStore.loadCurrencies(true);
+cacheService.invalidateCaches({
+    // Invalidate only the cached tax entries.
+    cacheKey: ['shared-data', 'taxes'],
+});
 
-// Invalidate only the cached reference data your plugin changed.
-referenceDataStore.invalidateCurrencies();
-referenceDataStore.invalidateTaxes();
-referenceDataStore.invalidateActiveLanguages();
-referenceDataStore.invalidateSalesChannelTypes();
-referenceDataStore.invalidateProductNumberRangeIds();
-referenceDataStore.invalidateSystemCurrency();
+const freshTaxes = await taxRepository.search(criteria, Shopware.Context.api, {
+    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
+    // true bypasses the cached result for this read and stores the fresh response again.
+    forceReload: true,
+    ttl: 5 * 60 * 1000,
+});
+
+cacheService.invalidateCaches({
+    // Custom field sets can be invalidated independently from taxes.
+    cacheKey: ['custom-field-sets', 'product'],
+});
 ```
 
 ### Snippet inheritance from JSON language files

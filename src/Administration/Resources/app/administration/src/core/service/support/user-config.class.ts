@@ -9,6 +9,10 @@ enum USER_CONFIG_PERMISSIONS {
     UPDATE = 'user_config:update',
 }
 
+type SessionUser = {
+    id?: string;
+};
+
 abstract class UserConfigClass {
     private currentUserId = this.getCurrentUserId();
 
@@ -46,7 +50,9 @@ abstract class UserConfigClass {
         }
 
         const userConfig = Object.assign(this.createUserConfigEntity(this.getConfigurationKey()), this.userConfig, {
-            value: await Shopware.Store.get('adminUserConfig').get(this.getConfigurationKey()),
+            value: (await Shopware.Service('userConfigService').search([this.getConfigurationKey()]))?.data?.[
+                this.getConfigurationKey()
+            ],
         });
 
         return this.handleEmptyUserConfig(userConfig);
@@ -59,8 +65,10 @@ abstract class UserConfigClass {
 
         this.setUserConfig();
 
-        await Shopware.Store.get('adminUserConfig').upsert({
-            [this.getConfigurationKey()]: this.userConfig.value,
+        const configurationKey = this.getConfigurationKey();
+
+        await Shopware.Service('userConfigService').upsert({
+            [configurationKey]: this.userConfig.value as unknown,
         });
         await this.readUserConfig();
     }
@@ -82,7 +90,9 @@ abstract class UserConfigClass {
     }
 
     private getCurrentUserId(): string {
-        return Shopware.Store.get('session').currentUser?.id ?? '';
+        const currentUser = Shopware.Store.get('session').currentUser as SessionUser | undefined;
+
+        return currentUser?.id ?? '';
     }
 }
 

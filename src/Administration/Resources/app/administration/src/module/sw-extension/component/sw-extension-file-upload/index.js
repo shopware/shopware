@@ -120,7 +120,7 @@ export default {
         async getUserConfig() {
             this.pluginUploadUserConfig = {
                 key: USER_CONFIG_KEY,
-                value: (await Shopware.Store.get('adminUserConfig').get(USER_CONFIG_KEY)) || {
+                value: (await Shopware.Service('userConfigService').search([USER_CONFIG_KEY]))?.data?.[USER_CONFIG_KEY] || {
                     hide_upload_warning: false,
                 },
             };
@@ -131,7 +131,7 @@ export default {
                 hide_upload_warning: value,
             };
 
-            Shopware.Store.get('adminUserConfig')
+            Shopware.Service('userConfigService')
                 .upsert({
                     [USER_CONFIG_KEY]: this.pluginUploadUserConfig.value,
                 })

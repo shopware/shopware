@@ -23,9 +23,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        Shopware.Store.get('adminUserConfig')
-            .get<boolean[]>('core.hide-services-dashboard-banner')
-            .then((config) => {
+        Shopware.Service('userConfigService')
+            .search(['core.hide-services-dashboard-banner'])
+            .then((response) => {
+                const config = response?.data?.['core.hide-services-dashboard-banner'] as boolean[] | undefined;
+
                 this.isHidden = config?.[0] ?? false;
             })
             .catch(() => {
@@ -35,7 +37,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         async hideBanner() {
-            await Shopware.Store.get('adminUserConfig').upsert({
+            await Shopware.Service('userConfigService').upsert({
                 'core.hide-services-dashboard-banner': [true],
             });
 

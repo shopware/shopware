@@ -3,7 +3,6 @@
  */
 import { reactive } from 'vue';
 import UserConfigBaseClass from './user-config.class';
-import 'src/app/store/admin-user-config.store';
 
 class UserConfigImplementation extends UserConfigBaseClass {
     static USER_CONFIG_KEY = 'favorites';
@@ -77,10 +76,13 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     let service;
 
     beforeEach(() => {
-        Shopware.Store.get('adminUserConfig').$reset();
         jest.spyOn(Shopware.Service('acl'), 'can').mockReturnValue(true);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue([]);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                favorites: [],
+            },
+        });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
         Shopware.Store.get('session').setCurrentUser({
             id: '8fe88c269c214ea68badf7ebe678ab96',
         });
@@ -187,7 +189,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
 
         await service.saveUserConfig();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             favorites: [
                 'foo',
             ],

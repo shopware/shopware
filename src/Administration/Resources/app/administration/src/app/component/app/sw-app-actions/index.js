@@ -201,7 +201,7 @@ export default {
         async getUserConfig() {
             this.iframeUserConfig = {
                 key: IFRAME_KEY,
-                value: (await Shopware.Store.get('adminUserConfig').get(IFRAME_KEY)) || {
+                value: (await Shopware.Service('userConfigService').search([IFRAME_KEY]))?.data?.[IFRAME_KEY] || {
                     isShowModalConfirm: true,
                 },
             };
@@ -217,7 +217,7 @@ export default {
                 isShowModalConfirm: value,
             };
 
-            Shopware.Store.get('adminUserConfig')
+            Shopware.Service('userConfigService')
                 .upsert({
                     [IFRAME_KEY]: this.iframeUserConfig.value,
                 })

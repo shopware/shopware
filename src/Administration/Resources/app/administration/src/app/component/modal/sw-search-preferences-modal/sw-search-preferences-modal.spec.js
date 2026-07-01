@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/store/admin-user-config.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-search-preferences-modal', { sync: true }), {
@@ -42,7 +41,6 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
 
     beforeEach(async () => {
         jest.restoreAllMocks();
-        Shopware.Store.get('adminUserConfig').$reset();
         Shopware.Application.view.deleteReactive = () => {};
         wrapper = await createWrapper();
         await flushPromises();
@@ -64,8 +62,8 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
         expect(wrapper.emitted()['modal-close']).toBeTruthy();
     });
 
-    it('should call the admin user config store when saving changes', async () => {
-        const upsertMock = jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    it('should call the user config service when saving changes', async () => {
+        const upsertMock = jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         await wrapper.find('.sw-search-preferences-modal__button-save').trigger('click');
 

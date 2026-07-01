@@ -22,7 +22,7 @@ export default class FilterService {
             key: storeKey,
             value: queryFilterValue
                 ? JSON.parse(decodeURIComponent(queryFilterValue)) || {}
-                : (await Shopware.Store.get('adminUserConfig').get(storeKey)) || {},
+                : (await Shopware.Service('userConfigService').search([storeKey]))?.data?.[storeKey] || {},
         };
 
         if (!queryFilterValue) {
@@ -63,7 +63,7 @@ export default class FilterService {
 
         this._pushFiltersToUrl();
 
-        return Shopware.Store.get('adminUserConfig')
+        return Shopware.Service('userConfigService')
             .upsert({
                 [storeKey]: filterValues,
             })

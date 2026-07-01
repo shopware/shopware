@@ -1355,7 +1355,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return Shopware.Store.get('adminUserConfig').upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,
@@ -1378,10 +1378,13 @@ export default {
         },
 
         async loadPreferenceUnits() {
-            const preferenceUnits = (await Shopware.Store.get('adminUserConfig').get('measurement.preferenceUnits')) || {
-                length: 'mm',
-                weight: 'kg',
-            };
+            const preferenceUnits =
+                (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
+                    'measurement.preferenceUnits'
+                ] || {
+                    length: 'mm',
+                    weight: 'kg',
+                };
 
             this.preferenceUnits = preferenceUnits;
             this.lengthUnit = preferenceUnits.length;

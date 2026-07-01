@@ -463,7 +463,7 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return Shopware.Store.get('adminUserConfig')
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

@@ -13,7 +13,6 @@ import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/utils/sw-popover';
-import 'src/app/store/admin-user-config.store';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
@@ -84,9 +83,8 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         Shopware.Store.get('shopwareApps').selectedIds = [
             Shopware.Utils.createId(),
@@ -272,7 +270,7 @@ describe('sw-app-actions', () => {
         const actionButtonId = Shopware.Utils.createId();
         await wrapper.vm.appActionButtonService.runAction(actionButtonId);
 
-        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('app.action_button.iframe');
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['app.action_button.iframe']);
         expect(wrapper.find('.sw-modal-app-action-button').exists()).toBe(true);
     });
 });

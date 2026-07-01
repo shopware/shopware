@@ -5,6 +5,8 @@
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
+const { Criteria } = Shopware.Data;
+
 /**
  * @private
  */
@@ -111,8 +113,16 @@ export default {
         },
 
         loadCurrencies() {
-            Shopware.Store.get('adminReferenceData')
-                .loadCurrencies()
+            const criteria = new Criteria(1, 500);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            Shopware.Service('repositoryFactory')
+                .create('currency')
+                .search(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
                 .then((currencies) => {
                     this.currencyCollection = [...currencies];
                     this.sortCurrencies();

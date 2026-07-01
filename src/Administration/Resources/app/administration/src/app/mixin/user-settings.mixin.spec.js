@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import 'src/app/mixin/user-settings.mixin';
-import 'src/app/store/admin-user-config.store';
 import { mount } from '@vue/test-utils';
 
 let createRepositoryFactoryMock;
@@ -47,7 +46,6 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
             'user_config:create',
             'user_config:update',
         ];
-        Shopware.Store.get('adminUserConfig').$reset();
         Shopware.Store.get('session').setCurrentUser({ id: 'current-user-id' });
         wrapper = await createWrapper();
 
@@ -172,8 +170,8 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
         );
     });
 
-    it('should save current user settings through the admin user config store', async () => {
-        const upsertMock = jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+    it('should save current user settings through the user config service', async () => {
+        const upsertMock = jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         const result = await wrapper.vm.saveUserSettings('my-identifier', {
             entity: 'value',

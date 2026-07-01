@@ -7,7 +7,6 @@
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/app/store/admin-user-config.store';
 
 const userConfigServiceMock = {
     search: jest.fn(() => Promise.resolve({ data: {} })),
@@ -65,16 +64,14 @@ describe('components/data-grid/sw-data-grid', () => {
             props = { ...defaultProps, ...props };
         }
 
-        const adminUserConfigStore = Shopware.Store.get('adminUserConfig');
         const configurationKey = `grid.setting.${(props ?? defaultProps).identifier}`;
 
-        adminUserConfigStore.configs = {
-            [configurationKey]: (userConfig ?? defaultUserConfig).value,
-        };
-        adminUserConfigStore.loaded = true;
-        adminUserConfigStore.userId = adminUserConfigStore.getCurrentUserId();
-
-        jest.spyOn(adminUserConfigStore, 'upsert').mockResolvedValue();
+        userConfigServiceMock.search.mockResolvedValue({
+            data: {
+                [configurationKey]: (userConfig ?? defaultUserConfig).value,
+            },
+        });
+        userConfigServiceMock.upsert.mockResolvedValue();
 
         stubs = {
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
@@ -174,7 +171,6 @@ describe('components/data-grid/sw-data-grid', () => {
         jest.clearAllMocks();
         userConfigServiceMock.search.mockResolvedValue({ data: {} });
         userConfigServiceMock.upsert.mockResolvedValue();
-        Shopware.Store.get('adminUserConfig').$reset();
     });
 
     it('should be in compact mode by default', async () => {
@@ -275,7 +271,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         wrapper.vm.onChangePreviews(true);
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(userConfigServiceMock.upsert).toHaveBeenCalledWith({
             'grid.setting.sw-customer-list': {
                 columns: wrapper.vm.currentColumns,
                 compact: wrapper.vm.compact,

@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/store/admin-reference-data.store';
 
 describe('src/app/component/structure/sw-language-switch', () => {
     let wrapper = null;
@@ -11,7 +10,6 @@ describe('src/app/component/structure/sw-language-switch', () => {
     beforeEach(async () => {
         jest.restoreAllMocks();
         Shopware.Store.get('context').api.languageId = '123456789';
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadActiveLanguages').mockResolvedValue([]);
 
         wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
             global: {

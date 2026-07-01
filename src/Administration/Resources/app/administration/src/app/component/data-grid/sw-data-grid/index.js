@@ -1,6 +1,5 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
-import 'src/app/store/admin-user-config.store';
 
 const { Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -386,9 +385,11 @@ export default {
                 return Promise.resolve();
             }
 
-            return Shopware.Store.get('adminUserConfig')
-                .get(`grid.setting.${this.identifier}`)
-                .then((userSetting) => {
+            return Shopware.Service('userConfigService')
+                .search([`grid.setting.${this.identifier}`])
+                .then((response) => {
+                    const userSetting = response?.data?.[`grid.setting.${this.identifier}`];
+
                     if (!userSetting) {
                         return;
                     }
@@ -510,7 +511,7 @@ export default {
 
             this.currentSetting = { value: currentSetting };
 
-            return Shopware.Store.get('adminUserConfig').upsert({
+            return Shopware.Service('userConfigService').upsert({
                 [`grid.setting.${this.identifier}`]: currentSetting,
             });
         },

@@ -1,8 +1,8 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
-import 'src/app/store/admin-reference-data.store';
 
 const { warn } = Shopware.Utils.debug;
+const { Criteria } = Shopware.Data;
 
 /**
  * @sw-package framework
@@ -90,8 +90,17 @@ export default {
         loadActiveLanguages() {
             this.isLoadingLanguages = true;
 
-            return Shopware.Store.get('adminReferenceData')
-                .loadActiveLanguages()
+            const criteria = new Criteria(1, 500);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equals('active', true));
+
+            return Shopware.Service('repositoryFactory')
+                .create('language')
+                .search(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'active-languages', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
                 .then((languages) => {
                     this.activeLanguages = [...languages];
 

@@ -229,13 +229,14 @@ export default {
         },
 
         async getFilterSettings() {
-            const userConfig = await Shopware.Store.get('adminUserConfig').get('grid.filter.setting-snippet-list');
+            const userConfig = (await Shopware.Service('userConfigService').search(['grid.filter.setting-snippet-list']))
+                ?.data?.['grid.filter.setting-snippet-list'];
 
             this.filterSettings = userConfig || this.createFilterSettings();
         },
 
         saveUserConfig() {
-            return Shopware.Store.get('adminUserConfig').upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'grid.filter.setting-snippet-list': this.filterSettings,
             });
         },

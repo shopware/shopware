@@ -170,7 +170,7 @@ export default {
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
-            return Shopware.Store.get('adminUserConfig')
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

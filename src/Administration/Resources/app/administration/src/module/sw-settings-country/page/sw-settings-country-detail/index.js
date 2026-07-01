@@ -159,7 +159,9 @@ export default {
         async loadUserConfig() {
             this.userConfig = {
                 key: 'setting-country',
-                value: (await Shopware.Store.get('adminUserConfig').get('setting-country')) || [],
+                value: (await Shopware.Service('userConfigService').search(['setting-country']))?.data?.[
+                    'setting-country'
+                ] || [],
             };
             this.userConfigValues = this.userConfig.value[this.countryId];
 
@@ -183,7 +185,7 @@ export default {
                 .save(this.country, Shopware.Context.api)
                 .then(() => {
                     if (userConfigValue && Object.keys(userConfigValue).length > 0) {
-                        Shopware.Store.get('adminUserConfig')
+                        Shopware.Service('userConfigService')
                             .upsert({
                                 'setting-country': this.userConfig.value,
                             })

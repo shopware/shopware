@@ -6,7 +6,6 @@ import FilterService from 'src/app/service/filter.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import 'src/app/store/admin-user-config.store';
 
 const userConfigServiceMock = {
     search: jest.fn(),
@@ -23,7 +22,6 @@ describe('app/service/filter.service.js', () => {
         jest.restoreAllMocks();
         userConfigServiceMock.search.mockReset();
         userConfigServiceMock.upsert.mockReset();
-        Shopware.Store.get('adminUserConfig').$reset();
 
         const router = createRouter({
             history: createWebHashHistory(),

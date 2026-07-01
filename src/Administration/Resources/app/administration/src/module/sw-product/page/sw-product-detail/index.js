@@ -205,6 +205,14 @@ export default {
             return this.repositoryFactory.create('product_feature_set');
         },
 
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
+        taxRepository() {
+            return this.repositoryFactory.create('tax');
+        },
+
         currentUser() {
             return Shopware.Store.get('session').currentUser;
         },
@@ -561,7 +569,8 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         async getAdvancedModeSetting() {
-            const modeSettingsValue = await Shopware.Store.get('adminUserConfig').get(ADVANCED_MODE_SETTINGS_KEY);
+            const modeSettingsValue = (await Shopware.Service('userConfigService').search([ADVANCED_MODE_SETTINGS_KEY]))
+                ?.data?.[ADVANCED_MODE_SETTINGS_KEY];
 
             if (!modeSettingsValue) {
                 return;
@@ -595,7 +604,7 @@ export default {
                 true,
             ]);
 
-            return Shopware.Store.get('adminUserConfig')
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [ADVANCED_MODE_SETTINGS_KEY]: this.advancedModeSetting.value,
                 })
@@ -907,8 +916,15 @@ export default {
                 true,
             ]);
 
-            return Shopware.Store.get('adminReferenceData')
-                .loadCurrencies()
+            const criteria = new Criteria(1, 500);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return this.currencyRepository
+                .search(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').currencies = res;
                 })
@@ -926,8 +942,14 @@ export default {
                 true,
             ]);
 
-            return Shopware.Store.get('adminReferenceData')
-                .loadTaxes()
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(Criteria.sort('position'));
+
+            return this.taxRepository
+                .search(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
                 .then((res) => {
                     Shopware.Store.get('swProductDetail').setTaxes(res);
                 })
@@ -940,7 +962,17 @@ export default {
         },
 
         getDefaultTaxRate() {
-            return Shopware.Store.get('adminReferenceData').loadDefaultTaxRateId();
+            return Shopware.Service('cacheService')
+                .query({
+                    key: ['shared-data', 'default-tax-rate-id'],
+                    ttl: 5 * 60 * 1000,
+                    fn: () =>
+                        this.systemConfigApiService.getValues('core.tax').then((response) => {
+                            const defaultTaxRateId = response['core.tax.defaultTaxRate'];
+
+                            return typeof defaultTaxRateId === 'string' ? defaultTaxRateId : null;
+                        }),
+                });
         },
 
         loadAttributeSet() {
@@ -1474,7 +1506,9 @@ export default {
         },
 
         async getPreferredMeasurementUnits() {
-            return Shopware.Store.get('adminUserConfig').get('measurement.preferenceUnits');
+            return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
+                'measurement.preferenceUnits'
+            ];
         },
 
         savePreferenceUnits() {
@@ -1482,7 +1516,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return Shopware.Store.get('adminUserConfig').upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,

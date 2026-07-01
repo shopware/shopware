@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
-import 'src/app/store/admin-user-config.store';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
@@ -63,9 +62,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         jest.clearAllMocks();
         Shopware.Store.get('notification').notifications = {};
         Shopware.Store.get('notification').growlNotifications = {};
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
     });
 
     afterEach(() => {
@@ -159,7 +157,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         await wrapper.vm.handleUpload([createFile()]);
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'extension.plugin_upload': {
                 hide_upload_warning: true,
             },

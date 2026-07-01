@@ -45,9 +45,9 @@ export default function SearchPreferencesService() {
      * @returns {Promise}
      */
     function getUserSearchPreferences() {
-        return Shopware.Store.get('adminUserConfig')
-            .get(KEY_USER_SEARCH_PREFERENCE)
-            .then((value) => value || null);
+        return Shopware.Service('userConfigService')
+            .search([KEY_USER_SEARCH_PREFERENCE])
+            .then((response) => response?.data?.[KEY_USER_SEARCH_PREFERENCE] || null);
     }
 
     /**

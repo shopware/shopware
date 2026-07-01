@@ -3,7 +3,6 @@
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
-import 'src/app/store/admin-user-config.store';
 
 const routes = [
     {
@@ -181,9 +180,8 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     beforeEach(() => {
         countrySaveMock.mockClear();
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
     });
 
     afterEach(() => {
@@ -223,10 +221,14 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('loads country display settings from the admin user config store', async () => {
-        Shopware.Store.get('adminUserConfig').get.mockResolvedValue({
-            'the-id': {
-                showPreview: true,
+    it('loads country display settings from the user config service', async () => {
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'setting-country': {
+                    'the-id': {
+                        showPreview: true,
+                    },
+                },
             },
         });
         const wrapper = await createWrapper([
@@ -236,7 +238,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         wrapper.vm.countryId = 'the-id';
         await wrapper.vm.loadUserConfig();
 
-        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('setting-country');
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['setting-country']);
         expect(wrapper.vm.userConfigValues).toEqual({
             showPreview: true,
         });
@@ -258,7 +260,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         await wrapper.vm.onSave();
 
         expect(countrySaveMock).toHaveBeenCalled();
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'setting-country': {
                 'the-id': {
                     showPreview: true,

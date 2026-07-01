@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import 'src/app/store/admin-user-config.store';
 
 function getSnippets() {
     const data = {
@@ -56,9 +55,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
     let wrapper = null;
 
     beforeEach(() => {
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
     });
 
     afterEach(() => {

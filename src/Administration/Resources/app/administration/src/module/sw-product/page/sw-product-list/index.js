@@ -377,9 +377,15 @@ export default {
                     }
                 }
 
+                const currencyCriteria = new Criteria(1, 500);
+                currencyCriteria.addSorting(Criteria.sort('name', 'ASC', false));
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    Shopware.Store.get('adminReferenceData').loadCurrencies(),
+                    this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
+                        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                        ttl: 5 * 60 * 1000,
+                    }),
                 ]);
 
                 const products = result[0];

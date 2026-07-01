@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
@@ -96,8 +97,6 @@ import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
 import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
-import type { AdminReferenceDataStore } from './app/store/admin-reference-data.store';
-import type { AdminUserConfigStore } from './app/store/admin-user-config.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
@@ -242,6 +241,7 @@ declare global {
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
         businessEventService: BusinessEventsApiService;
+        cacheService: CacheService;
         cartStoreService: CartStoreService;
         checkoutStoreService: CheckoutStoreService;
         cmsBlockFavorites: cmsBlockFavoritesService;
@@ -395,8 +395,6 @@ declare global {
         topBarButton: TopBarButtonStore;
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
-        adminReferenceData: AdminReferenceDataStore;
-        adminUserConfig: AdminUserConfigStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
         extensionComponentSections: ExtensionComponentSectionsStore;
         blockOverride: BlockOverrideStore;

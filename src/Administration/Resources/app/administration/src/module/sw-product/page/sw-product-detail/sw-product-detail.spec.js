@@ -6,8 +6,6 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import 'src/app/store/admin-reference-data.store';
-import 'src/app/store/admin-user-config.store';
 
 const advancedModeSettings = {
     value: {
@@ -192,13 +190,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         jest.restoreAllMocks();
-        Shopware.Store.get('adminReferenceData').$reset();
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadCurrencies').mockResolvedValue([]);
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadTaxes').mockResolvedValue([]);
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadDefaultTaxRateId').mockResolvedValue(null);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue(undefined);
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         wrapper = await createWrapper();
 
@@ -358,12 +351,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
         await wrapper.vm.$nextTick();
-        Shopware.Store.get('adminReferenceData').loadCurrencies.mockResolvedValue([
-            {
-                id: '123',
-                name: 'EUR',
-            },
-        ]);
+        wrapper.unmount();
+        wrapper = await createWrapper(() =>
+            Promise.resolve([
+                {
+                    id: '123',
+                    name: 'EUR',
+                },
+            ]),
+        );
 
         await wrapper.vm.loadCurrencies();
         await nextTick();
@@ -500,7 +496,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
             weight: 'g',
         };
 
-        Shopware.Store.get('adminUserConfig').get.mockResolvedValue(preferredUnits);
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': preferredUnits,
+            },
+        });
 
         await wrapper.vm.initProductMeasurementUnits();
 
@@ -518,7 +518,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await wrapper.vm.saveProduct();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -531,7 +531,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await wrapper.vm.saveProduct();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).not.toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
         expect(wrapper.vm.previousLengthUnit).toBe('mm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
@@ -542,11 +542,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
             previousWeightUnit: 'kg',
         });
 
-        Shopware.Store.get('adminUserConfig').upsert.mockRejectedValue(new Error('Save failed'));
+        Shopware.Service('userConfigService').upsert.mockRejectedValue(new Error('Save failed'));
 
         await wrapper.vm.saveProduct();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalled();
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalled();
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
@@ -1107,12 +1107,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
             ],
         };
 
-        Shopware.Store.get('adminUserConfig').get.mockImplementation((key) => {
-            if (key === 'mode.setting.advancedModeSettings') {
-                return Promise.resolve(mockSettings);
+        Shopware.Service('userConfigService').search.mockImplementation((keys) => {
+            if (keys.includes('mode.setting.advancedModeSettings')) {
+                return Promise.resolve({
+                    data: {
+                        'mode.setting.advancedModeSettings': mockSettings,
+                    },
+                });
             }
 
-            return Promise.resolve(undefined);
+            return Promise.resolve({ data: {} });
         });
 
         wrapper = await createWrapper(
@@ -1139,7 +1143,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             'essential_characteristics',
             'custom_fields',
         ]);
-        expect(Shopware.Store.get('adminUserConfig').get).toHaveBeenCalledWith('mode.setting.advancedModeSettings');
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['mode.setting.advancedModeSettings']);
     });
 
     it('should clear stale variant data when opening create page after viewing a variant product', async () => {

@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 
 import settingCustomerGroupDetailCreateOverride from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-create';
-import 'src/app/store/admin-reference-data.store';
 
 Shopware.Component.override('sw-settings-customer-group-detail', settingCustomerGroupDetailCreateOverride);
 
@@ -132,7 +131,6 @@ async function createWrapper() {
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-create', () => {
     beforeEach(() => {
-        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadActiveLanguages').mockResolvedValue([]);
     });
 
     afterEach(() => {

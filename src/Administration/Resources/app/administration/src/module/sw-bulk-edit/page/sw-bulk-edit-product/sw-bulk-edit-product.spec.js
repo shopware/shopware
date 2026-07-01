@@ -5,7 +5,6 @@
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import 'src/app/store/admin-user-config.store';
 
 let bulkEditResponse = {
     data: {},
@@ -413,12 +412,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('adminUserConfig').$reset();
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'get').mockResolvedValue({
-            length: 'mm',
-            weight: 'kg',
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'mm',
+                    weight: 'kg',
+                },
+            },
         });
-        jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
@@ -1246,9 +1248,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should get preference units', async () => {
         const wrapper = await createWrapper();
-        Shopware.Store.get('adminUserConfig').get.mockResolvedValue({
-            length: 'cm',
-            weight: 'g',
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'cm',
+                    weight: 'g',
+                },
+            },
         });
 
         await wrapper.vm.loadPreferenceUnits();
@@ -1259,7 +1265,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should not get preference units', async () => {
         const wrapper = await createWrapper();
-        Shopware.Store.get('adminUserConfig').get.mockResolvedValue(undefined);
+        Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
 
         await wrapper.vm.loadPreferenceUnits();
 
@@ -1281,7 +1287,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await wrapper.vm.savePreferenceUnits();
 
-        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'measurement.preferenceUnits': {
                 length: 'cm',
                 weight: 'g',

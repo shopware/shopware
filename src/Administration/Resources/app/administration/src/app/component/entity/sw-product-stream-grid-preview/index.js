@@ -179,7 +179,15 @@ export default {
         },
 
         loadSystemDefaultCurrency() {
-            return Shopware.Store.get('adminReferenceData').loadSystemCurrency();
+            return this.repositoryFactory.create('currency').get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                cacheKey: [
+                    'shared-data',
+                    'system-currency',
+                    Shopware.Context.app.systemCurrencyId,
+                    Shopware.Context.api.languageId ?? 'default',
+                ],
+                ttl: 5 * 60 * 1000,
+            });
         },
 
         loadProducts() {

@@ -26,6 +26,8 @@ class RuleConfigControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(31536000, $response->getMaxAge());
+        static::assertTrue($response->headers->hasCacheControlDirective('private'));
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 

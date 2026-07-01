@@ -217,6 +217,48 @@ describe('core/factory/http.factory.js', () => {
         expect(typeof httpClient.request).toBe('function');
     });
 
+    it('should add the admin info cache key to static info requests', async () => {
+        const previousCacheKey = Shopware.Context.api.adminInfoCacheKey;
+        Shopware.Context.api.adminInfoCacheKey = 'test-cache-key';
+
+        try {
+            mock.onGet('/_info/config').reply(200, {});
+            mock.onGet('_info/entity-schema.json').reply(200, {});
+
+            await httpClient.get('/_info/config', {
+                params: {
+                    foo: 'bar',
+                },
+            });
+            await httpClient.get('_info/entity-schema.json');
+
+            expect(mock.history.get[0].params).toEqual({
+                foo: 'bar',
+                'sw-admin-info-cache-key': 'test-cache-key',
+            });
+            expect(mock.history.get[1].params).toEqual({
+                'sw-admin-info-cache-key': 'test-cache-key',
+            });
+        } finally {
+            Shopware.Context.api.adminInfoCacheKey = previousCacheKey;
+        }
+    });
+
+    it('should not add the admin info cache key to dynamic info requests', async () => {
+        const previousCacheKey = Shopware.Context.api.adminInfoCacheKey;
+        Shopware.Context.api.adminInfoCacheKey = 'test-cache-key';
+
+        try {
+            mock.onGet('/_info/config-me').reply(200, {});
+
+            await httpClient.get('/_info/config-me');
+
+            expect(mock.history.get[0].params).toBeUndefined();
+        } finally {
+            Shopware.Context.api.adminInfoCacheKey = previousCacheKey;
+        }
+    });
+
     it('should use axios v0 by default (without useAxiosV1 flag)', async () => {
         mock.onGet('/test-v0-default').reply(200, { version: 'v0' });
 

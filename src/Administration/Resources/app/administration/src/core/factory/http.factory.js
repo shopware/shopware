@@ -8,6 +8,19 @@ import AxiosV1 from 'axios-v1';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
+const ADMIN_INFO_CACHE_KEY_PARAM = 'sw-admin-info-cache-key';
+const STATIC_INFO_ROUTES = [
+    '/_info/config',
+    '/_info/entity-schema.json',
+    '/_info/events.json',
+    '/_info/flow-actions.json',
+    '/_info/open-api-schema.json',
+    '/_info/openapi3.json',
+    '/_info/routes',
+    '/_info/rule-config',
+    '/_info/version',
+];
+
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
  * the base url for the HTTP client.
@@ -62,6 +75,9 @@ function createClient() {
 
     tracingInterceptor(axiosV0);
     tracingInterceptor(axiosV1);
+
+    adminInfoCacheKeyInterceptor(axiosV0);
+    adminInfoCacheKeyInterceptor(axiosV1);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -182,6 +198,39 @@ function requestCacheAdapterInterceptorV1(client) {
 
         return config;
     });
+}
+
+/**
+ * Adds the Administration static-info cache key to cacheable _info routes.
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function adminInfoCacheKeyInterceptor(client) {
+    client.interceptors.request.use((config) => {
+        const cacheKey = Shopware.Context.api.adminInfoCacheKey;
+
+        if (!cacheKey || !isStaticInfoRoute(config.url)) {
+            return config;
+        }
+
+        if (config.url?.includes(`${ADMIN_INFO_CACHE_KEY_PARAM}=`) || config.params?.[ADMIN_INFO_CACHE_KEY_PARAM]) {
+            return config;
+        }
+
+        config.params = {
+            ...config.params,
+            [ADMIN_INFO_CACHE_KEY_PARAM]: cacheKey,
+        };
+
+        return config;
+    });
+}
+
+function isStaticInfoRoute(url = '') {
+    const path = `/${url.split('?')[0].replace(/^(https?:\/\/[^/]+)?\/?api\//, '').replace(/^\//, '')}`;
+
+    return STATIC_INFO_ROUTES.includes(path);
 }
 
 /**

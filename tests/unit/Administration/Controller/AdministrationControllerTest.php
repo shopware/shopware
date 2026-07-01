@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -90,9 +91,15 @@ class AdministrationControllerTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var list<array{name: string, version: string}>
+     */
+    private array $activeAppRows = [];
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->connection->method('fetchAllAssociative')->willReturnCallback(fn (): array => $this->activeAppRows);
         $this->context = Context::createDefaultContext();
         $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $this->currencyRepository = $this->createMock(EntityRepository::class);
@@ -137,6 +144,7 @@ class AdministrationControllerTest extends TestCase
                     'storefrontEsEnable' => true,
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
+                    'adminInfoCacheKey' => '1',
                     'productStreamIndexingEnabled' => true,
                     'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
@@ -166,6 +174,29 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testAdminInfoCacheKeyAddsActiveAppsToKernelCacheHash(): void
+    {
+        $this->activeAppRows = [
+            ['name' => 'BApp', 'version' => '2.0.0'],
+            ['name' => 'AApp', 'version' => '1.0.0'],
+        ];
+        $this->parameterBag->method('get')->with('kernel.cache.hash')->willReturn('kernel-hash');
+
+        $controller = $this->createAdministrationController();
+        $method = new \ReflectionMethod($controller, 'getAdminInfoCacheKey');
+
+        static::assertSame(
+            Hasher::hash([
+                'kernelCacheHash' => 'kernel-hash',
+                'apps' => [
+                    'AApp' => '1.0.0',
+                    'BApp' => '2.0.0',
+                ],
+            ]),
+            $method->invoke($controller)
+        );
     }
 
     public function testIndexSetsCacheHeaders(): void

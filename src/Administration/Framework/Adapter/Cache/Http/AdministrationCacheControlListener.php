@@ -14,6 +14,19 @@ use Shopware\Core\PlatformRequest;
 #[Package('framework')]
 readonly class AdministrationCacheControlListener
 {
+    private const STATIC_INFO_ROUTES = [
+        'api.info.actions',
+        'api.info.business-events',
+        'api.info.config',
+        'api.info.entity-schema',
+        'api.info.open-api-schema',
+        'api.info.openapi3',
+        'api.info.routes',
+        'api.info.rule-config',
+        'api.info.shopware.version',
+        'api.info.shopware.version_old_version',
+    ];
+
     public function __invoke(BeforeCacheControlEvent $event): void
     {
         if (!$this->isAdministrationRequest($event)) {
@@ -46,6 +59,10 @@ readonly class AdministrationCacheControlListener
         // Fallback: Check if the route name starts with 'administration.'
         $routeName = $request->attributes->get('_route');
         if (\is_string($routeName) && \str_starts_with($routeName, 'administration.')) {
+            return true;
+        }
+
+        if (\is_string($routeName) && \in_array($routeName, self::STATIC_INFO_ROUTES, true)) {
             return true;
         }
 

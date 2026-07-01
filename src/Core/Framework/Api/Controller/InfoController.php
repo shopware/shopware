@@ -41,6 +41,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class InfoController extends AbstractController
 {
+    private const STATIC_INFO_CACHE_MAX_AGE = 31536000;
+
     /**
      * @internal
      */
@@ -79,7 +81,10 @@ class InfoController extends AbstractController
 
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
-        return new JsonResponse($data);
+        $response = new JsonResponse($data);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     /**
@@ -128,7 +133,10 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 
-        return new JsonResponse($data);
+        $response = new JsonResponse($data);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(path: '/api/_info/entity-schema.json', name: 'api.info.entity-schema', methods: ['GET'])]
@@ -136,7 +144,10 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
-        return new JsonResponse($data);
+        $response = new JsonResponse($data);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
@@ -144,7 +155,10 @@ class InfoController extends AbstractController
     {
         $events = $this->eventCollector->collect($context);
 
-        return new JsonResponse($events);
+        $response = new JsonResponse($events);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(
@@ -213,22 +227,31 @@ class InfoController extends AbstractController
 
         $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
 
-        return new JsonResponse($config);
+        $response = new JsonResponse($config);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]
     #[Route(path: '/api/v1/_info/version', name: 'api.info.shopware.version_old_version', methods: ['GET'])]
     public function infoShopwareVersion(): JsonResponse
     {
-        return new JsonResponse([
+        $response = new JsonResponse([
             'version' => $this->getShopwareVersion(),
         ]);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(path: '/api/_info/flow-actions.json', name: 'api.info.actions', methods: ['GET'])]
     public function flowActions(Context $context): JsonResponse
     {
-        return new JsonResponse($this->flowActionCollector->collect($context));
+        $response = new JsonResponse($this->flowActionCollector->collect($context));
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     #[Route(
@@ -244,7 +267,10 @@ class InfoController extends AbstractController
             $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
-        return new JsonResponse(['endpoints' => $endpoints]);
+        $response = new JsonResponse(['endpoints' => $endpoints]);
+        $this->cacheStaticInfoResponse($response);
+
+        return $response;
     }
 
     /**
@@ -284,5 +310,12 @@ class InfoController extends AbstractController
         } catch (ShopIdChangeSuggestedException $e) {
             return $e->shopId->id;
         }
+    }
+
+    private function cacheStaticInfoResponse(JsonResponse $response): void
+    {
+        $response->setPrivate();
+        $response->setMaxAge(self::STATIC_INFO_CACHE_MAX_AGE);
+        $response->headers->addCacheControlDirective('immutable');
     }
 }

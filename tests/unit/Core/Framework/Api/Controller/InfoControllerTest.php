@@ -69,8 +69,12 @@ class InfoControllerTest extends TestCase
             'APP_URL' => 'https://app.url',
         ]);
 
-        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
         static::assertIsString($content);
+        static::assertSame(31536000, $response->getMaxAge());
+        static::assertTrue($response->headers->hasCacheControlDirective('private'));
+        static::assertTrue($response->headers->hasCacheControlDirective('immutable'));
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);
@@ -190,8 +194,10 @@ class InfoControllerTest extends TestCase
                 new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
             )
         );
-        $content = $this->createController()->messageStats()->getContent();
+        $response = $this->createController()->messageStats();
+        $content = $response->getContent();
         static::assertIsString($content);
+        static::assertFalse($response->headers->hasCacheControlDirective('immutable'));
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($data);

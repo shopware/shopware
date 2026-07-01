@@ -50,6 +50,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private const ENABLED_NAMESPACES = [
         'Shopware\\Tests\\Unit\\Core\\DevOps\\',
         'Shopware\\Tests\\Unit\\Core\\Profiling\\',
+        'Shopware\\Tests\\Unit\\Administration\\',
+        'Shopware\\Tests\\Unit\\Storefront\\',
         'Shopware\\Tests\\Unit\\Elasticsearch\\',
     ];
 
@@ -340,7 +342,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private function eachOwnCallArg(NodeFinder $finder, array $stmts, callable $onArg): void
     {
         foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            if ($call->var instanceof Variable && $call->var->name === 'this') {
+            if ($call->var instanceof Variable && $call->var->name === 'this' && !$call->isFirstClassCallable()) {
                 foreach ($call->getArgs() as $arg) {
                     $onArg($arg);
                 }
@@ -348,7 +350,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         foreach ($finder->findInstanceOf($stmts, StaticCall::class) as $call) {
-            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true)) {
+            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true) && !$call->isFirstClassCallable()) {
                 foreach ($call->getArgs() as $arg) {
                     $onArg($arg);
                 }
@@ -440,6 +442,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         return ($expr instanceof MethodCall || $expr instanceof StaticCall)
             && $expr->name instanceof Identifier
             && $expr->name->name === 'createMock'
+            && !$expr->isFirstClassCallable()
             && \count($expr->getArgs()) === 1;
     }
 

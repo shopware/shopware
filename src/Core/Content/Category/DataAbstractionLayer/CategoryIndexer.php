@@ -86,6 +86,7 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $ids = $categoryEvent->getIds();
+        $parentIds = [];
         $idsWithChangedParentIds = [];
         $runAllUpdaters = false;
         $parentIdChanged = false;
@@ -104,14 +105,18 @@ class CategoryIndexer extends EntityIndexer
             }
             $state = $result->getExistence()->getState();
 
-            if (isset($state['parent_id'])) {
-                $ids[] = Uuid::fromBytesToHex($state['parent_id']);
+            $parentChildCountAffected = $operation === EntityWriteResult::OPERATION_INSERT
+                || $operation === EntityWriteResult::OPERATION_DELETE
+                || \array_key_exists('parentId', $payload);
+
+            if (isset($state['parent_id']) && $parentChildCountAffected) {
+                $parentIds[] = Uuid::fromBytesToHex($state['parent_id']);
             }
 
             if (\array_key_exists('parentId', $payload)) {
                 $parentIdChanged = true;
                 if ($payload['parentId'] !== null) {
-                    $ids[] = $payload['parentId'];
+                    $parentIds[] = $payload['parentId'];
                 }
                 $idsWithChangedParentIds[] = $payload['id'];
             }
@@ -142,7 +147,11 @@ class CategoryIndexer extends EntityIndexer
         }
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
-        $ids = array_unique(array_merge($ids, $children));
+
+        // Parents are added only for child-count recomputation; they are flagged so
+        // the recursive tree update skips them instead of walking every sibling.
+        $childCountOnlyIds = array_values(array_unique($parentIds));
+        $ids = array_unique(array_merge($ids, $children, $parentIds));
 
         $chunks = \array_chunk($ids, self::UPDATE_IDS_CHUNK_SIZE);
         $idsForReturnedMessage = array_shift($chunks);
@@ -153,6 +162,7 @@ class CategoryIndexer extends EntityIndexer
             $childrenIndexingMessage = new CategoryIndexingMessage($chunk, null, $event->getContext());
             $childrenIndexingMessage->setIndexer($this->getName());
             $childrenIndexingMessage->addSkip(...$updatersSkips);
+            $childrenIndexingMessage->setChildCountOnlyIds($childCountOnlyIds);
             EntityIndexerRegistry::addSkips($childrenIndexingMessage, $event->getContext());
 
             $this->messageBus->dispatch($childrenIndexingMessage);
@@ -160,6 +170,7 @@ class CategoryIndexer extends EntityIndexer
 
         $message = new CategoryIndexingMessage($idsForReturnedMessage, null, $event->getContext());
         $message->addSkip(...$updatersSkips);
+        $message->setChildCountOnlyIds($childCountOnlyIds);
 
         return $message;
     }
@@ -185,12 +196,18 @@ class CategoryIndexer extends EntityIndexer
             }
 
             if ($message->allow(self::TREE_UPDATER)) {
-                $this->treeUpdater->batchUpdate(
-                    $ids,
-                    CategoryDefinition::ENTITY_NAME,
-                    $context,
-                    !$message->isFullIndexing
-                );
+                $treeIds = $message instanceof CategoryIndexingMessage
+                    ? array_values(array_diff($ids, $message->getChildCountOnlyIds()))
+                    : $ids;
+
+                if ($treeIds !== []) {
+                    $this->treeUpdater->batchUpdate(
+                        $treeIds,
+                        CategoryDefinition::ENTITY_NAME,
+                        $context,
+                        !$message->isFullIndexing
+                    );
+                }
             }
 
             if ($message->allow(self::BREADCRUMB_UPDATER)) {

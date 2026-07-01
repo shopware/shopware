@@ -328,9 +328,9 @@
                 },
                 "descriptions": {
                     "agentic": {
-                        ".well-known/ai-catalog.json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
-                        "llms.txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
-                        "agents.md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
+                        "well-known-ai-catalog-json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
+                        "llms-txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
+                        "agents-md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
                     }
                 }
             },

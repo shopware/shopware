@@ -389,6 +389,32 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
+    public function testDisplayAsGroupFalseReturnsAllMatchingVariantsFromSameDisplayGroup(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
+    }
+
+    public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], array_values($listing->getIds()));
+    }
+
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
     {
         $this->createProduct(['color', 'size'], true);

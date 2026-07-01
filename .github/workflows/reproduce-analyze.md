@@ -144,14 +144,26 @@ pre-agent-steps:
       ISSUE: ${{ github.event.issue.number || github.event.inputs.issue_number }}
       GH_TOKEN: ${{ github.token }}
     run: bash .github/actions/repro/bin/prefetch.sh
+  # Parse the REPORTED version from the issue so the probe shop matches the version the execute
+  # reported-leg runs (v-prefixed, as leg-plan.sh does). Probing trunk while execute runs the
+  # reported version drifts selectors (live miss #31: trunk's Settings button differs from 6.7.9.1).
+  - name: Parse reported version for the probe shop
+    id: ver
+    run: |
+      set -uo pipefail
+      v=$(awk '/[Ss]hopware [Vv]ersion/{f=1;next} f&&/[0-9]+\.[0-9]+\.[0-9]+/{print;exit}' issue.md 2>/dev/null \
+          | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+      if [ -n "$v" ]; then VER="v$v"; else VER="trunk"; fi
+      echo "version=$VER" >> "$GITHUB_OUTPUT"
+      echo "probe shop version: $VER"
   # Provision a live shop for probe-ui + MCP (self-contained: setup-shopware brings its own DB).
   # Builds admin+storefront since the layer is unknown pre-agent. Makes analyze heavy (~15-20m)
-  # — the accepted cost of authoring against a real DOM/schema instead of guessing.
+  # — the accepted cost of authoring against a real, version-accurate DOM/schema instead of guessing.
   - name: Provision shop for probe-ui + MCP
     id: probe_shop
     uses: ./.github/actions/repro/provision
     with:
-      version: trunk
+      version: ${{ steps.ver.outputs.version }}
       admin-build: 'true'
       storefront-build: 'true'
   - name: Admin session + start Shopware MCP bridge

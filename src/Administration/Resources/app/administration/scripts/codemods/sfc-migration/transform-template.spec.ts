@@ -1,11 +1,24 @@
 import path from 'path';
 import fs from 'fs';
+import { compile } from '@vue/compiler-dom';
 import { transformTemplate } from './transform-template';
 
 const fixturesDir = path.join(__dirname, '__fixtures__');
 
 function readFixture(name: string): string {
     return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+function expectTemplateCompiles(template: string): void {
+    const body = template.replace(/^<template>\n/, '').replace(/\n<\/template>$/, '');
+
+    expect(() => {
+        compile(body, {
+            onError: (error) => {
+                throw error;
+            },
+        });
+    }).not.toThrow();
 }
 
 /**
@@ -189,5 +202,150 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
 <div class="sw-foo">{{ title }}</div>
         `),
         ).toThrow('Twig extends is not supported by the SFC migration codemod.');
+    });
+
+    it('rewrites v-else continuations across sibling sw-blocks to explicit v-if expressions', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="test">true</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else>false</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="test">true</div>');
+        expect(result).toContain('<div v-if="!(test)">false</div>');
+        expect(result).not.toContain('v-else>false</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('rewrites v-else-if and v-else continuations across multiple sibling sw-blocks', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="firstCondition">first</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else-if="secondCondition">second</div>
+{% endblock %}
+
+{% block sw_third %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="firstCondition">first</div>');
+        expect(result).toContain('<div v-if="!(firstCondition) && (secondCondition)">second</div>');
+        expect(result).toContain('<div v-if="!(firstCondition) && !(secondCondition)">fallback</div>');
+        expect(result).not.toContain('v-else-if="secondCondition"');
+        expect(result).not.toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('rewrites the full leading continuation chain inside a following sw-block', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="firstCondition">first</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else-if="secondCondition">second</div>
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="firstCondition">first</div>');
+        expect(result).toContain('<div v-if="!(firstCondition) && (secondCondition)">second</div>');
+        expect(result).toContain('<div v-if="!(firstCondition) && !(secondCondition)">fallback</div>');
+        expect(result).not.toContain('v-else-if="secondCondition"');
+        expect(result).not.toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('rewrites cross-block continuations inside nested wrapper elements', () => {
+        const result = transformTemplate(`
+<section class="wrapper">
+    {% block sw_first %}
+        <span v-if="isVisible">visible</span>
+    {% endblock %}
+
+    {% block sw_second %}
+        <span v-else>hidden</span>
+    {% endblock %}
+</section>
+        `).template;
+
+        expect(result).toContain('<span v-if="isVisible">visible</span>');
+        expect(result).toContain('<span v-if="!(isVisible)">hidden</span>');
+        expectTemplateCompiles(result);
+    });
+
+    it('rewrites continuations after an empty extension point block in a normal chain', () => {
+        const result = transformTemplate(`
+<div v-if="false"></div>
+
+{% block sw_filter_panel_extension_point %}{% endblock %}
+
+<sw-boolean-filter v-else-if="showFilter(filter, 'boolean-filter')" />
+<sw-existence-filter v-else-if="showFilter(filter, 'existence-filter')" />
+<sw-string-filter v-else />
+        `).template;
+
+        expect(result).toContain('<div v-if="false"></div>');
+        expect(result).toContain('<sw-block name="sw_filter_panel_extension_point" :data="$dataScope"></sw-block>');
+        expect(result).toContain('<sw-boolean-filter v-if="!(false) && (showFilter(filter, \'boolean-filter\'))" />');
+        expect(result).toContain(
+            "<sw-existence-filter v-if=\"!(false) && !(showFilter(filter, 'boolean-filter')) && (showFilter(filter, 'existence-filter'))\" />",
+        );
+        expect(result).toContain(
+            "<sw-string-filter v-if=\"!(false) && !(showFilter(filter, 'boolean-filter')) && !(showFilter(filter, 'existence-filter'))\" />",
+        );
+        expect(result).not.toContain('v-else-if="showFilter(filter');
+        expect(result).not.toContain('<sw-string-filter v-else />');
+        expectTemplateCompiles(result);
+    });
+
+    it('rewrites normal v-else continuations after a preceding sw-block condition', () => {
+        const result = transformTemplate(`
+{% block sw_button %}
+<mt-button v-if="!deprecated">
+    <slot></slot>
+</mt-button>
+{% endblock %}
+
+<sw-button-deprecated v-else>
+    <slot></slot>
+</sw-button-deprecated>
+        `).template;
+
+        expect(result).toContain('<mt-button v-if="!deprecated">');
+        expect(result).toContain('<sw-button-deprecated v-if="!(!deprecated)">');
+        expect(result).not.toContain('<sw-button-deprecated v-else>');
+        expectTemplateCompiles(result);
+    });
+
+    it('keeps same-block v-if/v-else chains unchanged', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="isPrimary">primary</div>
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="isPrimary">primary</div>');
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('throws for leading v-else cases without a preceding converted v-if block', () => {
+        expect(() =>
+            transformTemplate(`
+{% block sw_first %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `),
+        ).toThrow('Cross-block v-else/v-else-if without previous v-if block is not supported by the SFC migration codemod.');
     });
 });

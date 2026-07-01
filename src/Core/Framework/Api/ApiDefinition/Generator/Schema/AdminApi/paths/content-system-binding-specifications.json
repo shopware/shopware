@@ -42,8 +42,8 @@
                                                         "description": "Human-readable label for the specification."
                                                     },
                                                     "resolves": {
-                                                        "type": "object",
-                                                        "description": "Map of reference property key to the loader wiring that fills it. Encodes as `{}` when the specification wires no reference property.",
+                                                        "type": ["object", "array"],
+                                                        "description": "Map of reference property key to the loader wiring that fills it. Encodes as `[]` when the specification wires no reference property.",
                                                         "additionalProperties": {
                                                             "type": "object",
                                                             "required": ["loader", "config"],
@@ -53,18 +53,18 @@
                                                                     "description": "The data loader source that fills the property."
                                                                 },
                                                                 "config": {
-                                                                    "type": "object",
-                                                                    "description": "The loader's config for this wiring. Encodes as `{}` when the loader takes no config.",
+                                                                    "type": ["object", "array"],
+                                                                    "description": "The loader's config for this wiring. Encodes as `[]` when the loader takes no config.",
                                                                     "additionalProperties": true
                                                                 }
                                                             }
                                                         }
                                                     },
                                                     "inputs": {
-                                                        "type": "object",
-                                                        "description": "Map of primitive property key to its residual input declaration. Encodes as `{}` when the specification declares no residual input. An entry without a `default` key encodes as `{}` — presence of the key, not its value, distinguishes \"no default\" from \"default is null\".",
+                                                        "type": ["object", "array"],
+                                                        "description": "Map of primitive property key to its residual input declaration. Encodes as `[]` when the specification declares no residual input. An entry without a `default` key encodes as `[]` — presence of the key, not its value, distinguishes \"no default\" from \"default is null\".",
                                                         "additionalProperties": {
-                                                            "type": "object",
+                                                            "type": ["object", "array"],
                                                             "properties": {
                                                                 "default": {
                                                                     "description": "The property's seeded default value, applied only when the target element does not already carry the key."

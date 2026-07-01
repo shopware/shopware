@@ -3,16 +3,21 @@
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Loads active app bindings from the database in prod; returns empty in dev, where apps are loaded
  * from the filesystem by YamlBindingSpecificationLoader.
+ *
+ * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
+ * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
+ * level rather than aborting the whole load, unlike YamlBindingSpecificationLoader, which fails hard
+ * on an authored file.
  *
  * @internal
  *
@@ -26,6 +31,7 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
         private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -51,32 +57,56 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
 
         foreach ($rows as $row) {
             $name = $row['name'] ?: '<unknown>';
+            $source = 'app:' . $row['app_name'];
+            $identifier = $source . ':' . $name;
 
             try {
                 $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
-                throw ContentSystemException::bindingSpecificationLoadFailed($name, $e->getMessage(), $e);
+                $this->logger->warning(\sprintf('Skipping binding specification "%s": invalid JSON schema: %s', $identifier, $e->getMessage()), [
+                    'identifier' => $identifier,
+                    'reason' => $e->getMessage(),
+                ]);
+
+                continue;
             }
 
             if (!\is_array($schema)) {
-                throw ContentSystemException::bindingSpecificationLoadFailed($name, 'persisted schema must decode to an array/map, got ' . get_debug_type($schema));
+                $this->logger->warning(\sprintf('Skipping binding specification "%s": persisted schema must decode to an array/map, got %s', $identifier, get_debug_type($schema)), [
+                    'identifier' => $identifier,
+                    'type' => get_debug_type($schema),
+                ]);
+
+                continue;
             }
 
-            $resolved[] = new ResolvedBindingSpecificationDto(
-                $name,
-                'app:' . $row['app_name'],
-                $this->serializer->denormalize($schema),
-            );
-        }
+            try {
+                $dto = $this->serializer->denormalize($schema);
+            } catch (\Throwable $e) {
+                $this->logger->warning(\sprintf('Skipping binding specification "%s": invalid schema: %s', $identifier, $e->getMessage()), [
+                    'identifier' => $identifier,
+                    'reason' => $e->getMessage(),
+                ]);
 
-        $dtos = [];
-        foreach ($resolved as $resolvedDto) {
-            $dtos[$resolvedDto->id] = $resolvedDto->dto;
-        }
+                continue;
+            }
 
-        $violations = $this->validator->validate(new BindingSpecificationDtoCollection($dtos));
-        if ($violations->count() > 0) {
-            throw ContentSystemException::bindingSpecificationsInvalid($violations);
+            $violations = $this->validator->validate(new BindingSpecificationDtoCollection([$name => $dto]));
+            if ($violations->count() > 0) {
+                $messages = [];
+                foreach ($violations as $violation) {
+                    $messages[] = $violation->getMessage();
+                }
+
+                $this->logger->warning(\sprintf('Skipping binding specification "%s": validation failed: %s', $identifier, implode('; ', $messages)), [
+                    'identifier' => $identifier,
+                    'reason' => implode('; ', $messages),
+                ]);
+
+                continue;
+            }
+
+            $resolved[] = new ResolvedBindingSpecificationDto($name, $source, $dto);
         }
 
         return array_map(

@@ -40,7 +40,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/binding.yaml', self::MINIMAL_VALID_YAML);
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         $specifications = $loader->load();
 
@@ -55,7 +55,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/binding.yaml', "type: media-gallery\nlabel: \"From media library\"\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         $this->expectExceptionObject(
             ContentSystemException::bindingSpecificationLoadFailed(
@@ -72,12 +72,30 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/binding.yaml', "id: \"\"\ntype: media-gallery\nlabel: \"From media library\"\n");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         $this->expectExceptionObject(
             ContentSystemException::bindingSpecificationLoadFailed(
                 $this->tempDir . '/binding.yaml',
                 'missing or empty "id"'
+            )
+        );
+
+        $loader->load();
+    }
+
+    #[TestDox('throws when the body declares an id longer than the persisted name column allows')]
+    public function testThrowsWhenIdExceedsMaxLength(): void
+    {
+        $id = str_repeat('a', 256);
+        file_put_contents($this->tempDir . '/binding.yaml', "id: {$id}\ntype: media-gallery\nlabel: \"From media library\"\n");
+
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
+
+        $this->expectExceptionObject(
+            ContentSystemException::bindingSpecificationLoadFailed(
+                $this->tempDir . '/binding.yaml',
+                'id exceeds the maximum length of 255 characters'
             )
         );
 
@@ -90,7 +108,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($this->tempDir . '/a.yaml', self::MINIMAL_VALID_YAML);
         file_put_contents($this->tempDir . '/b.yaml', self::MINIMAL_VALID_YAML);
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         // Filesystem iteration order is not guaranteed, so assert the duplicate is rejected and names both
         // files without coupling to which file is seen first.
@@ -111,8 +129,8 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($dirB . '/binding.yaml', self::MINIMAL_VALID_YAML);
 
         $loader = $this->createLoader([
-            new BindingSpecificationSourceDirectory('source-a', $dirA, 'Sw'),
-            new BindingSpecificationSourceDirectory('source-a', $dirB, 'Sw'),
+            new BindingSpecificationSourceDirectory('source-a', $dirA),
+            new BindingSpecificationSourceDirectory('source-a', $dirB),
         ]);
 
         $this->expectExceptionObject(
@@ -133,8 +151,8 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($dirB . '/binding.yaml', self::MINIMAL_VALID_YAML);
 
         $loader = $this->createLoader([
-            new BindingSpecificationSourceDirectory('source-a', $dirA, 'Sw'),
-            new BindingSpecificationSourceDirectory('source-b', $dirB, 'Sw'),
+            new BindingSpecificationSourceDirectory('source-a', $dirA),
+            new BindingSpecificationSourceDirectory('source-b', $dirB),
         ]);
 
         $specifications = $loader->load();
@@ -146,7 +164,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     #[TestDox('returns an empty array for a non-existent directory')]
     public function testReturnsEmptyForMissingDirectory(): void
     {
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', '/path/does/not/exist', 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', '/path/does/not/exist')]);
 
         static::assertSame([], $loader->load());
     }
@@ -156,7 +174,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/notes.txt', 'not a yaml file');
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         static::assertSame([], $loader->load());
     }
@@ -166,7 +184,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/broken.yaml', "id: \"unterminated\n  bad: [");
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessageMatches('/Invalid YAML syntax/');
@@ -180,7 +198,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/scalar.yaml', 'just a string');
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')]);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
 
         $this->expectExceptionObject(
             ContentSystemException::bindingSpecificationLoadFailed(
@@ -205,7 +223,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
             new ConstraintViolation('resolves entry "image" must declare a non-blank "loader"', null, [], null, 'bindings[broken].resolves[image].loader', null),
         ]));
 
-        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir, 'Sw')], $failing);
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)], $failing);
 
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessageMatches('/bindings\[broken\]\.resolves\[image\]\.loader/');

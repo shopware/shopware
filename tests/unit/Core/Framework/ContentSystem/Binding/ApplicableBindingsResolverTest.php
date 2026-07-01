@@ -85,6 +85,30 @@ class ApplicableBindingsResolverTest extends TestCase
         );
     }
 
+    #[TestDox('looks up a repeated component\'s specifications once per resolve() call instead of once per element')]
+    public function testResolveMemoizesRepeatedComponentWithinOneCall(): void
+    {
+        $spec = new BindingSpecification('from-media-library', 'Sw:Media', 'From Media Library', [], [], 'core');
+
+        $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->expects($this->once())->method('all')->willReturn(['core:from-media-library' => $spec]);
+
+        $resolver = new ApplicableBindingsResolver($registry);
+
+        $child = ContentElementBuilder::create('Sw:Media', 'child-el')->build();
+        $parent = ContentElementBuilder::create('Sw:Media', 'parent-el')->withSlot('content', [$child])->build();
+        $sibling = ContentElementBuilder::create('Sw:Media', 'sibling-el')->build();
+
+        static::assertSame(
+            [
+                'parent-el' => ['core:from-media-library'],
+                'child-el' => ['core:from-media-library'],
+                'sibling-el' => ['core:from-media-library'],
+            ],
+            $resolver->resolve([$parent, $sibling]),
+        );
+    }
+
     private function registry(BindingSpecification ...$specifications): AbstractContentSystemBindingSpecificationRegistry
     {
         $all = [];

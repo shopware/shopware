@@ -70,4 +70,25 @@ class ConfigCanonicalizerTest extends TestCase
     {
         static::assertSame([], $this->canonicalizer->canonicalize([]));
     }
+
+    #[TestDox('value-sorts a list of maps by array comparison, without key-sorting each map\'s own keys')]
+    public function testValueSortsListOfMapsWithoutCanonicalizingNestedMapKeys(): void
+    {
+        // array_is_list() is true for this list, so canonicalize() takes the list branch (sort() only) rather
+        // than recursing per element: the list is reordered, but each map's own key order is left as authored.
+        static::assertSame(
+            [
+                'items' => [
+                    ['name' => 'apple', 'id' => 1],
+                    ['name' => 'zebra', 'id' => 2],
+                ],
+            ],
+            $this->canonicalizer->canonicalize([
+                'items' => [
+                    ['name' => 'zebra', 'id' => 2],
+                    ['name' => 'apple', 'id' => 1],
+                ],
+            ])
+        );
+    }
 }

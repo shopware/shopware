@@ -100,6 +100,14 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
                 'inputs' => [],
                 'expectedPath' => 'resolves[media].config',
             ],
+            'loader is not a registered data loader' => [
+                'type' => 'Sw:Media:Image',
+                'resolves' => [
+                    'media' => ['loader' => 'not-a-registered-loader', 'config' => []],
+                ],
+                'inputs' => [],
+                'expectedPath' => 'resolves[media]',
+            ],
             'entity loader property names a non-primitive property' => [
                 // config decodes and the produced MediaEntity is assignable, but the "property" that should
                 // hold the id names "media" (itself a reference), not a primitive id property.
@@ -160,7 +168,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             );
 
             try {
-                $loader->loadFromDirectory($directory, 'test', '');
+                $loader->loadFromDirectory($directory, 'test');
                 static::fail('Expected the loader to reject the produced-type mismatch.');
             } catch (ContentSystemException $exception) {
                 static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());

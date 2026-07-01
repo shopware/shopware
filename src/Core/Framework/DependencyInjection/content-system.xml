@@ -269,6 +269,7 @@
             <argument type="service" id="validator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="logger"/>
             <tag name="content_system.type_loader"/>
         </service>
 
@@ -303,6 +304,7 @@
             <argument type="service" id="validator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="logger"/>
             <tag name="content_system.style_option_loader"/>
         </service>
 
@@ -331,6 +333,7 @@
             <argument type="service" id="validator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="logger"/>
             <tag name="content_system.binding_specification_loader"/>
         </service>
 

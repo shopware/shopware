@@ -68,8 +68,8 @@
                                                         }
                                                     },
                                                     "properties": {
-                                                        "type": "object",
-                                                        "description": "Map of property name to property specification.",
+                                                        "type": ["object", "array"],
+                                                        "description": "Map of property name to property specification. Encodes as `[]` when the type declares no properties (for example a slot-only container).",
                                                         "additionalProperties": {
                                                             "type": "object",
                                                             "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],

@@ -145,6 +145,16 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 throw $exception;
             }
 
+            if ($exception->getErrorCode() === ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED) {
+                $this->context->buildViolation($constraint->resolvesEntryLoaderNotRegisteredMessage)
+                    ->setParameter('{{ key }}', $key)
+                    ->setParameter('{{ loader }}', $loader)
+                    ->atPath('resolves[' . $key . ']')
+                    ->addViolation();
+
+                return null;
+            }
+
             $this->context->buildViolation($constraint->resolvesEntryConfigMessage)
                 ->setParameter('{{ key }}', $key)
                 ->setParameter('{{ reason }}', $exception->getMessage())

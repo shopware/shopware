@@ -106,7 +106,6 @@ class ContentSystemBindingSpecificationPersister
             return $this->loader->loadDtosFromDirectory(
                 $directory,
                 'app:' . $context->app->getName(),
-                $context->app->getName(),
             );
         } catch (ContentSystemException $e) {
             throw AppException::contentSystemBindingSpecificationLoadFailed(self::DIRECTORY, $e->getMessage(), $e);

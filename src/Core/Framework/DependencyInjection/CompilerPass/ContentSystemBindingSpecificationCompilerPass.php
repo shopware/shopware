@@ -25,8 +25,6 @@ final class ContentSystemBindingSpecificationCompilerPass implements CompilerPas
 
     private const CORE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Binding/Definitions';
 
-    private const CORE_PREFIX = 'Sw';
-
     public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition(YamlBindingSpecificationLoader::class)) {
@@ -35,7 +33,7 @@ final class ContentSystemBindingSpecificationCompilerPass implements CompilerPas
 
         $directories = [];
 
-        $this->addDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $directories);
+        $this->addDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', $directories);
         $this->loadFromBundleMetadata($container, $directories);
 
         // In prod, app bindings are loaded from the database by DatabaseBindingSpecificationLoader instead
@@ -63,12 +61,11 @@ final class ContentSystemBindingSpecificationCompilerPass implements CompilerPas
                 continue;
             }
 
-            // Plugins and bundles share the fixed convention directory; only the source label and prefix differ
+            // Plugins and bundles share the fixed convention directory; only the source label differs
             $isPlugin = isset($pluginBundleNames[$bundleName]);
             $source = ($isPlugin ? 'plugin:' : 'bundle:') . $bundleName;
-            $prefix = $isPlugin ? $bundleName : self::CORE_PREFIX;
 
-            $this->addDirectory($metadata['path'] . '/' . self::STANDARD_BINDING_SPECIFICATION_DIRECTORY, $source, $prefix, $directories);
+            $this->addDirectory($metadata['path'] . '/' . self::STANDARD_BINDING_SPECIFICATION_DIRECTORY, $source, $directories);
         }
     }
 
@@ -114,15 +111,15 @@ final class ContentSystemBindingSpecificationCompilerPass implements CompilerPas
         }
 
         foreach ($apps as $app) {
-            $this->addDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_BINDING_SPECIFICATION_DIRECTORY), 'app:' . $app['name'], $app['name'], $directories);
+            $this->addDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_BINDING_SPECIFICATION_DIRECTORY), 'app:' . $app['name'], $directories);
         }
     }
 
     /**
      * @param list<Definition> $directories
      */
-    private function addDirectory(string $directory, string $source, string $prefix, array &$directories): void
+    private function addDirectory(string $directory, string $source, array &$directories): void
     {
-        $directories[] = new Definition(BindingSpecificationSourceDirectory::class, [$source, $directory, $prefix]);
+        $directories[] = new Definition(BindingSpecificationSourceDirectory::class, [$source, $directory]);
     }
 }

@@ -34,7 +34,7 @@ class ContentSystemBindingSpecificationAppValidator extends AbstractManifestVali
         $appName = $manifest->getMetadata()->getName();
 
         try {
-            $this->loader->loadDtosFromDirectory($directory, 'app:' . $appName, $appName);
+            $this->loader->loadDtosFromDirectory($directory, 'app:' . $appName);
         } catch (ContentSystemException $e) {
             $errors->add(new ContentSystemBindingSpecificationSchemaError($directory, $e->getMessage()));
         }

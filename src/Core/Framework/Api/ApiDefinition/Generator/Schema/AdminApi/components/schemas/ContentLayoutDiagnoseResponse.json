@@ -26,7 +26,7 @@
                     },
                     "applicableBindings": {
                         "type": "object",
-                        "description": "Map of element id to the source-qualified binding specification ids (`source:id`) applicable to that element's type, keyed by declared type rather than by the element's actual wiring. Pass an id back as `bindingSpecificationId` to a bind-element action. Encodes as `{}` when no element has an applicable specification; a listed element's own list encodes as `[]` when its type has none.",
+                        "description": "Map of element id to the source-qualified binding specification ids (`source:id`) applicable to that element's type, keyed by declared type rather than by the element's actual wiring. Pass an id back as `bindingSpecificationId` to a bind-element action. An entry is emitted for every element in the tree; a listed element's own list encodes as `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.",
                         "additionalProperties": {
                             "type": "array",
                             "items": { "type": "string" }

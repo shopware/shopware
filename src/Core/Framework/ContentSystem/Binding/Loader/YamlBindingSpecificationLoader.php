@@ -24,6 +24,11 @@ use Symfony\Component\Yaml\Yaml;
 #[Package('framework')]
 class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecificationLoader
 {
+    // Matches the `name` column of `app_content_system_binding_specification`
+    // (Migration1782423128AddAppContentSystemBindingSpecificationTable), the persistence target every id
+    // resolved here eventually reaches (core/bundle/plugin bindings never persist, but app bindings do).
+    private const MAX_ID_LENGTH = 255;
+
     /**
      * @param list<BindingSpecificationSourceDirectory> $directories
      */
@@ -43,7 +48,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         $seenQualifiedIds = [];
 
         foreach ($this->directories as $sourceDir) {
-            $resolvedSpecificationDtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
+            $resolvedSpecificationDtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source);
 
             // Cross-directory dedup is by source-qualified id, so two sources can each ship the same bare
             // id (within-directory dedup by bare id happens in loadDtosFromDirectory).
@@ -68,11 +73,11 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
     /**
      * @return list<BindingSpecification>
      */
-    public function loadFromDirectory(string $directory, string $source, string $prefix): array
+    public function loadFromDirectory(string $directory, string $source): array
     {
         return array_map(
             static fn (ResolvedBindingSpecificationDto $resolvedSpecificationDto) => $resolvedSpecificationDto->toSpecification(),
-            $this->loadDtosFromDirectory($directory, $source, $prefix),
+            $this->loadDtosFromDirectory($directory, $source),
         );
     }
 
@@ -80,12 +85,9 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
      * Validated and deduplicated within a single directory (by bare id). Cross-directory deduplication
      * (by source-qualified id) is the caller's responsibility (load() handles it for the standard path).
      *
-     * $prefix is unused here (bindings have no path-derived name) and accepted only for
-     * signature-parallelism with the app persister's call.
-     *
      * @return list<ResolvedBindingSpecificationDto>
      */
-    public function loadDtosFromDirectory(string $directory, string $source, string $prefix): array
+    public function loadDtosFromDirectory(string $directory, string $source): array
     {
         $filesystem = new Filesystem($directory);
 
@@ -140,6 +142,10 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
 
         if (!\is_string($id) || $id === '') {
             throw ContentSystemException::bindingSpecificationLoadFailed($path, 'missing or empty "id"');
+        }
+
+        if (\strlen($id) > self::MAX_ID_LENGTH) {
+            throw ContentSystemException::bindingSpecificationLoadFailed($path, \sprintf('id exceeds the maximum length of %d characters', self::MAX_ID_LENGTH));
         }
 
         return $id;

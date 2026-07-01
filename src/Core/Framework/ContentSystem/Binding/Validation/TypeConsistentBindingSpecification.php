@@ -24,6 +24,8 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryConfigMessage = 'resolves entry "{{ key }}" config is invalid: {{ reason }}';
 
+    public string $resolvesEntryLoaderNotRegisteredMessage = 'resolves entry "{{ key }}" names loader "{{ loader }}", which is not a registered data loader';
+
     public string $resolvesEntryNotAssignableMessage = 'resolves entry "{{ key }}" loader produces "{{ producedType }}", which is not assignable to the declared property type "{{ declaredType }}"';
 
     public string $resolvesEntryEntityPropertyNotPrimitiveMessage = 'resolves entry "{{ key }}" entity loader "property" must name a primitive property of type "{{ type }}"';

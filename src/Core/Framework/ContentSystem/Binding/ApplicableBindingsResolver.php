@@ -32,12 +32,28 @@ class ApplicableBindingsResolver
      */
     public function resolve(array $tree): array
     {
+        $cache = [];
+
+        return $this->resolveTree($tree, $cache);
+    }
+
+    /**
+     * @param list<ContentElement> $tree
+     * @param array<string, list<string>> $cache component => qualified ids, memoized across this resolve() call
+     *                                           so a repeated component within the same tree is looked up in the registry once
+     *
+     * @return array<string, list<string>>
+     */
+    private function resolveTree(array $tree, array &$cache): array
+    {
         $applicable = [];
 
         foreach ($tree as $element) {
-            $applicable[$element->getId()] = $this->qualifiedIds($element->getComponent());
+            $component = $element->getComponent();
+            $cache[$component] ??= $this->qualifiedIds($component);
+            $applicable[$element->getId()] = $cache[$component];
 
-            foreach ($this->resolve(array_values([...$element->allSlotElements()])) as $descendantId => $descendantIds) {
+            foreach ($this->resolveTree(array_values([...$element->allSlotElements()]), $cache) as $descendantId => $descendantIds) {
                 $applicable[$descendantId] = $descendantIds;
             }
         }

@@ -13,7 +13,6 @@ final readonly class BindingSpecificationSourceDirectory
     public function __construct(
         public string $source,
         public string $path,
-        public string $prefix,
     ) {
     }
 }

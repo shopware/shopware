@@ -69,7 +69,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertCount(1, $repo->upserts);
         $payload = $repo->upserts[0][0];
 
-        $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/binding-specifications', 'app:DemoApp', 'DemoApp');
+        $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/binding-specifications', 'app:DemoApp');
         $normalized = $this->serializer->normalize($resolved[0]->dto);
 
         static::assertSame('from-media-library', $payload['name']);
@@ -82,7 +82,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     #[TestDox('skips the upsert and never invalidates the cache when the stored hash matches the current file hash')]
     public function testSkipsUpsertWhenHashMatches(): void
     {
-        $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/binding-specifications', 'app:DemoApp', 'DemoApp');
+        $resolved = $this->loader->loadDtosFromDirectory(self::FIXTURES_DIR . '/Resources/content-system/binding-specifications', 'app:DemoApp');
         $normalized = $this->serializer->normalize($resolved[0]->dto);
 
         $seeded = $this->buildExistingEntity('binding-media', 'from-media-library');

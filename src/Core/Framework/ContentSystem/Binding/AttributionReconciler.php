@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -23,6 +24,14 @@ use Shopware\Core\Framework\Log\Package;
  * Mirrors {@see LayoutDefaultSeeder}: it walks the same write-time
  * element forest, handles both a hydrated {@see ContentElement} and a raw element array (Admin / Sync JSON), and
  * recurses every slot's children.
+ *
+ * The honesty comparison encodes both the element's wiring and the specification's binding through the
+ * loader's config serializer and compares the canonicalized results, so it is only correct while every
+ * config serializer honors its round-trip contract
+ * ({@see AbstractContentDataLoaderConfigSerializer}):
+ * `encode(decode($x))` must be stable and equal to `decode($x)->jsonSerialize()`. A serializer that
+ * normalizes or coerces values on decode, or whose encode diverges from jsonSerialize, would drop an
+ * attribution that is in fact still honest.
  *
  * @internal
  *

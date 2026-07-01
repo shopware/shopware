@@ -141,6 +141,34 @@ A flat array of DAL entity names that support content layout assignment. The val
 
 Full field-level schema: [content-system-entity-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-entity-types.json).
 
+### Style options
+
+`GET /api/_info/content-system-style-options.json`
+
+The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Backed by the style option registry (`Layout/Element/Style/Registry`), serialized via `StyleOptionSpecification::toSchema()`. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](#element-types).
+
+Response:
+
+```json
+{
+  "styleOptions": {
+    "col-span": {
+      "type": "integer",
+      "enum": null,
+      "range": { "min": 1, "max": 12 },
+      "maxLength": null,
+      "default": null,
+      "adminUI": { "component": "number", "label": "Column Span" },
+      "breakpointAware": true
+    }
+  }
+}
+```
+
+`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` is advisory only — an introspection/Admin pre-fill hint, never seeded into stored element JSON or applied at serve time. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
+
+Full field-level schema: [content-system-style-options.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-style-options.json).
+
 ### Binding specifications
 
 `GET /api/_info/content-system-binding-specifications.json`
@@ -167,7 +195,7 @@ Response:
 }
 ```
 
-`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `{}` when the specification declares none.
+`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none.
 
 Full field-level schema: [content-system-binding-specifications.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-binding-specifications.json).
 
@@ -347,7 +375,7 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
 
 `resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor/root provider), `loader` (a data loader), or `stored` (the element's own applied wiring — a stored reference wiring whose produced type resolves and is assignable to the declared FQCN; it only ever fills `resolved` directly, never a `candidates` menu entry). A `stored` candidate is not loader-shaped: its `loaderSource`, `configTemplate`, and `configComplete` all serialize as `null` (clients branch on `origin` before reading them).
 
-`applicableBindings` maps each element id to the source-qualified binding specification ids applicable to that element's type (`Binding/ApplicableBindingsResolver`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-type lookup, independent of `rootSource` and of the element's actual wiring: a specification declared for a type is listed for every element of that type. Encodes as `{}` when no element has an applicable specification; a listed element's own list is `[]` when its type has none.
+`applicableBindings` maps each element id to the source-qualified binding specification ids applicable to that element's type (`Binding/ApplicableBindingsResolver`) — the ids from the [Binding specifications](#binding-specifications) introspection endpoint that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-type lookup, independent of `rootSource` and of the element's actual wiring: a specification declared for a type is listed for every element of that type. An entry is emitted for every element in the tree; a listed element's own list is `[]` when its type has no applicable specification. The map itself encodes as `{}` only when the tree has no elements.
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 

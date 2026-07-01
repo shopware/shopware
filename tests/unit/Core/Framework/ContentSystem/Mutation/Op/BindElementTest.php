@@ -47,6 +47,17 @@ class BindElementTest extends TestCase
         static::assertSame('123', $result[0]->getProperty('mediaId'));
     }
 
+    #[TestDox('does not seed a property when the input has no default and the element lacks the key')]
+    public function testBindDoesNotSeedInputWithoutDefaultForAbsentKey(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $tree = [new ContentElement('el', 'Sw:Product')];
+
+        $result = (new BindElement($this->registryWithoutInputDefault($config), 'spec-1', 'el', $this->serializers($config)))->apply($tree);
+
+        static::assertFalse($result[0]->hasProperty('mediaId'));
+    }
+
     #[TestDox('does not overwrite an authored explicit null on the input key with the default')]
     public function testBindKeepsAuthoredExplicitNullOverDefault(): void
     {
@@ -158,6 +169,23 @@ class BindElementTest extends TestCase
             'Product binding',
             ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
             ['mediaId' => new BindingInput(true, '123')],
+            'core',
+        );
+
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['spec-1' => $specification]);
+
+        return $registry;
+    }
+
+    private function registryWithoutInputDefault(AbstractContentDataLoaderConfig $config): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $specification = new BindingSpecification(
+            'spec-1',
+            'Sw:Product',
+            'Product binding',
+            ['product' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            ['mediaId' => new BindingInput(false, null)],
             'core',
         );
 

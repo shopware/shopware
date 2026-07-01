@@ -256,6 +256,30 @@ class ElementResolverTest extends TestCase
         static::assertNull($resolutions[0]->resolved);
     }
 
+    #[TestDox('propagates a non-client-defect exception raised while resolving applied wiring\'s produced type')]
+    public function testNonClientDefectDuringAppliedWiringPropagates(): void
+    {
+        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $exception = ContentSystemException::mutationTargetNotFound('el-1');
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willThrowException($exception);
+
+        $resolver = new ElementResolver(
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->typeResolver(new ContentSystemDataLoaderTypeMap([])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            $this->loaderProvider($loader),
+        );
+
+        $this->expectExceptionObject($exception);
+
+        $resolver->resolve($element, new ResolutionContext('el-1', []));
+    }
+
     #[TestDox('never produces a Stored resolution for the string-overload resolve(), which carries no element wiring')]
     public function testStringOverloadNeverProducesStoredResolution(): void
     {

@@ -205,6 +205,17 @@ class CacheControlListenerTest extends TestCase
             'expectedCacheIdHeader' => null,
         ];
 
+        yield 'static info route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 'api.info.config']
+            ),
+            'response' => new Response('', 200, [
+                'cache-control' => 'max-age=31536000, private, immutable',
+            ]),
+            'expectedCacheControl' => 'immutable, max-age=31536000, private',
+            'expectedCacheIdHeader' => null,
+        ];
+
         yield 'administration cache ID marker' => [
             'request' => new Request(),
             'response' => new Response('', 200, [

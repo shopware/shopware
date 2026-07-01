@@ -52,6 +52,7 @@ describe('use-context', () => {
                 languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 language: null,
                 apiVersion: null,
+                adminInfoCacheKey: null,
                 liveVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
                 systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 currencyId: null,

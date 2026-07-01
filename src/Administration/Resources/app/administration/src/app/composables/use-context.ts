@@ -70,6 +70,7 @@ export interface ContextState {
             parentId?: string;
         };
         apiVersion: null | string;
+        adminInfoCacheKey: null | string;
         liveVersionId: null | string;
         systemLanguageId: null | string;
         currencyId: null | string;
@@ -113,6 +114,7 @@ const state: ContextState = reactive({
         languageId: null,
         language: null,
         apiVersion: null,
+        adminInfoCacheKey: null,
         liveVersionId: null,
         systemLanguageId: null,
         currencyId: null,

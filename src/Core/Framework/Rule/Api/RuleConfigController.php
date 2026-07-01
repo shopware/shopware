@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('fundamentals@after-sales')]
 class RuleConfigController extends AbstractController
 {
+    private const STATIC_INFO_CACHE_MAX_AGE = 31536000;
+
     /**
      * @var array<string, mixed[]>
      */
@@ -32,7 +34,12 @@ class RuleConfigController extends AbstractController
     #[Route(path: '/api/_info/rule-config', name: 'api.info.rule-config', methods: ['GET'])]
     public function getConditionsConfig(): JsonResponse
     {
-        return new JsonResponse($this->config);
+        $response = new JsonResponse($this->config);
+        $response->setPrivate();
+        $response->setMaxAge(self::STATIC_INFO_CACHE_MAX_AGE);
+        $response->headers->addCacheControlDirective('immutable');
+
+        return $response;
     }
 
     /**

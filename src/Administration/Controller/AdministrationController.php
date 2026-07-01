@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -82,7 +83,7 @@ class AdministrationController extends AbstractController
         private readonly EntityRepository $currencyRepository,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        ParameterBagInterface $params,
+        private readonly ParameterBagInterface $params,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
         private readonly EntityRepository $languageRepository,
@@ -132,6 +133,7 @@ class AdministrationController extends AbstractController
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'adminInfoCacheKey' => $this->getAdminInfoCacheKey(),
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
             'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
         ]);
@@ -408,6 +410,27 @@ class AdministrationController extends AbstractController
         usort($sortedSupportedApiVersions, static fn (int $version1, int $version2) => \version_compare((string) $version1, (string) $version2));
 
         return array_pop($sortedSupportedApiVersions);
+    }
+
+    private function getAdminInfoCacheKey(): string
+    {
+        $kernelCacheHash = (string) $this->params->get('kernel.cache.hash');
+        $apps = [];
+
+        foreach ($this->connection->fetchAllAssociative('SELECT `name`, `version` FROM `app` WHERE `active` = 1') as $app) {
+            $apps[(string) $app['name']] = (string) ($app['version'] ?? '');
+        }
+
+        if ($apps === []) {
+            return $kernelCacheHash;
+        }
+
+        ksort($apps);
+
+        return Hasher::hash([
+            'kernelCacheHash' => $kernelCacheHash,
+            'apps' => $apps,
+        ]);
     }
 
     private function getCustomerById(string $customerId, Context $context): ?CustomerEntity

@@ -71,6 +71,14 @@ class AdministrationCacheControlListenerTest extends TestCase
             'expectedSkip' => true,
         ];
 
+        yield 'static info route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 'api.info.config']
+            ),
+            'response' => new Response(),
+            'expectedSkip' => true,
+        ];
+
         yield 'multiple administration markers present' => [
             'request' => new Request(
                 attributes: [

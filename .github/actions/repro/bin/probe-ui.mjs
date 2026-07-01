@@ -16,19 +16,6 @@ const base = (process.env.SHOPWARE_BASE_URL || 'http://127.0.0.1:8000').replace(
 const storageState = process.env.PW_STORAGE || undefined;
 const [w, h] = (viewport || '1280x800').split('x').map((n) => Number(n) || 0);
 
-// Roles worth reporting for authoring — the controls specs target.
-const INTERESTING = new Set(['button', 'link', 'textbox', 'checkbox', 'radio', 'combobox', 'menuitem', 'tab', 'switch', 'searchbox', 'option', 'listbox', 'menu', 'dialog', 'region', 'heading']);
-
-function collect(node, out, depth = 0) {
-  if (!node) return;
-  const role = node.role;
-  const name = (node.name || '').trim();
-  if (INTERESTING.has(role) && (name || role === 'dialog' || role === 'region')) {
-    out.push(`${'  '.repeat(Math.min(depth, 6))}${role}${name ? ` "${name}"` : ' (no accessible name)'}`);
-  }
-  for (const child of node.children || []) collect(child, out, depth + (INTERESTING.has(role) ? 1 : 0));
-}
-
 const browser = await chromium.launch();
 try {
   const context = await browser.newContext({
@@ -44,9 +31,10 @@ try {
   await page.getByRole('button').first().waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {});
   await page.waitForTimeout(1500);
 
-  const snapshot = await page.accessibility.snapshot({ interestingOnly: false }).catch(() => null);
-  const tree = [];
-  if (snapshot) collect(snapshot, tree);
+  // Modern ARIA snapshot (page.accessibility.snapshot was REMOVED in recent Playwright — using
+  // it throws "Cannot read properties of undefined (reading 'snapshot')"). ariaSnapshot() returns
+  // the role→name YAML tree.
+  const ariaTree = await page.locator('body').ariaSnapshot().catch(() => '');
 
   // Also enumerate buttons explicitly with their accessible names (what specs most often target).
   const buttons = await page.getByRole('button').all();
@@ -81,8 +69,8 @@ try {
   console.log([...new Set(buttonNames)].map((n) => ` - ${n}`).join('\n') || ' (none found — route may not have loaded)');
   console.log(`\n## icon/tooltip controls (target with getByTitle/getByLabel — admin toolbar icons are NOT role=button):`);
   console.log([...new Set(iconNames)].map((n) => ` - ${n}`).join('\n') || ' (none)');
-  console.log(`\n## accessible tree (interactive roles):`);
-  console.log(tree.slice(0, 200).join('\n') || ' (empty)');
+  console.log(`\n## accessible tree (role "name" — the reachable controls):`);
+  console.log(ariaTree.split('\n').slice(0, 220).join('\n') || ' (empty)');
   console.log(`\n## screenshot: ${shot}`);
   process.exit(0);
 } catch (e) {

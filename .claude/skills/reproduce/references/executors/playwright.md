@@ -122,6 +122,16 @@ stray uploader elsewhere on the page.
 - **NEVER** use CSS classes, data-test ids, or attribute selectors — not even as a
   fallback. An element no semantic locator can reach IS a `PRECONDITION_NOT_FOUND` (and may
   mean the bug isn't faithfully automatable — set low confidence).
+- **For icon/tooltip buttons, match the ACCESSIBLE NAME with a case-insensitive REGEX — never an
+  exact `getByTitle`/`getByLabel` string.** An admin icon-button's name may come from `title`,
+  `aria-label`, or a localized snippet, so an exact `getByTitle('Settings')` misses when the real
+  name differs by a word or locale. Live miss on #31: the Settings cog rendered top-right but
+  `getByTitle('Settings')` never matched → false `PRECONDITION_NOT_FOUND` on a perfectly loaded
+  editor. Prefer `getByRole('button', { name: /settings?/i })` (the accessible name spans
+  title|aria-label|text) and add `.or()` fallbacks for known alternates
+  (`getByRole('button', { name: /settings?|einstellungen/i })`). This only *reduces* the guess:
+  a control whose real name you have not seen is still a coin-flip — the reliable fix is to
+  inspect the live DOM before authoring (see `probe-ui`).
 
 ## Structure: precondition vs symptom (this drives the verdict)
 **(1) Navigation / precondition** — reach the state and WAIT for each element it depends on:

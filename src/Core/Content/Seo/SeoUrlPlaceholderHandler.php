@@ -51,6 +51,11 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
+                    if ($context->isHeadless() && filter_var($value, \FILTER_VALIDATE_URL)) {
+                        $seoMapping[$key] = $value;
+                        continue;
+                    }
+
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
 

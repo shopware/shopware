@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -121,6 +122,29 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $expectedUrl2 = $host . '/cars-default';
         $expected = \sprintf($template, $expectedUrl1, $expectedUrl2);
         static::assertSame($expected, $actual);
+    }
+
+    public function testReplaceDoesNotPrependHostForHeadlessSalesChannel(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $result = $this->createMock(Result::class);
+        $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
+            [
+                'seo_path_info' => 'https://foo.bar/product/' . $productId,
+                'path_info' => '/store-api/product/' . $productId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+        ]);
+        $this->connection->method('executeQuery')->willReturn($result);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+
+        $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
+        $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
+
+        static::assertSame('SEO: https://foo.bar/product/' . $productId, $actual);
     }
 
     private function createHandler(?Connection $connection = null): SeoUrlPlaceholderHandler

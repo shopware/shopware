@@ -59,7 +59,6 @@
                         disabled: acl.can('product.editor'),
                         showOnDisabledElements: true
                     }"
-                    ghost
                     :disabled="!acl.can('product.editor')"
                     variant="secondary"
                     @click="openAddPropertiesModal"
@@ -103,7 +102,6 @@
                         showOnDisabledElements: true
                     }"
                     class="sw-product-detail-variants__generated-variants-empty-state-button"
-                    ghost
                     :disabled="!acl.can('product.creator')"
                     variant="secondary"
                     @click="openModal('variantGeneration')"

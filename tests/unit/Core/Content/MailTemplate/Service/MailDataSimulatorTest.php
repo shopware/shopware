@@ -219,6 +219,18 @@ class MailDataSimulatorTest extends TestCase
         }
     }
 
+    public function testGetTemplateDataReturnsEmptyArrayForUnknownUnstructuredObjectTypes(): void
+    {
+        $simulator = $this->createSimulator([
+            'unknownFormData' => (new ObjectType())->toArray(),
+        ]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertArrayHasKey('unknownFormData', $result);
+        static::assertSame([], $result['unknownFormData']);
+    }
+
     public function testGetTemplateDataUsesProviderCriteriaForEntityEventData(): void
     {
         $definition = new TestMailTemplateEntityDefinition(new FieldCollection([

@@ -88,6 +88,10 @@ The Agentic Commerce sales channel features — including product export provide
 
 > Install the **Agentic Commerce extension (SwagAgenticCommerce)** from the Shopware Store **before** updating to 6.8 to retain this functionality and preserve any already configured Agentic Commerce sales channels.
 
+## Document rendering no longer falls back to the Storefront browser timezone
+
+When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
 </details>
 
 # API
@@ -867,6 +871,24 @@ MediaUploadService::validateExternalUrl($url);
 $this->mediaUploadService->assertValidExternalUrl($url);
 ```
 
+## Removed `maintenanceIpWhitelist` wording of the sales channel in favor of `maintenanceIpAllowlist`
+
+The non-inclusive `maintenanceIpWhitelist` wording on the sales channel was removed and replaced by `maintenanceIpAllowlist`:
+
+* `\Shopware\Core\System\SalesChannel\SalesChannelEntity`: `getMaintenanceIpWhitelist()` / `setMaintenanceIpWhitelist()` were removed. Use `getMaintenanceIpAllowlist()` / `setMaintenanceIpAllowlist()` instead.
+* DAL: the field `maintenanceIpWhitelist` was renamed to `maintenanceIpAllowlist` and the database column `sales_channel.maintenance_ip_whitelist` to `sales_channel.maintenance_ip_allowlist`. Update criteria, associations and write payloads accordingly.
+* Admin API: the sales channel field `maintenanceIpWhitelist` was renamed to `maintenanceIpAllowlist`.
+* `\Shopware\Core\SalesChannelRequest`: the constant `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST` was removed. Use `ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST` instead.
+* `\Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel`: the constant `MAINTENANCE_WHITELIST_HEADER` was removed. Use `MAINTENANCE_ALLOWLIST_HEADER` instead.
+
+```php
+// Before
+$salesChannel->getMaintenanceIpWhitelist();
+
+// After
+$salesChannel->getMaintenanceIpAllowlist();
+```
+
 # Administration
 
 <details>
@@ -1371,6 +1393,12 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
+
+`Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
+
+`loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 
@@ -1947,3 +1975,11 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 - Use `getContext()` from the event for framework context data.
 
 </details>
+
+## Dynamic product group: "display as group"
+
+`product_stream` has a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.

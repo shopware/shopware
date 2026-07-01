@@ -66,6 +66,8 @@
             "labelInputShippingMethods": "Versandarten",
             "labelInputPaymentMethods": "Zahlungsarten",
             "labelInputCountries": "Länder",
+            "labelBusinessTimeZone": "Geschäftszeitzone",
+            "helpTextBusinessTimeZone": "Zeitzone, die verwendet wird, wenn ein Datum oder eine Uhrzeit in Dokumenten dieses Verkaufskanals ausgegeben wird. Wenn leer, wird keine Geschäftszeitzone angewendet.",
             "countryMultiSelectHelpText": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
             "helpTextTaxCalculation": {
                 "label": "Wenn ein Steuerservice-Anbieter (Tax Provider) aktiviert wird, werden diese Einstellungen möglicherweise überschrieben. Du kannst dies in den {link} überprüfen. ",
@@ -281,7 +283,7 @@
             },
             "agenticFiles": {
                 "cardTitle": "Agentic-Dateien",
-                "description": "Verwalte KI-lesbare Dateien, die für diesen Verkaufskanal öffentlich ausgeliefert werden, zum Beispiel llms.txt und agents.md. Sie geben Assistenten einen kompakten Überblick über Deinen Shop und Hinweise zur Nutzung öffentlicher Inhalte.",
+                "description": "Verwalte KI-lesbare Dateien, die für diesen Verkaufskanal öffentlich ausgeliefert werden, zum Beispiel llms.txt, agents.md und ai-catalog.json. Sie geben Assistenten einen kompakten Überblick über Deinen Shop und Hinweise zur Nutzung öffentlicher Inhalte.",
                 "columnFileName": "Datei",
                 "columnEnabled": "Status",
                 "columnDescription": "Beschreibung",
@@ -326,8 +328,9 @@
                 },
                 "descriptions": {
                     "agentic": {
-                        "llms.txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
-                        "agents.md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
+                        "well-known-ai-catalog-json": "Ein maschinenlesbarer Katalog für Agentic Resource Discovery. Er hilft kompatiblen Clients, verfügbare KI-Ressourcen für diesen Verkaufskanal zu finden, zum Beispiel einen aktivierten Shopware-MCP-Server.",
+                        "llms-txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
+                        "agents-md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
                     }
                 }
             },

@@ -76,7 +76,6 @@
                                     showOnDisabledElements: true
                                 }"
                                 class="sw-product-properties__button-add-property"
-                                ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
                                 variant="secondary"
@@ -191,7 +190,6 @@
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         :disabled="!acl.can('product.editor') || undefined"
                         variant="secondary"
                         @click="turnOnAddPropertiesModal"

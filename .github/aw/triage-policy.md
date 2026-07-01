@@ -5,7 +5,7 @@ This file holds only the **gh-aw-mode specifics** — invocation context and
 JSON output contract. The **shared policy** (role, trust boundaries,
 research workflow, tool budget, anti-reward-hacking) lives in
 `.github/aw/shared/triage-policy.md` and is runtime-imported below, so the
-interactive skill (.claude/skills/triage/SKILL.md) and this fragment cannot
+interactive skill (.agents/skills/triage/SKILL.md) and this fragment cannot
 drift on the rubric. (Shared policy must live under `.github/` — gh aw
 forbids runtime-imports outside `.github/` for security reasons.)
 -->
@@ -19,6 +19,21 @@ post-run schema/secret-scan validator
 (`.github/bin/js/validate-triage-output.ts`). You **cannot** label, close,
 assign, or comment on the issue — the structured result is the only
 deliverable.
+
+**Hard turn limit.** This run is force-stopped after **50 turns** (roughly one
+tool call each), with **no warning** — you will not be told you are running out.
+If you are stopped before emitting, the run produces **no output at all** and the
+whole triage is wasted, which is worse than any low-confidence answer. You cannot
+see how many turns remain, so do not try to run right up to the edge: follow the
+"bias toward finishing" guidance in the tool budget below and emit your
+`TriageOutput` with reduced confidence well before you would expect to be cut off.
+
+**Shallow checkout — `git log` history is NOT available.** This run checks out
+the repository at `fetch-depth: 1`, so `git log` sees only the single
+checked-out commit, regardless of path or date flags. Do not rely on `git log`
+for recent-fix evidence and do not retry it with different flags — it cannot
+surface history here. For related-fix / duplicate detection, use the GitHub
+`search_pull_requests` / `search_issues` / `get_pull_request` MCP tools instead.
 
 {{#runtime-import .github/aw/shared/triage-policy.md}}
 
@@ -50,7 +65,7 @@ unknown keys, missing fields, or field-name typos.
 Field rules:
 - **All 13 fields are required.** Use `null` for `duplicate_of` when not a
   duplicate; empty arrays `[]` for the list fields when nothing applies.
-- `suggested_labels`: 1–2 entries from `.claude/skills/triage/references/DOMAINS.md`.
+- `suggested_labels`: 1–2 entries from `.agents/skills/triage/references/DOMAINS.md`.
   When the primary label is `domain/framework`, the second MUST be
   `component/{core,administration,storefront}`.
 - `evidence_quotes`: prefix each entry `[issue]` (from issue body/comments)
@@ -61,5 +76,5 @@ Field rules:
   `summary` — they are not in the schema and will fail validation.
 
 Worked examples (for shape and tone, not normative content) are in
-`.claude/skills/triage/assets/examples.md` — accessible if the gh aw
-sandbox allows reading from `.claude/`, otherwise refer to the schema above.
+`.agents/skills/triage/assets/examples.md` — accessible if the gh aw
+sandbox allows reading from `.agents/`, otherwise refer to the schema above.

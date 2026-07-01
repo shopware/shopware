@@ -33,5 +33,11 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <tag name="shopware.api.enum_provider" />
         </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\StorefrontCategoryUrlGenerator"
+                 decorates="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\StorefrontCategoryUrlGenerator.inner"/>
+            <argument type="service" id="router"/>
+        </service>
     </services>
 </container>

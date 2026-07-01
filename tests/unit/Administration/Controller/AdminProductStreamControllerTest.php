@@ -12,6 +12,8 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -65,6 +67,7 @@ class AdminProductStreamControllerTest extends TestCase
                 static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
                 static::assertCount(1, $criteria->getFilters());
                 static::assertInstanceOf(ProductAvailableFilter::class, $criteria->getFilters()[0]);
+                static::assertCount(0, $criteria->getGroupFields());
 
                 return new EntitySearchResult(
                     'product',
@@ -82,5 +85,42 @@ class AdminProductStreamControllerTest extends TestCase
             '{"extensions":[],"elements":[],"aggregations":[],"page":1,"limit":null,"entity":"product","total":1,"states":[]}',
             $response->getContent()
         );
+    }
+
+    public function testProductStreamPreviewAppliesGroupingWhenDisplayAsGroupRequested(): void
+    {
+        $context = Context::createDefaultContext();
+        $controller = new AdminProductStreamController(
+            $this->productDefinition,
+            $this->salesChannelRepository,
+            $this->salesChannelContextService,
+            $this->requestCriteriaBuilder,
+        );
+
+        $this->requestCriteriaBuilder->expects($this->once())->method('handleRequest')->willReturn(new Criteria());
+
+        $this->salesChannelRepository->expects($this->once())->method('search')
+            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $context) {
+                // grouping mirrors the storefront listing: group by displayGroup and drop the null group
+                static::assertContainsEquals(new FieldGrouping('displayGroup'), $criteria->getGroupFields());
+                static::assertContainsEquals(new NotEqualsFilter('displayGroup', null), $criteria->getFilters());
+
+                return new EntitySearchResult(
+                    'product',
+                    0,
+                    new ProductCollection(),
+                    null,
+                    $criteria,
+                    $context->getContext()
+                );
+            });
+
+        $response = $controller->productStreamPreview(
+            'salesChannelId',
+            new Request(['displayAsGroup' => '1']),
+            $context
+        );
+
+        static::assertNotFalse($response->getContent());
     }
 }

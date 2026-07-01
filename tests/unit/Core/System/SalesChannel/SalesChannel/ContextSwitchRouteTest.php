@@ -84,10 +84,10 @@ class ContextSwitchRouteTest extends TestCase
     public function testSwitchContextRejectsNonEmptyAddressIdsForAnonymousContext(array $parameters): void
     {
         $route = new ContextSwitchRoute(
-            $this->createMock(DataValidator::class),
-            $this->createMock(SalesChannelContextPersister::class),
+            static::createStub(DataValidator::class),
+            static::createStub(SalesChannelContextPersister::class),
             $this->createEventDispatcher(),
-            $this->createMock(SalesChannelContextServiceInterface::class)
+            static::createStub(SalesChannelContextServiceInterface::class)
         );
 
         $this->expectExceptionObject(CartException::customerNotLoggedIn());
@@ -112,7 +112,7 @@ class ContextSwitchRouteTest extends TestCase
         string $salesChannelId,
         Context $frameworkContext
     ): SalesChannelContext {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn(null);
@@ -131,7 +131,7 @@ class ContextSwitchRouteTest extends TestCase
 
     private function createEventDispatcher(): EventDispatcherInterface
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
             ->willReturnCallback(static fn (object $event): object => $event);

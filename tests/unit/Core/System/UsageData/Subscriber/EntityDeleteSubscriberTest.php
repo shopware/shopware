@@ -56,7 +56,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $usageDataAllowListServiceMock = $this->createMock(UsageDataAllowListService::class);
+        $usageDataAllowListServiceMock = static::createStub(UsageDataAllowListService::class);
         $usageDataAllowListServiceMock->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListServiceMock->method('getFieldsToSelectFromDefinition')
@@ -108,8 +108,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -129,7 +129,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -156,12 +156,12 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $connection->expects($this->once())
             ->method('transactional')
-            ->willThrowException($this->createMock(DeadlockException::class));
+            ->willThrowException(static::createStub(DeadlockException::class));
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -181,7 +181,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -222,8 +222,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -243,7 +243,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -274,8 +274,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -308,8 +308,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -344,8 +344,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -380,8 +380,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -408,7 +408,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     private function createConsentService(ConsentStatus $status): ConsentService
     {
-        $consentService = $this->createMock(ConsentService::class);
+        $consentService = static::createStub(ConsentService::class);
         $consentService->method('getConsentState')
             ->willReturn(new ConsentState(
                 BackendData::NAME,

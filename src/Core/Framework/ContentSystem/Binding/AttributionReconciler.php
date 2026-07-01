@@ -19,7 +19,13 @@ use Shopware\Core\Framework\Log\Package;
  * only while the element's current `source`/`config` for `$key` still equals what `$specId`'s binding for `$key`
  * produces. A key whose wiring has since diverged (or whose specification/binding no longer exists) is dropped,
  * never flagged as an error — a user who edits a key's wiring away from the specification simply loses that
- * key's attribution; every other key keeps its own independently.
+ * key's attribution; every other key keeps its own independently. This per-key drop is the only silent
+ * outcome: it is reached by looking up a resolved specification (via {@see
+ * AbstractContentSystemBindingSpecificationRegistry::get()}) and finding its wiring for `$key` diverged or
+ * gone. If the registry's own build fails instead — a broken authored binding specification makes `get()`/
+ * `all()` throw — that exception is NOT absorbed here: only a {@see ContentSystemException} whose code is a
+ * client defect ({@see ContentSystemException::isClientDefect()}) is caught and treated as "not honest";
+ * every other exception, including a registry-build failure, propagates out of the reconciler.
  *
  * Mirrors {@see LayoutDefaultSeeder}: it walks the same write-time
  * element forest, handles both a hydrated {@see ContentElement} and a raw element array (Admin / Sync JSON), and
@@ -280,8 +286,8 @@ class AttributionReconciler
             return null;
         }
 
-        $source = $binding->source();
-        $configObject = $this->configSerializerProvider->decode($source, $binding->config());
+        $source = $binding->source;
+        $configObject = $this->configSerializerProvider->decode($source, $binding->config);
         $encoded = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
 
         return ['source' => $source, 'encoded' => $encoded];

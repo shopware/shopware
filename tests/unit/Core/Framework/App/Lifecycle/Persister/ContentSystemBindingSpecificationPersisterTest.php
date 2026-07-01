@@ -55,7 +55,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         // (and whose validator the default no-arg factory cannot build). Validation has its own tests.
         $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
-        $this->loader = new YamlBindingSpecificationLoader($this->serializer, $validator);
+        $this->loader = new YamlBindingSpecificationLoader([], $this->serializer, $validator);
     }
 
     #[TestDox('inserts a new binding, writing the serialized schema and content hash as the payload')]
@@ -351,11 +351,11 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $registry ??= static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
 
         return new ContentSystemBindingSpecificationPersister(
-            $repo,
             $loader ?? $this->loader,
-            $registry,
+            $repo,
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
+            $registry,
         );
     }
 
@@ -371,11 +371,11 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         AbstractContentSystemBindingSpecificationRegistry $registry,
     ): ContentSystemBindingSpecificationPersister {
         return new ContentSystemBindingSpecificationPersister(
-            $repo,
             $loader,
-            $registry,
+            $repo,
             $this->serializer,
             $this->runTransactionStub(),
+            $registry,
         );
     }
 

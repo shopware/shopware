@@ -494,6 +494,39 @@ class ContentElementFieldSerializerTest extends TestCase
         );
     }
 
+    #[TestDox('includes attributedSpecifications in the serialized output for a top-level element with non-empty attribution')]
+    public function testSerializeContentElementIncludesAttributedSpecificationsForTopLevelElement(): void
+    {
+        $element = ContentElementBuilder::create('product-card', 'elem-attr')
+            ->withAttributedSpecification('product', 'binding-spec-1')
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($element);
+
+        static::assertArrayHasKey('attributedSpecifications', $result);
+        static::assertSame(['product' => 'binding-spec-1'], $result['attributedSpecifications']);
+    }
+
+    #[TestDox('includes attributedSpecifications in the serialized output for a nested slot child with non-empty attribution')]
+    public function testSerializeContentElementIncludesAttributedSpecificationsForNestedSlotChild(): void
+    {
+        $child = ContentElementBuilder::create('text', 'child-attr')
+            ->withAttributedSpecification('category', 'binding-spec-2')
+            ->build();
+
+        $parent = ContentElementBuilder::create('grid', 'parent-attr')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($parent);
+
+        static::assertArrayHasKey('slots', $result);
+        $childData = $result['slots']['main'][0];
+
+        static::assertArrayHasKey('attributedSpecifications', $childData);
+        static::assertSame(['category' => 'binding-spec-2'], $childData['attributedSpecifications']);
+    }
+
     #[TestDox('returns Type and Collection constraints when field has no Required flag')]
     public function testBuildConstraintsWithoutRequiredFlagReturnsExpectedStructure(): void
     {

@@ -52,7 +52,7 @@ All nine live in `Op/` and extend `AbstractLayoutMutation`:
 - **WrapElements** - mints a container element and moves a set of sibling elements into it, placing the container where the first target was.
 - **UnwrapElement** - replaces a container with its slot children, hoisted into the container's parent at the container's position. The removed container's own static property values and consumed wiring (its data requirements and accepted context) come back through `droppedProperties` / `droppedWiring`, so nothing the container held is lost.
 - **AttachElement** - splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the detachment a replace reports through `orphaned`: it re-places a detached subtree (or a copied one) without trusting client ids.
-- **BindElement** - applies a `Binding/BindingSpecification`'s wiring onto one element: each `resolves` entry becomes a data requirement (overwriting an existing key's wiring), each `inputs` entry with a default seeds that primitive property only when the element does not already carry it, and every wired key's attribution is recorded. Adds wiring only — it never detaches or drops anything, so `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+- **BindElement** - applies a `Binding/Specification/BindingSpecification`'s wiring onto one element: each `resolves` entry becomes a data requirement (overwriting an existing key's wiring), each `inputs` entry with a default seeds that primitive property only when the element does not already carry it, and every wired key's attribution is recorded. Adds wiring only — it never detaches or drops anything, so `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
 ## Key Classes
 

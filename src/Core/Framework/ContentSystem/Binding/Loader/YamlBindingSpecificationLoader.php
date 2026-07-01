@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
@@ -33,9 +33,9 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
      * @param list<BindingSpecificationSourceDirectory> $directories
      */
     public function __construct(
+        private readonly array $directories,
         private readonly BindingSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
-        private readonly array $directories = [],
     ) {
     }
 
@@ -68,17 +68,6 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         }
 
         return $all;
-    }
-
-    /**
-     * @return list<BindingSpecification>
-     */
-    public function loadFromDirectory(string $directory, string $source): array
-    {
-        return array_map(
-            static fn (ResolvedBindingSpecificationDto $resolvedSpecificationDto) => $resolvedSpecificationDto->toSpecification(),
-            $this->loadDtosFromDirectory($directory, $source),
-        );
     }
 
     /**

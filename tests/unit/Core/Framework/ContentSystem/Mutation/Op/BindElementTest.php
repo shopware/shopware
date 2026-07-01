@@ -5,10 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingInput;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -108,6 +108,34 @@ class BindElementTest extends TestCase
         static::assertEquals(['product' => new DataRequirement('product', 'entity', $newConfig)], $result[0]->getDataRequirements());
         static::assertSame(['product' => 'spec-1'], $result[0]->getAttributedSpecifications());
         static::assertSame('user-filled', $result[0]->getProperty('mediaId'));
+    }
+
+    #[TestDox('preserves a pre-existing numeric-string-keyed data requirement and attribution instead of renumbering it')]
+    public function testBindPreservesNumericStringKeyedWiringWithoutRenumbering(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+
+        // '5' is a numeric-string property key: PHP casts it to the integer array key 5 on both
+        // dataRequirements and attributedSpecifications. A `[...$a, ...$b]` spread merge renumbers integer
+        // keys positionally instead of preserving them, which would silently drop key 5 from one or both
+        // maps and desync them from `properties`/`acceptsContext` (still keyed '5'/5). array_replace()
+        // preserves the key exactly, so this pre-existing pair must survive the bind untouched.
+        $old = ContentElementBuilder::create('Sw:Product', 'el')
+            ->withDataRequirement('5', 'entity', $oldConfig)
+            ->withAttributedSpecification('5', 'spec-old')
+            ->build();
+
+        $result = (new BindElement($this->registry($newConfig), 'spec-1', 'el', $this->serializers($newConfig)))->apply([$old]);
+
+        static::assertEquals(
+            ['5' => new DataRequirement('5', 'entity', $oldConfig), 'product' => new DataRequirement('product', 'entity', $newConfig)],
+            $result[0]->getDataRequirements()
+        );
+        static::assertSame(
+            ['5' => 'spec-old', 'product' => 'spec-1'],
+            $result[0]->getAttributedSpecifications()
+        );
     }
 
     #[TestDox('rejects a specification whose type does not match the target element component with a 400')]

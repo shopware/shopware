@@ -309,18 +309,31 @@ class ContentElementTest extends TestCase
         static::assertArrayNotHasKey('contextDefinitions', $data);
     }
 
-    #[TestDox('includes the attributedSpecifications map in serialized output when the element carries non-empty attribution')]
-    public function testIncludesAttributedSpecificationsInSerializedOutputWhenNonEmpty(): void
+    #[TestDox('omits attributedSpecifications from serialized output even when the element carries non-empty attribution')]
+    public function testOmitsAttributedSpecificationsFromSerializedOutputWhenNonEmpty(): void
     {
         $element = ContentElementBuilder::create('test-component', 'test-id')
             ->withAttributedSpecification('product', 'binding-spec-1')
             ->withAttributedSpecification('category', 'binding-spec-2')
             ->build();
 
-        static::assertSame(
-            ['product' => 'binding-spec-1', 'category' => 'binding-spec-2'],
-            $element->jsonSerialize()['attributedSpecifications']
-        );
+        static::assertArrayNotHasKey('attributedSpecifications', $element->jsonSerialize());
+    }
+
+    #[TestDox('omits attributedSpecifications from serialized slot children even when they carry non-empty attribution')]
+    public function testOmitsAttributedSpecificationsFromNestedSlotChildrenInSerializedOutput(): void
+    {
+        $child = ContentElementBuilder::create('child-component')
+            ->withAttributedSpecification('product', 'binding-spec-1')
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent-component')
+            ->withSlot('default', [$child])
+            ->build();
+
+        $childData = $parent->jsonSerialize()['slots']['default'][0];
+
+        static::assertArrayNotHasKey('attributedSpecifications', $childData);
     }
 
     #[TestDox('providers and consumers survive jsonSerialize and are reconstructed under providesContext and acceptsContext')]

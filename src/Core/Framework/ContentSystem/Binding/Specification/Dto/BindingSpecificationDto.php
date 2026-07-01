@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BindingInput;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecification;
 use Shopware\Core\Framework\Log\Package;

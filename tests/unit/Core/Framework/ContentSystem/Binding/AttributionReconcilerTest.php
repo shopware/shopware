@@ -5,10 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
@@ -149,6 +150,35 @@ class AttributionReconcilerTest extends TestCase
             'component' => 'card',
             'attributedSpecifications' => ['product' => 'spec-1'],
             'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['corrupt' => true]]],
+        ];
+
+        $result = $this->reconciler(['spec-1' => $specification], $provider)->reconcile([$node]);
+
+        $reconciled = $result[0];
+        static::assertIsArray($reconciled);
+        static::assertArrayNotHasKey('attributedSpecifications', $reconciled);
+        static::assertSame($node['dataRequirements'], $reconciled['dataRequirements']);
+    }
+
+    #[TestDox('drops attribution when the element\'s stored domain-loader config fails the real domain serializer\'s decode(), reclassified via the shared config-serializer decode chokepoint, without throwing out of reconcile()')]
+    public function testDropsAttributionWhenRealDomainLoaderConfigFailsToDecodeWithoutThrowing(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'navigation' => new LoaderBinding('navigation', ['rootId' => 'main-navigation', 'depth' => 3]),
+        ]);
+
+        // The real NavigationLoaderConfigSerializer, not a stub: "depth" must be a positive int, so this
+        // element's stored config fails its decode() with a CategoryException -- a domain exception, not a
+        // ContentSystemException. DataLoaderConfigSerializerProvider reclassifies it to
+        // ContentSystemException::invalidLoaderConfig() at the shared decode chokepoint; the reconciler must
+        // catch that reclassified exception and drop the attribution, not throw.
+        $serializer = new NavigationLoaderConfigSerializer();
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['navigation' => static fn () => $serializer]));
+
+        $node = [
+            'component' => 'card',
+            'attributedSpecifications' => ['navigation' => 'spec-1'],
+            'dataRequirements' => ['navigation' => ['source' => 'navigation', 'config' => ['depth' => 'not-an-int']]],
         ];
 
         $result = $this->reconciler(['spec-1' => $specification], $provider)->reconcile([$node]);

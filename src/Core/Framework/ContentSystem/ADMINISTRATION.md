@@ -180,15 +180,15 @@ Response:
 ```json
 {
   "bindingSpecifications": {
-    "core:product-title": {
-      "id": "product-title",
-      "type": "Sw:Product:Card",
-      "label": "Product Title",
+    "core:from-media-library": {
+      "id": "from-media-library",
+      "type": "Sw:Media:Image",
+      "label": "From media library",
       "resolves": {
-        "product": { "loader": "entity", "config": { "entity": "product" } }
+        "media": { "loader": "entity", "config": { "entity": "media", "property": "mediaId" } }
       },
       "inputs": {
-        "tag": { "default": "h2" }
+        "mediaId": []
       }
     }
   }
@@ -294,7 +294,7 @@ Entity resolution and hydration do not run at mint time; they happen when the re
 
 Resolves every element property of an **unsaved** draft layout and reports what is structurally broken or still unresolved — **without** persisting and **without** rendering against a real entity. It answers the editor's after-local-edit "what is broken / still unresolved" question and backs agent layout linting. Served by `Api/ContentDiagnoseController`. Route name: `api.action.content_system.layout.diagnose`.
 
-The optional `rootSource` binds the draft to that root source's context so binding-scope resolvability can be checked. Without it, only intrinsic well-formedness is evaluated. The value is resolved through `Adapter/RootSourceRegistry::resolve()` (an entity type, a section id such as `header`/`footer`, or `none`).
+The optional `rootSource` binds the draft to that root source's context so binding-scope resolvability can be checked. Without it, only intrinsic well-formedness is evaluated. The value is resolved through `Adapter/RootSourceRegistry::resolveGated()` (an entity type, a section id such as `header`/`footer`, or `none`).
 
 ### Request
 
@@ -331,12 +331,12 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
   "resolutions": {
     "<elementId>": [
       {
-        "key": "title",
+        "key": "media",
         "kind": "reference",
-        "required": true,
-        "type": "string",
+        "required": false,
+        "type": null,
         "default": null,
-        "fqcn": null,
+        "fqcn": "Shopware\\Core\\Content\\Media\\MediaEntity",
         "resolved": {
           "origin": "loader",
           "contextKey": null,
@@ -345,30 +345,32 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
           "distribution": null,
           "contextType": null,
           "loaderSource": "entity",
-          "configTemplate": { "entity": "product" },
+          "configTemplate": { "entity": "media", "property": "mediaId" },
           "configComplete": true
         },
-        "candidates": []
+        "candidates": [
+          {
+            "origin": "loader",
+            "contextKey": null,
+            "providerElementId": null,
+            "path": null,
+            "distribution": null,
+            "contextType": null,
+            "loaderSource": "entity",
+            "configTemplate": { "entity": "media", "property": "mediaId" },
+            "configComplete": true
+          }
+        ]
       }
     ]
   },
   "diagnostics": {
     "wellFormed": true,
-    "resolvable": false,
-    "violations": [
-      {
-        "code": "unresolved_required",
-        "scope": "binding",
-        "severity": "error",
-        "elementId": "element-uuid",
-        "key": "title",
-        "message": "...",
-        "candidates": []
-      }
-    ]
+    "resolvable": true,
+    "violations": []
   },
   "applicableBindings": {
-    "<elementId>": ["core:product-title"]
+    "<elementId>": ["core:from-media-library"]
   }
 }
 ```
@@ -391,7 +393,7 @@ With `rootSource` empty or omitted, the response still reports intrinsic well-fo
 | `broken_required_chain`      | binding   | error      |
 | `unresolved_optional`        | binding   | warning    |
 
-`mismatched_reference_type` flags a stored reference wiring (a `dataRequirements` entry already attributed on the element) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).
+`mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).
 
 ### Errors
 
@@ -421,7 +423,7 @@ POST /api/_action/content-system/layout/bind-element
 
 Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, or `bind_element`.
 
-Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolve()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
+Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
 
 ### Request
 
@@ -471,7 +473,7 @@ Example (`insert-element`):
   "orphaned": [ ... ],
   "droppedWiring": ["<wiringKey>"],
   "droppedProperties": { "<propertyKey>": "<droppedValue>" },
-  "applicableBindings": { "<elementId>": ["core:product-title"] }
+  "applicableBindings": { "<elementId>": ["core:from-media-library"] }
 }
 ```
 

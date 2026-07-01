@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ContentSystem\Binding;
+namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -81,20 +81,20 @@ final readonly class BindingSpecification
         $resolves = [];
         foreach ($this->resolves as $key => $binding) {
             $resolves[$key] = [
-                'loader' => $binding->source(),
-                'config' => $binding->config(),
+                'loader' => $binding->source,
+                'config' => $binding->config,
             ];
         }
 
         $inputs = [];
         foreach ($this->inputs as $key => $input) {
-            if (!$input->hasDefault()) {
+            if (!$input->hasDefault) {
                 $inputs[$key] = [];
 
                 continue;
             }
 
-            $inputs[$key] = ['default' => $input->default()];
+            $inputs[$key] = ['default' => $input->default];
         }
 
         return [

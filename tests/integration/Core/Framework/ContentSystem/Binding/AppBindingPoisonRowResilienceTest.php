@@ -24,12 +24,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Covers the poison-pill acceptance for the database binding specification loader: one persisted,
- * active-app binding whose declared type is not a registered element type must not take down the
- * whole registry. {@see DatabaseBindingSpecificationLoader} skips such a row (it fails
- * {@see TypeConsistentBindingSpecification} at the "type" path) and logs a warning instead of
- * throwing, so the registry still builds around it, the introspection endpoint still serves the
- * valid catalog, and a content_layout write attributed to a valid binding still succeeds while the
- * poison row sits in the database.
+ * active-app binding whose declared type is not a registered element type -- or whose resolves entry
+ * uses a domain loader with a config the domain serializer rejects -- must not take down the whole
+ * registry. {@see DatabaseBindingSpecificationLoader} skips such a row (it fails
+ * {@see TypeConsistentBindingSpecification} at the "type" path, or at the "resolves[key].config" path
+ * for a domain decode failure) and logs a warning instead of throwing, so the registry still builds
+ * around it, the introspection endpoint still serves the valid catalog, and a content_layout write
+ * attributed to a valid binding still succeeds while the poison row sits in the database.
  *
  * @internal
  */
@@ -40,6 +41,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
     private const CORE_MEDIA_BINDING_ID = 'core:from-media-library';
     private const POISON_BINDING_NAME = 'poison-binding';
+    private const DOMAIN_LOADER_POISON_BINDING_NAME = 'domain-loader-poison-binding';
 
     private string $appName;
 
@@ -94,6 +96,60 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         $all = $this->registry()->all();
 
         static::assertArrayNotHasKey('app:' . $this->appName . ':' . self::POISON_BINDING_NAME, $all);
+        static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
+    }
+
+    #[TestDox('builds the registry around a persisted, active-app binding whose resolves entry uses a domain loader with a config the domain serializer rejects, keeping the valid core binding and omitting only the poison one')]
+    public function testRegistryStillBuildsWhenPersistedAppBindingHasMalformedDomainLoaderConfig(): void
+    {
+        $context = Context::createDefaultContext();
+        $appId = Uuid::randomHex();
+        $appName = 'AcmeDomainLoaderPoison' . Uuid::randomHex();
+
+        $this->appRepository()->create([[
+            'id' => $appId,
+            'name' => $appName,
+            'path' => 'AcmeDomainLoaderPoison',
+            'version' => '1.0.0',
+            'label' => 'Acme Domain Loader Poison',
+            'active' => true,
+            'integration' => [
+                'label' => $appName,
+                'accessKey' => 'domain-loader-poison-' . $appId,
+                'secretAccessKey' => 'domain-loader-poison-' . $appId,
+            ],
+            'aclRole' => [
+                'name' => $appName,
+            ],
+        ]], $context);
+
+        // "Sw:Product:Listing"'s "listing" property is a reference property the product_listing loader can
+        // fill; "associations" must be an array, so this config decodes fine structurally but is rejected by
+        // ProductListingLoaderConfigSerializer::decode() -- a domain exception the SF1 fix reclassifies to
+        // ContentSystemException at the shared decode chokepoint, which TypeConsistentBindingSpecificationValidator
+        // then turns into a load-time violation instead of an uncaught exception.
+        $poison = new BindingSpecificationDto(
+            type: 'Sw:Product:Listing',
+            label: 'Domain Loader Poison',
+            resolves: [
+                'listing' => ['loader' => 'product_listing', 'config' => ['associations' => 'not-an-array']],
+            ],
+            inputs: [],
+        );
+
+        $this->bindingSpecificationRepository()->create([[
+            'id' => Uuid::randomHex(),
+            'appId' => $appId,
+            'name' => self::DOMAIN_LOADER_POISON_BINDING_NAME,
+            'schema' => (new BindingSpecificationSerializer())->normalize($poison),
+            'hash' => 'domain-loader-poison-hash',
+        ]], $context);
+
+        $this->registry()->invalidate();
+
+        $all = $this->registry()->all();
+
+        static::assertArrayNotHasKey('app:' . $appName . ':' . self::DOMAIN_LOADER_POISON_BINDING_NAME, $all);
         static::assertArrayHasKey(self::CORE_MEDIA_BINDING_ID, $all);
     }
 

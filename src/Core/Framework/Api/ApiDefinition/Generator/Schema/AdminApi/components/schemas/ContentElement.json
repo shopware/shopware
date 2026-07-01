@@ -75,7 +75,7 @@
                         "additionalProperties": {
                             "type": "string"
                         },
-                        "example": { "product": "core:product-title" }
+                        "example": { "media": "core:from-media-library" }
                     }
                 },
                 "example": {

@@ -23,6 +23,11 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class PropertyType
 {
     /**
+     * The canonical primitive type set: any other `type` value is a `class-string<Struct>` FQCN.
+     */
+    public const PRIMITIVE_TYPES = ['string', 'integer', 'number', 'boolean'];
+
+    /**
      * @param string|list<string> $type
      * @param list<string|int|float|bool>|null $enum
      * @param array<string, PropertySpecification>|null $properties
@@ -74,6 +79,6 @@ final readonly class PropertyType
 
     public function isPrimitive(): bool
     {
-        return \in_array($this->type, ['string', 'integer', 'number', 'boolean'], true);
+        return \in_array($this->type, self::PRIMITIVE_TYPES, true);
     }
 }

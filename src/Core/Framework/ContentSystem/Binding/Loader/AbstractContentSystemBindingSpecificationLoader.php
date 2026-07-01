@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]

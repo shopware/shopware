@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -27,11 +27,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpecificationLoader
 {
     public function __construct(
+        private readonly string $environment,
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
         private readonly BindingSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
-        private readonly Connection $connection,
-        private readonly string $environment,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -56,8 +56,17 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
         $resolved = [];
 
         foreach ($rows as $row) {
-            $name = $row['name'] ?: '<unknown>';
             $source = 'app:' . $row['app_name'];
+
+            if (!$row['name']) {
+                $this->logger->warning(\sprintf('Skipping binding specification "%s:<unknown>": persisted row has no name and cannot be registered', $source), [
+                    'source' => $source,
+                ]);
+
+                continue;
+            }
+
+            $name = $row['name'];
             $identifier = $source . ':' . $name;
 
             try {

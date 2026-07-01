@@ -1,0 +1,11 @@
+id: good-media-binding
+type: Sw:Media:Image
+label: "Good wiring"
+resolves:
+  media:
+    loader: entity
+    config:
+      entity: media
+      property: mediaId
+inputs:
+  mediaId: {}

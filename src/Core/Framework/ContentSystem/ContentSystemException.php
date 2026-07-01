@@ -130,6 +130,17 @@ class ContentSystemException extends HttpException
         );
     }
 
+    public static function invalidLoaderConfig(string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_TYPE,
+            'Invalid configuration for data loader source "{{ source }}": {{ reason }}',
+            ['source' => $source, 'reason' => $previous->getMessage()],
+            $previous,
+        );
+    }
+
     public static function invalidMapKey(string $mapType, string $actualType): self
     {
         return new self(
@@ -636,13 +647,13 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function bindingSpecificationDuplicate(string $id, string $firstSource, string $secondSource): self
+    public static function bindingSpecificationDuplicate(string $id, string $existingSource, string $newSource): self
     {
         return new self(
             Response::HTTP_CONFLICT,
             self::BINDING_SPECIFICATION_DUPLICATE,
-            'Binding specification "{{ id }}" is already registered by "{{ firstSource }}", cannot register again from "{{ secondSource }}"',
-            ['id' => $id, 'firstSource' => $firstSource, 'secondSource' => $secondSource]
+            'Binding specification "{{ id }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
+            ['id' => $id, 'existingSource' => $existingSource, 'newSource' => $newSource]
         );
     }
 

@@ -139,6 +139,32 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         static::assertSame('from-media-library', $specifications[0]->id());
     }
 
+    #[TestDox('skips a row with a blank name while a valid sibling row survives, and logs a warning')]
+    public function testSkipsRowWithBlankNameWhileValidSiblingSurvives(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+            ['name' => 'from-media-library', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
+        ]);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->once())->method('validate')->willReturn(new ConstraintViolationList());
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::logicalAnd(
+                static::stringContains('app:Acme:<unknown>'),
+                static::stringContains('no name'),
+            ));
+
+        $specifications = $this->loader($connection, 'prod', $validator, $logger)->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame('from-media-library', $specifications[0]->id());
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -166,11 +192,11 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
         ?LoggerInterface $logger = null,
     ): DatabaseBindingSpecificationLoader {
         return new DatabaseBindingSpecificationLoader(
+            $environment,
+            $connection,
+            $logger ?? $this->createMock(LoggerInterface::class),
             new BindingSpecificationSerializer(),
             $validator,
-            $connection,
-            $environment,
-            $logger ?? $this->createMock(LoggerInterface::class),
         );
     }
 }

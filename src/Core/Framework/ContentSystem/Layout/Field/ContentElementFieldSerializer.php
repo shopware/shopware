@@ -187,6 +187,18 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         /** @var ContentElementData $data */
         $data = $element->jsonSerialize();
 
+        if ($element->getAttributedSpecifications() !== []) {
+            $data['attributedSpecifications'] = $element->getAttributedSpecifications();
+        }
+
+        // jsonSerialize() never emits attributedSpecifications — it is deliberately absent from the
+        // Store API full format, which serializes elements via jsonSerialize() directly. Re-serialize
+        // slot children here so nested bound elements keep their attribution in storage and admin
+        // responses too, since jsonSerialize()'s own slot recursion carries none.
+        if ($element->getSlots() !== []) {
+            $data['slots'] = $this->elementSlotsSerializer->serializeSlots($element->getSlots());
+        }
+
         return $data;
     }
 

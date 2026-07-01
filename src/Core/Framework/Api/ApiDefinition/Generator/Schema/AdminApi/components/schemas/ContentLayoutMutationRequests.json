@@ -282,7 +282,7 @@
                                 "type": "string",
                                 "minLength": 1,
                                 "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from an element's `applicableBindings` entry.",
-                                "example": "core:product-title"
+                                "example": "core:from-media-library"
                             }
                         }
                     }
@@ -532,7 +532,7 @@
                                 "type": "string",
                                 "minLength": 1,
                                 "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` catalog (`GET /api/_info/content-system-binding-specifications.json`) or from an element's `applicableBindings` entry.",
-                                "example": "core:product-title"
+                                "example": "core:from-media-library"
                             }
                         }
                     }

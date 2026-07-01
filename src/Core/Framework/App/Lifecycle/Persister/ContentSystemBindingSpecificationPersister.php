@@ -40,11 +40,11 @@ class ContentSystemBindingSpecificationPersister
      * @param EntityRepository<AppContentSystemBindingSpecificationCollection> $bindingSpecificationRepository
      */
     public function __construct(
-        private readonly EntityRepository $bindingSpecificationRepository,
         private readonly YamlBindingSpecificationLoader $loader,
-        private readonly AbstractContentSystemBindingSpecificationRegistry $registry,
+        private readonly EntityRepository $bindingSpecificationRepository,
         private readonly BindingSpecificationSerializer $serializer,
         private readonly Connection $connection,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $registry,
     ) {
     }
 

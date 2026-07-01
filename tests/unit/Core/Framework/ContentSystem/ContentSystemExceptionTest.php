@@ -39,6 +39,15 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    #[TestDox('propagates previous throwable when a data loader config is invalid')]
+    public function testPreservesPreviousThrowableOnInvalidLoaderConfig(): void
+    {
+        $previous = new \RuntimeException('rootId expected non-empty string, got integer');
+        $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
@@ -115,6 +124,13 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
             'count',
+        ];
+
+        yield 'invalid loader config' => [
+            ContentSystemException::invalidLoaderConfig('navigation', new \RuntimeException('rootId expected non-empty string, got integer')),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'navigation',
         ];
 
         yield 'invalid map key' => [

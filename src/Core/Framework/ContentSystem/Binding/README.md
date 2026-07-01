@@ -69,5 +69,6 @@ This subsystem does not share code with `Layout/Element/Style/` beyond the patte
 - **Loader/** - `AbstractContentSystemBindingSpecificationLoader` (base), `YamlBindingSpecificationLoader` (filesystem), `DatabaseBindingSpecificationLoader` (app bindings in prod), `BindingSpecificationSourceDirectory` (source directory VO), `ResolvedBindingSpecificationDto` (loading-to-specification bridge)
 - **Registry/** - `AbstractContentSystemBindingSpecificationRegistry` (decoration pattern contract), `ContentSystemBindingSpecificationRegistry` (stateless aggregator), `CachedContentSystemBindingSpecificationRegistry` (cross-request cache decorator)
 - **Serialization/** - `BindingSpecificationSerializer` (YAML/JSON-schema ↔ DTO)
+- **Specification/** - Value objects: `BindingSpecification` (`id`, `type`, `label`, `resolves`, `inputs`, `source`; `toSchema()` for introspection), `LoaderBinding` (`source`, `config`), `BindingInput` (`hasDefault`, `default`)
 - **Specification/Dto/** - `BindingSpecificationDto` (deserialization + load-time validation shape, carries both class-level constraints) and its collection
 - **Validation/** - `WellFormedBindingSpecification` (+ validator, structural shape), `TypeConsistentBindingSpecification` (+ validator, live-registry semantics)

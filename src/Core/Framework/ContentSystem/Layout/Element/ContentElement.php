@@ -289,10 +289,16 @@ class ContentElement extends Struct
     }
 
     /**
-     * Canonical camelCase wire/storage shape. id/component/properties are always present;
-     * dataRequirements/slots/providesContext/acceptsContext/style/attributedSpecifications are omitted when
-     * empty. Context is reconstructed from contextDefinitions via each provider/consumer value object.
-     * extensions, apiAlias and the internal struct/non-struct property stores are never emitted.
+     * Canonical camelCase wire shape. id/component/properties are always present;
+     * dataRequirements/slots/providesContext/acceptsContext/style are omitted when empty. Context is
+     * reconstructed from contextDefinitions via each provider/consumer value object. extensions,
+     * apiAlias and the internal struct/non-struct property stores are never emitted.
+     *
+     * attributedSpecifications (admin/editor bookkeeping) is deliberately never emitted here: this is
+     * the shape the Store API serializes directly, and attribution must not leak into it.
+     * ContentElementFieldSerializer::serializeContentElement() re-serializes on top of this output to
+     * add attribution back for storage and admin responses, recursing into slot children so nested
+     * bound elements keep theirs too.
      *
      * An empty `properties` map is emitted as `[]`, consistent with every content-element read path and the
      * form the DAL write, validation, and storage require. PHP cannot carry an empty map as `{}` through a
@@ -345,10 +351,6 @@ class ContentElement extends Struct
 
         if (!$this->style->isEmpty()) {
             $data['style'] = $this->style->toArray();
-        }
-
-        if ($this->attributedSpecifications !== []) {
-            $data['attributedSpecifications'] = $this->attributedSpecifications;
         }
 
         return $data;

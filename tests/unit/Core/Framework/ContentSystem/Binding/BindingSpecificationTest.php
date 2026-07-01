@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingInput;
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 
 /**
  * @internal

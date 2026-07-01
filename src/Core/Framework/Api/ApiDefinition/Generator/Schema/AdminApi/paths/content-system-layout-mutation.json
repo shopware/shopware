@@ -361,10 +361,10 @@
                                     "summary": "Bind a specification to an element",
                                     "value": {
                                         "layout": [
-                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "Sw:Media:Image", "properties": { "mediaId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41" } }
                                         ],
                                         "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                        "bindingSpecificationId": "core:product-title"
+                                        "bindingSpecificationId": "core:from-media-library"
                                     }
                                 }
                             }

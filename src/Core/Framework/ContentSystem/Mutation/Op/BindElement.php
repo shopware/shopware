@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
-use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -50,9 +50,9 @@ final class BindElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($this->bindingSpecificationId, $specification->type(), $node->getComponent());
         }
 
-        $dataRequirements = [...$node->getDataRequirements(), ...$this->resolveDataRequirements($specification)];
-        $properties = [...$this->seedInputDefaults($node, $specification), ...$node->getProperties()];
-        $attributedSpecifications = [...$node->getAttributedSpecifications(), ...$this->attributionFor($specification)];
+        $dataRequirements = array_replace($node->getDataRequirements(), $this->resolveDataRequirements($specification));
+        $properties = array_replace($this->seedInputDefaults($node, $specification), $node->getProperties());
+        $attributedSpecifications = array_replace($node->getAttributedSpecifications(), $this->attributionFor($specification));
 
         $replacement = new ContentElement(
             $node->getId(),
@@ -78,7 +78,7 @@ final class BindElement extends AbstractLayoutMutation
         $dataRequirements = [];
 
         foreach ($specification->resolves() as $key => $binding) {
-            $dataRequirements[$key] = new DataRequirement($key, $binding->source(), $this->configSerializerProvider->decode($binding->source(), $binding->config()));
+            $dataRequirements[$key] = new DataRequirement($key, $binding->source, $this->configSerializerProvider->decode($binding->source, $binding->config));
         }
 
         return $dataRequirements;
@@ -96,7 +96,7 @@ final class BindElement extends AbstractLayoutMutation
         $defaults = [];
 
         foreach ($specification->inputs() as $key => $input) {
-            if (!$input->hasDefault()) {
+            if (!$input->hasDefault) {
                 continue;
             }
 
@@ -104,7 +104,7 @@ final class BindElement extends AbstractLayoutMutation
                 continue;
             }
 
-            $defaults[$key] = $input->default();
+            $defaults[$key] = $input->default;
         }
 
         return $defaults;

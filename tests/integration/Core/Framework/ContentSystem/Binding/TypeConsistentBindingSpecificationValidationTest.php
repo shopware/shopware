@@ -142,6 +142,18 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
                 'inputs' => [],
                 'expectedPath' => 'resolves[media]',
             ],
+            'entity loader config decodes but names an unregistered entity' => [
+                // config decodes fine (both "entity" and "property" are non-empty strings), but
+                // resolveProducedType() throws ContentSystemException::unknownLoaderEntity() for the
+                // unregistered entity name -- this exercises the resolveProducedType() catch, distinct
+                // from the "undecodable loader config" case above, which exercises the decodeConfig() catch.
+                'type' => 'Sw:Media:Image',
+                'resolves' => [
+                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'this_entity_does_not_exist', 'property' => 'name']],
+                ],
+                'inputs' => [],
+                'expectedPath' => 'resolves[media].config',
+            ],
         ];
     }
 
@@ -163,12 +175,13 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
             ]));
 
             $loader = new YamlBindingSpecificationLoader(
+                [],
                 new BindingSpecificationSerializer(),
                 $this->validator(),
             );
 
             try {
-                $loader->loadFromDirectory($directory, 'test');
+                $loader->loadDtosFromDirectory($directory, 'test');
                 static::fail('Expected the loader to reject the produced-type mismatch.');
             } catch (ContentSystemException $exception) {
                 static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());

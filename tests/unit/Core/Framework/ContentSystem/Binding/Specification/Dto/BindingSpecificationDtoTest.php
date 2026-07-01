@@ -36,8 +36,8 @@ class BindingSpecificationDtoTest extends TestCase
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
         static::assertArrayHasKey('image', $resolves);
-        static::assertSame('entity', $resolves['image']->source());
-        static::assertSame(['entity' => 'media'], $resolves['image']->config());
+        static::assertSame('entity', $resolves['image']->source);
+        static::assertSame(['entity' => 'media'], $resolves['image']->config);
     }
 
     #[TestDox('defaults a missing resolves config to an empty array')]
@@ -49,7 +49,7 @@ class BindingSpecificationDtoTest extends TestCase
 
         $resolves = $dto->toBindingSpecification('id', 'core')->resolves();
 
-        static::assertSame([], $resolves['image']->config());
+        static::assertSame([], $resolves['image']->config);
     }
 
     #[TestDox('drops a resolves entry whose loader is not a string')]
@@ -89,8 +89,8 @@ class BindingSpecificationDtoTest extends TestCase
 
         $inputs = $dto->toBindingSpecification('id', 'core')->inputs();
 
-        static::assertTrue($inputs['alt']->hasDefault());
-        static::assertSame('fallback alt', $inputs['alt']->default());
+        static::assertTrue($inputs['alt']->hasDefault);
+        static::assertSame('fallback alt', $inputs['alt']->default);
     }
 
     #[TestDox('an inputs entry without a default key has hasDefault false')]
@@ -100,7 +100,7 @@ class BindingSpecificationDtoTest extends TestCase
             'alt' => [],
         ]);
 
-        static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault());
+        static::assertFalse($dto->toBindingSpecification('id', 'core')->inputs()['alt']->hasDefault);
     }
 
     #[TestDox('an inputs entry with an explicit null default has hasDefault true and default null')]
@@ -114,8 +114,8 @@ class BindingSpecificationDtoTest extends TestCase
 
         $input = $dto->toBindingSpecification('id', 'core')->inputs()['alt'];
 
-        static::assertTrue($input->hasDefault());
-        static::assertNull($input->default());
+        static::assertTrue($input->hasDefault);
+        static::assertNull($input->default);
     }
 
     #[TestDox('drops an inputs entry that is not an array')]

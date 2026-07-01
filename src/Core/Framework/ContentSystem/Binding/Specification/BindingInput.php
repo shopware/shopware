@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ContentSystem\Binding;
+namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -14,18 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class BindingInput
 {
     public function __construct(
-        private bool $hasDefault,
-        private mixed $default,
+        public bool $hasDefault,
+        public mixed $default,
     ) {
-    }
-
-    public function hasDefault(): bool
-    {
-        return $this->hasDefault;
-    }
-
-    public function default(): mixed
-    {
-        return $this->default;
     }
 }

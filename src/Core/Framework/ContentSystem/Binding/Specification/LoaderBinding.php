@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ContentSystem\Binding;
+namespace Shopware\Core\Framework\ContentSystem\Binding\Specification;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,21 +17,8 @@ final readonly class LoaderBinding
      * @param array<string, mixed> $config
      */
     public function __construct(
-        private string $source,
-        private array $config,
+        public string $source,
+        public array $config,
     ) {
-    }
-
-    public function source(): string
-    {
-        return $this->source;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function config(): array
-    {
-        return $this->config;
     }
 }

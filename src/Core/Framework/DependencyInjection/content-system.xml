@@ -322,18 +322,18 @@
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
 
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
-            <argument type="service" id="validator"/>
             <argument key="$directories" type="collection"/>
+            <argument key="$serializer" type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
+            <argument key="$validator" type="service" id="validator"/>
             <tag name="content_system.binding_specification_loader"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader">
+            <argument>%kernel.environment%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer"/>
             <argument type="service" id="validator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%kernel.environment%</argument>
-            <argument type="service" id="logger"/>
             <tag name="content_system.binding_specification_loader"/>
         </service>
 

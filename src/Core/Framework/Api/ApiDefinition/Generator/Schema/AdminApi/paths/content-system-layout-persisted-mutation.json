@@ -436,7 +436,7 @@
                                     "summary": "Bind a specification to an element",
                                     "value": {
                                         "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                        "bindingSpecificationId": "core:product-title",
+                                        "bindingSpecificationId": "core:from-media-library",
                                         "expectedVersion": "2026-06-22T10:00:00.000+00:00"
                                     }
                                 }

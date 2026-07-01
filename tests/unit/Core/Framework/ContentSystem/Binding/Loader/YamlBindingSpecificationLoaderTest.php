@@ -102,6 +102,22 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
+    #[TestDox('loads an id at exactly the maximum length of 255 characters')]
+    public function testLoadsIdAtExactlyMaxLength(): void
+    {
+        // Mirrors YamlBindingSpecificationLoader::MAX_ID_LENGTH (255): the boundary value itself must load,
+        // only strlen($id) > MAX_ID_LENGTH is rejected (testThrowsWhenIdExceedsMaxLength covers 256).
+        $id = str_repeat('a', 255);
+        file_put_contents($this->tempDir . '/binding.yaml', "id: {$id}\ntype: media-gallery\nlabel: \"From media library\"\n");
+
+        $loader = $this->createLoader([new BindingSpecificationSourceDirectory('core', $this->tempDir)]);
+
+        $specifications = $loader->load();
+
+        static::assertCount(1, $specifications);
+        static::assertSame($id, $specifications[0]->id());
+    }
+
     #[TestDox('throws on a within-source duplicate id, naming both files')]
     public function testThrowsOnWithinSourceDuplicateId(): void
     {
@@ -242,9 +258,9 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         // validator the default no-arg factory cannot build) and the fixtures' unregistered types. The real
         // structural and §6 semantic validation is covered by their own dedicated tests.
         return new YamlBindingSpecificationLoader(
+            $directories,
             new BindingSpecificationSerializer(),
             $validator ?? $this->passingValidator(),
-            $directories,
         );
     }
 

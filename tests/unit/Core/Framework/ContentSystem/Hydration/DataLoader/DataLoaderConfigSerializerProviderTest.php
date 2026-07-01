@@ -9,7 +9,9 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\HttpException;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -72,5 +74,47 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::configSerializerNotRegistered('unknown_source'));
 
         $provider->encode('unknown_source', $config);
+    }
+
+    #[TestDox('re-classifies a domain serializer HttpException as invalidLoaderConfig, chaining the original')]
+    public function testDecodeReclassifiesForeignHttpExceptionAsInvalidLoaderConfig(): void
+    {
+        $domainException = new class(Response::HTTP_BAD_REQUEST, 'CATEGORY__INVALID_FIELD_VALUE_TYPE', 'rootId expected non-empty string, got integer') extends HttpException {
+        };
+
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')
+            ->willThrowException($domainException);
+
+        $locator = new ServiceLocator(['navigation' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        try {
+            $provider->decode('navigation', ['rootId' => 1]);
+            static::fail('Expected a ContentSystemException to be thrown.');
+        } catch (ContentSystemException $e) {
+            static::assertTrue(ContentSystemException::isClientDefect($e));
+            static::assertSame($domainException, $e->getPrevious());
+        }
+    }
+
+    #[TestDox('passes through a ContentSystemException thrown by the serializer unchanged')]
+    public function testDecodePassesThroughContentSystemExceptionUnchanged(): void
+    {
+        $original = ContentSystemException::unknownLoaderEntity('prodct');
+
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')
+            ->willThrowException($original);
+
+        $locator = new ServiceLocator(['entity' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        try {
+            $provider->decode('entity', []);
+            static::fail('Expected the original ContentSystemException to be thrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame($original, $e);
+        }
     }
 }

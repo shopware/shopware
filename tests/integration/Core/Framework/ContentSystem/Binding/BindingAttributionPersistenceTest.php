@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -177,6 +178,46 @@ class BindingAttributionPersistenceTest extends TestCase
         static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
         static::assertSame('media', $requirement->config->entity);
         static::assertSame('mediaId', $requirement->config->property);
+    }
+
+    #[TestDox('rejects a write whose element carries a malformed domain-loader dataRequirements config with a clean write-constraint violation, not an uncaught exception')]
+    public function testWriteWithMalformedDomainLoaderConfigIsRejectedWithCleanViolation(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = Uuid::randomHex();
+        $elementId = Uuid::randomHex();
+
+        // "depth" must be a positive int; NavigationLoaderConfigSerializer::decode() rejects this with a
+        // CategoryException (a domain exception, not a ContentSystemException), which
+        // DataLoaderConfigSerializerProvider reclassifies to a ContentSystemException client defect at the
+        // shared decode chokepoint. The content_layout write gate decodes the element's dataRequirements
+        // during validation, catches that reclassified client defect, and turns it into an invalid_config
+        // violation -- so the write comes back as a clean WriteException, never an uncaught domain exception
+        // surfacing as a 500. (AttributionReconciler's own decode-during-normalize drop-not-throw path is
+        // covered separately by AttributionReconcilerTest.)
+        $element = [
+            'id' => $elementId,
+            'component' => 'Sw:Media:Image',
+            'properties' => ['mediaId' => 'a-media-id'],
+            'dataRequirements' => [
+                'navigation' => ['source' => 'navigation', 'config' => ['depth' => 'not-an-int']],
+            ],
+        ];
+
+        try {
+            $this->repository()->create([[
+                'id' => $layoutId,
+                'name' => 'malformed-domain-loader-config-' . $layoutId,
+                'version' => '1.0.0',
+                'rootSource' => 'none',
+                'layout' => [$element],
+            ]], $context);
+            static::fail('Expected the well-formedness gate to reject the malformed domain-loader config.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('depth', $exception->getMessage());
+        }
+
+        static::assertNull($this->repository()->search(new Criteria([$layoutId]), $context)->first());
     }
 
     #[TestDox('recurses into a slot and drops a nested bound element\'s stale attribution on a direct DAL write')]

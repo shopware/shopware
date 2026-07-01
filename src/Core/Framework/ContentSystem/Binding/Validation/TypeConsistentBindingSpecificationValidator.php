@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -23,8 +24,6 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 #[Package('framework')]
 final class TypeConsistentBindingSpecificationValidator extends ConstraintValidator
 {
-    private const PRIMITIVE_TYPES = ['string', 'integer', 'boolean', 'number'];
-
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
@@ -286,7 +285,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
         $resolvedType = $types[0];
 
-        if (!\in_array($resolvedType, self::PRIMITIVE_TYPES, true)) {
+        if (!\in_array($resolvedType, PropertyType::PRIMITIVE_TYPES, true)) {
             return null;
         }
 

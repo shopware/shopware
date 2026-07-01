@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 
@@ -53,6 +54,8 @@ class ApplicableBindingsResolver
             $cache[$component] ??= $this->qualifiedIds($component);
             $applicable[$element->getId()] = $cache[$component];
 
+            // allSlotElements() yields a \Generator with ungeneric (array-key) keys, so [...] alone is an
+            // array<>, not a proven list<>; array_values() is required to satisfy resolveTree()'s list<ContentElement>.
             foreach ($this->resolveTree(array_values([...$element->allSlotElements()]), $cache) as $descendantId => $descendantIds) {
                 $applicable[$descendantId] = $descendantIds;
             }

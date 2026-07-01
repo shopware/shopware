@@ -37,4 +37,17 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
             $error->getMessage()
         );
     }
+
+    #[TestDox('adds no error for a well-formed, type-consistent binding specification, through the real app manifest validation flow')]
+    public function testAddsNoErrorForValidBindingSpecification(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/binding-specification-valid/manifest.xml');
+
+        $validator = static::getContainer()->get(ContentSystemBindingSpecificationAppValidator::class);
+        static::assertInstanceOf(ContentSystemBindingSpecificationAppValidator::class, $validator);
+
+        $errors = $validator->validate($manifest, Context::createDefaultContext());
+
+        static::assertCount(0, $errors->getElements());
+    }
 }

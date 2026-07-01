@@ -172,7 +172,7 @@
                     },
                     "path": {
                         "type": ["string", "null"],
-                        "description": "Optional dot-notation path selecting a nested value from the provided context."
+                        "description": "For a `parent` candidate, the optional dot-notation path selecting a nested value from the provided context; `null` for a `loader` or `stored` candidate."
                     },
                     "distribution": {
                         "type": ["string", "null"],

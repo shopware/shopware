@@ -32,19 +32,19 @@
                             "items": { "type": "string" }
                         },
                         "readOnly": true,
-                        "example": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:product-title"] }
+                        "example": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"] }
                     }
                 },
                 "example": {
                     "resolutions": {
                         "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": [
                             {
-                                "key": "title",
+                                "key": "media",
                                 "kind": "reference",
-                                "required": true,
+                                "required": false,
                                 "type": null,
                                 "default": null,
-                                "fqcn": "Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity",
+                                "fqcn": "Shopware\\Core\\Content\\Media\\MediaEntity",
                                 "resolved": null,
                                 "candidates": []
                             }
@@ -52,21 +52,21 @@
                     },
                     "diagnostics": {
                         "wellFormed": true,
-                        "resolvable": false,
+                        "resolvable": true,
                         "violations": [
                             {
-                                "code": "unresolved_required",
+                                "code": "unresolved_optional",
                                 "scope": "binding",
-                                "severity": "error",
+                                "severity": "warning",
                                 "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
-                                "key": "title",
-                                "message": "Required property \"title\" could not be resolved.",
+                                "key": "media",
+                                "message": "Optional property \"media\" has no source.",
                                 "candidates": []
                             }
                         ]
                     },
                     "applicableBindings": {
-                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:product-title"]
+                        "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40": ["core:from-media-library"]
                     }
                 }
             }

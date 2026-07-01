@@ -42,13 +42,14 @@
                             "unregistered_component",
                             "duplicate_element_id",
                             "invalid_config",
+                            "mismatched_reference_type",
                             "orphaned_provider",
                             "unresolved_required",
                             "ambiguous_required",
                             "broken_required_chain",
                             "unresolved_optional"
                         ],
-                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`) describe resolvability against a bound source."
+                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN."
                     },
                     "scope": {
                         "type": "string",
@@ -143,7 +144,7 @@
             "ContentLayoutResolutionCandidate": {
                 "title": "Content layout resolution candidate",
                 "type": "object",
-                "description": "One possible source for filling a `reference` property: either an ancestor/root context provider (`origin: parent`) or a data loader (`origin: loader`). The fields that apply depend on `origin`.",
+                "description": "One possible source for filling a `reference` property: an ancestor/root context provider (`origin: parent`), a data loader (`origin: loader`), or the element's own applied wiring (`origin: stored`, only ever the `resolved` pick, never a `candidates` menu entry). The fields that apply depend on `origin`.",
                 "required": [
                     "origin",
                     "contextKey",
@@ -158,16 +159,16 @@
                 "properties": {
                     "origin": {
                         "type": "string",
-                        "enum": ["parent", "loader"],
-                        "description": "Where the candidate value originates: a parent/root context provider (`parent`) or a data loader (`loader`)."
+                        "enum": ["parent", "loader", "stored"],
+                        "description": "Where the candidate value originates: a parent/root context provider (`parent`), a data loader (`loader`), or the element's own applied wiring (`stored`)."
                     },
                     "contextKey": {
                         "type": ["string", "null"],
-                        "description": "For a `parent` candidate, the context key the value is provided under; `null` for a `loader` candidate."
+                        "description": "For a `parent` candidate, the context key the value is provided under; `null` for a `loader` or `stored` candidate."
                     },
                     "providerElementId": {
                         "type": ["string", "null"],
-                        "description": "For a `parent` candidate, the id of the providing element (or `null` for a root-ambient provider); `null` for a `loader` candidate."
+                        "description": "For a `parent` candidate, the id of the providing element (or `null` for a root-ambient provider); `null` for a `loader` or `stored` candidate."
                     },
                     "path": {
                         "type": ["string", "null"],
@@ -176,25 +177,25 @@
                     "distribution": {
                         "type": ["string", "null"],
                         "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator", null],
-                        "description": "For a `parent` candidate, the distribution strategy the provider uses; `null` for a `loader` candidate."
+                        "description": "For a `parent` candidate, the distribution strategy the provider uses; `null` for a `loader` or `stored` candidate."
                     },
                     "contextType": {
                         "type": ["string", "null"],
                         "enum": ["single", "collection", null],
-                        "description": "For a `parent` candidate, whether the provided context is a single value or a collection; `null` for a `loader` candidate."
+                        "description": "For a `parent` candidate, whether the provided context is a single value or a collection; `null` for a `loader` or `stored` candidate."
                     },
                     "loaderSource": {
                         "type": ["string", "null"],
-                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loader-types.json`); `null` for a `parent` candidate."
+                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loader-types.json`); `null` for a `parent` or `stored` candidate."
                     },
                     "configTemplate": {
                         "type": ["object", "null"],
                         "additionalProperties": true,
-                        "description": "For a `loader` candidate, the inferable loader configuration seed; `null` when none applies."
+                        "description": "For a `loader` candidate, the inferable loader configuration seed; `null` when none applies (including for a `stored` candidate)."
                     },
                     "configComplete": {
-                        "type": "boolean",
-                        "description": "For a `loader` candidate, whether the loader config is complete enough to resolve without further input. Always `false` for a `parent` candidate."
+                        "type": ["boolean", "null"],
+                        "description": "For a `loader` candidate, whether the loader config is complete enough to resolve without further input. `false` for a `parent` candidate; `null` for a `stored` candidate (it carries no loader-shaped fields — it is applied wiring, not an environment offer — so clients branch on `origin` before reading it)."
                     }
                 }
             }

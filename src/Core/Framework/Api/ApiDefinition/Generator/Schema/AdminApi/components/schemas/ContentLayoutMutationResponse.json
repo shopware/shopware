@@ -15,7 +15,8 @@
                     "affectedElementIds",
                     "orphaned",
                     "droppedWiring",
-                    "droppedProperties"
+                    "droppedProperties",
+                    "applicableBindings"
                 ],
                 "properties": {
                     "layout": {
@@ -70,6 +71,16 @@
                         "description": "Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key so the caller can re-apply them. Encodes as `{}` when empty.",
                         "additionalProperties": true,
                         "readOnly": true
+                    },
+                    "applicableBindings": {
+                        "type": "object",
+                        "description": "Map of element id to the source-qualified binding specification ids (`source:id`) applicable to that element's type, keyed by declared type rather than by the element's actual wiring. Pass an id back as `bindingSpecificationId` to a bind-element action. Encodes as `{}` when no element has an applicable specification; a listed element's own list encodes as `[]` when its type has none.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "readOnly": true,
+                        "example": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b": ["core:product-title"] }
                     }
                 },
                 "example": {
@@ -108,7 +119,8 @@
                         }
                     ],
                     "droppedWiring": ["product"],
-                    "droppedProperties": { "subtitle": "Old subtitle text" }
+                    "droppedProperties": { "subtitle": "Old subtitle text" },
+                    "applicableBindings": { "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b": ["core:product-title"] }
                 }
             }
         }

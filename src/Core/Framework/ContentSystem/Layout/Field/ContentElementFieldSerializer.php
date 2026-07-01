@@ -35,7 +35,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   slots?: array<string, list<array<string, mixed>>>,
  *   providesContext?: array<string, array<string, mixed>>,
  *   acceptsContext?: array<string, ContextConsumerData>,
- *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>
+ *   style?: array<string, string|int|float|bool|array<string, string|int|float|bool>>,
+ *   attributedSpecifications?: array<string, string>
  * }
  *
  * @internal
@@ -162,6 +163,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $this->elementStyleSerializer->deserialize($data['style'])
             : new ElementStyle();
 
+        $attributedSpecifications = \array_key_exists('attributedSpecifications', $data) && \is_array($data['attributedSpecifications'])
+            ? $data['attributedSpecifications']
+            : [];
+
         return new ContentElement(
             $data['id'],
             $data['component'],
@@ -169,7 +174,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $data['properties'] ?? [],
             $slots,
             $contextDefinitions,
-            $style
+            $style,
+            $attributedSpecifications
         );
     }
 
@@ -235,6 +241,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'providesContext' => $providesContextField,
                     'acceptsContext' => $acceptsContextField,
                     'style' => $styleField,
+                    'attributedSpecifications' => new Optional([new Type('array')]),
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

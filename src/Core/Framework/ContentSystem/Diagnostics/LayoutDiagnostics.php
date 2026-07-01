@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -124,10 +125,10 @@ class LayoutDiagnostics
         }
 
         foreach ($element->getDataRequirements() as $key => $requirement) {
-            $invalidConfig = $this->invalidConfigViolation($element->getId(), (string) $key, $requirement);
+            $violation = $this->storedRequirementViolation($element, (string) $key, $requirement);
 
-            if ($invalidConfig !== null) {
-                $violations[] = $invalidConfig;
+            if ($violation !== null) {
+                $violations[] = $violation;
             }
         }
 
@@ -138,19 +139,62 @@ class LayoutDiagnostics
         return $violations;
     }
 
-    private function invalidConfigViolation(string $elementId, string $key, DataRequirement $requirement): ?Violation
+    /**
+     * One resolveType() call, one outcome: a config that fails to resolve (client defect) is InvalidConfig;
+     * a config that resolves but produces a type not assignable to the property's declared reference FQCN
+     * is MismatchedReferenceType; a config that resolves and fits yields no violation (the resolver reports
+     * it as a Stored resolution instead).
+     */
+    private function storedRequirementViolation(ContentElement $element, string $key, DataRequirement $requirement): ?Violation
     {
         try {
-            $this->rootContextMapper->resolveType($requirement);
+            $produced = $this->rootContextMapper->resolveType($requirement);
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;
             }
 
-            return new Violation(ViolationCode::InvalidConfig, $elementId, $key, $exception->getMessage());
+            return new Violation(ViolationCode::InvalidConfig, $element->getId(), $key, $exception->getMessage());
         }
 
-        return null;
+        $declaredFqcn = $this->declaredReferenceFqcn($element->getComponent(), $key);
+
+        if ($declaredFqcn === null || is_a($produced, $declaredFqcn, true)) {
+            return null;
+        }
+
+        return new Violation(
+            ViolationCode::MismatchedReferenceType,
+            $element->getId(),
+            $key,
+            \sprintf('Stored wiring for "%s" produces "%s", which is not assignable to declared type "%s".', $key, $produced, $declaredFqcn),
+        );
+    }
+
+    /**
+     * The declared reference FQCN for a component's property, or null when the type is unregistered, the key
+     * is not a declared property, or the property is not a single-FQCN reference (primitive or union type).
+     */
+    private function declaredReferenceFqcn(string $component, string $key): ?string
+    {
+        if (!$this->registry->has($component)) {
+            return null;
+        }
+
+        $property = $this->registry->get($component)->properties()[$key] ?? null;
+
+        if (!$property instanceof PropertySpecification) {
+            return null;
+        }
+
+        $propertyType = $property->type();
+        $declaredType = $propertyType->type();
+
+        if ($propertyType->isPrimitive() || !\is_string($declaredType) || $declaredType === 'object') {
+            return null;
+        }
+
+        return $declaredType;
     }
 
     /**
@@ -269,9 +313,13 @@ class LayoutDiagnostics
     {
         $usable = array_filter(
             $candidates,
+            // Stored never reaches this filter: ElementResolver never adds a Stored candidate to
+            // PropertyResolution::candidates (it is only ever the resolved pick). The arm exists solely to
+            // keep this match exhaustive over the three-case CandidateOrigin enum.
             static fn (ResolutionCandidate $candidate): bool => match ($candidate->origin) {
                 CandidateOrigin::Parent => true,
                 CandidateOrigin::Loader => $candidate->configComplete,
+                CandidateOrigin::Stored => false,
             },
         );
 

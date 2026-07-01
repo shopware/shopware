@@ -53,6 +53,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         $keptDataRequirements = $this->carryWiring($node->getDataRequirements(), $properties);
         $keptProviders = $this->carryWiring($contextDefinitions->getAllProviders(), $properties);
         $keptConsumers = $this->carryWiring($contextDefinitions->getAllConsumers(), $properties);
+        $keptAttributedSpecifications = array_intersect_key($node->getAttributedSpecifications(), $keptDataRequirements);
 
         $this->droppedWiring = $this->droppedWiringKeys(
             [...array_keys($node->getDataRequirements()), ...array_keys($contextDefinitions->getAllProviders()), ...array_keys($contextDefinitions->getAllConsumers())],
@@ -71,6 +72,9 @@ final class ReplaceElement extends AbstractLayoutMutation
             new ContextDefinitions($keptProviders, $keptConsumers),
             // style is universal and type-independent, so it carries over unconditionally on a type swap
             $node->getStyle(),
+            // attribution follows the carried data requirements, not the provider/consumer sets: an entry survives
+            // only while the reference wiring it attributes still exists on the replacement
+            $keptAttributedSpecifications,
         );
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.

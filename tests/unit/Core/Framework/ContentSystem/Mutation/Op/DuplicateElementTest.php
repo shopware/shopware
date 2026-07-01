@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
@@ -84,6 +85,21 @@ class DuplicateElementTest extends TestCase
         static::assertSame(['product' => $requirement], $result[1]->getDataRequirements());
         static::assertSame($contextDefinitions, $result[1]->getContextDefinitions());
         static::assertSame($style->toArray(), $result[1]->getStyle()->toArray());
+    }
+
+    #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]
+    public function testDuplicatePreservesAttributedSpecificationsOnClone(): void
+    {
+        $original = ContentElementBuilder::create('Sw:Card', 'original')
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+        $tree = [$original, new ContentElement('other', 'Sw:Block')];
+
+        $result = (new DuplicateElement('original'))->apply($tree);
+
+        $clone = $result[1];
+        static::assertNotSame('original', $clone->getId());
+        static::assertSame(['product' => 'spec-1'], $clone->getAttributedSpecifications());
     }
 
     #[TestDox('duplicates a nested element into the same parent slot')]

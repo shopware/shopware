@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,7 @@ class ContentDiagnoseController
         private readonly DraftLayoutDecoder $decoder,
         private readonly LayoutDiagnostics $diagnostics,
         private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly ApplicableBindingsResolver $applicableBindingsResolver,
     ) {
     }
 
@@ -52,6 +54,6 @@ class ContentDiagnoseController
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 
-        return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report));
+        return new JsonResponse(DiagnoseResponse::fromReport($analysis->resolutions, $report, $this->applicableBindingsResolver->resolve($tree)));
     }
 }

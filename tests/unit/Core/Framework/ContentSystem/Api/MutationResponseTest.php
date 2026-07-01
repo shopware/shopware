@@ -31,6 +31,7 @@ class MutationResponseTest extends TestCase
 
         static::assertStringContainsString('"resolutions":{}', $json);
         static::assertStringContainsString('"droppedProperties":{}', $json);
+        static::assertStringContainsString('"applicableBindings":{}', $json);
     }
 
     #[TestDox('encodes the empty list fields as JSON arrays, not objects')]
@@ -49,8 +50,8 @@ class MutationResponseTest extends TestCase
         static::assertStringContainsString('"droppedWiring":[]', $json);
     }
 
-    #[TestDox('serializes exactly the seven wire keys without leaking apiAlias or extensions')]
-    public function testSerializesExactlyTheSevenWireKeys(): void
+    #[TestDox('serializes exactly the eight wire keys without leaking apiAlias or extensions')]
+    public function testSerializesExactlyTheEightWireKeys(): void
     {
         $response = MutationResponse::fromResult(
             new MutationResult([], [], new DiagnosticsReport([]), []),
@@ -60,7 +61,7 @@ class MutationResponseTest extends TestCase
         $decoded = json_decode((string) json_encode($response, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(
-            ['layout', 'resolutions', 'diagnostics', 'affectedElementIds', 'orphaned', 'droppedWiring', 'droppedProperties'],
+            ['layout', 'resolutions', 'diagnostics', 'affectedElementIds', 'orphaned', 'droppedWiring', 'droppedProperties', 'applicableBindings'],
             array_keys($decoded),
         );
         static::assertArrayNotHasKey('apiAlias', $decoded);
@@ -94,6 +95,27 @@ class MutationResponseTest extends TestCase
         static::assertSame('orphan', $decoded['orphaned'][0]['id']);
         static::assertSame(['legacy'], $decoded['droppedWiring']);
         static::assertSame('Old headline', $decoded['droppedProperties']['headline']);
+    }
+
+    #[TestDox('serializes a non-empty applicableBindings map as an object of id-keyed lists, never {} per element')]
+    public function testSerializesNonEmptyApplicableBindings(): void
+    {
+        $result = new MutationResult(
+            [],
+            [],
+            new DiagnosticsReport([]),
+            [],
+            applicableBindings: ['el-1' => ['core:from-media-library'], 'el-2' => []],
+        );
+
+        $json = (string) json_encode(MutationResponse::fromResult($result, $this->elementSerializer()), \JSON_THROW_ON_ERROR);
+        $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['el-1', 'el-2'], array_keys($decoded['applicableBindings']));
+        static::assertSame(['core:from-media-library'], $decoded['applicableBindings']['el-1']);
+        static::assertSame([], $decoded['applicableBindings']['el-2']);
+        // the outer map is a JSON object, but each empty inner value stays a JSON array, never "{}"
+        static::assertStringContainsString('"applicableBindings":{"el-1":["core:from-media-library"],"el-2":[]}', $json);
     }
 
     private function elementSerializer(): ContentElementFieldSerializer

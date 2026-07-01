@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -26,7 +27,9 @@ class PropertiesExtractionVisitorTest extends TestCase
     protected function setUp(): void
     {
         $this->configSerializerProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $this->visitor = new PropertiesExtractionVisitor($this->configSerializerProvider);
+        // A real ConfigCanonicalizer: these tests exercise the config-hash canonicalization behavior, so the
+        // canonicalizer must run for real rather than be stubbed out.
+        $this->visitor = new PropertiesExtractionVisitor($this->configSerializerProvider, new ConfigCanonicalizer());
     }
 
     #[TestDox('extracts scalar property with scalar prefix and element-key-specific hash')]

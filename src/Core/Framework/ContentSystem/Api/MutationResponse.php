@@ -12,9 +12,10 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Output-only: this object is serialized to JSON for the HTTP response and discarded. It is never cached, never
  * stored in a DAL SerializedField, never sent over the message bus, and never passed to StructNormalizer::denormalize().
- * jsonSerialize() casts the response-level resolutions/droppedProperties maps to {} when empty; the element tree
- * carries empty element maps as [] (the same shape every other read path emits). It is safe only on that path; a
- * future requirement that caches or reconstructs this object must revisit it.
+ * jsonSerialize() casts the response-level resolutions/droppedProperties/applicableBindings maps to {} when empty;
+ * the element tree carries empty element maps as [] (the same shape every other read path emits), and each
+ * applicableBindings entry is a list<string>, [] when empty. It is safe only on that path; a future requirement
+ * that caches or reconstructs this object must revisit it.
  *
  * @final
  */
@@ -29,6 +30,7 @@ class MutationResponse implements \JsonSerializable
      * @param list<array<string, mixed>> $orphaned serialized detached subtrees
      * @param list<string> $droppedWiring
      * @param array<string, mixed> $droppedProperties dropped property values
+     * @param array<string, list<string>> $applicableBindings applicable binding specification ids, keyed by element id
      */
     private function __construct(
         public array $layout,
@@ -38,6 +40,7 @@ class MutationResponse implements \JsonSerializable
         public array $orphaned,
         public array $droppedWiring,
         public array $droppedProperties,
+        public array $applicableBindings,
     ) {
     }
 
@@ -53,6 +56,7 @@ class MutationResponse implements \JsonSerializable
             array_map($elementSerializer->serializeContentElement(...), $result->orphaned),
             $result->droppedWiring,
             $result->droppedProperties,
+            $result->applicableBindings,
         );
     }
 
@@ -69,6 +73,7 @@ class MutationResponse implements \JsonSerializable
             'orphaned' => $this->orphaned,
             'droppedWiring' => $this->droppedWiring,
             'droppedProperties' => (object) $this->droppedProperties,
+            'applicableBindings' => (object) $this->applicableBindings,
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
@@ -30,7 +31,7 @@ class MutationPipelineTest extends TestCase
         $mutated = new ContentElement('new-1', 'Sw:Card');
         $report = new DiagnosticsReport([]);
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis($report, ['new-1' => []])));
+        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis($report, ['new-1' => []])), static::createStub(ApplicableBindingsResolver::class));
 
         $result = $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], null);
 
@@ -47,7 +48,7 @@ class MutationPipelineTest extends TestCase
             'other' => [new PropertyResolution('title', PropertyKind::Primitive, false, 'string', 'x')],
         ];
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)), static::createStub(ApplicableBindingsResolver::class));
 
         $result = $pipeline->run($this->mutation([new ContentElement('new-1', 'Sw:Card')], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], null);
 
@@ -59,7 +60,7 @@ class MutationPipelineTest extends TestCase
     {
         $orphan = new ContentElement('orphan', 'Sw:Block');
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
+        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])), static::createStub(ApplicableBindingsResolver::class));
 
         $result = $pipeline->run($this->mutation([new ContentElement('el-1', 'Sw:New')], ['el-1'], [$orphan]), [new ContentElement('el-1', 'Sw:Block')], null);
 
@@ -69,7 +70,7 @@ class MutationPipelineTest extends TestCase
     #[TestDox('passes dropped wiring keys from the op through to the result')]
     public function testRunCarriesDroppedWiring(): void
     {
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
+        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])), static::createStub(ApplicableBindingsResolver::class));
 
         $result = $pipeline->run($this->mutation([new ContentElement('el-1', 'Sw:New')], ['el-1'], [], ['legacy']), [new ContentElement('el-1', 'Sw:Block')], null);
 
@@ -89,7 +90,7 @@ class MutationPipelineTest extends TestCase
             ->with([$mutated], $rootContext, $context)
             ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
-        $pipeline = new MutationPipeline($diagnostics);
+        $pipeline = new MutationPipeline($diagnostics, static::createStub(ApplicableBindingsResolver::class));
 
         $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], $rootContext, $context);
     }

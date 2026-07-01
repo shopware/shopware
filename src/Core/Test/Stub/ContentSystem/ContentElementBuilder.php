@@ -50,6 +50,11 @@ class ContentElementBuilder
 
     private ElementStyle $style;
 
+    /**
+     * @var array<string, string>
+     */
+    private array $attributedSpecifications = [];
+
     private function __construct(
         private readonly string $component,
         ?string $id = null
@@ -124,6 +129,13 @@ class ContentElementBuilder
         return $this;
     }
 
+    public function withAttributedSpecification(string $referencePropertyKey, string $bindingSpecificationId): self
+    {
+        $this->attributedSpecifications[$referencePropertyKey] = $bindingSpecificationId;
+
+        return $this;
+    }
+
     public function build(): ContentElement
     {
         $slots = [];
@@ -142,7 +154,8 @@ class ContentElementBuilder
             properties: $this->properties,
             slots: $slots,
             contextDefinitions: new ContextDefinitions($this->providers, $this->consumers),
-            style: $this->style
+            style: $this->style,
+            attributedSpecifications: $this->attributedSpecifications
         );
     }
 }

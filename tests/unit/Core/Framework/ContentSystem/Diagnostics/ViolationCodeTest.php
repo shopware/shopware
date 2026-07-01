@@ -54,6 +54,7 @@ class ViolationCodeTest extends TestCase
         yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationScope::Intrinsic];
         yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationScope::Intrinsic];
         yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationScope::Intrinsic];
+        yield 'mismatched_reference_type' => [ViolationCode::MismatchedReferenceType, ViolationScope::Intrinsic];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic];
         yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
@@ -69,6 +70,7 @@ class ViolationCodeTest extends TestCase
         yield 'unregistered_component' => [ViolationCode::UnregisteredComponent, ViolationSeverity::Error];
         yield 'duplicate_element_id' => [ViolationCode::DuplicateElementId, ViolationSeverity::Error];
         yield 'invalid_config' => [ViolationCode::InvalidConfig, ViolationSeverity::Error];
+        yield 'mismatched_reference_type' => [ViolationCode::MismatchedReferenceType, ViolationSeverity::Error];
         yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationSeverity::Error];
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationSeverity::Error];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationSeverity::Error];

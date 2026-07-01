@@ -1,0 +1,9 @@
+id: bad-media-binding
+type: Sw:Media:Image
+label: "Bad wiring"
+resolves:
+  media:
+    loader: entity
+    config:
+      entity: product
+      property: mediaId

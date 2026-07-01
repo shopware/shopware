@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
@@ -312,6 +313,97 @@ class ContentLayoutMutationControllerTest extends TestCase
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    // These three tests cover the negative paths that need no shipped specification, and double as the
+    // persisted bind-element route-wiring check: an app-level error (not a Symfony 404 route-not-found body)
+    // proves the request reached ContentLayoutMutationController::bind(). The positive round trip against the
+    // real shipped core:from-media-library specification follows below.
+    #[TestDox('returns 404 for a bind-element mutation targeting an unknown layout id')]
+    public function testBindElementUnknownLayoutReturnsNotFound(): void
+    {
+        $this->request('bind-element', Uuid::randomHex(), [
+            'elementId' => 'block-a',
+            'bindingSpecificationId' => 'core:from-media-library',
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('rejects a bind-element mutation with a stale expected version (409) without writing')]
+    public function testBindElementStaleVersionConflictDoesNotWrite(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('bind-element', $layoutId, [
+            'elementId' => 'block-a',
+            'bindingSpecificationId' => 'core:from-media-library',
+            'expectedVersion' => '2020-01-01T00:00:00.000+00:00',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_CONFLICT, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::LAYOUT_VERSION_CONFLICT, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects an unknown bindingSpecificationId on a persisted bind with a 400 without writing')]
+    public function testBindElementRejectsUnknownBindingSpecification(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('bind-element', $layoutId, [
+            'elementId' => 'block-a',
+            'bindingSpecificationId' => 'ghost:not-a-spec',
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('inlines the core from-media-library specification\'s wiring and attribution on a persisted bind, committing it to storage')]
+    public function testBindElementPersistsCoreSpecificationWiringAndAttribution(): void
+    {
+        // mediaId is required with no default on Sw:Media:Image, so it must be seeded up front: an
+        // absent required primitive fails write validation on the create() below, before bind-element
+        // is ever reached.
+        $layoutId = $this->createLayout([
+            ['id' => 'img-1', 'component' => 'Sw:Media:Image', 'properties' => ['mediaId' => 'a-media-id']],
+        ]);
+
+        $body = $this->mutate('bind-element', $layoutId, [
+            'elementId' => 'img-1',
+            'bindingSpecificationId' => 'core:from-media-library',
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame(
+            ['key' => 'media', 'source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            $body['layout'][0]['dataRequirements']['media']
+        );
+        static::assertSame(['media' => 'core:from-media-library'], $body['layout'][0]['attributedSpecifications']);
+
+        // the reload asserts the exact persisted wiring, not just that some entry exists under 'media'
+        $stored = $this->reload($layoutId)->getLayout()[0];
+        static::assertSame(['media' => 'core:from-media-library'], $stored->getAttributedSpecifications());
+
+        $requirement = $stored->getDataRequirements()['media'];
+        static::assertSame('entity', $requirement->source);
+        static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
+        static::assertSame('media', $requirement->config->entity);
+        static::assertSame('mediaId', $requirement->config->property);
     }
 
     /**

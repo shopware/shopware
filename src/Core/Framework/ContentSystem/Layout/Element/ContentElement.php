@@ -38,6 +38,7 @@ class ContentElement extends Struct
      * @param array<string, DataRequirement> $dataRequirements
      * @param array<string, mixed> $properties
      * @param array<string, SlotContent> $slots
+     * @param array<string, string> $attributedSpecifications
      */
     public function __construct(
         protected string $id,
@@ -46,7 +47,8 @@ class ContentElement extends Struct
         array $properties = [],
         protected array $slots = [],
         protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], []),
-        protected ElementStyle $style = new ElementStyle()
+        protected ElementStyle $style = new ElementStyle(),
+        protected array $attributedSpecifications = []
     ) {
         $this->setProperties($properties);
     }
@@ -88,6 +90,16 @@ class ContentElement extends Struct
     public function getDataRequirements(): array
     {
         return $this->dataRequirements;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @return array<string, string>
+     */
+    public function getAttributedSpecifications(): array
+    {
+        return $this->attributedSpecifications;
     }
 
     /**
@@ -278,9 +290,9 @@ class ContentElement extends Struct
 
     /**
      * Canonical camelCase wire/storage shape. id/component/properties are always present;
-     * dataRequirements/slots/providesContext/acceptsContext/style are omitted when empty. Context is
-     * reconstructed from contextDefinitions via each provider/consumer value object. extensions, apiAlias
-     * and the internal struct/non-struct property stores are never emitted.
+     * dataRequirements/slots/providesContext/acceptsContext/style/attributedSpecifications are omitted when
+     * empty. Context is reconstructed from contextDefinitions via each provider/consumer value object.
+     * extensions, apiAlias and the internal struct/non-struct property stores are never emitted.
      *
      * An empty `properties` map is emitted as `[]`, consistent with every content-element read path and the
      * form the DAL write, validation, and storage require. PHP cannot carry an empty map as `{}` through a
@@ -333,6 +345,10 @@ class ContentElement extends Struct
 
         if (!$this->style->isEmpty()) {
             $data['style'] = $this->style->toArray();
+        }
+
+        if ($this->attributedSpecifications !== []) {
+            $data['attributedSpecifications'] = $this->attributedSpecifications;
         }
 
         return $data;

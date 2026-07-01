@@ -18,6 +18,8 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -377,6 +379,46 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
+    #[TestDox('returns the registered binding specifications keyed by source-qualified id with their derived schema')]
+    public function testContentSystemBindingSpecificationsReturnsRegisteredSpecificationsKeyedByQualifiedId(): void
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:from-media-library' => $this->bindingSpecification()]);
+
+        $controller = $this->createController(bindingSpecificationRegistry: $registry);
+        $response = $controller->getContentSystemBindingSpecifications();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'core:from-media-library' => [
+                'id' => 'from-media-library',
+                'type' => 'media-gallery',
+                'label' => 'From Media Library',
+                'resolves' => [],
+                'inputs' => [],
+            ],
+        ], $data['bindingSpecifications']);
+    }
+
+    #[TestDox('encodes an empty binding specification catalog as a JSON object, not an array')]
+    public function testContentSystemBindingSpecificationsEncodesEmptySetAsObject(): void
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $controller = $this->createController(bindingSpecificationRegistry: $registry);
+        $response = $controller->getContentSystemBindingSpecifications();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
+    }
+
     #[TestDox('returns empty data loader types when no loaders are registered')]
     public function testContentSystemDataLoaderTypesReturnsEmptyWhenNoLoaders(): void
     {
@@ -431,6 +473,11 @@ class InfoControllerTest extends TestCase
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
+    private function bindingSpecification(): BindingSpecification
+    {
+        return new BindingSpecification('from-media-library', 'media-gallery', 'From Media Library', [], [], 'core');
+    }
+
     private function styleOption(): StyleOptionSpecification
     {
         return new StyleOptionSpecification(
@@ -465,6 +512,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
+        ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -498,6 +546,7 @@ class InfoControllerTest extends TestCase
             $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $styleOptionRegistry ?? static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
+            $bindingSpecificationRegistry ?? static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             null,
         );
     }

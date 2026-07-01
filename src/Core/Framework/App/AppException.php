@@ -73,6 +73,8 @@ class AppException extends HttpException
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
     final public const CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED = 'FRAMEWORK__APP_STYLE_OPTION_LOAD_FAILED';
     final public const CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE = 'FRAMEWORK__APP_STYLE_OPTION_DUPLICATE';
+    final public const CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED = 'FRAMEWORK__APP_BINDING_SPECIFICATION_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_BINDING_SPECIFICATION_DUPLICATE = 'FRAMEWORK__APP_BINDING_SPECIFICATION_DUPLICATE';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
 
     /**
@@ -619,6 +621,31 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED,
             'Failed to load style option from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemBindingSpecificationDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_BINDING_SPECIFICATION_DUPLICATE,
+            'Binding specification name collision while persisting bindings for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemBindingSpecificationLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED,
+            'Failed to load binding specification from "{{ file }}": {{ reason }}',
             ['file' => $file, 'reason' => $reason],
             $previous
         );

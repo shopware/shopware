@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
@@ -33,7 +34,7 @@ class ContentPage extends Struct
     public function getContentDecomposedPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
     ): ContentDecomposedPage {
-        $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
+        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, new ConfigCanonicalizer());
 
         foreach ($this->elements as $element) {
             $clone = clone $element;

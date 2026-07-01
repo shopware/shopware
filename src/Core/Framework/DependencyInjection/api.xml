@@ -181,6 +181,7 @@
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry"/>
             <argument type="service" id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService" on-invalid="null"/>
 
             <call method="setContainer">

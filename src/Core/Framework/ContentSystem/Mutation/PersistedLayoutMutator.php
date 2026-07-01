@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
@@ -45,6 +46,7 @@ class PersistedLayoutMutator
         private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ApplicableBindingsResolver $applicableBindingsResolver,
     ) {
     }
 
@@ -88,6 +90,7 @@ class PersistedLayoutMutator
                 $mutation->orphaned(),
                 $mutation->droppedWiring(),
                 $mutation->droppedProperties(),
+                $this->applicableBindingsResolver->resolve($mutated),
             );
         } finally {
             $lock->release();

@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -45,6 +48,8 @@ class ContentLayoutMutationController
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ContentElementFieldSerializer $elementSerializer,
         private readonly DraftLayoutDecoder $decoder,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
     ) {
     }
 
@@ -134,6 +139,18 @@ class ContentLayoutMutationController
         Context $context,
     ): Response {
         $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+
+        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/{layoutId}/bind-element', name: 'api.action.content_system.layout.persisted_bind_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
+    public function bind(
+        string $layoutId,
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentLayoutBindRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->configSerializerProvider);
 
         return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Log\Package;
@@ -64,6 +65,12 @@ final class LayoutDiagnosticsResultNormalizer
      */
     private function normalizeCandidate(ResolutionCandidate $candidate): array
     {
+        // A Stored candidate carries no loader-shaped fields — it is applied wiring, not an environment
+        // offer — so its loaderSource/configTemplate/configComplete serialize as null (clients branch on
+        // `origin` before reading them). loaderSource/configTemplate are already null by construction; the
+        // non-nullable bool configComplete is the one that must be explicitly nulled here.
+        $isStored = $candidate->origin === CandidateOrigin::Stored;
+
         return [
             'origin' => $candidate->origin->value,
             'contextKey' => $candidate->contextKey,
@@ -73,7 +80,7 @@ final class LayoutDiagnosticsResultNormalizer
             'contextType' => $candidate->contextType?->value,
             'loaderSource' => $candidate->loaderSource,
             'configTemplate' => $candidate->configTemplate,
-            'configComplete' => $candidate->configComplete,
+            'configComplete' => $isStored ? null : $candidate->configComplete,
         ];
     }
 

@@ -64,6 +64,11 @@ class ContentSystemException extends HttpException
     public const STYLE_OPTIONS_INVALID = 'CONTENT_SYSTEM__STYLE_OPTIONS_INVALID';
     public const STYLE_OPTION_LOAD_FAILED = 'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED';
     public const STYLE_OPTION_INVALID_FILENAME = 'CONTENT_SYSTEM__STYLE_OPTION_INVALID_FILENAME';
+    public const BINDING_SPECIFICATION_DUPLICATE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE';
+    public const BINDING_SPECIFICATION_LOAD_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED';
+    public const BINDING_SPECIFICATIONS_INVALID = 'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID';
+    public const BINDING_SPECIFICATION_NOT_FOUND = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND';
+    public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -628,6 +633,66 @@ class ContentSystemException extends HttpException
             self::UNSUPPORTED_STYLE_VALUE_TYPE,
             'Style option value type "{{ type }}" is not a supported primitive (string, integer, number, boolean).',
             ['type' => $type]
+        );
+    }
+
+    public static function bindingSpecificationDuplicate(string $id, string $firstSource, string $secondSource): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::BINDING_SPECIFICATION_DUPLICATE,
+            'Binding specification "{{ id }}" is already registered by "{{ firstSource }}", cannot register again from "{{ secondSource }}"',
+            ['id' => $id, 'firstSource' => $firstSource, 'secondSource' => $secondSource]
+        );
+    }
+
+    public static function bindingSpecificationLoadFailed(string $path, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::BINDING_SPECIFICATION_LOAD_FAILED,
+            'Failed to load binding specification from "{{ path }}": {{ reason }}',
+            ['path' => $path, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function bindingSpecificationsInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATIONS_INVALID,
+            'Binding specification validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    // The client-facing 400 for a bind-element mutation whose bindingSpecificationId is not a registered
+    // specification. The id is a request body value (not a path lookup), so this follows the same body-parameter
+    // 400 convention as the other mutation structural errors (mutationTargetNotFound, mutationUnknownType), not
+    // the 404 path-lookup convention of contentLayoutNotFound().
+    public static function bindingSpecificationNotFound(string $bindingSpecificationId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_SPECIFICATION_NOT_FOUND,
+            'Binding specification "{{ bindingSpecificationId }}" was not found.',
+            ['bindingSpecificationId' => $bindingSpecificationId]
+        );
+    }
+
+    public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_TYPE_MISMATCH,
+            'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but the target element is of type "{{ elementComponent }}".',
+            ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent]
         );
     }
 

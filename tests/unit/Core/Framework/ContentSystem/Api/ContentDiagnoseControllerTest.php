@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\ApplicableBindingsResolver;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
@@ -203,6 +204,7 @@ class ContentDiagnoseControllerTest extends TestCase
             new DraftLayoutDecoder($serializer),
             $diagnostics,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
+            static::createStub(ApplicableBindingsResolver::class),
         );
     }
 

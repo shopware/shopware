@@ -16,7 +16,9 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutReplaceRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUnwrapRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutWrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -177,6 +179,8 @@ class ContentLayoutMutationControllerTest extends TestCase
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $this->elementSerializer(),
             $this->decoder(),
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
         );
     }
 

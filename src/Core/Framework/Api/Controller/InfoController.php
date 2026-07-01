@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -45,6 +47,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-import-type StyleOptionSchema from StyleOptionSpecification
+ * @phpstan-import-type BindingSpecificationSchema from BindingSpecification
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
@@ -71,6 +74,7 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
     }
@@ -292,6 +296,13 @@ class InfoController extends AbstractController
         return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
     }
 
+    #[Route(path: '/api/_info/content-system-binding-specifications.json', name: 'api.info.content-system-binding-specifications', methods: ['GET'])]
+    public function getContentSystemBindingSpecifications(): JsonResponse
+    {
+        // Cast to an object so an empty catalog serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['bindingSpecifications' => (object) $this->bindingSpecificationSchemas()]);
+    }
+
     /**
      * @return array<string, StyleOptionSchema> the registered style options keyed by their wire name
      */
@@ -300,6 +311,19 @@ class InfoController extends AbstractController
         return array_map(
             static fn (StyleOptionSpecification $spec) => $spec->toSchema(),
             $this->styleOptionRegistry->allResolved()
+        );
+    }
+
+    /**
+     * @return array<string, BindingSpecificationSchema> the registered binding specifications keyed by their
+     *                                                   qualified id ("source:id") — the same id a client receives from applicableBindings and passes back as
+     *                                                   bindingSpecificationId to the bind-element actions
+     */
+    private function bindingSpecificationSchemas(): array
+    {
+        return array_map(
+            static fn (BindingSpecification $specification) => $specification->toSchema(),
+            $this->bindingSpecificationRegistry->all()
         );
     }
 

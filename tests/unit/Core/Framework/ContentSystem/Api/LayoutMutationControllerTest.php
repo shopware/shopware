@@ -17,9 +17,11 @@ use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -217,6 +219,8 @@ class LayoutMutationControllerTest extends TestCase
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementSerializer(),
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
         );
     }
 

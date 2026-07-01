@@ -291,7 +291,7 @@ class ContentElementTest extends TestCase
         static::assertSame(['col-span' => ['md' => 6]], $element->jsonSerialize()['style']);
     }
 
-    #[TestDox('omits optional keys from serialized output when the element has no data requirements, slots, context, or style')]
+    #[TestDox('omits optional keys from serialized output when the element has no data requirements, slots, context, style, or attributed specifications')]
     public function testOmitsOptionalKeysFromSerializedOutputWhenEmpty(): void
     {
         $data = ContentElementBuilder::create('test-component', 'test-id')->build()->jsonSerialize();
@@ -301,11 +301,26 @@ class ContentElementTest extends TestCase
         static::assertArrayNotHasKey('slots', $data);
         static::assertArrayNotHasKey('providesContext', $data);
         static::assertArrayNotHasKey('acceptsContext', $data);
+        static::assertArrayNotHasKey('attributedSpecifications', $data);
 
         // NEVER-emitted keys — Struct internals and API-alias must never appear
         static::assertArrayNotHasKey('extensions', $data);
         static::assertArrayNotHasKey('apiAlias', $data);
         static::assertArrayNotHasKey('contextDefinitions', $data);
+    }
+
+    #[TestDox('includes the attributedSpecifications map in serialized output when the element carries non-empty attribution')]
+    public function testIncludesAttributedSpecificationsInSerializedOutputWhenNonEmpty(): void
+    {
+        $element = ContentElementBuilder::create('test-component', 'test-id')
+            ->withAttributedSpecification('product', 'binding-spec-1')
+            ->withAttributedSpecification('category', 'binding-spec-2')
+            ->build();
+
+        static::assertSame(
+            ['product' => 'binding-spec-1', 'category' => 'binding-spec-2'],
+            $element->jsonSerialize()['attributedSpecifications']
+        );
     }
 
     #[TestDox('providers and consumers survive jsonSerialize and are reconstructed under providesContext and acceptsContext')]

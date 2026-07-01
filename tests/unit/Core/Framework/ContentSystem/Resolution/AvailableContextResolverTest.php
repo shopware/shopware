@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -269,7 +270,7 @@ class AvailableContextResolverTest extends TestCase
         $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers);
+        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
 
         return new AvailableContextResolver($registry, $elementResolver);
     }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -365,6 +366,7 @@ class ContentElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $elementSerializer ?? $this->elementSerializer(),
             static::createStub(LayoutDefaultSeeder::class),
+            $this->passthroughReconciler(),
         );
     }
 
@@ -380,6 +382,7 @@ class ContentElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $elementSerializer ?? $this->elementSerializer(),
             static::createStub(LayoutDefaultSeeder::class),
+            $this->passthroughReconciler(),
         );
     }
 
@@ -396,7 +399,20 @@ class ContentElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer(),
             new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()),
+            $this->passthroughReconciler(),
         );
+    }
+
+    /**
+     * These tests exercise the seeding half of normalize(); attribution reconciliation is covered by its own
+     * tests. A passthrough reconciler returns the forest unchanged so the seeding assertions are unaffected.
+     */
+    private function passthroughReconciler(): AttributionReconciler
+    {
+        $reconciler = static::createStub(AttributionReconciler::class);
+        $reconciler->method('reconcile')->willReturnArgument(0);
+
+        return $reconciler;
     }
 
     /**

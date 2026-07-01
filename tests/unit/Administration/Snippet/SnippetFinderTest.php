@@ -77,7 +77,7 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromApp(): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
+            connection: $this->getConnectionMock($this->getSnippetFixtures())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
@@ -91,7 +91,7 @@ class SnippetFinderTest extends TestCase
     public function testNoSnippetsFound(): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('fr-FR', [])
+            connection: $this->getConnectionMock([])
         );
 
         static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
@@ -117,7 +117,7 @@ class SnippetFinderTest extends TestCase
 
         $snippetFinder = $this->getSnippetFinder(
             $this->getKernelMock($pluginPaths, $activePluginPaths, $bundlePaths),
-            $this->getConnectionMock('jp-JP', [])
+            $this->getConnectionMock([])
         );
 
         $actualSnippets = $snippetFinder->findSnippets('jp-JP');
@@ -137,7 +137,7 @@ class SnippetFinderTest extends TestCase
     public function testValidateValidSnippets(array $appSnippets): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', $appSnippets)
+            connection: $this->getConnectionMock($appSnippets)
         );
 
         $actualSnippetKeys = $snippetFinder->findSnippets('en-GB');
@@ -156,12 +156,12 @@ class SnippetFinderTest extends TestCase
         ];
 
         $snippetFinderWithoutAppSnippets = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', [])
+            connection: $this->getConnectionMock([])
         );
         $snippetsWithoutAppSnippets = $snippetFinderWithoutAppSnippets->findSnippets('en-GB');
 
         $snippetFinderWithAppSnippets = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', $appSnippets)
+            connection: $this->getConnectionMock($appSnippets)
         );
         $snippetsWithAppSnippets = $snippetFinderWithAppSnippets->findSnippets('en-GB');
 
@@ -179,7 +179,7 @@ class SnippetFinderTest extends TestCase
     public function testSanitizeAppSnippets(): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', [
+            connection: $this->getConnectionMock([
                 'theme' => [
                     'config' => [
                         'helpText' => '<h1>Summary: </h1> <br> This is a <b>Theme</b>.',
@@ -316,7 +316,7 @@ class SnippetFinderTest extends TestCase
         $this->createSnippetFixtures($this->filesystem, $loader);
 
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('es-ES', []),
+            connection: $this->getConnectionMock([]),
             translationConfig: $config,
         );
 
@@ -342,7 +342,7 @@ class SnippetFinderTest extends TestCase
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(
             kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
-            connection: $this->getConnectionMock('es-ES', []),
+            connection: $this->getConnectionMock([]),
             translationConfig: $config,
         );
 
@@ -371,7 +371,7 @@ class SnippetFinderTest extends TestCase
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(
             kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
-            connection: $this->getConnectionMock('es-ES', []),
+            connection: $this->getConnectionMock([]),
             translationConfig: $config,
         );
 
@@ -382,7 +382,7 @@ class SnippetFinderTest extends TestCase
     /**
      * @param array<string, mixed> $snippets
      */
-    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&Stub
+    private function getConnectionMock(array $snippets): Connection&Stub
     {
         $connection = static::createStub(Connection::class);
 
@@ -428,7 +428,7 @@ class SnippetFinderTest extends TestCase
         );
 
         $kernelMock = $kernel ?? $this->getKernelMock();
-        $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
+        $connectionMock = $connection ?? $this->getConnectionMock([]);
         $translationLoader = $this->getTranslationLoader($config);
 
         $sanitizer = static::createStub(HtmlSanitizer::class);

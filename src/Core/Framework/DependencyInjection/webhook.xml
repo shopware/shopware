@@ -67,10 +67,16 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver"/>
 
             <tag name="messenger.message_handler"/>
         </service>

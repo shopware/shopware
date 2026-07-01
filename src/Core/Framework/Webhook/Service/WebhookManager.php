@@ -160,7 +160,8 @@ class WebhookManager implements ResetInterface
                 $webhook->appSecret,
                 $languageId,
                 $userLocale,
-                $webhookHeaders
+                $webhookHeaders,
+                $webhook->appName
             );
 
             $this->logWebhookWithEvent($webhook, $webhookEventMessage);

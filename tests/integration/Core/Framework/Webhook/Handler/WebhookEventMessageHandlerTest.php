@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Handler;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -199,6 +200,85 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+    }
+
+    /**
+     * A webhook queued with the secret captured at queue time, then delivered after the app rotated
+     * its secret, must be signed with the app's CURRENT secret — otherwise the receiving app rejects
+     * the signature until the message is dropped.
+     */
+    public function testSignsWithTheCurrentSecretAfterASecretRotation(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 'old-secret',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        // The message carries the secret as it was when the webhook was queued.
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 'old-secret', Defaults::LANGUAGE_SYSTEM, 'en-GB', [], 'SwagApp');
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        // Rotate the app secret after the message was queued but before it is delivered.
+        static::getContainer()->get(Connection::class)->update(
+            'app',
+            ['app_secret' => 'new-secret'],
+            ['id' => Uuid::fromHexToBytes($appId)]
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
+        $payload = $request->getBody()->getContents();
+
+        static::assertSame(
+            hash_hmac('sha256', $payload, 'new-secret'),
+            $request->getHeaderLine('shopware-shop-signature'),
+            'Webhook must be signed with the current app secret, not the one captured when it was queued'
+        );
+        static::assertNotSame(
+            hash_hmac('sha256', $payload, 'old-secret'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
     }
 
     public function testNonJsonErrorResponse(): void

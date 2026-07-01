@@ -1975,3 +1975,11 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 - Use `getContext()` from the event for framework context data.
 
 </details>
+
+## Dynamic product group: "display as group"
+
+`product_stream` has a `display_as_group` flag (default `true`). When it is disabled, category listings, product cross-sellings and CMS product sliders keep matching variants as individual variants instead of grouping them.
+
+`\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
+
+If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.

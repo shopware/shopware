@@ -83,6 +83,11 @@ class SvgContentValidator extends AbstractFileContentValidator
     private readonly array $allowedReferenceAttributes;
 
     /**
+     * @var array<string, list<string>>
+     */
+    private array $violations = [];
+
+    /**
      * @internal
      *
      * @param list<string> $allowedElements
@@ -114,6 +119,8 @@ class SvgContentValidator extends AbstractFileContentValidator
         if ($this->supports($mediaFile) === false) {
             return;
         }
+
+        $this->violations = [];
 
         $previousErrorHandling = $this->captureLibxmlErrors();
 
@@ -182,6 +189,16 @@ class SvgContentValidator extends AbstractFileContentValidator
 
         if ($documentElementSeen === false) {
             throw MediaException::invalidFile(self::INVALID_SVG_MESSAGE);
+        }
+
+        if ($this->violations !== []) {
+            $details = [];
+
+            foreach ($this->violations as $violation => $invalidValues) {
+                $details[] = $violation . ': ' . implode(', ', $invalidValues);
+            }
+
+            throw MediaException::invalidFile(self::ACTIVE_CONTENT_MESSAGE . \PHP_EOL . implode(\PHP_EOL, $details));
         }
     }
 
@@ -319,7 +336,11 @@ class SvgContentValidator extends AbstractFileContentValidator
 
     private function buildViolation(string $violation, string $invalidValue): void
     {
-        throw MediaException::invalidFile(self::ACTIVE_CONTENT_MESSAGE);
+        $this->violations[$violation] ??= [];
+
+        if (!\in_array($invalidValue, $this->violations[$violation], true)) {
+            $this->violations[$violation][] = $invalidValue;
+        }
     }
 
     private function rejectActiveContent(): never

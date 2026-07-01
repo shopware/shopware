@@ -69,8 +69,8 @@ try {
   console.log([...new Set(buttonNames)].map((n) => ` - ${n}`).join('\n') || ' (none found — route may not have loaded)');
   console.log(`\n## icon/tooltip controls (target with getByTitle/getByLabel — admin toolbar icons are NOT role=button):`);
   console.log([...new Set(iconNames)].map((n) => ` - ${n}`).join('\n') || ' (none)');
-  console.log(`\n## accessible tree (role "name" — the reachable controls):`);
-  console.log(ariaTree.split('\n').slice(0, 220).join('\n') || ' (empty)');
+  console.log(`\n## accessible tree (role "name" — the reachable controls; truncated):`);
+  console.log(ariaTree.split('\n').slice(0, 120).join('\n') || ' (empty)');
   console.log(`\n## screenshot: ${shot}`);
   process.exit(0);
 } catch (e) {

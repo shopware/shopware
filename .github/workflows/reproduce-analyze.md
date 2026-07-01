@@ -265,8 +265,14 @@ real cog). USE the shop:
 - **Selectors (`*-ui` layers): probe the DOM first.** Before writing `repro.spec.ts`, run
   `node .github/actions/repro/bin/probe-ui.mjs '<route>'` on the exact route your spec drives
   (e.g. `'/admin#/sw/cms/detail/<id>'`, or `'/'` for storefront). It prints the REAL accessible
-  names/roles of the visible controls + a screenshot. Anchor your precondition and assertion on
-  names/roles it ACTUALLY shows — never a guessed `title`/label.
+  names/roles of the visible controls (incl. icon `title`/`aria-label` targets) + a screenshot.
+  Anchor your precondition and assertion on names/roles it ACTUALLY shows — never a guessed
+  `title`/label.
+  **Run it EXACTLY as shown — a bare command, NO pipe or redirect** (no `| head`, `| tail`,
+  `2>&1`, `> file`). probe-ui already truncates its own output; a piped/compound command is
+  rejected by the CI permission gate ("multiple operations" → interactive approval → denied),
+  so it silently fails and you fall back to guessing. One route per call; call it again for
+  another route.
 - **Fixtures: query the real schema first.** Before writing `fixtures.json`, use the `shopware`
   MCP tools — `shopware-entity-schema` (an entity's real fields/required/associations),
   `shopware-entity-search` (discover install ids), `shopware-entity-upsert` with `dryRun:true`

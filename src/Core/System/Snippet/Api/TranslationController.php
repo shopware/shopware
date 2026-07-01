@@ -66,7 +66,8 @@ class TranslationController extends AbstractController
         methods: ['POST'],
     )]
     public function install(
-        #[MapRequestPayload] InstallTranslationRequest $parameters,
+        #[MapRequestPayload]
+        InstallTranslationRequest $parameters,
         Context $context,
     ): Response {
         if ($parameters->all) {

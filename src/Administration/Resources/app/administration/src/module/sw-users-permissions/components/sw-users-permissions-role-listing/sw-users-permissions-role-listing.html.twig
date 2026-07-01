@@ -17,7 +17,6 @@
 
         {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
         <mt-button
-            ghost
             size="small"
             :disabled="!acl.can('users_and_permissions.creator') || undefined"
             class="sw-users-permissions-role-listing__add-role-button"

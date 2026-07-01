@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -74,7 +75,8 @@ class VersionManager
         private readonly VersionCommitDefinition $versionCommitDefinition,
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
-        private readonly LockFactory $lockFactory
+        private readonly LockFactory $lockFactory,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -150,7 +152,7 @@ class VersionManager
         $versionContext = $context->createWithVersionId($versionId);
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $this->eventDispatcher->dispatch($event);
+        $versionContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         $this->writeAuditLog($affected, $context, $versionId, true);
 
@@ -190,7 +192,7 @@ class VersionManager
 
         $this->eventDispatcher->dispatch($event = new BeforeVersionMergeEvent($writes));
         $writes = $event->filterWrites(static function ($operation) {
-            return !empty($operation);
+            return $operation !== [];
         });
 
         // execute writes and get access to the write result to dispatch events later on
@@ -213,7 +215,7 @@ class VersionManager
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
-        $this->eventDispatcher->dispatch($writes);
+        $targetContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         $versionContext->removeState(self::MERGE_SCOPE);
         $targetContext->removeState(self::MERGE_SCOPE);
@@ -265,12 +267,12 @@ class VersionManager
         $updatedAtField = $definition->getField('updatedAt');
 
         if ($createdAtField instanceof DateTimeField) {
-            $data['createdAt'] = new \DateTime();
+            $data['createdAt'] = $this->clock->now();
         }
 
         if ($updatedAtField instanceof DateTimeField) {
             if ($updatedAtField->getFlag(Required::class)) {
-                $data['updatedAt'] = new \DateTime();
+                $data['updatedAt'] = $this->clock->now();
             } else {
                 $data['updatedAt'] = null;
             }
@@ -448,7 +450,7 @@ class VersionManager
 
         $commitId = Uuid::randomBytes();
 
-        $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $date = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $source = $writeContext->getContext()->getSource();
         $userId = $source instanceof AdminApiSource && $source->getUserId()
@@ -865,7 +867,7 @@ class VersionManager
                     'integrationId' => $data->getIntegrationId(),
                     'entityName' => $data->getEntityName(),
                     'action' => $data->getAction(),
-                    'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ];
             }
         }
@@ -875,7 +877,7 @@ class VersionManager
             'data' => $new,
             'userId' => $writeContext->getContext()->getSource() instanceof AdminApiSource ? $writeContext->getContext()->getSource()->getUserId() : null,
             'isMerge' => true,
-            'message' => 'merge commit ' . (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'message' => 'merge commit ' . $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         // create new version commit for merge commit

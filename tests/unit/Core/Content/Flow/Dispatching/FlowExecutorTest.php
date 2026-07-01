@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Rule\CustomerRequestedGroupRule;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
@@ -38,7 +40,9 @@ use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -849,6 +853,53 @@ class FlowExecutorTest extends TestCase
         ));
 
         $this->flowExecutor->execute($flow, $storableFlow);
+    }
+
+    #[DataProvider('salesChannelContextCustomerDataProvider')]
+    public function testExecuteIfWithCustomerRuleScopeEvaluation(?CustomerEntity $contextCustomer): void
+    {
+        $trueCaseSequence = new Sequence();
+        $trueCaseSequence->assign(['sequenceId' => 'foobar']);
+        $ruleId = Uuid::randomHex();
+        $ifSequence = new IfSequence();
+        $ifSequence->assign(['ruleId' => $ruleId, 'trueCase' => $trueCaseSequence]);
+
+        $groupId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setRequestedGroupId($groupId);
+        $contextCustomer?->setRequestedGroupId($groupId);
+
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$ruleId]);
+
+        $flow = new StorableFlow('bar', $context);
+        $flow->setFlowState(new FlowState());
+        $flow->setData(CustomerAware::CUSTOMER, $customer);
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($contextCustomer);
+
+        $flow->setData(SalesChannelContextAware::SALES_CHANNEL_CONTEXT, $salesChannelContext);
+
+        $rule = new CustomerRequestedGroupRule(Rule::OPERATOR_EQ, [$groupId]);
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId($ruleId);
+        $ruleEntity->setPayload($rule);
+        $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
+
+        $this->ruleLoaderMock->expects($this->exactly($contextCustomer === null ? 1 : 0))
+            ->method('load')
+            ->willReturn(new RuleCollection([$ruleEntity]));
+
+        $this->flowExecutor->executeIf($ifSequence, $flow);
+
+        static::assertSame($trueCaseSequence, $flow->getFlowState()->currentSequence);
+    }
+
+    public static function salesChannelContextCustomerDataProvider(): \Generator
+    {
+        yield 'no customer in sales channel context from store' => [null];
+        yield 'customer in sales channel context from store' => [new CustomerEntity()];
     }
 
     /**

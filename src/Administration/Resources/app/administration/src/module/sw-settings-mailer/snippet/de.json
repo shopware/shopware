@@ -4,7 +4,7 @@
       "mainMenuItemGeneral": "Mailer",
       "textHeadline": "Mailer",
       "buttonSave": "Speichern",
-      "helpText": "Für weitere Informationen schaue bitte in die",
+      "helpText": "Für weitere Informationen schaue bitte in die {documentation}",
       "docsLabel": "Dokumentation",
       "docsLink": "https://docs.shopware.com/de/shopware-6-de/einstellungen/mailer"
     },

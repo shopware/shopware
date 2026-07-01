@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-order-nested-line-items-row {
     &__content {
         display: flex;
     }
 
     &__nesting-level {
-        border-left: 1px solid var(--color-border-primary-default);
+        border-left: 1px solid var(--color-border-secondary-default);
         display: inline-block;
         height: 100%;
         padding: 0 8px 0 12px;
@@ -23,7 +21,7 @@
     &__item {
         flex-grow: 1;
         padding: 10px;
-        font-size: $font-size-s;
+        font-size: var(--font-size-s);
 
         &:first-child {
             padding: 0 0 0 30px;

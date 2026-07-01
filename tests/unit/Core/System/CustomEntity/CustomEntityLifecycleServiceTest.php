@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -24,6 +26,8 @@ use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -54,6 +58,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             ]),
             $this->createMock(Connection::class),
             $this->createMock(EntityRepository::class),
+            new NativeClock(),
         );
 
         static::assertNull(
@@ -84,6 +89,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             ]),
             $this->createMock(Connection::class),
             $this->createMock(EntityRepository::class),
+            new NativeClock(),
         );
 
         $app = AppFixture::createAppEntity('SwagExampleTest', 'test');
@@ -118,6 +124,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             ]),
             $this->createMock(Connection::class),
             $this->createMock(EntityRepository::class),
+            new NativeClock(),
         );
 
         $app = AppFixture::createAppEntity('SwagExampleTest', 'test');
@@ -282,6 +289,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $customEntity = (new CustomEntityEntity())->assign(['id' => Uuid::randomHex()]);
         $customEntityRepository = $this->createCustomEntityRepository($customEntity);
+        $clock = new MockClock('2026-06-16 12:34:56.123456');
+        $deletedAt = $clock->now();
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
         $customEntitySchemaUpdater->expects($this->never())->method('update');
@@ -289,7 +298,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntityLifecycleService = $this->createLifecycleService(
             $this->createMock(Connection::class),
             $customEntityRepository,
-            $customEntitySchemaUpdater
+            $customEntitySchemaUpdater,
+            $clock
         );
 
         $customEntityLifecycleService->removeApp(AppFixture::createAppEntity(), $context, true);
@@ -298,6 +308,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
         static::assertSame($customEntity->getId(), $customEntityRepository->updates[0][0]['id']);
         static::assertNull($customEntityRepository->updates[0][0]['appId']);
         static::assertInstanceOf(\DateTimeImmutable::class, $customEntityRepository->updates[0][0]['deletedAt']);
+        static::assertSame(
+            $deletedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $customEntityRepository->updates[0][0]['deletedAt']->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
         static::assertSame([], $customEntityRepository->deletes);
     }
 
@@ -363,7 +377,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
     private function createLifecycleService(
         Connection $connection,
         ?EntityRepository $customEntityRepository = null,
-        ?CustomEntitySchemaUpdater $customEntitySchemaUpdater = null
+        ?CustomEntitySchemaUpdater $customEntitySchemaUpdater = null,
+        ?ClockInterface $clock = null
     ): CustomEntityLifecycleService {
         return new CustomEntityLifecycleService(
             $this->createMock(CustomEntityPersister::class),
@@ -373,6 +388,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([]),
             $connection,
             $customEntityRepository ?? $this->createCustomEntityRepository(),
+            $clock ?? new NativeClock(),
         );
     }
 

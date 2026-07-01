@@ -174,6 +174,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>
@@ -260,6 +261,7 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="custom_entity.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <!-- Translation -->
@@ -306,6 +308,8 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
@@ -402,6 +406,11 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service class="Twig\Extra\Intl\IntlExtension" id="twig.extension.intl">
             <tag name="twig.extension"/>
         </service>
@@ -481,6 +490,7 @@ frame-ancestors 'none';
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
+            <argument>%kernel.bundles_metadata%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
@@ -580,6 +590,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Log\LogEntryDefinition">
@@ -708,6 +719,7 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
             <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

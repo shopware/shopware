@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -272,6 +273,7 @@ class ProductRatingAverageIndexerTest extends TestCase
                     'productNumber' => $variantId,
                     'stock' => 1,
                     'active' => true,
+                    'type' => ProductDefinition::TYPE_PHYSICAL,
                     'parentId' => $parentId,
                 ],
             ],
@@ -403,7 +405,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
         $customer = [
@@ -421,12 +422,12 @@ SQL;
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => $email,
+            'email' => $customerID . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerID,
         ];
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());

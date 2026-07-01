@@ -44,9 +44,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -324,6 +326,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
+            new NativeClock()
         );
 
         $context = Context::createDefaultContext();
@@ -863,6 +867,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 

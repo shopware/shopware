@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -40,6 +41,7 @@ class SystemConfigServiceTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
             static::getContainer()->get(CacheTagCollector::class),
+            new NativeClock()
         );
     }
 

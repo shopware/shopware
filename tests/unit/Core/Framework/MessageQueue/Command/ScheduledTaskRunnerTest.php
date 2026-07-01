@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -24,7 +25,8 @@ class ScheduledTaskRunnerTest extends TestCase
 
         $runner = new ScheduledTaskRunner(
             $scheduler,
-            $this->createMock(CacheItemPoolInterface::class)
+            $this->createMock(CacheItemPoolInterface::class),
+            new NativeClock()
         );
 
         $tester = new CommandTester($runner);

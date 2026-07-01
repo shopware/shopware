@@ -9,6 +9,7 @@
 
         <service id="shopware.increment.gateway.mysql" class="Shopware\Core\Framework\Increment\MySQLIncrementer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="shopware.increment.gateway.array" class="Shopware\Core\Framework\Increment\ArrayIncrementer">

@@ -705,6 +705,36 @@
         "empty": "Is empty | Are empty",
         "between": "Is between | Are between"
       },
+      "field": {
+        "amount": "Amount",
+        "operator": "Operator",
+        "type": "Condition",
+        "count": "Quantity",
+        "quantity": "Quantity",
+        "isNet": "Net / Gross",
+        "isNumeric": "Comparison mode",
+        "fromDate": "From",
+        "toDate": "Until",
+        "fromTime": "From",
+        "toTime": "Until",
+        "useTime": "Time mode",
+        "timezone": "Time zone",
+        "categoryIds": "Category",
+        "identifiers": "Selection",
+        "zipCodes": "Postal code",
+        "selectedField": "Custom field",
+        "selectedFieldSet": "Custom field set",
+        "renderedField": "Custom field",
+        "renderedFieldValue": "Value",
+        "isAlwaysValid": "Always valid"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Product"
+      },
+      "errors": {
+        "prefix": "Invalid value:",
+        "andMore": "+{count} more"
+      },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
       "condition": {
@@ -766,15 +796,16 @@
           "discount_surcharge": "Discount / surcharge"
         },
         "lineItemRule": "Items in cart",
-        "lineItemsInCartCountRule": "Quantity of distinct items",
-        "promotionsInCartCountRule": "Quantity of discounts",
+        "lineItemsInCartCountRule": "Number of distinct items",
+        "promotionsInCartCountRule": "Number of discounts",
         "lineItemUnitPriceRule": "Item unit price",
         "lineItemTotalPriceRule": "Item total (qty × price)",
-        "lineItemWithQuantityRule": "Item quantity",
+        "lineItemWithQuantityRule": "Item with quantity",
+        "lineItemPerItemQuantityRule": "Quantity per item",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
-        "orderDeliveryStatusRule": "Delivery status (flow)",
-        "orderCreatedByAdminRule": "Order created by administrator (flow)",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by administrator",
         "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
@@ -901,6 +932,14 @@
         }
       },
       "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "cartLineItemPurchasePrice": {
         "type": {
           "options": {
             "gross": "Gross",

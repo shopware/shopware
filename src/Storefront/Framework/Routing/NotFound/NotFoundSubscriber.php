@@ -6,11 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
@@ -50,7 +48,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
-        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly SalesChannelContextRequestRestorer $contextRestorer,
         private bool $kernelDebug, // Do not change to readonly, as it is used in tests
         private readonly CacheInterface $cache,
         private readonly EntityCacheKeyGenerator $generator,
@@ -88,8 +86,8 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $languageId = $request->attributes->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            // When no sales-channel context is resolved, we need to resolve it now.
-            $this->setSalesChannelContext($request);
+            // When no sales-channel context is resolved, we need to restore it now.
+            $this->contextRestorer->restore($request);
         }
 
         // Set missing route scope, so the kernel.response event has it triggered by setResponse.
@@ -172,23 +170,6 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $this->eventDispatcher->dispatch($event);
 
         return array_unique(array_filter($event->getTags()));
-    }
-
-    private function setSalesChannelContext(Request $request): void
-    {
-        $salesChannelId = (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        $context = $this->contextService->get(
-            new SalesChannelContextServiceParameters(
-                $salesChannelId,
-                Uuid::randomHex(),
-                $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
-                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
-            )
-        );
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     /**

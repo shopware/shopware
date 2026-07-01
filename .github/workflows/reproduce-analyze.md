@@ -44,11 +44,13 @@ concurrency:
 
 engine:
   id: claude
-  # gh-aw v0.81.6 has no built-in price for claude-sonnet-5 and exposes no frontmatter knob for
-  # apiProxy.defaultAiCreditsPricing, so after `gh aw compile reproduce-analyze` you MUST run
-  # `node .github/actions/repro/bin/patch-awf-pricing.mjs` to inject a firewall fallback price
-  # (Sonnet rate $3/$15 per MTok) — otherwise the api-proxy 400s ("no AI credits pricing").
-  model: claude-sonnet-5
+  # Sonnet 5 is UPSTREAM-BLOCKED on gh-aw v0.81.6 / firewall image 0.27.11: the api-proxy has no
+  # price for claude-sonnet-5 and does NOT honor apiProxy.defaultAiCreditsPricing (proven across
+  # 7 approaches — frontmatter models:, gh-aw upgrade, and defaultAiCreditsPricing as per-MTok &
+  # per-token, numbers & strings: schema-valid numbers load but the proxy still reports "no AI
+  # credits pricing"). 4-6 is the newest Sonnet gh-aw prices; revisit when a gh-aw release ships
+  # Sonnet 5 pricing.
+  model: claude-sonnet-4-6
   max-turns: 60              # ceiling, not a quota. Headroom for the richer storefront-ui
                              # decision + authoring a `direct` render/service test (more to
                              # write than an http request). Hitting the cap fails the agent

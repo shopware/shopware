@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1782906166RepairUserActiveDefault;
 
@@ -86,16 +87,7 @@ class Migration1782906166RepairUserActiveDefaultTest extends TestCase
 
     private function activeColumnDefault(): string
     {
-        $column = $this->connection->fetchAssociative(
-            'SHOW COLUMNS FROM `user` LIKE :column',
-            ['column' => 'active']
-        );
-
-        static::assertIsArray($column);
-        static::assertArrayHasKey('Default', $column);
-        static::assertNotNull($column['Default']);
-
-        return (string) $column['Default'];
+        return (string) TableHelper::getColumnOfTable($this->connection, 'user', 'active')->defaultValue;
     }
 
     private function setActiveColumnDefault(int $default): void

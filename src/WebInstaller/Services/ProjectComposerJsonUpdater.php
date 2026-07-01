@@ -103,12 +103,10 @@ class ProjectComposerJsonUpdater
 
     private function getConflictMinVersion(string $shopwareVersion): ?string
     {
-        /** @var array{packages: array{"shopware/conflicts": array{version: string, require: array{"shopware/core": string}}[]}} $data */
+        /** @var array{packages: array{"shopware/conflicts": list<array{version: string, require: array{"shopware/core": string}}>}} $data */
         $data = $this->httpClient->request('GET', 'https://repo.packagist.org/p2/shopware/conflicts.json')->toArray();
 
-        // expand() expects a list; the packagist p2 response is already a sequential array of
-        // versions, so array_values() only satisfies the type and does not change the data.
-        $data['packages']['shopware/conflicts'] = MetadataMinifier::expand(array_values($data['packages']['shopware/conflicts']));
+        $data['packages']['shopware/conflicts'] = MetadataMinifier::expand($data['packages']['shopware/conflicts']);
 
         $versions = $data['packages']['shopware/conflicts'];
 

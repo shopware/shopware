@@ -31,11 +31,9 @@ class SvgContentValidator extends AbstractFileContentValidator
     private const XPACKET_PROCESSING_INSTRUCTION = 'xpacket';
     private const DISALLOWED_NODE_TYPE = 'Node types not allowed';
     private const DISALLOWED_ELEMENT = 'Elements not allowed';
-    private const DISALLOWED_EVENT_HANDLER_ATTRIBUTE = 'Event handler attributes not allowed';
     private const DISALLOWED_ATTRIBUTE = 'Attributes not allowed';
     private const DISALLOWED_ANIMATED_ATTRIBUTE = 'Animated attributes not allowed';
     private const DISALLOWED_EXTERNAL_REFERENCE = 'External references not allowed';
-    private const DISALLOWED_EXTERNAL_STYLE_REFERENCE = 'External style references not allowed';
     private const ANIMATE = 'animate';
     private const ANIMATE_TRANSFORM = 'animatetransform';
 
@@ -134,11 +132,6 @@ class SvgContentValidator extends AbstractFileContentValidator
         } finally {
             $this->restoreLibxmlErrorHandling($previousErrorHandling);
         }
-    }
-
-    public function reset(): void
-    {
-        $this->violations = new ConstraintViolationList();
     }
 
     private function validateDocument(\XMLReader $reader, bool $hasAllowedSvgDoctype): void
@@ -325,6 +318,11 @@ class SvgContentValidator extends AbstractFileContentValidator
     }
 
     private function buildViolation(string $violation, string $invalidValue): void
+    {
+        throw MediaException::invalidFile(self::ACTIVE_CONTENT_MESSAGE);
+    }
+
+    private function rejectActiveContent(): never
     {
         throw MediaException::invalidFile(self::ACTIVE_CONTENT_MESSAGE);
     }

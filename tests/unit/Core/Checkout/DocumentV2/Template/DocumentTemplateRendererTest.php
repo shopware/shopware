@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Template;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -64,13 +64,13 @@ class DocumentTemplateRendererTest extends TestCase
         $finder->expects($this->once())->method('reset');
         $finder->expects($this->once())
             ->method('find')
-            ->willReturn(DocumentType::INVOICE->templatePath());
+            ->willReturn('path');
 
         $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
             ->method('renderWithTimezoneOverride')
             ->with(
-                DocumentType::INVOICE->templatePath(),
+                'path',
                 static::callback(function (array $parameters) use ($order) {
                     return $parameters['order'] === $order
                         && $parameters['documentNumber'] === '12345'
@@ -104,7 +104,7 @@ class DocumentTemplateRendererTest extends TestCase
         );
 
         $result = $renderer->render(
-            DocumentType::INVOICE->templatePath(),
+            'path',
             $input,
             $context,
         );

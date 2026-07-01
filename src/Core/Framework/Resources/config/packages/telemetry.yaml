@@ -81,3 +81,30 @@ shopware:
                             policy: open
                         operation:
                             allowed_values: [read, write, delete, none]
+
+                cart.calculation.duration:
+                    description: 'Cart calculation wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 2500]
+                    labels:
+                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
+                        sales_channel_type:
+                            policy: open
+                        has_promotions:
+                            allowed_values: ['yes', 'no']
+
+                cart.line_items.count:
+                    description: 'Line items at end of cart calculation'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 20, 50, 100, 250]
+                    labels:
+                        sales_channel_type:
+                            policy: open
+
+                cart.errors.count:
+                    # per-calculation count of warning/error entries (notices excluded); spikes flag checkout friction
+                    description: 'Warning/error cart errors present after calculation (informational notices excluded)'
+                    type: 'counter'

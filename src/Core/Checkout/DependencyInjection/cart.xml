@@ -80,6 +80,13 @@
         <service id="Shopware\Core\Checkout\Cart\CartCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor"/>
+        </service>
+
+        <!-- Telemetry: cart calculation metrics collaborator -->
+        <service id="Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartFactory">

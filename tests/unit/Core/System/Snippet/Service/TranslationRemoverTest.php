@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Event\TranslationRemovedEvent;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
 use Shopware\Core\System\Snippet\SnippetException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -26,6 +28,8 @@ class TranslationRemoverTest extends TestCase
 
     private TranslationMetadataStore&MockObject $metadataStore;
 
+    private EventDispatcher $eventDispatcher;
+
     private TranslationRemover $remover;
 
     protected function setUp(): void
@@ -33,8 +37,14 @@ class TranslationRemoverTest extends TestCase
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
+        $this->eventDispatcher = new EventDispatcher();
 
-        $this->remover = new TranslationRemover($this->filesystem, $this->translationLoader, $this->metadataStore);
+        $this->remover = new TranslationRemover(
+            $this->filesystem,
+            $this->translationLoader,
+            $this->metadataStore,
+            $this->eventDispatcher,
+        );
     }
 
     public function testRemoveDeletesFilesAndMetadata(): void
@@ -69,5 +79,23 @@ class TranslationRemoverTest extends TestCase
         $this->expectExceptionObject(SnippetException::localeDoesNotExist('_invalid_'));
 
         $this->remover->remove('_invalid_');
+    }
+
+    public function testRemoveDispatchesEvent(): void
+    {
+        $this->translationLoader->method('getLocalePath')->with('es-ES')->willReturn('translation/locale/es-ES');
+
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationRemovedEvent::class,
+            static function (TranslationRemovedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->remover->remove('es-ES');
+
+        static::assertInstanceOf(TranslationRemovedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
     }
 }

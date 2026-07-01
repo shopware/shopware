@@ -4,7 +4,9 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Event\TranslationRemovedEvent;
 use Shopware\Core\System\Snippet\SnippetException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -16,6 +18,7 @@ readonly class TranslationRemover
         private Filesystem $translationWriter,
         private AbstractTranslationLoader $translationLoader,
         private TranslationMetadataStore $metadataStore,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -36,5 +39,7 @@ readonly class TranslationRemover
         }
 
         $this->metadataStore->remove($locale);
+
+        $this->eventDispatcher->dispatch(new TranslationRemovedEvent($locale));
     }
 }

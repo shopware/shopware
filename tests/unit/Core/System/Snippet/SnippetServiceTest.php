@@ -543,6 +543,7 @@ class SnippetServiceTest extends TestCase
             snippetSetRepository: $snippetSetRepository,
             client: $this->createMock(ClientInterface::class),
             config: $config,
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

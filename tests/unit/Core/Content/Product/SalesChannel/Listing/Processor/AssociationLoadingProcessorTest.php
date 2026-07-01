@@ -19,7 +19,7 @@ class AssociationLoadingProcessorTest extends TestCase
     {
         $request = new Request();
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new AssociationLoadingListingProcessor();
         $processor->prepare($request, $criteria, $context);

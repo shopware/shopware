@@ -161,7 +161,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
-            'limitedRedemptions' => false,
+            'limitedRedemptions' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
